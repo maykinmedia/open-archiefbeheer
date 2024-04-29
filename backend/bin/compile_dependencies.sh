@@ -14,7 +14,7 @@
 
 set -ex
 
-toplevel=$(git rev-parse --show-toplevel)
+toplevel=$(git rev-parse --show-toplevel)/backend
 
 cd $toplevel
 
