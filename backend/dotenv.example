@@ -1,0 +1,10 @@
+SECRET_KEY="django-insecure-@if!5@phjc@5oh+39_jj9154htyse60f7h(re8q2aweux_r59*"
+DB_NAME="openarchiefbeheer"
+DB_USER="openarchiefbeheer"
+#
+# For peer authentication via unix domain socket
+# these should be kept empty.
+#
+DB_PASSWORD=""
+DB_HOST=""
+DB_PORT=""

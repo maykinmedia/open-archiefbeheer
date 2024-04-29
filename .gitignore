@@ -1,0 +1,40 @@
+# Developers
+.hg
+.git
+.svn
+.idea/
+.vscode/
+.sass-cache/
+*.db
+*.pyc
+__pycache__
+*~
+*.mo
+
+# Javascript libraries
+backend/node_modules/
+
+# Generated files
+backend/docs/_build
+
+# Coverage reports
+/reports/
+/htmlcov/
+.coverage
+
+# Environment
+#/deployment/app.*.yml
+#/deployment/hosts.*
+local.py
+backend/env/
+backend/venv/
+backend/media/
+backend/static/
+backend/mail/
+backend/log/*.log*
+backend/log/nginx/*.log*
+.env
+
+# Static files
+backend/src/openarchiefbeheer/static/bundles/
+backend/src/openarchiefbeheer/fonts/
