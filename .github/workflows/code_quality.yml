@@ -30,12 +30,13 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           setup-node: 'no'
+          working-directory: backend
       - uses: isort/isort-action@v1.1.0
         with:
           requirements-files: requirements/ci.txt
-          sort-paths: 'src docs bin'
+          sort-paths: 'backend/src backend/docs backend/bin'
           configuration: '--check-only --diff'
 
   black:
@@ -47,22 +48,29 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           setup-node: 'no'
+          working-directory: backend
       - name: Run black
         run: black --check src docs bin
+        working-directory: backend
 
   flake8:
     name: Code style (flake8)
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           setup-node: 'no'
+          working-directory: backend
       - name: Run flake8
         id: flake8
         run: |
@@ -83,9 +91,33 @@ jobs:
           echo '| :--- | ---- | ------ | :---- |' >> $GITHUB_STEP_SUMMARY
           python ./bin/flake8_summary.py "${{ steps.flake8.outputs.FLAKE8_REPORT }}" >> $GITHUB_STEP_SUMMARY
 
+  ui-prettier:
+    name: Check frontend code formatting with prettier
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ui
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: 'ui/.nvmrc'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run prettier linter
+        run: npm run checkformat
+
   migrations:
     name: Check for model changes not present in migrations
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
 
     services:
       postgres:
@@ -101,11 +133,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1
+        uses: maykinmedia/setup-django-backend@v1.1
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           setup-node: 'no'
+          working-directory: backend
+          nvmrc-custom-dir: backend
       - name: Run makemigrations to check for missing migrations
+        working-directory: backend
         run: |
           src/manage.py makemigrations \
             --check \

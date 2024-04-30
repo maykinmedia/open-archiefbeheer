@@ -1,4 +1,4 @@
-name: Run build pipeline
+name: Run CI
 
 # Run this workflow every time a new commit pushed to your repository
 on:
@@ -12,14 +12,18 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: maykinmedia/openarchiefbeheer
+  IMAGE_NAME: maykinmedia/open-archiefbeheer
   DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
   DOCKER_BUILDKIT: '1'
 
 jobs:
-  tests:
+  backend-tests:
     name: Run the Django test suite
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
 
     services:
       postgres:
@@ -31,6 +35,7 @@ jobs:
         # Needed because the postgres container does not provide a healthcheck
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+          --name postgres
       redis:
         image: redis:6
         ports:
@@ -38,69 +43,82 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1
+        uses: maykinmedia/setup-django-backend@v1.1
         with:
-          python-version: '3.10.9'
+          apt-packages: 'gettext postgresql-client'
+          python-version: '3.12'
           optimize-postgres: 'yes'
           pg-service: 'postgres'
           setup-node: 'yes'
-          # apt-packages: 'gettext postgresql-client'  # the default
-          # npm-ci-flags: '--legacy-peer-deps' -> preferably use a .npmrc file
-
-      # Any additional services -> create docker-compose setups in a (new) `docker`
-      # subdirectory.
-      # - name: Start CI docker services
-      #   run: |
-      #     docker-compose -f docker-compose.ci.yml up -d
-      #   working-directory: docker
+          npm-ci-flags: '--legacy-peer-deps'
+          working-directory: backend
+          nvmrc-custom-dir: backend
 
       - name: Run tests
+        working-directory: backend
         run: |
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          coverage run src/manage.py test src
+          coverage run src/manage.py test openarchiefbeheer
+          coverage xml -o coverage.xml
         env:
+          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
           DB_USER: postgres
           DB_PASSWORD: ''
 
       - name: Publish coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          working-directory: backend
+          files: ./coverage.xml
 
-      # API projects: implement the necessary scripts for this. You can take a look
-      # at open-forms for inspiration, using drf-spectacular.
-      # - name: Generate OAS
-      #   run: ./bin/generate_oas.sh openapi.yaml
+  frontend-build:
+    name: Create 'production' build
+    runs-on: ubuntu-latest
 
-      # - name: Store generated OAS
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: openarchiefbeheer-oas
-      #     path: openapi.yaml
-      #     retention-days: 1
+    defaults:
+      run:
+        working-directory: ui
 
-  # docs:
-  #   name: Build and check documentation
-  #   runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: 'ui/.nvmrc'
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.9'
+      - name: Build Javascript
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
 
-  #     # - name: Install OS dependencies
-  #     #   run: |
-  #     #     sudo apt-get update
-  #     #     sudo apt-get install libxml2-dev libxmlsec1-dev libxmlsec1-openssl
+      - name: Store build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: open-archiefbeheer-ui-build
+          path: dist/
+          retention-days: 1
 
-  #     - name: Install dependencies
-  #       run: |
-  #         pip install -r requirements/ci.txt
+  docs:
+   name: Build and check documentation
+   runs-on: ubuntu-latest
 
-  #     - name: Build and test docs
-  #       working-directory: docs
-  #       run: pytest check_sphinx.py -v --tb=auto
+   steps:
+     - uses: actions/checkout@v3
+       with:
+         path: open-archiefbeheer
+
+     - name: Set up backend environment
+       uses: maykinmedia/setup-django-backend@v1
+       with:
+         apt-packages: 'gettext postgresql-client'
+         python-version: '3.12'
+         setup-node: 'no'
+         working-directory: open-archiefbeheer/backend
+
+     - name: Build and test docs
+       run: pytest check_sphinx.py -v --tb=auto
+       working-directory: open-archiefbeheer/backend/docs
 
   docker_build:
     name: Build Docker image
@@ -143,120 +161,10 @@ jobs:
           path: image.tar
           retention-days: 1
 
-  # API projects: implement the necessary scripts for this. You can take a look
-  # at open-forms for inspiration, using drf-spectacular.
-  # oas-up-to-date:
-  #   needs: tests
-  #   name: Check for unexepected OAS changes
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download generated OAS
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: openarchiefbeheer-oas
-  #     - name: Check for OAS changes
-  #       run: |
-  #         diff openapi.yaml src/openapi.yaml
-  #     - name: Write failure markdown
-  #       if: ${{ failure() }}
-  #       run: |
-  #         echo 'Run the following command locally and commit the changes' >> $GITHUB_STEP_SUMMARY
-  #         echo '' >> $GITHUB_STEP_SUMMARY
-  #         echo '```bash' >> $GITHUB_STEP_SUMMARY
-  #         echo './bin/generate_oas.sh' >> $GITHUB_STEP_SUMMARY
-  #         echo '```' >> $GITHUB_STEP_SUMMARY
-  #
-  # oas-lint:
-  #   needs: oas-up-to-date
-  #   name: Validate OAS
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download generated OAS
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: openarchiefbeheer-oas
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #     - name: Install spectral
-  #       run: npm install -g @stoplight/spectral@5.9.2
-  #     - name: Run OAS linter
-  #       run: spectral lint ./openapi.yaml
-
-  # oas-postman:
-  #   needs: oas-up-to-date
-  #   name: Generate Postman collection from OAS
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download generated OAS
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: openarchiefbeheer-oas
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #     - name: Install dependencies
-  #       run: npm install -g openapi-to-postmanv2
-  #     - name: Create tests folder
-  #       run: mkdir -p ./tests/postman
-  #     - name: Generate Postman collection
-  #       run: openapi2postmanv2 -s ./openapi.yaml -o ./tests/postman/collection.json --pretty
-
-  # oas-generate-sdks:
-  #   needs: oas-up-to-date
-  #   name: Generate SDKs from OAS
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Download generated OAS
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: openarchiefbeheer-oas
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version-file: '.nvmrc'
-  #     - name: Install dependencies
-  #       run: npm install -g @openapitools/openapi-generator-cli@2.4.2
-  #     - name: Validate schema
-  #       run: openapi-generator-cli validate -i ./openapi.yaml
-  #     - name: Generate Java client
-  #       run:
-  #         openapi-generator-cli generate -i ./openapi.yaml
-  #         --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \ -o
-  #         ./sdks/java -g java
-  #         --additional-properties=dateLibrary=java8,java8=true,optionalProjectFile=false,optionalAssemblyInfo=false
-  #     - name: Generate .NET Core client
-  #       run:
-  #         openapi-generator-cli generate -i ./openapi.yaml
-  #         --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \ -o
-  #         ./sdks/netcore -g csharp-netcore
-  #         --additional-properties=optionalProjectFile=false,optionalAssemblyInfo=false
-  #     - name: Generate .NET Full Framework client
-  #       run:
-  #         openapi-generator-cli generate -i ./openapi.yaml
-  #         --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \ -o
-  #         ./sdks/net -g csharp
-  #         --additional-properties=optionalProjectFile=false,optionalAssemblyInfo=false
-  #     - name: Generate Python client
-  #       run:
-  #         openapi-generator-cli generate -i ./openapi.yaml
-  #         --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \ -o
-  #         ./sdks/python -g python
-  #         --additional-properties=optionalProjectFile=false,optionalAssemblyInfo=false+
-
   docker_push:
     needs:
-      - tests
+      - backend-tests
       - docker_build
-      # - oas-lint
-      # - oas-postman
-      # - oas-generate-sdks
 
     name: Push Docker image
     runs-on: ubuntu-latest
