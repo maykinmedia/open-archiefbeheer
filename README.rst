@@ -4,20 +4,18 @@ Open Archiefbeheer
 
 :Version: 0.1.0
 :Source: https://github.com/maykinmedia/open-archiefbeheer
-:Keywords: ``<keywords>``
-:PythonVersion: 3.11
+:Keywords: ``open-archiefbeheer archiveren zaken``
+:PythonVersion: 3.12
 
-|build-status| |requirements|
+|build-status| |code-quality| |black| |coverage| |python-versions| |docker|
 
-``<oneliner describing the project>``
-
-Developed by `Maykin Media B.V.`_ for ``<client>``
+Open Archiefbeheer is an app to manage the archiving process of cases.
 
 
 Introduction
 ============
 
-``<describe the project in a few paragraphs and briefly mention the features>``
+# To do
 
 
 Documentation
@@ -27,20 +25,31 @@ See ``INSTALL.rst`` for installation instructions, available settings and
 commands.
 
 
-References
-==========
-
-* `Issues <https://taiga.maykinmedia.nl/project/openarchiefbeheer>`_
+* `Issues <https://github.com/maykinmedia/open-archiefbeheer/issues>`_
 * `Code <https://github.com/maykinmedia/open-archiefbeheer>`_
 
 
-.. |build-status| image:: http://jenkins.maykin.nl/buildStatus/icon?job=bitbucket/openarchiefbeheer/master
-    :alt: Build status
-    :target: http://jenkins.maykin.nl/job/openarchiefbeheer
-
-.. |requirements| image:: https://requires.io/bitbucket/maykinmedia/openarchiefbeheer/requirements.svg?branch=master
-     :target: https://requires.io/bitbucket/maykinmedia/openarchiefbeheer/requirements/?branch=master
-     :alt: Requirements status
-
-
 .. _Maykin Media B.V.: https://www.maykinmedia.nl
+
+.. |build-status| image:: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/ci.yml/badge.svg
+    :alt: Build status
+    :target: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/ci.yml
+
+.. |code-quality| image:: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/code_quality.yml/badge.svg
+    :alt: Code quality checks
+    :target: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/code_quality.yml
+
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :alt: Code style
+    :target: https://github.com/psf/black
+
+.. |coverage| image:: https://codecov.io/github/maykinmedia/open-archiefbeheer/branch/main/graphs/badge.svg?branch=main
+    :alt: Coverage
+    :target: https://codecov.io/gh/maykinmedia/open-archiefbeheer
+
+.. |python-versions| image:: https://img.shields.io/badge/python-3.10-blue.svg
+    :alt: Supported Python versions
+
+.. |docker| image:: https://img.shields.io/docker/v/maykinmedia/open-archiefbeheer?sort=semver
+    :alt: Docker image
+    :target: https://hub.docker.com/r/maykinmedia/open-archiefbeheer
