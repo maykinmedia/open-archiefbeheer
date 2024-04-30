@@ -114,6 +114,10 @@ INSTALLED_APPS = [
     "axes",
     "hijack",
     "hijack.contrib.admin",
+    "rest_framework",
+    "drf_spectacular",
+    "zgw_consumers",
+    "simple_certmanager",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.utils",
