@@ -1,77 +1,35 @@
 import os
 import warnings
 
-os.environ.setdefault("DEBUG", "no")
-os.environ.setdefault("SECRET_KEY", "for-testing-purposes-only")
 os.environ.setdefault("IS_HTTPS", "no")
-os.environ.setdefault("ALLOWED_HOSTS", "")
-
-os.environ.setdefault("DB_USER", "jenkins")
-os.environ.setdefault("DB_PASSWORD", "jenkins")
-# PostgreSQL 9.6: 5432 (default for Jenkins)
-os.environ.setdefault("DB_PORT", "5432")
-
-os.environ.setdefault("ENVIRONMENT", "jenkins")
+os.environ.setdefault("SECRET_KEY", "dummy")
+# Do not log requests in CI/tests:
+#
+# * overhead making tests slower
+# * it conflicts with SimpleTestCase in some cases when the run-time configuration is
+#   looked up from the django-solo model
+os.environ.setdefault("LOG_REQUESTS", "no")
 
 from .base import *  # noqa isort:skip
 
-
-def get_db_name(prefix):
-    """
-    get a reasonable name below Postgres' 63 char name limit
-    """
-    job = os.getenv("JOB_NAME", default="").lower().rsplit("/", 1)[-1]
-    build = os.getenv("BUILD_NUMBER", default="0")
-    lim = 63 - 2 - len(prefix) - len(build)
-    return "{}_{}_{}".format(prefix, job[:lim], build)
-
-
-DATABASES["default"]["TEST"] = {"NAME": get_db_name("test_openarchiefbeheer")}
-
-LOGGING["loggers"].update(
+CACHES.update(
     {
-        "django": {
-            "handlers": ["django"],
-            "level": "WARNING",
-            "propagate": True,
-        },
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        # See: https://github.com/jazzband/django-axes/blob/master/docs/configuration.rst#cache-problems
+        "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     }
 )
+
+# don't spend time on password hashing in tests/user factories
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
+
+ENVIRONMENT = "CI"
 
 #
 # Django-axes
 #
-AXES_BEHIND_REVERSE_PROXY = (
-    False  # Required to allow FakeRequest and the like to work correctly.
-)
+AXES_BEHIND_REVERSE_PROXY = False
 
-# in memory cache and django-axes don't get along.
-# https://django-axes.readthedocs.io/en/latest/configuration.html#known-configuration-problems
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    },
-    "axes": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-    },
-}
-
-ELASTIC_APM["DEBUG"] = True
-
-# disable 2 FA in tests
-MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = AUTHENTICATION_BACKENDS
-
-#
-# Jenkins settings
-#
-INSTALLED_APPS += [
-    "django_jenkins",
-]
-PROJECT_APPS = [app for app in INSTALLED_APPS if app.startswith("openarchiefbeheer.")]
-JENKINS_TASKS = (
-    # 'django_jenkins.tasks.run_pylint',  # Pylint < 2.0 does not run on Python 3.7+
-    # "django_jenkins.tasks.run_pep8",  # -> renamed to pycodestyle, but django-jenkins hasn't been updated in 6 years
-)
 
 # THOU SHALT NOT USE NAIVE DATETIMES
 warnings.filterwarnings(
