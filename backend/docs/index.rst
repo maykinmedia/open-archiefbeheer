@@ -1,8 +1,8 @@
 .. _index:
 
-===================
-
-===================
+==================
+Open Archiefbeheer
+==================
 
 Welcome to the documentation for the  project.
 
@@ -14,5 +14,5 @@ Documentation
     :maxdepth: 3
 
     general/index
-    coding_style/index
+    install/index
     testing
