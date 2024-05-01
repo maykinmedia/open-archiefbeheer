@@ -1,6 +1,7 @@
 -c base.txt
 
 # Dependencies only relevant for (unit) testing
+black
 coverage < 5.0
 django-jenkins
 django-webtest
