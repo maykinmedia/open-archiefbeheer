@@ -11,5 +11,4 @@ development, staging and production environments.
     :maxdepth: 2
 
     dev
-    staging
     production
