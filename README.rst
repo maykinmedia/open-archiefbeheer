@@ -47,7 +47,7 @@ commands.
     :alt: Coverage
     :target: https://codecov.io/gh/maykinmedia/open-archiefbeheer
 
-.. |python-versions| image:: https://img.shields.io/badge/python-3.10-blue.svg
+.. |python-versions| image:: https://img.shields.io/badge/python-3.12-blue.svg
     :alt: Supported Python versions
 
 .. |docker| image:: https://img.shields.io/docker/v/maykinmedia/open-archiefbeheer?sort=semver
