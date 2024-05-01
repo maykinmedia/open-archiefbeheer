@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from ordered_model.models import OrderedModel
+
 from openarchiefbeheer.destruction.constants import ListItemStatus, ListStatus
 
 
@@ -96,3 +98,27 @@ class DestructionListItem(models.Model):
 
     def __str__(self):
         return f"{self.destruction_list}: {self.zaak}"
+
+
+class DestructionListAssignee(OrderedModel):
+    destruction_list = models.ForeignKey(
+        DestructionList,
+        on_delete=models.CASCADE,
+        related_name="assignees",
+        verbose_name=_("destruction list"),
+    )
+    user = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        verbose_name=_("user"),
+        help_text=_("The user assigned to the destruction list."),
+    )
+    assigned_on = models.DateTimeField(_("assigned on"), blank=True, null=True)
+
+    class Meta(OrderedModel.Meta):
+        verbose_name = _("destruction list assignee")
+        verbose_name_plural = _("destruction list assignees")
+        unique_together = ("destruction_list", "user")
+
+    def __str__(self):
+        return f"{self.user} ({self.destruction_list}, {self.order})"
