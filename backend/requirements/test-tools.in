@@ -11,3 +11,4 @@ pylint
 pyquery  # integrates with webtest
 requests-mock
 tblib
+pytest  # documentation tests
