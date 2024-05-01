@@ -15,11 +15,14 @@ maykin-2fa
 
 # API libraries
 djangorestframework
-# django-extra-fields
-# django-filter
-# drf-yasg  # api documentation
+drf-spectacular
+djangorestframework-camel-case
+django-cors-headers
 
 # WSGI servers & monitoring - production oriented
 uwsgi
 sentry-sdk  # error monitoring
 elastic-apm  # Elastic APM integration
+
+# Additional libraries
+zgw-consumers

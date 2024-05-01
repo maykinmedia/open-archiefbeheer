@@ -5,6 +5,7 @@ from pathlib import Path
 from django.urls import reverse_lazy
 
 import sentry_sdk
+from corsheaders.defaults import default_headers
 
 from .utils import config, get_sentry_integrations
 
@@ -114,6 +115,10 @@ INSTALLED_APPS = [
     "axes",
     "hijack",
     "hijack.contrib.admin",
+    "rest_framework",
+    "drf_spectacular",
+    "zgw_consumers",
+    "simple_certmanager",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.utils",
@@ -125,6 +130,7 @@ MIDDLEWARE = [
     # 'django.middleware.locale.LocaleMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "openarchiefbeheer.middleware.CsrfTokenMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "maykin_2fa.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -132,6 +138,7 @@ MIDDLEWARE = [
     "hijack.middleware.HijackUserMiddleware",
     # should be last according to docs
     "axes.middleware.AxesMiddleware",
+    "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
 ]
 
 ROOT_URLCONF = "openarchiefbeheer.urls"
@@ -201,7 +208,9 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 10
 
-DEFAULT_FROM_EMAIL = "openarchiefbeheer@example.com"
+DEFAULT_FROM_EMAIL = config(
+    "DEFAULT_FROM_EMAIL", default="openarchiefbeheer@example.com"
+)
 
 #
 # LOGGING
@@ -317,10 +326,12 @@ LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 #
 # SECURITY settings
 #
-SESSION_COOKIE_SECURE = IS_HTTPS
+SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", "Lax")
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", IS_HTTPS)
 SESSION_COOKIE_HTTPONLY = True
 
-CSRF_COOKIE_SECURE = IS_HTTPS
+CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", "Lax")
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", IS_HTTPS)
 CSRF_FAILURE_VIEW = "openarchiefbeheer.accounts.views.csrf_failure"
 
 X_FRAME_OPTIONS = "DENY"
@@ -477,3 +488,97 @@ if not ELASTIC_APM_SERVER_URL:
 SUBPATH = config("SUBPATH", None)
 if SUBPATH:
     SUBPATH = f"/{SUBPATH.strip('/')}"
+
+#
+# DJANGO REST FRAMEWORK
+#
+ENABLE_THROTTLING = config("ENABLE_THROTTLING", default=True)
+
+throttle_rate_anon = (
+    config("THROTTLE_RATE_ANON", default="2500/hour") if ENABLE_THROTTLING else None
+)
+throttle_rate_user = (
+    config("THROTTLE_RATE_USER", default="15000/hour") if ENABLE_THROTTLING else None
+)
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        # used by regular throttle classes
+        "anon": throttle_rate_anon,
+        "user": throttle_rate_user,
+    },
+    "DEFAULT_RENDERER_CLASSES": [
+        "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
+        "djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer",
+    ],
+    "DEFAULT_PARSER_CLASSES": [
+        "djangorestframework_camel_case.parser.CamelCaseJSONParser",
+        "djangorestframework_camel_case.parser.CamelCaseFormParser",
+        "djangorestframework_camel_case.parser.CamelCaseMultiPartParser",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+#
+# SPECTACULAR - OpenAPI schema generation
+#
+_DESCRIPTION = """
+Open Archiefbeheer provides an API to manage archiving cases.
+"""
+
+API_VERSION = "0.1.0"
+
+SPECTACULAR_SETTINGS = {
+    "SCHEMA_PATH_PREFIX": "/api/v1",
+    "TITLE": "Open Archiefbeheer API",
+    "DESCRIPTION": _DESCRIPTION,
+    "VERSION": API_VERSION,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
+}
+
+#
+# Django CORS-headers
+#
+
+# This is reflected in the access-control-allow-origin header
+# An origin is the scheme (http/https) + the domain name + port number
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", split=True, default=[])
+CORS_ALLOWED_ORIGIN_REGEXES = config(
+    "CORS_ALLOWED_ORIGIN_REGEXES", split=True, default=[]
+)
+CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", default=False)
+
+# This is reflected in the Access-Control-Allow-Headers response header.
+# It is used in response to a preflight request to indicate which headers can be included in the actual request.
+CORS_EXTRA_ALLOW_HEADERS = config("CORS_EXTRA_ALLOW_HEADERS", split=True, default=[])
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    *CORS_EXTRA_ALLOW_HEADERS,
+)
+
+# Reflected in the Access-Control-Expose-Headers header
+# Specifies which response headers are exposed to JS in cross-origin requests.
+CORS_EXPOSE_HEADERS = ["X-CSRFToken"]
+
+# Reflected in the Access-Control-Allow-Credentials header.
+# This response header tells the browser whether to expose the response to the JS when the request's credentials mode
+# is 'include'. When used in a preflight response, it tells whether to send credentials (in our case, the cookies).
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    split=True,
+    default=[],
+)
