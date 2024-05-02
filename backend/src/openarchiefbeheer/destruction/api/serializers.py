@@ -67,7 +67,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
                 for item in items_data
             ]
         )
-        DestructionListAssignee.objects.bulk_create(
+        assignees = DestructionListAssignee.objects.bulk_create(
             [
                 DestructionListAssignee(
                     **{**assignee, "destruction_list": destruction_list}
@@ -75,4 +75,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
                 for assignee in assignees_data
             ]
         )
+
+        destruction_list.assign(assignees[0])
         return destruction_list
