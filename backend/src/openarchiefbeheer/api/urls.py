@@ -5,10 +5,15 @@ from drf_spectacular.views import (
     SpectacularJSONAPIView,
     SpectacularRedocView,
 )
+from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import ReviewersView
+from openarchiefbeheer.destruction.api.viewsets import DestructionListViewSet
 
 app_name = "api"
+
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r"destruction-lists", DestructionListViewSet)
 
 
 urlpatterns = [
@@ -40,8 +45,16 @@ urlpatterns = [
     ),
     # Actual endpoints
     path(
-        "v1/zaken/",
-        include("openarchiefbeheer.api.zaken.urls", namespace="zaken"),
+        "v1/",
+        include(
+            [
+                path(
+                    "zaken/",
+                    include("openarchiefbeheer.api.zaken.urls", namespace="zaken"),
+                ),
+                path("reviewers/", ReviewersView.as_view(), name="reviewers"),
+                path("", include(router.urls)),
+            ]
+        ),
     ),
-    path("v1/reviewers/", ReviewersView.as_view(), name="reviewers"),
 ]
