@@ -22,4 +22,4 @@ class ReviewersView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self) -> QuerySet[User]:
-        return User.objects.filter(role__can_review_destruction=True)
+        return User.objects.reviewers()
