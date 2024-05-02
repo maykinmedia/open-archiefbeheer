@@ -10,14 +10,11 @@ from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.destruction.utils import process_zaken
-
 
 @extend_schema(
     summary=_("List zaken"),
     description=_(
         "Retrieve zaken using the configured ZRC service. "
-        "Zaken already included in a destruction list are not returned. "
         "For information over the query parameters accepted and the schema of the response, look at the "
         "'/zaken/api/v1/zaken' list endpoint of Open Zaak."
     ),
@@ -42,8 +39,4 @@ class ZakenView(APIView):
         except RequestException:
             return Response({"error": response.json()}, status=response.status_code)
 
-        response_data = response.json()
-
-        response_data["results"] = process_zaken(response_data["results"])
-
-        return Response(response_data, status=response.status_code)
+        return Response(response.json(), status=response.status_code)
