@@ -121,6 +121,7 @@ INSTALLED_APPS = [
     "simple_certmanager",
     # Project applications.
     "openarchiefbeheer.accounts",
+    "openarchiefbeheer.destruction",
     "openarchiefbeheer.utils",
 ]
 

@@ -10,6 +10,7 @@ from openarchiefbeheer.accounts.api.views import ReviewersView
 
 app_name = "api"
 
+
 urlpatterns = [
     # API documentation
     path(
@@ -36,6 +37,11 @@ urlpatterns = [
         include(
             "openarchiefbeheer.api.authentication.urls", namespace="authentication"
         ),
+    ),
+    # Actual endpoints
+    path(
+        "v1/zaken/",
+        include("openarchiefbeheer.api.zaken.urls", namespace="zaken"),
     ),
     path("v1/reviewers/", ReviewersView.as_view(), name="reviewers"),
 ]
