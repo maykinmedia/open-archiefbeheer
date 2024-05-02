@@ -43,6 +43,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    role = models.ForeignKey(
+        "accounts.Role",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name=_("role"),
+    )
 
     objects = UserManager()
 
@@ -63,3 +70,38 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         "Returns the short name for the user."
         return self.first_name
+
+
+class Role(models.Model):
+    name = models.CharField(
+        _("name"), max_length=255, unique=True, help_text=_("Name of the role")
+    )
+    can_start_destruction = models.BooleanField(
+        _("can start destruction"),
+        default=False,
+        help_text=_(
+            "Indicates whether a user can create a list of cases to be deleted."
+        ),
+    )
+    can_review_destruction = models.BooleanField(
+        _("can review destruction"),
+        default=False,
+        help_text=_(
+            "Indicates whether a user can review a list of cases to be deleted. "
+            "They can approve it, reject it or provide feedback."
+        ),
+    )
+    can_view_case_details = models.BooleanField(
+        _("can view case details"),
+        default=False,
+        help_text=_(
+            "Indicates whether a user can view the contents of cases in a lists."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("role")
+        verbose_name_plural = _("roles")
+
+    def __str__(self):
+        return self.name

@@ -6,6 +6,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
+from openarchiefbeheer.accounts.api.views import ReviewersView
+
 app_name = "api"
 
 urlpatterns = [
@@ -35,4 +37,5 @@ urlpatterns = [
             "openarchiefbeheer.api.authentication.urls", namespace="authentication"
         ),
     ),
+    path("v1/reviewers/", ReviewersView.as_view(), name="reviewers"),
 ]
