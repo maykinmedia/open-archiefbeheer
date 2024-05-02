@@ -1,6 +1,11 @@
+from datetime import datetime
+
+from django.core import mail
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from freezegun import freeze_time
 from rest_framework.test import APIRequestFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
@@ -14,7 +19,9 @@ factory = APIRequestFactory()
 class DestructionListSerializerTests(TestCase):
     def test_create_destruction_list(self):
         user1 = UserFactory.create(
-            username="reviewer1", role__can_review_destruction=True
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
         )
         user2 = UserFactory.create(
             username="reviewer2", role__can_review_destruction=True
@@ -49,7 +56,8 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        destruction_list = serializer.save()
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            destruction_list = serializer.save()
 
         assignees = destruction_list.assignees.order_by("order")
 
@@ -68,6 +76,17 @@ class DestructionListSerializerTests(TestCase):
         )
 
         self.assertEqual(destruction_list.author, record_manager)
+        self.assertEqual(destruction_list.assignee, user1)
+        self.assertEqual(
+            assignees[0].assigned_on,
+            timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
+        )
+
+        sent_mail = mail.outbox
+
+        self.assertEqual(len(sent_mail), 1)
+        self.assertEqual(sent_mail[0].subject, _("Destruction list review request"))
+        self.assertEqual(sent_mail[0].recipients(), ["reviewer1@oab.nl"])
 
     def test_zaak_already_included_in_other_list(self):
         user1 = UserFactory.create(
