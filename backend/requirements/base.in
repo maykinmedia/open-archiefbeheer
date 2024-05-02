@@ -12,6 +12,7 @@ django-hijack
 django-redis
 django-rosetta
 maykin-2fa
+django-timeline-logger
 
 # API libraries
 djangorestframework
