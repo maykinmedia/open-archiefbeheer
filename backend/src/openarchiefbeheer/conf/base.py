@@ -125,6 +125,7 @@ INSTALLED_APPS = [
     "openarchiefbeheer.destruction",
     "openarchiefbeheer.utils",
     "openarchiefbeheer.logging",
+    "openarchiefbeheer.zaken",
 ]
 
 MIDDLEWARE = [
@@ -585,3 +586,13 @@ CSRF_TRUSTED_ORIGINS = config(
     split=True,
     default=[],
 )
+
+#
+# CELERY
+#
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+# Add a 10 minutes timeout to all Celery tasks.
+CELERY_TASK_SOFT_TIME_LIMIT = 600
+
+CELERY_BEAT_SCHEDULE = {}
