@@ -25,5 +25,8 @@ uwsgi
 sentry-sdk  # error monitoring
 elastic-apm  # Elastic APM integration
 
+# Queueing
+celery
+
 # Additional libraries
 zgw-consumers
