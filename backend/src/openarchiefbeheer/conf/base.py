@@ -5,6 +5,7 @@ from pathlib import Path
 from django.urls import reverse_lazy
 
 import sentry_sdk
+from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 
 from .utils import config, get_sentry_integrations
@@ -595,4 +596,10 @@ CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/
 # Add a 10 minutes timeout to all Celery tasks.
 CELERY_TASK_SOFT_TIME_LIMIT = 600
 
-CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+    "retrieve-and-cache-zaken": {
+        "task": "openarchiefbeheer.zaken.tasks.retrieve_and_cache_zaken_from_openzaak",
+        # run every 24 hours, executing the task at 00:00
+        "schedule": crontab(hour="0", minute="0"),
+    }
+}

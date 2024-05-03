@@ -35,7 +35,7 @@ PAGE_2 = {
         },
     ],
     "count": 2,
-    "previous": None,
+    "previous": "http://zaken-api.nl/zaken/api/v1/zaken/?page=1",
     "next": None,
 }
 
