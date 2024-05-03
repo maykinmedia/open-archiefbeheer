@@ -119,10 +119,12 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "zgw_consumers",
     "simple_certmanager",
+    "timeline_logger",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
     "openarchiefbeheer.utils",
+    "openarchiefbeheer.logging",
 ]
 
 MIDDLEWARE = [

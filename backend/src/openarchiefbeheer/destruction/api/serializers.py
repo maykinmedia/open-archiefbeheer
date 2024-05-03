@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
+from openarchiefbeheer.logging import logevent
 
 from ..constants import ListItemStatus
 from ..models import DestructionList, DestructionListAssignee, DestructionListItem
@@ -58,7 +59,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
         assignees_data = validated_data.pop("assignees")
         items_data = validated_data.pop("items")
 
-        validated_data["author"] = self.context["request"].user
+        author = self.context["request"].user
+        validated_data["author"] = author
         destruction_list = DestructionList.objects.create(**validated_data)
 
         DestructionListItem.objects.bulk_create(
@@ -77,4 +79,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         )
 
         destruction_list.assign(assignees[0])
+
+        logevent.destruction_list_created(destruction_list, author)
+
         return destruction_list

@@ -21,5 +21,4 @@ class DestructionListViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # TODO log creation
         return super().create(request, *args, **kwargs)

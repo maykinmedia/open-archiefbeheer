@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from freezegun import freeze_time
 from rest_framework.test import APIRequestFactory
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.api.serializers import DestructionListSerializer
@@ -87,6 +88,17 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(len(sent_mail), 1)
         self.assertEqual(sent_mail[0].subject, _("Destruction list review request"))
         self.assertEqual(sent_mail[0].recipients(), ["reviewer1@oab.nl"])
+
+        logs = TimelineLog.objects.filter(user=record_manager)
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertEqual(
+            message,
+            '[2024-05-02T16:00:00+02:00]: Destruction list "A test list" created by user record_manager.',
+        )
 
     def test_zaak_already_included_in_other_list(self):
         user1 = UserFactory.create(

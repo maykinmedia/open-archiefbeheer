@@ -36,6 +36,7 @@ django==4.2.11
     # via
     #   -r requirements/base.in
     #   django-admin-index
+    #   django-appconf
     #   django-axes
     #   django-cors-headers
     #   django-formtools
@@ -49,6 +50,7 @@ django==4.2.11
     #   django-sendfile2
     #   django-simple-certmanager
     #   django-solo
+    #   django-timeline-logger
     #   django-two-factor-auth
     #   djangorestframework
     #   drf-spectacular
@@ -56,6 +58,8 @@ django==4.2.11
     #   zgw-consumers
 django-admin-index==3.1.1
     # via -r requirements/base.in
+django-appconf==1.0.6
+    # via django-timeline-logger
 django-axes==6.4.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
@@ -84,6 +88,8 @@ django-simple-certmanager==2.0.0
     # via zgw-consumers
 django-solo==2.2.0
     # via zgw-consumers
+django-timeline-logger==4.0.0
+    # via -r requirements/base.in
 django-two-factor-auth[phonenumberslite,webauthn]==1.16.0
     # via maykin-2fa
 djangorestframework==3.15.1
