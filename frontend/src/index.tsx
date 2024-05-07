@@ -4,11 +4,20 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
+import { loginRequired } from "./lib/api/loginRequired";
+import { listReviewers } from "./lib/api/reviewers";
+import { LandingPage, LoginPage, landingLoader, loginAction } from "./pages";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Hello world!</div>,
+    element: <LandingPage />,
+    loader: landingLoader,
+  },
+  {
+    path: "/sign-in",
+    element: <LoginPage />,
+    action: loginAction,
   },
 ]);
 
