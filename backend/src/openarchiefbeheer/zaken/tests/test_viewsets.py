@@ -1,3 +1,5 @@
+from datetime import date
+
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -7,16 +9,10 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 
-from ..models import Zaak
 from .factories import ZaakFactory
 
 
 class ZakenViewSetTest(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        ZaakFactory.create_batch(5)
 
     def test_not_authenticated(self):
         endpoint = reverse("api:zaken-list")
@@ -35,17 +31,8 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_filter_out_zaken_already_in_destruction_lists(self):
-        zaken = Zaak.objects.all()
-
-        # This zaak should NOT be returned by the endpoint (it's included in a destruction list)
-        DestructionListItemFactory.create(
-            status=ListItemStatus.suggested, zaak=zaken[0].data["url"]
-        )
-        # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
-        DestructionListItemFactory.create(
-            status=ListItemStatus.removed, zaak=zaken[1].data["url"]
-        )
+    def test_retrieve_all_zaken(self):
+        ZaakFactory.create_batch(4)
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
@@ -56,28 +43,51 @@ class ZakenViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 4)
 
-        urls_zaken = [zaak["url"] for zaak in data["results"]]
+    def test_filter_out_zaken_already_in_destruction_lists(self):
+        zaken = ZaakFactory.create_batch(5)
 
-        self.assertNotIn(zaken[0].data["url"], urls_zaken)
-
-    def test_using_query_params_to_filter(self):
-        zaken = Zaak.objects.all()
-
-        filter = [zaken[0].data["identificatie"], zaken[1].data["identificatie"]]
+        # This zaak should NOT be returned by the endpoint (it's included in a destruction list)
+        DestructionListItemFactory.create(
+            status=ListItemStatus.suggested, zaak=zaken[0].url
+        )
+        # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
+        DestructionListItemFactory.create(
+            status=ListItemStatus.removed, zaak=zaken[1].url
+        )
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["identificatie__in"] = filter
+        endpoint.args["not_in_destruction_list"] = "True"
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data["count"], 2)
+        self.assertEqual(data["count"], 4)
 
         urls_zaken = [zaak["url"] for zaak in data["results"]]
 
-        self.assertIn(filter[0], urls_zaken)
-        self.assertIn(filter[1], urls_zaken)
+        self.assertNotIn(zaken[0].url, urls_zaken)
+
+    def test_using_query_params_to_filter(self):
+        ZaakFactory.create_batch(2, startdatum=date(2020, 1, 1))
+        recent_zaken = ZaakFactory.create_batch(3, startdatum=date(2022, 1, 1))
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["startdatum__gt"] = "2021-01-01"
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 3)
+
+        urls_zaken = [zaak["url"] for zaak in data["results"]]
+
+        self.assertIn(recent_zaken[0].url, urls_zaken)
+        self.assertIn(recent_zaken[1].url, urls_zaken)
