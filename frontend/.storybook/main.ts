@@ -14,6 +14,9 @@ const config: StorybookConfig = {
     name: "@storybook/react-webpack5",
     options: {},
   },
+  core: {
+    disableTelemetry: true, // 👈 Disables telemetry
+  },
   docs: {
     autodocs: "tag",
   },
