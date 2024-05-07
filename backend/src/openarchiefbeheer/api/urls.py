@@ -13,7 +13,7 @@ from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
 app_name = "api"
 
-router = routers.DefaultRouter(trailing_slash=False)
+router = routers.DefaultRouter()
 router.register(r"destruction-lists", DestructionListViewSet)
 router.register(r"zaken", ZakenViewSet, basename="zaken")
 

@@ -1,15 +1,18 @@
+from django.db import transaction
+
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
-from zgw_consumers.utils import pagination_helper
 
 from openarchiefbeheer.celery import app
 
+from .api.serializers import ZaakSerializer
 from .models import Zaak
+from .utils import pagination_helper
 
 
 @app.task
-def retrieve_and_cache_zaken_from_openzaak() -> list[Zaak]:
+def retrieve_and_cache_zaken_from_openzaak() -> None:
     zrc_service = Service.objects.get(api_type=APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
@@ -20,10 +23,13 @@ def retrieve_and_cache_zaken_from_openzaak() -> list[Zaak]:
         )
         response.raise_for_status()
 
-        zaken_data = pagination_helper(zrc_client, response.json())
+        data_iterator = pagination_helper(zrc_client, response.json())
 
-    # Removing existing cached zaken
-    Zaak.objects.all().delete()
+    with transaction.atomic():
+        # Removing existing cached zaken
+        Zaak.objects.all().delete()
 
-    cached_zaken = Zaak.objects.bulk_create([Zaak(data=zaak) for zaak in zaken_data])
-    return cached_zaken
+        for data in data_iterator:
+            serializer = ZaakSerializer(data=data["results"], many=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()

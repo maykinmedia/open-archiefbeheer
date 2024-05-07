@@ -54,7 +54,7 @@ USE_THOUSAND_SEPARATOR = True
 #
 DATABASES = {
     "default": {
-        "ENGINE": config("DB_ENGINE", "django.db.backends.postgresql"),
+        "ENGINE": config("DB_ENGINE", "django.contrib.gis.db.backends.postgis"),
         "NAME": config("DB_NAME", "openarchiefbeheer"),
         "USER": config("DB_USER", "openarchiefbeheer"),
         "PASSWORD": config("DB_PASSWORD", "openarchiefbeheer"),
@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     # 'django.contrib.sites',
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     # Two-factor authentication in the Django admin, enforced.
     "django_otp",
     "django_otp.plugins.otp_static",
@@ -121,6 +122,7 @@ INSTALLED_APPS = [
     "zgw_consumers",
     "simple_certmanager",
     "timeline_logger",
+    "django_filters",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -531,7 +533,6 @@ REST_FRAMEWORK = {
         "djangorestframework_camel_case.parser.CamelCaseMultiPartParser",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": 100,
 }
 
 
