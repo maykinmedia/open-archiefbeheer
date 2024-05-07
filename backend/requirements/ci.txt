@@ -117,6 +117,7 @@ django==4.2.11
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-filter
     #   django-formtools
     #   django-hijack
     #   django-jenkins
@@ -149,6 +150,10 @@ django-axes==6.4.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 django-cors-headers==4.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+django-filter==24.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

@@ -149,6 +149,7 @@ django==4.2.11
     #   django-cors-headers
     #   django-debug-toolbar
     #   django-extensions
+    #   django-filter
     #   django-formtools
     #   django-hijack
     #   django-jenkins
@@ -188,6 +189,10 @@ django-debug-toolbar==4.3.0
     # via -r requirements/dev.in
 django-extensions==3.2.3
     # via -r requirements/dev.in
+django-filter==24.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 django-formtools==2.5.1
     # via
     #   -c requirements/ci.txt

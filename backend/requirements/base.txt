@@ -57,6 +57,7 @@ django==4.2.11
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-filter
     #   django-formtools
     #   django-hijack
     #   django-otp
@@ -81,6 +82,8 @@ django-appconf==1.0.6
 django-axes==6.4.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
+    # via -r requirements/base.in
+django-filter==24.2
     # via -r requirements/base.in
 django-formtools==2.5.1
     # via django-two-factor-auth
