@@ -551,7 +551,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": _DESCRIPTION,
     "VERSION": API_VERSION,
     "POSTPROCESSING_HOOKS": [
-        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+        "openarchiefbeheer.zaken.api.drf_spectacular.hooks.camelize_serializer_fields_but_not_query_parameters",
     ],
 }
 
