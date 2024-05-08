@@ -27,7 +27,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgis/postgis:14-3.4
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
@@ -45,7 +45,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.1
         with:
-          apt-packages: 'gettext postgresql-client'
+          apt-packages: 'gettext postgresql-client libgdal-dev gdal-bin'
           python-version: '3.12'
           optimize-postgres: 'yes'
           pg-service: 'postgres'
@@ -111,7 +111,7 @@ jobs:
      - name: Set up backend environment
        uses: maykinmedia/setup-django-backend@v1
        with:
-         apt-packages: 'gettext postgresql-client'
+         apt-packages: 'gettext postgresql-client  libgdal-dev gdal-bin'
          python-version: '3.12'
          setup-node: 'no'
          working-directory: open-archiefbeheer/backend

@@ -62,6 +62,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         shared-mime-info \
         # lxml deps
         # libxslt \
+        gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
