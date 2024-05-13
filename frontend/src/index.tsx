@@ -4,9 +4,13 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
-import { loginRequired } from "./lib/api/loginRequired";
-import { listReviewers } from "./lib/api/reviewers";
-import { LandingPage, LoginPage, landingLoader, loginAction } from "./pages";
+import {
+  LandingPage,
+  LoginPage,
+  landingLoader,
+  loginAction,
+  logoutLoader,
+} from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -15,9 +19,13 @@ const router = createBrowserRouter([
     loader: landingLoader,
   },
   {
-    path: "/sign-in",
+    path: "/login",
     element: <LoginPage />,
     action: loginAction,
+  },
+  {
+    path: "/logout",
+    loader: logoutLoader,
   },
 ]);
 

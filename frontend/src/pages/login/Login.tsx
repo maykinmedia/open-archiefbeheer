@@ -33,8 +33,19 @@ export type LoginProps = React.ComponentProps<"main"> & {
  */
 export function LoginPage({ children, ...props }: LoginProps) {
   const fields = [
-    { label: "Gebruikersnaam", name: "username", type: "text" },
-    { label: "Wachtwoord", name: "password", type: "password" },
+    {
+      autoFocus: true,
+      autoComplete: "username",
+      label: "Gebruikersnaam",
+      name: "username",
+      type: "text",
+    },
+    {
+      autoComplete: "current-password",
+      label: "Wachtwoord",
+      name: "password",
+      type: "password",
+    },
   ];
 
   const actionData = useActionData() || {};
