@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -7,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import ListItemStatus, ListStatus
+from openarchiefbeheer.emails.utils import send_review_request_email
 
 
 class DestructionList(models.Model):
@@ -140,17 +139,10 @@ class DestructionListAssignee(OrderedModel):
 
         self.notify()
 
-    # TODO refine what we want to do with notifications
     def notify(self) -> None:
         if not self.user.email:
             return
 
         is_reviewer = self.user != self.destruction_list.author
         if is_reviewer:
-            send_mail(
-                _("Destruction list review request"),
-                _("There is a destruction list review request for you."),
-                settings.DEFAULT_FROM_EMAIL,
-                [self.user.email],
-                fail_silently=False,
-            )
+            send_review_request_email(self.user, self.destruction_list)
