@@ -4,6 +4,8 @@
 #
 #    ./bin/compile_dependencies.sh
 #
+amqp==5.2.0
+    # via kombu
 ape-pie==0.1.0
     # via zgw-consumers
 asgiref==3.8.1
@@ -16,8 +18,12 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
+billiard==4.2.0
+    # via celery
 cbor2==5.6.3
     # via webauthn
+celery==5.4.0
+    # via -r requirements/base.in
 certifi==2024.2.2
     # via
     #   elastic-apm
@@ -27,6 +33,18 @@ cffi==1.16.0
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
+click==8.1.7
+    # via
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.1
+    # via celery
+click-plugins==1.1.1
+    # via celery
+click-repl==0.3.0
+    # via celery
 cryptography==42.0.5
     # via
     #   django-simple-certmanager
@@ -39,6 +57,7 @@ django==4.2.11
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-filter
     #   django-formtools
     #   django-hijack
     #   django-otp
@@ -63,6 +82,8 @@ django-appconf==1.0.6
 django-axes==6.4.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
+    # via -r requirements/base.in
+django-filter==24.2
     # via -r requirements/base.in
 django-formtools==2.5.1
     # via django-two-factor-auth
@@ -114,6 +135,8 @@ jsonschema==4.21.1
     # via drf-spectacular
 jsonschema-specifications==2023.12.1
     # via jsonschema
+kombu==5.3.7
+    # via celery
 maykin-2fa==1.0.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
@@ -124,6 +147,8 @@ pillow==10.3.0
     # via -r requirements/base.in
 polib==1.2.0
     # via django-rosetta
+prompt-toolkit==3.0.43
+    # via click-repl
 psycopg2==2.9.9
     # via -r requirements/base.in
 pycparser==2.22
@@ -135,7 +160,9 @@ pyopenssl==24.1.0
 pypng==0.20220715.0
     # via qrcode
 python-dateutil==2.9.0.post0
-    # via django-relativedelta
+    # via
+    #   celery
+    #   django-relativedelta
 python-decouple==3.8
     # via -r requirements/base.in
 python-dotenv==1.0.1
@@ -172,6 +199,8 @@ typing-extensions==4.11.0
     # via
     #   qrcode
     #   zgw-consumers
+tzdata==2024.1
+    # via celery
 uritemplate==4.1.1
     # via drf-spectacular
 urllib3==2.2.1
@@ -181,6 +210,13 @@ urllib3==2.2.1
     #   sentry-sdk
 uwsgi==2.0.25.1
     # via -r requirements/base.in
+vine==5.1.0
+    # via
+    #   amqp
+    #   celery
+    #   kombu
+wcwidth==0.2.13
+    # via prompt-toolkit
 webauthn==2.1.0
     # via django-two-factor-auth
 wrapt==1.14.1

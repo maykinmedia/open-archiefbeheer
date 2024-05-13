@@ -6,6 +6,11 @@
 #
 alabaster==0.7.16
     # via sphinx
+amqp==5.2.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   kombu
 ape-pie==0.1.0
     # via
     #   -c requirements/base.txt
@@ -34,6 +39,11 @@ babel==2.14.0
     # via sphinx
 beautifulsoup4==4.12.3
     # via webtest
+billiard==4.2.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
 black==24.4.2
     # via -r requirements/test-tools.in
 cbor2==5.6.3
@@ -41,6 +51,10 @@ cbor2==5.6.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   webauthn
+celery==5.4.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 certifi==2024.2.2
     # via
     #   -c requirements/base.txt
@@ -59,7 +73,29 @@ charset-normalizer==3.3.2
     #   -r requirements/base.txt
     #   requests
 click==8.1.7
-    # via black
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   black
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
+click-plugins==1.1.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
+click-repl==0.3.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
 coverage==4.5.4
     # via -r requirements/test-tools.in
 cryptography==42.0.5
@@ -81,6 +117,7 @@ django==4.2.11
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-filter
     #   django-formtools
     #   django-hijack
     #   django-jenkins
@@ -113,6 +150,10 @@ django-axes==6.4.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 django-cors-headers==4.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+django-filter==24.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -253,6 +294,11 @@ jsonschema-specifications==2023.12.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   jsonschema
+kombu==5.3.7
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
 lxml==5.2.1
     # via pyquery
 markupsafe==2.1.5
@@ -299,6 +345,11 @@ polib==1.2.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-rosetta
+prompt-toolkit==3.0.43
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   click-repl
 psycopg2==2.9.9
     # via
     #   -c requirements/base.txt
@@ -339,6 +390,7 @@ python-dateutil==2.9.0.post0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   celery
     #   django-relativedelta
     #   faker
     #   freezegun
@@ -439,6 +491,11 @@ typing-extensions==4.11.0
     #   -r requirements/base.txt
     #   qrcode
     #   zgw-consumers
+tzdata==2024.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   celery
 uritemplate==4.1.1
     # via
     #   -c requirements/base.txt
@@ -455,8 +512,20 @@ uwsgi==2.0.25.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+vine==5.1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   amqp
+    #   celery
+    #   kombu
 waitress==3.0.0
     # via webtest
+wcwidth==0.2.13
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   prompt-toolkit
 webauthn==2.1.0
     # via
     #   -c requirements/base.txt

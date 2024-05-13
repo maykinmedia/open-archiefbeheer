@@ -19,11 +19,15 @@ djangorestframework
 drf-spectacular
 djangorestframework-camel-case
 django-cors-headers
+django-filter
 
 # WSGI servers & monitoring - production oriented
 uwsgi
 sentry-sdk  # error monitoring
 elastic-apm  # Elastic APM integration
+
+# Queueing
+celery
 
 # Additional libraries
 zgw-consumers

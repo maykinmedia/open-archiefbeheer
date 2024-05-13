@@ -9,11 +9,13 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import ReviewersView
 from openarchiefbeheer.destruction.api.viewsets import DestructionListViewSet
+from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
 app_name = "api"
 
-router = routers.DefaultRouter(trailing_slash=False)
+router = routers.DefaultRouter()
 router.register(r"destruction-lists", DestructionListViewSet)
+router.register(r"zaken", ZakenViewSet, basename="zaken")
 
 
 urlpatterns = [
@@ -48,10 +50,6 @@ urlpatterns = [
         "v1/",
         include(
             [
-                path(
-                    "zaken/",
-                    include("openarchiefbeheer.api.zaken.urls", namespace="zaken"),
-                ),
                 path("reviewers/", ReviewersView.as_view(), name="reviewers"),
                 path("", include(router.urls)),
             ]

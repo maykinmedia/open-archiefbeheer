@@ -5,6 +5,7 @@ from pathlib import Path
 from django.urls import reverse_lazy
 
 import sentry_sdk
+from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 
 from .utils import config, get_sentry_integrations
@@ -53,7 +54,7 @@ USE_THOUSAND_SEPARATOR = True
 #
 DATABASES = {
     "default": {
-        "ENGINE": config("DB_ENGINE", "django.db.backends.postgresql"),
+        "ENGINE": config("DB_ENGINE", "django.contrib.gis.db.backends.postgis"),
         "NAME": config("DB_NAME", "openarchiefbeheer"),
         "USER": config("DB_USER", "openarchiefbeheer"),
         "PASSWORD": config("DB_PASSWORD", "openarchiefbeheer"),
@@ -97,6 +98,7 @@ INSTALLED_APPS = [
     # 'django.contrib.sites',
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     # Two-factor authentication in the Django admin, enforced.
     "django_otp",
     "django_otp.plugins.otp_static",
@@ -120,11 +122,13 @@ INSTALLED_APPS = [
     "zgw_consumers",
     "simple_certmanager",
     "timeline_logger",
+    "django_filters",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
     "openarchiefbeheer.utils",
     "openarchiefbeheer.logging",
+    "openarchiefbeheer.zaken",
 ]
 
 MIDDLEWARE = [
@@ -547,7 +551,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": _DESCRIPTION,
     "VERSION": API_VERSION,
     "POSTPROCESSING_HOOKS": [
-        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+        "openarchiefbeheer.zaken.api.drf_spectacular.hooks.camelize_serializer_fields_but_not_query_parameters",
     ],
 }
 
@@ -585,3 +589,19 @@ CSRF_TRUSTED_ORIGINS = config(
     split=True,
     default=[],
 )
+
+#
+# CELERY
+#
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+# Add a 10 minutes timeout to all Celery tasks.
+CELERY_TASK_SOFT_TIME_LIMIT = 600
+
+CELERY_BEAT_SCHEDULE = {
+    "retrieve-and-cache-zaken": {
+        "task": "openarchiefbeheer.zaken.tasks.retrieve_and_cache_zaken_from_openzaak",
+        # run every 24 hours, executing the task at 00:00
+        "schedule": crontab(hour="0", minute="0"),
+    }
+}
