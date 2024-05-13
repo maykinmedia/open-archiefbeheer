@@ -7,4 +7,4 @@ class CanStartDestructionPermission(permissions.BasePermission):
     message = _("You are not allowed to create a destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.role.can_start_destruction
+        return request.user.role and request.user.role.can_start_destruction
