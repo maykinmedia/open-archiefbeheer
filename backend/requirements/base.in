@@ -13,6 +13,7 @@ django-redis
 django-rosetta
 maykin-2fa
 django-timeline-logger
+django-solo
 
 # API libraries
 djangorestframework
