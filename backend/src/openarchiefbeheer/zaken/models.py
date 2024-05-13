@@ -97,3 +97,6 @@ class Zaak(models.Model):
     class Meta:
         verbose_name = "Zaak"
         verbose_name_plural = "Zaken"
+
+    def __str__(self):
+        return self.identificatie
