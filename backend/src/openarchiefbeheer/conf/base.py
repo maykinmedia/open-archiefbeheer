@@ -124,12 +124,14 @@ INSTALLED_APPS = [
     "simple_certmanager",
     "timeline_logger",
     "django_filters",
+    "solo",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
     "openarchiefbeheer.utils",
     "openarchiefbeheer.logging",
     "openarchiefbeheer.zaken",
+    "openarchiefbeheer.emails",
 ]
 
 MIDDLEWARE = [
