@@ -16,7 +16,7 @@ export function loginRequired<T>(
       return await fn(...args);
     } catch (e: any) {
       if (e?.status === 403) {
-        return redirect("/sign-in");
+        return redirect("/login");
       }
       throw e;
     }
