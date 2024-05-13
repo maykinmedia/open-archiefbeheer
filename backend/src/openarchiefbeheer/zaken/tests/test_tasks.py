@@ -14,10 +14,26 @@ PAGE_1 = {
             "identificatie": "ZAAK-01",
             "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
             "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+            "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
             "startdatum": "2020-02-01",
             "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
             "bronorganisatie": "000000000",
             "verantwoordelijkeOrganisatie": "000000000",
+            "_expand": {
+                "zaaktype": {
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                },
+                "resultaat": {
+                    "url": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                    "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/bd84c463-fa65-46ef-8a9e-dd887e005aea",
+                    "toelichting": "Test result",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/bd84c463-fa65-46ef-8a9e-dd887e005aea",
+                        },
+                    },
+                },
+            },
         },
         {
             "identificatie": "ZAAK-02",
@@ -27,6 +43,11 @@ PAGE_1 = {
             "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
             "bronorganisatie": "000000000",
             "verantwoordelijkeOrganisatie": "000000000",
+            "_expand": {
+                "zaaktype": {
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                },
+            },
         },
     ],
     "count": 2,
@@ -44,6 +65,11 @@ PAGE_2 = {
             "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
             "bronorganisatie": "000000000",
             "verantwoordelijkeOrganisatie": "000000000",
+            "_expand": {
+                "zaaktype": {
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                },
+            },
         },
         {
             "identificatie": "ZAAK-04",
@@ -53,6 +79,11 @@ PAGE_2 = {
             "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
             "bronorganisatie": "000000000",
             "verantwoordelijkeOrganisatie": "000000000",
+            "_expand": {
+                "zaaktype": {
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                },
+            },
         },
     ],
     "count": 2,
@@ -86,3 +117,23 @@ class TasksTest(TestCase):
         zaken = Zaak.objects.all()
 
         self.assertEqual(zaken.count(), 4)
+
+    def test_expanded_correctly(self, m):
+        m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_1)
+        m.get("http://zaken-api.nl/zaken/api/v1/zaken/?page=2", json=PAGE_2)
+
+        retrieve_and_cache_zaken_from_openzaak()
+
+        zaak_with_resultaat = Zaak.objects.get(identificatie="ZAAK-01")
+
+        self.assertEqual(zaak_with_resultaat.resultaat["toelichting"], "Test result")
+        self.assertEqual(
+            zaak_with_resultaat.resultaat["resultaattype"],
+            {
+                "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/bd84c463-fa65-46ef-8a9e-dd887e005aea",
+            },
+        )
+        self.assertEqual(
+            zaak_with_resultaat.zaaktype["url"],
+            "http://catalogue-api.nl/zaaktypen/111-111-111",
+        )
