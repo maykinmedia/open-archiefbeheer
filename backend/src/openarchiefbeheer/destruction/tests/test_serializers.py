@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase
@@ -13,6 +14,7 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.api.serializers import DestructionListSerializer
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.emails.models import EmailConfig
 
 factory = APIRequestFactory()
 
@@ -57,7 +59,15 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        with freeze_time("2024-05-02T16:00:00+02:00"):
+        with (
+            patch(
+                "openarchiefbeheer.emails.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_review_required="Destruction list review request"
+                ),
+            ),
+            freeze_time("2024-05-02T16:00:00+02:00"),
+        ):
             destruction_list = serializer.save()
 
         assignees = destruction_list.assignees.order_by("order")
@@ -86,7 +96,7 @@ class DestructionListSerializerTests(TestCase):
         sent_mail = mail.outbox
 
         self.assertEqual(len(sent_mail), 1)
-        self.assertEqual(sent_mail[0].subject, _("Destruction list review request"))
+        self.assertEqual(sent_mail[0].subject, "Destruction list review request")
         self.assertEqual(sent_mail[0].recipients(), ["reviewer1@oab.nl"])
 
         logs = TimelineLog.objects.filter(user=record_manager)
