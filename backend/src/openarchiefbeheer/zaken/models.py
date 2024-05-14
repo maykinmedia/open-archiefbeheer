@@ -10,7 +10,7 @@ class Zaak(models.Model):
         models.URLField("rollen", max_length=1000, blank=True), null=True, blank=True
     )
     status = models.URLField("status", max_length=1000, blank=True, null=True)
-    zaaktype = models.URLField("zaaktype", max_length=1000)
+    zaaktype = models.JSONField("zaaktype", blank=True, null=True)
     deelzaken = ArrayField(
         models.URLField("deelzaken", max_length=1000, blank=True),
         null=True,
@@ -19,7 +19,7 @@ class Zaak(models.Model):
     einddatum = models.DateField("einddatum", blank=True, null=True)
     hoofdzaak = models.URLField("hoofdzaak", max_length=1000, blank=True, null=True)
     kenmerken = models.JSONField("kenmerken", blank=True, null=True)
-    resultaat = models.URLField("resultaat", max_length=1000, blank=True, null=True)
+    resultaat = models.JSONField("resultaat", blank=True, null=True)
     startdatum = models.DateField("startdatum")
     verlenging = models.JSONField("verlenging", blank=True, null=True)
     opschorting = models.JSONField("opschorting", blank=True, null=True)

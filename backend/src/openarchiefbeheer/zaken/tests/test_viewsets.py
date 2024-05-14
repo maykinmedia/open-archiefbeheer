@@ -91,3 +91,128 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertIn(recent_zaken[0].url, urls_zaken)
         self.assertIn(recent_zaken[1].url, urls_zaken)
+
+    def test_filter_resultaattype(self):
+        zaak_1 = ZaakFactory.create(
+            resultaat={
+                "resultaattype": {
+                    "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111"
+                }
+            }
+        )
+        ZaakFactory.create(
+            resultaat="http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"
+        )  # Not expanded
+        ZaakFactory.create_batch(
+            2,
+            resultaat={
+                "resultaattype": {
+                    "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/222-222-222"
+                }
+            },
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["resultaat__resultaattype__url"] = (
+            "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111"
+        )
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["uuid"], str(zaak_1.uuid))
+
+    def test_filter_bewaartermijn(self):
+        zaak_1 = ZaakFactory.create(
+            resultaat={"resultaattype": {"archiefactietermijn": "P1D"}}
+        )
+        ZaakFactory.create(
+            resultaat="http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"
+        )  # Not expanded
+        ZaakFactory.create_batch(
+            2, resultaat={"resultaattype": {"archiefactietermijn": "P2D"}}
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["bewaartermijn"] = "P1D"
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["uuid"], str(zaak_1.uuid))
+
+    def test_filter_vcs(self):
+        zaak_1 = ZaakFactory.create(
+            zaaktype={"selectielijst_procestype": {"nummer": 1}}
+        )
+        ZaakFactory.create(
+            zaaktype="http://catalogue-api.nl/zaaktypen/111-111-111",
+        )  # Not expanded
+        ZaakFactory.create_batch(
+            2, zaaktype={"selectielijst_procestype": {"nummer": 2}}
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["vcs"] = 1
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["uuid"], str(zaak_1.uuid))
+
+    def test_filter_heeft_relaties(self):
+        zaak_1 = ZaakFactory.create(
+            relevante_andere_zaken=[
+                "http://zaken-api.nl/zaken/api/v1/zaken/111-111-111"
+            ]
+        )
+        zaak_2 = ZaakFactory.create(
+            relevante_andere_zaken=[
+                "http://zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                "http://zaken-api.nl/zaken/api/v1/zaken/222-222-222",
+            ]
+        )
+        no_relations_zaken = ZaakFactory.create_batch(2, relevante_andere_zaken=[])
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["heeft_relaties"] = True
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 2)
+
+        uuids = [zaak["uuid"] for zaak in data["results"]]
+
+        self.assertIn(str(zaak_1.uuid), uuids)
+        self.assertIn(str(zaak_2.uuid), uuids)
+
+        # If the filter is false, we only want zaken without relations
+        endpoint.args["heeft_relaties"] = False
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 2)
+
+        uuids = [zaak["uuid"] for zaak in data["results"]]
+
+        self.assertIn(str(no_relations_zaken[0].uuid), uuids)
+        self.assertIn(str(no_relations_zaken[1].uuid), uuids)

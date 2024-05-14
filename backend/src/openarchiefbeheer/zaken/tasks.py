@@ -8,7 +8,7 @@ from openarchiefbeheer.celery import app
 
 from .api.serializers import ZaakSerializer
 from .models import Zaak
-from .utils import pagination_helper
+from .utils import pagination_helper, process_expanded_data
 
 
 @app.task
@@ -20,6 +20,7 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
         response = zrc_client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
+            params={"expand": "resultaat,resultaat.resultaattype,zaaktype"},
         )
         response.raise_for_status()
 
@@ -30,6 +31,7 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
         Zaak.objects.all().delete()
 
         for data in data_iterator:
-            serializer = ZaakSerializer(data=data["results"], many=True)
+            zaken = process_expanded_data(data["results"])
+            serializer = ZaakSerializer(data=zaken, many=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
