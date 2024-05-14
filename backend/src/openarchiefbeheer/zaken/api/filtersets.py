@@ -19,7 +19,7 @@ class ZaakFilter(FilterSet):
             "If True, only cases not already included in a destruction list are returned."
         ),
     )
-    resultaat__resultaattype__url = CharFilter(
+    _expand__resultaat__resultaattype = CharFilter(
         help_text=_("Filter on the exact URL of resultaattype."),
     )
     bewaartermijn = CharFilter(
@@ -36,7 +36,7 @@ class ZaakFilter(FilterSet):
         method="filter_vcs",
         help_text=_(
             "Filter on VCS. This stands for 'Vernietigings-Categorie Selectielijst'. "
-            "It is obtained through 'zaak.zaaktype.procestype.nummer'."
+            "It is obtained through 'zaaktype.procestype.nummer'."
         ),
         decimal_places=0,
     )
@@ -45,7 +45,7 @@ class ZaakFilter(FilterSet):
         method="filter_heeft_relaties",
         help_text=_(
             "Filter on whether this case has other related cases. "
-            "This is done by looking at the property 'zaak.relevanteAndereZaken'."
+            "This is done by looking at the property 'relevanteAndereZaken'."
         ),
     )
 
@@ -112,12 +112,16 @@ class ZaakFilter(FilterSet):
         self, queryset: QuerySet[Zaak], name: str, value: str
     ) -> QuerySet[Zaak]:
         # TODO it would be nice to do comparisons for periods such as gt/lt
-        return queryset.filter(resultaat__resultaattype__archiefactietermijn=value)
+        return queryset.filter(
+            _expand__resultaat___expand__resultaattype__archiefactietermijn=value
+        )
 
     def filter_vcs(
         self, queryset: QuerySet[Zaak], name: str, value: Decimal
     ) -> QuerySet[Zaak]:
-        return queryset.filter(zaaktype__selectielijst_procestype__nummer=int(value))
+        return queryset.filter(
+            _expand__zaaktype__selectielijst_procestype__nummer=int(value)
+        )
 
     def filter_heeft_relaties(
         self, queryset: QuerySet[Zaak], name: str, value: bool

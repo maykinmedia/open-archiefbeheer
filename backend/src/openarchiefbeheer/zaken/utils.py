@@ -44,27 +44,19 @@ def get_procestype(url: str) -> dict | None:
 
 
 def process_expanded_data(zaken: list[dict]) -> list[dict]:
-    def _format_expanded_data(zaak: dict) -> dict:
+    def expand_procestype(zaak: dict) -> dict:
         if "_expand" not in zaak:
             return zaak
 
         extra_data = zaak["_expand"]
-
-        zaak["zaaktype"] = extra_data["zaaktype"]
-        if procestype_url := zaak["zaaktype"].get("selectielijst_procestype"):
+        if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
             expanded_procestype = get_procestype(procestype_url)
             if expanded_procestype is not None:
-                zaak["zaaktype"]["selectielijst_procestype"] = expanded_procestype
-
-        if "resultaat" in extra_data:
-            resultaat = extra_data["resultaat"]
-            resultaat_extra_data = resultaat.pop("_expand")
-            resultaat["resultaattype"] = resultaat_extra_data["resultaattype"]
-            zaak["resultaat"] = resultaat
+                extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 
         return zaak
 
     with parallel() as executor:
-        zaken_with_expanded_info = list(executor.map(_format_expanded_data, zaken))
+        processed_zaken = list(executor.map(expand_procestype, zaken))
 
-    return zaken_with_expanded_info
+    return processed_zaken

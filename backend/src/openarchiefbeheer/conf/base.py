@@ -537,6 +537,7 @@ REST_FRAMEWORK = {
         "djangorestframework_camel_case.parser.CamelCaseMultiPartParser",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "JSON_UNDERSCOREIZE": {"ignore_keys": ("_expand",)},
 }
 
 

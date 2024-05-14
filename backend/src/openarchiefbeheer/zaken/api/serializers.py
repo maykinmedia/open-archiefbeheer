@@ -48,4 +48,5 @@ class ZaakSerializer(serializers.ModelSerializer):
             "vertrouwelijkheidaanduiding",
             "uiterlijke_einddatum_afdoening",
             "verantwoordelijke_organisatie",
+            "_expand",
         )
