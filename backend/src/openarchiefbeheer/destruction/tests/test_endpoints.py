@@ -7,7 +7,10 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.models import DestructionList
-from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.destruction.tests.factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 
 
 class DestructionListViewSetTest(APITestCase):
@@ -84,6 +87,18 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertEqual(destruction_list.author, record_manager)
+
+    def test_list_destruction_lists(self):
+        user = UserFactory.create()
+        DestructionListFactory.create_batch(3)
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:destructionlist-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 3)
 
     def test_zaak_already_in_another_destruction_list(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
