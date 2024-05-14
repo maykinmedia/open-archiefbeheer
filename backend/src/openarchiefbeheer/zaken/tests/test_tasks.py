@@ -179,19 +179,23 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
 
         zaak_with_resultaat = Zaak.objects.get(identificatie="ZAAK-01")
 
-        self.assertEqual(zaak_with_resultaat.resultaat["toelichting"], "Test result")
         self.assertEqual(
-            zaak_with_resultaat.resultaat["resultaattype"],
+            zaak_with_resultaat._expand["resultaat"]["toelichting"], "Test result"
+        )
+        self.assertEqual(
+            zaak_with_resultaat._expand["resultaat"]["_expand"]["resultaattype"],
             {
                 "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/bd84c463-fa65-46ef-8a9e-dd887e005aea",
             },
         )
         self.assertEqual(
-            zaak_with_resultaat.zaaktype["url"],
+            zaak_with_resultaat._expand["zaaktype"]["url"],
             "http://catalogue-api.nl/zaaktypen/111-111-111",
         )
         self.assertEqual(
-            zaak_with_resultaat.zaaktype["selectielijst_procestype"]["nummer"],
+            zaak_with_resultaat._expand["zaaktype"]["selectielijst_procestype"][
+                "nummer"
+            ],
             1,
         )
 
@@ -244,6 +248,6 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         zaak = Zaak.objects.get(identificatie="ZAAK-01")
 
         self.assertEqual(
-            zaak.zaaktype["selectielijst_procestype"],
+            zaak._expand["zaaktype"]["selectielijst_procestype"],
             "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
