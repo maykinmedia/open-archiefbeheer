@@ -108,7 +108,9 @@ django-sendfile2==0.7.1
 django-simple-certmanager==2.0.0
     # via zgw-consumers
 django-solo==2.2.0
-    # via zgw-consumers
+    # via
+    #   -r requirements/base.in
+    #   zgw-consumers
 django-timeline-logger==4.0.0
     # via -r requirements/base.in
 django-two-factor-auth[phonenumberslite,webauthn]==1.16.0
