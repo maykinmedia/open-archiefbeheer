@@ -1,7 +1,9 @@
+import { Zaak } from "../../types";
 import { request } from "./request";
 
-export type Zaak = {
-  // TODO
+export type PaginatedZaken = {
+  count: number;
+  results: Zaak[];
 };
 
 /**
@@ -10,6 +12,6 @@ export type Zaak = {
  */
 export async function listZaken() {
   const response = await request("GET", "/zaken/");
-  const promise: Promise<Zaak[]> = response.json();
+  const promise: Promise<PaginatedZaken[]> = response.json();
   return promise;
 }

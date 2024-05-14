@@ -1,7 +1,5 @@
 import { Login } from "@maykin-ui/admin-ui";
-import "@maykin-ui/admin-ui/style";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React from "react";
 import { redirect, useActionData, useSubmit } from "react-router-dom";
 
 import { login } from "../../lib/api/auth";
@@ -19,8 +17,8 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   try {
     await login(username as string, password as string);
     return redirect("/");
-  } catch (e: any) {
-    return await e.json();
+  } catch (e: unknown) {
+    return await (e as Response).json();
   }
 }
 
@@ -31,7 +29,7 @@ export type LoginProps = React.ComponentProps<"main"> & {
 /**
  * Login page
  */
-export function LoginPage({ children, ...props }: LoginProps) {
+export function LoginPage({ ...props }: LoginProps) {
   const fields = [
     {
       autoFocus: true,
@@ -58,12 +56,14 @@ export function LoginPage({ children, ...props }: LoginProps) {
 
   return (
     <Login
+      slotPrimaryNavigation={<></>} // FIXME: Shoudl be easier to override
       formProps={{
         nonFieldErrors,
         errors,
         fields,
         onSubmit: (_, data) => submit(data, { method: "POST" }),
       }}
+      {...props}
     />
   );
 }

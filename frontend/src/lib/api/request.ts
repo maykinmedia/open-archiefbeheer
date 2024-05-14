@@ -1,7 +1,19 @@
 import { getCookie } from "../cookie/cookie";
 
+/** Scheme for all API requests.. */
+export const API_SCHEME = "http";
+
+/** The host for the API server. */
+export const API_HOST = "localhost";
+
+/** The port for the API server. */
+export const API_PORT = 8080;
+
+/** The base path for all API requests. */
+export const API_PATH = "/api/v1";
+
 /** The base url for all API requests. */
-export const BASE_URL = "http://localhost:8000/api/v1";
+export const API_BASE_URL = `${API_SCHEME}://${API_HOST}:${API_PORT}${API_PATH}`;
 
 /**
  * Makes an actual fetch request to the API, should be used by all other API implementations.
@@ -17,7 +29,7 @@ export async function request(
   headers?: Record<string, string>,
 ) {
   const csrfToken = getCookie("csrftoken");
-  const url = BASE_URL + endpoint;
+  const url = API_BASE_URL + endpoint;
   const abortController = new AbortController();
 
   const response = await fetch(url, {

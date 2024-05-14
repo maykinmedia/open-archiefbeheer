@@ -14,15 +14,16 @@ export const ReactRouterDecorator = (
 ) => {
   const router = createBrowserRouter([
     {
-      path: "*",
-      element: <Story />,
-      loader: parameters.loader,
+      path: "/",
+      element: <App />,
+      children: [
+        {
+          path: "*",
+          element: <Story />,
+          ...parameters.reactRouterDecorator?.route,
+        },
+      ],
     },
   ]);
-
-  return (
-    <App>
-      <RouterProvider router={router} />
-    </App>
-  );
+  return <RouterProvider router={router} />;
 };
