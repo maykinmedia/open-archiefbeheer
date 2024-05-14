@@ -14,8 +14,8 @@ export function loginRequired<T>(
   return async () => {
     try {
       return await fn(...args);
-    } catch (e: any) {
-      if (e?.status === 403) {
+    } catch (e: unknown) {
+      if ((e as Response)?.status === 403) {
         return redirect("/login");
       }
       throw e;

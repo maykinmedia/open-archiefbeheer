@@ -1,3 +1,4 @@
+import "@maykin-ui/admin-ui/style";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../.storybook/decorators";
