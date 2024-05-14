@@ -5,7 +5,14 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import "./index.css";
-import { LoginPage, landingLoader, loginAction, logoutLoader } from "./pages";
+import {
+  DestructionListCreatePage,
+  LoginPage,
+  destructionListCreateLoader,
+  landingLoader,
+  loginAction,
+  logoutLoader,
+} from "./pages";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +22,11 @@ const router = createBrowserRouter([
       {
         path: "/",
         loader: landingLoader,
+      },
+      {
+        path: "/destruction-lists/create",
+        element: <DestructionListCreatePage />,
+        loader: destructionListCreateLoader,
       },
       {
         path: "/login",
