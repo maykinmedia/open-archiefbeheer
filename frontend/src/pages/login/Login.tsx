@@ -1,7 +1,6 @@
 import { Login } from "@maykin-ui/admin-ui";
 import "@maykin-ui/admin-ui/style";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React from "react";
 import { redirect, useActionData, useSubmit } from "react-router-dom";
 
 import { login } from "../../lib/api/auth";
