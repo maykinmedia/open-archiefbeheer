@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
-from rest_framework.pagination import LimitOffsetPagination as _LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination as _PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
@@ -13,8 +13,9 @@ from .filtersets import ZaakFilter
 from .serializers import ZaakSerializer
 
 
-class LimitOffsetPagination(_LimitOffsetPagination):
-    default_limit = 100
+class PageNumberPagination(_PageNumberPagination):
+    page_size_query_param = "page_size"
+    page_size = 100
 
 
 @extend_schema_view(
@@ -27,6 +28,6 @@ class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Zaak.objects.all()
     serializer_class = ZaakSerializer
     permission_classes = [IsAuthenticated & CanStartDestructionPermission]
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ZaakFilter
