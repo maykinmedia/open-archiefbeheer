@@ -58,18 +58,17 @@ EOF
 # Function to create the page file
 function create_page_file() {
   cat > "$2/$capitalized_page_name.tsx" <<EOF
-import React from "react";
 
 import "./$capitalized_page_name.css";
 
-export type ${capitalized_page_name}Props = React.ComponentProps<"main"> & {
+export type ${capitalized_page_name}PageProps = React.ComponentProps<"main"> & {
   // Props here.
 };
 
 /**
  * ${capitalized_page_name} page
  */
-export function ${capitalized_page_name}Page({ children, ...props }: ${capitalized_page_name}Props) {
+export function ${capitalized_page_name}Page({ children, ...props }: ${capitalized_page_name}PageProps) {
   return (
     <main className="${capitalized_page_name}Page" {...props}>
       {children}
