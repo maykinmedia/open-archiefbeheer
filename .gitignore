@@ -6,6 +6,7 @@
 .vscode/
 .sass-cache/
 *.db
+*.DS_Store
 *.pyc
 __pycache__
 *~
