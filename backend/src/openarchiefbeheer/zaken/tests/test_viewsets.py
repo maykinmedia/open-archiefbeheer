@@ -235,3 +235,20 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertIn(str(no_relations_zaken[0].uuid), uuids)
         self.assertIn(str(no_relations_zaken[1].uuid), uuids)
+
+    def test_partial_filter(self):
+        ZaakFactory.create(identificatie="ZAAK-ABCDEF-01")
+        ZaakFactory.create(identificatie="ZAAK-ABC-02")
+        ZaakFactory.create(identificatie="ZAAK-BCDEF-02")
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["identificatie__icontains"] = "ABC"
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 2)
