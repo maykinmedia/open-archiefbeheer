@@ -53,6 +53,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "contains_sensitive_info",
             "assignees",
             "items",
+            "status",
         )
 
     def create(self, validated_data: dict) -> DestructionList:
