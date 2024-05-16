@@ -49,8 +49,25 @@ class ZaakFilter(FilterSet):
         ),
     )
 
+    # Expand lookups
+
     zaaktype__omschrijving__icontains = CharFilter(
         field_name="_expand__zaaktype__omschrijving", lookup_expr="icontains"
+    )
+
+    resultaat__resultaattype__omschrijving__icontains = CharFilter(
+        field_name="_expand__resultaat___expand__resultaattype__omschrijving",
+        lookup_expr="icontains",
+    )
+
+    resultaat__resultaattype__archiefactietermijn__icontains = CharFilter(
+        field_name="_expand__resultaat___expand__resultaattype__archiefactietermijn",
+        lookup_expr="icontains",
+    )
+
+    zaaktype__selectielijstprocestype__naam__icontains = CharFilter(
+        field_name="_expand__zaaktype__selectielijst_procestype__naam",
+        lookup_expr="icontains",
     )
 
     class Meta:
