@@ -6,7 +6,7 @@ import { request } from "./request";
  * @param password
  */
 export async function login(username: string, password: string) {
-  return request("POST", "/auth/login/", {
+  return request("POST", "/auth/login/", undefined, {
     username,
     password,
   });

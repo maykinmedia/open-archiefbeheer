@@ -19,17 +19,20 @@ export const API_BASE_URL = `${API_SCHEME}://${API_HOST}:${API_PORT}${API_PATH}`
  * Makes an actual fetch request to the API, should be used by all other API implementations.
  * @param method
  * @param endpoint
+ * @param params
  * @param data
  * @param headers
  */
 export async function request(
   method: "GET" | "POST",
   endpoint: string,
+  params?: URLSearchParams | Record<string, string>,
   data?: Record<string, unknown>,
   headers?: Record<string, string>,
 ) {
+  const queryString = params ? new URLSearchParams(params).toString() : "";
+  const url = `${API_BASE_URL + endpoint}?${queryString}`;
   const csrfToken = getCookie("csrftoken");
-  const url = API_BASE_URL + endpoint;
   const abortController = new AbortController();
 
   const response = await fetch(url, {

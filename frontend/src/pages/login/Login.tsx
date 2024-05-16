@@ -1,4 +1,4 @@
-import { Login } from "@maykin-ui/admin-ui";
+import { LoginTemplate } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect, useActionData, useSubmit } from "react-router-dom";
 
@@ -55,7 +55,7 @@ export function LoginPage({ ...props }: LoginProps) {
   const { nonFieldErrors, ...errors } = formErrors;
 
   return (
-    <Login
+    <LoginTemplate
       slotPrimaryNavigation={<></>} // FIXME: Shoudl be easier to override
       formProps={{
         nonFieldErrors,
