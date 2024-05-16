@@ -27,6 +27,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                 "zaaktype": {
                     "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
                     "selectielijst_procestype": {"nummer": 1},
+                    "omschrijving": "Aangifte behandelen",
                 },
                 "resultaat": {
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
