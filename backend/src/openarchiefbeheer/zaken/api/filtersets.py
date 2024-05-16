@@ -49,6 +49,10 @@ class ZaakFilter(FilterSet):
         ),
     )
 
+    zaaktype__omschrijving__icontains = CharFilter(
+        field_name="_expand__zaaktype__omschrijving", lookup_expr="icontains"
+    )
+
     class Meta:
         model = Zaak
         fields = {

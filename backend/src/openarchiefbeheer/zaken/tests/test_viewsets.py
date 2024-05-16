@@ -238,17 +238,18 @@ class ZakenViewSetTest(APITestCase):
 
     def test_partial_filter(self):
         ZaakFactory.create(identificatie="ZAAK-ABCDEF-01")
-        ZaakFactory.create(identificatie="ZAAK-ABC-02")
+        ZaakFactory.create(identificatie="ZAAK-ABC-02", with_expand=True)
         ZaakFactory.create(identificatie="ZAAK-BCDEF-02")
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["identificatie__icontains"] = "ABC"
+        endpoint.args["zaaktype__omschrijving__icontains"] = "Aangifte behandelen"
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data["count"], 2)
+        self.assertEqual(data["count"], 1)
