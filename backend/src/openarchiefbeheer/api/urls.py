@@ -9,6 +9,7 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import ReviewersView
 from openarchiefbeheer.destruction.api.viewsets import DestructionListViewSet
+from openarchiefbeheer.zaken.api.views import CacheZakenView
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
 app_name = "api"
@@ -51,6 +52,9 @@ urlpatterns = [
         include(
             [
                 path("reviewers/", ReviewersView.as_view(), name="reviewers"),
+                path(
+                    "_retrieve_zaken/", CacheZakenView.as_view(), name="retrieve-zaken"
+                ),
                 path("", include(router.urls)),
             ]
         ),
