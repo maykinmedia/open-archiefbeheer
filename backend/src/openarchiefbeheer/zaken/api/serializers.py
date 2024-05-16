@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+
 from rest_framework import serializers
 
 from openarchiefbeheer.zaken.models import Zaak
@@ -50,3 +52,14 @@ class ZaakSerializer(serializers.ModelSerializer):
             "verantwoordelijke_organisatie",
             "_expand",
         )
+
+
+class ZaaktypeChoiceSerializer(serializers.Serializer):
+    label = serializers.CharField(help_text=_("The description field of the zaaktype."))
+    value = serializers.CharField(help_text=_("The URL field of the zaaktype."))
+    extra = serializers.CharField(
+        help_text=_(
+            "A combination of the identification and the date on which "
+            "the zaaktype will no longer be valid (if present)."
+        )
+    )

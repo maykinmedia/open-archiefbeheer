@@ -1,11 +1,14 @@
 from functools import lru_cache
 from typing import Generator
 
+from django.utils.translation import gettext_lazy as _
+
 from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
+from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
@@ -60,3 +63,41 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
         processed_zaken = list(executor.map(expand_procestype, zaken))
 
     return processed_zaken
+
+
+def get_zaaktype_extra_info(zaaktype: dict) -> str:
+    if eind_geldigheid := zaaktype.get("eind_geldigheid"):
+        return _("%(identificatie)s (valid until %(end_validity)s)") % {
+            "identificatie": zaaktype["identificatie"],
+            "end_validity": eind_geldigheid,
+        }
+
+    return zaaktype["identificatie"]
+
+
+def retrieve_zaaktypen_choices() -> list[dict]:
+    ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
+    if not ztc_service:
+        return []
+
+    ztc_client = build_client(ztc_service)
+    with ztc_client:
+        response = ztc_client.get(
+            "zaaktypen",
+            headers={"Accept-Crs": "EPSG:4326"},
+        )
+        response.raise_for_status()
+        data_iterator = pagination_helper(ztc_client, response.json())
+
+    zaaktypen = []
+    for page in data_iterator:
+        zaaktypen += [
+            {
+                "label": result["omschrijving"],
+                "value": result["url"],
+                "extra": get_zaaktype_extra_info(result),
+            }
+            for result in page["results"]
+        ]
+
+    return zaaktypen
