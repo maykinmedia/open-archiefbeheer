@@ -1,4 +1,4 @@
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, tag
 
 from requests_mock import Mocker
 from zgw_consumers.constants import APITypes
@@ -88,6 +88,33 @@ class RetrieveCachedZakenTest(TestCase):
         zaken = Zaak.objects.all()
 
         self.assertEqual(zaken.count(), 4)
+
+    @tag("gh-34")
+    def test_retrieve_zaken_with_archiefnominatie_null(self, m):
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                        "archiefnominatie": None,
+                    }
+                ],
+            },
+        )
+
+        retrieve_and_cache_zaken_from_openzaak()
+
+        self.assertEqual(Zaak.objects.all().count(), 1)
 
 
 PAGE_WITH_EXPAND = {
