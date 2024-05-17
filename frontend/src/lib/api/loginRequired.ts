@@ -1,4 +1,5 @@
-import { redirect } from "react-router-dom";
+import { LoaderFunction } from "@remix-run/router/utils";
+import { LoaderFunctionArgs, redirect } from "react-router-dom";
 
 /**
  * Wraps an async API function with authentication protection. Redirects to the sign-in page if the request fails with a
@@ -7,13 +8,17 @@ import { redirect } from "react-router-dom";
  * @param args The arguments to be passed to the async API function.
  * @returns A function that, when called, executes the wrapped async API function with the provided arguments.
  */
-export function loginRequired<T>(
-  fn: (...args: unknown[]) => Promise<T>,
-  ...args: unknown[]
-): () => Promise<T | Response> {
-  return async () => {
+export function loginRequired<T, A extends unknown[]>(
+  fn: (
+    loaderFunctionArgs: LoaderFunctionArgs,
+    handlerCtx: unknown,
+    ...args: A
+  ) => Promise<T>,
+  ...args: A
+): LoaderFunction {
+  return async (loaderFunctionArgs, handlerCtx) => {
     try {
-      return await fn(...args);
+      return await fn(loaderFunctionArgs, handlerCtx, ...args);
     } catch (e: unknown) {
       if ((e as Response)?.status === 403) {
         return redirect("/login");

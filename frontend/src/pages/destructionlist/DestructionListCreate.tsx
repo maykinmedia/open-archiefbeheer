@@ -1,11 +1,15 @@
 import {
   AttributeData,
   DataGridProps,
-  List,
+  ListTemplate,
   TypedField,
 } from "@maykin-ui/admin-ui";
 import React from "react";
-import { useLoaderData } from "react-router-dom";
+import {
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router-dom";
 
 import { loginRequired } from "../../lib/api/loginRequired";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
@@ -17,7 +21,10 @@ import "./DestructionListCreate.css";
  * @param request
  * TOOD: Requires destruction list lists endpoint.
  */
-export const destructionListCreateLoader = loginRequired(listZaken);
+export const destructionListCreateLoader = loginRequired(({ request }) => {
+  const searchParams = new URL(request.url).searchParams;
+  return listZaken(searchParams);
+});
 
 export type DestructionListCreateProps = Omit<
   React.ComponentProps<"main">,
@@ -31,63 +38,148 @@ export function DestructionListCreatePage({
   ...props
 }: DestructionListCreateProps) {
   const { count, results } = useLoaderData() as PaginatedZaken;
-  const objectList = transformZakenForPresentation(results);
-
-  console.log(results, objectList);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const objectList = results as unknown as AttributeData[];
+  const { state } = useNavigation();
 
   const fields: TypedField[] = [
-    { name: "identificatie", type: "string" },
-    { name: "zaaktype", type: "string" },
-    { name: "omschrijving", type: "string" },
-    { name: "looptijd", type: "string" },
-    { name: "resultaattype", type: "string" },
-    { name: "bewaartermijn", type: "string" },
-    { name: "vcs", type: "string" },
-    { name: "relaties", type: "boolean" },
+    {
+      name: "identificatie",
+      filterLookup: "identificatie__icontains",
+      filterValue: searchParams.get("identificatie__icontains") || "",
+      type: "string",
+    },
+    {
+      name: "zaaktype",
+      filterLookup: "zaaktype__omschrijving__icontains",
+      filterValue: searchParams.get("zaaktype__omschrijving__icontains") || "",
+      valueLookup: "_expand.zaaktype.omschrijving",
+      type: "string",
+    },
+    {
+      name: "omschrijving",
+      filterLookup: "omschrijving__icontains",
+      filterValue: searchParams.get("omschrijving__icontains") || "",
+      type: "string",
+    },
+    {
+      name: "looptijd",
+      filterable: false,
+      valueTransform: (rowData) => {
+        const zaak = rowData as unknown as Zaak;
+        const startDate = new Date(zaak.startdatum);
+        const endDate = zaak.einddatum ? new Date(zaak.einddatum) : new Date();
+        return (
+          Math.ceil(
+            (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+          ) + " dagen"
+        );
+      },
+      type: "string",
+    },
+    {
+      name: "resultaattype",
+      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
+      filterValue:
+        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
+        "",
+      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+      type: "string",
+    },
+    {
+      name: "bewaartermijn",
+      filterLookup: "resultaat__resultaattype__archiefactietermijn__icontains",
+      filterValue:
+        searchParams.get(
+          "resultaat__resultaattype__archiefactietermijn__icontains",
+        ) || "",
+      valueLookup:
+        "_expand.resultaat._expand.resultaattype.archiefactietermijn",
+      type: "string",
+    },
+    {
+      name: "vcs",
+      filterLookup: "zaaktype__selectielijstprocestype__naam__icontains",
+      filterValue:
+        searchParams.get(
+          "zaaktype__selectielijstprocestype__naam__icontains",
+        ) || "",
+      valueLookup: "_expand.zaaktype.selectielijstProcestype.naam",
+      type: "string",
+    },
+    {
+      name: "relaties",
+      filterLookup: "heeft_relaties",
+      valueTransform: (rowData) =>
+        Boolean((rowData as unknown as Zaak)?.relevanteAndereZaken?.length),
+      filterValue: searchParams.get("heeft_relaties") || "",
+      type: "boolean",
+      options: [
+        { value: "true", label: "Ja" },
+        { value: "false", label: "Nee" },
+      ],
+    },
   ];
 
+  const onFilter = (filterData: AttributeData<string>) => {
+    // TODO: Fill filter fields with current value
+    const combinedParams = {
+      ...Object.fromEntries(searchParams),
+      ...filterData,
+    };
+
+    const activeParams = Object.fromEntries(
+      Object.entries(combinedParams).filter(([k, v]) => v),
+    );
+
+    setSearchParams(activeParams);
+  };
+
   return (
-    <List
-      count={count}
-      fields={fields}
-      objectList={objectList}
-      labelSelect={"Selecteer item"} // FIXME: optional
-      labelSelectAll={"Selecteer alle items"} // FIXME: optional
-      pageSize={10}
-      showPaginator={false} // TODO
-      selectable={false} // TODO
+    <ListTemplate
       dataGridProps={
-        // FIXME: Required attrs, alias
         {
+          count: count,
+          fields: fields,
+          loading: state === "loading",
+          objectList: objectList,
+          pageSize: 100,
+          showPaginator: true,
+          selectable: false, // TODO
+          title: "Vernietigingslijst starten",
           boolProps: {
             explicit: true,
-            labelFalse: "Nee", // FIXME: optional
           },
           filterable: true,
+          page: Number(searchParams.get("page")) || 1,
+          onFilter: onFilter,
+          /*
+          TODO: Multi page selection flow
+
+          We should keep track of both selected and unselected zaken across multiple pages using onSelect (second
+          parameter indicates selection state). We should store every (un)selected item somewhere (sessionStorage?).
+
+          When submitting data we consider both the state for selected and unselected zaken as mutations to the
+          destruction list items. The zaken not in any of the selection should be left untouched (by both the backend
+          and the frontend). Submitting data only pushes the changes to the backend state.
+           */
+          // selectionActions: [
+          //   {
+          //     children: "Aanmaken",
+          //     onClick: (...args) => console.log(...args),
+          //   },
+          // ],
+          // TODO: Keep track of selected/unselected state.
+          onSelectionChange: (...args) =>
+            console.log("onSelectionChange", args),
+          onPageChange: (page) =>
+            setSearchParams({
+              ...Object.fromEntries(searchParams),
+              page: String(page),
+            }),
         } as DataGridProps
       }
-      title="Vernietigingslijst starten"
       {...props}
     />
   );
-}
-
-export function transformZakenForPresentation(zaken: Zaak[]) {
-  return zaken.map<AttributeData>((zaak) => {
-    const startDate = new Date(zaak.startdatum);
-    const endDate = zaak.einddatum ? new Date(zaak.einddatum) : new Date();
-    const dayDelta =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-
-    return {
-      identificatie: zaak.identificatie || "",
-      zaaktype: zaak.zaaktype,
-      omschrijving: zaak.omschrijving || "",
-      looptijd: String(dayDelta),
-      resultaattype: "TODO",
-      bewaartermijn: "TODO",
-      vcs: "TODO",
-      relaties: Boolean(zaak?.relevanteAndereZaken?.length || 0),
-    };
-  });
 }
