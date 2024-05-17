@@ -24,7 +24,9 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
         )
         response.raise_for_status()
 
-        data_iterator = pagination_helper(zrc_client, response.json())
+        data_iterator = pagination_helper(
+            zrc_client, response.json(), headers={"Accept-Crs": "EPSG:4326"}
+        )
 
     with transaction.atomic():
         # Removing existing cached zaken
