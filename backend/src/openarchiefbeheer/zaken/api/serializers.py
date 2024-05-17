@@ -1,11 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework_gis.fields import GeometryField
 
 from openarchiefbeheer.zaken.models import Zaak
 
 
 class ZaakSerializer(serializers.ModelSerializer):
+    zaakgeometrie = GeometryField(required=False)
+
     class Meta:
         model = Zaak
         fields = (
