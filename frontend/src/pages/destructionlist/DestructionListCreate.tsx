@@ -1,21 +1,30 @@
 import {
   AttributeData,
+  Button,
   DataGridProps,
+  H2,
+  Input,
   ListTemplate,
   TypedField,
 } from "@maykin-ui/admin-ui";
-import React from "react";
+import { ActionFunctionArgs } from "@remix-run/router/utils";
+import React, { useState } from "react";
 import {
+  useActionData,
   useLoaderData,
   useNavigation,
   useSearchParams,
+  useSubmit,
 } from "react-router-dom";
 
+import { createDestructionList } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
 import {
   addToZaakSelection,
+  clearZaakSelection,
+  getZaakSelection,
   isZaakSelected,
   removeFromZaakSelection,
 } from "../../lib/zaakSelection/zaakSelection";
@@ -57,6 +66,27 @@ export const destructionListCreateLoader = loginRequired(
   },
 );
 
+/**
+ * React Router action.
+ * @param request
+ */
+export async function destructionListCreateAction({
+  request,
+}: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const name = formData.get("name") as string;
+  const zaakUrls = formData.getAll("zaakUrls") as string[];
+  const assigneeIds = formData.getAll("assigneeIds") as string[];
+
+  try {
+    await createDestructionList(name, zaakUrls, assigneeIds);
+  } catch (e: unknown) {
+    return await (e as Response).json();
+  }
+  await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
+  return true;
+}
+
 export type DestructionListCreateProps = Omit<
   React.ComponentProps<"main">,
   "onChange" | "onSelect"
@@ -68,11 +98,18 @@ export type DestructionListCreateProps = Omit<
 export function DestructionListCreatePage({
   ...props
 }: DestructionListCreateProps) {
+  // Loader/Action I/O.
   const { zaken, selectedZaken, zaaktypeChoices } =
     useLoaderData() as DestructionListCreateContext;
+  const errors = useActionData() || {};
+  const submit = useSubmit();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const objectList = zaken.results as unknown as AttributeData[];
   const { state } = useNavigation();
+
+  const [isEditingNameState, setIsEditingNameState] = useState(true);
+  const [nameState, setNameState] = useState("Naam van de vernietigingslijst");
 
   const fields: TypedField[] = [
     {
@@ -193,8 +230,27 @@ export function DestructionListCreatePage({
         );
   };
 
+  /**
+   * Get called when the selection is submitted.
+   */
+  const onCreate = async () => {
+    const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
+    const zaakUrls = Object.entries(zaakSelection)
+      .filter(([, selected]) => selected)
+      .map(([url]) => url);
+    const assigneeIds = [1]; // TODO: Add a modal with actual assignees
+
+    const data = new FormData();
+    data.append("name", nameState);
+    zaakUrls.forEach((url) => data.append("zaakUrls", url));
+    assigneeIds.forEach((id) => data.append("assigneeIds", String(id)));
+
+    submit(data, { method: "POST" });
+  };
+
   return (
     <ListTemplate
+      errors={Object.values(errors)}
       dataGridProps={
         {
           count: zaken.count,
@@ -205,10 +261,36 @@ export function DestructionListCreatePage({
           showPaginator: true,
           selectable: true,
           selected: selectedZaken as unknown as AttributeData[],
+          selectionActions: [
+            {
+              children: "Vernietigingslijst aanmaken",
+              onClick: onCreate,
+              wrap: false,
+            },
+          ],
           labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
-          labelSelectAll:
-            "Alle {count} zaken op deze pagina toevoegen aan selectie",
-          title: "Vernietigingslijst starten",
+          labelSelectAll: "Selecteer {countPage} op pagina",
+          title: isEditingNameState ? (
+            <Input
+              aria-label="Voer de naam van de vernietigingslijst in"
+              autoFocus={true}
+              value={nameState}
+              onChange={(e) => setNameState(e.target.value)}
+              onFocus={(e) => e.target.select()}
+              onBlur={() => setIsEditingNameState(false)}
+              onKeyUp={(e) =>
+                e.code === "Enter" && setIsEditingNameState(false)
+              }
+            />
+          ) : (
+            <Button
+              pad={false}
+              variant="transparent"
+              onClick={() => setIsEditingNameState(true)}
+            >
+              <H2>{nameState}</H2>
+            </Button>
+          ),
           boolProps: {
             explicit: true,
           },

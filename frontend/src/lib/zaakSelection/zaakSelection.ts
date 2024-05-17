@@ -68,6 +68,18 @@ export async function setZaakSelection(
 }
 
 /**
+ * Clears zaak selection cache.
+ * Note: only the `url` of selected `zaken` are stored.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ */
+export async function clearZaakSelection(key: string) {
+  const computedKey = _getComputedKey(key);
+  const json = "{}";
+  sessionStorage.setItem(computedKey, json);
+}
+
+/**
  * Returns whether zaak is selected.
  * @param key A key identifying the selection
  * @param zaak Either a `Zaak.url` or `Zaak` object.
