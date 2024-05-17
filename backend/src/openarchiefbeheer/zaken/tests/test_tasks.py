@@ -116,6 +116,36 @@ class RetrieveCachedZakenTest(TestCase):
 
         self.assertEqual(Zaak.objects.all().count(), 1)
 
+    @tag("gh-41")
+    def test_retrieve_zaken_with_geometry(self, m):
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                        "zaakgeometrie": {
+                            "type": "Point",
+                            "coordinates": [39.81005493339004, 88.23584101738716],
+                        },
+                    }
+                ],
+            },
+        )
+
+        retrieve_and_cache_zaken_from_openzaak()
+
+        self.assertEqual(Zaak.objects.all().count(), 1)
+
 
 PAGE_WITH_EXPAND = {
     "results": [
