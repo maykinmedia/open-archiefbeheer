@@ -12,19 +12,29 @@ import {
 } from "react-router-dom";
 
 import { loginRequired } from "../../lib/api/loginRequired";
+import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
 import { Zaak } from "../../types";
 import "./DestructionListCreate.css";
 
+export type DestructionListCreateContext = {
+  zaken: PaginatedZaken;
+  zaaktypeChoices: ZaaktypeChoice[];
+};
+
 /**
  * React Router loader.
  * @param request
- * TOOD: Requires destruction list lists endpoint.
  */
-export const destructionListCreateLoader = loginRequired(({ request }) => {
-  const searchParams = new URL(request.url).searchParams;
-  return listZaken(searchParams);
-});
+export const destructionListCreateLoader = loginRequired(
+  async ({ request }) => {
+    const searchParams = new URL(request.url).searchParams;
+    searchParams.set("not_in_destruction_list", "true");
+    const zaken = await listZaken(searchParams);
+    const zaaktypeChoices = await listZaaktypeChoices();
+    return { zaken, zaaktypeChoices };
+  },
+);
 
 export type DestructionListCreateProps = Omit<
   React.ComponentProps<"main">,
@@ -37,9 +47,10 @@ export type DestructionListCreateProps = Omit<
 export function DestructionListCreatePage({
   ...props
 }: DestructionListCreateProps) {
-  const { count, results } = useLoaderData() as PaginatedZaken;
+  const { zaken, zaaktypeChoices } =
+    useLoaderData() as DestructionListCreateContext;
   const [searchParams, setSearchParams] = useSearchParams();
-  const objectList = results as unknown as AttributeData[];
+  const objectList = zaken.results as unknown as AttributeData[];
   const { state } = useNavigation();
 
   const fields: TypedField[] = [
@@ -51,9 +62,10 @@ export function DestructionListCreatePage({
     },
     {
       name: "zaaktype",
-      filterLookup: "zaaktype__omschrijving__icontains",
-      filterValue: searchParams.get("zaaktype__omschrijving__icontains") || "",
+      filterLookup: "zaaktype",
+      filterValue: searchParams.get("zaaktype") || "",
       valueLookup: "_expand.zaaktype.omschrijving",
+      options: zaaktypeChoices,
       type: "string",
     },
     {
@@ -139,7 +151,7 @@ export function DestructionListCreatePage({
     <ListTemplate
       dataGridProps={
         {
-          count: count,
+          count: zaken.count,
           fields: fields,
           loading: state === "loading",
           objectList: objectList,

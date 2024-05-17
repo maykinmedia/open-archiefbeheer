@@ -100,6 +100,7 @@ class ZaakFilter(FilterSet):
             "vertrouwelijkheidaanduiding": ["exact", "icontains"],
             "uiterlijke_einddatum_afdoening": ["exact", "gt", "lt"],
             "verantwoordelijke_organisatie": ["exact", "icontains"],
+            "zaaktype": ["exact", "icontains"],
             # TODO Decide what to do with these fields and if/how we want to filter them
             # # Array Fields
             # "rollen": ["exact", "icontains"],
