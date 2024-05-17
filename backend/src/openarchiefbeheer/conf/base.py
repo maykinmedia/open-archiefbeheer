@@ -119,6 +119,7 @@ INSTALLED_APPS = [
     "hijack",
     "hijack.contrib.admin",
     "rest_framework",
+    "rest_framework_gis",
     "drf_spectacular",
     "zgw_consumers",
     "simple_certmanager",

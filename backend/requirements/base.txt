@@ -118,8 +118,11 @@ django-two-factor-auth[phonenumberslite,webauthn]==1.16.0
 djangorestframework==3.15.1
     # via
     #   -r requirements/base.in
+    #   djangorestframework-gis
     #   drf-spectacular
 djangorestframework-camel-case==1.4.2
+    # via -r requirements/base.in
+djangorestframework-gis==1.0
     # via -r requirements/base.in
 drf-spectacular==0.27.2
     # via -r requirements/base.in
