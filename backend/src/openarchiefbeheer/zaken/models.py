@@ -41,7 +41,9 @@ class Zaak(models.Model):
     zaakgeometrie = GeometryField("zaakgeometrie", blank=True, null=True)
     bronorganisatie = models.CharField("bronorganisatie", max_length=9)
     publicatiedatum = models.DateField("publicatiedatum", blank=True, null=True)
-    archiefnominatie = models.CharField("archiefnominatie", max_length=250, blank=True)
+    archiefnominatie = models.CharField(
+        "archiefnominatie", max_length=250, blank=True, null=True
+    )
     einddatum_gepland = models.DateField("einddatum_gepland", blank=True, null=True)
     registratiedatum = models.DateField("registratiedatum", blank=True, null=True)
     archiefactiedatum = models.DateField("archiefactiedatum", blank=True, null=True)
