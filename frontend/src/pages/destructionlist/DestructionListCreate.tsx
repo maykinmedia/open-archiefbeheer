@@ -14,11 +14,20 @@ import {
 import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
+import {
+  addToZaakSelection,
+  isZaakSelected,
+  removeFromZaakSelection,
+} from "../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../types";
 import "./DestructionListCreate.css";
 
+/** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
+const DESTRUCTION_LIST_CREATE_KEY = "tempDestructionList";
+
 export type DestructionListCreateContext = {
   zaken: PaginatedZaken;
+  selectedZaken: Zaak[];
   zaaktypeChoices: ZaaktypeChoice[];
 };
 
@@ -30,9 +39,21 @@ export const destructionListCreateLoader = loginRequired(
   async ({ request }) => {
     const searchParams = new URL(request.url).searchParams;
     searchParams.set("not_in_destruction_list", "true");
+
+    // Get zaken and zaaktypen.
     const zaken = await listZaken(searchParams);
     const zaaktypeChoices = await listZaaktypeChoices();
-    return { zaken, zaaktypeChoices };
+
+    // Get zaak selection.
+    const isZaakSelectedPromises = zaken.results.map((zaak) =>
+      isZaakSelected(DESTRUCTION_LIST_CREATE_KEY, zaak),
+    );
+    const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
+    const selectedZaken = zaken.results.filter(
+      (_, index) => isZaakSelectedResults[index],
+    );
+
+    return { zaken, selectedZaken, zaaktypeChoices };
   },
 );
 
@@ -47,7 +68,7 @@ export type DestructionListCreateProps = Omit<
 export function DestructionListCreatePage({
   ...props
 }: DestructionListCreateProps) {
-  const { zaken, zaaktypeChoices } =
+  const { zaken, selectedZaken, zaaktypeChoices } =
     useLoaderData() as DestructionListCreateContext;
   const [searchParams, setSearchParams] = useSearchParams();
   const objectList = zaken.results as unknown as AttributeData[];
@@ -133,8 +154,11 @@ export function DestructionListCreatePage({
     },
   ];
 
+  /**
+   * Gets called when a filter value is change.
+   * @param filterData
+   */
   const onFilter = (filterData: AttributeData<string>) => {
-    // TODO: Fill filter fields with current value
     const combinedParams = {
       ...Object.fromEntries(searchParams),
       ...filterData,
@@ -147,6 +171,28 @@ export function DestructionListCreatePage({
     setSearchParams(activeParams);
   };
 
+  /**
+   * Gets called when the selection is changed.
+   * @param attributeData
+   * @param selected
+   */
+  const onSelect = async (
+    attributeData: AttributeData[],
+    selected: boolean,
+  ) => {
+    selected
+      ? await addToZaakSelection(
+          DESTRUCTION_LIST_CREATE_KEY,
+          attributeData as unknown as Zaak[],
+        )
+      : await removeFromZaakSelection(
+          DESTRUCTION_LIST_CREATE_KEY,
+          attributeData.length
+            ? (attributeData as unknown as Zaak[])
+            : zaken.results,
+        );
+  };
+
   return (
     <ListTemplate
       dataGridProps={
@@ -157,7 +203,11 @@ export function DestructionListCreatePage({
           objectList: objectList,
           pageSize: 100,
           showPaginator: true,
-          selectable: false, // TODO
+          selectable: true,
+          selected: selectedZaken as unknown as AttributeData[],
+          labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
+          labelSelectAll:
+            "Alle {count} zaken op deze pagina toevoegen aan selectie",
           title: "Vernietigingslijst starten",
           boolProps: {
             explicit: true,
@@ -165,25 +215,7 @@ export function DestructionListCreatePage({
           filterable: true,
           page: Number(searchParams.get("page")) || 1,
           onFilter: onFilter,
-          /*
-          TODO: Multi page selection flow
-
-          We should keep track of both selected and unselected zaken across multiple pages using onSelect (second
-          parameter indicates selection state). We should store every (un)selected item somewhere (sessionStorage?).
-
-          When submitting data we consider both the state for selected and unselected zaken as mutations to the
-          destruction list items. The zaken not in any of the selection should be left untouched (by both the backend
-          and the frontend). Submitting data only pushes the changes to the backend state.
-           */
-          // selectionActions: [
-          //   {
-          //     children: "Aanmaken",
-          //     onClick: (...args) => console.log(...args),
-          //   },
-          // ],
-          // TODO: Keep track of selected/unselected state.
-          onSelectionChange: (...args) =>
-            console.log("onSelectionChange", args),
+          onSelect: onSelect,
           onPageChange: (page) =>
             setSearchParams({
               ...Object.fromEntries(searchParams),
