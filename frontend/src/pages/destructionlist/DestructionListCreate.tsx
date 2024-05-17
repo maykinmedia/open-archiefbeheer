@@ -1,15 +1,18 @@
 import {
   AttributeData,
-  Button,
+  Body,
   DataGridProps,
-  H2,
-  Input,
+  Form,
+  FormField,
   ListTemplate,
+  Modal,
+  SerializedFormData,
   TypedField,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import {
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -20,6 +23,7 @@ import {
 import { createDestructionList } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
+import { User, listReviewers } from "../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
 import {
   addToZaakSelection,
@@ -35,6 +39,7 @@ import "./DestructionListCreate.css";
 const DESTRUCTION_LIST_CREATE_KEY = "tempDestructionList";
 
 export type DestructionListCreateContext = {
+  reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   zaaktypeChoices: ZaaktypeChoice[];
@@ -49,7 +54,8 @@ export const destructionListCreateLoader = loginRequired(
     const searchParams = new URL(request.url).searchParams;
     searchParams.set("not_in_destruction_list", "true");
 
-    // Get zaken and zaaktypen.
+    // Get reviewers, zaken and zaaktypen.
+    const reviewers = await listReviewers();
     const zaken = await listZaken(searchParams);
     const zaaktypeChoices = await listZaaktypeChoices();
 
@@ -62,7 +68,7 @@ export const destructionListCreateLoader = loginRequired(
       (_, index) => isZaakSelectedResults[index],
     );
 
-    return { zaken, selectedZaken, zaaktypeChoices };
+    return { reviewers, zaken, selectedZaken, zaaktypeChoices };
   },
 );
 
@@ -84,7 +90,7 @@ export async function destructionListCreateAction({
     return await (e as Response).json();
   }
   await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
-  return true;
+  return redirect("/");
 }
 
 export type DestructionListCreateProps = Omit<
@@ -99,7 +105,7 @@ export function DestructionListCreatePage({
   ...props
 }: DestructionListCreateProps) {
   // Loader/Action I/O.
-  const { zaken, selectedZaken, zaaktypeChoices } =
+  const { reviewers, zaken, selectedZaken, zaaktypeChoices } =
     useLoaderData() as DestructionListCreateContext;
   const errors = useActionData() || {};
   const submit = useSubmit();
@@ -108,8 +114,7 @@ export function DestructionListCreatePage({
   const objectList = zaken.results as unknown as AttributeData[];
   const { state } = useNavigation();
 
-  const [isEditingNameState, setIsEditingNameState] = useState(true);
-  const [nameState, setNameState] = useState("Naam van de vernietigingslijst");
+  const [modalOpenState, setModalOpenState] = useState(false);
 
   const fields: TypedField[] = [
     {
@@ -233,79 +238,105 @@ export function DestructionListCreatePage({
   /**
    * Get called when the selection is submitted.
    */
-  const onCreate = async () => {
+  const onSubmitSelection = () => setModalOpenState(true);
+
+  /**
+   * Gets called when the form is submitted.
+   */
+  const onSubmitForm = async (event: FormEvent, data: SerializedFormData) => {
     const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selected]) => selected)
       .map(([url]) => url);
-    const assigneeIds = [1]; // TODO: Add a modal with actual assignees
+    const { name, assigneeIds } = data;
 
-    const data = new FormData();
-    data.append("name", nameState);
-    zaakUrls.forEach((url) => data.append("zaakUrls", url));
-    assigneeIds.forEach((id) => data.append("assigneeIds", String(id)));
+    const formData = new FormData();
+    formData.append("name", name as string);
+    zaakUrls.forEach((url) => formData.append("zaakUrls", url));
+    (assigneeIds as string[])
+      .filter((id) => id)
+      .forEach((id) => formData.append("assigneeIds", String(id)));
 
-    submit(data, { method: "POST" });
+    submit(formData, { method: "POST" });
+    setModalOpenState(false);
   };
 
+  const modalFormFields: FormField[] = [
+    {
+      autoComplete: "off",
+      autoFocus: modalOpenState,
+      label: "Naam",
+      name: "name",
+    },
+    {
+      label: "Eerste reviewer",
+      name: "assigneeIds",
+      options: reviewers.map((user) => ({
+        value: String(user.pk),
+        label: user.username,
+      })),
+      required: true,
+    },
+    {
+      label: "Tweede reviewer",
+      name: "assigneeIds",
+      options: reviewers.map((user) => ({
+        value: String(user.pk),
+        label: user.username,
+      })),
+    },
+  ];
+
   return (
-    <ListTemplate
-      errors={Object.values(errors)}
-      dataGridProps={
-        {
-          count: zaken.count,
-          fields: fields,
-          loading: state === "loading",
-          objectList: objectList,
-          pageSize: 100,
-          showPaginator: true,
-          selectable: true,
-          selected: selectedZaken as unknown as AttributeData[],
-          selectionActions: [
-            {
-              children: "Vernietigingslijst aanmaken",
-              onClick: onCreate,
-              wrap: false,
+    <>
+      <Modal
+        title="Vernietigingslijst starten"
+        open={modalOpenState}
+        size="m"
+        onClose={() => setModalOpenState(false)}
+      >
+        <Body>
+          <Form fields={modalFormFields} onSubmit={onSubmitForm}></Form>
+        </Body>
+      </Modal>
+      <ListTemplate
+        errors={Object.values(errors)}
+        dataGridProps={
+          {
+            count: zaken.count,
+            fields: fields,
+            loading: state === "loading",
+            objectList: objectList,
+            pageSize: 100,
+            showPaginator: true,
+            selectable: true,
+            selected: selectedZaken as unknown as AttributeData[],
+            selectionActions: [
+              {
+                children: "Vernietigingslijst aanmaken",
+                onClick: onSubmitSelection,
+                wrap: false,
+              },
+            ],
+            labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
+            labelSelectAll: "Selecteer {countPage} op pagina",
+            title: "Vernietigingslijst opstellen",
+            boolProps: {
+              explicit: true,
             },
-          ],
-          labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
-          labelSelectAll: "Selecteer {countPage} op pagina",
-          title: isEditingNameState ? (
-            <Input
-              aria-label="Voer de naam van de vernietigingslijst in"
-              autoFocus={true}
-              value={nameState}
-              onChange={(e) => setNameState(e.target.value)}
-              onFocus={(e) => e.target.select()}
-              onBlur={() => setIsEditingNameState(false)}
-              onKeyUp={(e) =>
-                e.code === "Enter" && setIsEditingNameState(false)
-              }
-            />
-          ) : (
-            <Button
-              pad={false}
-              variant="transparent"
-              onClick={() => setIsEditingNameState(true)}
-            >
-              <H2>{nameState}</H2>
-            </Button>
-          ),
-          boolProps: {
-            explicit: true,
-          },
-          filterable: true,
-          page: Number(searchParams.get("page")) || 1,
-          onFilter: onFilter,
-          onSelect: onSelect,
-          onPageChange: (page) =>
-            setSearchParams({
-              ...Object.fromEntries(searchParams),
-              page: String(page),
-            }),
-        } as DataGridProps
-      }
-      {...props}
-    />
+            filterable: true,
+            page: Number(searchParams.get("page")) || 1,
+            onFilter: onFilter,
+            onSelect: onSelect,
+            onPageChange: (page) =>
+              setSearchParams({
+                ...Object.fromEntries(searchParams),
+                page: String(page),
+              }),
+          } as DataGridProps
+        }
+        {...props}
+      />
+    </>
   );
 }

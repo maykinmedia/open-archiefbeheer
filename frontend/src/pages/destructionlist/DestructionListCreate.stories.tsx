@@ -13,6 +13,21 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE = {
+  reviewers: [
+    {
+      pk: 1,
+      username: "Chef Kok",
+      firstName: "Chef",
+      lastName: "Kok",
+      email: "chefkok@example.com",
+      role: {
+        name: "recordmanager",
+        canStartDestruction: true,
+        canReviewDestruction: true,
+        canViewCaseDetails: false,
+      },
+    },
+  ],
   zaken: {
     count: 10,
     next: null,
