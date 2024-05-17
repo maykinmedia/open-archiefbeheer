@@ -21,6 +21,7 @@ drf-spectacular
 djangorestframework-camel-case
 django-cors-headers
 django-filter
+djangorestframework-gis
 
 # WSGI servers & monitoring - production oriented
 uwsgi
