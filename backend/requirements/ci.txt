@@ -488,6 +488,8 @@ sqlparse==0.5.0
     #   django
 tblib==3.0.0
     # via -r requirements/test-tools.in
+testfixtures==8.2.0
+    # via -r requirements/test-tools.in
 tomlkit==0.12.4
     # via pylint
 typing-extensions==4.11.0

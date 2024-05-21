@@ -638,6 +638,10 @@ tblib==3.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+testfixtures==8.2.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 tomlkit==0.12.4
     # via
     #   -c requirements/ci.txt
