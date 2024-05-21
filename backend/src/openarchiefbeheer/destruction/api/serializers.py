@@ -9,7 +9,6 @@ from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
-from ...zaken.api.serializers import ZaakSerializer
 from ..constants import ListItemStatus
 from ..models import DestructionList, DestructionListAssignee, DestructionListItem
 
