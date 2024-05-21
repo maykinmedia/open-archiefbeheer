@@ -17,6 +17,14 @@ class DestructionListAssigneeSerializer(serializers.ModelSerializer):
         fields = ("user", "order")
 
 
+class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user", "order")
+
+
 class DestructionListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListItem
@@ -32,7 +40,8 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 {
                     "zaak": _(
-                        "This case was already included in another destruction list and was not exempt during the review process."
+                        "This case was already included in another destruction list and was not exempt during the "
+                        "review process."
                     )
                 }
             )
@@ -84,3 +93,20 @@ class DestructionListSerializer(serializers.ModelSerializer):
         logevent.destruction_list_created(destruction_list, author)
 
         return destruction_list
+
+
+class DestructionListResponseSerializer(serializers.ModelSerializer):
+    assignees = DestructionListAssigneeResponseSerializer(many=True)
+    items = DestructionListItemSerializer(many=True)
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = DestructionList
+        fields = (
+            "name",
+            "author",
+            "contains_sensitive_info",
+            "assignees",
+            "items",
+            "status",
+        )

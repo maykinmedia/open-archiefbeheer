@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from ..models import DestructionList
 from .permissions import CanStartDestructionPermission
-from .serializers import DestructionListSerializer
+from .serializers import DestructionListResponseSerializer, DestructionListSerializer
 
 
 @extend_schema_view(
@@ -42,9 +42,17 @@ from .serializers import DestructionListSerializer
             )
         ],
     ),
+    retrieve=extend_schema(
+        summary=_("Retrieve destruction list"),
+        description=_("Retrieve details about a destruction list."),
+        responses={200: DestructionListResponseSerializer},
+    ),
 )
 class DestructionListViewSet(
-    mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListSerializer
     queryset = DestructionList.objects.all()
@@ -55,6 +63,11 @@ class DestructionListViewSet(
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return DestructionListResponseSerializer
+        return self.serializer_class
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
