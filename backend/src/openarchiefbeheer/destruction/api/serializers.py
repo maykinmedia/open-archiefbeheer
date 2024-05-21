@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -8,6 +9,7 @@ from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
+from ...zaken.api.serializers import ZaakSerializer
 from ..constants import ListItemStatus
 from ..models import DestructionList, DestructionListAssignee, DestructionListItem
 
@@ -30,7 +32,8 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
     zaak_data = serializers.SerializerMethodField(
         help_text=_(
             "If the case has not been deleted yet, this field contains all the zaak data."
-        )
+        ),
+        allow_null=True,
     )
 
     class Meta:
@@ -57,6 +60,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    @extend_schema_field(ZaakSerializer)
     def get_zaak_data(self, instance: DestructionListItem) -> dict | None:
         return instance.get_zaak_data()
 
