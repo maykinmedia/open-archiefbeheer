@@ -8,7 +8,10 @@ from drf_spectacular.views import (
 from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import ReviewersView
-from openarchiefbeheer.destruction.api.viewsets import DestructionListViewSet
+from openarchiefbeheer.destruction.api.viewsets import (
+    DestructionListItemsViewSet,
+    DestructionListViewSet,
+)
 from openarchiefbeheer.zaken.api.views import CacheZakenView, ZaaktypenChoicesView
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
@@ -16,6 +19,11 @@ app_name = "api"
 
 router = routers.DefaultRouter()
 router.register(r"destruction-lists", DestructionListViewSet)
+router.register(
+    r"destruction-list-items",
+    DestructionListItemsViewSet,
+    basename="destruction-list-items",
+)
 router.register(r"zaken", ZakenViewSet, basename="zaken")
 
 

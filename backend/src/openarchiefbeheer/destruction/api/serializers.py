@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
 from ..constants import ListItemStatus
 from ..models import DestructionList, DestructionListAssignee, DestructionListItem
@@ -26,11 +27,19 @@ class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
 
 
 class DestructionListItemSerializer(serializers.ModelSerializer):
+    zaak_data = serializers.SerializerMethodField(
+        help_text=_(
+            "If the case has not been deleted yet, this field contains all the zaak data."
+        )
+    )
+
     class Meta:
         model = DestructionListItem
         fields = (
             "zaak",
+            "status",
             "extra_zaak_data",
+            "zaak_data",
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -47,6 +56,9 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+
+    def get_zaak_data(self, instance: DestructionListItem) -> dict | None:
+        return instance.get_zaak_data()
 
 
 class DestructionListSerializer(serializers.ModelSerializer):

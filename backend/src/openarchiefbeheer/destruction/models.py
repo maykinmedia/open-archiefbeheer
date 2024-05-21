@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -6,6 +8,10 @@ from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import ListItemStatus, ListStatus
 from openarchiefbeheer.emails.utils import send_review_request_email
+from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
+from openarchiefbeheer.zaken.models import Zaak
+
+logger = logging.getLogger(__name__)
 
 
 class DestructionList(models.Model):
@@ -104,6 +110,23 @@ class DestructionListItem(models.Model):
 
     def __str__(self):
         return f"{self.destruction_list}: {self.zaak}"
+
+    def get_zaak_data(self) -> dict | None:
+        if self.status == ListItemStatus.removed:
+            # The case does not exist anymore. We cannot retrieve details.
+            return None
+
+        zaak = Zaak.objects.filter(url=self.zaak).first()
+        if not zaak:
+            logger.error(
+                'Zaak with url %s and status "%s" could not be found in the cache.',
+                self.zaak,
+                self.status,
+            )
+            return None
+
+        serializer = ZaakSerializer(instance=zaak)
+        return serializer.data
 
 
 class DestructionListAssignee(OrderedModel):

@@ -1,13 +1,19 @@
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from ..models import DestructionList
+from ..models import DestructionList, DestructionListItem
+from .filtersets import DestructionListItemFilterset
 from .permissions import CanStartDestructionPermission
-from .serializers import DestructionListResponseSerializer, DestructionListSerializer
+from .serializers import (
+    DestructionListItemSerializer,
+    DestructionListResponseSerializer,
+    DestructionListSerializer,
+)
 
 
 @extend_schema_view(
@@ -72,3 +78,21 @@ class DestructionListViewSet(
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary=_("List destruction list items"),
+        description=_(
+            "List all the items (cases) that are related to a destruction list."
+        ),
+    ),
+)
+class DestructionListItemsViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = DestructionListItemSerializer
+    queryset = DestructionListItem.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListItemFilterset
