@@ -253,9 +253,9 @@ export function DestructionListCreatePage({
     const formData = new FormData();
     formData.append("name", name as string);
     zaakUrls.forEach((url) => formData.append("zaakUrls", url));
-    (assigneeIds as string[])
-      .filter((id) => id)
-      .forEach((id) => formData.append("assigneeIds", String(id)));
+    (assigneeIds as string[]).forEach((id) =>
+      formData.append("assigneeIds", String(id)),
+    );
 
     submit(formData, { method: "POST" });
     setModalOpenState(false);

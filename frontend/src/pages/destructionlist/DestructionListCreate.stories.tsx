@@ -23,7 +23,7 @@ const FIXTURE = {
       role: {
         name: "recordmanager",
         canStartDestruction: true,
-        canReviewDestruction: true,
+        canReviewDestruction: false,
         canViewCaseDetails: false,
       },
     },
