@@ -79,6 +79,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "items",
             "status",
         )
+        extra_kwargs = {"status": {"read_only": True}, "author": {"read_only": True}}
 
     def create(self, validated_data: dict) -> DestructionList:
         assignees_data = validated_data.pop("assignees")
@@ -88,26 +89,38 @@ class DestructionListSerializer(serializers.ModelSerializer):
         validated_data["author"] = author
         destruction_list = DestructionList.objects.create(**validated_data)
 
-        DestructionListItem.objects.bulk_create(
-            [
-                DestructionListItem(**{**item, "destruction_list": destruction_list})
-                for item in items_data
-            ]
-        )
-        assignees = DestructionListAssignee.objects.bulk_create(
-            [
-                DestructionListAssignee(
-                    **{**assignee, "destruction_list": destruction_list}
-                )
-                for assignee in assignees_data
-            ]
-        )
+        destruction_list.bulk_create_items(items_data)
+        assignees = destruction_list.bulk_create_assignees(assignees_data)
 
         destruction_list.assign(assignees[0])
 
         logevent.destruction_list_created(destruction_list, author)
 
         return destruction_list
+
+    def update(
+        self, instance: DestructionList, validated_data: dict
+    ) -> DestructionList:
+        assignees_data = validated_data.pop("assignees", None)
+        items_data = validated_data.pop("items", None)
+
+        instance.contains_sensitive_info = validated_data.pop(
+            "contains_sensitive_info", instance.contains_sensitive_info
+        )
+        instance.name = validated_data.pop("name", instance.name)
+
+        if items_data is not None:
+            instance.items.all().delete()
+            instance.bulk_create_items(items_data)
+
+        if assignees_data is not None:
+            instance.assignees.all().delete()
+            instance.bulk_create_assignees(assignees_data)
+
+        instance.save()
+
+        logevent.destruction_list_updated(instance)
+        return instance
 
 
 class DestructionListResponseSerializer(serializers.ModelSerializer):

@@ -86,6 +86,24 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         self.save()
 
+    def bulk_create_assignees(
+        self, assignees_data: dict
+    ) -> list["DestructionListAssignee"]:
+        return DestructionListAssignee.objects.bulk_create(
+            [
+                DestructionListAssignee(**{**assignee, "destruction_list": self})
+                for assignee in assignees_data
+            ]
+        )
+
+    def bulk_create_items(self, items_data: dict) -> list["DestructionListItem"]:
+        return DestructionListItem.objects.bulk_create(
+            [
+                DestructionListItem(**{**item, "destruction_list": self})
+                for item in items_data
+            ]
+        )
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
