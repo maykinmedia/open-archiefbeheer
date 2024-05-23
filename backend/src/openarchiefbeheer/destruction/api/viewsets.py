@@ -20,6 +20,7 @@ from .serializers import (
     list=extend_schema(
         summary=_("List destruction lists"),
         description=_("List all destruction lists."),
+        responses={200: DestructionListResponseSerializer(many=True)},
     ),
     create=extend_schema(
         summary=_("Create destruction list"),
@@ -71,7 +72,7 @@ class DestructionListViewSet(
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
+        if self.action in ["retrieve", "list"]:
             return DestructionListResponseSerializer
         return self.serializer_class
 
