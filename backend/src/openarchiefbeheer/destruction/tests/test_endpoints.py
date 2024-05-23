@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
+from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -11,6 +12,7 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
     DestructionListItemFactory,
 )
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
 class DestructionListViewSetTest(APITestCase):
@@ -161,3 +163,94 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertFalse(DestructionList.objects.filter(name="A test list").exists())
+
+
+class DestructionListItemsViewSetTest(APITestCase):
+    def test_not_authenticated(self):
+        endpoint = reverse("api:destruction-list-items-list")
+
+        response = self.client.post(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_destruction_list_items(self):
+        record_manager = UserFactory.create(username="record_manager")
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/111-111-111", omschrijving="Description 1"
+        )
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/222-222-222", omschrijving="Description 2"
+        )
+
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            status=ListItemStatus.suggested,
+        )
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
+            status=ListItemStatus.suggested,
+        )
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/333-333-333",
+            status=ListItemStatus.removed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse("api:destruction-list-items-list")
+
+        response = self.client.get(
+            endpoint,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = sorted(response.json(), key=lambda item: item["zaak"])
+
+        self.assertEqual(
+            data[0]["zaakData"]["omschrijving"],
+            "Description 1",
+        )
+        self.assertEqual(
+            data[1]["zaakData"]["omschrijving"],
+            "Description 2",
+        )
+        self.assertIsNone(data[2]["zaakData"])
+
+    def test_filter_items_on_destruction_list(self):
+        record_manager = UserFactory.create(username="record_manager")
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/111-111-111", omschrijving="Description 1"
+        )
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/222-222-222", omschrijving="Description 2"
+        )
+
+        destruction_list = DestructionListFactory.create()
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+        )
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+        )
+        DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/333-333-333",
+            status=ListItemStatus.removed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destruction-list-items-list"))
+        endpoint.args["destruction_list"] = destruction_list.pk
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 2)

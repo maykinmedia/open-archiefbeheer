@@ -33,3 +33,4 @@ celery
 
 # Additional libraries
 zgw-consumers
+furl
