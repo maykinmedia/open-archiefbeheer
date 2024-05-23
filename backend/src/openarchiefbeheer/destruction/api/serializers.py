@@ -127,6 +127,7 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
     items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
+    assignee = UserSerializer(read_only=True)
 
     class Meta:
         model = DestructionList
@@ -135,6 +136,7 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "author",
             "contains_sensitive_info",
             "assignees",
+            "assignee",
             "items",
             "status",
             "created",
