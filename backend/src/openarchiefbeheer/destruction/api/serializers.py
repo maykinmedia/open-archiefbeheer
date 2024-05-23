@@ -124,4 +124,5 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "assignees",
             "items",
             "status",
+            "created",
         )

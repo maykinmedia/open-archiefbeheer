@@ -5,7 +5,7 @@ from .models import DestructionList, DestructionListAssignee, DestructionListIte
 
 @admin.register(DestructionList)
 class DestructionListAdmin(admin.ModelAdmin):
-    list_display = ("name", "status", "end")
+    list_display = ("name", "status", "created", "end")
     list_filter = ("status", "assignee")
     search_fields = ("name",)
 
