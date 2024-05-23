@@ -164,6 +164,108 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertFalse(DestructionList.objects.filter(name="A test list").exists())
 
+    def test_update_destruction_list(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        user1 = UserFactory.create(
+            username="reviewer1", role__can_review_destruction=True
+        )
+        user2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+        user3 = UserFactory.create(
+            username="reviewer3", role__can_review_destruction=True
+        )
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True
+        )
+        destruction_list.bulk_create_assignees(
+            [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
+        )
+        DestructionListItemFactory.create_batch(
+            2,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        data = {
+            "name": "An updated test list",
+            "contains_sensitive_info": False,
+            "assignees": [
+                {"user": user1.pk, "order": 0},
+                {"user": user3.pk, "order": 1},
+            ],
+            "items": [
+                {
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "extra_zaak_data": {"key": "value"},
+                },
+            ],
+        }
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"pk": destruction_list.pk}
+        )
+
+        response = self.client.put(
+            endpoint,
+            data=data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.name, "An updated test list")
+        self.assertEqual(destruction_list.items.all().count(), 1)
+        self.assertEqual(
+            destruction_list.assignees.all().order_by("order")[1].user.pk, user3.pk
+        )
+
+    def test_partially_update_destruction_list(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        user1 = UserFactory.create(
+            username="reviewer1", role__can_review_destruction=True
+        )
+        user2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True
+        )
+        destruction_list.bulk_create_assignees(
+            [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
+        )
+        DestructionListItemFactory.create_batch(
+            2,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        data = {
+            "name": "An updated test list",
+        }
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"pk": destruction_list.pk}
+        )
+
+        response = self.client.patch(
+            endpoint,
+            data=data,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.name, "An updated test list")
+        self.assertEqual(destruction_list.items.all().count(), 2)
+        self.assertEqual(destruction_list.assignees.all().count(), 2)
+
 
 class DestructionListItemsViewSetTest(APITestCase):
     def test_not_authenticated(self):

@@ -28,6 +28,7 @@ from .serializers import (
         examples=[
             OpenApiExample(
                 name="Example list creation",
+                request_only=True,
                 value={
                     "name": "An example list",
                     "containsSensitiveInfo": True,
@@ -49,6 +50,57 @@ from .serializers import (
             )
         ],
     ),
+    update=extend_schema(
+        summary=_("Update destruction list"),
+        description=_(
+            "Update a destruction list. "
+            "The cases and the assignees are updated in bulk."
+        ),
+        examples=[
+            OpenApiExample(
+                name="Example list update",
+                request_only=True,
+                value={
+                    "name": "An example updated list",
+                    "containsSensitiveInfo": False,
+                    "assignees": [
+                        {"user": 2, "order": 0},
+                        {"user": 1, "order": 1},
+                    ],
+                    "items": [
+                        {
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                            "extraZaakData": {},
+                        },
+                        {
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
+                            "extraZaakData": {},
+                        },
+                    ],
+                },
+            )
+        ],
+    ),
+    partial_update=extend_schema(
+        summary=_("Partially update a destruction list"),
+        description=_(
+            "Partially update a destruction list. "
+            "The cases and the assignees are updated in bulk."
+        ),
+        examples=[
+            OpenApiExample(
+                name="Example list partial update",
+                value={
+                    "name": "Partially updated list",
+                    "assignees": [
+                        {"user": 2, "order": 0},
+                        {"user": 1, "order": 1},
+                    ],
+                },
+                request_only=True,
+            )
+        ],
+    ),
     retrieve=extend_schema(
         summary=_("Retrieve destruction list"),
         description=_("Retrieve details about a destruction list."),
@@ -59,6 +111,7 @@ class DestructionListViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListSerializer
@@ -79,6 +132,10 @@ class DestructionListViewSet(
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 
 
 @extend_schema_view(
