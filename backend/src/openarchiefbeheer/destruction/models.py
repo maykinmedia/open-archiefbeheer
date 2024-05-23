@@ -56,6 +56,12 @@ class DestructionList(models.Model):
         choices=ListStatus.choices,
         max_length=80,
     )
+    status_changed = models.DateTimeField(
+        _("status changed"),
+        help_text=_("Tracks when the status was changed."),
+        blank=True,
+        null=True,
+    )
     zaak_destruction_report_url = models.URLField(
         _("zaak destruction report URL"),
         help_text=_(
@@ -74,6 +80,11 @@ class DestructionList(models.Model):
     @staticmethod
     def assign(assignee: "DestructionListAssignee") -> None:
         assignee.assign()
+
+    def set_status(self, status: str) -> None:
+        self.status = status
+        self.status_changed = timezone.now()
+        self.save()
 
 
 class DestructionListItem(models.Model):
