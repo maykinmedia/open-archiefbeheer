@@ -7,10 +7,12 @@ import App from "./App";
 import "./index.css";
 import {
   DestructionListCreatePage,
+  DestructionListDetailPage,
   Landing,
   LoginPage,
   destructionListCreateAction,
   destructionListCreateLoader,
+  destructionListDetailLoader,
   landingLoader,
   loginAction,
   logoutLoader,
@@ -31,6 +33,12 @@ const router = createBrowserRouter([
         element: <DestructionListCreatePage />,
         action: destructionListCreateAction,
         loader: destructionListCreateLoader,
+      },
+      {
+        path: "/destruction-lists/:id",
+        element: <DestructionListDetailPage />,
+        // action: destructionListUpdateAction,
+        loader: destructionListDetailLoader,
       },
       {
         path: "/login",

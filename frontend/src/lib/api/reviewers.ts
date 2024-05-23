@@ -9,6 +9,11 @@ export type User = {
   role: Role;
 };
 
+export type Assignee = {
+  user: User;
+  order: number;
+};
+
 export type Role = {
   name: string;
   canStartDestruction: boolean;
