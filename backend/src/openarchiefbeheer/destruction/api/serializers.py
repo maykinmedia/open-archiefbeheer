@@ -125,4 +125,5 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "items",
             "status",
             "created",
+            "status_changed",
         )

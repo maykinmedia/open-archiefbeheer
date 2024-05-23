@@ -1,13 +1,16 @@
 import logging
+from datetime import datetime
 
 from django.test import TestCase
+from django.utils import timezone
 
+from freezegun import freeze_time
 from testfixtures import log_capture
 
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from .factories import DestructionListItemFactory
+from .factories import DestructionListFactory, DestructionListItemFactory
 
 
 class DestructionListItemTest(TestCase):
@@ -54,3 +57,16 @@ class DestructionListItemTest(TestCase):
             logs[0],
         )
         self.assertIsNone(zaak_data)
+
+    def test_set_status(self):
+        destruction_list = DestructionListFactory.create()
+
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            destruction_list.set_status(ListItemStatus.removed)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.status_changed,
+            timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
+        )
