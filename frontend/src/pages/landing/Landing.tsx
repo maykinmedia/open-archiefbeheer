@@ -1,28 +1,30 @@
-import { Kanban } from "@maykin-ui/admin-ui";
-import { FieldSet } from "@maykin-ui/admin-ui/src/lib/data/attributedata";
+import { KanbanTemplate } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
+import { KanbanCard } from "../../components/KanbanCard/KanbanCard";
 import {
   DestructionList,
   listDestructionLists,
 } from "../../lib/api/destructionLists";
-import { deslugify } from "../../lib/string";
+import { deslugify, timeAgo } from "../../lib/string";
 import "./Landing.css";
 
 interface LandingLoaderReturn {
-  in_progress: DestructionList[];
-  processing: DestructionList[];
-  completed: DestructionList[];
-
   [key: string]: DestructionList[];
 }
 
 export const landingLoader = async (): Promise<LandingLoaderReturn> => {
   const lists = await listDestructionLists();
-  const in_progress = lists.filter((list) => list.status === "in_progress");
-  const processing = lists.filter((list) => list.status === "processing");
-  const completed = lists.filter((list) => list.status === "completed");
-  return { in_progress, processing, completed };
+  const statusMap: LandingLoaderReturn = {};
+
+  lists.forEach((list) => {
+    if (!statusMap[list.status]) {
+      statusMap[list.status] = [];
+    }
+    statusMap[list.status].push(list);
+  });
+
+  return statusMap;
 };
 
 // export const landingAction = async () => {
@@ -32,37 +34,37 @@ export const landingLoader = async (): Promise<LandingLoaderReturn> => {
 
 export const Landing = () => {
   const lists = useLoaderData() as LandingLoaderReturn;
-  const fieldsets = Object.keys(lists).map((status) => [
-    deslugify(status),
-    {
-      fields: ["title"],
-      title: "title",
-    },
-  ]);
-  const objectLists = Object.values(lists).map((listStatus) =>
-    listStatus.map((list) => ({
-      title: list.name,
-    })),
-  );
-  // const submit = useSubmit();
+
+  const constructComponentList = (lists: DestructionList[]) => {
+    const constructAssigneeNames = (
+      assignees: DestructionList["assignees"],
+    ) => {
+      const testAssignees = assignees.concat(assignees);
+      const sortedAssignees = testAssignees.sort((a, b) => a.order - b.order);
+      return sortedAssignees.map(
+        (assignee) =>
+          `${assignee.user.firstName} ${assignee.user.lastName} (${assignee.user.role.name})`,
+      );
+    };
+    return lists.map((list) => (
+      <KanbanCard
+        title={list.name}
+        days={timeAgo(list.created)}
+        assigneeNames={constructAssigneeNames(list.assignees)}
+        key={list.name}
+      />
+    ));
+  };
 
   return (
-    <>
-      <Kanban
-        title="Landing Page"
-        fieldsets={fieldsets as FieldSet[]}
-        objectLists={objectLists}
-      />
-      {/*<form*/}
-      {/*  method="POST"*/}
-      {/*  onSubmit={(e) => {*/}
-      {/*    e.preventDefault();*/}
-      {/*    submit({ title: e.target.title.value }, { method: "POST" });*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  <input type="text" name="title" />*/}
-      {/*  <button type="submit">Create</button>*/}
-      {/*</form>*/}
-    </>
+    <KanbanTemplate
+      kanbanProps={{
+        title: "Landing Page",
+        componentList: Object.keys(lists).map((status) => ({
+          title: deslugify(status),
+          items: constructComponentList(lists[status]),
+        })),
+      }}
+    />
   );
 };
