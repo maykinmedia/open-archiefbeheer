@@ -8,10 +8,14 @@ export type DestructionList = {
   name: string;
   assignees: DestructionListAssignee[];
   items: DestructionListItem[];
+  status: "in_progress" | "processing" | "completed";
+  created: Date;
+  statusChanged?: Date;
 };
 
 export type DestructionListAssignee = {
-  user: User["pk"];
+  user: User;
+  order: number;
 };
 
 export type DestructionListItem = {
