@@ -13,6 +13,7 @@ import {
   destructionListCreateAction,
   destructionListCreateLoader,
   destructionListDetailLoader,
+  destructionListUpdateAction,
   landingLoader,
   loginAction,
   logoutLoader,
@@ -37,7 +38,7 @@ const router = createBrowserRouter([
       {
         path: "/destruction-lists/:id",
         element: <DestructionListDetailPage />,
-        // action: destructionListUpdateAction,
+        action: destructionListUpdateAction,
         loader: destructionListDetailLoader,
       },
       {

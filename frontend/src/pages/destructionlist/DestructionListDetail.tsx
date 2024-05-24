@@ -1,38 +1,25 @@
 import {
-  AttributeData,
   AttributeTable,
   Body,
   CardBaseTemplate,
   Column,
-  Container,
   Grid,
   H1,
+  H2,
+  ObjectData,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import { useLoaderData } from "react-router-dom";
+import React from "react";
+import { redirect, useLoaderData } from "react-router-dom";
 
 import { loginRequired } from "../../lib/api/loginRequired";
 import { request } from "../../lib/api/request";
-import { Assignee, User } from "../../lib/api/reviewers";
-import { Zaak } from "../../types";
-
-export type DestructionListItem = {
-  zaak: string;
-  status: string;
-  zaakData: Zaak;
-};
-
-export type DestructionListDetailContext = {
-  name: string;
-  author: User;
-  items: DestructionListItem[];
-  containsSensitiveInfo: boolean;
-  status: string;
-  assignees: Assignee[];
-  assignee: User;
-  created: string;
-  statusChanged: string;
-};
+import { User } from "../../lib/api/reviewers";
+import { AssigneesEditable } from "./Assignees";
+import {
+  DestructionListDetailContext,
+  DestructionListUpdateData,
+} from "./types";
 
 // Todo: should this come from the backend?
 const STATUS_MAPPING: { [key: string]: string } = {
@@ -49,12 +36,15 @@ function formatUser(user: User) {
 
 function getDisplayableList(
   destructionList: DestructionListDetailContext,
-): AttributeData {
+): ObjectData {
   return {
-    auteur: formatUser(destructionList.author),
-    bevatGevoeligeInformatie: destructionList.containsSensitiveInfo,
-    status: STATUS_MAPPING[destructionList.status],
-    aangemaakt: destructionList.created,
+    auteur: { label: "Auteur", value: formatUser(destructionList.author) },
+    bevatGevoeligeInformatie: {
+      label: "Bevat gevoelige informatie",
+      value: destructionList.containsSensitiveInfo,
+    },
+    status: { label: "Status", value: STATUS_MAPPING[destructionList.status] },
+    aangemaakt: { label: "Aangemaakt", value: destructionList.created },
   };
 }
 
@@ -77,8 +67,11 @@ export function DestructionListDetailPage() {
           <Column span={6}>
             <AttributeTable object={getDisplayableList(destructionList)} />
           </Column>
-          <Column span={6}>TODO</Column>
+          <Column span={6}>
+            <AssigneesEditable assignees={destructionList.assignees} />
+          </Column>
         </Grid>
+        <H2>Zaakdossiers</H2>
       </Body>
     </CardBaseTemplate>
   );
@@ -88,6 +81,42 @@ export async function getDestructionList(id: string) {
   const response = await request("GET", `/destruction-lists/${id}`);
   const promise: Promise<User[]> = response.json();
   return promise;
+}
+
+export async function updateDestructionList(
+  id: string,
+  data: DestructionListUpdateData,
+) {
+  const response = await request(
+    "PATCH",
+    `/destruction-lists/${id}/`,
+    {},
+    data,
+  );
+  const promise: Promise<User[]> = response.json();
+  return promise;
+}
+
+export async function destructionListUpdateAction({
+  request,
+  params,
+}: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const assigneesData = formData.getAll("assigneeIds");
+  const data = {
+    assignees: assigneesData.map((id, index) => ({
+      user: Number(id),
+      order: index,
+    })),
+  };
+
+  try {
+    await updateDestructionList(params.id as string, data);
+  } catch (e: unknown) {
+    return await (e as Response).json();
+  }
+
+  return redirect(`/destruction-lists/${params.id}/`);
 }
 
 export const destructionListDetailLoader = loginRequired(
