@@ -5,7 +5,6 @@ import {
   Column,
   Grid,
   H1,
-  H2,
   ObjectData,
   P,
 } from "@maykin-ui/admin-ui";
@@ -18,6 +17,7 @@ import { request } from "../../lib/api/request";
 import { User } from "../../lib/api/reviewers";
 import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
+import { DestructionListItems } from "./DestructionListItems";
 import {
   DestructionListDetailContext,
   DestructionListUpdateData,
@@ -89,7 +89,9 @@ export function DestructionListDetailPage() {
             </Grid>
           </P>
           <P>
-            <H2>Zaakdossiers</H2>
+            <DestructionListItems
+              zaken={destructionList.items.map((item) => item.zaakData)}
+            />
           </P>
         </Body>
       </CardBaseTemplate>

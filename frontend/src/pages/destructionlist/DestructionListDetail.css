@@ -13,3 +13,14 @@
   gap: 5px;
   align-items: center;
 }
+
+.zaken-list.zaken-list__header {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.zaken-list.zaken-list__action-buttons {
+  display: flex;
+  gap: 10px;
+}
