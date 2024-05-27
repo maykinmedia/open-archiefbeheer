@@ -1,0 +1,15 @@
+.destruction-list-detail {
+}
+
+.destruction-list-detail.destruction-list-detail__reviewers-form {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  width: 100%;
+}
+
+.reviewers-label {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}

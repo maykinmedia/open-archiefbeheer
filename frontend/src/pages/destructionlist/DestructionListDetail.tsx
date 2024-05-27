@@ -7,6 +7,7 @@ import {
   H1,
   H2,
   ObjectData,
+  P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import React from "react";
@@ -16,6 +17,7 @@ import { loginRequired } from "../../lib/api/loginRequired";
 import { request } from "../../lib/api/request";
 import { User } from "../../lib/api/reviewers";
 import { AssigneesEditable } from "./Assignees";
+import "./DestructionListDetail.css";
 import {
   DestructionListDetailContext,
   DestructionListUpdateData,
@@ -37,6 +39,15 @@ function formatUser(user: User) {
 function getDisplayableList(
   destructionList: DestructionListDetailContext,
 ): ObjectData {
+  const createdOn = new Date(destructionList.created);
+  const formattedCreatedOn = createdOn.toLocaleString("nl-nl", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+
   return {
     auteur: { label: "Auteur", value: formatUser(destructionList.author) },
     bevatGevoeligeInformatie: {
@@ -44,7 +55,10 @@ function getDisplayableList(
       value: destructionList.containsSensitiveInfo,
     },
     status: { label: "Status", value: STATUS_MAPPING[destructionList.status] },
-    aangemaakt: { label: "Aangemaakt", value: destructionList.created },
+    aangemaakt: {
+      label: "Aangemaakt",
+      value: formattedCreatedOn,
+    },
   };
 }
 
@@ -55,25 +69,31 @@ export function DestructionListDetailPage() {
   const destructionList = useLoaderData() as DestructionListDetailContext;
 
   return (
-    <CardBaseTemplate
-      breadcrumbItems={[
-        { label: "Vernietigingslijsten", href: "destruction-lists/" },
-        { label: destructionList.name, href: "#" },
-      ]}
-    >
-      <Body>
-        <H1>{destructionList.name}</H1>
-        <Grid>
-          <Column span={6}>
-            <AttributeTable object={getDisplayableList(destructionList)} />
-          </Column>
-          <Column span={6}>
-            <AssigneesEditable assignees={destructionList.assignees} />
-          </Column>
-        </Grid>
-        <H2>Zaakdossiers</H2>
-      </Body>
-    </CardBaseTemplate>
+    <div className="destruction-list-detail">
+      <CardBaseTemplate
+        breadcrumbItems={[
+          { label: "Vernietigingslijsten", href: "destruction-lists/" },
+          { label: destructionList.name, href: "#" },
+        ]}
+      >
+        <Body>
+          <H1>{destructionList.name}</H1>
+          <P>
+            <Grid>
+              <Column span={3}>
+                <AttributeTable object={getDisplayableList(destructionList)} />
+              </Column>
+              <Column span={9}>
+                <AssigneesEditable assignees={destructionList.assignees} />
+              </Column>
+            </Grid>
+          </P>
+          <P>
+            <H2>Zaakdossiers</H2>
+          </P>
+        </Body>
+      </CardBaseTemplate>
+    </div>
   );
 }
 
