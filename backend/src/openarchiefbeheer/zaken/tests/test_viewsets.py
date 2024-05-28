@@ -253,3 +253,36 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 1)
+
+    def test_filter_out_zaken_already_in_destruction_lists_except_one(self):
+        zaken = ZaakFactory.create_batch(5)
+
+        # This zaak should NOT be returned by the endpoint (it's included in a destruction list)
+        DestructionListItemFactory.create(
+            status=ListItemStatus.suggested, zaak=zaken[0].url
+        )
+        # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
+        DestructionListItemFactory.create(
+            status=ListItemStatus.removed, zaak=zaken[1].url
+        )
+        # This zaak SHOULD be returned, because it is included in the 'exception' list
+        item = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested, zaak=zaken[2].url
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["not_in_destruction_list_except"] = item.destruction_list.pk
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 4)
+
+        urls_zaken = [zaak["url"] for zaak in data["results"]]
+
+        # The zaken in the 'exception' list should be returned first
+        self.assertEqual(item.zaak, urls_zaken[0])
