@@ -16,9 +16,11 @@ import { loginRequired } from "../../lib/api/loginRequired";
 import { request } from "../../lib/api/request";
 import { User } from "../../lib/api/reviewers";
 import { AssigneesEditable } from "./Assignees";
+import { getZakenData } from "./DestructionListCreate";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
 import {
+  DestructionListData,
   DestructionListDetailContext,
   DestructionListUpdateData,
 } from "./types";
@@ -36,9 +38,7 @@ function formatUser(user: User) {
   return user.username;
 }
 
-function getDisplayableList(
-  destructionList: DestructionListDetailContext,
-): ObjectData {
+function getDisplayableList(destructionList: DestructionListData): ObjectData {
   const createdOn = new Date(destructionList.created);
   const formattedCreatedOn = createdOn.toLocaleString("nl-nl", {
     year: "numeric",
@@ -66,7 +66,7 @@ function getDisplayableList(
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const destructionList = useLoaderData() as DestructionListDetailContext;
+  const { destructionList } = useLoaderData() as DestructionListDetailContext;
 
   return (
     <div className="destruction-list-detail">
@@ -142,9 +142,18 @@ export async function destructionListUpdateAction({
 }
 
 export const destructionListDetailLoader = loginRequired(
-  async ({ params }: ActionFunctionArgs) => {
+  async ({ request, params }: ActionFunctionArgs) => {
     if (typeof params.id === "undefined") return;
 
-    return await getDestructionList(params.id);
+    const promises = [
+      getDestructionList(params.id),
+      getZakenData(request, {
+        not_in_destruction_list_except: String(params.id),
+      }),
+    ];
+
+    const [destructionList, zakenListData] = await Promise.all(promises);
+
+    return { destructionList, ...zakenListData };
   },
 );

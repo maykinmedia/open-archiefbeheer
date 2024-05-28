@@ -5,9 +5,11 @@ import {
   TypedField,
 } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
+import { useLoaderData } from "react-router-dom";
 
 import { Zaak } from "../../types";
 import "./DestructionListDetail.css";
+import { DestructionListDetailContext } from "./types";
 
 export type DestructionListItemsProps = {
   zaken: Zaak[];
@@ -15,8 +17,8 @@ export type DestructionListItemsProps = {
 
 export function DestructionListItems({ zaken }: DestructionListItemsProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const { zaken: allZaken } = useLoaderData() as DestructionListDetailContext;
 
-  const objectList = zaken as unknown as AttributeData[];
   const fields: TypedField[] = [
     {
       name: "identificatie",
@@ -77,9 +79,11 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
       {isEditing ? (
         <DataGrid
           title="Zaakdossiers"
-          count={zaken.length}
-          objectList={objectList}
+          count={allZaken.count}
+          objectList={allZaken.results as unknown as AttributeData[]}
           fields={fields}
+          filterable={true}
+          selected={zaken as unknown as AttributeData[]}
           boolProps={{ explicit: true }}
           selectable={true}
           selectionActions={[
@@ -94,12 +98,13 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
               wrap: false,
             },
           ]}
+          customComparisonFunction={(item1, item2) => item1.uuid === item2.uuid}
         />
       ) : (
         <DataGrid
           title="Zaakdossiers"
           count={zaken.length}
-          objectList={objectList}
+          objectList={zaken as unknown as AttributeData[]}
           fields={fields}
           boolProps={{ explicit: true }}
           selectionActions={[

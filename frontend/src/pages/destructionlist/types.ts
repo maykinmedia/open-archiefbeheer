@@ -1,5 +1,6 @@
 import { Assignee, User } from "../../lib/api/reviewers";
 import { Zaak } from "../../types";
+import { DestructionListCreateContext } from "./DestructionListCreate";
 
 export type DestructionListItem = {
   zaak: string;
@@ -7,7 +8,7 @@ export type DestructionListItem = {
   zaakData: Zaak;
 };
 
-export type DestructionListDetailContext = {
+export type DestructionListData = {
   name: string;
   author: User;
   items: DestructionListItem[];
@@ -18,6 +19,11 @@ export type DestructionListDetailContext = {
   created: string;
   statusChanged: string;
 };
+
+export interface DestructionListDetailContext
+  extends DestructionListCreateContext {
+  destructionList: DestructionListData;
+}
 
 export type AssigneeUpdate = {
   user: number;
