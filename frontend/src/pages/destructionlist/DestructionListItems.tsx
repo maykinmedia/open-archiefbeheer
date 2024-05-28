@@ -1,8 +1,6 @@
 import {
   AttributeData,
-  Button,
   DataGrid,
-  H2,
   Outline,
   TypedField,
 } from "@maykin-ui/admin-ui";
@@ -70,43 +68,47 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
     },
   ];
 
+  const onUpdate: React.MouseEventHandler = () => {
+    console.log("TODO");
+  };
+
   return (
     <div className="zaken-list">
-      <div className="zaken-list zaken-list__header">
-        <H2>Zaakdossiers</H2>
-        {isEditing ? (
-          <div className="zaken-list zaken-list__action-buttons">
-            <Button
-              variant="primary"
-              onClick={() => {
-                console.log("TODO");
-              }}
-            >
-              Verzenden
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditing(false)}>
-              Annuleren
-            </Button>
-          </div>
-        ) : (
-          <Button
-            variant="transparent"
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            <Outline.PencilIcon />
-          </Button>
-        )}
-      </div>
       {isEditing ? (
-        "TODO"
-      ) : (
         <DataGrid
+          title="Zaakdossiers"
           count={zaken.length}
           objectList={objectList}
           fields={fields}
           boolProps={{ explicit: true }}
+          selectable={true}
+          selectionActions={[
+            {
+              children: "Vernietigingslijst aanpassen",
+              onClick: onUpdate,
+              wrap: false,
+            },
+            {
+              children: "Annuleren",
+              onClick: () => setIsEditing(false),
+              wrap: false,
+            },
+          ]}
+        />
+      ) : (
+        <DataGrid
+          title="Zaakdossiers"
+          count={zaken.length}
+          objectList={objectList}
+          fields={fields}
+          boolProps={{ explicit: true }}
+          selectionActions={[
+            {
+              children: <Outline.PencilIcon />,
+              onClick: () => setIsEditing(true),
+              wrap: false,
+            },
+          ]}
         />
       )}
     </div>

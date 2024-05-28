@@ -101,7 +101,8 @@ export function AssigneesEditable({ assignees }: AssigneesEditableProps) {
     <div className="reviewers-label">
       Reviewers
       <Button
-        variant="transparent"
+        size="xs"
+        variant="secondary"
         onClick={() => {
           setIsEditing(true);
         }}
