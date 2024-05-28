@@ -1,6 +1,13 @@
 .kanban-card {
   display: flex;
   flex-direction: column;
+  text-decoration: none;
+}
+
+.kanban-card__days-download {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .kanban-card__title {

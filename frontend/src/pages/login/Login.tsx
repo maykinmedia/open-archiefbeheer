@@ -61,7 +61,7 @@ export function LoginPage({ ...props }: LoginProps) {
         nonFieldErrors,
         errors,
         fields,
-        // onSubmit: (_, data) => submit(data, { method: "POST" }),
+        onSubmit: (_, data) => submit(data, { method: "POST" }),
       }}
       {...props}
     />

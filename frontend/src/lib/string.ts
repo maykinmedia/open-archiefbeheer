@@ -21,6 +21,7 @@ export const deslugify = (slug: string): string =>
     .replace(/[-_]/g, " ")
     // Capitalize the first letter of each word
     .replace(/\b\w/g, (match) => match.toUpperCase());
+
 /**
  * Options for customizing the output of the timeAgo function.
  */
@@ -40,22 +41,26 @@ export function timeAgo(
   dateInput: Date | string,
   options: TimeAgoOptions = {},
 ): string {
-  // TODO: Internationalize?z
+  // Convert the input to a Date object if it's a string
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
 
+  // Check for invalid date input
   if (isNaN(date.getTime())) {
     throw new Error("Invalid date input");
   }
 
   const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  // Calculate the difference in seconds between the current date and the input date
+  let seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
+  // Handle future dates
   if (seconds < 0) {
     throw new Error("The date provided is in the future");
   }
 
-  const { shortFormat = false, includeSeconds = true } = options;
+  const { shortFormat = false } = options;
 
+  // Define the intervals in seconds for various time units
   const intervals = [
     { label: "year", seconds: 31536000 },
     { label: "month", seconds: 2592000 },
@@ -65,19 +70,29 @@ export function timeAgo(
     { label: "minute", seconds: 60 },
   ];
 
-  if (includeSeconds) {
-    intervals.push({ label: "second", seconds: 1 });
-  }
+  let result = "";
 
+  // Iterate over the intervals to determine the appropriate time unit
   for (const interval of intervals) {
     const intervalCount = Math.floor(seconds / interval.seconds);
     if (intervalCount >= 1) {
+      // Format the label based on short or long format
       const label = shortFormat
-        ? interval.label.charAt(0)
+        ? interval.label.charAt(0) + (interval.label === "month" ? "o" : "")
         : interval.label + (intervalCount !== 1 ? "s" : "");
-      return `${intervalCount} ${label}${shortFormat ? "" : " ago"}`;
+      result += `${intervalCount} ${label}${shortFormat ? "" : " ago"}`;
+      // Update seconds to the remainder for the next interval
+      seconds %= interval.seconds;
+      // If in short format, add a space for the next unit
+      if (shortFormat) {
+        result += " ";
+      } else {
+        // Break the loop for long format after the first significant unit
+        break;
+      }
     }
   }
 
-  return shortFormat ? "0s" : "just now";
+  // Return the result or default to "just now" or "0m" for short format
+  return result.trim() || (shortFormat ? "0m" : "just now");
 }

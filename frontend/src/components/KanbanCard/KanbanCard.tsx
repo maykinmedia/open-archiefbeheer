@@ -1,5 +1,6 @@
-import { Body, Button, P, Tooltip } from "@maykin-ui/admin-ui";
+import { Button, ButtonLink, Outline, P, Tooltip } from "@maykin-ui/admin-ui";
 import { FC } from "react";
+import { Link } from "react-router-dom";
 
 import "./KanbanCard.css";
 
@@ -8,6 +9,7 @@ interface IKanbanCardProps {
   days?: string;
   assigneeNames: string[];
   downloadUrl?: string;
+  href: string;
 }
 
 export const KanbanCard: FC<IKanbanCardProps> = ({
@@ -15,6 +17,7 @@ export const KanbanCard: FC<IKanbanCardProps> = ({
   days,
   assigneeNames,
   downloadUrl, // TODO: Implement download button, not in API yet so unsure how to pass as props, will withold UI implementation until clarification
+  href,
 }) => {
   const renderAssignees = () => {
     if (assigneeNames.length > 1) {
@@ -30,18 +33,25 @@ export const KanbanCard: FC<IKanbanCardProps> = ({
         </>
       );
     }
-    return assigneeNames[0];
+    return <P>{assigneeNames[0]}</P>;
   };
 
   return (
-    <Body className="kanban-card">
-      <P>{days}</P>
+    <Link to={href} className="kanban-card">
+      <div className="kanban-card__days-download">
+        <P>{days}</P>
+        {downloadUrl && (
+          <ButtonLink variant="transparent" size="s" href={downloadUrl}>
+            <Outline.ArrowDownIcon />
+          </ButtonLink>
+        )}
+      </div>
       <div className="kanban-card__divider" />
       <P bold className="kanban-card__title">
         {title}
       </P>
       <div className="kanban-card__divider" />
       <div className="kanban-card__assignees">{renderAssignees()}</div>
-    </Body>
+    </Link>
   );
 };
