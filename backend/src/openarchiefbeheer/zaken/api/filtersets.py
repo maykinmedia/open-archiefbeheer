@@ -1,6 +1,15 @@
 from decimal import Decimal
 
-from django.db.models import Func, IntegerField, Q, QuerySet, Subquery
+from django.db.models import (
+    Case,
+    Func,
+    IntegerField,
+    Q,
+    QuerySet,
+    Subquery,
+    Value,
+    When,
+)
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import BooleanFilter, CharFilter, FilterSet, NumberFilter
@@ -18,6 +27,15 @@ class ZaakFilter(FilterSet):
         help_text=_(
             "If True, only cases not already included in a destruction list are returned."
         ),
+    )
+    not_in_destruction_list_except = NumberFilter(
+        field_name="not_in_destruction_list_except",
+        method="filter_not_in_destruction_list_except",
+        help_text=_(
+            "Only cases not already included in a destruction list except the one specified are returned. "
+            "The cases that are included in the 'exception' list are returned first."
+        ),
+        decimal_places=0,
     )
     _expand__resultaat__resultaattype = CharFilter(
         help_text=_("Filter on the exact URL of resultaattype."),
@@ -129,6 +147,27 @@ class ZaakFilter(FilterSet):
         ).values_list("zaak", flat=True)
 
         return queryset.exclude(url__in=Subquery(zaken_to_exclude))
+
+    def filter_not_in_destruction_list_except(
+        self, queryset: QuerySet[Zaak], name: str, value: int
+    ):
+        zaken_to_exclude = DestructionListItem.objects.filter(
+            ~Q(status=ListItemStatus.removed) & ~Q(destruction_list=value)
+        ).values_list("zaak", flat=True)
+
+        exception_list = DestructionListItem.objects.filter(
+            destruction_list=value
+        ).values_list("zaak", flat=True)
+
+        return (
+            queryset.exclude(url__in=Subquery(zaken_to_exclude))
+            .annotate(
+                in_exception_list=Case(
+                    When(url__in=Subquery(exception_list), then=Value(True))
+                )
+            )
+            .order_by("in_exception_list")
+        )
 
     def filter_bewaartermijn(
         self, queryset: QuerySet[Zaak], name: str, value: str
