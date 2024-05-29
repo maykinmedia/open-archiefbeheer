@@ -1,9 +1,4 @@
-import {
-  AttributeData,
-  DataGrid,
-  Outline,
-  TypedField,
-} from "@maykin-ui/admin-ui";
+import { AttributeData, DataGrid, Outline } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
 import {
   useLoaderData,
@@ -14,6 +9,7 @@ import {
 import { Zaak } from "../../types";
 import "./DestructionListDetail.css";
 import { DestructionListDetailContext } from "./types";
+import { getFields } from "./utils";
 
 export type DestructionListItemsProps = {
   zaken: Zaak[];
@@ -21,63 +17,30 @@ export type DestructionListItemsProps = {
 
 export function DestructionListItems({ zaken }: DestructionListItemsProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const { zaken: allZaken } = useLoaderData() as DestructionListDetailContext;
+  const { zaken: allZaken, zaaktypeChoices } =
+    useLoaderData() as DestructionListDetailContext;
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
 
-  const fields: TypedField[] = [
-    {
-      name: "identificatie",
-      type: "string",
-    },
-    {
-      name: "zaaktype",
-      type: "string",
-    },
-    {
-      name: "omschrijving",
-      type: "string",
-    },
-    {
-      name: "looptijd",
-      valueTransform: (rowData) => {
-        const zaak = rowData as unknown as Zaak;
-        const startDate = new Date(zaak.startdatum);
-        const endDate = zaak.einddatum ? new Date(zaak.einddatum) : new Date();
-        return (
-          Math.ceil(
-            (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-          ) + " dagen"
-        );
-      },
-      type: "string",
-    },
-    {
-      name: "resultaattype",
-      type: "string",
-    },
-    {
-      name: "bewaartermijn",
-      type: "string",
-    },
-    {
-      name: "vcs",
-      type: "string",
-    },
-    {
-      name: "relaties",
-      valueTransform: (rowData) =>
-        Boolean((rowData as unknown as Zaak)?.relevanteAndereZaken?.length),
-      type: "boolean",
-      options: [
-        { value: "true", label: "Ja" },
-        { value: "false", label: "Nee" },
-      ],
-    },
-  ];
+  const fields = getFields(searchParams, zaaktypeChoices);
 
   const onUpdate: React.MouseEventHandler = () => {
     console.log("TODO");
+  };
+
+  const onFilter = (filterData: AttributeData) => {
+    const combinedParams = {
+      ...Object.fromEntries(searchParams),
+      ...filterData,
+    } as AttributeData<string>;
+
+    const activeParams = Object.fromEntries(
+      Object.entries(combinedParams).filter(
+        (keyValuePair) => !!keyValuePair[1],
+      ),
+    );
+
+    setSearchParams(activeParams);
   };
 
   return (
@@ -89,6 +52,7 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
           objectList={allZaken.results as unknown as AttributeData[]}
           fields={fields}
           filterable={true}
+          onFilter={onFilter}
           selected={zaken as unknown as AttributeData[]}
           boolProps={{ explicit: true }}
           selectable={true}
