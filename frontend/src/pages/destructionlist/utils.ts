@@ -1,6 +1,10 @@
-import { TypedField } from "@maykin-ui/admin-ui";
+import { AttributeData, TypedField } from "@maykin-ui/admin-ui";
 
 import { ZaaktypeChoice } from "../../lib/api/private";
+import {
+  addToZaakSelection,
+  removeFromZaakSelection,
+} from "../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../types";
 
 export function getFields(
@@ -94,4 +98,21 @@ export function getFields(
       ],
     },
   ];
+}
+
+export async function updateSelectedZaken(
+  selected: boolean,
+  attributeData: AttributeData[],
+  destructionListKey: string,
+  zaken: Zaak[],
+) {
+  selected
+    ? await addToZaakSelection(
+        destructionListKey,
+        attributeData as unknown as Zaak[],
+      )
+    : await removeFromZaakSelection(
+        destructionListKey,
+        attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
+      );
 }

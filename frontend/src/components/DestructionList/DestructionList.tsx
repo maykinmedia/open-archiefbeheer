@@ -22,8 +22,8 @@ import {
   addToZaakSelection,
   removeFromZaakSelection,
 } from "../../lib/zaakSelection/zaakSelection";
+import { getFields } from "../../pages/destructionlist/utils";
 import { Zaak } from "../../types";
-import {getFields} from "../../pages/destructionlist/utils";
 
 export type DestructionList = {
   zaken: PaginatedZaken;
