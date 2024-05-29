@@ -11,13 +11,12 @@ from rest_framework.test import APIRequestFactory
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.api.serializers import DestructionListSerializer
-from openarchiefbeheer.destruction.constants import ListItemStatus
-from openarchiefbeheer.destruction.tests.factories import (
-    DestructionListFactory,
-    DestructionListItemFactory,
-)
 from openarchiefbeheer.emails.models import EmailConfig
+
+from ..api.serializers import DestructionListSerializer
+from ..constants import ListItemStatus
+from ..models import DestructionListItem
+from .factories import DestructionListFactory, DestructionListItemFactory
 
 factory = APIRequestFactory()
 
@@ -313,3 +312,33 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(destruction_list.name, "An updated test list")
         self.assertEqual(destruction_list.items.all().count(), 2)
         self.assertEqual(destruction_list.assignees.all().count(), 2)
+
+    def test_partial_update_with_zaken(self):
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True
+        )
+        items = DestructionListItemFactory.create_batch(
+            4,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        # We are removing 2 zaken from the destruction list
+        data = {
+            "items": [{"zaak": items[0].zaak}, {"zaak": items[1].zaak}],
+        }
+
+        serializer = DestructionListSerializer(
+            instance=destruction_list, data=data, partial=True
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+
+        items = DestructionListItem.objects.filter(destruction_list=destruction_list)
+        items_in_list = items.values_list("zaak", flat=True)
+
+        self.assertEqual(items_in_list.count(), 2)
+        self.assertIn(data["items"][0]["zaak"], items_in_list)
+        self.assertIn(data["items"][1]["zaak"], items_in_list)
