@@ -133,10 +133,12 @@ export async function destructionListUpdateAction({
   const data: DestructionListUpdateData = {};
 
   if (assigneesData) {
-    data.assignees = assigneesData.map((id, index) => ({
-      user: Number(id),
-      order: index,
-    }));
+    data.assignees = assigneesData
+      .filter((id) => id !== "") // Case in which a reviewer is removed
+      .map((id, index) => ({
+        user: Number(id),
+        order: index,
+      }));
   }
 
   if (items) {
