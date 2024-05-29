@@ -5,7 +5,11 @@ import {
   TypedField,
 } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import {
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router-dom";
 
 import { Zaak } from "../../types";
 import "./DestructionListDetail.css";
@@ -18,6 +22,8 @@ export type DestructionListItemsProps = {
 export function DestructionListItems({ zaken }: DestructionListItemsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const { zaken: allZaken } = useLoaderData() as DestructionListDetailContext;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { state } = useNavigation();
 
   const fields: TypedField[] = [
     {
@@ -99,6 +105,19 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
             },
           ]}
           customComparisonFunction={(item1, item2) => item1.uuid === item2.uuid}
+          paginatorProps={{
+            count: allZaken.count,
+            pageSize: 100,
+            page: Number(searchParams.get("page")) || 1,
+            loading: state === "loading",
+            labelLoading: "Loading...",
+            onPageChange: (page) =>
+              setSearchParams({
+                ...Object.fromEntries(searchParams),
+                page: String(page),
+              }),
+          }}
+          loading={state === "loading"}
         />
       ) : (
         <DataGrid
