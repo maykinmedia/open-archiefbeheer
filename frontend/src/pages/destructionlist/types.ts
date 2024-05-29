@@ -8,7 +8,14 @@ export type DestructionListItem = {
   zaakData: Zaak;
 };
 
+export type DestructionListItemUpdate = {
+  zaak: string;
+  status?: string;
+  zaakData?: Zaak;
+};
+
 export type DestructionListData = {
+  pk: number;
   name: string;
   author: User;
   items: DestructionListItem[];
@@ -32,6 +39,7 @@ export type AssigneeUpdate = {
 
 export type DestructionListUpdateData = {
   assignees?: AssigneeUpdate[];
+  items?: DestructionListItemUpdate[];
 };
 
 export type AssigneeEditable = {

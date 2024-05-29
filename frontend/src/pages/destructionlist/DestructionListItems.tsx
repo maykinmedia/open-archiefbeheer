@@ -4,28 +4,53 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  useSubmit,
 } from "react-router-dom";
+import { useAsync } from "react-use";
 
+import {
+  addToZaakSelection,
+  getZaakSelection,
+} from "../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../types";
 import "./DestructionListDetail.css";
-import { DestructionListDetailContext } from "./types";
-import { getFields } from "./utils";
+import { DestructionListData, DestructionListDetailContext } from "./types";
+import { getFields, updateSelectedZaken } from "./utils";
 
 export type DestructionListItemsProps = {
   zaken: Zaak[];
+  destructionList: DestructionListData;
 };
 
-export function DestructionListItems({ zaken }: DestructionListItemsProps) {
+export function DestructionListItems({
+  zaken,
+  destructionList,
+}: DestructionListItemsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const { zaken: allZaken, zaaktypeChoices } =
     useLoaderData() as DestructionListDetailContext;
   const [searchParams, setSearchParams] = useSearchParams();
   const { state } = useNavigation();
+  const submit = useSubmit();
+
+  useAsync(async () => {
+    await addToZaakSelection(String(destructionList.pk), zaken);
+  }, []);
 
   const fields = getFields(searchParams, zaaktypeChoices);
 
-  const onUpdate: React.MouseEventHandler = () => {
-    console.log("TODO");
+  const onUpdate = async () => {
+    const zaakSelection = await getZaakSelection(String(destructionList.pk));
+    const zaakUrls = Object.entries(zaakSelection)
+      .filter(([, selected]) => selected)
+      .map(([url]) => url);
+
+    const formData = new FormData();
+    zaakUrls.forEach((url) => formData.append("zaakUrls", url));
+
+    submit(formData, { method: "PATCH" });
+
+    setIsEditing(false);
   };
 
   const onFilter = (filterData: AttributeData) => {
@@ -41,6 +66,18 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
     );
 
     setSearchParams(activeParams);
+  };
+
+  const onSelect = async (
+    attributeData: AttributeData[],
+    selected: boolean,
+  ) => {
+    await updateSelectedZaken(
+      selected,
+      attributeData,
+      String(destructionList.pk),
+      zaken,
+    );
   };
 
   return (
@@ -68,6 +105,7 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
               wrap: false,
             },
           ]}
+          onSelect={onSelect}
           customComparisonFunction={(item1, item2) => item1.uuid === item2.uuid}
           paginatorProps={{
             count: allZaken.count,

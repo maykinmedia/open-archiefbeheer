@@ -22,6 +22,7 @@ import { DestructionListItems } from "./DestructionListItems";
 import {
   DestructionListData,
   DestructionListDetailContext,
+  DestructionListItemUpdate,
   DestructionListUpdateData,
 } from "./types";
 
@@ -91,6 +92,7 @@ export function DestructionListDetailPage() {
           <P>
             <DestructionListItems
               zaken={destructionList.items.map((item) => item.zaakData)}
+              destructionList={destructionList}
             />
           </P>
         </Body>
@@ -109,6 +111,7 @@ export async function updateDestructionList(
   id: string,
   data: DestructionListUpdateData,
 ) {
+  console.log(data);
   const response = await request(
     "PATCH",
     `/destruction-lists/${id}/`,
@@ -124,13 +127,23 @@ export async function destructionListUpdateAction({
   params,
 }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const assigneesData = formData.getAll("assigneeIds");
-  const data = {
-    assignees: assigneesData.map((id, index) => ({
+  const assigneesData =
+    formData.has("assigneeIds") && formData.getAll("assigneeIds");
+  const items = formData.has("zaakUrls") && formData.getAll("zaakUrls");
+  const data: DestructionListUpdateData = {};
+
+  if (assigneesData) {
+    data.assignees = assigneesData.map((id, index) => ({
       user: Number(id),
       order: index,
-    })),
-  };
+    }));
+  }
+
+  if (items) {
+    data.items = items.map((zaakUrl) => ({
+      zaak: zaakUrl,
+    })) as DestructionListItemUpdate[];
+  }
 
   try {
     await updateDestructionList(params.id as string, data);
