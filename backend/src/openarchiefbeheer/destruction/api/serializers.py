@@ -45,9 +45,14 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs: dict) -> dict:
-        if DestructionListItem.objects.filter(
-            Q(~Q(status=ListItemStatus.removed), zaak=attrs["zaak"])
-        ).exists():
+        destruction_list = self.context["destruction_list"]
+        is_create = destruction_list is None
+
+        filters = ~Q(status=ListItemStatus.removed) & Q(zaak=attrs["zaak"])
+        if not is_create:
+            filters = filters & ~Q(destruction_list=destruction_list)
+
+        if DestructionListItem.objects.filter(filters).exists():
             raise ValidationError(
                 {
                     "zaak": _(
@@ -80,6 +85,11 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "status",
         )
         extra_kwargs = {"status": {"read_only": True}, "author": {"read_only": True}}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._context["destruction_list"] = self.instance
 
     def create(self, validated_data: dict) -> DestructionList:
         assignees_data = validated_data.pop("assignees")
@@ -127,14 +137,17 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
     items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
+    assignee = UserSerializer(read_only=True)
 
     class Meta:
         model = DestructionList
         fields = (
+            "pk",
             "name",
             "author",
             "contains_sensitive_info",
             "assignees",
+            "assignee",
             "items",
             "status",
             "created",
