@@ -55,15 +55,19 @@ export const Landing = () => {
           : `${assignee.username} (${assignee.role.name})`;
       return sortedAssignees.map((assignee) => getName(assignee.user));
     };
-    return lists.map((list) => (
-      <KanbanCard
-        title={list.name}
-        days={timeAgo(list.created)}
-        assigneeNames={constructAssigneeNames(list.assignees)}
-        href={`/destruction-list/${list.name}`}
-        key={list.name}
-      />
-    ));
+
+    return lists.map((list) => ({
+      id: list.name,
+      content: (
+        <KanbanCard
+          title={list.name}
+          days={timeAgo(list.created)}
+          assigneeNames={constructAssigneeNames(list.assignees)}
+          href={`/destruction-list/${list.name}`}
+          key={list.name}
+        />
+      ),
+    }));
   };
 
   return (
@@ -72,6 +76,7 @@ export const Landing = () => {
         title: "Landing Page",
         componentList: STATUSES.map((status) => ({
           title: STATUS_LABELS[status] || deslugify(status),
+          id: status,
           items: constructComponentList(lists[status] || []),
         })),
       }}
