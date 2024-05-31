@@ -46,9 +46,16 @@ export const getZakenData = async (
   );
 
   // Get reviewers, zaken and zaaktypen.
-  const reviewers = await listReviewers();
-  const zaken = await listZaken(searchParams);
-  const zaaktypeChoices = await listZaaktypeChoices();
+  const promises = [
+    listReviewers(),
+    listZaken(searchParams),
+    listZaaktypeChoices(),
+  ];
+  const [reviewers, zaken, zaaktypeChoices] = (await Promise.all(promises)) as [
+    User[],
+    PaginatedZaken,
+    ZaaktypeChoice,
+  ];
 
   // Get zaak selection.
   const isZaakSelectedPromises = zaken.results.map((zaak) =>

@@ -19,25 +19,14 @@ import { AssigneesEditable } from "./Assignees";
 import { getZakenData } from "./DestructionListCreate";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
+import { STATUS_MAPPING } from "./constants";
 import {
   DestructionListData,
   DestructionListDetailContext,
   DestructionListItemUpdate,
   DestructionListUpdateData,
 } from "./types";
-
-// Todo: should this come from the backend?
-const STATUS_MAPPING: { [key: string]: string } = {
-  in_progress: "In progress",
-  processing: "Processing",
-  completed: "Completed",
-};
-
-function formatUser(user: User) {
-  if (user.firstName && user.lastName)
-    return `${user.firstName} ${user.lastName} (${user.username})`;
-  return user.username;
-}
+import { formatUser } from "./utils";
 
 function getDisplayableList(destructionList: DestructionListData): ObjectData {
   const createdOn = new Date(destructionList.created);
@@ -68,6 +57,9 @@ function getDisplayableList(destructionList: DestructionListData): ObjectData {
  */
 export function DestructionListDetailPage() {
   const { destructionList } = useLoaderData() as DestructionListDetailContext;
+
+  // TODO - Make a 404 page
+  if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
 
   return (
     <div className="destruction-list-detail">
@@ -111,7 +103,6 @@ export async function updateDestructionList(
   id: string,
   data: DestructionListUpdateData,
 ) {
-  console.log(data);
   const response = await request(
     "PATCH",
     `/destruction-lists/${id}/`,
@@ -150,7 +141,9 @@ export async function destructionListUpdateAction({
   try {
     await updateDestructionList(params.id as string, data);
   } catch (e: unknown) {
-    return await (e as Response).json();
+    if (e instanceof Response) return await (e as Response).json();
+
+    throw e;
   }
 
   return redirect(`/destruction-lists/${params.id}/`);
@@ -158,7 +151,7 @@ export async function destructionListUpdateAction({
 
 export const destructionListDetailLoader = loginRequired(
   async ({ request, params }: ActionFunctionArgs) => {
-    if (typeof params.id === "undefined") return;
+    if (typeof params.id === "undefined") return {};
 
     const promises = [
       getDestructionList(params.id),

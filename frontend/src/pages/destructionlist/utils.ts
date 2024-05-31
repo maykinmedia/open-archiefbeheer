@@ -1,6 +1,7 @@
 import { AttributeData, TypedField } from "@maykin-ui/admin-ui";
 
 import { ZaaktypeChoice } from "../../lib/api/private";
+import { User } from "../../lib/api/reviewers";
 import {
   addToZaakSelection,
   removeFromZaakSelection,
@@ -115,4 +116,10 @@ export async function updateSelectedZaken(
         destructionListKey,
         attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
       );
+}
+
+export function formatUser(user: User) {
+  if (user.firstName && user.lastName)
+    return `${user.firstName} ${user.lastName} (${user.username})`;
+  return user.username;
 }
