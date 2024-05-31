@@ -1,7 +1,8 @@
 import {
   AttributeTable,
   Body,
-  Button, // Errors,
+  Button,
+  Errors,
   Form,
   FormField,
   ObjectData,
@@ -50,7 +51,7 @@ export function AssigneesForm({
 
   return (
     <Body className="destruction-list-detail destruction-list-detail__reviewers-form">
-      {/*<Errors errors={Object.values(errors)} />*/}
+      <Errors errors={Object.values(errors)} />
       <Form
         fields={formFields}
         initialValues={{
