@@ -1,4 +1,4 @@
-import { KanbanTemplate } from "@maykin-ui/admin-ui";
+import { AttributeData, FieldSet, KanbanTemplate } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
 import { KanbanCard } from "../../components/KanbanCard/KanbanCard";
@@ -6,7 +6,7 @@ import {
   DestructionList,
   listDestructionLists,
 } from "../../lib/api/destructionLists";
-import { deslugify, timeAgo } from "../../lib/string";
+import { timeAgo } from "../../lib/string";
 import "./Landing.css";
 
 const STATUS_LABELS: { [key: string]: string } = {
@@ -15,7 +15,29 @@ const STATUS_LABELS: { [key: string]: string } = {
   completed: "Completed",
 };
 
-const STATUSES = ["pending", "in_progress", "completed"];
+const STATUSES: FieldSet[] = [
+  [
+    STATUS_LABELS.pending,
+    {
+      fields: [],
+      component: KanbanCard,
+    },
+  ],
+  [
+    STATUS_LABELS.in_progress,
+    {
+      fields: [],
+      component: KanbanCard,
+    },
+  ],
+  [
+    STATUS_LABELS.completed,
+    {
+      fields: [],
+      component: KanbanCard,
+    },
+  ],
+];
 
 interface LandingLoaderReturn {
   [key: string]: DestructionList[];
@@ -23,19 +45,15 @@ interface LandingLoaderReturn {
 
 export const landingLoader = async (): Promise<LandingLoaderReturn> => {
   const lists = await listDestructionLists();
-  const statusMap: LandingLoaderReturn = {};
 
   // Initialize statusMap with empty arrays for each status
-  STATUSES.forEach((status) => {
-    statusMap[status] = [];
-  });
-
-  lists.forEach((list) => {
-    if (!statusMap[list.status]) {
-      statusMap[list.status] = [];
-    }
-    statusMap[list.status].push(list);
-  });
+  const statusMap = STATUSES.reduce((acc, val) => {
+    const status = val[0] || "";
+    const destructionLists = lists.filter(
+      (l) => STATUS_LABELS[l.status] === status,
+    );
+    return { ...acc, [status]: destructionLists };
+  }, {});
 
   return statusMap;
 };
@@ -43,42 +61,33 @@ export const landingLoader = async (): Promise<LandingLoaderReturn> => {
 export const Landing = () => {
   const lists = useLoaderData() as LandingLoaderReturn;
 
-  const constructComponentList = (lists: DestructionList[]) => {
-    const constructAssigneeNames = (
-      assignees: DestructionList["assignees"],
-    ) => {
-      const sortedAssignees = assignees.sort((a, b) => a.order - b.order);
-      const getName = (assignee: DestructionList["assignees"][0]["user"]) =>
-        // If there's a first and last name, return the full name otherwise we return the username
-        assignee.firstName && assignee.lastName
-          ? `${assignee.firstName} ${assignee.lastName} (${assignee.role.name})`
-          : `${assignee.username} (${assignee.role.name})`;
-      return sortedAssignees.map((assignee) => getName(assignee.user));
-    };
-
-    return lists.map((list) => ({
-      id: list.name,
-      content: (
-        <KanbanCard
-          title={list.name}
-          days={timeAgo(list.created)}
-          assigneeNames={constructAssigneeNames(list.assignees)}
-          href={`/destruction-list/${list.name}`}
-          key={list.name}
-        />
-      ),
-    }));
+  const constructAssigneeNames = (assignees: DestructionList["assignees"]) => {
+    const sortedAssignees = assignees.sort((a, b) => a.order - b.order);
+    const getName = (assignee: DestructionList["assignees"][0]["user"]) =>
+      // If there's a first and last name, return the full name otherwise we return the username
+      assignee.firstName && assignee.lastName
+        ? `${assignee.firstName} ${assignee.lastName} (${assignee.role.name})`
+        : `${assignee.username} (${assignee.role.name})`;
+    return sortedAssignees.map((assignee) => getName(assignee.user));
   };
+
+  const objectLists = Object.values(lists).map((lists) =>
+    lists.map((list) => ({
+      key: list.name,
+      title: list.name,
+      days: timeAgo(list.created),
+      assigneeNames: constructAssigneeNames(list.assignees),
+      href: `/destruction-list/${list.name}`,
+    })),
+  ) as unknown as AttributeData[][];
 
   return (
     <KanbanTemplate
       kanbanProps={{
+        draggable: false,
         title: "Landing Page",
-        componentList: STATUSES.map((status) => ({
-          title: STATUS_LABELS[status] || deslugify(status),
-          id: status,
-          items: constructComponentList(lists[status] || []),
-        })),
+        fieldsets: STATUSES,
+        objectLists: objectLists,
       }}
     />
   );
