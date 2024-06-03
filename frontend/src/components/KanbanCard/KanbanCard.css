@@ -1,0 +1,29 @@
+.kanban-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.kanban-card__days-download {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.kanban-card__title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: black;
+}
+
+.kanban-card__divider {
+  height: 1px;
+  background-color: #f4f4f4;
+}
+
+.kanban-card__assignees {
+  display: flex;
+  align-items: start;
+  gap: 6px;
+}

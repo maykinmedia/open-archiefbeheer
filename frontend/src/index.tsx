@@ -7,6 +7,7 @@ import App from "./App";
 import "./index.css";
 import {
   DestructionListCreatePage,
+  Landing,
   LoginPage,
   destructionListCreateAction,
   destructionListCreateLoader,
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       {
         path: "/",
         loader: landingLoader,
+        element: <Landing />,
       },
       {
         path: "/destruction-lists/create",
