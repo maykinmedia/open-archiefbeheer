@@ -85,7 +85,7 @@ export const Landing = () => {
     <KanbanTemplate
       kanbanProps={{
         draggable: false,
-        title: "Landing Page",
+        title: "Vernietigingslijsten",
         fieldsets: STATUSES,
         objectLists: objectLists,
       }}
