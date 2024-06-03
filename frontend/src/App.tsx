@@ -19,6 +19,11 @@ function App({ children }: AppProps) {
               title: "Home",
               onClick: () => navigate("/"),
             },
+            {
+              children: <Outline.PlusCircleIcon />,
+              title: "Add destruction list",
+              onClick: () => navigate("/destruction-lists/create"),
+            },
             "spacer",
             {
               children: <Outline.ArrowRightOnRectangleIcon />,
