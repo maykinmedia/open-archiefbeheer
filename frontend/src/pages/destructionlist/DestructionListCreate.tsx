@@ -267,6 +267,7 @@ export function DestructionListCreatePage({
       autoFocus: modalOpenState,
       label: "Naam",
       name: "name",
+      required: true,
     },
     {
       label: "Eerste reviewer",
@@ -284,6 +285,7 @@ export function DestructionListCreatePage({
         value: String(user.pk),
         label: user.username,
       })),
+      required: true,
     },
   ];
 
@@ -296,7 +298,11 @@ export function DestructionListCreatePage({
         onClose={() => setModalOpenState(false)}
       >
         <Body>
-          <Form fields={modalFormFields} onSubmit={onSubmitForm}></Form>
+          <Form
+            fields={modalFormFields}
+            onSubmit={onSubmitForm}
+            validateOnChange={true}
+          />
         </Body>
       </Modal>
       <ListTemplate
