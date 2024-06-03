@@ -2,7 +2,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -342,3 +342,44 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(items_in_list.count(), 2)
         self.assertIn(data["items"][0]["zaak"], items_in_list)
         self.assertIn(data["items"][1]["zaak"], items_in_list)
+
+    @tag("gh-58")
+    def test_create_destruction_list_with_same_reviewer_twice(self):
+        user1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "assignees": [
+                {"user": user1.pk, "order": 0},
+                {"user": user1.pk, "order": 1},
+            ],
+            "items": [
+                {
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "extra_zaak_data": {},
+                },
+                {
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "extra_zaak_data": {},
+                },
+            ],
+        }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["assignees"][0],
+            _("The same user should not be selected as a reviewer more than once."),
+        )
