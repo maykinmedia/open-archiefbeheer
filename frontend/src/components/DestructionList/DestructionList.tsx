@@ -3,6 +3,7 @@ import {
   DataGridProps,
   ListTemplate,
   TypedField,
+  formatMessage,
 } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 import {
@@ -32,6 +33,9 @@ export type DestructionList = {
   destructionListCreateKey: string;
 };
 
+/** The template used to format urls to an external application providing zaak details. */
+const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
+
 /**
  * Review-destruction-list page
  */
@@ -45,7 +49,10 @@ export function DestructionList({
   const errors = useActionData() || {};
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const objectList = zaken.results as unknown as AttributeData[];
+  const objectList = zaken.results.map((zaak) => ({
+    ...zaak,
+    href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+  })) as unknown as AttributeData[];
   const { state } = useNavigation();
 
   const [fieldSelectionState, setFieldSelectionState] =
@@ -196,6 +203,9 @@ export function DestructionList({
       errors={Object.values(errors)}
       dataGridProps={
         {
+          aProps: {
+            target: "_blank",
+          },
           count: zaken.count,
           fields: fields,
           loading: state === "loading",

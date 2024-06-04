@@ -23,6 +23,7 @@ import {
 import { Zaak } from "../../types";
 import "./DestructionListCreate.css";
 
+/** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
 
 export type DestructionListCreateContext = {
@@ -79,11 +80,6 @@ export async function destructionListCreateAction({
   await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
   return redirect("/");
 }
-
-export type DestructionListCreateProps = Omit<
-  React.ComponentProps<"main">,
-  "onChange" | "onSelect"
->;
 
 /**
  * Destruction list creation page
