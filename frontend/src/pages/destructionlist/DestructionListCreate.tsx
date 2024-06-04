@@ -10,7 +10,7 @@ import {
   TypedField,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import {
   redirect,
   useActionData,
@@ -25,6 +25,12 @@ import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { User, listReviewers } from "../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
+import {
+  FieldSelection,
+  addToFieldSelection,
+  getFieldSelection,
+  removeFromFieldSelection,
+} from "../../lib/fieldSelection/fieldSelection";
 import {
   addToZaakSelection,
   clearZaakSelection,
@@ -115,6 +121,14 @@ export function DestructionListCreatePage({
   const { state } = useNavigation();
 
   const [modalOpenState, setModalOpenState] = useState(false);
+  const [fieldSelectionState, setFieldSelectionState] =
+    useState<FieldSelection>();
+
+  useEffect(() => {
+    getFieldSelection(DESTRUCTION_LIST_CREATE_KEY).then((fieldSelection) =>
+      setFieldSelectionState(fieldSelection),
+    );
+  }, []);
 
   const fields: TypedField[] = [
     {
@@ -185,8 +199,8 @@ export function DestructionListCreatePage({
     {
       name: "relaties",
       filterLookup: "heeft_relaties",
-      valueTransform: (rowData) =>
-        Boolean((rowData as unknown as Zaak)?.relevanteAndereZaken?.length),
+      valueTransform: (rowData: object) =>
+        Boolean((rowData as Zaak)?.relevanteAndereZaken?.length),
       filterValue: searchParams.get("heeft_relaties") || "",
       type: "boolean",
       options: [
@@ -194,7 +208,14 @@ export function DestructionListCreatePage({
         { value: "false", label: "Nee" },
       ],
     },
-  ];
+  ].map((field) => {
+    const isActiveFromStorage = fieldSelectionState?.[field.name];
+    const isActive =
+      typeof isActiveFromStorage === "undefined"
+        ? field.active !== false
+        : isActiveFromStorage;
+    return { ...field, active: isActive } as TypedField;
+  });
 
   /**
    * Gets called when a filter value is change.
@@ -311,6 +332,7 @@ export function DestructionListCreatePage({
           {
             count: zaken.count,
             fields: fields,
+            fieldsSelectable: true,
             loading: state === "loading",
             objectList: objectList,
             pageSize: 100,
@@ -332,6 +354,22 @@ export function DestructionListCreatePage({
             },
             filterable: true,
             page: Number(searchParams.get("page")) || 1,
+            onFieldsChange: async (fields) => {
+              const activeFields = fields.filter((f) => f.active !== false);
+              const inActiveFields = fields.filter((f) => f.active === false);
+              await addToFieldSelection(
+                DESTRUCTION_LIST_CREATE_KEY,
+                activeFields,
+              );
+              await removeFromFieldSelection(
+                DESTRUCTION_LIST_CREATE_KEY,
+                inActiveFields,
+              );
+              const fieldSelection = await getFieldSelection(
+                DESTRUCTION_LIST_CREATE_KEY,
+              );
+              setFieldSelectionState(fieldSelection);
+            },
             onFilter: onFilter,
             onSelect: onSelect,
             onPageChange: (page) =>
