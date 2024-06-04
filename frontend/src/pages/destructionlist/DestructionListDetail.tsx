@@ -5,7 +5,7 @@ import {
   Column,
   Grid,
   H1,
-  ObjectData,
+  LabeledAttributeData,
   P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
@@ -28,7 +28,9 @@ import {
 } from "./types";
 import { formatUser } from "./utils";
 
-function getDisplayableList(destructionList: DestructionListData): ObjectData {
+function getDisplayableList(
+  destructionList: DestructionListData,
+): LabeledAttributeData {
   const createdOn = new Date(destructionList.created);
   const formattedCreatedOn = createdOn.toLocaleString("nl-nl", {
     year: "numeric",
@@ -74,7 +76,9 @@ export function DestructionListDetailPage() {
           <P>
             <Grid>
               <Column span={3}>
-                <AttributeTable object={getDisplayableList(destructionList)} />
+                <AttributeTable
+                  labeledObject={getDisplayableList(destructionList)}
+                />
               </Column>
               <Column span={9}>
                 <AssigneesEditable assignees={destructionList.assignees} />

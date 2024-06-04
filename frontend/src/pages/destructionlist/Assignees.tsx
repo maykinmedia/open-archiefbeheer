@@ -5,7 +5,7 @@ import {
   Errors,
   Form,
   FormField,
-  ObjectData,
+  LabeledAttributeData,
   Outline,
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
@@ -76,7 +76,7 @@ export function AssigneesForm({
 export function AssigneesEditable({ assignees }: AssigneesEditableProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  const assigneesData: ObjectData = {};
+  const assigneesData: LabeledAttributeData = {};
   assignees.map((assignee) => {
     assigneesData[assignee.user.username] = {
       label:
@@ -87,7 +87,7 @@ export function AssigneesEditable({ assignees }: AssigneesEditableProps) {
     };
   });
 
-  const assigneesDisplay = <AttributeTable object={assigneesData} />;
+  const assigneesDisplay = <AttributeTable labeledObject={assigneesData} />;
 
   const assigneesForm = (
     <AssigneesForm
@@ -115,7 +115,7 @@ export function AssigneesEditable({ assignees }: AssigneesEditableProps) {
 
   return (
     <AttributeTable
-      object={{
+      labeledObject={{
         assignees: {
           label: label,
           value: isEditing ? assigneesForm : assigneesDisplay,

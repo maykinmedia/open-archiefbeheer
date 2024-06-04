@@ -106,7 +106,7 @@ export function DestructionListItems({
             },
           ]}
           onSelect={onSelect}
-          customComparisonFunction={(item1, item2) => item1.uuid === item2.uuid}
+          equalityChecker={(item1, item2) => item1.uuid === item2.uuid}
           paginatorProps={{
             count: allZaken.count,
             pageSize: 100,
