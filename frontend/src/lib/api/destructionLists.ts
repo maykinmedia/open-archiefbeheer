@@ -5,6 +5,7 @@ import { request } from "./request";
 import { User } from "./reviewers";
 
 export type DestructionList = {
+  pk: number;
   name: string;
   assignees: DestructionListAssignee[];
   items: DestructionListItem[];
