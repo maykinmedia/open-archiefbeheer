@@ -77,7 +77,7 @@ export const Landing = () => {
       title: list.name,
       days: timeAgo(list.created),
       assigneeNames: constructAssigneeNames(list.assignees),
-      href: `/destruction-list/${list.name}`,
+      href: `/destruction-list/${list.pk}`,
     })),
   ) as unknown as AttributeData[][];
 
