@@ -1,4 +1,4 @@
-import { NavigationContext, Outline } from "@maykin-ui/admin-ui";
+import { Logo, NavigationContext, Outline } from "@maykin-ui/admin-ui";
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -14,6 +14,11 @@ function App({ children }: AppProps) {
       <NavigationContext.Provider
         value={{
           primaryNavigationItems: [
+            <Logo
+              key="logo"
+              variant={"compact"}
+              style={{ width: "32px", ["--page-color-logo"]: "#FFF" }}
+            />,
             {
               children: <Outline.HomeIcon />,
               title: "Home",
