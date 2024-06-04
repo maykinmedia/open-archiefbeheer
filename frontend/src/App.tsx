@@ -4,9 +4,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import "./App.css";
 
-export type AppProps = React.ComponentProps<"div">;
-
-function App({ children }: AppProps) {
+function App() {
   const navigate = useNavigate();
 
   return (
