@@ -138,6 +138,33 @@ export function DestructionListCreatePage({
       type: "string",
     },
     {
+      name: "archiefnominatie",
+      type: "string",
+      options: [
+        { label: "Blijvend bewaren", value: "blijvend_bewaren" },
+        { label: "Vernietigen", value: "vernietigen" },
+      ],
+    },
+    {
+      name: "resultaat",
+      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
+      filterValue:
+        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
+        "",
+      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+      type: "string",
+    },
+    {
+      name: "startdatum",
+      type: "string", // TODO: Support date(range)
+      filterable: false, // TODO
+    },
+    {
+      name: "einddatum",
+      type: "string", // TODO: Support date(range)
+      filterable: false, // TODO
+    },
+    {
       name: "zaaktype",
       filterLookup: "zaaktype",
       filterValue: searchParams.get("zaaktype") || "",
@@ -152,51 +179,32 @@ export function DestructionListCreatePage({
       type: "string",
     },
     {
-      name: "looptijd",
-      filterable: false,
-      valueTransform: (rowData) => {
-        const zaak = rowData as unknown as Zaak;
-        const startDate = new Date(zaak.startdatum);
-        const endDate = zaak.einddatum ? new Date(zaak.einddatum) : new Date();
-        return (
-          Math.ceil(
-            (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-          ) + " dagen"
-        );
-      },
+      active: false,
+      name: "toelichting",
       type: "string",
+      filterLookup: "toelichting__icontains",
+    },
+    // TODO
+    // {
+    //   name: "Behandelend afdeling"
+    // },
+    {
+      name: "archiefactiedatum",
+      type: "string", // TODO: Support date(range)
     },
     {
-      name: "resultaattype",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
-      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+      active: false,
+      name: "selectielijstklasse",
       type: "string",
+      // filterLookup: // TODO: Expand?
     },
     {
-      name: "bewaartermijn",
-      filterLookup: "resultaat__resultaattype__archiefactietermijn__icontains",
-      filterValue:
-        searchParams.get(
-          "resultaat__resultaattype__archiefactietermijn__icontains",
-        ) || "",
-      valueLookup:
-        "_expand.resultaat._expand.resultaattype.archiefactietermijn",
+      name: "hoofdzaak",
       type: "string",
+      // valueLookup: // TODO: Expand?
     },
     {
-      name: "vcs",
-      filterLookup: "zaaktype__selectielijstprocestype__naam__icontains",
-      filterValue:
-        searchParams.get(
-          "zaaktype__selectielijstprocestype__naam__icontains",
-        ) || "",
-      valueLookup: "_expand.zaaktype.selectielijstProcestype.naam",
-      type: "string",
-    },
-    {
+      active: false,
       name: "relaties",
       filterLookup: "heeft_relaties",
       valueTransform: (rowData: object) =>
