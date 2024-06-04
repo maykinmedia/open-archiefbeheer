@@ -73,31 +73,24 @@ jobs:
           working-directory: backend
           files: ./coverage.xml
 
-#  frontend-build:
-#    name: Create 'production' build
-#    runs-on: ubuntu-latest
-#
-#    defaults:
-#      run:
-#        working-directory: frontend
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-node@v3
-#        with:
-#          node-version-file: 'frontend/.nvmrc'
-#
-#      - name: Build Javascript
-#        run: |
-#          npm ci --legacy-peer-deps
-#          npm run build
-#
-#      - name: Store build artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: open-archiefbeheer-frontend-build
-#          path: dist/
-#          retention-days: 1
+  frontend-build:
+    name: Create 'production' build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: 'frontend/.nvmrc'
+
+      - name: Build Javascript
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
 
   docs:
    name: Build and check documentation
@@ -155,7 +148,7 @@ jobs:
 
       - run: docker image save -o image.tar $IMAGE_NAME:${{ steps.vars.outputs.tag }}
       - name: Store image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-image
           path: image.tar
@@ -164,6 +157,7 @@ jobs:
   docker_push:
     needs:
       - backend-tests
+      - frontend-build
       - docker_build
 
     name: Push Docker image
@@ -171,11 +165,10 @@ jobs:
     if: github.event_name == 'push' # Exclude PRs
 
     steps:
-      # This will include the updated OAS (if updated) from the update-oas job.
       - uses: actions/checkout@v4
 
       - name: Download built image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image
 
