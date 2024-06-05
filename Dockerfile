@@ -47,6 +47,7 @@ COPY ./frontend/package-lock.json ./frontend/package.json ./
 RUN npm ci
 
 COPY ./frontend .
+COPY ./frontend/.env.production.template ./.env.production
 
 RUN npm run build
 
@@ -71,6 +72,7 @@ COPY ./backend/bin/celery_worker.sh /celery_worker.sh
 COPY ./backend/bin/celery_beat.sh /celery_beat.sh
 COPY ./backend/bin/celery_flower.sh /celery_flower.sh
 COPY ./backend/bin/check_celery_worker_liveness.py /check_celery_worker_liveness.py
+COPY ./frontend/scripts/replace-envvars.sh /replace-envvars.sh
 
 RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
 
