@@ -65,6 +65,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
 COPY ./backend/bin/docker_start.sh /start.sh
 COPY ./backend/bin/celery_worker.sh /celery_worker.sh
 COPY ./backend/bin/celery_beat.sh /celery_beat.sh
@@ -76,6 +77,7 @@ RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
 # copy backend build deps
 COPY --from=backend-build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=backend-build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
+COPY --from=backend-build /usr/local/bin/celery /usr/local/bin/celery
 
 COPY ./backend/src /app/src
 
