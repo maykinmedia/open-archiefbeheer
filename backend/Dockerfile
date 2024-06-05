@@ -66,11 +66,13 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
 COPY ./bin/docker_start.sh /start.sh
-# Uncomment if you use celery
-# COPY ./bin/celery_worker.sh /celery_worker.sh
-# COPY ./bin/celery_beat.sh /celery_beat.sh
-# COPY ./bin/celery_flower.sh /celery_flower.sh
+COPY ./bin/celery_worker.sh /celery_worker.sh
+COPY ./bin/celery_beat.sh /celery_beat.sh
+COPY ./bin/celery_flower.sh /celery_flower.sh
+COPY ./bin/check_celery_worker_liveness.py /check_celery_worker_liveness.py
+
 RUN mkdir /app/bin /app/log /app/media
 
 VOLUME ["/app/log", "/app/media"]

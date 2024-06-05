@@ -24,7 +24,7 @@ services:
 
   web:
     image: maykinmedia/open-archiefbeheer:latest
-    environment:
+    environment: &web_env
       - ALLOWED_HOSTS=localhost
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-django-insecure-!bkx+tx18&lvp(@_9)9ut(y(keqho*zhz1&^sqqgq9*i=__w(}
@@ -41,8 +41,39 @@ services:
       - SESSION_COOKIE_SECURE=False
       - TWO_FACTOR_FORCE_OTP_ADMIN=False
       - TWO_FACTOR_PATCH_ADMIN=False
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_LOGLEVEL=DEBUG
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_API_PATH=/api/v1
     ports:
       - 8080:8080
+    depends_on:
+      - db
+      - redis
+    networks:
+      - open-archiefbeheer-dev
+
+  celery:
+    image: maykinmedia/open-archiefbeheer:latest
+    command: /celery_worker.sh
+    environment: *web_env
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - db
+      - redis
+    networks:
+      - open-archiefbeheer-dev
+
+  celery-beat:
+    image: maykinmedia/open-archiefbeheer:latest
+    command: /celery_beat.sh
+    environment: *web_env
     depends_on:
       - db
       - redis
