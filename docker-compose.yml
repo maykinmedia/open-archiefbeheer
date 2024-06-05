@@ -44,9 +44,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_SCHEME=http
-      - REACT_APP_API_HOST=localhost
-      - REACT_APP_API_PORT=8080
+      - REACT_APP_API_URL=http://localhost:8080
       - REACT_APP_API_PATH=/api/v1
     ports:
       - 8080:8080
