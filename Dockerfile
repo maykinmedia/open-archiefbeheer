@@ -66,6 +66,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY ./backend/bin/docker_start.sh /start.sh
+COPY ./backend/bin/celery_worker.sh /celery_worker.sh
+COPY ./backend/bin/celery_beat.sh /celery_beat.sh
+COPY ./backend/bin/celery_flower.sh /celery_flower.sh
+COPY ./backend/bin/check_celery_worker_liveness.py /check_celery_worker_liveness.py
 
 RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
 
