@@ -1,48 +1,29 @@
 import {
-  AttributeData,
   Body,
-  DataGridProps,
   Form,
   FormField,
-  ListTemplate,
   Modal,
   SerializedFormData,
-  TypedField,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React, { FormEvent, useEffect, useState } from "react";
-import {
-  redirect,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-  useSubmit,
-} from "react-router-dom";
+import React, { FormEvent, useState } from "react";
+import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 
+import { DestructionList } from "../../components/DestructionList/DestructionList";
 import { createDestructionList } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { User, listReviewers } from "../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
 import {
-  FieldSelection,
-  addToFieldSelection,
-  getFieldSelection,
-  removeFromFieldSelection,
-} from "../../lib/fieldSelection/fieldSelection";
-import {
-  addToZaakSelection,
   clearZaakSelection,
   getZaakSelection,
   isZaakSelected,
-  removeFromZaakSelection,
 } from "../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../types";
 import "./DestructionListCreate.css";
 
-/** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
-const DESTRUCTION_LIST_CREATE_KEY = "tempDestructionList";
+const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
 
 export type DestructionListCreateContext = {
   reviewers: User[];
@@ -107,166 +88,13 @@ export type DestructionListCreateProps = Omit<
 /**
  * Destruction list creation page
  */
-export function DestructionListCreatePage({
-  ...props
-}: DestructionListCreateProps) {
-  // Loader/Action I/O.
+export function DestructionListCreatePage() {
   const { reviewers, zaken, selectedZaken, zaaktypeChoices } =
     useLoaderData() as DestructionListCreateContext;
-  const errors = useActionData() || {};
   const submit = useSubmit();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const objectList = zaken.results as unknown as AttributeData[];
-  const { state } = useNavigation();
-
   const [modalOpenState, setModalOpenState] = useState(false);
-  const [fieldSelectionState, setFieldSelectionState] =
-    useState<FieldSelection>();
 
-  useEffect(() => {
-    getFieldSelection(DESTRUCTION_LIST_CREATE_KEY).then((fieldSelection) =>
-      setFieldSelectionState(fieldSelection),
-    );
-  }, []);
-
-  const fields: TypedField[] = [
-    {
-      name: "identificatie",
-      filterLookup: "identificatie__icontains",
-      filterValue: searchParams.get("identificatie__icontains") || "",
-      type: "string",
-    },
-    {
-      name: "archiefnominatie",
-      type: "string",
-      options: [
-        { label: "Blijvend bewaren", value: "blijvend_bewaren" },
-        { label: "Vernietigen", value: "vernietigen" },
-      ],
-    },
-    {
-      name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
-      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
-      type: "string",
-    },
-    {
-      name: "startdatum",
-      type: "string", // TODO: Support date(range)
-      filterable: false, // TODO
-    },
-    {
-      name: "einddatum",
-      type: "string", // TODO: Support date(range)
-      filterable: false, // TODO
-    },
-    {
-      name: "zaaktype",
-      filterLookup: "zaaktype",
-      filterValue: searchParams.get("zaaktype") || "",
-      valueLookup: "_expand.zaaktype.omschrijving",
-      options: zaaktypeChoices,
-      type: "string",
-    },
-    {
-      name: "omschrijving",
-      filterLookup: "omschrijving__icontains",
-      filterValue: searchParams.get("omschrijving__icontains") || "",
-      type: "string",
-    },
-    {
-      active: false,
-      name: "toelichting",
-      type: "string",
-      filterLookup: "toelichting__icontains",
-    },
-    // TODO
-    // {
-    //   name: "Behandelend afdeling"
-    // },
-    {
-      name: "archiefactiedatum",
-      type: "string", // TODO: Support date(range)
-    },
-    {
-      active: false,
-      name: "selectielijstklasse",
-      type: "string",
-      // filterLookup: // TODO: Expand?
-    },
-    {
-      name: "hoofdzaak",
-      type: "string",
-      // valueLookup: // TODO: Expand?
-    },
-    {
-      active: false,
-      name: "relaties",
-      filterLookup: "heeft_relaties",
-      valueTransform: (rowData: object) =>
-        Boolean((rowData as Zaak)?.relevanteAndereZaken?.length),
-      filterValue: searchParams.get("heeft_relaties") || "",
-      type: "boolean",
-      options: [
-        { value: "true", label: "Ja" },
-        { value: "false", label: "Nee" },
-      ],
-    },
-  ].map((field) => {
-    const isActiveFromStorage = fieldSelectionState?.[field.name];
-    const isActive =
-      typeof isActiveFromStorage === "undefined"
-        ? field.active !== false
-        : isActiveFromStorage;
-    return { ...field, active: isActive } as TypedField;
-  });
-
-  /**
-   * Gets called when a filter value is change.
-   * @param filterData
-   */
-  const onFilter = (filterData: AttributeData<string>) => {
-    const combinedParams = {
-      ...Object.fromEntries(searchParams),
-      ...filterData,
-    };
-
-    const activeParams = Object.fromEntries(
-      Object.entries(combinedParams).filter(([k, v]) => v),
-    );
-
-    setSearchParams(activeParams);
-  };
-
-  /**
-   * Gets called when the selection is changed.
-   * @param attributeData
-   * @param selected
-   */
-  const onSelect = async (
-    attributeData: AttributeData[],
-    selected: boolean,
-  ) => {
-    selected
-      ? await addToZaakSelection(
-          DESTRUCTION_LIST_CREATE_KEY,
-          attributeData as unknown as Zaak[],
-        )
-      : await removeFromZaakSelection(
-          DESTRUCTION_LIST_CREATE_KEY,
-          attributeData.length
-            ? (attributeData as unknown as Zaak[])
-            : zaken.results,
-        );
-  };
-
-  /**
-   * Get called when the selection is submitted.
-   */
   const onSubmitSelection = () => setModalOpenState(true);
 
   /**
@@ -334,60 +162,12 @@ export function DestructionListCreatePage({
           />
         </Body>
       </Modal>
-      <ListTemplate
-        errors={Object.values(errors)}
-        dataGridProps={
-          {
-            count: zaken.count,
-            fields: fields,
-            fieldsSelectable: true,
-            loading: state === "loading",
-            objectList: objectList,
-            pageSize: 100,
-            showPaginator: true,
-            selectable: true,
-            selected: selectedZaken as unknown as AttributeData[],
-            selectionActions: [
-              {
-                children: "Vernietigingslijst aanmaken",
-                onClick: onSubmitSelection,
-                wrap: false,
-              },
-            ],
-            labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
-            labelSelectAll: "Selecteer {countPage} op pagina",
-            title: "Vernietigingslijst opstellen",
-            boolProps: {
-              explicit: true,
-            },
-            filterable: true,
-            page: Number(searchParams.get("page")) || 1,
-            onFieldsChange: async (fields) => {
-              const activeFields = fields.filter((f) => f.active !== false);
-              const inActiveFields = fields.filter((f) => f.active === false);
-              await addToFieldSelection(
-                DESTRUCTION_LIST_CREATE_KEY,
-                activeFields,
-              );
-              await removeFromFieldSelection(
-                DESTRUCTION_LIST_CREATE_KEY,
-                inActiveFields,
-              );
-              const fieldSelection = await getFieldSelection(
-                DESTRUCTION_LIST_CREATE_KEY,
-              );
-              setFieldSelectionState(fieldSelection);
-            },
-            onFilter: onFilter,
-            onSelect: onSelect,
-            onPageChange: (page) =>
-              setSearchParams({
-                ...Object.fromEntries(searchParams),
-                page: String(page),
-              }),
-          } as DataGridProps
-        }
-        {...props}
+      <DestructionList
+        onSubmitSelection={onSubmitSelection}
+        selectedZaken={selectedZaken}
+        zaken={zaken}
+        zaaktypeChoices={zaaktypeChoices}
+        destructionListCreateKey={DESTRUCTION_LIST_CREATE_KEY}
       />
     </>
   );
