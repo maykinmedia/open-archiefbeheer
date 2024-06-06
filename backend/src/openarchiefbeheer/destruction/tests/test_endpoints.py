@@ -204,7 +204,7 @@ class DestructionListViewSetTest(APITestCase):
         }
         self.client.force_authenticate(user=record_manager)
         endpoint = reverse(
-            "api:destructionlist-detail", kwargs={"pk": destruction_list.pk}
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
         )
 
         response = self.client.put(
@@ -249,7 +249,7 @@ class DestructionListViewSetTest(APITestCase):
         }
         self.client.force_authenticate(user=record_manager)
         endpoint = reverse(
-            "api:destructionlist-detail", kwargs={"pk": destruction_list.pk}
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
         )
 
         response = self.client.patch(
@@ -287,8 +287,8 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
         self.assertEqual(
-            [destruction_list["pk"] for destruction_list in response.json()].sort(),
-            [lists[0].pk, lists[1].pk].sort(),
+            [destruction_list["uuid"] for destruction_list in response.json()].sort(),
+            [lists[0].uuid, lists[1].uuid].sort(),
         )
 
 
