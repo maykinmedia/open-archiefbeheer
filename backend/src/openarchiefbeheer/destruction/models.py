@@ -1,4 +1,5 @@
 import logging
+import uuid as _uuid
 
 from django.db import models
 from django.utils import timezone
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class DestructionList(models.Model):
     name = models.CharField(_("name"), max_length=200, unique=True)
+    uuid = models.UUIDField(_("uuid"), default=_uuid.uuid4, unique=True)
     author = models.ForeignKey(
         "accounts.User",
         on_delete=models.CASCADE,
