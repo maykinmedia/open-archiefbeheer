@@ -7,7 +7,7 @@ from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from ..models import DestructionList, DestructionListItem
-from .filtersets import DestructionListItemFilterset
+from .filtersets import DestructionListFilterset, DestructionListItemFilterset
 from .permissions import CanStartDestructionPermission
 from .serializers import (
     DestructionListItemSerializer,
@@ -116,6 +116,8 @@ class DestructionListViewSet(
 ):
     serializer_class = DestructionListSerializer
     queryset = DestructionList.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListFilterset
 
     def get_permissions(self):
         if self.action == "create":
