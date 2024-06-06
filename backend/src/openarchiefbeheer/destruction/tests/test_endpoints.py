@@ -266,6 +266,31 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(destruction_list.items.all().count(), 2)
         self.assertEqual(destruction_list.assignees.all().count(), 2)
 
+    def test_destruction_list_filter_on_assignee(self):
+        user = UserFactory.create()
+        reviewer1 = UserFactory.create()
+        reviewer2 = UserFactory.create()
+        lists = DestructionListFactory.create_batch(3)
+        lists[0].assignee = reviewer1
+        lists[1].save()
+        lists[1].assignee = reviewer2
+        lists[1].save()
+        lists[2].assignee = reviewer2
+        lists[2].save()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["assignee"] = reviewer2.pk
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(
+            [destruction_list["pk"] for destruction_list in response.json()].sort(),
+            [lists[0].pk, lists[1].pk].sort(),
+        )
+
 
 class DestructionListItemsViewSetTest(APITestCase):
     def test_not_authenticated(self):
