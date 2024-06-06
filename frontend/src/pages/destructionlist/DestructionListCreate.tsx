@@ -12,7 +12,7 @@ import {
 import React, { FormEvent, useState } from "react";
 import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 
-import { DestructionList } from "../../components/DestructionList/DestructionList";
+import { DestructionList } from "../../components";
 import { createDestructionList } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
@@ -183,6 +183,7 @@ export function DestructionListCreatePage() {
         zaken={zaken}
         zaaktypeChoices={zaaktypeChoices}
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
+        title="Vernietigingslijst opstellen"
       />
     </>
   );
