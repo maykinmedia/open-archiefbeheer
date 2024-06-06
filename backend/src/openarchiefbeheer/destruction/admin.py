@@ -8,6 +8,7 @@ class DestructionListAdmin(admin.ModelAdmin):
     list_display = ("name", "status", "created", "end")
     list_filter = ("status", "assignee")
     search_fields = ("name",)
+    readonly_fields = ("uuid",)
 
 
 @admin.register(DestructionListItem)

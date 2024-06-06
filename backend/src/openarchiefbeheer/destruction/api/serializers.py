@@ -77,6 +77,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionList
         fields = (
+            "uuid",
             "name",
             "author",
             "contains_sensitive_info",
@@ -84,7 +85,11 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "items",
             "status",
         )
-        extra_kwargs = {"status": {"read_only": True}, "author": {"read_only": True}}
+        extra_kwargs = {
+            "uuid": {"read_only": True},
+            "status": {"read_only": True},
+            "author": {"read_only": True},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -151,7 +156,7 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionList
         fields = (
-            "pk",
+            "uuid",
             "name",
             "author",
             "contains_sensitive_info",

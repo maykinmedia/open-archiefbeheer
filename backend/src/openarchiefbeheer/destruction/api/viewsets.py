@@ -116,6 +116,7 @@ class DestructionListViewSet(
 ):
     serializer_class = DestructionListSerializer
     queryset = DestructionList.objects.all()
+    lookup_field = "uuid"
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListFilterset
 
