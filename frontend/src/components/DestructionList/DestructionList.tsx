@@ -30,6 +30,7 @@ export type DestructionList = {
   zaaktypeChoices: ZaaktypeChoice[];
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
   destructionListCreateKey: string;
+  title: string;
 };
 
 /**
@@ -41,6 +42,7 @@ export function DestructionList({
   selectedZaken,
   zaaktypeChoices,
   destructionListCreateKey,
+  title,
 }: DestructionList) {
   const errors = useActionData() || {};
 
@@ -214,7 +216,7 @@ export function DestructionList({
 
           labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
           labelSelectAll: "Selecteer {countPage} op pagina",
-          title: "Vernietigingslijst opstellen",
+          title: title,
           boolProps: {
             explicit: true,
           },

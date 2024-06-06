@@ -9,11 +9,14 @@ import {
   DestructionListCreatePage,
   Landing,
   LoginPage,
+  ReviewDestructionListPage,
   destructionListCreateAction,
   destructionListCreateLoader,
   landingLoader,
   loginAction,
   logoutLoader,
+  reviewDestructionListAction,
+  reviewDestructionListLoader,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -31,6 +34,12 @@ const router = createBrowserRouter([
         element: <DestructionListCreatePage />,
         action: destructionListCreateAction,
         loader: destructionListCreateLoader,
+      },
+      {
+        path: "/destruction-lists/:id/review",
+        loader: reviewDestructionListLoader,
+        element: <ReviewDestructionListPage />,
+        action: reviewDestructionListAction,
       },
       {
         path: "/login",
