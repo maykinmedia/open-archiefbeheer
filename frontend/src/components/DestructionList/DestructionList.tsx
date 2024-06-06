@@ -34,6 +34,7 @@ export type DestructionList = {
   zaaktypeChoices: ZaaktypeChoice[];
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
   storageKey: string;
+  title: string;
 };
 
 /** The template used to format urls to an external application providing zaak details. */
@@ -48,6 +49,7 @@ export function DestructionList({
   selectedZaken,
   zaaktypeChoices,
   storageKey,
+  title,
 }: DestructionList) {
   const errors = useActionData() || {};
 
@@ -154,7 +156,7 @@ export function DestructionList({
 
           labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
           labelSelectAll: "Selecteer {countPage} op pagina",
-          title: "Vernietigingslijst opstellen",
+          title: title,
           boolProps: {
             explicit: true,
           },
