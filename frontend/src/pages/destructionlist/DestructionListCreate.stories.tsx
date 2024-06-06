@@ -583,7 +583,7 @@ const FIXTURE = {
   ],
 };
 
-export const destructionListCreatePage: Story = {
+export const DestructionListCreatePageStory: Story = {
   args: {},
   parameters: {
     reactRouterDecorator: {
