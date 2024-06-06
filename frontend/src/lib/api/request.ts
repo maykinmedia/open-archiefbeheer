@@ -1,19 +1,13 @@
 import { getCookie } from "../cookie/cookie";
 
-/** Scheme for all API requests.. */
-export const API_SCHEME = "http";
-
-/** The host for the API server. */
-export const API_HOST = "localhost";
-
-/** The port for the API server. */
-export const API_PORT = 8080;
+/** Scheme for all API requests. */
+export const API_URL = process.env.REACT_APP_API_URL;
 
 /** The base path for all API requests. */
-export const API_PATH = "/api/v1";
+export const API_PATH = process.env.REACT_APP_API_PATH;
 
 /** The base url for all API requests. */
-export const API_BASE_URL = `${API_SCHEME}://${API_HOST}:${API_PORT}${API_PATH}`;
+export const API_BASE_URL = `${API_URL}${API_PATH}`;
 
 /**
  * Makes an actual fetch request to the API, should be used by all other API implementations.

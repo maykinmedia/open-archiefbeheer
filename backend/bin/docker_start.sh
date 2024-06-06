@@ -26,6 +26,10 @@ done
 >&2 echo "Apply database migrations"
 python src/manage.py migrate
 
+# Populate the environment variables for the frontend
+>&2 echo "Replace frontend env vars"
+/replace-envvars.sh
+
 # Start server
 >&2 echo "Starting server"
 exec uwsgi \
