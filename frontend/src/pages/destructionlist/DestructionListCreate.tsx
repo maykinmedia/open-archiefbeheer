@@ -5,7 +5,10 @@ import {
   Modal,
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
-import { ActionFunctionArgs } from "@remix-run/router/utils";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+} from "@remix-run/router/utils";
 import React, { FormEvent, useState } from "react";
 import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 
@@ -33,30 +36,46 @@ export type DestructionListCreateContext = {
   zaaktypeChoices: ZaaktypeChoice[];
 };
 
+export const getZakenData = async (
+  request: Request,
+  searchParamsZakenEndpoint: Record<string, string>,
+) => {
+  const searchParams = new URL(request.url).searchParams;
+  Object.keys(searchParamsZakenEndpoint).forEach((key) =>
+    searchParams.set(key, searchParamsZakenEndpoint[key]),
+  );
+
+  // Get reviewers, zaken and zaaktypen.
+  const promises = [
+    listReviewers(),
+    listZaken(searchParams),
+    listZaaktypeChoices(),
+  ];
+  const [reviewers, zaken, zaaktypeChoices] = (await Promise.all(promises)) as [
+    User[],
+    PaginatedZaken,
+    ZaaktypeChoice,
+  ];
+
+  // Get zaak selection.
+  const isZaakSelectedPromises = zaken.results.map((zaak) =>
+    isZaakSelected(DESTRUCTION_LIST_CREATE_KEY, zaak),
+  );
+  const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
+  const selectedZaken = zaken.results.filter(
+    (_, index) => isZaakSelectedResults[index],
+  );
+
+  return { reviewers, zaken, selectedZaken, zaaktypeChoices };
+};
+
 /**
  * React Router loader.
  * @param request
  */
 export const destructionListCreateLoader = loginRequired(
-  async ({ request }) => {
-    const searchParams = new URL(request.url).searchParams;
-    searchParams.set("not_in_destruction_list", "true");
-
-    // Get reviewers, zaken and zaaktypen.
-    const reviewers = await listReviewers();
-    const zaken = await listZaken(searchParams);
-    const zaaktypeChoices = await listZaaktypeChoices();
-
-    // Get zaak selection.
-    const isZaakSelectedPromises = zaken.results.map((zaak) =>
-      isZaakSelected(DESTRUCTION_LIST_CREATE_KEY, zaak),
-    );
-    const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-    const selectedZaken = zaken.results.filter(
-      (_, index) => isZaakSelectedResults[index],
-    );
-
-    return { reviewers, zaken, selectedZaken, zaaktypeChoices };
+  async ({ request }: LoaderFunctionArgs) => {
+    return await getZakenData(request, { not_in_destruction_list: "true" });
   },
 );
 

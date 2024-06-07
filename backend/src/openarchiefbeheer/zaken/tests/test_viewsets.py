@@ -273,7 +273,7 @@ class ZakenViewSetTest(APITestCase):
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["not_in_destruction_list_except"] = item.destruction_list.pk
+        endpoint.args["not_in_destruction_list_except"] = item.destruction_list.uuid
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)

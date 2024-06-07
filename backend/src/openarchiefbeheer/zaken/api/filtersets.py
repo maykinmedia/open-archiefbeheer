@@ -12,7 +12,13 @@ from django.db.models import (
 )
 from django.utils.translation import gettext_lazy as _
 
-from django_filters import BooleanFilter, CharFilter, FilterSet, NumberFilter
+from django_filters import (
+    BooleanFilter,
+    CharFilter,
+    FilterSet,
+    NumberFilter,
+    UUIDFilter,
+)
 
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.models import DestructionListItem
@@ -28,14 +34,13 @@ class ZaakFilter(FilterSet):
             "If True, only cases not already included in a destruction list are returned."
         ),
     )
-    not_in_destruction_list_except = NumberFilter(
+    not_in_destruction_list_except = UUIDFilter(
         field_name="not_in_destruction_list_except",
         method="filter_not_in_destruction_list_except",
         help_text=_(
             "Only cases not already included in a destruction list except the one specified are returned. "
             "The cases that are included in the 'exception' list are returned first."
         ),
-        decimal_places=0,
     )
     _expand__resultaat__resultaattype = CharFilter(
         help_text=_("Filter on the exact URL of resultaattype."),
@@ -149,14 +154,14 @@ class ZaakFilter(FilterSet):
         return queryset.exclude(url__in=Subquery(zaken_to_exclude))
 
     def filter_not_in_destruction_list_except(
-        self, queryset: QuerySet[Zaak], name: str, value: int
+        self, queryset: QuerySet[Zaak], name: str, value: str
     ):
         zaken_to_exclude = DestructionListItem.objects.filter(
-            ~Q(status=ListItemStatus.removed) & ~Q(destruction_list=value)
+            ~Q(status=ListItemStatus.removed) & ~Q(destruction_list__uuid=value)
         ).values_list("zaak", flat=True)
 
         exception_list = DestructionListItem.objects.filter(
-            destruction_list=value
+            destruction_list__uuid=value
         ).values_list("zaak", flat=True)
 
         return (
