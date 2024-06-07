@@ -14,3 +14,8 @@ class ListItemStatus(models.TextChoices):
     processing = "processing", _("is currently being destroyed")
     destroyed = "destroyed", _("successfully destroyed")
     failed = "failed", _("destruction did not succeed")
+
+
+class ReviewDecisionChoices(models.TextChoices):
+    accepted = "accepted", _("accepted")
+    rejected = "rejected", _("rejected")

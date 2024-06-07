@@ -7,7 +7,11 @@ from django.utils.translation import gettext_lazy as _
 
 from ordered_model.models import OrderedModel
 
-from openarchiefbeheer.destruction.constants import ListItemStatus, ListStatus
+from openarchiefbeheer.destruction.constants import (
+    ListItemStatus,
+    ListStatus,
+    ReviewDecisionChoices,
+)
 from openarchiefbeheer.emails.utils import send_review_request_email
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
@@ -200,3 +204,76 @@ class DestructionListAssignee(OrderedModel):
         is_reviewer = self.user != self.destruction_list.author
         if is_reviewer:
             send_review_request_email(self.user, self.destruction_list)
+
+
+class DestructionListReview(models.Model):
+    destruction_list = models.ForeignKey(
+        DestructionList,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name=_("destruction list"),
+    )
+    author = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="created_reviews",
+        verbose_name=_("author"),
+        help_text=_("User who created the review."),
+    )
+    decision = models.CharField(
+        _("decision"),
+        choices=ReviewDecisionChoices.choices,
+        max_length=80,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    list_feedback = models.TextField(
+        _("list feedback"),
+        max_length=2000,
+        blank=True,
+        help_text=_("Feedback about the destruction list as a whole."),
+    )
+    # TODO: see if you need to add a document
+
+    class Meta:
+        verbose_name = _("destruction list review")
+        verbose_name_plural = _("destruction list reviews")
+
+    def __str__(self):
+        return f"Review for {self.destruction_list} ({self.author})"
+
+
+class DestructionListItemReview(models.Model):
+    destruction_list = models.ForeignKey(
+        DestructionList,
+        on_delete=models.CASCADE,
+        related_name="item_reviews",
+        verbose_name=_("destruction list"),
+    )
+    destruction_list_item = models.ForeignKey(
+        DestructionListItem,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        verbose_name=_("destruction list item"),
+    )
+    review = models.ForeignKey(
+        DestructionListReview,
+        on_delete=models.CASCADE,
+        related_name="item_reviews",
+        verbose_name=_("review"),
+    )
+    feedback = models.TextField(
+        _("feedback"),
+        max_length=2000,
+        blank=False,
+        help_text=_(
+            "If 'other' was selected in the field 'requested change', "
+            "feedback about what should be done with the case can be provided here."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("destruction list item review")
+        verbose_name_plural = _("destruction list item reviews")
+
+    def __str__(self):
+        return f"Case review for {self.destruction_list} ({self.destruction_list_item})"
