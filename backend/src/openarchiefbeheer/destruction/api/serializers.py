@@ -4,13 +4,20 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
-from ..constants import ListItemStatus
-from ..models import DestructionList, DestructionListAssignee, DestructionListItem
+from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..models import (
+    DestructionList,
+    DestructionListAssignee,
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+)
 
 
 class DestructionListAssigneeSerializer(serializers.ModelSerializer):
@@ -167,3 +174,90 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "created",
             "status_changed",
         )
+
+
+class DestructionListItemReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestructionListItemReview
+        fields = (
+            "destruction_list_item",
+            "feedback",
+        )
+
+
+class DestructionListReviewSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    destruction_list = SlugRelatedField(
+        slug_field="uuid", queryset=DestructionList.objects.all()
+    )
+    item_reviews = DestructionListItemReviewSerializer(
+        many=True,
+        required=False,
+        help_text="This field is required if changes are requested to the destruction list.",
+    )
+
+    class Meta:
+        model = DestructionListReview
+        fields = (
+            "destruction_list",
+            "author",
+            "decision",
+            "list_feedback",
+            "items_feedback",
+        )
+
+    def validate(self, attrs: dict) -> dict:
+        destruction_list = attrs["destruction_list"]
+        if destruction_list.assignee != self.context["request"].user:
+            raise ValidationError(
+                {
+                    "author": _(
+                        "This user is not currently assigned to the destruction list, "
+                        "so they cannot create a review at this stage."
+                    )
+                }
+            )
+
+        if (
+            attrs["decision"] == ReviewDecisionChoices.rejected
+            and len(attrs.get("item_reviews", [])) == 0
+        ):
+            raise ValidationError(
+                {
+                    "item_reviews": _(
+                        "This field cannot be empty if changes are requested on the list."
+                    )
+                }
+            )
+
+        if (
+            attrs["decision"] == ReviewDecisionChoices.accepted
+            and len(attrs.get("item_reviews", [])) != 0
+        ):
+            raise ValidationError(
+                {
+                    "item_reviews": _(
+                        "There cannot be feedback on the cases if the list is approved."
+                    )
+                }
+            )
+
+        return attrs
+
+    def create(self, validated_data: dict) -> DestructionListReview:
+        items = validated_data.pop("items_feedback")
+
+        validated_data["author"] = self.context["request"].user
+        review = DestructionListReview.objects.create(**validated_data)
+
+        extra_data_per_item = {
+            "destruction_list": validated_data["destruction_list"],
+            "review": review,
+        }
+        items_feedback_to_create = [
+            DestructionListItemReview(**{**item, **extra_data_per_item})
+            for item in items
+        ]
+        DestructionListItemReview.objects.bulk_create(items_feedback_to_create)
+
+        return review
