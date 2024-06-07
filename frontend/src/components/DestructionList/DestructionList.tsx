@@ -170,7 +170,7 @@ export function DestructionList({
     };
 
     const activeParams = Object.fromEntries(
-      Object.entries(combinedParams).filter(([k, v]) => v),
+      Object.entries(combinedParams).filter((keyValuePair) => keyValuePair[1]),
     );
 
     setSearchParams(activeParams);

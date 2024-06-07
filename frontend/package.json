@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@maykin-ui/admin-ui": "^0.0.8",
+    "@storybook/test-runner": "^0.18.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -25,6 +26,7 @@
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test-storybook": "test-storybook",
     "prepare": "cd .. && husky frontend/.husky",
     "lint": "eslint .",
     "lint:fix": "eslint --fix src"

@@ -13,7 +13,7 @@ const meta: Meta<typeof LoginPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const loginPage: Story = {
+export const LoginPageStory: Story = {
   args: {
     children: "The quick brown fox jumps over the lazy dog.",
   },

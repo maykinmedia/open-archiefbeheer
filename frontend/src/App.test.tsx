@@ -5,7 +5,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 
 test("renders app", () => {
-  const router = createBrowserRouter([
+  createBrowserRouter([
     {
       path: "*",
       element: <App />,
