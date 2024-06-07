@@ -6,6 +6,7 @@ import {
   DestructionList,
   listDestructionLists,
 } from "../../lib/api/destructionLists";
+import { loginRequired } from "../../lib/api/loginRequired";
 import { timeAgo } from "../../lib/string";
 import "./Landing.css";
 
@@ -43,20 +44,22 @@ interface LandingLoaderReturn {
   [key: string]: DestructionList[];
 }
 
-export const landingLoader = async (): Promise<LandingLoaderReturn> => {
-  const lists = await listDestructionLists();
+export const landingLoader = loginRequired(
+  async (): Promise<LandingLoaderReturn> => {
+    const lists = await listDestructionLists();
 
-  // Initialize statusMap with empty arrays for each status
-  const statusMap = STATUSES.reduce((acc, val) => {
-    const status = val[0] || "";
-    const destructionLists = lists.filter(
-      (l) => STATUS_LABELS[l.status] === status,
-    );
-    return { ...acc, [status]: destructionLists };
-  }, {});
+    // Initialize statusMap with empty arrays for each status
+    const statusMap = STATUSES.reduce((acc, val) => {
+      const status = val[0] || "";
+      const destructionLists = lists.filter(
+        (l) => STATUS_LABELS[l.status] === status,
+      );
+      return { ...acc, [status]: destructionLists };
+    }, {});
 
-  return statusMap;
-};
+    return statusMap;
+  },
+);
 
 export const Landing = () => {
   const lists = useLoaderData() as LandingLoaderReturn;
