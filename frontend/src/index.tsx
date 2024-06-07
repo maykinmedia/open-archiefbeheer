@@ -36,7 +36,7 @@ const router = createBrowserRouter([
         loader: destructionListCreateLoader,
       },
       {
-        path: "/destruction-lists/:id",
+        path: "/destruction-lists/:uuid",
         element: <DestructionListDetailPage />,
         action: destructionListUpdateAction,
         loader: destructionListDetailLoader,

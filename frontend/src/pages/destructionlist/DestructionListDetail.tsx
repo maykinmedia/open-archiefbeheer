@@ -14,7 +14,7 @@ import { redirect, useLoaderData } from "react-router-dom";
 
 import { loginRequired } from "../../lib/api/loginRequired";
 import { request } from "../../lib/api/request";
-import { User } from "../../lib/api/reviewers";
+import { User, listReviewers } from "../../lib/api/reviewers";
 import { AssigneesEditable } from "./Assignees";
 import { getZakenData } from "./DestructionListCreate";
 import "./DestructionListDetail.css";
@@ -97,19 +97,19 @@ export function DestructionListDetailPage() {
   );
 }
 
-export async function getDestructionList(id: string) {
-  const response = await request("GET", `/destruction-lists/${id}`);
+export async function getDestructionList(uuid: string) {
+  const response = await request("GET", `/destruction-lists/${uuid}`);
   const promise: Promise<User[]> = response.json();
   return promise;
 }
 
 export async function updateDestructionList(
-  id: string,
+  uuid: string,
   data: DestructionListUpdateData,
 ) {
   const response = await request(
     "PATCH",
-    `/destruction-lists/${id}/`,
+    `/destruction-lists/${uuid}/`,
     {},
     data,
   );
@@ -143,29 +143,31 @@ export async function destructionListUpdateAction({
   }
 
   try {
-    await updateDestructionList(params.id as string, data);
+    await updateDestructionList(params.uuid as string, data);
   } catch (e: unknown) {
     if (e instanceof Response) return await (e as Response).json();
 
     throw e;
   }
 
-  return redirect(`/destruction-lists/${params.id}/`);
+  return redirect(`/destruction-lists/${params.uuid}/`);
 }
 
 export const destructionListDetailLoader = loginRequired(
   async ({ request, params }: ActionFunctionArgs) => {
-    if (typeof params.id === "undefined") return {};
+    if (typeof params.uuid === "undefined") return {};
 
     const promises = [
-      getDestructionList(params.id),
+      getDestructionList(params.uuid),
       getZakenData(request, {
-        not_in_destruction_list_except: String(params.id),
+        not_in_destruction_list_except: String(params.uuid),
       }),
+      listReviewers(),
     ];
 
-    const [destructionList, zakenListData] = await Promise.all(promises);
+    const [destructionList, zakenListData, availableReviewers] =
+      await Promise.all(promises);
 
-    return { destructionList, ...zakenListData };
+    return { destructionList, availableReviewers, ...zakenListData };
   },
 );

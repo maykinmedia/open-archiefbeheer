@@ -10,11 +10,13 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useState } from "react";
-import { useActionData, useSubmit } from "react-router-dom";
-import { useAsync } from "react-use";
+import { useActionData, useLoaderData, useSubmit } from "react-router-dom";
 
-import { listReviewers } from "../../lib/api/reviewers";
-import { AssigneesEditableProps, AssigneesFormProps } from "./types";
+import {
+  AssigneesEditableProps,
+  AssigneesFormProps,
+  DestructionListDetailContext,
+} from "./types";
 
 export function AssigneesForm({
   initialAssignees,
@@ -22,12 +24,8 @@ export function AssigneesForm({
 }: AssigneesFormProps) {
   const errors = useActionData() || {};
   const submit = useSubmit();
-
-  const { loading, value: availableReviewers = [] } = useAsync(async () => {
-    return await listReviewers();
-  }, []);
-
-  if (loading) return <Body>Loading...</Body>;
+  const { availableReviewers } =
+    useLoaderData() as DestructionListDetailContext;
 
   const formFields: FormField[] = [
     {
