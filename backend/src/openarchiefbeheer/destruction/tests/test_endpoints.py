@@ -11,6 +11,7 @@ from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListReviewFactory,
 )
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -381,3 +382,23 @@ class DestructionListItemsViewSetTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data), 2)
+
+
+class DestructionListReviewViewSetTest(APITestCase):
+    def test_filter_on_destruction_list(self):
+        reviews = DestructionListReviewFactory.create_batch(3)
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:destruction-list-reviews-list"))
+        endpoint.args["destruction_list__uuid"] = str(reviews[0].destruction_list.uuid)
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 1)
