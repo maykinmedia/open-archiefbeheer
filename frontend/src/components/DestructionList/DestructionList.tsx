@@ -120,6 +120,7 @@ export function DestructionList({
             target: "_blank",
           },
           count: zaken.count,
+          equalityChecker: (a, b) => a.uuid === b.uuid,
           fields: fields,
           loading: state === "loading",
           objectList: objectList,
