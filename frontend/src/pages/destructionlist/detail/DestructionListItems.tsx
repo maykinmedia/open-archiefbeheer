@@ -11,11 +11,11 @@ import { useAsync } from "react-use";
 import {
   addToZaakSelection,
   getZaakSelection,
-} from "../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../types";
+} from "../../../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../../../types";
+import { getFields, updateSelectedZaken } from "../utils";
 import "./DestructionListDetail.css";
 import { DestructionListData, DestructionListDetailContext } from "./types";
-import { getFields, updateSelectedZaken } from "./utils";
 
 export type DestructionListItemsProps = {
   zaken: Zaak[];

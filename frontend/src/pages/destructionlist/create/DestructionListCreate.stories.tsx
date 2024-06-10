@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ReactRouterDecorator } from "../../../.storybook/decorators";
+import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import { DestructionListCreatePage } from "./DestructionListCreate";
 
 const meta: Meta<typeof DestructionListCreatePage> = {

@@ -12,11 +12,12 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import React from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
-import { loginRequired } from "../../lib/api/loginRequired";
-import { request } from "../../lib/api/request";
-import { User, listReviewers } from "../../lib/api/reviewers";
+import { loginRequired } from "../../../lib/api/loginRequired";
+import { request } from "../../../lib/api/request";
+import { User, listReviewers } from "../../../lib/api/reviewers";
+import { getZakenData } from "../create/DestructionListCreate";
+import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";
-import { getZakenData } from "./DestructionListCreate";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
 import { STATUS_MAPPING } from "./constants";
@@ -26,7 +27,6 @@ import {
   DestructionListItemUpdate,
   DestructionListUpdateData,
 } from "./types";
-import { formatUser } from "./utils";
 
 function getDisplayableList(
   destructionList: DestructionListData,

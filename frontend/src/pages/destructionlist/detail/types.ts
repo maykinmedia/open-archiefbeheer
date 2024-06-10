@@ -1,6 +1,6 @@
-import { Assignee, User } from "../../lib/api/reviewers";
-import { Zaak } from "../../types";
-import { DestructionListCreateContext } from "./DestructionListCreate";
+import { Assignee, User } from "../../../lib/api/reviewers";
+import { Zaak } from "../../../types";
+import { DestructionListCreateContext } from "../create/DestructionListCreate";
 
 export type DestructionListItem = {
   zaak: string;
