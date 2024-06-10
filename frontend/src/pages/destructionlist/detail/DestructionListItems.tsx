@@ -130,6 +130,7 @@ export function DestructionListItems({
           boolProps={{ explicit: true }}
           selectionActions={[
             {
+              "aria-label": "bewerken",
               children: <Outline.PencilIcon />,
               onClick: () => setIsEditing(true),
               wrap: false,

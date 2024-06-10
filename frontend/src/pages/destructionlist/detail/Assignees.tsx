@@ -100,6 +100,7 @@ export function AssigneesEditable({ assignees }: AssigneesEditableProps) {
     <div className="reviewers-label">
       Reviewers
       <Button
+        aria-label="bewerken"
         size="xs"
         variant="secondary"
         onClick={() => {
