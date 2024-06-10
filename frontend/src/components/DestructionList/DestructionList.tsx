@@ -16,7 +16,9 @@ import { ZaaktypeChoice } from "../../lib/api/private";
 import { PaginatedZaken } from "../../lib/api/zaken";
 import {
   FieldSelection,
+  addToFieldSelection,
   getFieldSelection,
+  removeFromFieldSelection,
 } from "../../lib/fieldSelection/fieldSelection";
 import {
   addToZaakSelection,
@@ -93,6 +95,19 @@ export function DestructionList({
   };
 
   /**
+   * Gets called when the fields selection is changed.
+   * @param fields
+   */
+  const onFieldsChange = async (fields: TypedField[]) => {
+    const activeFields = fields.filter((f) => f.active !== false);
+    const inActiveFields = fields.filter((f) => f.active === false);
+    await addToFieldSelection(storageKey, activeFields);
+    await removeFromFieldSelection(storageKey, inActiveFields);
+    const fieldSelection = await getFieldSelection(storageKey);
+    setFieldSelectionState(fieldSelection);
+  };
+
+  /**
    * Gets called when the selection is changed.
    * @param attributeData
    * @param selected
@@ -122,6 +137,7 @@ export function DestructionList({
           count: zaken.count,
           equalityChecker: (a, b) => a.uuid === b.uuid,
           fields: fields,
+          fieldsSelectable: true,
           loading: state === "loading",
           objectList: objectList,
           pageSize: 100,
@@ -145,6 +161,7 @@ export function DestructionList({
           filterable: true,
           page: Number(searchParams.get("page")) || 1,
           onFilter: onFilter,
+          onFieldsChange: onFieldsChange,
           onSelect: onSelect,
           onPageChange: (page) =>
             setSearchParams({
