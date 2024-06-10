@@ -1,2 +1,2 @@
-export * from "./DestructionListCreate";
-export * from "./DestructionListDetail";
+export * from "./create";
+export * from "./detail";

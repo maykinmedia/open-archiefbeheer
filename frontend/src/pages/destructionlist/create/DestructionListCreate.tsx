@@ -12,18 +12,18 @@ import {
 import React, { FormEvent, useState } from "react";
 import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 
-import { DestructionList } from "../../components";
-import { createDestructionList } from "../../lib/api/destructionLists";
-import { loginRequired } from "../../lib/api/loginRequired";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
-import { User, listReviewers } from "../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
+import { DestructionList } from "../../../components";
+import { createDestructionList } from "../../../lib/api/destructionLists";
+import { loginRequired } from "../../../lib/api/loginRequired";
+import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+import { User, listReviewers } from "../../../lib/api/reviewers";
+import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   clearZaakSelection,
   getZaakSelection,
   isZaakSelected,
-} from "../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../types";
+} from "../../../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../../../types";
 import "./DestructionListCreate.css";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
