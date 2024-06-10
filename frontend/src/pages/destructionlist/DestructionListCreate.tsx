@@ -182,7 +182,7 @@ export function DestructionListCreatePage() {
         selectedZaken={selectedZaken}
         zaken={zaken}
         zaaktypeChoices={zaaktypeChoices}
-        destructionListCreateKey={DESTRUCTION_LIST_CREATE_KEY}
+        storageKey={DESTRUCTION_LIST_CREATE_KEY}
       />
     </>
   );

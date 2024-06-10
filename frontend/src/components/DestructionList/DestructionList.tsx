@@ -31,7 +31,7 @@ export type DestructionList = {
   onSubmitSelection: () => void;
   zaaktypeChoices: ZaaktypeChoice[];
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
-  destructionListCreateKey: string;
+  storageKey: string;
 };
 
 /** The template used to format urls to an external application providing zaak details. */
@@ -45,7 +45,7 @@ export function DestructionList({
   onSubmitSelection,
   selectedZaken,
   zaaktypeChoices,
-  destructionListCreateKey,
+  storageKey,
 }: DestructionList) {
   const errors = useActionData() || {};
 
@@ -60,7 +60,7 @@ export function DestructionList({
     useState<FieldSelection>();
 
   useEffect(() => {
-    getFieldSelection(destructionListCreateKey).then((fieldSelection) =>
+    getFieldSelection(storageKey).then((fieldSelection) =>
       setFieldSelectionState(fieldSelection),
     );
   }, []);
@@ -102,12 +102,9 @@ export function DestructionList({
     selected: boolean,
   ) => {
     selected
-      ? await addToZaakSelection(
-          destructionListCreateKey,
-          attributeData as unknown as Zaak[],
-        )
+      ? await addToZaakSelection(storageKey, attributeData as unknown as Zaak[])
       : await removeFromZaakSelection(
-          destructionListCreateKey,
+          storageKey,
           attributeData.length
             ? (attributeData as unknown as Zaak[])
             : zaken.results,
