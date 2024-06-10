@@ -38,13 +38,11 @@ export function getFields(
     },
     {
       name: "startdatum",
-      type: "string", // TODO: Support date(range)
-      filterable: false, // TODO
+      type: "daterange",
     },
     {
       name: "einddatum",
-      type: "string", // TODO: Support date(range)
-      filterable: false, // TODO
+      type: "daterange",
     },
     {
       name: "zaaktype",

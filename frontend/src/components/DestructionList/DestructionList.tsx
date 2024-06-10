@@ -159,6 +159,27 @@ export function DestructionList({
             explicit: true,
           },
           filterable: true,
+          filterTransform: (filterData: AttributeData) => {
+            console.log(filterData);
+            const {
+              startdatum = "",
+              einddatum = "",
+              ..._filterData
+            } = filterData;
+
+            const [startdatum__gte = "", startdatum__lte = ""] =
+              String(startdatum).split("/");
+            const [einddatum__gte = "", einddatum__lte = ""] =
+              String(einddatum).split("/");
+
+            return {
+              startdatum__gte,
+              startdatum__lte,
+              einddatum__gte,
+              einddatum__lte,
+              ..._filterData,
+            };
+          },
           page: Number(searchParams.get("page")) || 1,
           onFilter: onFilter,
           onFieldsChange: onFieldsChange,
