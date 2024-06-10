@@ -99,7 +99,7 @@ class ZaakFilter(FilterSet):
             "uuid": ["exact", "icontains"],
             "url": ["exact", "icontains"],
             "status": ["exact", "icontains"],
-            "einddatum": ["exact", "gt", "lt", "isnull"],
+            "einddatum": ["exact", "gt", "lt", "gte", "lte", "isnull"],
             "hoofdzaak": ["exact", "icontains"],
             "startdatum": ["exact", "gt", "lt", "gte", "lte"],
             "toelichting": ["exact", "icontains"],
