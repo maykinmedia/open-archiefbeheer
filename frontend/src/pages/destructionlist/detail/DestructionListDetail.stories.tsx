@@ -44,11 +44,11 @@ const FIXTURE: DestructionListDetailContext = {
       FIXTURE_PAGINATED_ZAKEN.results[2],
     ].map((z, i) => ({
       zaak: z.url || "",
-      status: "DEMO",
+      status: "",
       zaakData: z,
     })),
     containsSensitiveInfo: false,
-    status: "Pending",
+    status: "in_progress",
     assignees: FIXTURE_USERS.map((u, i) => ({ user: u, order: i })),
     assignee: FIXTURE_USERS[0],
     created: "2024-07-11:16:57",
