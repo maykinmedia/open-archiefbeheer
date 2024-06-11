@@ -1,3 +1,4 @@
+import "@maykin-ui/admin-ui/style";
 import type { Preview } from "@storybook/react";
 
 const preview: Preview = {

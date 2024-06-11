@@ -70,6 +70,7 @@
     "prettier": "3.2.5",
     "prop-types": "^15.8.1",
     "storybook": "^8.0.10",
+    "storybook-addon-mock": "^5.0.0",
     "webpack": "^5.91.0"
   }
 }
