@@ -15,7 +15,6 @@ import {
 } from "react-router-dom";
 
 import { DestructionList } from "../../../components";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
 import { User, listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -174,7 +173,6 @@ export type DestructionListReviewLoaderContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
-  zaaktypeChoices: ZaaktypeChoice[];
   uuid: string;
 };
 
@@ -196,7 +194,6 @@ export const destructionListReviewLoader = async ({
 
   const zaken = await listZaken(searchParams);
   const reviewers = await listReviewers();
-  const zaaktypeChoices = await listZaaktypeChoices();
 
   const isZaakSelectedPromises = zaken.results.map((zaak) =>
     isZaakSelected(getDestructionListReviewKey(uuid), zaak),
@@ -210,7 +207,6 @@ export const destructionListReviewLoader = async ({
     reviewers,
     zaken,
     selectedZaken,
-    zaaktypeChoices,
     uuid,
   } satisfies DestructionListReviewLoaderContext;
 };

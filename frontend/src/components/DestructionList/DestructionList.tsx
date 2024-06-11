@@ -40,7 +40,7 @@ export function DestructionList({
         title,
         selectionActions: [
           {
-            title: "foo",
+            children: title,
             onClick: onSubmitSelection,
             wrap: false,
           },

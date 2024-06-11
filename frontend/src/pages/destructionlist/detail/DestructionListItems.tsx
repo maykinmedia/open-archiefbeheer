@@ -1,11 +1,6 @@
-import { AttributeData, DataGrid, Outline } from "@maykin-ui/admin-ui";
+import { DataGrid, Outline } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
-import {
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-  useSubmit,
-} from "react-router-dom";
+import { useLoaderData, useNavigation, useSubmit } from "react-router-dom";
 import { useAsync } from "react-use";
 
 import {
@@ -13,8 +8,7 @@ import {
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
-import { getFields } from "../hooks";
-import { updateSelectedZaken } from "../utils";
+import { useDataGridProps } from "../hooks";
 import "./DestructionListDetail.css";
 import { DestructionListData, DestructionListDetailContext } from "./types";
 
@@ -23,25 +17,33 @@ export type DestructionListItemsProps = {
   destructionList: DestructionListData;
 };
 
-export function DestructionListItems({
-  zaken,
-  destructionList,
-}: DestructionListItemsProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const { zaken: allZaken, zaaktypeChoices } =
-    useLoaderData() as DestructionListDetailContext;
-  const [searchParams, setSearchParams] = useSearchParams();
+export function DestructionListItems({ zaken }: DestructionListItemsProps) {
   const { state } = useNavigation();
+  const { uuid, zaken: allZaken } =
+    useLoaderData() as DestructionListDetailContext;
   const submit = useSubmit();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const storageKey = `destruction-list-detail-${uuid}`;
+  const dataGridProps = useDataGridProps(
+    storageKey,
+    isEditing
+      ? allZaken
+      : {
+          count: zaken.length,
+          next: null,
+          previous: null,
+          results: zaken,
+        },
+    isEditing ? zaken : [],
+  );
 
   useAsync(async () => {
-    await addToZaakSelection(String(destructionList.pk), zaken);
+    await addToZaakSelection(storageKey, zaken);
   }, []);
 
-  const fields = getFields(searchParams, zaaktypeChoices);
-
   const onUpdate = async () => {
-    const zaakSelection = await getZaakSelection(String(destructionList.pk));
+    const zaakSelection = await getZaakSelection(storageKey);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selected]) => selected)
       .map(([url]) => url);
@@ -54,91 +56,40 @@ export function DestructionListItems({
     setIsEditing(false);
   };
 
-  const onFilter = (filterData: AttributeData) => {
-    const combinedParams = {
-      ...Object.fromEntries(searchParams),
-      ...filterData,
-    } as AttributeData<string>;
-
-    const activeParams = Object.fromEntries(
-      Object.entries(combinedParams).filter(
-        (keyValuePair) => !!keyValuePair[1],
-      ),
-    );
-
-    setSearchParams(activeParams);
-  };
-
-  const onSelect = async (
-    attributeData: AttributeData[],
-    selected: boolean,
-  ) => {
-    await updateSelectedZaken(
-      selected,
-      attributeData,
-      String(destructionList.pk),
-      zaken,
-    );
-  };
-
   return (
     <div className="zaken-list">
-      {isEditing ? (
-        <DataGrid
-          title="Zaakdossiers"
-          count={allZaken.count}
-          objectList={allZaken.results as unknown as AttributeData[]}
-          fields={fields}
-          filterable={true}
-          onFilter={onFilter}
-          selected={zaken as unknown as AttributeData[]}
-          boolProps={{ explicit: true }}
-          selectable={true}
-          selectionActions={[
-            {
-              children: "Vernietigingslijst aanpassen",
-              onClick: onUpdate,
-              wrap: false,
-            },
-            {
-              children: "Annuleren",
-              onClick: () => setIsEditing(false),
-              wrap: false,
-            },
-          ]}
-          onSelect={onSelect}
-          equalityChecker={(item1, item2) => item1.uuid === item2.uuid}
-          paginatorProps={{
-            count: allZaken.count,
-            pageSize: 100,
-            page: Number(searchParams.get("page")) || 1,
-            loading: state === "loading",
-            labelLoading: "Loading...",
-            onPageChange: (page) =>
-              setSearchParams({
-                ...Object.fromEntries(searchParams),
-                page: String(page),
-              }),
-          }}
-          loading={state === "loading"}
-        />
-      ) : (
-        <DataGrid
-          title="Zaakdossiers"
-          count={zaken.length}
-          objectList={zaken as unknown as AttributeData[]}
-          fields={fields}
-          boolProps={{ explicit: true }}
-          selectionActions={[
-            {
-              "aria-label": "bewerken",
-              children: <Outline.PencilIcon />,
-              onClick: () => setIsEditing(true),
-              wrap: false,
-            },
-          ]}
-        />
-      )}
+      <DataGrid
+        {...dataGridProps.props}
+        boolProps={{ explicit: true }}
+        loading={state === "loading"}
+        filterable={isEditing}
+        showPaginator={isEditing}
+        selectable={isEditing}
+        selectionActions={
+          isEditing
+            ? [
+                {
+                  children: "Vernietigingslijst aanpassen",
+                  onClick: onUpdate,
+                  wrap: false,
+                },
+                {
+                  children: "Annuleren",
+                  onClick: () => setIsEditing(false),
+                  wrap: false,
+                },
+              ]
+            : [
+                {
+                  "aria-label": "bewerken",
+                  children: <Outline.PencilIcon />,
+                  onClick: () => setIsEditing(true),
+                  wrap: false,
+                },
+              ]
+        }
+        title="Zaakdossiers"
+      />
     </div>
   );
 }
