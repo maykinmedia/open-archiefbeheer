@@ -2,7 +2,7 @@ import { ListTemplate } from "@maykin-ui/admin-ui";
 import { useActionData } from "react-router-dom";
 
 import { PaginatedZaken } from "../../lib/api/zaken";
-import { useDataGridProps } from "../../pages/destructionlist/utils";
+import { useDataGridProps } from "../../pages/destructionlist/hooks";
 import { Zaak } from "../../types";
 
 export type DestructionList = {
