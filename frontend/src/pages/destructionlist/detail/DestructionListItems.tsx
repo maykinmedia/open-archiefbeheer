@@ -13,7 +13,8 @@ import {
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
-import { getFields, updateSelectedZaken } from "../utils";
+import { getFields } from "../hooks";
+import { updateSelectedZaken } from "../utils";
 import "./DestructionListDetail.css";
 import { DestructionListData, DestructionListDetailContext } from "./types";
 
