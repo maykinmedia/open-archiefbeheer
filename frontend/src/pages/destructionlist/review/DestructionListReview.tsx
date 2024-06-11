@@ -14,16 +14,16 @@ import {
   useSubmit,
 } from "react-router-dom";
 
-import { DestructionList } from "../../components";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
-import { User, listReviewers } from "../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../lib/api/zaken";
+import { DestructionList } from "../../../components";
+import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+import { User, listReviewers } from "../../../lib/api/reviewers";
+import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   getZaakSelection,
   isZaakSelected,
-} from "../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../types";
-import "./ReviewDestructionList.css";
+} from "../../../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../../../types";
+import "./DestructionListReview.css";
 
 const getDestructionListReviewKey = (id: string) =>
   `destruction-list-review-${id}`;
@@ -35,17 +35,11 @@ interface FormDataState {
   other_reason?: string;
 }
 
-export type ReviewDestructionListPageProps = React.ComponentProps<"main"> & {
-  // Props here.
-};
-
 /**
  * Review-destruction-list page
  */
-export function ReviewDestructionListPage({
-  ...props
-}: ReviewDestructionListPageProps) {
-  const { reviewers, zaken, selectedZaken, zaaktypeChoices, uuid } =
+export function DestructionListReviewPage() {
+  const { zaken, selectedZaken, uuid } =
     useLoaderData() as DestructionListReviewLoaderContext;
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
@@ -158,7 +152,7 @@ export function ReviewDestructionListPage({
           <Form
             fields={modalFormFields}
             onSubmit={onSubmitForm}
-            validate={(values) =>
+            validate={(values: SerializedFormData) =>
               setFormData(values as unknown as FormDataState)
             }
             validateOnChange={true}
@@ -189,7 +183,7 @@ export type DestructionListReviewLoaderContext = {
  * @param request
  * @param params
  */
-export const reviewDestructionListLoader = async ({
+export const destructionListReviewLoader = async ({
   request,
   params,
 }: LoaderFunctionArgs<DestructionListReviewLoaderContext>) => {
@@ -229,7 +223,7 @@ interface DestructionListReviewActionContext extends FormDataState {
  * React Router action.
  * @param request
  */
-export const reviewDestructionListAction = async ({
+export const destructionListReviewAction = async ({
   request,
 }: ActionFunctionArgs<DestructionListReviewActionContext>) => {
   const data = (await request.json()) as FormDataState & { zaken: string[] };

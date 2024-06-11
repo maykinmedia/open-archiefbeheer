@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ReviewDestructionListPage } from "./ReviewDestructionList";
+import { DestructionListReviewPage } from "./DestructionListReview";
 
-const meta: Meta<typeof ReviewDestructionListPage> = {
+const meta: Meta<typeof DestructionListReviewPage> = {
   title: "Pages/Review-destruction-list",
-  component: ReviewDestructionListPage,
+  component: DestructionListReviewPage,
 };
 
 export default meta;

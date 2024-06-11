@@ -8,18 +8,18 @@ import "./index.css";
 import {
   DestructionListCreatePage,
   DestructionListDetailPage,
+  DestructionListReviewPage,
   Landing,
   LoginPage,
-  ReviewDestructionListPage,
   destructionListCreateAction,
   destructionListCreateLoader,
   destructionListDetailLoader,
+  destructionListReviewAction,
+  destructionListReviewLoader,
   destructionListUpdateAction,
   landingLoader,
   loginAction,
   logoutLoader,
-  reviewDestructionListAction,
-  reviewDestructionListLoader,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -46,9 +46,9 @@ const router = createBrowserRouter([
       },
       {
         path: "/destruction-lists/:uuid/review",
-        loader: reviewDestructionListLoader,
-        element: <ReviewDestructionListPage />,
-        action: reviewDestructionListAction,
+        loader: destructionListReviewLoader,
+        element: <DestructionListReviewPage />,
+        action: destructionListReviewAction,
       },
       {
         path: "/login",
