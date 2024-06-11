@@ -29,8 +29,9 @@ export type DestructionListData = {
 
 export interface DestructionListDetailContext
   extends DestructionListCreateContext {
-  destructionList: DestructionListData;
   availableReviewers: User[];
+  destructionList: DestructionListData;
+  uuid: string;
 }
 
 export type AssigneeUpdate = {

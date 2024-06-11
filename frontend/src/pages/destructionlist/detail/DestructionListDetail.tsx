@@ -117,6 +117,9 @@ export async function updateDestructionList(
   return promise;
 }
 
+/**
+ * React Router loader.
+ */
 export async function destructionListUpdateAction({
   request,
   params,
@@ -153,6 +156,9 @@ export async function destructionListUpdateAction({
   return redirect(`/destruction-lists/${params.uuid}/`);
 }
 
+/**
+ * React Router loader.
+ */
 export const destructionListDetailLoader = loginRequired(
   async ({ request, params }: ActionFunctionArgs) => {
     if (typeof params.uuid === "undefined") return {};
@@ -168,6 +174,11 @@ export const destructionListDetailLoader = loginRequired(
     const [destructionList, zakenListData, availableReviewers] =
       await Promise.all(promises);
 
-    return { destructionList, availableReviewers, ...zakenListData };
+    return {
+      availableReviewers,
+      destructionList,
+      uuid: params.uuid,
+      ...zakenListData,
+    };
   },
 );

@@ -34,7 +34,13 @@ export function useDataGridProps(
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [params, setParams] = useState<URLSearchParams>(searchParams);
   const [errorState, setErrorState] = useState<unknown>();
+  const debouncedParams = useDebounce(params, 10);
+
+  useEffect(() => {
+    setSearchParams(debouncedParams);
+  }, [debouncedParams]);
 
   //
   // List available zaaktype choices.
@@ -91,20 +97,21 @@ export function useDataGridProps(
   };
 
   /**
-   * Gets called when a filter value is change.
+   * Gets called when a filter value is changed.
    * @param filterData
    */
   const onFilter = (filterData: AttributeData) => {
     const combinedParams = {
       ...Object.fromEntries(searchParams),
       ...filterData,
+      page: "1",
     };
 
     const activeParams = Object.fromEntries(
       Object.entries(combinedParams).filter((keyValuePair) => keyValuePair[1]),
     );
 
-    setSearchParams(activeParams as Record<string, string>);
+    setParams(new URLSearchParams(activeParams));
   };
 
   /**
@@ -112,10 +119,12 @@ export function useDataGridProps(
    * @param page
    */
   const onPageChange = (page: number) => {
-    setSearchParams({
-      ...Object.fromEntries(searchParams),
-      page: String(page),
-    });
+    setParams(
+      new URLSearchParams({
+        ...Object.fromEntries(searchParams),
+        page: String(page),
+      }),
+    );
   };
 
   /**
@@ -197,6 +206,26 @@ export function useDataGridProps(
     props,
     error: errorState,
   };
+}
+
+/**
+ * Denounces update of `value` with `delay`ms
+ * @param value
+ * @param delay
+ */
+export function useDebounce<T>(value: T, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState<T>();
+  let handler: NodeJS.Timeout | undefined = undefined;
+
+  useEffect(() => {
+    if (handler && JSON.stringify(value) === JSON.stringify(debouncedValue)) {
+      return;
+    }
+    handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
 }
 
 /**

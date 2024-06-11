@@ -33,7 +33,6 @@ export type DestructionListCreateContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
-  zaaktypeChoices: ZaaktypeChoice[];
 };
 
 export const getZakenData = async (
@@ -41,20 +40,17 @@ export const getZakenData = async (
   searchParamsZakenEndpoint: Record<string, string>,
 ) => {
   const searchParams = new URL(request.url).searchParams;
+  // console.log("getZakenData", 1, searchParams.get("page"));
   Object.keys(searchParamsZakenEndpoint).forEach((key) =>
     searchParams.set(key, searchParamsZakenEndpoint[key]),
   );
+  // console.log("getZakenData", 2, searchParams.get("page"));
 
   // Get reviewers, zaken and zaaktypen.
-  const promises = [
-    listReviewers(),
-    listZaken(searchParams),
-    listZaaktypeChoices(),
-  ];
-  const [reviewers, zaken, zaaktypeChoices] = (await Promise.all(promises)) as [
+  const promises = [listReviewers(), listZaken(searchParams)];
+  const [reviewers, zaken] = (await Promise.all(promises)) as [
     User[],
     PaginatedZaken,
-    ZaaktypeChoice,
   ];
 
   // Get zaak selection.
@@ -66,7 +62,7 @@ export const getZakenData = async (
     (_, index) => isZaakSelectedResults[index],
   );
 
-  return { reviewers, zaken, selectedZaken, zaaktypeChoices };
+  return { reviewers, zaken, selectedZaken };
 };
 
 /**
@@ -104,7 +100,7 @@ export async function destructionListCreateAction({
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, zaken, selectedZaken, zaaktypeChoices } =
+  const { reviewers, zaken, selectedZaken } =
     useLoaderData() as DestructionListCreateContext;
   const submit = useSubmit();
 
