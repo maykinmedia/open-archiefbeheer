@@ -1,198 +1,51 @@
-import {
-  AttributeData,
-  DataGridProps,
-  ListTemplate,
-  TypedField,
-  formatMessage,
-} from "@maykin-ui/admin-ui";
-import { useEffect, useState } from "react";
-import {
-  useActionData,
-  useNavigation,
-  useSearchParams,
-} from "react-router-dom";
+import { ListTemplate } from "@maykin-ui/admin-ui";
+import { useActionData } from "react-router-dom";
 
-import { ZaaktypeChoice } from "../../lib/api/private";
 import { PaginatedZaken } from "../../lib/api/zaken";
-import {
-  FieldSelection,
-  addToFieldSelection,
-  getFieldSelection,
-  removeFromFieldSelection,
-} from "../../lib/fieldSelection/fieldSelection";
-import {
-  addToZaakSelection,
-  removeFromZaakSelection,
-} from "../../lib/zaakSelection/zaakSelection";
-import { getFields } from "../../pages/destructionlist/utils";
+import { useDataGridProps } from "../../pages/destructionlist/utils";
 import { Zaak } from "../../types";
 
 export type DestructionList = {
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   onSubmitSelection: () => void;
-  zaaktypeChoices: ZaaktypeChoice[];
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
   storageKey: string;
   title: string;
 };
 
-/** The template used to format urls to an external application providing zaak details. */
-const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
-
 /**
  * Review-destruction-list page
  */
 export function DestructionList({
-  zaken,
-  onSubmitSelection,
-  selectedZaken,
-  zaaktypeChoices,
   storageKey,
+  zaken,
+  selectedZaken,
   title,
+  onSubmitSelection,
 }: DestructionList) {
   const errors = useActionData() || {};
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const objectList = zaken.results.map((zaak) => ({
-    ...zaak,
-    href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-  })) as unknown as AttributeData[];
-  const { state } = useNavigation();
-
-  const [fieldSelectionState, setFieldSelectionState] =
-    useState<FieldSelection>();
-
-  useEffect(() => {
-    getFieldSelection(storageKey).then((fieldSelection) =>
-      setFieldSelectionState(fieldSelection),
-    );
-  }, []);
-
-  let fields = getFields(searchParams, zaaktypeChoices);
-  fields = fields.map((field) => {
-    const isActiveFromStorage = fieldSelectionState?.[field.name];
-    const isActive =
-      typeof isActiveFromStorage === "undefined"
-        ? field.active !== false
-        : isActiveFromStorage;
-    return { ...field, active: isActive } as TypedField;
-  });
-
-  /**
-   * Gets called when a filter value is change.
-   * @param filterData
-   */
-  const onFilter = (filterData: AttributeData<string>) => {
-    const combinedParams = {
-      ...Object.fromEntries(searchParams),
-      ...filterData,
-    };
-
-    const activeParams = Object.fromEntries(
-      Object.entries(combinedParams).filter((keyValuePair) => keyValuePair[1]),
-    );
-
-    setSearchParams(activeParams);
-  };
-
-  /**
-   * Gets called when the fields selection is changed.
-   * @param fields
-   */
-  const onFieldsChange = async (fields: TypedField[]) => {
-    const activeFields = fields.filter((f) => f.active !== false);
-    const inActiveFields = fields.filter((f) => f.active === false);
-    await addToFieldSelection(storageKey, activeFields);
-    await removeFromFieldSelection(storageKey, inActiveFields);
-    const fieldSelection = await getFieldSelection(storageKey);
-    setFieldSelectionState(fieldSelection);
-  };
-
-  /**
-   * Gets called when the selection is changed.
-   * @param attributeData
-   * @param selected
-   */
-  const onSelect = async (
-    attributeData: AttributeData[],
-    selected: boolean,
-  ) => {
-    selected
-      ? await addToZaakSelection(storageKey, attributeData as unknown as Zaak[])
-      : await removeFromZaakSelection(
-          storageKey,
-          attributeData.length
-            ? (attributeData as unknown as Zaak[])
-            : zaken.results,
-        );
-  };
+  const { props: dataGridProps, error } = useDataGridProps(
+    storageKey,
+    zaken,
+    selectedZaken,
+  );
+  const _errors = [...Object.values(errors), error].filter((v) => v);
 
   return (
     <ListTemplate
-      errors={Object.values(errors)}
-      dataGridProps={
-        {
-          aProps: {
-            target: "_blank",
+      errors={_errors}
+      dataGridProps={{
+        ...dataGridProps,
+        title,
+        selectionActions: [
+          {
+            title: "foo",
+            onClick: onSubmitSelection,
+            wrap: false,
           },
-          count: zaken.count,
-          equalityChecker: (a, b) => a.uuid === b.uuid,
-          fields: fields,
-          fieldsSelectable: true,
-          loading: state === "loading",
-          objectList: objectList,
-          pageSize: 100,
-          showPaginator: true,
-          selectable: true,
-          selected: selectedZaken as unknown as AttributeData[],
-          selectionActions: [
-            {
-              children: "Vernietigingslijst aanmaken",
-              onClick: onSubmitSelection,
-              wrap: false,
-            },
-          ],
-
-          labelSelect: `Zaak {identificatie} toevoegen aan selectie`,
-          labelSelectAll: "Selecteer {countPage} op pagina",
-          title: title,
-          boolProps: {
-            explicit: true,
-          },
-          filterable: true,
-          filterTransform: (filterData: AttributeData) => {
-            console.log(filterData);
-            const {
-              startdatum = "",
-              einddatum = "",
-              ..._filterData
-            } = filterData;
-
-            const [startdatum__gte = "", startdatum__lte = ""] =
-              String(startdatum).split("/");
-            const [einddatum__gte = "", einddatum__lte = ""] =
-              String(einddatum).split("/");
-
-            return {
-              startdatum__gte,
-              startdatum__lte,
-              einddatum__gte,
-              einddatum__lte,
-              ..._filterData,
-            };
-          },
-          page: Number(searchParams.get("page")) || 1,
-          onFilter: onFilter,
-          onFieldsChange: onFieldsChange,
-          onSelect: onSelect,
-          onPageChange: (page) =>
-            setSearchParams({
-              ...Object.fromEntries(searchParams),
-              page: String(page),
-            }),
-        } as DataGridProps
-      }
+        ],
+      }}
     />
   );
 }

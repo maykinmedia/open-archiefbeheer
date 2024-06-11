@@ -45,7 +45,7 @@ const router = createBrowserRouter([
         loader: destructionListDetailLoader,
       },
       {
-        path: "/destruction-lists/:id/review",
+        path: "/destruction-lists/:uuid/review",
         loader: reviewDestructionListLoader,
         element: <ReviewDestructionListPage />,
         action: reviewDestructionListAction,
