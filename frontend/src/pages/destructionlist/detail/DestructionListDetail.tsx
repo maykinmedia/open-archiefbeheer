@@ -1,5 +1,6 @@
 import {
   AttributeTable,
+  Badge,
   Body,
   CardBaseTemplate,
   Column,
@@ -20,7 +21,7 @@ import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
-import { STATUS_MAPPING } from "./constants";
+import { STATUS_LEVEL_MAPPING, STATUS_MAPPING } from "./constants";
 import {
   DestructionListData,
   DestructionListDetailContext,
@@ -46,7 +47,14 @@ function getDisplayableList(
       label: "Bevat gevoelige informatie",
       value: destructionList.containsSensitiveInfo,
     },
-    status: { label: "Status", value: STATUS_MAPPING[destructionList.status] },
+    status: {
+      label: "Status",
+      value: (
+        <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
+          {STATUS_MAPPING[destructionList.status]}
+        </Badge>
+      ),
+    },
     aangemaakt: {
       label: "Aangemaakt",
       value: formattedCreatedOn,
