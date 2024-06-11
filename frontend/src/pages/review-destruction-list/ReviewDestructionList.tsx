@@ -45,10 +45,10 @@ export type ReviewDestructionListPageProps = React.ComponentProps<"main"> & {
 export function ReviewDestructionListPage({
   ...props
 }: ReviewDestructionListPageProps) {
-  const { reviewers, zaken, selectedZaken, zaaktypeChoices, id } =
+  const { reviewers, zaken, selectedZaken, zaaktypeChoices, uuid } =
     useLoaderData() as DestructionListReviewLoaderContext;
   const submit = useSubmit();
-  const destructionListReviewKey = getDestructionListReviewKey(id);
+  const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
   const [modalDataState, setModalDataState] = useState<{
     open: boolean;
@@ -166,40 +166,46 @@ export function ReviewDestructionListPage({
         </Body>
       </Modal>
       <DestructionList
+        storageKey={destructionListReviewKey}
         zaken={zaken}
-        onSubmitSelection={onSubmitSelection}
         selectedZaken={selectedZaken}
-        zaaktypeChoices={zaaktypeChoices}
-        destructionListCreateKey={destructionListReviewKey}
         title="Vernietigingslijst reviewen"
+        onSubmitSelection={onSubmitSelection}
       />
     </>
   );
 }
+
 export type DestructionListReviewLoaderContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   zaaktypeChoices: ZaaktypeChoice[];
-  id: string;
+  uuid: string;
 };
 
+/**
+ * React Router loader.
+ * @param request
+ * @param params
+ */
 export const reviewDestructionListLoader = async ({
+  request,
   params,
 }: LoaderFunctionArgs<DestructionListReviewLoaderContext>) => {
-  const searchParams = new URLSearchParams();
-  const id = params.id;
-  if (!id) {
+  const searchParams = new URL(request.url).searchParams;
+  const uuid = params.uuid;
+  if (!uuid) {
     return redirect("/destruction-lists/create"); // TODO: How do we want to handle this?
   }
-  searchParams.set("destruction_list", id);
+  searchParams.set("destruction_list", uuid);
 
   const zaken = await listZaken(searchParams);
   const reviewers = await listReviewers();
   const zaaktypeChoices = await listZaaktypeChoices();
 
   const isZaakSelectedPromises = zaken.results.map((zaak) =>
-    isZaakSelected(getDestructionListReviewKey(id), zaak),
+    isZaakSelected(getDestructionListReviewKey(uuid), zaak),
   );
   const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
   const selectedZaken = zaken.results.filter(
@@ -211,7 +217,7 @@ export const reviewDestructionListLoader = async ({
     zaken,
     selectedZaken,
     zaaktypeChoices,
-    id,
+    uuid,
   } satisfies DestructionListReviewLoaderContext;
 };
 
@@ -219,6 +225,10 @@ interface DestructionListReviewActionContext extends FormDataState {
   zaken: string[];
 }
 
+/**
+ * React Router action.
+ * @param request
+ */
 export const reviewDestructionListAction = async ({
   request,
 }: ActionFunctionArgs<DestructionListReviewActionContext>) => {

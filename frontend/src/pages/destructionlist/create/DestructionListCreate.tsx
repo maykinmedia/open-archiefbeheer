@@ -178,12 +178,11 @@ export function DestructionListCreatePage() {
         </Body>
       </Modal>
       <DestructionList
-        onSubmitSelection={onSubmitSelection}
-        selectedZaken={selectedZaken}
-        zaken={zaken}
-        zaaktypeChoices={zaaktypeChoices}
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
+        zaken={zaken}
+        selectedZaken={selectedZaken}
         title="Vernietigingslijst opstellen"
+        onSubmitSelection={onSubmitSelection}
       />
     </>
   );

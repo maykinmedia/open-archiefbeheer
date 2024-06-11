@@ -111,7 +111,7 @@ class ZaakFilter(FilterSet):
             "archiefnominatie": ["exact", "in", "icontains"],
             "einddatum_gepland": ["exact", "gt", "lt"],
             "registratiedatum": ["exact", "gt", "lt"],
-            "archiefactiedatum": ["exact", "gt", "lt", "isnull"],
+            "archiefactiedatum": ["exact", "gt", "lt", "gte", "lte", "isnull"],
             "processobjectaard": ["exact", "icontains"],
             "betalingsindicatie": ["exact", "icontains"],
             "communicatiekanaal": ["exact", "icontains"],
