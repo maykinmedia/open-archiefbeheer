@@ -3063,16 +3063,8 @@ export interface Zaak {
   startdatumBewaartermijn?: string | null;
   /** Specificatie van de attribuutsoort van het object, subject of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend is voor de start van de archiefactietermijn. */
   processobject?: Processobject | null;
-
-  _expand: {
-    zaaktype: Expand;
-    resultaat: Expand;
-  };
 }
 
-export type Expand = {
-  [index: string]: Record<string, unknown | Expand[string]>;
-};
 
 /** Serializer the reverse relation between Besluit-Zaak. */
 export interface ZaakBesluit {
@@ -3784,7 +3776,7 @@ export type MedewerkerZaakObjectSerializer = BaseZaakObjectSerializer &
   ObjectIdentificatieRolMedewerker;
 
 export type NatuurlijkPersoonRolSerializer = BaseRolSerializer &
-  BetrokkeneIdentificatieRolNatuurlijkPersoon;
+ BetrokkeneIdentificatieRolNatuurlijkPersoon;
 
 export type NatuurlijkPersoonZaakObjectSerializer = BaseZaakObjectSerializer &
   ObjectIdentificatieRolNatuurlijkPersoon;

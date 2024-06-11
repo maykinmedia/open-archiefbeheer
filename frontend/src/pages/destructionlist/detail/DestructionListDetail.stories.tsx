@@ -42,7 +42,7 @@ const FIXTURE: DestructionListDetailContext = {
       FIXTURE_PAGINATED_ZAKEN.results[0],
       FIXTURE_PAGINATED_ZAKEN.results[1],
       FIXTURE_PAGINATED_ZAKEN.results[2],
-    ].map((z, i) => ({
+    ].map((z) => ({
       zaak: z.url || "",
       status: "",
       zaakData: z,

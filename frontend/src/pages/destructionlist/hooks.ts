@@ -19,7 +19,7 @@ import {
   addToZaakSelection,
   removeFromZaakSelection,
 } from "../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../types";
+import { ExpandZaak, Zaak } from "../../types";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
@@ -289,10 +289,31 @@ export function getFields(
       type: "string",
       filterLookup: "toelichting__icontains",
     },
-    // TODO
-    // {
-    //   name: "Behandelend afdeling"
-    // },
+    {
+      name: "Behandelend afdeling",
+      active: false,
+      type: "string",
+      filterLookup: "behandelend_afdeling",
+      valueTransform: (rowData: object) => {
+        const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
+        if (!rollen.length) return "";
+        const behandelendAfdeling: string[] = [];
+        // TODO - Understand why the ExpandZaak type doesn't work
+        rollen.map((role) => {
+          if (
+            // @ts-expect-error The type of role is 'never' for some reason
+            role.betrokkeneType === "organisatorische_eenheid" &&
+            // @ts-expect-error The type of role is 'never' for some reason
+            role.betrokkeneIdentificatie?.identificatie
+          )
+            behandelendAfdeling.push(
+              // @ts-expect-error The type of role is 'never' for some reason
+              role.betrokkeneIdentificatie?.identificatie,
+            );
+        });
+        return behandelendAfdeling.join(", ");
+      },
+    },
     {
       name: "archiefactiedatum",
       type: "daterange",

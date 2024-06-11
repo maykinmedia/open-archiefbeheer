@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.db.models import (
     Case,
+    CharField,
+    F,
     Func,
     IntegerField,
     Q,
@@ -91,6 +93,12 @@ class ZaakFilter(FilterSet):
     zaaktype__selectielijstprocestype__naam__icontains = CharFilter(
         field_name="_expand__zaaktype__selectielijst_procestype__naam",
         lookup_expr="icontains",
+    )
+
+    behandelend_afdeling = CharFilter(
+        field_name="behandelend_afdeling",
+        method="filter_behandelend_afdeling",
+        help_text="The 'behandelend afdeling' is the 'betrokkeneIdentificatie.identificatie' field of the roles related to the case which have betrokkeneType = organisatorische_eenheid.",
     )
 
     class Meta:
@@ -203,3 +211,25 @@ class ZaakFilter(FilterSet):
             return annotated_zaken.filter(number_relations__gt=0)
 
         return annotated_zaken.filter(number_relations=0)
+
+    def filter_behandelend_afdeling(
+        self, queryset: QuerySet[Zaak], name: str, value: str
+    ) -> QuerySet[Zaak]:
+        zaken_with_afdeling = queryset.filter(
+            _expand__rollen__contains=[
+                {
+                    "betrokkene_type": "organisatorische_eenheid",
+                }
+            ]
+        )
+        json_path_expression = '$.rollen[*] ? (@.betrokkene_type == "organisatorische_eenheid").betrokkene_identificatie.identificatie'
+        zaken_with_afdeling = zaken_with_afdeling.annotate(
+            behandelend_afdeling=Func(
+                F("_expand"),
+                Value(json_path_expression),
+                function="jsonb_path_query_array",
+                output_field=CharField(),
+            )
+        )
+
+        return zaken_with_afdeling.filter(behandelend_afdeling__contains=value)
