@@ -286,3 +286,69 @@ class ZakenViewSetTest(APITestCase):
 
         # The zaken in the 'exception' list should be returned first
         self.assertEqual(item.zaak, urls_zaken[0])
+
+    def test_filter_behandelend_afdeling(self):
+        # Should NOT be returned: natuurlijk_persoon != organisatorische_eenheid
+        ZaakFactory.create(
+            _expand={
+                "rollen": [
+                    {
+                        "betrokkene_type": "natuurlijk_persoon",
+                        "betrokkene_identificatie": {"identificatie": "BLA1"},
+                    },
+                ]
+            }
+        )
+        # Should be returned
+        ZaakFactory.create(
+            _expand={
+                "rollen": [
+                    {
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "betrokkene_identificatie": {"identificatie": "BLA1"},
+                    },
+                ]
+            }
+        )
+        # Should NOT be returned: identificatie does not contain BLA
+        ZaakFactory.create(
+            _expand={
+                "rollen": [
+                    {
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "betrokkene_identificatie": {"identificatie": "BLU1"},
+                    },
+                ]
+            }
+        )
+
+        # Should NOT be returned: no roles
+        ZaakFactory.create(_expand={"rollen": []})
+
+        # Should be returned
+        ZaakFactory.create(
+            _expand={
+                "rollen": [
+                    {
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "betrokkene_identificatie": {"identificatie": "BLO1"},
+                    },
+                    {
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "betrokkene_identificatie": {"identificatie": "BLA2"},
+                    },
+                ]
+            }
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["behandelend_afdeling"] = "BLA"
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 2)
