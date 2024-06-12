@@ -203,7 +203,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             "author",
             "decision",
             "list_feedback",
-            "items_feedback",
+            "item_reviews",
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -245,7 +245,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data: dict) -> DestructionListReview:
-        items = validated_data.pop("items_feedback")
+        item_reviews = validated_data.pop("item_reviews", [])
 
         validated_data["author"] = self.context["request"].user
         review = DestructionListReview.objects.create(**validated_data)
@@ -256,7 +256,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         }
         items_feedback_to_create = [
             DestructionListItemReview(**{**item, **extra_data_per_item})
-            for item in items
+            for item in item_reviews
         ]
         DestructionListItemReview.objects.bulk_create(items_feedback_to_create)
 

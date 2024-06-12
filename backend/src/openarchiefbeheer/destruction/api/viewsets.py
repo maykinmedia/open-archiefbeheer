@@ -6,12 +6,17 @@ from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_v
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from ..models import DestructionList, DestructionListItem
-from .filtersets import DestructionListFilterset, DestructionListItemFilterset
-from .permissions import CanStartDestructionPermission
+from ..models import DestructionList, DestructionListItem, DestructionListReview
+from .filtersets import (
+    DestructionListFilterset,
+    DestructionListItemFilterset,
+    DestructionListReviewFilterset,
+)
+from .permissions import CanReviewPermission, CanStartDestructionPermission
 from .serializers import (
     DestructionListItemSerializer,
     DestructionListResponseSerializer,
+    DestructionListReviewSerializer,
     DestructionListSerializer,
 )
 
@@ -157,3 +162,36 @@ class DestructionListItemsViewSet(
     queryset = DestructionListItem.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListItemFilterset
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary=_("List destruction list reviews"),
+        description=_(
+            "List all the reviews that have been made for a destruction list."
+        ),
+    ),
+    create=extend_schema(
+        summary=_("Create a destruction list review"),
+        description=_(
+            "Create a review for a destruction list. "
+            "Only the user currently assigned to the destruction list can create a review."
+        ),
+    ),
+)
+class DestructionListReviewViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = DestructionListReviewSerializer
+    queryset = DestructionListReview.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListReviewFilterset
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated & CanReviewPermission]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
