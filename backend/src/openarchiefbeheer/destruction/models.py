@@ -232,7 +232,6 @@ class DestructionListReview(models.Model):
         blank=True,
         help_text=_("Feedback about the destruction list as a whole."),
     )
-    # TODO: see if you need to add a document
 
     class Meta:
         verbose_name = _("destruction list review")
