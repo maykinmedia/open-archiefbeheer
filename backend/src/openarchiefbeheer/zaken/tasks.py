@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from django.db import transaction
 
 from zgw_consumers.client import build_client
@@ -10,6 +13,8 @@ from .api.serializers import ZaakSerializer
 from .models import Zaak
 from .utils import pagination_helper, process_expanded_data
 
+logger = logging.getLogger(__name__)
+
 
 @app.task
 def retrieve_and_cache_zaken_from_openzaak() -> None:
@@ -20,19 +25,32 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
         response = zrc_client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
-            params={"expand": "resultaat,resultaat.resultaattype,zaaktype"},
+            params={
+                "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
+                "archiefnominatie": "vernietigen",
+            },
+            timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
         response.raise_for_status()
 
         data_iterator = pagination_helper(
-            zrc_client, response.json(), headers={"Accept-Crs": "EPSG:4326"}
+            zrc_client,
+            response.json(),
+            headers={"Accept-Crs": "EPSG:4326"},
+            params={
+                "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
+                "archiefnominatie": "vernietigen",
+            },
+            timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
 
     with transaction.atomic():
         # Removing existing cached zaken
         Zaak.objects.all().delete()
 
-        for data in data_iterator:
+        for index, data in enumerate(data_iterator):
+            logger.debug("Retrieved page %s.", index + 1)
+
             zaken = process_expanded_data(data["results"])
             serializer = ZaakSerializer(data=zaken, many=True)
             serializer.is_valid(raise_exception=True)
