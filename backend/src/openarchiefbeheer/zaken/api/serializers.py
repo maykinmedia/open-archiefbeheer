@@ -7,7 +7,7 @@ from openarchiefbeheer.zaken.models import Zaak
 
 
 class ZaakSerializer(serializers.ModelSerializer):
-    zaakgeometrie = GeometryField(required=False)
+    zaakgeometrie = GeometryField(required=False, allow_null=True)
 
     class Meta:
         model = Zaak
