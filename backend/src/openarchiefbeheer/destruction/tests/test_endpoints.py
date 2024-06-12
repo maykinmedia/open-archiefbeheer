@@ -6,7 +6,10 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.constants import ListItemStatus
+from openarchiefbeheer.destruction.constants import (
+    ListItemStatus,
+    ReviewDecisionChoices,
+)
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
@@ -402,3 +405,36 @@ class DestructionListReviewViewSetTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data), 1)
+
+    def test_no_can_review_permission_cant_create(self):
+        record_manager = UserFactory.create(
+            username="record_manager",
+            email="manager@oab.nl",
+            role__can_review_destruction=False,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+
+        response = self.client.post(reverse("api:destruction-list-reviews-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_review(self):
+        destruction_list = DestructionListFactory.create()
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.accepted,
+            "author": reviewer.pk,
+        }
+        self.client.force_authenticate(user=reviewer)
+        response = self.client.post(
+            reverse("api:destruction-list-reviews-list"), data=data
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

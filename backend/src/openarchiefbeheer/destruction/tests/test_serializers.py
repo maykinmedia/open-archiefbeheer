@@ -13,26 +13,14 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
 
-from ..api.serializers import (
-    DestructionListItemReviewSerializer,
-    DestructionListReviewSerializer,
-    DestructionListSerializer,
-)
-from ..constants import (
-    ListItemStatus,
-    ReviewDecisionChoices,
-    ReviewItemRequestedChangeChoices,
-)
+from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
+from ..constants import ListItemStatus, ReviewDecisionChoices
 from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
 )
-from .factories import (
-    DestructionListFactory,
-    DestructionListItemFactory,
-    DestructionListReviewFactory,
-)
+from .factories import DestructionListFactory, DestructionListItemFactory
 
 factory = APIRequestFactory()
 
@@ -400,22 +388,6 @@ class DestructionListSerializerTests(TestCase):
             _("The same user should not be selected as a reviewer more than once."),
         )
 
-        review = DestructionListReviewFactory.create()
-        item = DestructionListItemFactory.create(
-            destruction_list=review.destruction_list
-        )
-
-        data = {
-            "destruction_list": review.destruction_list.uuid,
-            "destruction_list_item": item.pk,
-            "review": review.pk,
-            "requested_change": ReviewItemRequestedChangeChoices.postpone_destruction,
-            "feedback": "",
-        }
-        serializer = DestructionListItemReviewSerializer(data=data)
-
-        self.assertTrue(serializer.is_valid())
-
 
 class DestructionListReviewSerializerTests(TestCase):
     def test_if_user_not_assigned_cannot_create_review(self):
@@ -548,12 +520,10 @@ class DestructionListReviewSerializerTests(TestCase):
             "item_reviews": [
                 {
                     "destruction_list_item": items[0].pk,
-                    "requested_change": ReviewItemRequestedChangeChoices.dont_destruct,
                     "feedback": "This item should not be deleted.",
                 },
                 {
                     "destruction_list_item": items[1].pk,
-                    "requested_change": ReviewItemRequestedChangeChoices.postpone_destruction,
                     "feedback": "We should wait to delete this.",
                 },
             ],
