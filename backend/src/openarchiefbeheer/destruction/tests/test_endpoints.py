@@ -6,17 +6,15 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.constants import (
-    ListItemStatus,
-    ReviewDecisionChoices,
-)
-from openarchiefbeheer.destruction.models import DestructionList
-from openarchiefbeheer.destruction.tests.factories import (
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+
+from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..models import DestructionList, DestructionListItemReview, DestructionListReview
+from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListReviewFactory,
 )
-from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
 class DestructionListViewSetTest(APITestCase):
@@ -420,21 +418,71 @@ class DestructionListReviewViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_review(self):
-        destruction_list = DestructionListFactory.create()
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
 
         data = {
             "destruction_list": destruction_list.uuid,
             "decision": ReviewDecisionChoices.accepted,
-            "author": reviewer.pk,
         }
         self.client.force_authenticate(user=reviewer)
         response = self.client.post(
             reverse("api:destruction-list-reviews-list"), data=data
         )
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            DestructionListReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            1,
+        )
+
+    def test_create_review_rejected(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        items = DestructionListItemFactory.create_batch(
+            3, destruction_list=destruction_list
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.rejected,
+            "list_feedback": "I disagree with this list",
+            "item_reviews": [
+                {
+                    "destruction_list_item": items[0].pk,
+                    "feedback": "This item should not be deleted.",
+                },
+                {
+                    "destruction_list_item": items[1].pk,
+                    "feedback": "We should wait to delete this.",
+                },
+            ],
+        }
+        self.client.force_authenticate(user=reviewer)
+        response = self.client.post(
+            reverse("api:destruction-list-reviews-list"), data=data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            DestructionListReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            DestructionListItemReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            2,
+        )
