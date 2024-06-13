@@ -293,7 +293,7 @@ export function getFields(
       name: "Behandelend afdeling",
       active: false,
       type: "string",
-      filterLookup: "behandelend_afdeling",
+      filterLookup: "behandelend_afdeling__icontains",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";

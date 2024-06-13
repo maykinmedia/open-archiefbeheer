@@ -95,8 +95,8 @@ class ZaakFilter(FilterSet):
         lookup_expr="icontains",
     )
 
-    behandelend_afdeling = CharFilter(
-        field_name="behandelend_afdeling",
+    behandelend_afdeling__icontains = CharFilter(
+        field_name="behandelend_afdeling__icontains",
         method="filter_behandelend_afdeling",
         help_text="The 'behandelend afdeling' is the 'betrokkeneIdentificatie.identificatie' field of the roles related to the case which have betrokkeneType = organisatorische_eenheid.",
     )

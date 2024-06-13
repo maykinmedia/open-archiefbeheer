@@ -344,7 +344,7 @@ class ZakenViewSetTest(APITestCase):
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["behandelend_afdeling"] = "BLA"
+        endpoint.args["behandelend_afdeling__icontains"] = "BLA"
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)
