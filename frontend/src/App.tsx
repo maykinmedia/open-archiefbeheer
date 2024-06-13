@@ -1,16 +1,36 @@
-import { Logo, NavigationContext, Outline } from "@maykin-ui/admin-ui";
+import {
+  BreadcrumbItem,
+  Logo,
+  NavigationContext,
+  Outline,
+  formatMessage,
+} from "@maykin-ui/admin-ui";
 import React from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useMatches, useNavigate } from "react-router-dom";
 
 import "./App.css";
 
 function App() {
   const navigate = useNavigate();
+  const matches = useMatches();
+  const match = matches[matches.length - 1];
+  const handle = match?.handle as Record<string, unknown>;
+
+  const breadcrumbItems = (handle?.breadcrumbItems || []) as BreadcrumbItem[];
+  const lastBreadcrumbItem = breadcrumbItems[breadcrumbItems.length - 1];
+
+  if (lastBreadcrumbItem) {
+    lastBreadcrumbItem.label = formatMessage(
+      lastBreadcrumbItem.label,
+      match?.params as Record<string, string>,
+    );
+  }
 
   return (
     <div className="App">
       <NavigationContext.Provider
         value={{
+          breadcrumbItems,
           primaryNavigationItems: [
             <Logo
               key="logo"
@@ -20,7 +40,7 @@ function App() {
             {
               children: <Outline.HomeIcon />,
               title: "Home",
-              onClick: () => navigate("/"),
+              onClick: () => navigate("/destruction-lists/"),
             },
             {
               children: <Outline.PlusCircleIcon />,
