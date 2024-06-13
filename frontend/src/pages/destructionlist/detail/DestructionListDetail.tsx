@@ -73,12 +73,7 @@ export function DestructionListDetailPage() {
 
   return (
     <div className="destruction-list-detail">
-      <CardBaseTemplate
-        breadcrumbItems={[
-          { label: "Vernietigingslijsten", href: "destruction-lists/" },
-          { label: destructionList.name, href: "#" },
-        ]}
-      >
+      <CardBaseTemplate>
         <Body>
           <H1>{destructionList.name}</H1>
           <P>
