@@ -4,7 +4,7 @@ import {
   TypedField,
   formatMessage,
 } from "@maykin-ui/admin-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
@@ -34,13 +34,16 @@ export function useDataGridProps(
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [params, setParams] = useState<URLSearchParams>(searchParams);
   const [errorState, setErrorState] = useState<unknown>();
-  const debouncedParams = useDebounce(params, 10);
 
-  useEffect(() => {
-    setSearchParams(debouncedParams);
-  }, [debouncedParams]);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const setParams = (params: URLSearchParams) => {
+    const handle = () => {
+      setSearchParams(params);
+    };
+    clearTimeout(timeoutRef.current);
+    setTimeout(handle, 10);
+  };
 
   //
   // List available zaaktype choices.
@@ -206,26 +209,6 @@ export function useDataGridProps(
     props,
     error: errorState,
   };
-}
-
-/**
- * Denounces update of `value` with `delay`ms
- * @param value
- * @param delay
- */
-export function useDebounce<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState<T>();
-  let handler: NodeJS.Timeout | undefined = undefined;
-
-  useEffect(() => {
-    if (handler && JSON.stringify(value) === JSON.stringify(debouncedValue)) {
-      return;
-    }
-    handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
 }
 
 /**
