@@ -45,6 +45,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListItem
         fields = (
+            "pk",
             "zaak",
             "status",
             "extra_zaak_data",
