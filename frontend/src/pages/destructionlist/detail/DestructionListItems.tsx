@@ -61,8 +61,8 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
       <DataGrid
         {...dataGridProps.props}
         boolProps={{ explicit: true }}
-        loading={state === "loading"}
         filterable={isEditing}
+        loading={state === "loading"}
         showPaginator={isEditing}
         selectable={isEditing}
         selectionActions={
@@ -88,6 +88,7 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
                 },
               ]
         }
+        sort={isEditing}
         title="Zaakdossiers"
       />
     </div>

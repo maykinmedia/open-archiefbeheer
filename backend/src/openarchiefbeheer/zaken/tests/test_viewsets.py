@@ -352,3 +352,38 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 2)
+
+    def test_ordering(self):
+        zaak_2 = ZaakFactory.create(identificatie="ZAAK-0000-0000000002")
+        zaak_1 = ZaakFactory.create(identificatie="ZAAK-0000-0000000001")
+        zaak_3 = ZaakFactory.create(identificatie="ZAAK-0000-0000000003")
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        self.client.force_authenticate(user)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(data["results"][0]["identificatie"], zaak_2.identificatie)
+        self.assertEqual(data["results"][1]["identificatie"], zaak_1.identificatie)
+        self.assertEqual(data["results"][2]["identificatie"], zaak_3.identificatie)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["ordering"] = "identificatie"
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(data["results"][0]["identificatie"], zaak_1.identificatie)
+        self.assertEqual(data["results"][1]["identificatie"], zaak_2.identificatie)
+        self.assertEqual(data["results"][2]["identificatie"], zaak_3.identificatie)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["ordering"] = "-identificatie"
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(data["results"][0]["identificatie"], zaak_3.identificatie)
+        self.assertEqual(data["results"][1]["identificatie"], zaak_2.identificatie)
+        self.assertEqual(data["results"][2]["identificatie"], zaak_1.identificatie)
