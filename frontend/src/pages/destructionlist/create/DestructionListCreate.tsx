@@ -107,7 +107,7 @@ export function DestructionListCreatePage() {
   const onSubmitForm = async (event: FormEvent, data: SerializedFormData) => {
     const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
     const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selected]) => selected)
+      .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
     const { name, assigneeIds } = data;
 

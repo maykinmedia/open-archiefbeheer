@@ -24,7 +24,7 @@ export function DestructionListItems() {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const isEditingState = Boolean(urlSearchParams.get("is_editing"));
   const selectedUrls = Object.entries(zaakSelection)
-    .filter(([_, selected]) => selected)
+    .filter(([_, { selected }]) => selected)
     .map(([url]) => ({ url }));
   const dataGridProps = useDataGridProps(
     storageKey,
@@ -39,7 +39,7 @@ export function DestructionListItems() {
   const onUpdate = async () => {
     const zaakSelection = await getZaakSelection(storageKey);
     const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selected]) => selected)
+      .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
 
     const formData = new FormData();

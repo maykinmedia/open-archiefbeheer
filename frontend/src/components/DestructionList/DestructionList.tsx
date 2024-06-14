@@ -1,4 +1,4 @@
-import { ListTemplate } from "@maykin-ui/admin-ui";
+import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
 import { useActionData } from "react-router-dom";
 
 import { PaginatedZaken } from "../../lib/api/zaken";
@@ -12,7 +12,7 @@ export type DestructionList = {
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
   storageKey: string;
   title: string;
-};
+} & Omit<DataGridProps, "objectList">;
 
 /**
  * Review-destruction-list page
@@ -23,6 +23,7 @@ export function DestructionList({
   selectedZaken,
   title,
   onSubmitSelection,
+  ...props
 }: DestructionList) {
   const errors = useActionData() || {};
   const { props: dataGridProps, error } = useDataGridProps(
@@ -37,6 +38,7 @@ export function DestructionList({
       errors={_errors}
       dataGridProps={{
         ...dataGridProps,
+        ...props,
         title,
         selectionActions: [
           {

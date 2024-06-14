@@ -2,13 +2,16 @@ import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 
-export type ZaakSelection = {
+export type ZaakSelection<DetailType = unknown> = {
   /**
    * A `Zaak.url` mapped to a `boolean`.
    * - `true`: The zaak is added to the selection.
    * - `false`: The zaak is removed from the selection.
    */
-  [index: string]: boolean;
+  [index: string]: {
+    selected: boolean;
+    detail?: DetailType; // todo generic?
+  };
 };
 
 /**
@@ -17,12 +20,14 @@ export type ZaakSelection = {
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
+ * @param detail An optional detail object of generic type
  */
-export async function addToZaakSelection(
+export async function addToZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
+  detail?: DetailType,
 ) {
-  await _mutateZaakSelection(key, zaken, true);
+  await _mutateZaakSelection(key, zaken, true, detail);
 }
 
 /**
@@ -45,10 +50,10 @@ export async function removeFromZaakSelection(
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  */
-export async function getZaakSelection(key: string) {
+export async function getZaakSelection<DetailType = unknown>(key: string) {
   const computedKey = _getComputedKey(key);
   const json = sessionStorage.getItem(computedKey) || "{}";
-  return JSON.parse(json) as ZaakSelection;
+  return JSON.parse(json) as ZaakSelection<DetailType>;
 }
 
 /**
@@ -58,9 +63,9 @@ export async function getZaakSelection(key: string) {
  * @param key A key identifying the selection
  * @param zaakSelection
  */
-export async function setZaakSelection(
+export async function setZaakSelection<DetailType = unknown>(
   key: string,
-  zaakSelection: ZaakSelection,
+  zaakSelection: ZaakSelection<DetailType>,
 ) {
   const computedKey = _getComputedKey(key);
   const json = JSON.stringify(zaakSelection);
@@ -84,10 +89,13 @@ export async function clearZaakSelection(key: string) {
  * @param key A key identifying the selection
  * @param zaak Either a `Zaak.url` or `Zaak` object.
  */
-export async function isZaakSelected(key: string, zaak: string | Zaak) {
-  const zaakSelection = await getZaakSelection(key);
+export async function isZaakSelected<DetailType = unknown>(
+  key: string,
+  zaak: string | Zaak,
+) {
+  const zaakSelection = await getZaakSelection<DetailType>(key);
   const url = _getZaakUrl(zaak);
-  return zaakSelection[url];
+  return zaakSelection[url]?.selected;
 }
 
 /**
@@ -97,19 +105,24 @@ export async function isZaakSelected(key: string, zaak: string | Zaak) {
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
  * @param selected Indicating whether the selection should be added (`true) or removed (`false).
+ * @param detail An optional detail object of generic type
  */
-export async function _mutateZaakSelection(
+export async function _mutateZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
   selected: boolean,
+  detail?: DetailType,
 ) {
-  const currentZaakSelection = await getZaakSelection(key);
+  const currentZaakSelection = await getZaakSelection<DetailType>(key);
   const urls = _getZaakUrls(zaken);
 
-  const zaakSelectionOverrides = urls.reduce<ZaakSelection>(
+  const zaakSelectionOverrides = urls.reduce<ZaakSelection<DetailType>>(
     (partialZaakSelection, url) => ({
       ...partialZaakSelection,
-      [url]: selected,
+      [url]: {
+        selected,
+        detail,
+      },
     }),
     {},
   );
