@@ -3065,7 +3065,6 @@ export interface Zaak {
   processobject?: Processobject | null;
 }
 
-
 /** Serializer the reverse relation between Besluit-Zaak. */
 export interface ZaakBesluit {
   /** @format uri */
@@ -3776,7 +3775,7 @@ export type MedewerkerZaakObjectSerializer = BaseZaakObjectSerializer &
   ObjectIdentificatieRolMedewerker;
 
 export type NatuurlijkPersoonRolSerializer = BaseRolSerializer &
- BetrokkeneIdentificatieRolNatuurlijkPersoon;
+  BetrokkeneIdentificatieRolNatuurlijkPersoon;
 
 export type NatuurlijkPersoonZaakObjectSerializer = BaseZaakObjectSerializer &
   ObjectIdentificatieRolNatuurlijkPersoon;
