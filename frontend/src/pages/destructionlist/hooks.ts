@@ -37,12 +37,22 @@ export function useDataGridProps(
   const [errorState, setErrorState] = useState<unknown>();
 
   const timeoutRef = useRef<NodeJS.Timeout>();
-  const setParams = (params: URLSearchParams) => {
+  const setParams = (params: Record<string, string>) => {
     const handle = () => {
-      setSearchParams(params);
+      const combinedParams = {
+        ...Object.fromEntries(searchParams),
+        ...params,
+      };
+
+      const activeParams = Object.fromEntries(
+        Object.entries(combinedParams).filter(
+          (keyValuePair) => keyValuePair[1],
+        ),
+      );
+      setSearchParams(new URLSearchParams(activeParams));
     };
     clearTimeout(timeoutRef.current);
-    setTimeout(handle, 10);
+    timeoutRef.current = setTimeout(handle, 100);
   };
 
   //
@@ -62,7 +72,6 @@ export function useDataGridProps(
   //
   const [fieldSelectionState, setFieldSelectionState] =
     useState<FieldSelection>();
-
   useEffect(() => {
     getFieldSelection(storageKey).then((fieldSelection) =>
       setFieldSelectionState(fieldSelection),
@@ -104,17 +113,7 @@ export function useDataGridProps(
    * @param filterData
    */
   const onFilter = (filterData: AttributeData) => {
-    const combinedParams = {
-      ...Object.fromEntries(searchParams),
-      ...filterData,
-      page: "1",
-    };
-
-    const activeParams = Object.fromEntries(
-      Object.entries(combinedParams).filter((keyValuePair) => keyValuePair[1]),
-    );
-
-    setParams(new URLSearchParams(activeParams));
+    setParams({ ...(filterData as AttributeData<string>), page: "1" });
   };
 
   /**
@@ -122,12 +121,9 @@ export function useDataGridProps(
    * @param page
    */
   const onPageChange = (page: number) => {
-    setParams(
-      new URLSearchParams({
-        ...Object.fromEntries(searchParams),
-        page: String(page),
-      }),
-    );
+    setParams({
+      page: String(page),
+    });
   };
 
   /**
@@ -149,9 +145,14 @@ export function useDataGridProps(
         );
   };
 
+  const onSort = (sort: string) => {
+    setParams({ ordering: sort });
+  };
+
   //
   // Build props.
   //
+  const page = Number(searchParams.get("page")) || 1;
   const props: DataGridProps = {
     aProps: {
       target: "_blank",
@@ -165,6 +166,7 @@ export function useDataGridProps(
     fieldsSelectable: true,
     loading: state === "loading",
     objectList: objectList,
+    page: page,
     pageSize: 100,
     showPaginator: true,
     selectable: true,
@@ -195,11 +197,12 @@ export function useDataGridProps(
         ..._filterData,
       };
     },
-    page: Number(searchParams.get("page")) || 1,
+    sort: searchParams.get("ordering") || true, // fixme
     onPageChange,
     onFieldsChange,
     onFilter,
     onSelect,
+    onSort: onSort,
   };
 
   //

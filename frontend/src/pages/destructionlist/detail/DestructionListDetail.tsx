@@ -16,6 +16,7 @@ import { redirect, useLoaderData } from "react-router-dom";
 import { loginRequired } from "../../../lib/api/loginRequired";
 import { request } from "../../../lib/api/request";
 import { User, listReviewers } from "../../../lib/api/reviewers";
+// FIXME Properly arrange loaders and prevent double loads
 import { getZakenData } from "../create/DestructionListCreate";
 import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";

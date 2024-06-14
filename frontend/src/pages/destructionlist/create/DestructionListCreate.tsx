@@ -39,11 +39,9 @@ export const getZakenData = async (
   searchParamsZakenEndpoint: Record<string, string>,
 ) => {
   const searchParams = new URL(request.url).searchParams;
-  // console.log("getZakenData", 1, searchParams.get("page"));
   Object.keys(searchParamsZakenEndpoint).forEach((key) =>
     searchParams.set(key, searchParamsZakenEndpoint[key]),
   );
-  // console.log("getZakenData", 2, searchParams.get("page"));
 
   // Get reviewers, zaken and zaaktypen.
   const promises = [listReviewers(), listZaken(searchParams)];
