@@ -39,12 +39,45 @@ const FIXTURE: DestructionListReviewLoaderContext = {
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectedZaken: [],
   uuid: "00000000-0000-0000-0000-000000000000",
+  list: {
+    items: [
+      {
+        zaak: "example.com",
+        status: "",
+        pk: 1,
+        zaakData: {
+          uuid: "00000000-0000-0000-0000-000000000001",
+          url: "example.com",
+        },
+      },
+    ],
+    name: "Ding",
+    status: "processing",
+    uuid: "00000000-0000-0000-0000-000000000001",
+    assignees: [
+      {
+        user: {
+          pk: 1,
+          email: "test@gmail.com",
+          firstName: "John",
+          lastName: "Doe",
+          role: {
+            name: "None",
+            canReviewDestruction: true,
+            canStartDestruction: false,
+            canViewCaseDetails: false,
+          },
+          username: "John-Doe",
+        },
+        order: 1,
+      },
+    ],
+    created: new Date(),
+    statusChanged: new Date(),
+  },
 };
 
 export const ReviewDestructionList: Story = {
-  args: {
-    children: "The quick brown fox jumps over the lazy dog.",
-  },
   parameters: {
     reactRouterDecorator: {
       route: {

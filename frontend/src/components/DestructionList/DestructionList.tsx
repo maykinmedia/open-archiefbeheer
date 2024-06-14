@@ -12,6 +12,7 @@ export type DestructionList = {
   // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
   storageKey: string;
   title: string;
+  labelAction?: string;
 } & Omit<DataGridProps, "objectList">;
 
 /**
@@ -22,6 +23,7 @@ export function DestructionList({
   zaken,
   selectedZaken,
   title,
+  labelAction = title,
   onSubmitSelection,
   ...props
 }: DestructionList) {
@@ -42,7 +44,7 @@ export function DestructionList({
         title,
         selectionActions: [
           {
-            children: title,
+            children: labelAction,
             onClick: onSubmitSelection,
             wrap: false,
           },

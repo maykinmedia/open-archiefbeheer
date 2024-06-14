@@ -13,12 +13,17 @@ import {
   useLoaderData,
   useSubmit,
 } from "react-router-dom";
+import { useAsync } from "react-use";
 
-import { DestructionList } from "../../../components";
+import { DestructionList as DestructionListComponent } from "../../../components";
 import {
   CreateDestructionListReviewData,
   createDestructionListReview,
 } from "../../../lib/api/destruction-list-reviews";
+import {
+  DestructionList,
+  getDestructionList,
+} from "../../../lib/api/destructionLists";
 import { User, listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -34,17 +39,26 @@ import "./DestructionListReview.css";
 const getDestructionListReviewKey = (id: string) =>
   `destruction-list-review-${id}`;
 
+/**
+ * The interface for the zaken modal state
+ */
 interface ZaakModalDataState {
   open: boolean;
   title?: string;
   uuid?: string;
 }
 
+/**
+ * The interface for the list modal state
+ */
 interface ListModalDataState {
   listFeedback?: string;
   open: boolean;
 }
 
+/**
+ * The interface for the form data of the zaken
+ */
 interface FormDataState {
   motivation: string;
   uuid: string;
@@ -54,58 +68,79 @@ interface FormDataState {
  * Review-destruction-list page
  */
 export function DestructionListReviewPage() {
-  const { zaken, selectedZaken, uuid } =
+  const { zaken, selectedZaken, uuid, list } =
     useLoaderData() as DestructionListReviewLoaderContext;
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
+  /* State to manage the count of selected zaken */
+  const [zaakSelectionCount, setZaakSelectionCount] = useState<number>(0);
+
+  /* State to manage the state of the zaak modal (when clicking a checkbox) */
   const [zaakModalDataState, setZaakModalDataState] =
     useState<ZaakModalDataState>({
       open: false,
     });
+
+  /* State to handle the modal for the entire list (when clicking on the page action) */
   const [listModalDataState, setListModalDataState] =
     useState<ListModalDataState>({
       open: false,
     });
 
+  /* On render of the page we will update the selection count */
+  useAsync(async () => {
+    await updateZaakSelectionCountState();
+  }, []);
+
+  /* Triggered once you select (click a checkbox) a specific row in the list */
   const onSelect = async (row: AttributeData[], selected: boolean) => {
     const firstZaak = row[0] as unknown as Zaak;
+    /* If we deselect, we remove it from the selection list and update the count */
     if (!selected) {
       await removeFromZaakSelection(destructionListReviewKey, [firstZaak]);
+      void updateZaakSelectionCountState();
       return;
     }
+    /* Otherwise, we open up a modal */
     setZaakModalDataState({
       // TODO: Control the check/uncheck of the checkbox? Is this even necessary if we move away from checkboxes later on? It's quite some work.
       open: true,
       uuid: firstZaak.uuid,
-      title: `Beoordeel zaak ${firstZaak.identificatie}`,
+      title: `${firstZaak.identificatie} uitzonderen`,
     });
   };
 
+  /* The fields for the zaken modal (when you click a checkbox) */
   const zaakModalFormFields: FormField[] = [
     {
       autoComplete: "off",
       autoFocus: zaakModalDataState?.open,
-      label: "Motivatie",
+      label: "Reden van uitzondering",
+      placeholder: "Vul hier een reden voor uitzondering in",
       name: "motivation",
       type: "text",
       required: true,
     },
   ];
 
+  /* The fields for the entire list (when you click the page action) */
   const listModalFormFields: FormField[] = [
     {
       autoComplete: "off",
       autoFocus: zaakModalDataState?.open,
-      label: "Lijst Motivatie",
+      label: "Opmerking",
       name: "list_feedback",
+      placeholder: "Vul hier een opmerking(en) in",
       type: "text",
       required: true,
     },
   ];
 
   /**
-   * Gets called when the form is submitted.
+   * Gets called whenever you submit the zaken form that's triggered by clicking a checkbox
+   * @param _
+   * @param data
    */
   const onSubmitZaakForm = async (_: FormEvent, data: AttributeData) => {
     const zaak = zaken.results.find((z) => z.uuid === zaakModalDataState.uuid)!;
@@ -116,8 +151,14 @@ export function DestructionListReviewPage() {
       uuid: zaakModalDataState.uuid!,
     });
     setZaakModalDataState({ open: false });
+    await updateZaakSelectionCountState();
   };
 
+  /**
+   * Gets called whenever you submit the list form that's triggered by clicking the page action
+   * @param _
+   * @param data
+   */
   const onSubmitDestructionListForm = async (
     _: FormEvent,
     data: AttributeData,
@@ -132,47 +173,74 @@ export function DestructionListReviewPage() {
     );
   };
 
+  /**
+   * Updates the count of the selected zaken to the state
+   */
+  const updateZaakSelectionCountState = async () => {
+    const zaakSelection = await getZaakSelection<FormDataState>(
+      destructionListReviewKey,
+    );
+    const zaakSelectionSelected = Object.values(zaakSelection).filter(
+      (f) => f.selected,
+    );
+    setZaakSelectionCount(zaakSelectionSelected.length);
+  };
+
   return (
     <>
       <Modal
-        title={zaakModalDataState.title}
+        allowClose={false}
         open={zaakModalDataState.open}
         size="m"
+        title={zaakModalDataState.title}
       >
         <Body>
           <Form
             fields={zaakModalFormFields}
             onSubmit={onSubmitZaakForm}
             validateOnChange={true}
+            labelSubmit={"Uitzonderen"}
           />
         </Body>
       </Modal>
-      <Modal title={"Save"} open={listModalDataState.open} size="m">
+      <Modal
+        title={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        open={listModalDataState.open}
+        size="m"
+        onClose={() => setListModalDataState({ open: false })}
+      >
         <Body>
           <Form
             fields={listModalFormFields}
             onSubmit={onSubmitDestructionListForm}
             validateOnChange
+            labelSubmit={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
           />
         </Body>
       </Modal>
-      <DestructionList
+      <DestructionListComponent
         storageKey={destructionListReviewKey}
         zaken={zaken}
         selectedZaken={selectedZaken}
-        title={"Save"}
+        labelAction={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        title={`${list.name} beoordelen`}
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
+        allowSelectAll={false}
       />
     </>
   );
 }
 
+/**
+ * The context of the loader
+ */
 export type DestructionListReviewLoaderContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   uuid: string;
+  list: DestructionList;
 };
 
 /**
@@ -191,8 +259,15 @@ export const destructionListReviewLoader = async ({
   }
   searchParams.set("destruction_list", uuid);
 
-  const zaken = await listZaken(searchParams);
-  const reviewers = await listReviewers();
+  const zakenPromise = listZaken(searchParams);
+  const listsPromise = getDestructionList(uuid);
+  const reviewersPromise = listReviewers();
+
+  const [zaken, list, reviewers] = await Promise.all([
+    zakenPromise,
+    listsPromise,
+    reviewersPromise,
+  ]);
 
   const isZaakSelectedPromises = zaken.results.map((zaak) =>
     isZaakSelected(getDestructionListReviewKey(uuid), zaak),
@@ -207,6 +282,7 @@ export const destructionListReviewLoader = async ({
     zaken,
     selectedZaken,
     uuid,
+    list,
   } satisfies DestructionListReviewLoaderContext;
 };
 
