@@ -156,7 +156,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
 class DestructionListResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
-    items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
 
