@@ -3,9 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
+from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination as _PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.filters import OrderingFilter
 
 from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
 
@@ -32,4 +32,4 @@ class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = ZaakFilter
-    ordering_fields = '__all__'
+    ordering_fields = "__all__"
