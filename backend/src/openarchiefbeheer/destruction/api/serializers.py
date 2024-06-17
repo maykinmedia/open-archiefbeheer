@@ -304,4 +304,11 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         ]
         DestructionListItemReview.objects.bulk_create(review_items_data)
 
+        destruction_list = validated_data["destruction_list"]
+        if review.decision == ReviewDecisionChoices.accepted:
+            destruction_list.assign_next()
+        else:
+            destruction_list.set_status(ListStatus.changes_requested)
+            destruction_list.get_author().assign()
+
         return review

@@ -113,6 +113,22 @@ class DestructionList(models.Model):
             ]
         )
 
+    def get_author(self) -> "DestructionListAssignee":
+        return self.assignees.get(role=ListRole.author)
+
+    def assign_next(self) -> None:
+        reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
+
+        # All reviews are completed
+        if self.assignee == reviewers.last().user:
+            self.get_author().assign()
+            self.set_status(ListStatus.ready_to_delete)
+            return
+
+        next_reviewer = reviewers[self.assignee.order]
+        next_reviewer.assign()
+        return next_reviewer
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
