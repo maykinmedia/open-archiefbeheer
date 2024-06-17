@@ -10,7 +10,6 @@ export type DestructionList = {
   author: User;
   containsSensitiveInfo: boolean;
   created: string;
-  items: DestructionListItem[];
   name: string;
   status: "in_progress" | "processing" | "completed";
   statusChanged: string | null;
@@ -20,12 +19,6 @@ export type DestructionList = {
 export type DestructionListAssignee = {
   user: User;
   order: number;
-};
-
-export type DestructionListItem = {
-  zaak: Zaak["url"];
-  status: string;
-  zaakData: Zaak;
 };
 
 export type DestructionListUpdateData = {

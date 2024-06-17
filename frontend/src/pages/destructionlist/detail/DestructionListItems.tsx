@@ -1,45 +1,39 @@
 import { DataGrid, Outline } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
-import { useLoaderData, useNavigation, useSubmit } from "react-router-dom";
+import {
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+  useSubmit,
+} from "react-router-dom";
 import { useAsync } from "react-use";
 
-import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   addToZaakSelection,
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
 import { useDataGridProps } from "../hooks";
 import "./DestructionListDetail.css";
 import { DestructionListDetailContext } from "./types";
 
-export type DestructionListItemsProps = {
-  zaken: Zaak[];
-  destructionList: DestructionList;
-};
-
-export function DestructionListItems({ zaken }: DestructionListItemsProps) {
+export function DestructionListItems() {
   const { state } = useNavigation();
-  const { storageKey, allZaken } =
+  const { storageKey, allZaken, zaken, zaakSelection } =
     useLoaderData() as DestructionListDetailContext;
   const submit = useSubmit();
-  const [isEditing, setIsEditing] = useState(false);
-
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams();
+  const isEditingState = Boolean(urlSearchParams.get("is_editing"));
+  const selectedUrls = Object.entries(zaakSelection)
+    .filter(([_, selected]) => selected)
+    .map(([url]) => ({ url }));
   const dataGridProps = useDataGridProps(
     storageKey,
-    isEditing
-      ? allZaken
-      : {
-          count: zaken.length,
-          next: null,
-          previous: null,
-          results: zaken,
-        },
-    isEditing ? zaken : [],
+    isEditingState ? allZaken : zaken,
+    isEditingState ? [...zaken.results, ...selectedUrls] : [],
   );
 
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken);
+    await addToZaakSelection(storageKey, zaken.results);
   }, []);
 
   const onUpdate = async () => {
@@ -52,8 +46,14 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
     zaakUrls.forEach((url) => formData.append("zaakUrls", url));
 
     submit(formData, { method: "PATCH" });
+  };
 
-    setIsEditing(false);
+  const setIsEditing = (value: boolean) => {
+    urlSearchParams.set("page", "1");
+    value
+      ? urlSearchParams.set("is_editing", "true")
+      : urlSearchParams.delete("is_editing");
+    setUrlSearchParams(urlSearchParams);
   };
 
   return (
@@ -61,12 +61,12 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
       <DataGrid
         {...dataGridProps.props}
         boolProps={{ explicit: true }}
-        filterable={isEditing}
+        count={isEditingState ? allZaken.count : zaken.count}
+        filterable={isEditingState}
         loading={state === "loading"}
-        showPaginator={isEditing}
-        selectable={isEditing}
+        selectable={isEditingState}
         selectionActions={
-          isEditing
+          isEditingState
             ? [
                 {
                   children: "Vernietigingslijst aanpassen",
@@ -88,7 +88,7 @@ export function DestructionListItems({ zaken }: DestructionListItemsProps) {
                 },
               ]
         }
-        sort={isEditing}
+        sort={isEditingState}
         title="Zaakdossiers"
       />
     </div>
