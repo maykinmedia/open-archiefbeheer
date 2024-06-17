@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
 import { FIXTURE_USERS } from "../../../fixtures/users";
 import {
@@ -39,42 +40,7 @@ const FIXTURE: DestructionListReviewLoaderContext = {
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectedZaken: [],
   uuid: "00000000-0000-0000-0000-000000000000",
-  list: {
-    items: [
-      {
-        zaak: "example.com",
-        status: "",
-        pk: 1,
-        zaakData: {
-          uuid: "00000000-0000-0000-0000-000000000001",
-          url: "example.com",
-        },
-      },
-    ],
-    name: "Ding",
-    status: "processing",
-    uuid: "00000000-0000-0000-0000-000000000001",
-    assignees: [
-      {
-        user: {
-          pk: 1,
-          email: "test@gmail.com",
-          firstName: "John",
-          lastName: "Doe",
-          role: {
-            name: "None",
-            canReviewDestruction: true,
-            canStartDestruction: false,
-            canViewCaseDetails: false,
-          },
-          username: "John-Doe",
-        },
-        order: 1,
-      },
-    ],
-    created: new Date(),
-    statusChanged: new Date(),
-  },
+  list: FIXTURE_DESTRUCTION_LIST,
 };
 
 export const ReviewDestructionList: Story = {

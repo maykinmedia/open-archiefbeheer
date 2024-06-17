@@ -4,8 +4,8 @@ export interface CreateDestructionListReviewData {
   destructionList: string; // uuid
   decision: "accepted" | "rejected";
   listFeedback: string;
-  itemReviews: {
-    zaak: string;
+  zakenReviews: {
+    zaak_url: string;
     feedback: string;
   }[];
 }
