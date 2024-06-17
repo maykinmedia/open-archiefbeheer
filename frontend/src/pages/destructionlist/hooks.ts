@@ -30,7 +30,7 @@ const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 export function useDataGridProps(
   storageKey: string,
   paginatedResults: PaginatedZaken,
-  selectedResults: Zaak[],
+  selectedResults: (Zaak | { url: string })[],
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -161,7 +161,7 @@ export function useDataGridProps(
       explicit: true,
     },
     count: paginatedResults.count,
-    equalityChecker: (a, b) => a.uuid === b.uuid,
+    equalityChecker: (a, b) => a.uuid === b.uuid || a.url === b.url,
     fields: fields,
     fieldsSelectable: true,
     loading: state === "loading",

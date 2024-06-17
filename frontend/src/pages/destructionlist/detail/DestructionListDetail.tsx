@@ -23,6 +23,10 @@ import {
 import { loginRequired } from "../../../lib/api/loginRequired";
 import { User, listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import {
+  ZaakSelection,
+  getZaakSelection,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
@@ -95,10 +99,7 @@ export function DestructionListDetailPage() {
             </Grid>
           </P>
           <P>
-            <DestructionListItems
-              zaken={destructionList.items.map((item) => item.zaakData)}
-              destructionList={destructionList}
-            />
+            <DestructionListItems />
           </P>
         </Body>
       </CardBaseTemplate>
@@ -153,32 +154,54 @@ export const destructionListDetailLoader = loginRequired(
     request,
     params,
   }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
-    console.log("loader", request, params);
-
-    const storageKey = `destruction-list-detail-${params.uuid}`;
-    const searchParamsZakenEndpoint: Record<string, string> = {
-      not_in_destruction_list_except: String(params.uuid),
-    };
-    const searchParams = new URL(request.url).searchParams;
-    Object.keys(searchParamsZakenEndpoint).forEach((key) =>
-      searchParams.set(key, searchParamsZakenEndpoint[key]),
-    );
+    const uuid = params.uuid as string;
+    const storageKey = `destruction-list-detail-${uuid}`;
+    const searchParams = Object.fromEntries(new URL(request.url).searchParams);
 
     // Get reviewers, zaken and zaaktypen.
     const promises = [
-      getDestructionList(params.uuid as string),
+      getDestructionList(uuid as string),
       listReviewers(),
-      listZaken(searchParams),
+      /*
+       Intercept and ignore 404 due to the following scenario cause by shared `page` parameter:
+
+       - User navigates to destruction list with 1 page of items.
+       - Users click edit button
+       - User navigates to page 2
+       - zaken API with param `in_destruction_list` may return 404.
+      */
+      listZaken({ ...searchParams, in_destruction_list: uuid }).catch((e) => {
+        if (e.status === 404) {
+          return {
+            count: 0,
+            next: null,
+            previous: null,
+            results: [],
+          };
+        }
+      }),
+      listZaken({
+        ...searchParams,
+        not_in_destruction_list_except: uuid,
+      }),
+      getZaakSelection(storageKey),
     ];
-    const [destructionList, reviewers, allZaken] = (await Promise.all(
-      promises,
-    )) as [DestructionList, User[], PaginatedZaken];
+    const [destructionList, reviewers, zaken, allZaken, zaakSelection] =
+      (await Promise.all(promises)) as [
+        DestructionList,
+        User[],
+        PaginatedZaken,
+        PaginatedZaken,
+        ZaakSelection,
+      ];
 
     return {
-      allZaken,
       destructionList,
       storageKey,
       reviewers,
+      zaken,
+      allZaken,
+      zaakSelection,
     };
   },
 );
