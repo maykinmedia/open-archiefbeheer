@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useLoaderData, useNavigation, useSubmit } from "react-router-dom";
 import { useAsync } from "react-use";
 
+import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   addToZaakSelection,
   getZaakSelection,
@@ -10,21 +11,20 @@ import {
 import { Zaak } from "../../../types";
 import { useDataGridProps } from "../hooks";
 import "./DestructionListDetail.css";
-import { DestructionListData, DestructionListDetailContext } from "./types";
+import { DestructionListDetailContext } from "./types";
 
 export type DestructionListItemsProps = {
   zaken: Zaak[];
-  destructionList: DestructionListData;
+  destructionList: DestructionList;
 };
 
 export function DestructionListItems({ zaken }: DestructionListItemsProps) {
   const { state } = useNavigation();
-  const { uuid, zaken: allZaken } =
+  const { storageKey, allZaken } =
     useLoaderData() as DestructionListDetailContext;
   const submit = useSubmit();
   const [isEditing, setIsEditing] = useState(false);
 
-  const storageKey = `destruction-list-detail-${uuid}`;
   const dataGridProps = useDataGridProps(
     storageKey,
     isEditing

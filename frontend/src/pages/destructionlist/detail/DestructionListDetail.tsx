@@ -13,25 +13,25 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import React from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
+import {
+  DestructionList,
+  DestructionListItemUpdate,
+  DestructionListUpdateData,
+  getDestructionList,
+  updateDestructionList,
+} from "../../../lib/api/destructionLists";
 import { loginRequired } from "../../../lib/api/loginRequired";
-import { request } from "../../../lib/api/request";
 import { User, listReviewers } from "../../../lib/api/reviewers";
-// FIXME Properly arrange loaders and prevent double loads
-import { getZakenData } from "../create/DestructionListCreate";
+import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
 import { STATUS_LEVEL_MAPPING, STATUS_MAPPING } from "./constants";
-import {
-  DestructionListData,
-  DestructionListDetailContext,
-  DestructionListItemUpdate,
-  DestructionListUpdateData,
-} from "./types";
+import { DestructionListDetailContext } from "./types";
 
 function getDisplayableList(
-  destructionList: DestructionListData,
+  destructionList: DestructionList,
 ): LabeledAttributeData {
   const createdOn = new Date(destructionList.created);
   const formattedCreatedOn = createdOn.toLocaleString("nl-nl", {
@@ -106,26 +106,6 @@ export function DestructionListDetailPage() {
   );
 }
 
-export async function getDestructionList(uuid: string) {
-  const response = await request("GET", `/destruction-lists/${uuid}`);
-  const promise: Promise<User[]> = response.json();
-  return promise;
-}
-
-export async function updateDestructionList(
-  uuid: string,
-  data: DestructionListUpdateData,
-) {
-  const response = await request(
-    "PATCH",
-    `/destruction-lists/${uuid}/`,
-    {},
-    data,
-  );
-  const promise: Promise<User[]> = response.json();
-  return promise;
-}
-
 /**
  * React Router loader.
  */
@@ -169,25 +149,36 @@ export async function destructionListUpdateAction({
  * React Router loader.
  */
 export const destructionListDetailLoader = loginRequired(
-  async ({ request, params }: ActionFunctionArgs) => {
-    if (typeof params.uuid === "undefined") return {};
+  async ({
+    request,
+    params,
+  }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
+    console.log("loader", request, params);
 
+    const storageKey = `destruction-list-detail-${params.uuid}`;
+    const searchParamsZakenEndpoint: Record<string, string> = {
+      not_in_destruction_list_except: String(params.uuid),
+    };
+    const searchParams = new URL(request.url).searchParams;
+    Object.keys(searchParamsZakenEndpoint).forEach((key) =>
+      searchParams.set(key, searchParamsZakenEndpoint[key]),
+    );
+
+    // Get reviewers, zaken and zaaktypen.
     const promises = [
-      getDestructionList(params.uuid),
-      getZakenData(request, {
-        not_in_destruction_list_except: String(params.uuid),
-      }),
+      getDestructionList(params.uuid as string),
       listReviewers(),
+      listZaken(searchParams),
     ];
-
-    const [destructionList, zakenListData, availableReviewers] =
-      await Promise.all(promises);
+    const [destructionList, reviewers, allZaken] = (await Promise.all(
+      promises,
+    )) as [DestructionList, User[], PaginatedZaken];
 
     return {
-      availableReviewers,
+      allZaken,
       destructionList,
-      uuid: params.uuid,
-      ...zakenListData,
+      storageKey,
+      reviewers,
     };
   },
 );
