@@ -226,9 +226,10 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
+        zaken_reviews = attrs.get("zaken_reviews", [])
         if (
             attrs["decision"] == ReviewDecisionChoices.rejected
-            and len(attrs.get("zaken_reviews", [])) == 0
+            and len(zaken_reviews) == 0
         ):
             raise ValidationError(
                 {
@@ -240,7 +241,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
         if (
             attrs["decision"] == ReviewDecisionChoices.accepted
-            and len(attrs.get("zaken_reviews", [])) != 0
+            and len(zaken_reviews) != 0
         ):
             raise ValidationError(
                 {
@@ -249,6 +250,23 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
                     )
                 }
             )
+
+        if len(zaken_reviews) > 0:
+            destruction_list_items = (
+                attrs["destruction_list"]
+                .items.filter(status=ListItemStatus.suggested)
+                .values_list("zaak", flat=True)
+            )
+
+            for zaak_review in zaken_reviews:
+                if zaak_review["zaak_url"] not in destruction_list_items:
+                    raise ValidationError(
+                        {
+                            "zaken_reviews": _(
+                                "You can only provide feedback about cases that are part of the destruction list."
+                            )
+                        }
+                    )
 
         return attrs
 
