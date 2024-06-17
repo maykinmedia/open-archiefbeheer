@@ -62,6 +62,7 @@ interface ListModalDataState {
 interface FormDataState {
   motivation: string;
   uuid: string;
+  url: string;
 }
 
 /**
@@ -149,6 +150,7 @@ export function DestructionListReviewPage() {
         motivation: string;
       }),
       uuid: zaakModalDataState.uuid!,
+      url: zaak.url as string,
     });
     setZaakModalDataState({ open: false });
     await updateZaakSelectionCountState();
@@ -258,8 +260,9 @@ export const destructionListReviewLoader = async ({
     return redirect("/destruction-lists/create"); // TODO: How do we want to handle this?
   }
   searchParams.set("destruction_list", uuid);
+  const objParams = Object.fromEntries(searchParams);
 
-  const zakenPromise = listZaken(searchParams);
+  const zakenPromise = listZaken({ ...objParams, in_destruction_list: uuid });
   const listsPromise = getDestructionList(uuid);
   const reviewersPromise = listReviewers();
 
@@ -326,14 +329,14 @@ export const destructionListReviewAction = async ({
     destructionList: destructionListUuid,
     decision: zaakSelectionValid.length > 0 ? "rejected" : "accepted",
     listFeedback: details.listFeedback,
-    itemReviews: zaakSelectionValid.map((zaak) => {
+    zakenReviews: zaakSelectionValid.map((zaak) => {
       if (!zaak.detail) {
         throw new Error("Details are missing for one or more zaken");
       }
-      const detail = zaak.detail as Record<string, string>;
+      const detail = zaak.detail as FormDataState;
 
       return {
-        zaak: detail.uuid,
+        zaak_url: detail.url,
         feedback: detail.motivation,
       };
     }),
