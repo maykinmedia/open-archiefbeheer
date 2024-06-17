@@ -10,7 +10,7 @@ from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
-from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -119,12 +119,17 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         author = self.context["request"].user
         validated_data["author"] = author
+        validated_data["status"] = ListStatus.ready_to_review
         destruction_list = DestructionList.objects.create(**validated_data)
-
         destruction_list.bulk_create_items(items_data)
-        assignees = destruction_list.bulk_create_assignees(assignees_data)
 
-        destruction_list.assign(assignees[0])
+        # Create an assignee also for the author
+        DestructionListAssignee.objects.create(
+            user=author, destruction_list=destruction_list, role=ListRole.author
+        )
+        reviewers = destruction_list.bulk_create_reviewers(assignees_data)
+
+        destruction_list.assign(reviewers[0])
 
         logevent.destruction_list_created(destruction_list, author)
 
@@ -146,8 +151,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
             instance.bulk_create_items(items_data)
 
         if assignees_data is not None:
-            instance.assignees.all().delete()
-            instance.bulk_create_assignees(assignees_data)
+            instance.assignees.filter(role=ListRole.reviewer).delete()
+            instance.bulk_create_reviewers(assignees_data)
 
         instance.save()
 

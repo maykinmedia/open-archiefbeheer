@@ -9,6 +9,7 @@ from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import (
     ListItemStatus,
+    ListRole,
     ListStatus,
     ReviewDecisionChoices,
 )
@@ -58,7 +59,7 @@ class DestructionList(models.Model):
     )
     status = models.CharField(
         _("status"),
-        default=ListStatus.in_progress,
+        default=ListStatus.ready_to_review,
         choices=ListStatus.choices,
         max_length=80,
     )
@@ -92,12 +93,14 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         self.save()
 
-    def bulk_create_assignees(
+    def bulk_create_reviewers(
         self, assignees_data: dict
     ) -> list["DestructionListAssignee"]:
         return DestructionListAssignee.objects.bulk_create(
             [
-                DestructionListAssignee(**{**assignee, "destruction_list": self})
+                DestructionListAssignee(
+                    **{**assignee, "role": ListRole.reviewer, "destruction_list": self}
+                )
                 for assignee in assignees_data
             ]
         )
@@ -178,6 +181,12 @@ class DestructionListAssignee(OrderedModel):
         help_text=_("The user assigned to the destruction list."),
     )
     assigned_on = models.DateTimeField(_("assigned on"), blank=True, null=True)
+    role = models.CharField(
+        _("role"),
+        default=ListRole.reviewer,
+        choices=ListRole.choices,
+        max_length=80,
+    )
 
     class Meta(OrderedModel.Meta):
         verbose_name = _("destruction list assignee")
