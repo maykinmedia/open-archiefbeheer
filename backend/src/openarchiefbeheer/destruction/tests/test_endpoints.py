@@ -8,9 +8,10 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import ListItemStatus, ReviewDecisionChoices, ListRole
+from ..constants import ListItemStatus, ListRole, ReviewDecisionChoices
 from ..models import DestructionList, DestructionListItemReview, DestructionListReview
 from .factories import (
+    DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListReviewFactory,
@@ -36,7 +37,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_destruction_list(self):
-        record_manager = UserFactory.create(username="record_manager",role__can_start_destruction=True)
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
         user1 = UserFactory.create(
             username="reviewer1", role__can_review_destruction=True
         )
@@ -428,6 +431,16 @@ class DestructionListReviewViewSetTest(APITestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(assignee=reviewer)
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=reviewer,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -455,6 +468,11 @@ class DestructionListReviewViewSetTest(APITestCase):
         destruction_list = DestructionListFactory.create(assignee=reviewer)
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
         )
 
         data = {

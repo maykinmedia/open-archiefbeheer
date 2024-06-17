@@ -14,13 +14,17 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
 
 from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
-from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
 )
-from .factories import DestructionListFactory, DestructionListItemFactory
+from .factories import (
+    DestructionListAssigneeFactory,
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 
 factory = APIRequestFactory()
 
@@ -431,6 +435,16 @@ class DestructionListReviewSerializerTests(TestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(assignee=reviewer)
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=reviewer,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -444,6 +458,12 @@ class DestructionListReviewSerializerTests(TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, destruction_list.author)
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
@@ -513,6 +533,11 @@ class DestructionListReviewSerializerTests(TestCase):
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
         )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -542,6 +567,11 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(DestructionListReview.objects.count(), 1)
         self.assertEqual(DestructionListItemReview.objects.count(), 2)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, destruction_list.author)
+        self.assertEqual(destruction_list.status, ListStatus.changes_requested)
 
     def test_reviewing_cases_not_in_destruction_list(self):
         reviewer = UserFactory.create(

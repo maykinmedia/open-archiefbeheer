@@ -2,6 +2,8 @@ import factory.fuzzy
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
+from ..constants import ListRole
+
 
 class DestructionListFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("word")
@@ -9,6 +11,14 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "destruction.DestructionList"
+
+
+class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
+    destruction_list = factory.SubFactory(DestructionListFactory)
+    role = ListRole.reviewer
+
+    class Meta:
+        model = "destruction.DestructionListAssignee"
 
 
 class DestructionListItemFactory(factory.django.DjangoModelFactory):
