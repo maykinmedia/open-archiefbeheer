@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..constants import ListItemStatus, ReviewDecisionChoices, ListRole
 from ..models import DestructionList, DestructionListItemReview, DestructionListReview
 from .factories import (
     DestructionListFactory,
@@ -36,7 +36,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(username="record_manager",role__can_start_destruction=True)
         user1 = UserFactory.create(
             username="reviewer1", role__can_review_destruction=True
         )
@@ -76,9 +76,13 @@ class DestructionListViewSetTest(APITestCase):
 
         assignees = destruction_list.assignees.order_by("order")
 
-        self.assertEqual(assignees.count(), 2)
-        self.assertEqual(assignees[0].user.username, "reviewer1")
-        self.assertEqual(assignees[1].user.username, "reviewer2")
+        self.assertEqual(assignees.count(), 3)
+        self.assertEqual(assignees[0].user.username, "record_manager")
+        self.assertEqual(assignees[0].role, ListRole.author)
+        self.assertEqual(assignees[1].user.username, "reviewer1")
+        self.assertEqual(assignees[1].role, ListRole.reviewer)
+        self.assertEqual(assignees[2].user.username, "reviewer2")
+        self.assertEqual(assignees[2].role, ListRole.reviewer)
 
         items = destruction_list.items.order_by("zaak")
 
@@ -181,7 +185,7 @@ class DestructionListViewSetTest(APITestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
@@ -237,7 +241,7 @@ class DestructionListViewSetTest(APITestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(

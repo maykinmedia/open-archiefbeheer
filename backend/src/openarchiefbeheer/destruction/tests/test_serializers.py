@@ -78,9 +78,10 @@ class DestructionListSerializerTests(TestCase):
 
         assignees = destruction_list.assignees.order_by("order")
 
-        self.assertEqual(assignees.count(), 2)
-        self.assertEqual(assignees[0].user.username, "reviewer1")
-        self.assertEqual(assignees[1].user.username, "reviewer2")
+        self.assertEqual(assignees.count(), 3)
+        self.assertEqual(assignees[0].user.username, "record_manager")
+        self.assertEqual(assignees[1].user.username, "reviewer1")
+        self.assertEqual(assignees[2].user.username, "reviewer2")
 
         items = destruction_list.items.order_by("zaak")
 
@@ -95,7 +96,7 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(destruction_list.author, record_manager)
         self.assertEqual(destruction_list.assignee, user1)
         self.assertEqual(
-            assignees[0].assigned_on,
+            assignees[1].assigned_on,
             timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
         )
 
@@ -222,7 +223,7 @@ class DestructionListSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
@@ -290,7 +291,7 @@ class DestructionListSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
