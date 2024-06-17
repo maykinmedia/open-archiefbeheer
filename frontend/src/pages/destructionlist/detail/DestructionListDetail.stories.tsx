@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
 import { FIXTURE_USERS } from "../../../fixtures/users";
 import { DestructionListDetailPage } from "./DestructionListDetail";
@@ -33,31 +34,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListDetailContext = {
-  availableReviewers: FIXTURE_USERS,
-  destructionList: {
-    pk: 1,
-    name: "My First Destruction List",
-    author: FIXTURE_USERS[0],
-    items: [
-      FIXTURE_PAGINATED_ZAKEN.results[0],
-      FIXTURE_PAGINATED_ZAKEN.results[1],
-      FIXTURE_PAGINATED_ZAKEN.results[2],
-    ].map((z) => ({
-      zaak: z.url || "",
-      status: "",
-      zaakData: z,
-    })),
-    containsSensitiveInfo: false,
-    status: "in_progress",
-    assignees: FIXTURE_USERS.map((u, i) => ({ user: u, order: i })),
-    assignee: FIXTURE_USERS[0],
-    created: "2024-07-11:16:57",
-    statusChanged: "2024-07-11:16:57",
-  },
+  allZaken: FIXTURE_PAGINATED_ZAKEN,
   reviewers: FIXTURE_USERS,
-  selectedZaken: [],
-  uuid: "00000000-0000-0000-0000-000000000000",
-  zaken: FIXTURE_PAGINATED_ZAKEN,
+  destructionList: FIXTURE_DESTRUCTION_LIST,
+  storageKey: "storybook-storage-key",
 };
 
 export const ReviewDestructionList: Story = {

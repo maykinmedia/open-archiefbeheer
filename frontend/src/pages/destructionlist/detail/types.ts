@@ -1,59 +1,22 @@
-import { Assignee, User } from "../../../lib/api/reviewers";
-import { Zaak } from "../../../types";
-import { DestructionListCreateContext } from "../create/DestructionListCreate";
+import {
+  DestructionList,
+  DestructionListAssignee,
+} from "../../../lib/api/destructionLists";
+import { User } from "../../../lib/api/reviewers";
+import { PaginatedZaken } from "../../../lib/api/zaken";
 
-export type DestructionListItem = {
-  zaak: string;
-  status: string;
-  zaakData: Zaak;
-};
-
-export type DestructionListItemUpdate = {
-  zaak: string;
-  status?: string;
-  zaakData?: Zaak;
-};
-
-export type DestructionListData = {
-  pk: number;
-  name: string;
-  author: User;
-  items: DestructionListItem[];
-  containsSensitiveInfo: boolean;
-  status: string;
-  assignees: Assignee[];
-  assignee: User;
-  created: string;
-  statusChanged: string;
-};
-
-export interface DestructionListDetailContext
-  extends DestructionListCreateContext {
-  availableReviewers: User[];
-  destructionList: DestructionListData;
-  uuid: string;
+export interface DestructionListDetailContext {
+  allZaken: PaginatedZaken;
+  reviewers: User[];
+  destructionList: DestructionList;
+  storageKey: string;
 }
 
-export type AssigneeUpdate = {
-  user: number;
-  order: number;
-};
-
-export type DestructionListUpdateData = {
-  assignees?: AssigneeUpdate[];
-  items?: DestructionListItemUpdate[];
-};
-
-export type AssigneeEditable = {
-  user: User;
-  order: number;
-};
-
 export type AssigneesEditableProps = {
-  assignees: AssigneeEditable[];
+  assignees: DestructionListAssignee[];
 };
 
 export type AssigneesFormProps = {
-  initialAssignees: AssigneeEditable[];
+  initialAssignees: DestructionListAssignee[];
   onClose: () => void;
 };

@@ -5,13 +5,16 @@ import { request } from "./request";
 import { User } from "./reviewers";
 
 export type DestructionList = {
-  uuid: string;
-  name: string;
+  assignee: User;
   assignees: DestructionListAssignee[];
+  author: User;
+  containsSensitiveInfo: boolean;
+  created: string;
   items: DestructionListItem[];
+  name: string;
   status: "in_progress" | "processing" | "completed";
-  created: Date;
-  statusChanged?: Date;
+  statusChanged: string | null;
+  uuid: string;
 };
 
 export type DestructionListAssignee = {
@@ -21,16 +24,25 @@ export type DestructionListAssignee = {
 
 export type DestructionListItem = {
   zaak: Zaak["url"];
+  status: string;
+  zaakData: Zaak;
 };
 
-/**
- * List destruction lists.
- */
-export async function listDestructionLists() {
-  const response = await request("GET", "/destruction-lists/");
-  const promise: Promise<DestructionList[]> = response.json();
-  return promise;
-}
+export type DestructionListUpdateData = {
+  assignees?: DestructionListAssigneeUpdate[];
+  items?: DestructionListItemUpdate[];
+};
+
+export type DestructionListAssigneeUpdate = {
+  user: number;
+  order: number;
+};
+
+export type DestructionListItemUpdate = {
+  zaak: string;
+  status?: string;
+  zaakData?: Zaak;
+};
 
 /**
  * Create a new destruction list.
@@ -61,5 +73,43 @@ export async function createDestructionList(
     destructionList,
   );
   const promise: Promise<DestructionList> = response.json();
+  return promise;
+}
+
+/**
+ * Get destruction list.
+ * @param uuid
+ */
+export async function getDestructionList(uuid: string) {
+  const response = await request("GET", `/destruction-lists/${uuid}/`);
+  const promise: Promise<DestructionList> = response.json();
+  return promise;
+}
+
+/**
+ * List destruction lists.
+ */
+export async function listDestructionLists() {
+  const response = await request("GET", "/destruction-lists/");
+  const promise: Promise<DestructionList[]> = response.json();
+  return promise;
+}
+
+/**
+ * Update destruction list.
+ * @param uuid
+ * @param data
+ */
+export async function updateDestructionList(
+  uuid: string,
+  data: DestructionListUpdateData,
+) {
+  const response = await request(
+    "PATCH",
+    `/destruction-lists/${uuid}/`,
+    {},
+    data,
+  );
+  const promise: Promise<DestructionList[]> = response.json();
   return promise;
 }

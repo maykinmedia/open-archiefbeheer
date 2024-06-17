@@ -24,14 +24,13 @@ export function AssigneesForm({
 }: AssigneesFormProps) {
   const errors = useActionData() || {};
   const submit = useSubmit();
-  const { availableReviewers } =
-    useLoaderData() as DestructionListDetailContext;
+  const { reviewers } = useLoaderData() as DestructionListDetailContext;
 
   const formFields: FormField[] = [
     {
       label: "Eerste reviewer",
       name: "assigneeIds",
-      options: availableReviewers.map((user) => ({
+      options: reviewers.map((user) => ({
         value: String(user.pk),
         label: user.username,
       })),
@@ -40,7 +39,7 @@ export function AssigneesForm({
     {
       label: "Tweede reviewer",
       name: "assigneeIds",
-      options: availableReviewers.map((user) => ({
+      options: reviewers.map((user) => ({
         value: String(user.pk),
         label: user.username,
       })),

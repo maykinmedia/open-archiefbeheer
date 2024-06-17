@@ -16,7 +16,7 @@ export type ZaaktypeChoice = {
  * an the value is the URL. The response is cached for 15 minutes.
  */
 export async function listZaaktypeChoices() {
-  const response = await request("GET", "/_zaaktypen-choices");
+  const response = await request("GET", "/_zaaktypen-choices/");
   const promise: Promise<ZaaktypeChoice[]> = response.json();
   return promise;
 }
