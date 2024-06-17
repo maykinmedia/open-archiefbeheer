@@ -7,7 +7,10 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import ListItemStatus
-from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.destruction.tests.factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 
 from .factories import ZaakFactory
 
@@ -357,3 +360,33 @@ class FilterZakenTests(APITestCase):
         self.assertEqual(data["results"][0]["identificatie"], zaak_3.identificatie)
         self.assertEqual(data["results"][1]["identificatie"], zaak_2.identificatie)
         self.assertEqual(data["results"][2]["identificatie"], zaak_1.identificatie)
+
+    def test_filter_on_destruction_list(self):
+        zaken = ZaakFactory.create_batch(3)
+        destruction_list = DestructionListFactory.create()
+
+        # This zaak SHOULD be returned by the endpoint (it's in the destruction list)
+        item = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested,
+            zaak=zaken[0].url,
+            destruction_list=destruction_list,
+        )
+        # This zaak should NOT be returned by the endpoint (it was included in the destruction list, but was excluded)
+        DestructionListItemFactory.create(
+            status=ListItemStatus.removed,
+            zaak=zaken[1].url,
+            destruction_list=destruction_list,
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["in_destruction_list"] = destruction_list.uuid
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(item.zaak, data["results"][0]["url"])
