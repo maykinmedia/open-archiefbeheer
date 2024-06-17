@@ -168,7 +168,6 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "contains_sensitive_info",
             "assignees",
             "assignee",
-            "items",
             "status",
             "created",
             "status_changed",
