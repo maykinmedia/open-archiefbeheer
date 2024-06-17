@@ -156,7 +156,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
 class DestructionListResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
-    items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
 
@@ -169,7 +168,6 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "contains_sensitive_info",
             "assignees",
             "assignee",
-            "items",
             "status",
             "created",
             "status_changed",
@@ -185,12 +183,21 @@ class DestructionListItemReviewSerializer(serializers.ModelSerializer):
         )
 
 
+class ZakenReviewSerializer(serializers.Serializer):
+    zaak_url = serializers.URLField(
+        required=True, help_text="The URL of the case for which changes are requested."
+    )
+    feedback = serializers.CharField(
+        required=True, help_text="Feedback about what should be done with this case."
+    )
+
+
 class DestructionListReviewSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     destruction_list = SlugRelatedField(
         slug_field="uuid", queryset=DestructionList.objects.all()
     )
-    item_reviews = DestructionListItemReviewSerializer(
+    zaken_reviews = ZakenReviewSerializer(
         many=True,
         required=False,
         help_text="This field is required if changes are requested to the destruction list.",
@@ -203,7 +210,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             "author",
             "decision",
             "list_feedback",
-            "item_reviews",
+            "zaken_reviews",
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -218,13 +225,14 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
+        zaken_reviews = attrs.get("zaken_reviews", [])
         if (
             attrs["decision"] == ReviewDecisionChoices.rejected
-            and len(attrs.get("item_reviews", [])) == 0
+            and len(zaken_reviews) == 0
         ):
             raise ValidationError(
                 {
-                    "item_reviews": _(
+                    "zaken_reviews": _(
                         "This field cannot be empty if changes are requested on the list."
                     )
                 }
@@ -232,32 +240,62 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
         if (
             attrs["decision"] == ReviewDecisionChoices.accepted
-            and len(attrs.get("item_reviews", [])) != 0
+            and len(zaken_reviews) != 0
         ):
             raise ValidationError(
                 {
-                    "item_reviews": _(
+                    "zaken_reviews": _(
                         "There cannot be feedback on the cases if the list is approved."
                     )
                 }
             )
 
+        if len(zaken_reviews) > 0:
+            destruction_list_items = (
+                attrs["destruction_list"]
+                .items.filter(status=ListItemStatus.suggested)
+                .values_list("zaak", flat=True)
+            )
+
+            for zaak_review in zaken_reviews:
+                if zaak_review["zaak_url"] not in destruction_list_items:
+                    raise ValidationError(
+                        {
+                            "zaken_reviews": _(
+                                "You can only provide feedback about cases that are part of the destruction list."
+                            )
+                        }
+                    )
+
         return attrs
 
     def create(self, validated_data: dict) -> DestructionListReview:
-        item_reviews = validated_data.pop("item_reviews", [])
+        zaken_reviews = validated_data.pop("zaken_reviews", [])
+        destruction_list_items_with_changes = (
+            validated_data["destruction_list"]
+            .items.filter(
+                zaak__in=[zaak_review["zaak_url"] for zaak_review in zaken_reviews]
+            )
+            .distinct("zaak")
+            .in_bulk(field_name="zaak")
+        )
 
         validated_data["author"] = self.context["request"].user
         review = DestructionListReview.objects.create(**validated_data)
 
-        extra_data_per_item = {
-            "destruction_list": validated_data["destruction_list"],
-            "review": review,
-        }
-        items_feedback_to_create = [
-            DestructionListItemReview(**{**item, **extra_data_per_item})
-            for item in item_reviews
+        review_items_data = [
+            DestructionListItemReview(
+                **{
+                    "destruction_list_item": destruction_list_items_with_changes[
+                        zaak_review["zaak_url"]
+                    ],
+                    "destruction_list": validated_data["destruction_list"],
+                    "review": review,
+                    "feedback": zaak_review["feedback"],
+                }
+            )
+            for zaak_review in zaken_reviews
         ]
-        DestructionListItemReview.objects.bulk_create(items_feedback_to_create)
+        DestructionListItemReview.objects.bulk_create(review_items_data)
 
         return review

@@ -457,13 +457,13 @@ class DestructionListReviewViewSetTest(APITestCase):
             "destruction_list": destruction_list.uuid,
             "decision": ReviewDecisionChoices.rejected,
             "list_feedback": "I disagree with this list",
-            "item_reviews": [
+            "zaken_reviews": [
                 {
-                    "destruction_list_item": items[0].pk,
+                    "zaak_url": items[0].zaak,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "destruction_list_item": items[1].pk,
+                    "zaak_url": items[1].zaak,
                     "feedback": "We should wait to delete this.",
                 },
             ],

@@ -36,6 +36,11 @@ class ZaakFilter(FilterSet):
             "If True, only cases not already included in a destruction list are returned."
         ),
     )
+    in_destruction_list = UUIDFilter(
+        field_name="in_destruction_list",
+        method="filter_in_destruction_list",
+        help_text=_("All cases included in a destruction list are returned."),
+    )
     not_in_destruction_list_except = UUIDFilter(
         field_name="not_in_destruction_list_except",
         method="filter_not_in_destruction_list_except",
@@ -161,9 +166,17 @@ class ZaakFilter(FilterSet):
 
         return queryset.exclude(url__in=Subquery(zaken_to_exclude))
 
+    def filter_in_destruction_list(
+        self, queryset: QuerySet[Zaak], name: str, value: str
+    ) -> QuerySet[Zaak]:
+        list_items = DestructionListItem.objects.filter(
+            Q(destruction_list__uuid=value) & ~Q(status=ListItemStatus.removed)
+        ).values_list("zaak", flat=True)
+        return queryset.filter(url__in=Subquery(list_items))
+
     def filter_not_in_destruction_list_except(
         self, queryset: QuerySet[Zaak], name: str, value: str
-    ):
+    ) -> QuerySet[Zaak]:
         zaken_to_exclude = DestructionListItem.objects.filter(
             ~Q(status=ListItemStatus.removed) & ~Q(destruction_list__uuid=value)
         ).values_list("zaak", flat=True)

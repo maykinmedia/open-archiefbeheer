@@ -457,9 +457,9 @@ class DestructionListReviewSerializerTests(TestCase):
             "destruction_list": destruction_list.uuid,
             "decision": ReviewDecisionChoices.accepted,
             "list_feedback": "This is a list with inconsisten feedback.",
-            "item_reviews": [
+            "zaken_reviews": [
                 {
-                    "destruction_list_item": item.pk,
+                    "zaak_url": item.zaak,
                     "feedback": "This item should not be deleted.",
                 },
             ],
@@ -473,7 +473,7 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["item_reviews"][0],
+            serializer.errors["zaken_reviews"][0],
             _("There cannot be feedback on the cases if the list is approved."),
         )
 
@@ -498,7 +498,7 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["item_reviews"][0],
+            serializer.errors["zaken_reviews"][0],
             _("This field cannot be empty if changes are requested on the list."),
         )
 
@@ -517,13 +517,13 @@ class DestructionListReviewSerializerTests(TestCase):
             "destruction_list": destruction_list.uuid,
             "decision": ReviewDecisionChoices.rejected,
             "list_feedback": "I disagree with this list",
-            "item_reviews": [
+            "zaken_reviews": [
                 {
-                    "destruction_list_item": items[0].pk,
+                    "zaak_url": items[0].zaak,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "destruction_list_item": items[1].pk,
+                    "zaak_url": items[1].zaak,
                     "feedback": "We should wait to delete this.",
                 },
             ],
@@ -541,3 +541,76 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(DestructionListReview.objects.count(), 1)
         self.assertEqual(DestructionListItemReview.objects.count(), 2)
+
+    def test_reviewing_cases_not_in_destruction_list(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        # Not part of the destruction list
+        item = DestructionListItemFactory.create(status=ListItemStatus.suggested)
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.rejected,
+            "list_feedback": "I disagree with this list",
+            "zaken_reviews": [
+                {
+                    "zaak_url": item.zaak,
+                    "feedback": "This item should not be deleted.",
+                },
+            ],
+        }
+
+        request = factory.get("/foo")
+        request.user = reviewer
+        serializer = DestructionListReviewSerializer(
+            data=data, context={"request": request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["zaken_reviews"][0],
+            _(
+                "You can only provide feedback about cases that are part of the destruction list."
+            ),
+        )
+
+    def test_reviewing_cases_removed_from_destruction_list(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        item = DestructionListItemFactory.create(
+            status=ListItemStatus.removed, destruction_list=destruction_list
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.rejected,
+            "list_feedback": "I disagree with this list",
+            "zaken_reviews": [
+                {
+                    "zaak_url": item.zaak,
+                    "feedback": "This item should not be deleted.",
+                },
+            ],
+        }
+
+        request = factory.get("/foo")
+        request.user = reviewer
+        serializer = DestructionListReviewSerializer(
+            data=data, context={"request": request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["zaken_reviews"][0],
+            _(
+                "You can only provide feedback about cases that are part of the destruction list."
+            ),
+        )
