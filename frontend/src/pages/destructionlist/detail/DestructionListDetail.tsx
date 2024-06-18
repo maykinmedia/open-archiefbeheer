@@ -10,9 +10,9 @@ import {
   P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
-import React from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
+import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
   DestructionListItemUpdate,
@@ -21,7 +21,7 @@ import {
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
 import { loginRequired } from "../../../lib/api/loginRequired";
-import { User, listReviewers } from "../../../lib/api/reviewers";
+import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   ZaakSelection,

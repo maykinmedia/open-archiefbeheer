@@ -1,24 +1,9 @@
+import { User } from "./auth";
 import { request } from "./request";
-
-export type User = {
-  pk: number;
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: Role;
-};
 
 export type Assignee = {
   user: User;
   order: number;
-};
-
-export type Role = {
-  name: string;
-  canStartDestruction: boolean;
-  canReviewDestruction: boolean;
-  canViewCaseDetails: boolean;
 };
 
 /**

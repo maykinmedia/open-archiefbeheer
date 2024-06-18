@@ -9,13 +9,14 @@ import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
 } from "@remix-run/router/utils";
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 
 import { DestructionList } from "../../../components";
+import { User } from "../../../lib/api/auth";
 import { createDestructionList } from "../../../lib/api/destructionLists";
 import { loginRequired } from "../../../lib/api/loginRequired";
-import { User, listReviewers } from "../../../lib/api/reviewers";
+import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   clearZaakSelection,
