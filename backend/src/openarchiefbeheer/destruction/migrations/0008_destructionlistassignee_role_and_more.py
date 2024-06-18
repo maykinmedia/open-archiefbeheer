@@ -25,12 +25,13 @@ class Migration(migrations.Migration):
             name="status",
             field=models.CharField(
                 choices=[
+                    ("new", "new"),
                     ("ready_to_review", "ready to review"),
                     ("changes_requested", "changes requested"),
                     ("ready_to_delete", "ready to delete"),
                     ("deleted", "deleted"),
                 ],
-                default="ready_to_review",
+                default="new",
                 max_length=80,
                 verbose_name="status",
             ),

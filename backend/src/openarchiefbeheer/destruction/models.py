@@ -59,7 +59,7 @@ class DestructionList(models.Model):
     )
     status = models.CharField(
         _("status"),
-        default=ListStatus.ready_to_review,
+        default=ListStatus.new,
         choices=ListStatus.choices,
         max_length=80,
     )
