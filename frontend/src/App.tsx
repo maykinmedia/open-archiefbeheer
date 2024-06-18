@@ -5,7 +5,6 @@ import {
   Outline,
   formatMessage,
 } from "@maykin-ui/admin-ui";
-import React from "react";
 import { Outlet, useMatches, useNavigate } from "react-router-dom";
 
 import "./App.css";

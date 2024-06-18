@@ -1,4 +1,4 @@
-import { User } from "../lib/api/reviewers";
+import { User } from "../lib/api/auth";
 
 export const FIXTURE_USERS = [
   {

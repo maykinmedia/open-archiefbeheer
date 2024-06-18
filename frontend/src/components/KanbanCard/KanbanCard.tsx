@@ -3,7 +3,7 @@ import { FC } from "react";
 
 import "./KanbanCard.css";
 
-interface IKanbanCardProps {
+export interface IKanbanCardProps {
   title: string;
   days?: string;
   assigneeNames: string[];

@@ -16,6 +16,7 @@ import {
 import { useAsync } from "react-use";
 
 import { DestructionList as DestructionListComponent } from "../../../components";
+import { User } from "../../../lib/api/auth";
 import {
   CreateDestructionListReviewData,
   createDestructionListReview,
@@ -24,7 +25,7 @@ import {
   DestructionList,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
-import { User, listReviewers } from "../../../lib/api/reviewers";
+import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   ZaakSelection,

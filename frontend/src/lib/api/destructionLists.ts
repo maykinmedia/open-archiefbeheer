@@ -1,8 +1,8 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
+import { User } from "./auth";
 import { request } from "./request";
-import { User } from "./reviewers";
 
 export type DestructionList = {
   assignee: User;
@@ -11,10 +11,16 @@ export type DestructionList = {
   containsSensitiveInfo: boolean;
   created: string;
   name: string;
-  status: "in_progress" | "processing" | "completed";
+  status: DestructionListStatus;
   statusChanged: string | null;
   uuid: string;
 };
+
+export type DestructionListStatus =
+  | "ready_to_review"
+  | "changes_requested"
+  | "ready_to_delete"
+  | "deleted";
 
 export type DestructionListAssignee = {
   user: User;
