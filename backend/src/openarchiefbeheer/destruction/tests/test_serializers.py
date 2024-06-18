@@ -476,7 +476,56 @@ class DestructionListReviewSerializerTests(TestCase):
             ),
         )
 
-    def test_create_review_accepted(self):
+    def test_create_review_accepted_first_reviewer(self):
+        reviewer1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        reviewer2 = UserFactory.create(
+            username="reviewer2",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer1, status=ListStatus.ready_to_review
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=reviewer1,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=reviewer2,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.accepted,
+        }
+        request = factory.get("/foo")
+        request.user = reviewer1
+
+        serializer = DestructionListReviewSerializer(
+            data=data, context={"request": request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, reviewer2)
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
+
+    def test_create_review_accepted_last_reviewer(self):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
