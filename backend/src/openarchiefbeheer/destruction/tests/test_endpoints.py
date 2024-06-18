@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import ListItemStatus, ListRole, ReviewDecisionChoices
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import DestructionList, DestructionListItemReview, DestructionListReview
 from .factories import (
     DestructionListAssigneeFactory,
@@ -186,7 +186,10 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         destruction_list = DestructionListFactory.create(
-            name="A test list", contains_sensitive_info=True
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.new,
         )
         destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
@@ -231,6 +234,55 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             destruction_list.assignees.all().order_by("order")[1].user.pk, user3.pk
         )
+
+    def test_cannot_update_destruction_list_if_not_new(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_review,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.put(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_update_destruction_list_if_not_author(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager1,
+            status=ListStatus.new,
+        )
+
+        self.client.force_authenticate(user=record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.put(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_partially_update_destruction_list(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
