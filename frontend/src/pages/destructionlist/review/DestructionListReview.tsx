@@ -1,9 +1,14 @@
 import {
   AttributeData,
   Body,
+  Button,
   Form,
   FormField,
+  H2,
   Modal,
+  Outline,
+  P,
+  Tooltip,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import {
@@ -76,7 +81,7 @@ export function DestructionListReviewPage() {
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
   /* State to manage the count of selected zaken */
-  const [zaakSelectionCount, setZaakSelectionCount] = useState<number>(0);
+  const [zaakSelection, setZaakSelection] = useState<FormDataState[]>([]);
 
   /* State to manage the state of the zaak modal (when clicking a checkbox) */
   const [zaakModalDataState, setZaakModalDataState] =
@@ -186,7 +191,39 @@ export function DestructionListReviewPage() {
     const zaakSelectionSelected = Object.values(zaakSelection).filter(
       (f) => f.selected,
     );
-    setZaakSelectionCount(zaakSelectionSelected.length);
+    setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
+  };
+
+  const _zaken = {
+    ...zaken,
+    results: zaken.results.map((z) => {
+      const comment = zaakSelection.find((f) => f.uuid === z.uuid)?.motivation;
+
+      return {
+        ...z,
+        href: z.url as string,
+        action: comment && (
+          <Tooltip
+            key={`tooltip-${z.uuid}`}
+            content={
+              <>
+                <H2>Opmerking</H2>
+                <P>{comment}</P>
+              </>
+            }
+            placement={"bottom"}
+          >
+            <Button
+              variant="transparent"
+              key={`button-${z.uuid}`}
+              aria-label="Opmerking weergeven"
+            >
+              <Outline.ChatBubbleOvalLeftEllipsisIcon />
+            </Button>
+          </Tooltip>
+        ),
+      };
+    }),
   };
 
   return (
@@ -207,7 +244,7 @@ export function DestructionListReviewPage() {
         </Body>
       </Modal>
       <Modal
-        title={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        title={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
         open={listModalDataState.open}
         size="m"
         onClose={() => setListModalDataState({ open: false })}
@@ -217,15 +254,16 @@ export function DestructionListReviewPage() {
             fields={listModalFormFields}
             onSubmit={onSubmitDestructionListForm}
             validateOnChange
-            labelSubmit={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+            labelSubmit={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
           />
         </Body>
       </Modal>
+
       <DestructionListComponent
         storageKey={destructionListReviewKey}
-        zaken={zaken}
+        zaken={_zaken}
         selectedZaken={selectedZaken}
-        labelAction={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
         title={`${list.name} beoordelen`}
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}

@@ -24,12 +24,16 @@ import { ExpandZaak, Zaak } from "../../types";
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 
+interface PaginatedZakenResultsWithAction extends PaginatedZaken {
+  results: (Zaak & { action?: string })[];
+}
+
 /**
  * Hook that returns base props for most Zaak related DataGrid components.
  */
 export function useDataGridProps(
   storageKey: string,
-  paginatedResults: PaginatedZaken,
+  paginatedResults: PaginatedZakenResultsWithAction,
   selectedResults: (Zaak | { url: string })[],
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
@@ -340,6 +344,11 @@ export function getFields(
         { value: "true", label: "Ja" },
         { value: "false", label: "Nee" },
       ],
+    },
+    {
+      name: "action",
+      type: "action",
+      filterable: false,
     },
   ];
 }
