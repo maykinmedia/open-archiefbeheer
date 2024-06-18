@@ -1,7 +1,6 @@
 import { redirect } from "react-router-dom";
 
 import { logout } from "../../lib/api/auth";
-import { USER_SESSION_KEY } from "../../lib/hooks/useSession";
 
 /**
  * React Router loader.
@@ -9,6 +8,5 @@ import { USER_SESSION_KEY } from "../../lib/hooks/useSession";
  */
 export const logoutLoader = async () => {
   await logout();
-  sessionStorage.removeItem(USER_SESSION_KEY);
   return redirect("/login");
 };
