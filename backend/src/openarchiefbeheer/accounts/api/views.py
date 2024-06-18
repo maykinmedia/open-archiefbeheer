@@ -27,9 +27,7 @@ class ReviewersView(ListAPIView):
 
 @extend_schema(
     summary=_("Who Am I"),
-    description=_(
-        "Returns the current logged in user."
-    ),
+    description=_("Returns the current logged in user."),
     responses={
         200: UserSerializer(),
     },
