@@ -71,7 +71,8 @@ function getDisplayableList(
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { destructionList } = useLoaderData() as DestructionListDetailContext;
+  const { destructionList, reviewers } =
+    useLoaderData() as DestructionListDetailContext;
 
   // TODO - Make a 404 page
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
@@ -89,7 +90,10 @@ export function DestructionListDetailPage() {
                 />
               </Column>
               <Column span={9}>
-                <AssigneesEditable assignees={destructionList.assignees} />
+                <AssigneesEditable
+                  assignees={destructionList.assignees}
+                  reviewers={reviewers}
+                />
               </Column>
             </Grid>
           </P>

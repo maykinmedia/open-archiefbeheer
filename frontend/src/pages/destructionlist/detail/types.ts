@@ -17,6 +17,7 @@ export interface DestructionListDetailContext {
 
 export type AssigneesEditableProps = {
   assignees: DestructionListAssignee[];
+  reviewers: User[];
 };
 
 export type AssigneesFormProps = {
