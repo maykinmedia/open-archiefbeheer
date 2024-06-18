@@ -16,15 +16,12 @@ function App() {
   const match = matches[matches.length - 1];
   const handle = match?.handle as Record<string, unknown>;
 
-  const breadcrumbItems = (handle?.breadcrumbItems || []) as BreadcrumbItem[];
-  const lastBreadcrumbItem = breadcrumbItems[breadcrumbItems.length - 1];
-
-  if (lastBreadcrumbItem) {
-    lastBreadcrumbItem.label = formatMessage(
-      lastBreadcrumbItem.label,
-      match?.params as Record<string, string>,
-    );
-  }
+  const breadcrumbItems = (
+    (handle?.breadcrumbItems || []) as BreadcrumbItem[]
+  ).map((b) => ({
+    label: formatMessage(b.label, match?.params as Record<string, string>),
+    href: formatMessage(b.href, match?.params as Record<string, string>),
+  }));
 
   return (
     <div className="App">
