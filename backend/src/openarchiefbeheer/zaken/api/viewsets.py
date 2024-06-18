@@ -7,7 +7,10 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination as _PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
-from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
+from openarchiefbeheer.destruction.api.permissions import (
+    CanReviewPermission,
+    CanStartDestructionPermission,
+)
 
 from ..models import Zaak
 from .filtersets import ZaakFilter
@@ -28,7 +31,9 @@ class PageNumberPagination(_PageNumberPagination):
 class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Zaak.objects.all()
     serializer_class = ZaakSerializer
-    permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+    permission_classes = [
+        IsAuthenticated & (CanStartDestructionPermission | CanReviewPermission)
+    ]
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = ZaakFilter
