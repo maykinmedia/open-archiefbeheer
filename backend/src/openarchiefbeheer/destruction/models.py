@@ -125,7 +125,8 @@ class DestructionList(models.Model):
             self.set_status(ListStatus.ready_to_delete)
             return
 
-        next_reviewer = reviewers[self.assignee.order]
+        current_assignee = self.assignees.get(user=self.assignee)
+        next_reviewer = current_assignee.next()
         next_reviewer.assign()
 
 
