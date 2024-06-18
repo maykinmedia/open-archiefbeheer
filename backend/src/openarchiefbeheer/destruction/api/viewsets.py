@@ -12,7 +12,11 @@ from .filtersets import (
     DestructionListItemFilterset,
     DestructionListReviewFilterset,
 )
-from .permissions import CanReviewPermission, CanStartDestructionPermission
+from .permissions import (
+    CanReviewPermission,
+    CanStartDestructionPermission,
+    CanUpdateDestructionList,
+)
 from .serializers import (
     DestructionListItemSerializer,
     DestructionListResponseSerializer,
@@ -128,6 +132,8 @@ class DestructionListViewSet(
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+        elif self.action == "update":
+            permission_classes = [IsAuthenticated & CanUpdateDestructionList]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
