@@ -8,9 +8,10 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import DestructionList, DestructionListItemReview, DestructionListReview
 from .factories import (
+    DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListReviewFactory,
@@ -36,7 +37,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
         user1 = UserFactory.create(
             username="reviewer1", role__can_review_destruction=True
         )
@@ -76,9 +79,13 @@ class DestructionListViewSetTest(APITestCase):
 
         assignees = destruction_list.assignees.order_by("order")
 
-        self.assertEqual(assignees.count(), 2)
-        self.assertEqual(assignees[0].user.username, "reviewer1")
-        self.assertEqual(assignees[1].user.username, "reviewer2")
+        self.assertEqual(assignees.count(), 3)
+        self.assertEqual(assignees[0].user.username, "record_manager")
+        self.assertEqual(assignees[0].role, ListRole.author)
+        self.assertEqual(assignees[1].user.username, "reviewer1")
+        self.assertEqual(assignees[1].role, ListRole.reviewer)
+        self.assertEqual(assignees[2].user.username, "reviewer2")
+        self.assertEqual(assignees[2].role, ListRole.reviewer)
 
         items = destruction_list.items.order_by("zaak")
 
@@ -179,9 +186,12 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         destruction_list = DestructionListFactory.create(
-            name="A test list", contains_sensitive_info=True
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.new,
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
@@ -225,6 +235,55 @@ class DestructionListViewSetTest(APITestCase):
             destruction_list.assignees.all().order_by("order")[1].user.pk, user3.pk
         )
 
+    def test_cannot_update_destruction_list_if_not_new(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_review,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.put(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_update_destruction_list_if_not_author(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager1,
+            status=ListStatus.new,
+        )
+
+        self.client.force_authenticate(user=record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.put(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_partially_update_destruction_list(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
         user1 = UserFactory.create(
@@ -237,7 +296,7 @@ class DestructionListViewSetTest(APITestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
+        destruction_list.bulk_create_reviewers(
             [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
@@ -292,6 +351,57 @@ class DestructionListViewSetTest(APITestCase):
             [destruction_list["uuid"] for destruction_list in response.json()].sort(),
             [lists[0].uuid, lists[1].uuid].sort(),
         )
+
+    def test_cannot_make_requested_changes_if_not_author(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager1,
+            status=ListStatus.changes_requested,
+        )
+
+        self.client.force_authenticate(user=record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-make-requested-changes",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.patch(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_update_destruction_list_if_not_changes_requested(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_review,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-requested-changes",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.patch(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class DestructionListItemsViewSetTest(APITestCase):
@@ -424,6 +534,16 @@ class DestructionListReviewViewSetTest(APITestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(assignee=reviewer)
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=reviewer,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -451,6 +571,11 @@ class DestructionListReviewViewSetTest(APITestCase):
         destruction_list = DestructionListFactory.create(assignee=reviewer)
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
         )
 
         data = {

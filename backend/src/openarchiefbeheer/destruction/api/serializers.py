@@ -10,7 +10,7 @@ from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 
-from ..constants import ListItemStatus, ReviewDecisionChoices
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -107,10 +107,16 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def validate_assignees(
         self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
-        if len(assignees) != len(set([assignee["user"].pk for assignee in assignees])):
+        assignees_pks = [assignee["user"].pk for assignee in assignees]
+        if len(assignees) != len(set(assignees_pks)):
             raise ValidationError(
                 _("The same user should not be selected as a reviewer more than once.")
             )
+
+        author = self.context["request"].user
+        if author.pk in assignees_pks:
+            raise ValidationError(_("The author of a list cannot also be a reviewer."))
+
         return assignees
 
     def create(self, validated_data: dict) -> DestructionList:
@@ -119,12 +125,17 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         author = self.context["request"].user
         validated_data["author"] = author
+        validated_data["status"] = ListStatus.ready_to_review
         destruction_list = DestructionList.objects.create(**validated_data)
-
         destruction_list.bulk_create_items(items_data)
-        assignees = destruction_list.bulk_create_assignees(assignees_data)
 
-        destruction_list.assign(assignees[0])
+        # Create an assignee also for the author
+        DestructionListAssignee.objects.create(
+            user=author, destruction_list=destruction_list, role=ListRole.author
+        )
+        reviewers = destruction_list.bulk_create_reviewers(assignees_data)
+
+        destruction_list.assign(reviewers[0])
 
         logevent.destruction_list_created(destruction_list, author)
 
@@ -146,8 +157,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
             instance.bulk_create_items(items_data)
 
         if assignees_data is not None:
-            instance.assignees.all().delete()
-            instance.bulk_create_assignees(assignees_data)
+            instance.assignees.filter(role=ListRole.reviewer).delete()
+            instance.bulk_create_reviewers(assignees_data)
 
         instance.save()
 
@@ -298,5 +309,12 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             for zaak_review in zaken_reviews
         ]
         DestructionListItemReview.objects.bulk_create(review_items_data)
+
+        destruction_list = validated_data["destruction_list"]
+        if review.decision == ReviewDecisionChoices.accepted:
+            destruction_list.assign_next()
+        else:
+            destruction_list.set_status(ListStatus.changes_requested)
+            destruction_list.get_author().assign()
 
         return review

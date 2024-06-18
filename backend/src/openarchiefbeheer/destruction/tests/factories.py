@@ -11,6 +11,13 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
         model = "destruction.DestructionList"
 
 
+class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
+    destruction_list = factory.SubFactory(DestructionListFactory)
+
+    class Meta:
+        model = "destruction.DestructionListAssignee"
+
+
 class DestructionListItemFactory(factory.django.DjangoModelFactory):
     destruction_list = factory.SubFactory(DestructionListFactory)
     zaak = factory.Faker("url")
