@@ -10,7 +10,7 @@ import {
   listDestructionLists,
 } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
-import { useUser } from "../../lib/hooks/useUser";
+import { useSession } from "../../lib/hooks/useSession";
 import { timeAgo } from "../../lib/string";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import "./Landing.css";
@@ -69,7 +69,7 @@ export const landingLoader = loginRequired(
 
 export const Landing = () => {
   const lists = useLoaderData() as LandingLoaderReturn;
-  const { user } = useUser();
+  const { user } = useSession();
 
   const constructAssigneeNames = (assignees: DestructionList["assignees"]) => {
     const sortedAssignees = assignees.sort((a, b) => a.order - b.order);

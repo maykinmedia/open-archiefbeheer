@@ -4,7 +4,7 @@ import { User, whoAmI } from "../api/auth";
 
 export const USER_SESSION_KEY = "oab.lib.hooks.user";
 
-export const useUser = (): { user: User | null } => {
+export const useSession = (): { user: User | null } => {
   // Note: Possible improvement -> loading state? But this would require to handle this in the UI aswell. Maybe for the future
   const [user, setUser] = useSessionStorage<User | null>(
     USER_SESSION_KEY,

@@ -1,7 +1,7 @@
 import { redirect } from "react-router-dom";
 
 import { logout } from "../../lib/api/auth";
-import { USER_SESSION_KEY } from "../../lib/hooks/useUser";
+import { USER_SESSION_KEY } from "../../lib/hooks/useSession";
 
 /**
  * React Router loader.
