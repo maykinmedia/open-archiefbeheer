@@ -4,7 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from ..models import DestructionList, DestructionListItem, DestructionListReview
 from .filtersets import (
@@ -13,6 +15,7 @@ from .filtersets import (
     DestructionListReviewFilterset,
 )
 from .permissions import (
+    CanMakeRequestedChanges,
     CanReviewPermission,
     CanStartDestructionPermission,
     CanUpdateDestructionList,
@@ -134,6 +137,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
         elif self.action == "update":
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
+        elif self.action == "make_requested_changes":
+            permission_classes = [IsAuthenticated & CanMakeRequestedChanges]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -150,6 +155,12 @@ class DestructionListViewSet(
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
+
+    @action(detail=True, methods=["patch"], name="make-requested-changes")
+    def make_requested_changes(self, request, *args, **kwargs):
+        # Triggers the object permissions check
+        self.get_object()
+        return Response("Not implemented!")
 
 
 @extend_schema_view(
