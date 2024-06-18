@@ -5,12 +5,12 @@ import {
   IKanbanCardProps,
   KanbanCard,
 } from "../../components/KanbanCard/KanbanCard";
+import { User, whoAmI } from "../../lib/api/auth";
 import {
   DestructionList,
   listDestructionLists,
 } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/api/loginRequired";
-import { useSession } from "../../lib/hooks/useSession";
 import { timeAgo } from "../../lib/string";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import "./Landing.css";
@@ -47,13 +47,16 @@ const STATUSES: FieldSet[] = [
 ];
 
 interface LandingLoaderReturn {
-  [key: string]: DestructionList[];
+  statusMap: { [key: string]: DestructionList[] };
+  user: User | null;
 }
 
 export const landingLoader = loginRequired(
   async (): Promise<LandingLoaderReturn> => {
-    const lists = await listDestructionLists();
+    const listsPromise = listDestructionLists();
+    const userPromise = whoAmI();
 
+    const [lists, user] = await Promise.all([listsPromise, userPromise]);
     // Initialize statusMap with empty arrays for each status
     const statusMap = STATUSES.reduce((acc, val) => {
       const status = val[0] || "";
@@ -63,13 +66,15 @@ export const landingLoader = loginRequired(
       return { ...acc, [status]: destructionLists };
     }, {});
 
-    return statusMap;
+    return {
+      statusMap,
+      user,
+    };
   },
 );
 
 export const Landing = () => {
-  const lists = useLoaderData() as LandingLoaderReturn;
-  const { user } = useSession();
+  const { statusMap, user } = useLoaderData() as LandingLoaderReturn;
 
   const constructAssigneeNames = (assignees: DestructionList["assignees"]) => {
     const sortedAssignees = assignees.sort((a, b) => a.order - b.order);
@@ -85,9 +90,6 @@ export const Landing = () => {
    * Determines the href for a given destruction list based on its status and the user's role.
    *
    * Status and behavior:
-   * - "New":
-   *   - If the user is the assignee of the list -> detail page.
-   *   - Any other case -> undefined.
    * - "Changes Requested":
    *   - If the user is the assignee of the list -> detail page.
    *   - Any other case -> undefined.
@@ -100,9 +102,7 @@ export const Landing = () => {
    *   - undefined.
    */
   const constructHref = (list: DestructionList): string | undefined => {
-    const isAssignee = list.assignees.some(
-      (assignee) => assignee.user.pk === user?.pk,
-    );
+    const isAssignee = list.assignee.pk === user?.pk;
 
     switch (list.status) {
       case "changes_requested":
@@ -118,7 +118,7 @@ export const Landing = () => {
     }
   };
 
-  const objectLists = Object.values(lists).map((lists) =>
+  const objectLists = Object.values(statusMap).map((lists) =>
     lists.map(
       (list) =>
         ({
