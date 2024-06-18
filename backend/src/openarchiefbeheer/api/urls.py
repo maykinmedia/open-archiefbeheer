@@ -7,7 +7,7 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
-from openarchiefbeheer.accounts.api.views import ReviewersView
+from openarchiefbeheer.accounts.api.views import ReviewersView, WhoAmIView
 from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
@@ -66,6 +66,7 @@ urlpatterns = [
         include(
             [
                 path("reviewers/", ReviewersView.as_view(), name="reviewers"),
+                path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path(
                     "_retrieve_zaken/", CacheZakenView.as_view(), name="retrieve-zaken"
                 ),
