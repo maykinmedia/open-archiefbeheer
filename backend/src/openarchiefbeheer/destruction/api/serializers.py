@@ -107,10 +107,16 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def validate_assignees(
         self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
-        if len(assignees) != len(set([assignee["user"].pk for assignee in assignees])):
+        assignees_pks = [assignee["user"].pk for assignee in assignees]
+        if len(assignees) != len(set(assignees_pks)):
             raise ValidationError(
                 _("The same user should not be selected as a reviewer more than once.")
             )
+
+        author = self.context["request"].user
+        if author.pk in assignees_pks:
+            raise ValidationError(_("The author of a list cannot also be a reviewer."))
+
         return assignees
 
     def create(self, validated_data: dict) -> DestructionList:
