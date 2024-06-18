@@ -25,5 +25,4 @@ from ..constants import ListStatus
 )
 class ListStatusesListView(APIView):
     def get(self, request):
-        choices = ListStatus.choices
-        return Response(choices)
+        return Response(ListStatus.choices)

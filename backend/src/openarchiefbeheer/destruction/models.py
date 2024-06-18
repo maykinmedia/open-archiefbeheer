@@ -127,7 +127,6 @@ class DestructionList(models.Model):
 
         next_reviewer = reviewers[self.assignee.order]
         next_reviewer.assign()
-        return next_reviewer
 
 
 class DestructionListItem(models.Model):
