@@ -352,6 +352,57 @@ class DestructionListViewSetTest(APITestCase):
             [lists[0].uuid, lists[1].uuid].sort(),
         )
 
+    def test_cannot_make_requested_changes_if_not_author(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager1,
+            status=ListStatus.changes_requested,
+        )
+
+        self.client.force_authenticate(user=record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-make-requested-changes",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.patch(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_update_destruction_list_if_not_changes_requested(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_review,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-requested-changes",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.patch(
+            endpoint,
+            data={
+                "name": "An updated test list",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class DestructionListItemsViewSetTest(APITestCase):
     def test_not_authenticated(self):
