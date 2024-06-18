@@ -80,7 +80,7 @@ const router = createBrowserRouter([
             },
             {
               label: "{uuid}",
-              href: "/destruction-lists/create",
+              href: "/destruction-lists/{uuid}",
             },
           ] as BreadcrumbItem[],
         },
@@ -90,6 +90,22 @@ const router = createBrowserRouter([
         loader: destructionListReviewLoader,
         element: <DestructionListReviewPage />,
         action: destructionListReviewAction,
+        handle: {
+          breadcrumbItems: [
+            {
+              label: "Vernietigingslijsten",
+              href: "/destruction-lists",
+            },
+            {
+              label: "{uuid}",
+              href: "/destruction-lists/{uuid}",
+            },
+            {
+              label: "Beoordelen",
+              href: "/destruction-lists/{uuid}/review",
+            },
+          ] as BreadcrumbItem[],
+        },
       },
       {
         path: "/login",
