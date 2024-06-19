@@ -14,7 +14,11 @@ from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListReviewViewSet,
     DestructionListViewSet,
 )
-from openarchiefbeheer.zaken.api.views import CacheZakenView, ZaaktypenChoicesView
+from openarchiefbeheer.zaken.api.views import (
+    CacheZakenView,
+    SelectielijstklasseChoicesView,
+    ZaaktypenChoicesView,
+)
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
 app_name = "api"
@@ -80,6 +84,11 @@ urlpatterns = [
                     "_zaaktypen-choices/",
                     ZaaktypenChoicesView.as_view(),
                     name="retrieve-zaaktypen-choices",
+                ),
+                path(
+                    "_selectielijstklasse-choices",
+                    SelectielijstklasseChoicesView.as_view(),
+                    name="retrieve-selectielijstklasse-choices",
                 ),
                 path("", include(router.urls)),
             ]

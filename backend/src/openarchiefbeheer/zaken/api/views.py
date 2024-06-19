@@ -10,9 +10,14 @@ from rest_framework.views import APIView
 
 from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
 
+from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
-from ..utils import retrieve_zaaktypen_choices
-from .serializers import ZaaktypeChoiceSerializer
+from ..utils import retrieve_selectielijstklasse_choices, retrieve_zaaktypen_choices
+from .serializers import (
+    SelectielijstklasseChoicesQueryParamSerializer,
+    SelectielijstklasseChoicesSerializer,
+    ZaaktypeChoiceSerializer,
+)
 
 
 class CacheZakenView(APIView):
@@ -49,3 +54,35 @@ class ZaaktypenChoicesView(APIView):
         serializer = ZaaktypeChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SelectielijstklasseChoicesView(APIView):
+    permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+
+    @extend_schema(
+        summary=_("Retrieve selectielijstklasse choices"),
+        description=_(
+            "This takes the 'selectielijstprocestype' from the 'zaaktype', "
+            "then retrieves all the 'resultaten' possible for this 'procestype' from the selectielijst API."
+        ),
+        tags=["private"],
+        responses={
+            200: SelectielijstklasseChoicesSerializer,
+        },
+        parameters=[SelectielijstklasseChoicesQueryParamSerializer],
+    )
+    def get(self, request, *args, **kwargs):
+        seralizer = SelectielijstklasseChoicesQueryParamSerializer(
+            data=request.query_params
+        )
+        seralizer.is_valid(raise_exception=True)
+
+        zaak = Zaak.objects.get(url=seralizer.validated_data["zaak"])
+
+        processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
+
+        if not processtype:
+            return Response(data=[])
+
+        choices = retrieve_selectielijstklasse_choices(processtype["url"])
+        return Response(data=choices)
