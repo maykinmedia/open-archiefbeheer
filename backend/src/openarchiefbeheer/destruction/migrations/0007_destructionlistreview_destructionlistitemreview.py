@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                     "feedback",
                     models.TextField(
                         blank=False,
-                        help_text="If 'other' was selected in the field 'requested change', feedback about what should be done with the case can be provided here.",
+                        help_text="What needs to be changed about the case.",
                         max_length=2000,
                         verbose_name="feedback",
                     ),

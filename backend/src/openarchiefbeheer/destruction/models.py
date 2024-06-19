@@ -289,10 +289,7 @@ class DestructionListItemReview(models.Model):
         _("feedback"),
         max_length=2000,
         blank=False,
-        help_text=_(
-            "If 'other' was selected in the field 'requested change', "
-            "feedback about what should be done with the case can be provided here."
-        ),
+        help_text=_("What needs to be changed about the case."),
     )
 
     class Meta:
