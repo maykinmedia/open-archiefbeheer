@@ -26,7 +26,10 @@ class ZaakFactory(factory.django.DjangoModelFactory):
             _expand={
                 "zaaktype": {
                     "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
-                    "selectielijst_procestype": {"nummer": 1},
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                        "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    },
                     "omschrijving": "Aangifte behandelen",
                 },
                 "resultaat": {
