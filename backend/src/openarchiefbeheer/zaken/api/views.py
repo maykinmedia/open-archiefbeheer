@@ -8,7 +8,10 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
+from openarchiefbeheer.destruction.api.permissions import (
+    CanReviewPermission,
+    CanStartDestructionPermission,
+)
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
@@ -34,7 +37,9 @@ class CacheZakenView(APIView):
 
 
 class ZaaktypenChoicesView(APIView):
-    permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+    permission_classes = [
+        IsAuthenticated & (CanStartDestructionPermission | CanReviewPermission)
+    ]
 
     @extend_schema(
         summary=_("Retrieve zaaktypen choices"),
