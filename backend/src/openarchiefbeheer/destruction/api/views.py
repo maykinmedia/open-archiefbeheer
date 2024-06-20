@@ -9,9 +9,9 @@ from ..constants import ListStatus
 
 
 @extend_schema(
+    tags=["Destruction list"],
     summary=_("List destruction list statuses"),
     description=_("List the possible statuses that a destruction lists can have."),
-    tags=["statuses"],
     responses={
         200: build_array_type(build_array_type(build_basic_type(OpenApiTypes.STR)))
     },

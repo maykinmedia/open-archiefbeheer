@@ -30,11 +30,13 @@ from .serializers import (
 
 @extend_schema_view(
     list=extend_schema(
+        tags=["Destruction list"],
         summary=_("List destruction lists"),
         description=_("List all destruction lists."),
-        responses={200: DestructionListResponseSerializer(many=True)},
+        responses={200: DestructionListAPIResponseSerializer(many=True)},
     ),
     create=extend_schema(
+        tags=["Destruction list"],
         summary=_("Create destruction list"),
         description=_("Create a new destruction list."),
         examples=[
@@ -63,6 +65,7 @@ from .serializers import (
         ],
     ),
     update=extend_schema(
+        tags=["Destruction list"],
         summary=_("Update destruction list"),
         description=_(
             "Update a destruction list. "
@@ -94,6 +97,7 @@ from .serializers import (
         ],
     ),
     partial_update=extend_schema(
+        tags=["Destruction list"],
         summary=_("Partially update a destruction list"),
         description=_(
             "Partially update a destruction list. "
@@ -114,9 +118,17 @@ from .serializers import (
         ],
     ),
     retrieve=extend_schema(
+        tags=["Destruction list"],
         summary=_("Retrieve destruction list"),
         description=_("Retrieve details about a destruction list."),
-        responses={200: DestructionListResponseSerializer},
+        responses={200: DestructionListAPIResponseSerializer},
+    ),
+    make_requested_changes=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Make requested changes"),
+        description=_(
+            "Update a destruction list after a reviewer has requested changes."
+        ),
     ),
 )
 class DestructionListViewSet(
@@ -145,7 +157,7 @@ class DestructionListViewSet(
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
-            return DestructionListResponseSerializer
+            return DestructionListAPIResponseSerializer
         return self.serializer_class
 
     @transaction.atomic
@@ -165,6 +177,7 @@ class DestructionListViewSet(
 
 @extend_schema_view(
     list=extend_schema(
+        tags=["Destruction list"],
         summary=_("List destruction list items"),
         description=_(
             "List all the items (cases) that are related to a destruction list."
@@ -183,13 +196,15 @@ class DestructionListItemsViewSet(
 
 @extend_schema_view(
     list=extend_schema(
-        summary=_("List destruction list reviews"),
+        tags=["Reviews"],
+        summary=_("List reviews"),
         description=_(
             "List all the reviews that have been made for a destruction list."
         ),
     ),
     create=extend_schema(
-        summary=_("Create a destruction list review"),
+        tags=["Reviews"],
+        summary=_("Create review"),
         description=_(
             "Create a review for a destruction list. "
             "Only the user currently assigned to the destruction list can create a review."

@@ -168,7 +168,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DestructionListResponseSerializer(serializers.ModelSerializer):
+class DestructionListAPIResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
