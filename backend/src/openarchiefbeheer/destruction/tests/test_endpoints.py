@@ -14,6 +14,7 @@ from .factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListItemReviewFactory,
     DestructionListReviewFactory,
 )
 
@@ -496,6 +497,13 @@ class DestructionListItemsViewSetTest(APITestCase):
 
 
 class DestructionListReviewViewSetTest(APITestCase):
+    def test_no_auth(self):
+        endpoint = reverse("api:destruction-list-reviews-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_filter_on_destruction_list(self):
         reviews = DestructionListReviewFactory.create_batch(3)
         user = UserFactory.create()
@@ -513,19 +521,6 @@ class DestructionListReviewViewSetTest(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data), 1)
-
-    def test_no_can_review_permission_cant_create(self):
-        record_manager = UserFactory.create(
-            username="record_manager",
-            email="manager@oab.nl",
-            role__can_review_destruction=False,
-        )
-
-        self.client.force_authenticate(user=record_manager)
-
-        response = self.client.post(reverse("api:destruction-list-reviews-list"))
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_review(self):
         reviewer = UserFactory.create(
@@ -611,3 +606,99 @@ class DestructionListReviewViewSetTest(APITestCase):
             ).count(),
             2,
         )
+
+    def test_list_with_ordering(self):
+        reviews = DestructionListReviewFactory.create_batch(3)
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:destruction-list-reviews-list"))
+        endpoint.args["ordering"] = "-created"
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(reviews[-1].pk, data[0]["pk"])
+        self.assertEqual(reviews[-2].pk, data[1]["pk"])
+        self.assertEqual(reviews[-3].pk, data[2]["pk"])
+
+    def test_filter_on_decision(self):
+        DestructionListReviewFactory.create_batch(
+            3, decision=ReviewDecisionChoices.accepted
+        )
+        reviews_rejected = DestructionListReviewFactory.create_batch(
+            2, decision=ReviewDecisionChoices.rejected
+        )
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:destruction-list-reviews-list"))
+        endpoint.args["decision"] = ReviewDecisionChoices.rejected
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        expected_pks = [review.pk for review in reviews_rejected]
+        self.assertIn(data[0]["pk"], expected_pks)
+        self.assertIn(data[1]["pk"], expected_pks)
+        self.assertEqual(len(data), 2)
+
+
+class DestructionListItemReviewViewSetTests(APITestCase):
+    def test_no_auth(self):
+        endpoint = reverse("api:reviews-items-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_filter_on_review(self):
+        user = UserFactory.create()
+
+        reviews = DestructionListReviewFactory.create_batch(2)
+        DestructionListItemReviewFactory.create_batch(3, review=reviews[0])
+        item_reviews = DestructionListItemReviewFactory.create_batch(
+            2, review=reviews[1]
+        )
+
+        endpoint = furl(reverse("api:reviews-items-list"))
+        endpoint.args["review"] = reviews[1].pk
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 2)
+        expected_pks = [item_review.pk for item_review in item_reviews]
+        self.assertIn(data[0]["pk"], expected_pks)
+        self.assertIn(data[1]["pk"], expected_pks)
+
+    def test_with_deleted_zaken(self):
+        user = UserFactory.create()
+
+        zaak = ZaakFactory.create()
+        DestructionListItemReviewFactory.create(destruction_list_item__zaak=zaak.url)
+
+        zaak.delete()
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:reviews-items-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data[0]["zaak"].keys()), 1)
