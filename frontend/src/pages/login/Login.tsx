@@ -1,4 +1,4 @@
-import { LoginTemplate } from "@maykin-ui/admin-ui";
+import { AttributeData, LoginTemplate } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect, useActionData, useSubmit } from "react-router-dom";
 
@@ -61,7 +61,8 @@ export function LoginPage({ ...props }: LoginProps) {
         nonFieldErrors,
         errors,
         fields,
-        onSubmit: (_, data) => submit(data, { method: "POST" }),
+        onSubmit: (_, data) =>
+          submit(data as AttributeData<string>, { method: "POST" }),
       }}
       {...props}
     />
