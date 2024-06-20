@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import (
+    DestructionListItemAction,
     ListItemStatus,
     ListRole,
     ListStatus,
@@ -301,3 +302,63 @@ class DestructionListItemReview(models.Model):
 
     def __str__(self):
         return f"Case review for {self.destruction_list} ({self.destruction_list_item})"
+
+
+class ReviewResponse(models.Model):
+    review = models.ForeignKey(
+        DestructionListReview,
+        on_delete=models.CASCADE,
+        related_name="responses",
+        verbose_name=_("review"),
+    )
+    comment = models.TextField(
+        _("comment"),
+        max_length=2000,
+        blank=True,
+        help_text=_("The response of the author of the destruction list to a review."),
+    )
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("review response")
+        verbose_name_plural = _("review responses")
+
+    def __str__(self):
+        return f"Response to {self.review}"
+
+
+class ReviewItemResponse(models.Model):
+    review_item = models.ForeignKey(
+        DestructionListItemReview,
+        on_delete=models.CASCADE,
+        related_name="item_responses",
+        verbose_name=_("review item"),
+    )
+    action_item = models.CharField(
+        _("action item"),
+        choices=DestructionListItemAction.choices,
+        max_length=80,
+    )
+    action_zaak = models.JSONField(
+        _("action case"),
+        blank=True,
+        help_text=_("Fields that should be changed on the case."),
+        null=True,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(
+        _("comment"),
+        max_length=2000,
+        blank=True,
+        help_text=_(
+            "The response of the author of the destruction list to "
+            "feedback of the reviewer on a specific case."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("review item response")
+        verbose_name_plural = _("review item responses")
+
+    def __str__(self):
+        return f"Response to {self.review_item}"
