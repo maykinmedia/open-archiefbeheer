@@ -82,14 +82,17 @@ export function useDataGridProps(
     );
   }, []);
 
-  const fields = getFields(searchParams, zaaktypeChoicesState).map((field) => {
-    const isActiveFromStorage = fieldSelectionState?.[field.name];
-    const isActive =
-      typeof isActiveFromStorage === "undefined"
-        ? field.active !== false
-        : isActiveFromStorage;
-    return { ...field, active: isActive } as TypedField;
-  });
+  const hasAction = paginatedResults.results.some((zaak) => zaak.action);
+  const fields = getFields(searchParams, zaaktypeChoicesState, hasAction).map(
+    (field) => {
+      const isActiveFromStorage = fieldSelectionState?.[field.name];
+      const isActive =
+        typeof isActiveFromStorage === "undefined"
+          ? field.active !== false
+          : isActiveFromStorage;
+      return { ...field, active: isActive } as TypedField;
+    },
+  );
 
   //
   // Get object list.
@@ -227,6 +230,7 @@ export function useDataGridProps(
 export function getFields(
   searchParams: URLSearchParams,
   zaaktypeChoices: ZaaktypeChoice[],
+  hasAction: boolean,
 ): TypedField[] {
   return [
     {
@@ -345,10 +349,15 @@ export function getFields(
         { value: "false", label: "Nee" },
       ],
     },
-    {
-      name: "action",
-      type: "action",
-      filterable: false,
-    },
+    // Only show action column if there are actions to show
+    ...(hasAction
+      ? [
+          {
+            name: "action",
+            type: "action",
+            filterable: false,
+          },
+        ]
+      : []),
   ];
 }
