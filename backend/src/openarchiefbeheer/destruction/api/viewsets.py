@@ -8,21 +8,27 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from ..models import DestructionList, DestructionListItem, DestructionListReview
+from ..models import (
+    DestructionList,
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+)
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
     DestructionListReviewFilterset,
+    DestructionListReviewItemFilterset,
 )
 from .permissions import (
     CanMakeRequestedChanges,
-    CanReviewPermission,
     CanStartDestructionPermission,
     CanUpdateDestructionList,
 )
 from .serializers import (
+    DestructionListAPIResponseSerializer,
+    DestructionListItemReviewSerializer,
     DestructionListItemSerializer,
-    DestructionListResponseSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
 )
@@ -221,9 +227,18 @@ class DestructionListReviewViewSet(
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListReviewFilterset
 
-    def get_permissions(self):
-        if self.action == "create":
-            permission_classes = [IsAuthenticated & CanReviewPermission]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Reviews"],
+        summary=_("List review items"),
+        description=_(
+            "List all the feedback to specific cases within a destruction list."
+        ),
+    ),
+)
+class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = DestructionListItemReviewSerializer
+    queryset = DestructionListItemReview.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListReviewItemFilterset

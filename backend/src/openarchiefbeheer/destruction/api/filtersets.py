@@ -1,8 +1,13 @@
 from django.db.models import QuerySet
 
-from django_filters import FilterSet, NumberFilter, UUIDFilter
+from django_filters import FilterSet, NumberFilter, OrderingFilter, UUIDFilter
 
-from ..models import DestructionList, DestructionListItem, DestructionListReview
+from ..models import (
+    DestructionList,
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+)
 
 
 class DestructionListItemFilterset(FilterSet):
@@ -28,12 +33,20 @@ class DestructionListReviewFilterset(FilterSet):
         help_text="The UUID of the destruction list.",
         method="filter_destruction_list_uuid",
     )
+    ordering = OrderingFilter(fields=("created", "created"))
 
     class Meta:
         model = DestructionListReview
-        fields = ("destruction_list", "destruction_list__uuid")
+        fields = ("destruction_list", "destruction_list__uuid", "decision", "ordering")
 
     def filter_destruction_list_uuid(
         self, queryset: QuerySet[DestructionListReview], name: str, value: str
     ):
         return queryset.filter(destruction_list__uuid=value)
+
+
+class DestructionListReviewItemFilterset(FilterSet):
+
+    class Meta:
+        model = DestructionListItemReview
+        fields = ("review",)
