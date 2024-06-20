@@ -1,10 +1,14 @@
-import { AttributeData, FieldSet, KanbanTemplate } from "@maykin-ui/admin-ui";
+import {
+  AttributeData,
+  Badge,
+  FieldSet,
+  KanbanTemplate,
+  P,
+  Tooltip,
+} from "@maykin-ui/admin-ui";
+import React from "react";
 import { useLoaderData } from "react-router-dom";
 
-import {
-  IKanbanCardProps,
-  KanbanCard,
-} from "../../components/KanbanCard/KanbanCard";
 import { User, whoAmI } from "../../lib/api/auth";
 import {
   DestructionList,
@@ -13,35 +17,32 @@ import {
 import { loginRequired } from "../../lib/api/loginRequired";
 import { timeAgo } from "../../lib/string";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
+import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
 
 const STATUSES: FieldSet[] = [
   [
     STATUS_MAPPING.changes_requested,
     {
-      fields: [],
-      component: KanbanCard,
+      fields: ["assignees"],
     },
   ],
   [
     STATUS_MAPPING.ready_to_review,
     {
-      fields: [],
-      component: KanbanCard,
+      fields: ["assignees"],
     },
   ],
   [
     STATUS_MAPPING.ready_to_delete,
     {
-      fields: [],
-      component: KanbanCard,
+      fields: ["assignees"],
     },
   ],
   [
     STATUS_MAPPING.deleted,
     {
-      fields: [],
-      component: KanbanCard,
+      fields: ["assignees"],
     },
   ],
 ];
@@ -76,16 +77,6 @@ export const landingLoader = loginRequired(
 export const Landing = () => {
   const { statusMap, user } = useLoaderData() as LandingLoaderReturn;
 
-  const constructAssigneeNames = (assignees: DestructionList["assignees"]) => {
-    const sortedAssignees = assignees.sort((a, b) => a.order - b.order);
-    const getName = (assignee: DestructionList["assignees"][0]["user"]) =>
-      // If there's a first and last name, return the full name otherwise we return the username
-      assignee.firstName && assignee.lastName
-        ? `${assignee.firstName} ${assignee.lastName} (${assignee.role.name})`
-        : `${assignee.username} (${assignee.role.name})`;
-    return sortedAssignees.map((assignee) => getName(assignee.user));
-  };
-
   /**
    * Determines the href for a given destruction list based on its status and the user's role.
    *
@@ -118,26 +109,45 @@ export const Landing = () => {
     }
   };
 
-  const objectLists = Object.values(statusMap).map((lists) =>
-    lists.map(
-      (list) =>
-        ({
-          key: list.name,
-          title: list.name,
-          days: timeAgo(list.created),
-          assigneeNames: constructAssigneeNames(list.assignees),
-          href: constructHref(list),
-        }) satisfies IKanbanCardProps & { key: string; href?: string },
-    ),
-  ) as unknown as AttributeData[][];
+  const objectLists: AttributeData[][] = Object.values(statusMap).map((lists) =>
+    lists.map((list) => {
+      const firstAssignee = list.assignees[0];
+      const otherAssignees = [...list.assignees].splice(1);
 
+      const footer = (
+        <P muted size="xs">
+          {formatUser(firstAssignee.user)}
+          {otherAssignees.length && <strong> +{otherAssignees.length}</strong>}
+        </P>
+      );
+
+      return {
+        key: list.name,
+        href: constructHref(list),
+        title: list.name,
+        timeAgo: timeAgo(list.created),
+        assignees: otherAssignees.length ? (
+          <Tooltip
+            content={otherAssignees.map((a) => formatUser(a.user)).join(", ")}
+            placement="top"
+          >
+            <span>{footer}</span>
+          </Tooltip>
+        ) : (
+          footer
+        ),
+      };
+    }),
+  );
   return (
     <KanbanTemplate
       kanbanProps={{
-        draggable: false,
         title: "Vernietigingslijsten",
         fieldsets: STATUSES,
         objectLists: objectLists,
+        renderPreview: (object: AttributeData) => (
+          <Badge>{object.timeAgo as string}</Badge>
+        ),
       }}
     />
   );

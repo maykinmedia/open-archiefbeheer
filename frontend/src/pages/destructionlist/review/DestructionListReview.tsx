@@ -169,7 +169,7 @@ export function DestructionListReviewPage() {
     submit(
       {
         details: {
-          listFeedback: data.list_feedback,
+          listFeedback: data.list_feedback as string,
         },
       },
       { method: "POST", encType: "application/json" },
