@@ -17,6 +17,8 @@ from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewItemResponse,
+    ReviewResponse,
 )
 
 
@@ -318,3 +320,27 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             destruction_list.get_author().assign()
 
         return review
+
+
+class ActionZaakSerializer(serializers.Serializer):
+    selectielijstklasse = serializers.URLField(
+        required=False,
+        help_text=_("The URL of to a 'resultaat' resource from the selectielijst API."),
+    )
+    archiefactiedatum = serializers.DateField(
+        required=False, help_text=_("A new date for when this case should be archived.")
+    )
+
+
+class ReviewItemResponseSerializer(serializers.ModelSerializer):
+    action_zaak = ActionZaakSerializer()
+
+    class Meta:
+        model = ReviewItemResponse
+        fields = ("review_item", "action_item", "action_zaak", "created", "comment")
+
+
+class ReviewResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewResponse
+        fields = ("review", "comment", "created")
