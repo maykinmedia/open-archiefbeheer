@@ -198,6 +198,7 @@ export function useDataGridProps(
       };
     },
     sort: searchParams.get("ordering") || true, // fixme
+    tableLayout: "fixed",
     onPageChange,
     onFieldsChange,
     onFilter,
@@ -229,6 +230,7 @@ export function getFields(
       filterLookup: "identificatie__icontains",
       filterValue: searchParams.get("identificatie__icontains") || "",
       type: "string",
+      width: "300px",
     },
     {
       name: "archiefnominatie",
@@ -237,6 +239,7 @@ export function getFields(
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
         { label: "Vernietigen", value: "vernietigen" },
       ],
+      width: "180px",
     },
     {
       name: "resultaat",
@@ -246,14 +249,17 @@ export function getFields(
         "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
+      width: "180px",
     },
     {
       name: "startdatum",
       type: "daterange",
+      width: "150px",
     },
     {
       name: "einddatum",
       type: "daterange",
+      width: "150px",
     },
     {
       name: "zaaktype",
@@ -262,18 +268,21 @@ export function getFields(
       valueLookup: "_expand.zaaktype.omschrijving",
       options: zaaktypeChoices,
       type: "string",
+      width: "300px",
     },
     {
       name: "omschrijving",
       filterLookup: "omschrijving__icontains",
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
+      width: "300px",
     },
     {
       active: false,
       name: "toelichting",
       type: "string",
       filterLookup: "toelichting__icontains",
+      width: "300px",
     },
     {
       name: "Behandelend afdeling",
@@ -299,21 +308,25 @@ export function getFields(
         });
         return behandelendAfdeling.join(", ");
       },
+      width: "180px",
     },
     {
       name: "archiefactiedatum",
       type: "daterange",
+      width: "130px",
     },
     {
       active: false,
       name: "selectielijstklasse",
       type: "string",
       // filterLookup: // TODO: Expand?
+      width: "180px",
     },
     {
       name: "hoofdzaak",
       type: "string",
       // valueLookup: // TODO: Expand?
+      width: "180px",
     },
     {
       active: false,
