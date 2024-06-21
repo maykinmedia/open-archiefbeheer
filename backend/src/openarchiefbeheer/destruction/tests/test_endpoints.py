@@ -8,8 +8,20 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
-from ..models import DestructionList, DestructionListItemReview, DestructionListReview
+from ..constants import (
+    DestructionListItemAction,
+    ListItemStatus,
+    ListRole,
+    ListStatus,
+    ReviewDecisionChoices,
+)
+from ..models import (
+    DestructionList,
+    DestructionListItemReview,
+    DestructionListReview,
+    ReviewItemResponse,
+    ReviewResponse,
+)
 from .factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -355,57 +367,6 @@ class DestructionListViewSetTest(APITestCase):
             [lists[0].uuid, lists[1].uuid].sort(),
         )
 
-    def test_cannot_make_requested_changes_if_not_author(self):
-        record_manager1 = UserFactory.create(role__can_start_destruction=True)
-        record_manager2 = UserFactory.create(role__can_start_destruction=True)
-
-        destruction_list = DestructionListFactory.create(
-            name="A test list",
-            contains_sensitive_info=True,
-            author=record_manager1,
-            status=ListStatus.changes_requested,
-        )
-
-        self.client.force_authenticate(user=record_manager2)
-        endpoint = reverse(
-            "api:destructionlist-make-requested-changes",
-            kwargs={"uuid": destruction_list.uuid},
-        )
-        response = self.client.patch(
-            endpoint,
-            data={
-                "name": "An updated test list",
-            },
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_cannot_update_destruction_list_if_not_changes_requested(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
-
-        destruction_list = DestructionListFactory.create(
-            name="A test list",
-            contains_sensitive_info=True,
-            author=record_manager,
-            status=ListStatus.ready_to_review,
-        )
-
-        self.client.force_authenticate(user=record_manager)
-        endpoint = reverse(
-            "api:destructionlist-make-requested-changes",
-            kwargs={"uuid": destruction_list.uuid},
-        )
-        response = self.client.patch(
-            endpoint,
-            data={
-                "name": "An updated test list",
-            },
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
 
 class DestructionListItemsViewSetTest(APITestCase):
     def test_not_authenticated(self):
@@ -717,8 +678,8 @@ class ReviewResponsesViewSetTests(APITestCase):
     def test_filter_on_review(self):
         user = UserFactory.create()
 
-        review = DestructionListReviewFactory.create()
-        response = ReviewResponseFactory.create(review=review)
+        review = DestructionListReviewFactory.create(destruction_list__name="List 1")
+        review_response = ReviewResponseFactory.create(review=review)
         ReviewItemResponseFactory.create_batch(2, review_item__review=review)
         another_response = ReviewResponseFactory.create()
         ReviewItemResponseFactory.create(review_item__review=another_response.review)
@@ -734,5 +695,133 @@ class ReviewResponsesViewSetTests(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["pk"], review.pk)
+        self.assertEqual(data[0]["pk"], review_response.pk)
         self.assertEqual(len(data[0]["itemsResponses"]), 2)
+
+    def test_create_review_response(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_reviews = DestructionListItemReviewFactory.create_batch(
+            3,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        endpoint = reverse("api:review-responses-list")
+        self.client.force_authenticate(user=record_manager)
+
+        response = self.client.post(
+            endpoint,
+            data={
+                "review": review.pk,
+                "comment": "A comment about the review.",
+                "itemsResponses": [
+                    {
+                        "reviewItem": items_reviews[0].pk,
+                        "actionItem": DestructionListItemAction.keep,
+                        "comment": "This zaak needs to stay in the list.",
+                    },
+                    {
+                        "reviewItem": items_reviews[1].pk,
+                        "actionItem": DestructionListItemAction.remove,
+                        "actionZaak": {"selectielijstklasse": "http://some-url.nl"},
+                        "comment": "Changed the selectielijstklasse and removed from the list.",
+                    },
+                    {
+                        "reviewItem": items_reviews[2].pk,
+                        "actionItem": DestructionListItemAction.remove,
+                        "actionZaak": {"archiefactiedatum": "2030-01-01"},
+                        "comment": "Changed the archiefactiedatum and removed from the list.",
+                    },
+                ],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ReviewResponse.objects.filter(review=review).count(), 1)
+        self.assertEqual(
+            ReviewItemResponse.objects.filter(review_item__review=review).count(), 3
+        )
+
+        item_response1 = ReviewItemResponse.objects.get(review_item=items_reviews[0].pk)
+
+        self.assertEqual(item_response1.action_item, DestructionListItemAction.keep)
+        self.assertEqual(item_response1.comment, "This zaak needs to stay in the list.")
+
+        item_response2 = ReviewItemResponse.objects.get(review_item=items_reviews[1].pk)
+
+        self.assertEqual(
+            item_response2.action_zaak["selectielijstklasse"], "http://some-url.nl"
+        )
+
+        item_response3 = ReviewItemResponse.objects.get(review_item=items_reviews[2].pk)
+
+        self.assertEqual(item_response3.action_zaak["archiefactiedatum"], "2030-01-01")
+
+    def test_cannot_create_response_if_not_author(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager1,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager1,
+        )
+
+        endpoint = reverse("api:review-responses-list")
+        self.client.force_authenticate(user=record_manager2)
+
+        response = self.client.post(
+            endpoint,
+            data={
+                "review": review.pk,
+                "comment": "A comment about the review.",
+                "itemsResponses": [],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["nonFieldErrors"][0],
+            _(
+                "This user is either not allowed to update the destruction list or "
+                "the destruction list cannot currently be updated."
+            ),
+        )
+
+    def test_cannot_create_response_if_not_changes_requested(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.ready_to_review,
+            destruction_list__assignee=record_manager,
+        )
+
+        endpoint = reverse("api:review-responses-list")
+        self.client.force_authenticate(user=record_manager)
+
+        response = self.client.post(
+            endpoint,
+            data={
+                "review": review.pk,
+                "comment": "A comment about the review.",
+                "itemsResponses": [],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["nonFieldErrors"][0],
+            _(
+                "This user is either not allowed to update the destruction list or "
+                "the destruction list cannot currently be updated."
+            ),
+        )
