@@ -16,6 +16,8 @@ from .factories import (
     DestructionListItemFactory,
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
+    ReviewItemResponseFactory,
+    ReviewResponseFactory,
 )
 
 
@@ -702,3 +704,35 @@ class DestructionListItemReviewViewSetTests(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data[0]["zaak"].keys()), 1)
+
+
+class ReviewResponsesViewSetTests(APITestCase):
+    def test_no_auth(self):
+        endpoint = reverse("api:review-responses-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_filter_on_review(self):
+        user = UserFactory.create()
+
+        review = DestructionListReviewFactory.create()
+        response = ReviewResponseFactory.create(review=review)
+        ReviewItemResponseFactory.create_batch(2, review_item__review=review)
+        another_response = ReviewResponseFactory.create()
+        ReviewItemResponseFactory.create(review_item__review=another_response.review)
+
+        endpoint = furl(reverse("api:review-responses-list"))
+        endpoint.args["review"] = review.pk
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["pk"], review.pk)
+        self.assertEqual(len(data[0]["itemsResponses"]), 2)
