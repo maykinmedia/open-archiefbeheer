@@ -2,14 +2,7 @@ import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 
-export type ZaakSelectionMandatoryFields = {
-  url: string;
-};
-
-export type ZaakSelection<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
-> = {
+export type ZaakSelection<DetailType = unknown> = {
   /**
    * A `Zaak.url` mapped to a `boolean`.
    * - `true`: The zaak is added to the selection.
@@ -29,10 +22,11 @@ export type ZaakSelection<
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
  * @param detail An optional detail object of generic type
  */
-export async function addToZaakSelection<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
->(key: string, zaken: string[] | Zaak[], detail?: DetailType) {
+export async function addToZaakSelection<DetailType = unknown>(
+  key: string,
+  zaken: string[] | Zaak[],
+  detail?: DetailType,
+) {
   await _mutateZaakSelection(key, zaken, true, detail);
 }
 
@@ -56,10 +50,7 @@ export async function removeFromZaakSelection(
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  */
-export async function getZaakSelection<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
->(key: string) {
+export async function getZaakSelection<DetailType = unknown>(key: string) {
   const computedKey = _getComputedKey(key);
   const json = sessionStorage.getItem(computedKey) || "{}";
   return JSON.parse(json) as ZaakSelection<DetailType>;
@@ -72,10 +63,10 @@ export async function getZaakSelection<
  * @param key A key identifying the selection
  * @param zaakSelection
  */
-export async function setZaakSelection<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
->(key: string, zaakSelection: ZaakSelection<DetailType>) {
+export async function setZaakSelection<DetailType = unknown>(
+  key: string,
+  zaakSelection: ZaakSelection<DetailType>,
+) {
   const computedKey = _getComputedKey(key);
   const json = JSON.stringify(zaakSelection);
   sessionStorage.setItem(computedKey, json);
@@ -98,10 +89,10 @@ export async function clearZaakSelection(key: string) {
  * @param key A key identifying the selection
  * @param zaak Either a `Zaak.url` or `Zaak` object.
  */
-export async function isZaakSelected<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
->(key: string, zaak: string | Zaak) {
+export async function isZaakSelected<DetailType = unknown>(
+  key: string,
+  zaak: string | Zaak,
+) {
   const zaakSelection = await getZaakSelection<DetailType>(key);
   const url = _getZaakUrl(zaak);
   return zaakSelection[url]?.selected;
@@ -116,10 +107,7 @@ export async function isZaakSelected<
  * @param selected Indicating whether the selection should be added (`true) or removed (`false).
  * @param detail An optional detail object of generic type
  */
-export async function _mutateZaakSelection<
-  DetailType extends
-    ZaakSelectionMandatoryFields = ZaakSelectionMandatoryFields,
->(
+export async function _mutateZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
   selected: boolean,

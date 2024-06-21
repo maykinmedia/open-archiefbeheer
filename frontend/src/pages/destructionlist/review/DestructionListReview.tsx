@@ -1,14 +1,12 @@
 import {
   AttributeData,
   Body,
-  Button,
   Form,
   FormField,
   H2,
   Modal,
   Outline,
   P,
-  Tooltip,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import {
@@ -197,38 +195,6 @@ export function DestructionListReviewPage() {
     setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
   };
 
-  const _zaken = {
-    ...zaken,
-    results: zaken.results.map((z) => {
-      const comment = zaakSelection.find((f) => f.uuid === z.uuid)?.motivation;
-
-      return {
-        ...z,
-        href: z.url as string,
-        action: comment && (
-          <Tooltip
-            key={`tooltip-${z.uuid}`}
-            content={
-              <>
-                <H2>Opmerking</H2>
-                <P>{comment}</P>
-              </>
-            }
-            placement={"bottom"}
-          >
-            <Button
-              variant="transparent"
-              key={`button-${z.uuid}`}
-              aria-label="Opmerking weergeven"
-            >
-              <Outline.ChatBubbleOvalLeftEllipsisIcon />
-            </Button>
-          </Tooltip>
-        ),
-      };
-    }),
-  };
-
   return (
     <>
       <Modal
@@ -264,7 +230,7 @@ export function DestructionListReviewPage() {
 
       <DestructionListComponent
         storageKey={destructionListReviewKey}
-        zaken={_zaken}
+        zaken={zaken}
         selectedZaken={selectedZaken}
         labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
         title={`${list.name} beoordelen`}

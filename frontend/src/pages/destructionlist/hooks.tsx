@@ -19,7 +19,6 @@ import {
   removeFromFieldSelection,
 } from "../../lib/fieldSelection/fieldSelection";
 import {
-  ZaakSelectionMandatoryFields,
   addToZaakSelection,
   getZaakSelection,
   removeFromZaakSelection,
@@ -31,8 +30,8 @@ const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 
 export interface DataGridAction
   extends Omit<ButtonProps, "onClick" | "onMouseEnter"> {
-  onMouseEnter?: (zaak: Zaak, detail?: ZaakSelectionMandatoryFields) => void;
-  onClick?: (zaak: Zaak, detail?: ZaakSelectionMandatoryFields) => void;
+  onMouseEnter?: (zaak: Zaak, detail?: unknown) => void;
+  onClick?: (zaak: Zaak, detail?: unknown) => void;
   tooltip?: ReactNode;
 }
 
@@ -91,9 +90,12 @@ export function useDataGridProps(
     );
   }, []);
 
+  //
+  // Gets a specific zaak selection based on the url.
+  //
   const getSpecificZaakSelection = async (url: string) => {
     const zaakSelection = await getZaakSelection(storageKey);
-    if (!zaakSelection[url].selected) return;
+    if (!zaakSelection[url]?.selected) return;
     return zaakSelection[url].detail;
   };
 
@@ -110,48 +112,51 @@ export function useDataGridProps(
   );
 
   //
+  // Render action buttons.
+  //
+  const renderActionButtons = (zaak: Zaak, actions?: DataGridAction[]) => {
+    return actions?.map(
+      ({ onClick, onMouseEnter, tooltip, ...action }, index) => {
+        const handleAction = async (
+          zaak: Zaak,
+          actionFn?: (zaak: Zaak, detail?: unknown) => void,
+        ) => {
+          const foundZaak = await getSpecificZaakSelection(zaak.url!);
+          actionFn?.(zaak, foundZaak);
+        };
+
+        const ButtonComponent = (
+          <Button
+            pad={false}
+            variant={"transparent"}
+            key={index}
+            onClick={() => handleAction(zaak, onClick)}
+            onMouseEnter={() => handleAction(zaak, onMouseEnter)}
+            {...action}
+          />
+        );
+
+        if (tooltip) {
+          return (
+            <Tooltip key={index} content={tooltip} placement={"bottom-start"}>
+              {ButtonComponent}
+            </Tooltip>
+          );
+        }
+
+        return ButtonComponent;
+      },
+    );
+  };
+
+  //
   // Get object list.
   //
   const objectList = paginatedResults.results.map((zaak) => {
     return {
       ...zaak,
       href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-      acties: (
-        <>
-          {actions?.map(
-            ({ onClick, onMouseEnter, tooltip, ...action }, index) => {
-              const ButtonComponent = (
-                <Button
-                  pad={false}
-                  variant={"transparent"}
-                  key={index}
-                  onClick={async () => {
-                    const foundZaak = await getSpecificZaakSelection(zaak.url!);
-                    onClick?.(zaak, foundZaak);
-                  }}
-                  onMouseEnter={async () => {
-                    const foundZaak = await getSpecificZaakSelection(zaak.url!);
-                    onMouseEnter?.(zaak, foundZaak);
-                  }}
-                  {...action}
-                />
-              );
-              if (tooltip) {
-                return (
-                  <Tooltip
-                    key={index}
-                    content={tooltip}
-                    placement={"bottom-start"}
-                  >
-                    {ButtonComponent}
-                  </Tooltip>
-                );
-              }
-              return ButtonComponent;
-            },
-          )}
-        </>
-      ),
+      acties: <>{renderActionButtons(zaak, actions)}</>,
     };
   }) as unknown as AttributeData[];
 
