@@ -7,6 +7,7 @@ import React, { FormEvent } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 
 import { DestructionListAssignee } from "../../../lib/api/destructionLists";
+import { formatUser } from "../utils";
 import { AssigneesEditableProps } from "./types";
 
 export function AssigneesEditable({
@@ -32,24 +33,34 @@ export function AssigneesEditable({
     submit(formData, { method: "PATCH" });
   };
 
-  const fields: TypedField[] = assignees.map((a, i) => ({
-    name: `reviewer_${i}`,
-    type: "string",
-    options: reviewers.map((user) => ({
-      label: user.username,
-    })),
-  }));
+  const fields = [
+    {
+      name: `reviewer_1`,
+      type: "string",
+      options: reviewers.map((user) => ({
+        label: formatUser(user),
+      })),
+    },
+    {
+      name: `reviewer_2`,
+      type: "string",
+      options: reviewers.map((user) => ({
+        label: formatUser(user),
+      })),
+    },
+  ];
 
-  const labeledObject = assignees.reduce(
-    (acc, assignee, i) => ({
-      ...acc,
-      [`reviewer_${i}`]: {
-        label: `Reviewer ${i + 1}`,
-        value: assignee.user.username,
-      },
-    }),
-    {},
-  );
+  const labeledObject = {
+    reviewer_1: {
+      label: "Reviewer 1",
+      value: formatUser(assignees[1].user),
+    },
+    reviewer_2: {
+      label: "Reviewer 2",
+      value: formatUser(assignees[2].user),
+    },
+  };
+
   return (
     <AttributeTable
       editable={true}
