@@ -2,6 +2,7 @@ import logging
 import uuid as _uuid
 
 from django.db import models
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -322,6 +323,10 @@ class ReviewResponse(models.Model):
 
     def __str__(self):
         return f"Response to {self.review}"
+
+    @property
+    def items_responses(self) -> QuerySet["ReviewItemResponse"]:
+        return ReviewItemResponse.objects.filter(review_item__review=self.review)
 
 
 class ReviewItemResponse(models.Model):

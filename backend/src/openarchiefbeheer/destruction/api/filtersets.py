@@ -7,6 +7,7 @@ from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewResponse,
 )
 
 
@@ -46,7 +47,12 @@ class DestructionListReviewFilterset(FilterSet):
 
 
 class DestructionListReviewItemFilterset(FilterSet):
-
     class Meta:
         model = DestructionListItemReview
+        fields = ("review",)
+
+
+class ReviewResponseFilterset(FilterSet):
+    class Meta:
+        model = ReviewResponse
         fields = ("review",)

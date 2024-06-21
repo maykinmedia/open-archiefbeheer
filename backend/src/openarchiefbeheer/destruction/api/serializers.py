@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
@@ -349,16 +350,64 @@ class ActionZaakSerializer(serializers.Serializer):
         required=False, help_text=_("A new date for when this case should be archived.")
     )
 
+    def to_internal_value(self, data: dict) -> dict:
+        internal_value = super().to_internal_value(data)
+
+        if archiefactiedatum := internal_value.get("archiefactiedatum"):
+            internal_value["archiefactiedatum"] = archiefactiedatum.isoformat()
+        return internal_value
+
 
 class ReviewItemResponseSerializer(serializers.ModelSerializer):
-    action_zaak = ActionZaakSerializer()
+    action_zaak = ActionZaakSerializer(required=False)
 
     class Meta:
         model = ReviewItemResponse
-        fields = ("review_item", "action_item", "action_zaak", "created", "comment")
+        fields = (
+            "pk",
+            "review_item",
+            "action_item",
+            "action_zaak",
+            "created",
+            "comment",
+        )
 
 
 class ReviewResponseSerializer(serializers.ModelSerializer):
+    items_responses = ReviewItemResponseSerializer(many=True)
+
     class Meta:
         model = ReviewResponse
-        fields = ("review", "comment", "created")
+        fields = ("pk", "review", "comment", "created", "items_responses")
+
+    def validate(self, attrs: dict) -> dict:
+        destruction_list = attrs["review"].destruction_list
+        request = self.context["request"]
+
+        if not (
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.changes_requested
+        ):
+            raise ValidationError(
+                _(
+                    "This user is either not allowed to update the destruction list or "
+                    "the destruction list cannot currently be updated."
+                )
+            )
+
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data: dict) -> ReviewResponse:
+        items_responses_data = validated_data.pop("items_responses", [])
+        items_responses = [
+            ReviewItemResponse(**item_response)
+            for item_response in items_responses_data
+        ]
+
+        review_response = ReviewResponse.objects.create(**validated_data)
+        ReviewItemResponse.objects.bulk_create(items_responses)
+
+        # TODO kick off celery task to update the cases and to change the status/assignee of the destruction list
+
+        return review_response

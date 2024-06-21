@@ -4,33 +4,30 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from ..models import (
     DestructionList,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewResponse,
 )
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
     DestructionListReviewFilterset,
     DestructionListReviewItemFilterset,
+    ReviewResponseFilterset,
 )
-from .permissions import (
-    CanMakeRequestedChanges,
-    CanStartDestructionPermission,
-    CanUpdateDestructionList,
-)
+from .permissions import CanStartDestructionPermission, CanUpdateDestructionList
 from .serializers import (
     DestructionListAPIResponseSerializer,
     DestructionListItemReviewSerializer,
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ReviewResponseSerializer,
 )
 
 
@@ -129,13 +126,6 @@ from .serializers import (
         description=_("Retrieve details about a destruction list."),
         responses={200: DestructionListAPIResponseSerializer},
     ),
-    make_requested_changes=extend_schema(
-        tags=["Destruction list"],
-        summary=_("Make requested changes"),
-        description=_(
-            "Update a destruction list after a reviewer has requested changes."
-        ),
-    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
@@ -155,8 +145,6 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
         elif self.action == "update":
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
-        elif self.action == "make_requested_changes":
-            permission_classes = [IsAuthenticated & CanMakeRequestedChanges]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -173,12 +161,6 @@ class DestructionListViewSet(
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
-
-    @action(detail=True, methods=["patch"], name="make-requested-changes")
-    def make_requested_changes(self, request, *args, **kwargs):
-        # Triggers the object permissions check
-        self.get_object()
-        return Response("Not implemented!")
 
 
 @extend_schema_view(
@@ -242,3 +224,35 @@ class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericVi
     queryset = DestructionListItemReview.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListReviewItemFilterset
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Reviews"],
+        summary=_("List review responses"),
+        description=_("List all the responses to the reviews of a destruction list."),
+    ),
+    create=extend_schema(
+        tags=["Reviews"],
+        summary=_("Create a review response"),
+        description=_(
+            "Create a response to a review. "
+            "You need to be the author of a destruction list for this and you need to be assigned to it. "
+            "The status of the destruction list must be 'changes requested'."
+        ),
+    ),
+)
+class ReviewResponseViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    serializer_class = ReviewResponseSerializer
+    queryset = ReviewResponse.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ReviewResponseFilterset
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
