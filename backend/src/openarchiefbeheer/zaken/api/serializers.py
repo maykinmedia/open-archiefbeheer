@@ -66,3 +66,22 @@ class ZaaktypeChoiceSerializer(serializers.Serializer):
             "the zaaktype will no longer be valid (if present)."
         )
     )
+
+
+class SelectielijstklasseChoicesSerializer(serializers.Serializer):
+    label = serializers.CharField(
+        help_text=_(
+            "The description field of the resultaat from the selectielijst API."
+        )
+    )
+    value = serializers.CharField(
+        help_text=_("The URL field of the resultaat from the selectielijst API.")
+    )
+
+
+class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
+    zaak = serializers.URLField(
+        help_text=_(
+            "The URL of the zaak for which the selectielijstklasse choices are needed."
+        )
+    )

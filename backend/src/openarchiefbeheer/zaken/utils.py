@@ -6,11 +6,14 @@ from django.utils.translation import gettext_lazy as _
 from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
+from zgw_consumers.api_models.selectielijst import Resultaat
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
+
+from .types import DropDownChoice
 
 
 def pagination_helper(
@@ -75,7 +78,7 @@ def get_zaaktype_extra_info(zaaktype: dict) -> str:
     return zaaktype["identificatie"]
 
 
-def retrieve_zaaktypen_choices() -> list[dict]:
+def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
     ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
     if not ztc_service:
         return []
@@ -101,3 +104,35 @@ def retrieve_zaaktypen_choices() -> list[dict]:
         ]
 
     return zaaktypen
+
+
+def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
+    description = f"{resultaat.get('volledig_nummer', resultaat["nummer"])} - {resultaat['naam']} - {resultaat['waardering']}"
+    if resultaat.get("bewaartermijn"):
+        description = description + f" - {resultaat['bewaartermijn']}"
+
+    return {
+        "label": description,
+        "value": resultaat["url"],
+    }
+
+
+@lru_cache
+def retrieve_selectielijstklasse_choices(process_type_url: str) -> list:
+    selectielijst_service = Service.objects.filter(api_type=APITypes.orc).first()
+    if not selectielijst_service:
+        return []
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get("resultaten", params={"procesType": process_type_url})
+        response.raise_for_status()
+        data_iterator = pagination_helper(client, response.json())
+
+    results = []
+    for page in data_iterator:
+        results += [
+            format_selectielijstklasse_choice(result) for result in page["results"]
+        ]
+
+    return results
