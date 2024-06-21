@@ -10,6 +10,7 @@ from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import (
     DestructionListItemAction,
+    InternalStatus,
     ListItemStatus,
     ListRole,
     ListStatus,
@@ -316,6 +317,15 @@ class ReviewResponse(models.Model):
         help_text=_("The response of the author of the destruction list to a review."),
     )
     created = models.DateTimeField(auto_now_add=True)
+    processing_status = models.CharField(
+        _("processing status"),
+        choices=InternalStatus.choices,
+        max_length=80,
+        help_text=_(
+            "Field used to track the status of the changes that should be made to a destruction list and the cases."
+        ),
+        default=InternalStatus.new,
+    )
 
     class Meta:
         verbose_name = _("review response")
@@ -326,7 +336,9 @@ class ReviewResponse(models.Model):
 
     @property
     def items_responses(self) -> QuerySet["ReviewItemResponse"]:
-        return ReviewItemResponse.objects.filter(review_item__review=self.review)
+        return ReviewItemResponse.objects.filter(
+            review_item__review=self.review
+        ).select_related("review_item", "review_item__destruction_list_item")
 
 
 class ReviewItemResponse(models.Model):
@@ -357,6 +369,15 @@ class ReviewItemResponse(models.Model):
             "feedback of the reviewer on a specific case."
         ),
     )
+    processing_status = models.CharField(
+        _("processing status"),
+        choices=InternalStatus.choices,
+        max_length=80,
+        help_text=_(
+            "Field used to track the status of the changes that should be made to a destruction list item and the corresponding case."
+        ),
+        default=InternalStatus.new,
+    )
 
     class Meta:
         verbose_name = _("review item response")
@@ -364,3 +385,23 @@ class ReviewItemResponse(models.Model):
 
     def __str__(self):
         return f"Response to {self.review_item}"
+
+    def process(self):
+        if self.processing_status == InternalStatus.succeeded:
+            return
+
+        self.processing_status = InternalStatus.processing
+        self.save()
+
+        destruction_list_item = self.review_item.destruction_list_item
+
+        if self.action_item == DestructionListItemAction.remove:
+            destruction_list_item.status = ListItemStatus.removed
+            destruction_list_item.save()
+
+        if self.action_zaak:
+            zaak = Zaak.objects.get(url=destruction_list_item.zaak)
+            zaak.update_data(self.action_zaak)
+
+        self.processing_status = InternalStatus.succeeded
+        self.save()

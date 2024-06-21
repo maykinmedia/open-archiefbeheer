@@ -12,7 +12,13 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 
-from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
+from ..constants import (
+    InternalStatus,
+    ListItemStatus,
+    ListRole,
+    ListStatus,
+    ReviewDecisionChoices,
+)
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -22,6 +28,7 @@ from ..models import (
     ReviewItemResponse,
     ReviewResponse,
 )
+from ..tasks import process_review_response
 
 
 class DestructionListAssigneeSerializer(serializers.ModelSerializer):
@@ -408,6 +415,9 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         review_response = ReviewResponse.objects.create(**validated_data)
         ReviewItemResponse.objects.bulk_create(items_responses)
 
-        # TODO kick off celery task to update the cases and to change the status/assignee of the destruction list
+        review_response.processing_status = InternalStatus.queued
+        review_response.save()
+
+        process_review_response.delay(review_response.pk)
 
         return review_response
