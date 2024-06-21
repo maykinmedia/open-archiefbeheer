@@ -10,6 +10,7 @@ from rest_framework import routers
 from openarchiefbeheer.accounts.api.views import ReviewersView, WhoAmIView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
+    DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
     DestructionListViewSet,
@@ -34,6 +35,11 @@ router.register(
     r"destruction-list-reviews",
     DestructionListReviewViewSet,
     basename="destruction-list-reviews",
+)
+router.register(
+    r"review-items",
+    DestructionListItemReviewViewSet,
+    basename="reviews-items",
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
 

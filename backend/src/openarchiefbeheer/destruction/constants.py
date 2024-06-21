@@ -26,3 +26,8 @@ class ReviewDecisionChoices(models.TextChoices):
 class ListRole(models.TextChoices):
     reviewer = "reviewer", _("Reviewer")
     author = "author", _("Author")
+
+
+class DestructionListItemAction(models.TextChoices):
+    keep = "keep", _("keep")
+    remove = "remove", _("remove")

@@ -10,6 +10,7 @@ from .serializers import UserSerializer
 
 
 @extend_schema(
+    tags=["Reviewers"],
     summary=_("Reviewers list"),
     description=_(
         "List all the users that have the permission to review destruction lists."

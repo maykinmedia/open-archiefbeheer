@@ -9,6 +9,7 @@ from rest_framework.relations import SlugRelatedField
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
+from openarchiefbeheer.zaken.models import Zaak
 
 from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
@@ -17,6 +18,8 @@ from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewItemResponse,
+    ReviewResponse,
 )
 
 
@@ -166,7 +169,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DestructionListResponseSerializer(serializers.ModelSerializer):
+class DestructionListAPIResponseSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeResponseSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
@@ -183,15 +186,6 @@ class DestructionListResponseSerializer(serializers.ModelSerializer):
             "status",
             "created",
             "status_changed",
-        )
-
-
-class DestructionListItemReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DestructionListItemReview
-        fields = (
-            "destruction_list_item",
-            "feedback",
         )
 
 
@@ -218,11 +212,13 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListReview
         fields = (
+            "pk",
             "destruction_list",
             "author",
             "decision",
             "list_feedback",
             "zaken_reviews",
+            "created",
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -318,3 +314,51 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             destruction_list.get_author().assign()
 
         return review
+
+
+class DestructionListItemReviewSerializer(serializers.ModelSerializer):
+    zaak = serializers.SerializerMethodField(
+        help_text=_(
+            "In the case that the zaak has already been deleted, only the URL field will be returned."
+        )
+    )
+
+    class Meta:
+        model = DestructionListItemReview
+        fields = ("pk", "zaak", "feedback")
+
+    @extend_schema_field(ZaakSerializer)
+    def get_zaak(self, obj) -> dict:
+        zaak_url = obj.destruction_list_item.zaak
+        zaak = Zaak.objects.filter(url=zaak_url).first()
+        # The zaak is no longer present in the cache,
+        # it might have already been removed
+        if not zaak:
+            return {"url": zaak_url}
+
+        serializer = ZaakSerializer(instance=zaak)
+        return serializer.data
+
+
+class ActionZaakSerializer(serializers.Serializer):
+    selectielijstklasse = serializers.URLField(
+        required=False,
+        help_text=_("The URL of to a 'resultaat' resource from the selectielijst API."),
+    )
+    archiefactiedatum = serializers.DateField(
+        required=False, help_text=_("A new date for when this case should be archived.")
+    )
+
+
+class ReviewItemResponseSerializer(serializers.ModelSerializer):
+    action_zaak = ActionZaakSerializer()
+
+    class Meta:
+        model = ReviewItemResponse
+        fields = ("review_item", "action_item", "action_zaak", "created", "comment")
+
+
+class ReviewResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewResponse
+        fields = ("review", "comment", "created")
