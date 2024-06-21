@@ -2,7 +2,10 @@ import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
 import { useActionData } from "react-router-dom";
 
 import { PaginatedZaken } from "../../lib/api/zaken";
-import { useDataGridProps } from "../../pages/destructionlist/hooks";
+import {
+  DataGridAction,
+  useDataGridProps,
+} from "../../pages/destructionlist/hooks";
 import { Zaak } from "../../types";
 
 export type DestructionList = {
@@ -13,6 +16,7 @@ export type DestructionList = {
   storageKey: string;
   title: string;
   labelAction?: string;
+  actions?: DataGridAction[];
 } & Omit<DataGridProps, "objectList">;
 
 /**
@@ -25,6 +29,7 @@ export function DestructionList({
   title,
   labelAction = title,
   onSubmitSelection,
+  actions,
   ...props
 }: DestructionList) {
   const errors = useActionData() || {};
@@ -32,6 +37,7 @@ export function DestructionList({
     storageKey,
     zaken,
     selectedZaken,
+    actions,
   );
   const _errors = [...Object.values(errors), error].filter((v) => v);
 

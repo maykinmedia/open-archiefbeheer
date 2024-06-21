@@ -80,6 +80,9 @@ export function DestructionListReviewPage() {
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
+  /* Tooltip Motivation */
+  const [tooltipMotivation, setTooltipMotivation] = useState<string>("");
+
   /* State to manage the count of selected zaken */
   const [zaakSelection, setZaakSelection] = useState<FormDataState[]>([]);
 
@@ -268,6 +271,32 @@ export function DestructionListReviewPage() {
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
         allowSelectAll={false}
+        actions={[
+          {
+            children: <Outline.ChatBubbleBottomCenterIcon />,
+            tooltip: tooltipMotivation && (
+              <>
+                <H2>Opmerking</H2>
+                <P>{tooltipMotivation}</P>
+              </>
+            ),
+            onMouseEnter: (_, detail) => {
+              const _detail = detail as FormDataState | undefined;
+              if (_detail) {
+                setTooltipMotivation(_detail.motivation);
+              } else {
+                setTooltipMotivation("");
+              }
+            },
+            onClick: (zaak: Zaak) => {
+              setZaakModalDataState({
+                open: true,
+                uuid: zaak.uuid,
+                title: `${zaak.identificatie} uitzonderen`,
+              });
+            },
+          },
+        ]}
       />
     </>
   );
