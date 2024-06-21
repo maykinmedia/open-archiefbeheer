@@ -111,13 +111,18 @@ export const Landing = () => {
 
   const objectLists: AttributeData[][] = Object.values(statusMap).map((lists) =>
     lists.map((list) => {
-      const firstAssignee = list.assignees[0];
+      const currentAssignee = list.assignee;
       const otherAssignees = [...list.assignees].splice(1);
 
       const footer = (
         <P muted size="xs">
-          {formatUser(firstAssignee.user)}
-          {otherAssignees.length && <strong> +{otherAssignees.length}</strong>}
+          {formatUser(currentAssignee, true)}
+          {otherAssignees.length && (
+            <strong className="LandingPage__assignees-count">
+              {" "}
+              +{otherAssignees.length}
+            </strong>
+          )}
         </P>
       );
 
@@ -128,7 +133,9 @@ export const Landing = () => {
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
           <Tooltip
-            content={otherAssignees.map((a) => formatUser(a.user)).join(", ")}
+            content={otherAssignees
+              .map((a) => formatUser(a.user, true))
+              .join(", ")}
             placement="top"
           >
             <span>{footer}</span>
