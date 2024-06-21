@@ -323,6 +323,10 @@ class ReviewResponse(models.Model):
     def __str__(self):
         return f"Response to {self.review}"
 
+    @property
+    def items_responses(self):
+        return ReviewItemResponse.objects.filter(review_item__review=self.review)
+
 
 class ReviewItemResponse(models.Model):
     review_item = models.ForeignKey(

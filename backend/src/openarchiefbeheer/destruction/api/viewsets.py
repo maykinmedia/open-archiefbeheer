@@ -13,12 +13,14 @@ from ..models import (
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewResponse,
 )
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
     DestructionListReviewFilterset,
     DestructionListReviewItemFilterset,
+    ReviewResponseFilterset,
 )
 from .permissions import (
     CanMakeRequestedChanges,
@@ -31,6 +33,7 @@ from .serializers import (
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ReviewResponseSerializer,
 )
 
 
@@ -242,3 +245,17 @@ class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericVi
     queryset = DestructionListItemReview.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListReviewItemFilterset
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Reviews"],
+        summary=_("List review responses"),
+        description=_("List all the responses to the reviews of a destruction list."),
+    ),
+)
+class ReviewResponseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = ReviewResponseSerializer
+    queryset = ReviewResponse.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ReviewResponseFilterset

@@ -355,10 +355,19 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReviewItemResponse
-        fields = ("review_item", "action_item", "action_zaak", "created", "comment")
+        fields = (
+            "pk",
+            "review_item",
+            "action_item",
+            "action_zaak",
+            "created",
+            "comment",
+        )
 
 
 class ReviewResponseSerializer(serializers.ModelSerializer):
+    items_responses = ReviewItemResponseSerializer(many=True)
+
     class Meta:
         model = ReviewResponse
-        fields = ("review", "comment", "created")
+        fields = ("pk", "review", "comment", "created", "items_responses")
