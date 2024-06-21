@@ -1,3 +1,4 @@
-.LandingPage {
-  /* Rules here. */
+.LandingPage__assignees-count {
+  color: var(--page-color-primary);
+  font-weight: var(--typography-font-weight-bold);
 }

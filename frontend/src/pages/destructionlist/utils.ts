@@ -27,9 +27,16 @@ export async function updateSelectedZaken(
 /**
  * Returns the correct format for a user.
  * @param user
+ * @param showRole
  */
-export function formatUser(user: User) {
-  if (user.firstName && user.lastName)
-    return `${user.firstName} ${user.lastName} (${user.username})`;
-  return user.username;
+export function formatUser(user: User, showRole = false) {
+  const displayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName} (${user.username})`
+      : user.username;
+
+  if (showRole && user.role.name) {
+    return `${displayName} (${user.role.name})`;
+  }
+  return displayName;
 }
