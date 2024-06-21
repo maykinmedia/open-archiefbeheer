@@ -107,7 +107,7 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
 
 
 def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
-    description = f"{resultaat.get('volledig_nummer', resultaat["nummer"])} - {resultaat['naam']} - {resultaat['waardering']}"
+    description = f"{resultaat.get('volledig_nummer', resultaat['nummer'])} - {resultaat['naam']} - {resultaat['waardering']}"
     if resultaat.get("bewaartermijn"):
         description = description + f" - {resultaat['bewaartermijn']}"
 
