@@ -10,7 +10,7 @@ export type ZaakSelection<DetailType = unknown> = {
    */
   [index: string]: {
     selected: boolean;
-    detail?: DetailType; // todo generic?
+    detail?: DetailType;
   };
 };
 

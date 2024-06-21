@@ -3,7 +3,10 @@ import {
   Body,
   Form,
   FormField,
+  H2,
   Modal,
+  Outline,
+  P,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import {
@@ -75,8 +78,11 @@ export function DestructionListReviewPage() {
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
+  /* Tooltip Motivation */
+  const [tooltipMotivation, setTooltipMotivation] = useState<string>("");
+
   /* State to manage the count of selected zaken */
-  const [zaakSelectionCount, setZaakSelectionCount] = useState<number>(0);
+  const [zaakSelection, setZaakSelection] = useState<FormDataState[]>([]);
 
   /* State to manage the state of the zaak modal (when clicking a checkbox) */
   const [zaakModalDataState, setZaakModalDataState] =
@@ -186,7 +192,7 @@ export function DestructionListReviewPage() {
     const zaakSelectionSelected = Object.values(zaakSelection).filter(
       (f) => f.selected,
     );
-    setZaakSelectionCount(zaakSelectionSelected.length);
+    setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
   };
 
   return (
@@ -207,7 +213,7 @@ export function DestructionListReviewPage() {
         </Body>
       </Modal>
       <Modal
-        title={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        title={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
         open={listModalDataState.open}
         size="m"
         onClose={() => setListModalDataState({ open: false })}
@@ -217,19 +223,46 @@ export function DestructionListReviewPage() {
             fields={listModalFormFields}
             onSubmit={onSubmitDestructionListForm}
             validateOnChange
-            labelSubmit={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+            labelSubmit={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
           />
         </Body>
       </Modal>
+
       <DestructionListComponent
         storageKey={destructionListReviewKey}
         zaken={zaken}
         selectedZaken={selectedZaken}
-        labelAction={zaakSelectionCount > 0 ? "Beoordelen" : "Accoderen"}
+        labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
         title={`${list.name} beoordelen`}
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
         allowSelectAll={false}
+        actions={[
+          {
+            children: <Outline.ChatBubbleBottomCenterIcon />,
+            tooltip: tooltipMotivation && (
+              <>
+                <H2>Opmerking</H2>
+                <P>{tooltipMotivation}</P>
+              </>
+            ),
+            onMouseEnter: (_, detail) => {
+              const _detail = detail as FormDataState | undefined;
+              if (_detail) {
+                setTooltipMotivation(_detail.motivation);
+              } else {
+                setTooltipMotivation("");
+              }
+            },
+            onClick: (zaak: Zaak) => {
+              setZaakModalDataState({
+                open: true,
+                uuid: zaak.uuid,
+                title: `${zaak.identificatie} uitzonderen`,
+              });
+            },
+          },
+        ]}
       />
     </>
   );

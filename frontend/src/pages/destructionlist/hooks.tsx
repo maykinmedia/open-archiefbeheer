@@ -1,10 +1,13 @@
 import {
   AttributeData,
+  Button,
+  ButtonProps,
   DataGridProps,
+  Tooltip,
   TypedField,
   formatMessage,
 } from "@maykin-ui/admin-ui";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
@@ -17,12 +20,20 @@ import {
 } from "../../lib/fieldSelection/fieldSelection";
 import {
   addToZaakSelection,
+  getZaakSelection,
   removeFromZaakSelection,
 } from "../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../types";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
+
+export interface DataGridAction
+  extends Omit<ButtonProps, "onClick" | "onMouseEnter"> {
+  onMouseEnter?: (zaak: Zaak, detail?: unknown) => void;
+  onClick?: (zaak: Zaak, detail?: unknown) => void;
+  tooltip?: ReactNode;
+}
 
 /**
  * Hook that returns base props for most Zaak related DataGrid components.
@@ -31,6 +42,7 @@ export function useDataGridProps(
   storageKey: string,
   paginatedResults: PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
+  actions?: DataGridAction[],
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,22 +90,75 @@ export function useDataGridProps(
     );
   }, []);
 
-  const fields = getFields(searchParams, zaaktypeChoicesState).map((field) => {
-    const isActiveFromStorage = fieldSelectionState?.[field.name];
-    const isActive =
-      typeof isActiveFromStorage === "undefined"
-        ? field.active !== false
-        : isActiveFromStorage;
-    return { ...field, active: isActive } as TypedField;
-  });
+  //
+  // Gets a specific zaak selection based on the url.
+  //
+  const getSpecificZaakSelection = async (url: string) => {
+    const zaakSelection = await getZaakSelection(storageKey);
+    if (!zaakSelection[url]?.selected) return;
+    return zaakSelection[url].detail;
+  };
+
+  const hasActions = Boolean(actions?.length);
+  const fields = getFields(searchParams, zaaktypeChoicesState, hasActions).map(
+    (field) => {
+      const isActiveFromStorage = fieldSelectionState?.[field.name];
+      const isActive =
+        typeof isActiveFromStorage === "undefined"
+          ? field.active !== false
+          : isActiveFromStorage;
+      return { ...field, active: isActive } as TypedField;
+    },
+  );
+
+  //
+  // Render action buttons.
+  //
+  const renderActionButtons = (zaak: Zaak, actions?: DataGridAction[]) => {
+    return actions?.map(
+      ({ onClick, onMouseEnter, tooltip, ...action }, index) => {
+        const handleAction = async (
+          zaak: Zaak,
+          actionFn?: (zaak: Zaak, detail?: unknown) => void,
+        ) => {
+          const foundZaak = await getSpecificZaakSelection(zaak.url!);
+          actionFn?.(zaak, foundZaak);
+        };
+
+        const ButtonComponent = (
+          <Button
+            pad={false}
+            variant={"transparent"}
+            key={index}
+            onClick={() => handleAction(zaak, onClick)}
+            onMouseEnter={() => handleAction(zaak, onMouseEnter)}
+            {...action}
+          />
+        );
+
+        if (tooltip) {
+          return (
+            <Tooltip key={index} content={tooltip} placement={"bottom-start"}>
+              {ButtonComponent}
+            </Tooltip>
+          );
+        }
+
+        return ButtonComponent;
+      },
+    );
+  };
 
   //
   // Get object list.
   //
-  const objectList = paginatedResults.results.map((zaak) => ({
-    ...zaak,
-    href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-  })) as unknown as AttributeData[];
+  const objectList = paginatedResults.results.map((zaak) => {
+    return {
+      ...zaak,
+      href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+      acties: <>{renderActionButtons(zaak, actions)}</>,
+    };
+  }) as unknown as AttributeData[];
 
   /**
    * Gets called when the fields selection is changed.
@@ -223,6 +288,7 @@ export function useDataGridProps(
 export function getFields(
   searchParams: URLSearchParams,
   zaaktypeChoices: ZaaktypeChoice[],
+  hasActions: boolean,
 ): TypedField[] {
   return [
     {
@@ -341,5 +407,8 @@ export function getFields(
         { value: "false", label: "Nee" },
       ],
     },
+    ...([hasActions && { name: "acties", type: "string" }].filter(
+      Boolean,
+    ) as TypedField[]),
   ];
 }
