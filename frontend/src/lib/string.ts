@@ -32,6 +32,7 @@ interface TimeAgoOptions {
 
 /**
  * Calculate how long ago a given date was and return a human-readable string.
+ * TODO: Consider using a specialized library.
  *
  * @param dateInput - The date to calculate the time difference from. It can be a Date object or an ISO 8601 string.
  * @param options - Customization options for the output.
@@ -62,12 +63,12 @@ export function timeAgo(
 
   // Define the intervals in seconds for various time units
   const intervals = [
-    { label: "year", seconds: 31536000 },
-    { label: "month", seconds: 2592000 },
-    { label: "week", seconds: 604800 },
-    { label: "day", seconds: 86400 },
-    { label: "hour", seconds: 3600 },
-    { label: "minute", seconds: 60 },
+    { label: "jaar", plural: "jaren", shortFormat: "j", seconds: 31536000 },
+    { label: "maand", plural: "maanden", shortFormat: "ma", seconds: 2592000 },
+    { label: "week", plural: "weken", shortFormat: "w", seconds: 604800 },
+    { label: "dag", plural: "dagen", shortFormat: "d", seconds: 86400 },
+    { label: "uur", plural: "uur", shortFormat: "u", seconds: 3600 },
+    { label: "minuut", plural: "minuten", shortFormat: "m", seconds: 60 },
   ];
 
   let result = "";
@@ -78,9 +79,12 @@ export function timeAgo(
     if (intervalCount >= 1) {
       // Format the label based on short or long format
       const label = shortFormat
-        ? interval.label.charAt(0) + (interval.label === "month" ? "o" : "")
-        : interval.label + (intervalCount !== 1 ? "s" : "");
-      result += `${intervalCount} ${label}${shortFormat ? "" : " ago"}`;
+        ? interval.shortFormat
+        : intervalCount === 1
+          ? interval.label
+          : interval.plural;
+
+      result += `${intervalCount} ${label}${shortFormat ? "" : " geleden"}`;
       // Update seconds to the remainder for the next interval
       seconds %= interval.seconds;
       // If in short format, add a space for the next unit
