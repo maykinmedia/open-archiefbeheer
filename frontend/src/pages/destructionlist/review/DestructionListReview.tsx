@@ -31,6 +31,10 @@ import {
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
+  canReviewDestructionListRequired,
+  loginRequired,
+} from "../../../lib/auth/loaders";
+import {
   ZaakSelection,
   addToZaakSelection,
   getZaakSelection,
@@ -38,6 +42,7 @@ import {
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
+import { DestructionListDetailContext } from "../detail/types";
 import "./DestructionListReview.css";
 
 const getDestructionListReviewKey = (id: string) =>
@@ -73,7 +78,7 @@ interface FormDataState {
  * Review-destruction-list page
  */
 export function DestructionListReviewPage() {
-  const { zaken, selectedZaken, uuid, list } =
+  const { zaken, selectedZaken, uuid, destructionList } =
     useLoaderData() as DestructionListReviewLoaderContext;
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
@@ -233,7 +238,7 @@ export function DestructionListReviewPage() {
         zaken={zaken}
         selectedZaken={selectedZaken}
         labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
-        title={`${list.name} beoordelen`}
+        title={`${destructionList.name} beoordelen`}
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
         allowSelectAll={false}
@@ -276,7 +281,7 @@ export type DestructionListReviewLoaderContext = {
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   uuid: string;
-  list: DestructionList;
+  destructionList: DestructionList;
 };
 
 /**
@@ -284,44 +289,48 @@ export type DestructionListReviewLoaderContext = {
  * @param request
  * @param params
  */
-export const destructionListReviewLoader = async ({
-  request,
-  params,
-}: LoaderFunctionArgs<DestructionListReviewLoaderContext>) => {
-  const searchParams = new URL(request.url).searchParams;
-  const uuid = params.uuid;
-  if (!uuid) {
-    return redirect("/destruction-lists/create"); // TODO: How do we want to handle this?
-  }
-  searchParams.set("destruction_list", uuid);
-  const objParams = Object.fromEntries(searchParams);
+export const destructionListReviewLoader = loginRequired(
+  canReviewDestructionListRequired<DestructionListReviewLoaderContext>(
+    async ({
+      request,
+      params,
+    }: ActionFunctionArgs): Promise<DestructionListReviewLoaderContext> => {
+      const searchParams = new URL(request.url).searchParams;
+      const uuid = params.uuid as string;
+      searchParams.set("destruction_list", uuid);
+      const objParams = Object.fromEntries(searchParams);
 
-  const zakenPromise = listZaken({ ...objParams, in_destruction_list: uuid });
-  const listsPromise = getDestructionList(uuid);
-  const reviewersPromise = listReviewers();
+      const zakenPromise = listZaken({
+        ...objParams,
+        in_destruction_list: uuid,
+      });
+      const listsPromise = getDestructionList(uuid);
+      const reviewersPromise = listReviewers();
 
-  const [zaken, list, reviewers] = await Promise.all([
-    zakenPromise,
-    listsPromise,
-    reviewersPromise,
-  ]);
+      const [zaken, list, reviewers] = await Promise.all([
+        zakenPromise,
+        listsPromise,
+        reviewersPromise,
+      ]);
 
-  const isZaakSelectedPromises = zaken.results.map((zaak) =>
-    isZaakSelected(getDestructionListReviewKey(uuid), zaak),
-  );
-  const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-  const selectedZaken = zaken.results.filter(
-    (_, index) => isZaakSelectedResults[index],
-  );
+      const isZaakSelectedPromises = zaken.results.map((zaak) =>
+        isZaakSelected(getDestructionListReviewKey(uuid), zaak),
+      );
+      const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
+      const selectedZaken = zaken.results.filter(
+        (_, index) => isZaakSelectedResults[index],
+      );
 
-  return {
-    reviewers,
-    zaken,
-    selectedZaken,
-    uuid,
-    list,
-  } satisfies DestructionListReviewLoaderContext;
-};
+      return {
+        reviewers,
+        zaken,
+        selectedZaken,
+        uuid,
+        destructionList: list,
+      } satisfies DestructionListReviewLoaderContext;
+    },
+  ),
+);
 
 type DestructionListReviewActionContext = {
   details: {

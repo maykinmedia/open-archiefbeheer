@@ -14,7 +14,11 @@ import {
   DestructionList,
   listDestructionLists,
 } from "../../lib/api/destructionLists";
-import { loginRequired } from "../../lib/api/loginRequired";
+import { loginRequired } from "../../lib/auth/loaders";
+import {
+  canReviewDestructionList,
+  canUpdateDestructionList,
+} from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/string";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import { formatUser } from "../destructionlist/utils";
@@ -49,7 +53,7 @@ const STATUSES: FieldSet[] = [
 
 interface LandingLoaderReturn {
   statusMap: { [key: string]: DestructionList[] };
-  user: User | null;
+  user: User;
 }
 
 export const landingLoader = loginRequired(
@@ -92,15 +96,18 @@ export const Landing = () => {
    * - "Destroyed":
    *   - undefined.
    */
-  const constructHref = (list: DestructionList): string | undefined => {
-    const isAssignee = list.assignee.pk === user?.pk;
-
+  const constructHref = (
+    user: User,
+    list: DestructionList,
+  ): string | undefined => {
     switch (list.status) {
       case "changes_requested":
-        return isAssignee ? `/destruction-lists/${list.uuid}` : undefined;
+        return canUpdateDestructionList(user, list)
+          ? `/destruction-lists/${list.uuid}`
+          : undefined;
 
       case "ready_to_review":
-        return isAssignee
+        return canReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
           : undefined;
 
@@ -128,7 +135,7 @@ export const Landing = () => {
 
       return {
         key: list.name,
-        href: constructHref(list),
+        href: constructHref(user, list),
         title: list.name,
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (

@@ -15,9 +15,12 @@ import { redirect, useLoaderData, useSubmit } from "react-router-dom";
 import { DestructionList } from "../../../components";
 import { User } from "../../../lib/api/auth";
 import { createDestructionList } from "../../../lib/api/destructionLists";
-import { loginRequired } from "../../../lib/api/loginRequired";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import {
+  canStartDestructionListRequired,
+  loginRequired,
+} from "../../../lib/auth/loaders";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -40,7 +43,7 @@ export type DestructionListCreateContext = {
  * @param request
  */
 export const destructionListCreateLoader = loginRequired(
-  async ({ request }: LoaderFunctionArgs) => {
+  canStartDestructionListRequired(async ({ request }: LoaderFunctionArgs) => {
     const searchParamsZakenEndpoint: Record<string, string> = {
       not_in_destruction_list: "true",
     };
@@ -66,7 +69,7 @@ export const destructionListCreateLoader = loginRequired(
     );
 
     return { reviewers, zaken, selectedZaken };
-  },
+  }),
 );
 
 /**

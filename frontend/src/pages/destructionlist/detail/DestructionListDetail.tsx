@@ -20,9 +20,12 @@ import {
   getDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
-import { loginRequired } from "../../../lib/api/loginRequired";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import {
+  canUpdateDestructionListRequired,
+  loginRequired,
+} from "../../../lib/auth/loaders";
 import {
   ZaakSelection,
   getZaakSelection,
@@ -149,19 +152,22 @@ export async function destructionListUpdateAction({
  * React Router loader.
  */
 export const destructionListDetailLoader = loginRequired(
-  async ({
-    request,
-    params,
-  }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
-    const uuid = params.uuid as string;
-    const storageKey = `destruction-list-detail-${uuid}`;
-    const searchParams = Object.fromEntries(new URL(request.url).searchParams);
+  canUpdateDestructionListRequired(
+    async ({
+      request,
+      params,
+    }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
+      const uuid = params.uuid as string;
+      const storageKey = `destruction-list-detail-${uuid}`;
+      const searchParams = Object.fromEntries(
+        new URL(request.url).searchParams,
+      );
 
-    // Get reviewers, zaken and zaaktypen.
-    const promises = [
-      getDestructionList(uuid as string),
-      listReviewers(),
-      /*
+      // Get reviewers, zaken and zaaktypen.
+      const promises = [
+        getDestructionList(uuid as string),
+        listReviewers(),
+        /*
        Intercept and ignore 404 due to the following scenario cause by shared `page` parameter:
 
        - User navigates to destruction list with 1 page of items.
@@ -169,38 +175,39 @@ export const destructionListDetailLoader = loginRequired(
        - User navigates to page 2
        - zaken API with param `in_destruction_list` may return 404.
       */
-      listZaken({ ...searchParams, in_destruction_list: uuid }).catch((e) => {
-        if (e.status === 404) {
-          return {
-            count: 0,
-            next: null,
-            previous: null,
-            results: [],
-          };
-        }
-      }),
-      listZaken({
-        ...searchParams,
-        not_in_destruction_list_except: uuid,
-      }),
-      getZaakSelection(storageKey),
-    ];
-    const [destructionList, reviewers, zaken, allZaken, zaakSelection] =
-      (await Promise.all(promises)) as [
-        DestructionList,
-        User[],
-        PaginatedZaken,
-        PaginatedZaken,
-        ZaakSelection,
+        listZaken({ ...searchParams, in_destruction_list: uuid }).catch((e) => {
+          if (e.status === 404) {
+            return {
+              count: 0,
+              next: null,
+              previous: null,
+              results: [],
+            };
+          }
+        }),
+        listZaken({
+          ...searchParams,
+          not_in_destruction_list_except: uuid,
+        }),
+        getZaakSelection(storageKey),
       ];
+      const [destructionList, reviewers, zaken, allZaken, zaakSelection] =
+        (await Promise.all(promises)) as [
+          DestructionList,
+          User[],
+          PaginatedZaken,
+          PaginatedZaken,
+          ZaakSelection,
+        ];
 
-    return {
-      destructionList,
-      storageKey,
-      reviewers,
-      zaken,
-      allZaken,
-      zaakSelection,
-    };
-  },
+      return {
+        destructionList,
+        storageKey,
+        reviewers,
+        zaken,
+        allZaken,
+        zaakSelection,
+      };
+    },
+  ),
 );
