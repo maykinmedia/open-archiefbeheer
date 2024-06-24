@@ -2,6 +2,9 @@ import { BadgeProps } from "@maykin-ui/admin-ui";
 
 import { DestructionListStatus } from "../../../lib/api/destructionLists";
 
+export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
+export const STATUSES_ELIGIBLE_FOR_REVIEW = ["ready_to_review"];
+
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
   changes_requested: "Changes Requested",
   ready_to_review: "Ready to Review",

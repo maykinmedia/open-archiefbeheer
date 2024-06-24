@@ -40,7 +40,7 @@ const FIXTURE: DestructionListReviewLoaderContext = {
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectedZaken: [],
   uuid: "00000000-0000-0000-0000-000000000000",
-  list: FIXTURE_DESTRUCTION_LIST,
+  destructionList: FIXTURE_DESTRUCTION_LIST,
 };
 
 export const ReviewDestructionList: Story = {
