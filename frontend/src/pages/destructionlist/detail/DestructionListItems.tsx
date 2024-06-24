@@ -1,5 +1,5 @@
 import { DataGrid, Outline } from "@maykin-ui/admin-ui";
-import React, { useState } from "react";
+import React from "react";
 import {
   useLoaderData,
   useNavigation,
@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { useAsync } from "react-use";
 
+import { ReviewItem } from "../../../lib/api/review";
 import {
   addToZaakSelection,
   getZaakSelection,
@@ -18,17 +19,36 @@ import { DestructionListDetailContext } from "./types";
 
 export function DestructionListItems() {
   const { state } = useNavigation();
-  const { storageKey, allZaken, zaken, zaakSelection } =
-    useLoaderData() as DestructionListDetailContext;
-  const submit = useSubmit();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
-  const isEditingState = Boolean(urlSearchParams.get("is_editing"));
+  const submit = useSubmit();
+  const {
+    storageKey,
+    zaken,
+    selectableZaken,
+    zaakSelection,
+    review,
+    reviewItems,
+  } = useLoaderData() as DestructionListDetailContext;
+
+  const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
+
   const selectedUrls = Object.entries(zaakSelection)
     .filter(([_, { selected }]) => selected)
     .map(([url]) => ({ url }));
+
   const dataGridProps = useDataGridProps(
     storageKey,
-    isEditingState ? allZaken : zaken,
+    reviewItems
+      ? // FIXME: Accept no/implement real pagination?
+        {
+          count: reviewItems.length,
+          next: null,
+          previous: null,
+          results: reviewItems.map((ri) => ri.zaak),
+        }
+      : isEditingState
+        ? selectableZaken
+        : zaken,
     isEditingState ? [...zaken.results, ...selectedUrls] : [],
   );
 
@@ -57,16 +77,18 @@ export function DestructionListItems() {
   };
 
   return (
-    <div className="zaken-list">
-      <DataGrid
-        {...dataGridProps.props}
-        boolProps={{ explicit: true }}
-        count={isEditingState ? allZaken.count : zaken.count}
-        filterable={isEditingState}
-        loading={state === "loading"}
-        selectable={isEditingState}
-        selectionActions={
-          isEditingState
+    <DataGrid
+      {...dataGridProps.props}
+      boolProps={{ explicit: true }}
+      count={isEditingState ? selectableZaken.count : zaken.count}
+      filterable={isEditingState}
+      loading={state === "loading"}
+      allowSelectAll={!reviewItems}
+      selectable={Boolean(reviewItems || isEditingState)}
+      selectionActions={
+        review
+          ? undefined
+          : isEditingState
             ? [
                 {
                   children: "Vernietigingslijst aanpassen",
@@ -87,10 +109,10 @@ export function DestructionListItems() {
                   wrap: false,
                 },
               ]
-        }
-        sort={isEditingState}
-        title="Zaakdossiers"
-      />
-    </div>
+      }
+      showPaginator={!reviewItems}
+      sort={isEditingState}
+      title="Zaakdossiers"
+    />
   );
 }
