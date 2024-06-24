@@ -9,7 +9,7 @@ from ..models import Zaak
 
 class ZaakFactory(factory.django.DjangoModelFactory):
     uuid = FuzzyAttribute(uuid4)
-    url = factory.Sequence(lambda number: f"http://zaken-api.nl/zaken/{number}")
+    url = factory.LazyAttribute(lambda obj: f"http://zaken-api.nl/zaken/{obj.uuid}")
     identificatie = factory.Sequence(lambda number: f"ZAAK-{number}")
     startdatum = FuzzyDate(date(2000, 1, 1))
     zaaktype = factory.Sequence(

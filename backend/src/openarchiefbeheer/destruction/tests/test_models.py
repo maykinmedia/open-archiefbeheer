@@ -10,7 +10,12 @@ from testfixtures import log_capture
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from .factories import DestructionListFactory, DestructionListItemFactory
+from .factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+    ReviewItemResponseFactory,
+    ReviewResponseFactory,
+)
 
 
 class DestructionListItemTest(TestCase):
@@ -70,3 +75,20 @@ class DestructionListItemTest(TestCase):
             destruction_list.status_changed,
             timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
         )
+
+    def test_number_of_queries_items_reponses(self):
+        review_response = ReviewResponseFactory.create()
+        ReviewItemResponseFactory.create_batch(
+            2, review_item__review=review_response.review
+        )
+
+        queryset = review_response.items_responses
+
+        with self.assertNumQueries(1):
+            n_items = len(queryset)
+
+        self.assertEqual(n_items, 2)
+
+        with self.assertNumQueries(0):
+            for item_response in queryset:
+                item_response.review_item.destruction_list_item
