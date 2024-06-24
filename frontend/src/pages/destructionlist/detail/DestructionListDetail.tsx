@@ -5,7 +5,7 @@ import {
   CardBaseTemplate,
   Column,
   Grid,
-  H1,
+  H2,
   LabeledAttributeData,
   P,
 } from "@maykin-ui/admin-ui";
@@ -89,26 +89,22 @@ export function DestructionListDetailPage() {
     <div className="destruction-list-detail">
       <CardBaseTemplate>
         <Body>
-          <H1>{destructionList.name}</H1>
-          <P>
-            <Grid>
-              <Column span={3}>
-                <AttributeTable
-                  labeledObject={getDisplayableList(destructionList)}
-                />
-              </Column>
-              <Column span={9}>
-                <AssigneesEditable
-                  assignees={destructionList.assignees}
-                  reviewers={reviewers}
-                />
-              </Column>
-            </Grid>
-          </P>
-          <P>
-            <DestructionListItems />
-          </P>
+          <H2>{destructionList.name}</H2>
+          <Grid>
+            <Column span={3}>
+              <AttributeTable
+                labeledObject={getDisplayableList(destructionList)}
+              />
+            </Column>
+            <Column span={9}>
+              <AssigneesEditable
+                assignees={destructionList.assignees}
+                reviewers={reviewers}
+              />
+            </Column>
+          </Grid>
         </Body>
+        <DestructionListItems />
       </CardBaseTemplate>
     </div>
   );
