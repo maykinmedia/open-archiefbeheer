@@ -3,16 +3,19 @@ import {
   DestructionList,
   DestructionListAssignee,
 } from "../../../lib/api/destructionLists";
+import { Review, ReviewItem } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export interface DestructionListDetailContext {
-  reviewers: User[];
-  destructionList: DestructionList;
   storageKey: string;
+  destructionList: DestructionList;
+  reviewers: User[];
   zaken: PaginatedZaken;
-  allZaken: PaginatedZaken;
+  selectableZaken: PaginatedZaken;
   zaakSelection: ZaakSelection;
+  review: Review | null;
+  reviewItems: ReviewItem[] | null;
 }
 
 export type AssigneesEditableProps = {

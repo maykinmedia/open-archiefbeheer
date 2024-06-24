@@ -34,12 +34,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListDetailContext = {
-  reviewers: FIXTURE_USERS,
-  destructionList: FIXTURE_DESTRUCTION_LIST,
   storageKey: "storybook-storage-key",
+  destructionList: FIXTURE_DESTRUCTION_LIST,
+  reviewers: FIXTURE_USERS,
   zaken: FIXTURE_PAGINATED_ZAKEN,
-  allZaken: FIXTURE_PAGINATED_ZAKEN,
+  selectableZaken: FIXTURE_PAGINATED_ZAKEN,
   zaakSelection: {},
+  review: null,
+  reviewItems: null,
 };
 
 export const ReviewDestructionList: Story = {
