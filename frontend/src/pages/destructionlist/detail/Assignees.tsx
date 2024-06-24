@@ -1,8 +1,4 @@
-import {
-  AttributeTable,
-  SerializedFormData,
-  TypedField,
-} from "@maykin-ui/admin-ui";
+import { AttributeTable, SerializedFormData } from "@maykin-ui/admin-ui";
 import React, { FormEvent } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 
@@ -16,6 +12,26 @@ export function AssigneesEditable({
 }: AssigneesEditableProps) {
   const errors = useActionData() || {};
   const submit = useSubmit();
+  const reviewerAssignees = [...assignees].splice(1);
+
+  const fields = reviewerAssignees.map((_, i) => ({
+    name: `reviewer_${i + 1}`,
+    type: "string",
+    options: reviewers.map((user) => ({
+      label: formatUser(user),
+    })),
+  }));
+
+  const labeledObject = reviewerAssignees.reduce(
+    (acc, val, i) => ({
+      ...acc,
+      [`reviewer_${i + 1}`]: {
+        label: `Reviewer ${i + 1}`,
+        value: formatUser(assignees[i + 1].user),
+      },
+    }),
+    {},
+  );
 
   const handleSubmit = (_: FormEvent, data: SerializedFormData) => {
     const selectedAssignees: DestructionListAssignee[] = Object.values(
@@ -31,34 +47,6 @@ export function AssigneesEditable({
     const formData = new FormData();
     assigneeIds.forEach((id) => formData.append("assigneeIds", id.toString()));
     submit(formData, { method: "PATCH" });
-  };
-
-  const fields = [
-    {
-      name: `reviewer_1`,
-      type: "string",
-      options: reviewers.map((user) => ({
-        label: formatUser(user),
-      })),
-    },
-    {
-      name: `reviewer_2`,
-      type: "string",
-      options: reviewers.map((user) => ({
-        label: formatUser(user),
-      })),
-    },
-  ];
-
-  const labeledObject = {
-    reviewer_1: {
-      label: "Reviewer 1",
-      value: formatUser(assignees[1].user),
-    },
-    reviewer_2: {
-      label: "Reviewer 2",
-      value: formatUser(assignees[2].user),
-    },
   };
 
   return (
