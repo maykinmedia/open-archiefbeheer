@@ -10,7 +10,9 @@ logger = logging.getLogger(__name__)
 
 @app.task
 def process_review_response(pk: int) -> None:
-    review_response = ReviewResponse.objects.select_related("review").get(pk=pk)
+    review_response = ReviewResponse.objects.select_related(
+        "review", "review__destruction_list"
+    ).get(pk=pk)
     items_review_responses = review_response.items_responses.select_related(
         "review_item", "review_item__destruction_list_item"
     ).select_for_update()
@@ -27,3 +29,5 @@ def process_review_response(pk: int) -> None:
             item_response.processing_status = InternalStatus.failed
             item_response.save()
             return
+
+    review_response.review.destruction_list.assign_first_reviewer()
