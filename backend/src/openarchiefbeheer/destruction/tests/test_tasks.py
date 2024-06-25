@@ -16,8 +16,10 @@ from .factories import ReviewItemResponseFactory, ReviewResponseFactory
 @Mocker()
 class ProcessReviewResponseTests(TestCase):
     def test_idempotency(self, m):
-        review_response = ReviewResponseFactory.create(
-            processing_status=InternalStatus.succeeded
+        review_response = ReviewResponseFactory.create()
+        ReviewItemResponseFactory.create(
+            review_item__review=review_response.review,
+            processing_status=InternalStatus.succeeded,
         )
 
         process_review_response(review_response.pk)
@@ -48,18 +50,16 @@ class ProcessReviewResponseTests(TestCase):
         matcher = re.compile(r"http:\/\/zaken-api.nl\/zaken\/[0-9a-z\-]+?")
         m.patch(matcher, json={"archiefactiedatum": "2026-01-01"})
 
-        # 1 - Get review response and lock for update
+        # 1 - Get review response
         # 2 - Get review item responses and lock for udate
-        # 3 - Set review response status to "processing"
-        # 4 - Set status of first review item response to "processing"
-        # 5 - Update first destruction list item
-        # 6 - Get Zaak
-        # 7 - Get ZGW service to update zaak
-        # 8 - Update first zaak
-        # 9 - Set status of first review item response to "succeeded"
-        # 10, 11, 12, 13, 14, 15 - same as 4-9 but for second review item response
-        # 16 - Set review response status to "succeeded"
-        with self.assertNumQueries(16):
+        # 3 - Set status of first review item response to "processing"
+        # 4 - Update first destruction list item
+        # 5 - Get Zaak
+        # 6 - Get ZGW service to update zaak
+        # 7 - Update first zaak
+        # 8 - Set status of first review item response to "succeeded"
+        # 9, 10, 11, 12, 13, 14 - same as 3-8 but for second review item response
+        with self.assertNumQueries(14):
             process_review_response(review_response.pk)
 
     def test_client_error_during_zaak_update(self, m):
