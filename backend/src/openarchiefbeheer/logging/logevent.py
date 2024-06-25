@@ -3,7 +3,11 @@ from django.db.models import Model
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.models import User
-from openarchiefbeheer.destruction.models import DestructionList
+from openarchiefbeheer.destruction.models import (
+    DestructionList,
+    DestructionListReview,
+    ReviewDecisionChoices,
+)
 
 
 def _create_log(
@@ -23,3 +27,14 @@ def destruction_list_created(destruction_list: DestructionList, user: User) -> N
 
 def destruction_list_updated(destruction_list: DestructionList) -> None:
     _create_log(model=destruction_list, event="destruction_list_updated")
+
+
+def destruction_list_reviewed(
+    destruction_list: DestructionList, review: DestructionListReview, user: User
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_reviewed",
+        user=user,
+        extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
+    )
