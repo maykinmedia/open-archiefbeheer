@@ -18,7 +18,9 @@ export async function loginAction({ request }: ActionFunctionArgs) {
     await login(username as string, password as string);
     const url = new URL(request.url);
     const next = url.searchParams.get("next") || "/";
-    return redirect(next);
+    const nextPath = new URL(next, window.location.origin).pathname;
+
+    return redirect(nextPath);
   } catch (e: unknown) {
     return await (e as Response).json();
   }
