@@ -317,15 +317,6 @@ class ReviewResponse(models.Model):
         help_text=_("The response of the author of the destruction list to a review."),
     )
     created = models.DateTimeField(auto_now_add=True)
-    processing_status = models.CharField(
-        _("processing status"),
-        choices=InternalStatus.choices,
-        max_length=80,
-        help_text=_(
-            "Field used to track the status of the changes that should be made to a destruction list and the cases."
-        ),
-        default=InternalStatus.new,
-    )
 
     class Meta:
         verbose_name = _("review response")
@@ -336,9 +327,41 @@ class ReviewResponse(models.Model):
 
     @property
     def items_responses(self) -> QuerySet["ReviewItemResponse"]:
-        return ReviewItemResponse.objects.filter(
-            review_item__review=self.review
-        ).select_related("review_item", "review_item__destruction_list_item")
+        return ReviewItemResponse.objects.filter(review_item__review=self.review)
+
+    @staticmethod
+    def _derive_status(items_statuses: list[str]) -> str:
+        if all([item_status == InternalStatus.new for item_status in items_statuses]):
+            return InternalStatus.new
+
+        if all(
+            [item_status == InternalStatus.succeeded for item_status in items_statuses]
+        ):
+            return InternalStatus.succeeded
+
+        if any(
+            [item_status == InternalStatus.failed for item_status in items_statuses]
+        ):
+            return InternalStatus.failed
+
+        if any(
+            [item_status == InternalStatus.processing for item_status in items_statuses]
+        ):
+            return InternalStatus.processing
+
+        if any(
+            [item_status == InternalStatus.queued for item_status in items_statuses]
+        ):
+            return InternalStatus.queued
+
+        return InternalStatus.processing
+
+    @property
+    def processing_status(self) -> str:
+        items_statuses = self.items_responses.values_list(
+            "processing_status", flat=True
+        )
+        return self._derive_status(items_statuses)
 
 
 class ReviewItemResponse(models.Model):

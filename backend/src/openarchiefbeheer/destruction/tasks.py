@@ -10,16 +10,10 @@ logger = logging.getLogger(__name__)
 
 @app.task
 def process_review_response(pk: int) -> None:
-    review_response = (
-        ReviewResponse.objects.select_related("review").select_for_update().get(pk=pk)
-    )
-    if review_response.processing_status == InternalStatus.succeeded:
-        return
-
-    items_review_responses = review_response.items_responses.select_for_update()
-
-    review_response.processing_status = InternalStatus.processing
-    review_response.save()
+    review_response = ReviewResponse.objects.select_related("review").get(pk=pk)
+    items_review_responses = review_response.items_responses.select_related(
+        "review_item", "review_item__destruction_list_item"
+    ).select_for_update()
 
     for item_response in items_review_responses:
         try:
@@ -32,10 +26,4 @@ def process_review_response(pk: int) -> None:
 
             item_response.processing_status = InternalStatus.failed
             item_response.save()
-
-            review_response.processing_status = InternalStatus.failed
-            review_response.save()
             return
-
-    review_response.processing_status = InternalStatus.succeeded
-    review_response.save()

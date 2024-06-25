@@ -27,23 +27,6 @@ class Migration(migrations.Migration):
                 verbose_name="processing status",
             ),
         ),
-        migrations.AddField(
-            model_name="reviewresponse",
-            name="processing_status",
-            field=models.CharField(
-                choices=[
-                    ("new", "new"),
-                    ("queued", "queued"),
-                    ("processing", "processing"),
-                    ("failed", "failed"),
-                    ("succeeded", "succeeded"),
-                ],
-                default="new",
-                help_text="Field used to track the status of the changes that should be made to a destruction list and the cases.",
-                max_length=80,
-                verbose_name="processing status",
-            ),
-        ),
         migrations.AlterField(
             model_name="destructionlistitem",
             name="status",

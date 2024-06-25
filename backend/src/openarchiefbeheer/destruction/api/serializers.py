@@ -408,15 +408,12 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
     def create(self, validated_data: dict) -> ReviewResponse:
         items_responses_data = validated_data.pop("items_responses", [])
         items_responses = [
-            ReviewItemResponse(**item_response)
+            ReviewItemResponse(processing_status=InternalStatus.queued, **item_response)
             for item_response in items_responses_data
         ]
 
         review_response = ReviewResponse.objects.create(**validated_data)
         ReviewItemResponse.objects.bulk_create(items_responses)
-
-        review_response.processing_status = InternalStatus.queued
-        review_response.save()
 
         process_review_response.delay(review_response.pk)
 
