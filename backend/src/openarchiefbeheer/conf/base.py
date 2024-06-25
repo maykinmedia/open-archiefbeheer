@@ -389,8 +389,9 @@ else:
 
 RELEASE = config("RELEASE", GIT_SHA)
 
+REQUESTS_READ_TIMEOUT = config("REQUESTS_READ_TIMEOUT", 30)
 # Default (connection timeout, read timeout) for the requests library (in seconds)
-REQUESTS_DEFAULT_TIMEOUT = (10, 30)
+REQUESTS_DEFAULT_TIMEOUT = (10, REQUESTS_READ_TIMEOUT)
 
 ##############################
 #                            #
