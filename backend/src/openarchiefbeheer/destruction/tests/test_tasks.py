@@ -13,6 +13,7 @@ from ..constants import (
     InternalStatus,
     ListItemStatus,
     ListRole,
+    ListStatus,
 )
 from ..tasks import process_review_response
 from .factories import (
@@ -71,7 +72,8 @@ class ProcessReviewResponseTests(TestCase):
         # 15 - Retrieve reviewers
         # 16 - Update destruction list assignee
         # 17 - Update assignee "assigned on" field
-        with self.assertNumQueries(17):
+        # 18 - Update destruction list status
+        with self.assertNumQueries(18):
             process_review_response(review_response.pk)
 
     def test_client_error_during_zaak_update(self, m):
@@ -105,7 +107,9 @@ class ProcessReviewResponseTests(TestCase):
             api_root="http://zaken-api.nl/",
         )
 
-        review_response = ReviewResponseFactory.create()
+        review_response = ReviewResponseFactory.create(
+            review__destruction_list__status=ListStatus.changes_requested
+        )
         zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
         review_item_response = ReviewItemResponseFactory.create(
             review_item__destruction_list_item__zaak=zaak.url,
@@ -142,4 +146,7 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(zaak.archiefactiedatum.isoformat(), "2026-01-01")
         self.assertEqual(
             review_response.review.destruction_list.assignee, first_reviwer.user
+        )
+        self.assertEqual(
+            review_response.review.destruction_list.status, ListStatus.ready_to_review
         )
