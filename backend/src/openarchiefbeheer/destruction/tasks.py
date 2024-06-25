@@ -2,7 +2,7 @@ import logging
 
 from openarchiefbeheer.celery import app
 
-from .constants import InternalStatus
+from .constants import InternalStatus, ListStatus
 from .models import ReviewResponse
 
 logger = logging.getLogger(__name__)
@@ -31,3 +31,4 @@ def process_review_response(pk: int) -> None:
             return
 
     review_response.review.destruction_list.assign_first_reviewer()
+    review_response.review.destruction_list.set_status(ListStatus.ready_to_review)
