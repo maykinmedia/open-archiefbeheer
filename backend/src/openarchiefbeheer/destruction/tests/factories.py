@@ -1,4 +1,5 @@
 import factory.fuzzy
+from factory import post_generation
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -13,6 +14,7 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
 
 class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
     destruction_list = factory.SubFactory(DestructionListFactory)
+    user = factory.SubFactory(UserFactory)
 
     class Meta:
         model = "destruction.DestructionListAssignee"
@@ -61,3 +63,12 @@ class ReviewResponseFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "destruction.ReviewResponse"
+
+    @post_generation
+    def post(review_response, create, extracted, **kwargs):
+        if not create:
+            return
+
+        DestructionListAssigneeFactory.create(
+            destruction_list=review_response.review.destruction_list,
+        )
