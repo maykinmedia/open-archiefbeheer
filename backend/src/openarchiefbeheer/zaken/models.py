@@ -1,6 +1,11 @@
+from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
+from zgw_consumers.client import build_client
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 
 class Zaak(models.Model):
@@ -103,3 +108,26 @@ class Zaak(models.Model):
 
     def __str__(self):
         return self.identificatie
+
+    def update_data(self, data: dict) -> None:
+        from .api.serializers import ZaakSerializer
+
+        zrc_service = Service.objects.get(api_type=APITypes.zrc)
+        zrc_client = build_client(zrc_service)
+
+        with zrc_client:
+            response = zrc_client.patch(
+                f"zaken/{self.uuid}",
+                headers={
+                    "Accept-Crs": "EPSG:4326",
+                    "Content-Crs": "EPSG:4326",
+                },
+                data=data,
+                timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
+            )
+            response.raise_for_status()
+            updated_zaak = response.json()
+
+        serializer = ZaakSerializer(data=updated_zaak, partial=True, instance=self)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()

@@ -10,6 +10,7 @@ from ordered_model.models import OrderedModel
 
 from openarchiefbeheer.destruction.constants import (
     DestructionListItemAction,
+    InternalStatus,
     ListItemStatus,
     ListRole,
     ListStatus,
@@ -328,6 +329,40 @@ class ReviewResponse(models.Model):
     def items_responses(self) -> QuerySet["ReviewItemResponse"]:
         return ReviewItemResponse.objects.filter(review_item__review=self.review)
 
+    @staticmethod
+    def _derive_status(items_statuses: list[str]) -> str:
+        if all([item_status == InternalStatus.new for item_status in items_statuses]):
+            return InternalStatus.new
+
+        if all(
+            [item_status == InternalStatus.succeeded for item_status in items_statuses]
+        ):
+            return InternalStatus.succeeded
+
+        if any(
+            [item_status == InternalStatus.failed for item_status in items_statuses]
+        ):
+            return InternalStatus.failed
+
+        if any(
+            [item_status == InternalStatus.processing for item_status in items_statuses]
+        ):
+            return InternalStatus.processing
+
+        if any(
+            [item_status == InternalStatus.queued for item_status in items_statuses]
+        ):
+            return InternalStatus.queued
+
+        return InternalStatus.processing
+
+    @property
+    def processing_status(self) -> str:
+        items_statuses = self.items_responses.values_list(
+            "processing_status", flat=True
+        )
+        return self._derive_status(items_statuses)
+
 
 class ReviewItemResponse(models.Model):
     review_item = models.ForeignKey(
@@ -357,6 +392,15 @@ class ReviewItemResponse(models.Model):
             "feedback of the reviewer on a specific case."
         ),
     )
+    processing_status = models.CharField(
+        _("processing status"),
+        choices=InternalStatus.choices,
+        max_length=80,
+        help_text=_(
+            "Field used to track the status of the changes that should be made to a destruction list item and the corresponding case."
+        ),
+        default=InternalStatus.new,
+    )
 
     class Meta:
         verbose_name = _("review item response")
@@ -364,3 +408,23 @@ class ReviewItemResponse(models.Model):
 
     def __str__(self):
         return f"Response to {self.review_item}"
+
+    def process(self):
+        if self.processing_status == InternalStatus.succeeded:
+            return
+
+        self.processing_status = InternalStatus.processing
+        self.save()
+
+        destruction_list_item = self.review_item.destruction_list_item
+
+        if self.action_item == DestructionListItemAction.remove:
+            destruction_list_item.status = ListItemStatus.removed
+            destruction_list_item.save()
+
+        if self.action_zaak:
+            zaak = Zaak.objects.get(url=destruction_list_item.zaak)
+            zaak.update_data(self.action_zaak)
+
+        self.processing_status = InternalStatus.succeeded
+        self.save()

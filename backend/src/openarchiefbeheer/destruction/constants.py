@@ -13,9 +13,6 @@ class ListStatus(models.TextChoices):
 class ListItemStatus(models.TextChoices):
     suggested = "suggested", _("suggested for destruction")
     removed = "removed", _("removed from the destruction list during review")
-    processing = "processing", _("is currently being destroyed")
-    destroyed = "destroyed", _("successfully destroyed")
-    failed = "failed", _("destruction did not succeed")
 
 
 class ReviewDecisionChoices(models.TextChoices):
@@ -31,3 +28,11 @@ class ListRole(models.TextChoices):
 class DestructionListItemAction(models.TextChoices):
     keep = "keep", _("keep")
     remove = "remove", _("remove")
+
+
+class InternalStatus(models.TextChoices):
+    new = "new", _("new")
+    queued = "queued", _("queued")
+    processing = "processing", _("processing")
+    failed = "failed", _("failed")
+    succeeded = "succeeded", _("succeeded")

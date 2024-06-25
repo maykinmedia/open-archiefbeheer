@@ -7,10 +7,14 @@ from django.utils import timezone
 from freezegun import freeze_time
 from testfixtures import log_capture
 
-from openarchiefbeheer.destruction.constants import ListItemStatus
+from openarchiefbeheer.destruction.constants import InternalStatus, ListItemStatus
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from .factories import DestructionListFactory, DestructionListItemFactory
+from .factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+    ReviewResponseFactory,
+)
 
 
 class DestructionListItemTest(TestCase):
@@ -69,4 +73,78 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(
             destruction_list.status_changed,
             timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
+        )
+
+
+class ReviewResponseTests(TestCase):
+    def test_derive_status(self):
+        review_response = ReviewResponseFactory.create()
+
+        self.assertEqual(
+            review_response._derive_status(
+                [InternalStatus.new, InternalStatus.new, InternalStatus.new]
+            ),
+            InternalStatus.new,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [
+                    InternalStatus.succeeded,
+                    InternalStatus.succeeded,
+                    InternalStatus.succeeded,
+                ]
+            ),
+            InternalStatus.succeeded,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [
+                    InternalStatus.failed,
+                    InternalStatus.succeeded,
+                    InternalStatus.succeeded,
+                ]
+            ),
+            InternalStatus.failed,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [
+                    InternalStatus.processing,
+                    InternalStatus.succeeded,
+                    InternalStatus.succeeded,
+                ]
+            ),
+            InternalStatus.processing,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [
+                    InternalStatus.queued,
+                    InternalStatus.succeeded,
+                    InternalStatus.succeeded,
+                ]
+            ),
+            InternalStatus.queued,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [
+                    InternalStatus.queued,
+                    InternalStatus.failed,
+                    InternalStatus.processing,
+                ]
+            ),
+            InternalStatus.failed,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [InternalStatus.queued, InternalStatus.new, InternalStatus.processing]
+            ),
+            InternalStatus.processing,
+        )
+        self.assertEqual(
+            review_response._derive_status(
+                [InternalStatus.new, InternalStatus.new, InternalStatus.succeeded]
+            ),
+            InternalStatus.processing,
         )
