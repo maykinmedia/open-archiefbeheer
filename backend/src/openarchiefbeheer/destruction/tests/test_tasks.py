@@ -8,9 +8,18 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import DestructionListItemAction, InternalStatus, ListItemStatus
+from ..constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListItemStatus,
+    ListRole,
+)
 from ..tasks import process_review_response
-from .factories import ReviewItemResponseFactory, ReviewResponseFactory
+from .factories import (
+    DestructionListAssigneeFactory,
+    ReviewItemResponseFactory,
+    ReviewResponseFactory,
+)
 
 
 @Mocker()
@@ -59,7 +68,10 @@ class ProcessReviewResponseTests(TestCase):
         # 7 - Update first zaak
         # 8 - Set status of first review item response to "succeeded"
         # 9, 10, 11, 12, 13, 14 - same as 3-8 but for second review item response
-        with self.assertNumQueries(14):
+        # 15 - Retrieve reviewers
+        # 16 - Update destruction list assignee
+        # 17 - Update assignee "assigned on" field
+        with self.assertNumQueries(17):
             process_review_response(review_response.pk)
 
     def test_client_error_during_zaak_update(self, m):
@@ -101,6 +113,15 @@ class ProcessReviewResponseTests(TestCase):
             action_item=DestructionListItemAction.remove,
             action_zaak={"archiefactiedatum": "2026-01-01"},
         )
+        review_response.review.destruction_list.assignees.all().delete()
+        first_reviwer = DestructionListAssigneeFactory.create(
+            destruction_list=review_response.review.destruction_list,
+            role=ListRole.reviewer,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=review_response.review.destruction_list,
+            role=ListRole.reviewer,
+        )
 
         m.patch(zaak.url, json={"archiefactiedatum": "2026-01-01"})
 
@@ -119,3 +140,6 @@ class ProcessReviewResponseTests(TestCase):
             ListItemStatus.removed,
         )
         self.assertEqual(zaak.archiefactiedatum.isoformat(), "2026-01-01")
+        self.assertEqual(
+            review_response.review.destruction_list.assignee, first_reviwer.user
+        )

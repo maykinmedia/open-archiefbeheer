@@ -119,6 +119,14 @@ class DestructionList(models.Model):
     def get_author(self) -> "DestructionListAssignee":
         return self.assignees.get(role=ListRole.author)
 
+    def assign_first_reviewer(self) -> None:
+        reviewers = (
+            self.assignees.filter(role=ListRole.reviewer)
+            .select_related("user")
+            .order_by("order")
+        )
+        reviewers[0].assign()
+
     def assign_next(self) -> None:
         reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
 
