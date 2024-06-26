@@ -18,7 +18,6 @@ from openarchiefbeheer.destruction.constants import (
     ListStatus,
     ReviewDecisionChoices,
 )
-from openarchiefbeheer.emails.utils import send_review_request_email
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 
@@ -228,6 +227,8 @@ class DestructionListAssignee(OrderedModel):
         return f"{self.user} ({self.destruction_list}, {self.order})"
 
     def assign(self) -> None:
+        from .signals import user_assigned
+
         # TODO Log assignment
         self.destruction_list.assignee = self.user
         self.assigned_on = timezone.now()
@@ -235,15 +236,7 @@ class DestructionListAssignee(OrderedModel):
         self.destruction_list.save()
         self.save()
 
-        self.notify()
-
-    def notify(self) -> None:
-        if not self.user.email:
-            return
-
-        is_reviewer = self.user != self.destruction_list.author
-        if is_reviewer:
-            send_review_request_email(self.user, self.destruction_list)
+        user_assigned.send(sender=self.__class__, assignee=self)
 
 
 class DestructionListReview(models.Model):
