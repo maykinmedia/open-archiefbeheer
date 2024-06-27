@@ -32,3 +32,9 @@ def process_review_response(pk: int) -> None:
 
     review_response.review.destruction_list.assign_first_reviewer()
     review_response.review.destruction_list.set_status(ListStatus.ready_to_review)
+
+
+@app.task
+def delete_destruction_list(pk: int) -> None:
+    # TODO
+    pass
