@@ -103,7 +103,7 @@ urlpatterns = [
                     name="retrieve-zaaktypen-choices",
                 ),
                 path(
-                    "_selectielijstklasse-choices",
+                    "_selectielijstklasse-choices/",
                     SelectielijstklasseChoicesView.as_view(),
                     name="retrieve-selectielijstklasse-choices",
                 ),
