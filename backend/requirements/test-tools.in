@@ -2,7 +2,7 @@
 
 # Dependencies only relevant for (unit) testing
 black
-coverage < 5.0
+coverage
 django-jenkins
 django-webtest
 factory-boy

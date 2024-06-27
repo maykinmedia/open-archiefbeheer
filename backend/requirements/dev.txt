@@ -118,7 +118,7 @@ click-repl==0.3.0
     #   celery
 colorama==0.4.6
     # via isort
-coverage==4.5.4
+coverage==7.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
