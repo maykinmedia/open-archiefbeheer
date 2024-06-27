@@ -7,6 +7,7 @@ import {
   Grid,
   H2,
   LabeledAttributeData,
+  Option,
   P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
@@ -20,11 +21,8 @@ import {
   getDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
-import {
-  getLatestReview,
-  listReviewItems,
-  listReviews,
-} from "../../../lib/api/review";
+import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
+import { getLatestReview, listReviewItems } from "../../../lib/api/review";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -159,13 +157,13 @@ export const destructionListDetailLoader = loginRequired(
       params,
     }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
       const uuid = params.uuid as string;
-      const storageKey = `destruction-list-detail-${uuid}`;
       const searchParams = Object.fromEntries(
         new URL(request.url).searchParams,
       );
 
       // We need to fetch the destruction list first to get the status.
       const destructionList = await getDestructionList(uuid as string);
+      const storageKey = `destruction-list-detail-${uuid}-${destructionList.status}`;
 
       // If status indicates review: collect it.
       const review =
@@ -195,14 +193,12 @@ export const destructionListDetailLoader = loginRequired(
               results: [],
             } as PaginatedZaken)
           : listZaken({ ...searchParams, in_destruction_list: uuid }).catch(
-              /*
-              Intercept (and ignore) 404 due to the following scenario cause by shared `page` parameter:
-
-              - User navigates to destruction list with 1 page of items.
-              - Users click edit button
-              - User navigates to page 2
-              - zaken API with param `in_destruction_list` may return 404.
-              */
+              // Intercept (and ignore) 404 due to the following scenario cause by shared `page` parameter:
+              //
+              // User navigates to destruction list with 1 page of items.
+              // Users click edit button
+              // User navigates to page 2
+              // zaken API with param `in_destruction_list` may return 404.
               (e) => {
                 if (e.status === 404) {
                   return {
@@ -231,10 +227,36 @@ export const destructionListDetailLoader = loginRequired(
 
         // Fetch the selected zaken.
         getZaakSelection(storageKey),
+
+        // Fetch selectielijst choices if review collected.
+        // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
+        reviewItems
+          ? Object.fromEntries(
+              await Promise.all(
+                reviewItems.map(async (ri) => {
+                  const choices = await listSelectieLijstKlasseChoices({
+                    zaak: ri.zaak.url,
+                  });
+                  return [ri.zaak.url, choices];
+                }),
+              ),
+            )
+          : null,
       ];
-      const [reviewers, zaken, allZaken, zaakSelection] = (await Promise.all(
-        promises,
-      )) as [User[], PaginatedZaken, PaginatedZaken, ZaakSelection];
+
+      const [
+        reviewers,
+        zaken,
+        allZaken,
+        zaakSelection,
+        selectieLijstKlasseChoicesMap,
+      ] = (await Promise.all(promises)) as [
+        User[],
+        PaginatedZaken,
+        PaginatedZaken,
+        ZaakSelection,
+        Record<string, Option[]>,
+      ];
 
       return {
         storageKey,
@@ -245,6 +267,7 @@ export const destructionListDetailLoader = loginRequired(
         zaakSelection,
         review: review,
         reviewItems: reviewItems,
+        selectieLijstKlasseChoicesMap,
       };
     },
   ),

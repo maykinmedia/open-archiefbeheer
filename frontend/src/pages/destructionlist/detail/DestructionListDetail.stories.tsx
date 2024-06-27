@@ -42,6 +42,7 @@ const FIXTURE: DestructionListDetailContext = {
   zaakSelection: {},
   review: null,
   reviewItems: null,
+  selectieLijstKlasseChoicesMap: null,
 };
 
 export const ReviewDestructionList: Story = {

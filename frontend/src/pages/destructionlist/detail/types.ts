@@ -1,3 +1,5 @@
+import { Option } from "@maykin-ui/admin-ui";
+
 import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
@@ -16,6 +18,7 @@ export interface DestructionListDetailContext {
   zaakSelection: ZaakSelection;
   review: Review | null;
   reviewItems: ReviewItem[] | null;
+  selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }
 
 export type AssigneesEditableProps = {
