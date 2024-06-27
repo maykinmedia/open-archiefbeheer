@@ -33,3 +33,19 @@ class CanUpdateDestructionList(permissions.BasePermission):
             request.user == destruction_list.author
             and destruction_list.status == ListStatus.new
         )
+
+
+class CanTriggerDeletion(permissions.BasePermission):
+    message = _(
+        "You are either not allowed to delete this destruction list or "
+        "the destruction list can currently not be deleted."
+    )
+
+    def has_permission(self, request, view):
+        return request.user.role and request.user.role.can_start_destruction
+
+    def has_object_permission(self, request, view, destruction_list):
+        return (
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.ready_to_delete
+        )
