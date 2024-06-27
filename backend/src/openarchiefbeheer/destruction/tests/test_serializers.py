@@ -71,9 +71,10 @@ class DestructionListSerializerTests(TestCase):
 
         with (
             patch(
-                "openarchiefbeheer.emails.utils.EmailConfig.get_solo",
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
-                    subject_review_required="Destruction list review request"
+                    subject_review_required="Destruction list review request",
+                    body_review_required="Please review the list",
                 ),
             ),
             freeze_time("2024-05-02T16:00:00+02:00"),
@@ -485,11 +486,14 @@ class DestructionListReviewSerializerTests(TestCase):
         )
         reviewer2 = UserFactory.create(
             username="reviewer2",
-            email="reviewer@oab.nl",
+            email="reviewer2@oab.nl",
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
-            name="Test list", assignee=reviewer1, status=ListStatus.ready_to_review
+            name="Test list",
+            assignee=reviewer1,
+            status=ListStatus.ready_to_review,
+            author__email="record_manager@oab.nl",
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -520,13 +524,29 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        with freeze_time("2024-05-02T16:00:00+02:00"):
+        with (
+            freeze_time("2024-05-02T16:00:00+02:00"),
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_review_required="Destruction list review request",
+                    body_review_required="Please review the list",
+                    subject_positive_review="A reviewer approved!",
+                    body_positive_review="A reviewer approved!",
+                ),
+            ),
+        ):
             serializer.save()
 
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, reviewer2)
         self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[0].subject, "A reviewer approved!")
+        self.assertEqual(mail.outbox[0].recipients(), ["record_manager@oab.nl"])
+        self.assertEqual(mail.outbox[1].subject, "Destruction list review request")
+        self.assertEqual(mail.outbox[1].recipients(), ["reviewer2@oab.nl"])
 
         logs = destruction_list.logs.all()
 
@@ -544,7 +564,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, author__email="record_manager@oab.nl"
+        )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
             role=ListRole.author,
@@ -569,11 +591,24 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        serializer.save()
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_last_review="Last review accepted",
+                    body_last_review="Yuppiii last reviewer accepted!",
+                ),
+            ),
+        ):
+            serializer.save()
+
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Last review accepted")
+        self.assertEqual(mail.outbox[0].recipients(), ["record_manager@oab.nl"])
 
         logs = destruction_list.logs.all()
 
