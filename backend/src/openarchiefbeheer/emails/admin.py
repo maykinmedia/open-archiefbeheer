@@ -27,4 +27,15 @@ class EmailConfigAdmin(SingletonModelAdmin):
                 "fields": ["subject_changes_requested", "body_changes_requested"],
             },
         ),
+        (
+            _("Templates positive review"),
+            {
+                "fields": [
+                    "subject_positive_review",
+                    "body_positive_review",
+                    "subject_last_review",
+                    "body_last_review",
+                ]
+            },
+        ),
     ]
