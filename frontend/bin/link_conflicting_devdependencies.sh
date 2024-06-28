@@ -16,10 +16,18 @@ function directory_exists() {
 count=0;
 for dir in ${CONFLICTS[@]}; do
   fulldir="node_modules/${dir}"
+  dirname=`basename ${fulldir}`
+  symlink_target="${FRONTEND_DIR}/node_modules/${dirname}"
 
   if directory_exists $fulldir; then
-    echo "removing conflicting dependency: $fulldir"
-    rm -rf $fulldir;
+    real_source=`realpath ${fulldir}`
+    real_target=`realpath ${symlink_target}`
+    echo "removing conflicting dependency: $real_source"
+    rm -rf $real_source;
+
+    echo "creating symlink: $dirname"
+    ln -s $real_target $real_source
+
     let count++
   else
     echo "conflicting dependency not found: $fulldir"
@@ -27,7 +35,7 @@ for dir in ${CONFLICTS[@]}; do
 done
 
 echo ""
-echo "$count conflicting dependencies removed"
+echo "$count conflicting dependencies linked"
 
 if [ $count -gt 0 ]; then
   echo "you may need to restart your server"
