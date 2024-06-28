@@ -20,7 +20,9 @@ export type DestructionListStatus =
   | "ready_to_review"
   | "changes_requested"
   | "ready_to_delete"
-  | "deleted";
+  | "deleted"
+  | "ready_for_archivist"
+  | "internally_reviewed";
 
 export type DestructionListAssignee = {
   user: User;
