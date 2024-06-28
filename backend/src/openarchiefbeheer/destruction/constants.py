@@ -6,6 +6,8 @@ class ListStatus(models.TextChoices):
     new = "new", _("new")
     ready_to_review = "ready_to_review", _("ready to review")
     changes_requested = "changes_requested", _("changes requested")
+    internally_reviewed = "internally_reviewed", _("internally reviewed")
+    ready_for_archivist = "ready_for_archivist", _("ready for archivist")
     ready_to_delete = "ready_to_delete", _("ready to delete")
     deleted = "deleted", _("deleted")
 

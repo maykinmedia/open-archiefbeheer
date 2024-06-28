@@ -31,10 +31,16 @@ from ..models import (
 from ..tasks import process_review_response
 
 
-class DestructionListAssigneeSerializer(serializers.ModelSerializer):
+class ReviewerAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
         fields = ("user", "order")
+
+
+class DestructionListAssigneeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user", "order", "destruction_list", "role")
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
@@ -89,7 +95,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
 
 
 class DestructionListSerializer(serializers.ModelSerializer):
-    assignees = DestructionListAssigneeSerializer(many=True)
+    assignees = ReviewerAssigneeSerializer(many=True)
     items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
 
