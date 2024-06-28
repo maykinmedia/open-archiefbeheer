@@ -142,10 +142,10 @@ class DestructionList(models.Model):
     def assign_next(self) -> None:
         reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
 
-        # All reviews are completed
+        # All reviews have reviewed the draft destruction list
         if self.assignee == reviewers.last().user:
             self.get_author().assign()
-            self.set_status(ListStatus.ready_to_delete)
+            self.set_status(ListStatus.internally_reviewed)
             return
 
         current_assignee = self.assignees.get(user=self.assignee)

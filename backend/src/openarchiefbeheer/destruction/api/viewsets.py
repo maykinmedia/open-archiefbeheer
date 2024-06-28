@@ -3,10 +3,12 @@ from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from ..constants import InternalStatus
+from ..constants import InternalStatus, ListRole, ListStatus
 from ..models import (
     DestructionList,
     DestructionListItem,
@@ -23,12 +25,14 @@ from .filtersets import (
     ReviewResponseFilterset,
 )
 from .permissions import (
+    CanMarkListAsFinal,
     CanStartDestructionPermission,
     CanTriggerDeletion,
     CanUpdateDestructionList,
 )
 from .serializers import (
     DestructionListAPIResponseSerializer,
+    DestructionListAssigneeSerializer,
     DestructionListItemReviewSerializer,
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
@@ -162,6 +166,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
         elif self.action == "destroy":
             permission_classes = [IsAuthenticated & CanTriggerDeletion]
+        elif self.action == "make_final":
+            permission_classes = [IsAuthenticated & CanMarkListAsFinal]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -184,6 +190,25 @@ class DestructionListViewSet(
         instance.save()
 
         delete_destruction_list.delay(instance.pk)
+
+    @action(detail=True, methods=["post"], name="make-final")
+    def make_final(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+        destruction_list.set_status(ListStatus.ready_for_archivist)
+
+        serialiser = DestructionListAssigneeSerializer(
+            data={
+                "destruction_list": destruction_list.pk,
+                "role": ListRole.archivist,
+                **request.data,
+            }
+        )
+        serialiser.is_valid(raise_exception=True)
+        archivist = serialiser.save()
+
+        destruction_list.assign(archivist)
+
+        return Response(status=status.HTTP_201_CREATED)
 
 
 @extend_schema_view(

@@ -35,6 +35,22 @@ class CanUpdateDestructionList(permissions.BasePermission):
         )
 
 
+class CanMarkListAsFinal(permissions.BasePermission):
+    message = _(
+        "You are either not allowed to mark this destruction list as final or "
+        "the destruction list can currently not be updated."
+    )
+
+    def has_permission(self, request, view):
+        return request.user.role and request.user.role.can_start_destruction
+
+    def has_object_permission(self, request, view, destruction_list):
+        return (
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.internally_reviewed
+        )
+
+
 class CanTriggerDeletion(permissions.BasePermission):
     message = _(
         "You are either not allowed to delete this destruction list or "
