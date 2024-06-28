@@ -21,8 +21,9 @@ class ReviewDecisionChoices(models.TextChoices):
 
 
 class ListRole(models.TextChoices):
-    reviewer = "reviewer", _("Reviewer")
-    author = "author", _("Author")
+    reviewer = "reviewer", _("reviewer")
+    author = "author", _("author")
+    archivist = "archivist", _("archivist")
 
 
 class DestructionListItemAction(models.TextChoices):
