@@ -35,6 +35,7 @@ from .serializers import (
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
 )
 
@@ -133,6 +134,15 @@ from .serializers import (
         summary=_("Retrieve destruction list"),
         description=_("Retrieve details about a destruction list."),
         responses={200: DestructionListAPIResponseSerializer},
+    ),
+    make_final=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Make destruction list final"),
+        description=_(
+            "Change the status of a destruction list to 'final' and assign an archivist to it."
+        ),
+        request=ReviewerAssigneeSerializer,
+        responses={201: None},
     ),
 )
 class DestructionListViewSet(
