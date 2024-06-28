@@ -560,7 +560,7 @@ class DestructionListReviewSerializerTests(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+        self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
