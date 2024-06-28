@@ -37,6 +37,7 @@ from .serializers import (
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
 )
 
@@ -143,6 +144,15 @@ from .serializers import (
             "Calling this endpoint will start a background process that will "
             "delete the cases in the list from the case system."
         ),
+    ),
+    make_final=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Make destruction list final"),
+        description=_(
+            "Change the status of a destruction list to 'final' and assign an archivist to it."
+        ),
+        request=ReviewerAssigneeSerializer,
+        responses={201: None},
     ),
 )
 class DestructionListViewSet(
