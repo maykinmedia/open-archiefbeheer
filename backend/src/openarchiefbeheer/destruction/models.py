@@ -1,12 +1,14 @@
 import logging
 import uuid as _uuid
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from ordered_model.models import OrderedModel
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.destruction.constants import (
     DestructionListItemAction,
@@ -79,6 +81,8 @@ class DestructionList(models.Model):
         ),
         blank=True,
     )
+
+    logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
 
     class Meta:
         verbose_name = _("destruction list")

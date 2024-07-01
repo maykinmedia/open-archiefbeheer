@@ -2,7 +2,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from django.core import mail
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -476,6 +476,7 @@ class DestructionListReviewSerializerTests(TestCase):
             ),
         )
 
+    @override_settings(LANGUAGE_CODE="en")
     def test_create_review_accepted_first_reviewer(self):
         reviewer1 = UserFactory.create(
             username="reviewer1",
@@ -488,7 +489,7 @@ class DestructionListReviewSerializerTests(TestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=reviewer1, status=ListStatus.ready_to_review
+            name="Test list", assignee=reviewer1, status=ListStatus.ready_to_review
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -519,11 +520,23 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        serializer.save()
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            serializer.save()
+
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, reviewer2)
         self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
+
+        logs = destruction_list.logs.all()
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs[0].user, reviewer1)
+        self.assertTrue(logs[0].extra_data["approved"])
+        self.assertEqual(
+            logs[0].get_message(),
+            '[2024-05-02T16:00:00+02:00]: User "reviewer1" has reviewed the list "Test list". They approved the list.',
+        )
 
     def test_create_review_accepted_last_reviewer(self):
         reviewer = UserFactory.create(
@@ -561,6 +574,12 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+
+        logs = destruction_list.logs.all()
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs[0].user, reviewer)
+        self.assertTrue(logs[0].extra_data["approved"])
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
@@ -620,13 +639,16 @@ class DestructionListReviewSerializerTests(TestCase):
             _("This field cannot be empty if changes are requested on the list."),
         )
 
+    @override_settings(LANGUAGE_CODE="en")
     def test_create_review_rejected(self):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, name="Test list"
+        )
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
         )
@@ -660,7 +682,8 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        serializer.save()
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            serializer.save()
 
         self.assertEqual(DestructionListReview.objects.count(), 1)
         self.assertEqual(DestructionListItemReview.objects.count(), 2)
@@ -669,6 +692,16 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
         self.assertEqual(destruction_list.status, ListStatus.changes_requested)
+
+        logs = destruction_list.logs.all()
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs[0].user, reviewer)
+        self.assertFalse(logs[0].extra_data["approved"])
+        self.assertEqual(
+            logs[0].get_message(),
+            '[2024-05-02T16:00:00+02:00]: User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
+        )
 
     def test_reviewing_cases_not_in_destruction_list(self):
         reviewer = UserFactory.create(
