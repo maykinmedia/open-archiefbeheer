@@ -85,27 +85,25 @@ export function DestructionListDetailPage() {
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
 
   return (
-    <div className="destruction-list-detail">
-      <CardBaseTemplate>
-        <Body>
-          <H2>{destructionList.name}</H2>
-          <Grid>
-            <Column span={3}>
-              <AttributeTable
-                labeledObject={getDisplayableList(destructionList)}
-              />
-            </Column>
-            <Column span={9}>
-              <AssigneesEditable
-                assignees={destructionList.assignees}
-                reviewers={reviewers}
-              />
-            </Column>
-          </Grid>
-        </Body>
-        <DestructionListItems />
-      </CardBaseTemplate>
-    </div>
+    <CardBaseTemplate>
+      <Body>
+        <H2>{destructionList.name}</H2>
+        <Grid>
+          <Column span={3}>
+            <AttributeTable
+              labeledObject={getDisplayableList(destructionList)}
+            />
+          </Column>
+          <Column span={9}>
+            <AssigneesEditable
+              assignees={destructionList.assignees}
+              reviewers={reviewers}
+            />
+          </Column>
+        </Grid>
+      </Body>
+      <DestructionListItems />
+    </CardBaseTemplate>
   );
 }
 
