@@ -28,11 +28,11 @@ import { ExpandZaak, Zaak } from "../../types";
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 
-export interface DataGridAction
-  extends Omit<ButtonProps, "onClick" | "onMouseEnter"> {
-  onMouseEnter?: (zaak: Zaak, detail?: unknown) => void;
-  onClick?: (zaak: Zaak, detail?: unknown) => void;
+export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
+  title: string;
   tooltip?: ReactNode;
+  onInteract?: (zaak: Zaak, detail?: unknown) => void;
+  onClick?: (zaak: Zaak, detail?: unknown) => void;
 }
 
 /**
@@ -116,7 +116,7 @@ export function useDataGridProps(
   //
   const renderActionButtons = (zaak: Zaak, actions?: DataGridAction[]) => {
     return actions?.map(
-      ({ onClick, onMouseEnter, tooltip, ...action }, index) => {
+      ({ onClick, onInteract, tooltip, ...action }, index) => {
         const handleAction = async (
           zaak: Zaak,
           actionFn?: (zaak: Zaak, detail?: unknown) => void,
@@ -131,14 +131,24 @@ export function useDataGridProps(
             variant={"transparent"}
             key={index}
             onClick={() => handleAction(zaak, onClick)}
-            onMouseEnter={() => handleAction(zaak, onMouseEnter)}
+            onMouseEnter={() => {
+              return handleAction(zaak, onInteract);
+            }}
+            onFocusCapture={() => {
+              return handleAction(zaak, onInteract);
+            }}
             {...action}
           />
         );
 
         if (tooltip) {
           return (
-            <Tooltip key={index} content={tooltip} placement={"bottom-start"}>
+            <Tooltip
+              key={index}
+              content={tooltip}
+              placement={"bottom-start"}
+              size="lg"
+            >
               {ButtonComponent}
             </Tooltip>
           );
