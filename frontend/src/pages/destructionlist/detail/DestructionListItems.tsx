@@ -51,7 +51,7 @@ interface ZaakModalDataState {
 
 const LABEL_CHANGE_SELECTION_LIST_CLASS = "Aanpassen van selectielijstklasse";
 const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
-const LABEL_KEEP = "Afwijzen van het voorstel (terug op de vernietigingslijst)";
+const LABEL_KEEP = "Afwijzen van het voorstel";
 
 interface ProcessZaakReviewSelectionDetail {
   comment: string;
@@ -325,6 +325,7 @@ export function DestructionListItems() {
                 )?.label,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
+            // valign="start" // FIXME: Enable after admin-ui update.
           />
         )) ||
         (processZaakReviewSelectionDetailState?.action ===
@@ -584,6 +585,7 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
         name: "action",
         required: true,
         value: _formState.action,
+        type: "radio",
         options: [
           {
             label: LABEL_CHANGE_SELECTION_LIST_CLASS,
