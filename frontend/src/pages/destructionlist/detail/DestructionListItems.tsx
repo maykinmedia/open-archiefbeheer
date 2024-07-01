@@ -91,120 +91,26 @@ export function DestructionListItems() {
   const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
 
   //
-  // PROCESSING REVIEW VARS
+  // EDITING VARS
   //
 
-  // Whether the user is processing a review.
-  const isProcessingZaakReviewState = Boolean(reviewItems);
-
-  // State to manage the state of the zaak modal (when clicking a checkbox)
-  const [processZaakReviewModalState, setProcessZaakReviewModalState] =
-    useState<ZaakModalDataState>({
-      open: false,
-    });
-
-  // The zaak selection typed correctly for use when providing feedback on a review.
-  const processZaakReviewSelectionState = isProcessingZaakReviewState
-    ? (zaakSelection as ZaakSelection<ProcessZaakReviewSelectionDetail>)
-    : undefined;
-
-  // The details possibly provided by the user after processing a review for a zaak.
-  const processZaakReviewDetail =
-    processZaakReviewSelectionState?.[
-      processZaakReviewModalState.zaak?.url || ""
-    ]?.detail;
-
-  const processZaakReviewActions: DataGridAction[] = [
-    {
-      children: <Outline.ChatBubbleLeftRightIcon />,
-      title: "Muteren",
-      tooltip:
-        (processZaakReviewSelectionDetailState?.processAction ===
-          "change_selectielijstklasse" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
-              Selectielijst: Object.values(selectieLijstKlasseChoicesMap || {})
-                .flatMap((v) => v)
-                .find(
-                  (o) =>
-                    o.value ===
-                    processZaakReviewSelectionDetailState.processActionValue,
-                )?.label,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.processAction ===
-          "change_archiefactiedatum" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_POSTPONE_DESTRUCTION,
-              Archief_datum:
-                processZaakReviewSelectionDetailState.processActionValue,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.processAction === "keep" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_KEEP,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-          />
-        )),
-      onInteract: (_, detail) => {
-        setProcessZaakReviewSelectionDetailState(
-          detail as ProcessZaakReviewSelectionDetail,
-        );
-      },
-      onClick: (zaak) => {
-        handleReviewZaakSelect([zaak] as unknown as AttributeData[], true);
-      },
-    },
-  ];
-
-  //
-  // SHARED VARS
-  //
-
-  // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([_, { selected }]) => selected)
-    .map(([url]) => ({ url }));
-
-  // Get the base props for the DataGrid component.
-  const { props: dataGridProps } = useDataGridProps(
-    storageKey,
-    reviewItems
-      ? // FIXME: Accept no/implement real pagination?
-        {
-          count: reviewItems.length,
-          next: null,
-          previous: null,
-          results: reviewItems.map((ri) => ri.zaak),
-        }
-      : isEditingState
-        ? selectableZaken
-        : zaken,
-    isEditingState
-      ? [...zaken.results, ...selectedUrls]
-      : isProcessingZaakReviewState
-        ? selectedUrls
-        : [],
-    isProcessingZaakReviewState ? processZaakReviewActions : undefined,
-  );
-
-  // Update the selected zaken to session storage.
-  useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
-  }, []);
+  /**
+   * Gets called when the user clicks the edit button (user intents to adds/remove zaken to/from the destruction list
+   * or escape such flow).
+   * @param value
+   */
+  const handleEditSetEditing = (value: boolean) => {
+    urlSearchParams.set("page", "1");
+    value
+      ? urlSearchParams.set("is_editing", "true")
+      : urlSearchParams.delete("is_editing");
+    setUrlSearchParams(urlSearchParams);
+  };
 
   /**
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
-  const handleUpdate = async () => {
+  const handleEditUpdate = async () => {
     const zaakSelection = await getZaakSelection(storageKey);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
@@ -216,23 +122,37 @@ export function DestructionListItems() {
     submit(formData, { method: "PATCH" });
   };
 
-  /**
-   * Gets called when the user clicks the edit button (user intents to adds/remove zaken to/from the destruction list
-   * or escape such flow).
-   * @param value
-   */
-  const handleSetEditing = (value: boolean) => {
-    urlSearchParams.set("page", "1");
-    value
-      ? urlSearchParams.set("is_editing", "true")
-      : urlSearchParams.delete("is_editing");
-    setUrlSearchParams(urlSearchParams);
-  };
+  // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
+  const editSelectionActions = isEditingState
+    ? [
+        {
+          children: "Vernietigingslijst aanpassen",
+          onClick: handleEditUpdate,
+          wrap: false,
+        },
+        {
+          children: "Annuleren",
+          onClick: () => handleEditSetEditing(false),
+          wrap: false,
+        },
+      ]
+    : [
+        {
+          "aria-label": "bewerken",
+          children: <Outline.PencilIcon />,
+          onClick: () => handleEditSetEditing(true),
+          wrap: false,
+        },
+      ];
+
+  //
+  // PROCESSING REVIEW VARS
+  //
 
   /**
    * Get called when the user selects a zaak when a review is received.
    */
-  const handleReviewZaakSelect = async (
+  const handleProcessReviewZaakSelect = async (
     data: AttributeData[],
     selected: boolean,
   ) => {
@@ -298,6 +218,116 @@ export function DestructionListItems() {
     revalidator.revalidate();
   };
 
+  // Whether the user is processing a review.
+  const isProcessingZaakReviewState = Boolean(reviewItems);
+
+  // State to manage the state of the zaak modal (when clicking a checkbox)
+  const [processZaakReviewModalState, setProcessZaakReviewModalState] =
+    useState<ZaakModalDataState>({
+      open: false,
+    });
+
+  // The zaak selection typed correctly for use when providing feedback on a review.
+  const processZaakReviewSelectionState = isProcessingZaakReviewState
+    ? (zaakSelection as ZaakSelection<ProcessZaakReviewSelectionDetail>)
+    : undefined;
+
+  // The details possibly provided by the user after processing a review for a zaak.
+  const processZaakReviewDetail =
+    processZaakReviewSelectionState?.[
+      processZaakReviewModalState.zaak?.url || ""
+    ]?.detail;
+
+  const processZaakReviewZaakActions: DataGridAction[] = [
+    {
+      children: <Outline.ChatBubbleLeftRightIcon />,
+      title: "Muteren",
+      tooltip:
+        (processZaakReviewSelectionDetailState?.processAction ===
+          "change_selectielijstklasse" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
+              Selectielijst: Object.values(selectieLijstKlasseChoicesMap || {})
+                .flatMap((v) => v)
+                .find(
+                  (o) =>
+                    o.value ===
+                    processZaakReviewSelectionDetailState.processActionValue,
+                )?.label,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+          />
+        )) ||
+        (processZaakReviewSelectionDetailState?.processAction ===
+          "change_archiefactiedatum" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_POSTPONE_DESTRUCTION,
+              Archief_datum:
+                processZaakReviewSelectionDetailState.processActionValue,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+          />
+        )) ||
+        (processZaakReviewSelectionDetailState?.processAction === "keep" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_KEEP,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+          />
+        )),
+      onInteract: (_, detail) => {
+        setProcessZaakReviewSelectionDetailState(
+          detail as ProcessZaakReviewSelectionDetail,
+        );
+      },
+      onClick: (zaak) => {
+        handleProcessReviewZaakSelect(
+          [zaak] as unknown as AttributeData[],
+          true,
+        );
+      },
+    },
+  ];
+
+  //
+  // SHARED VARS
+  //
+
+  // An object of {url: string} items used to indicate (additional) selected zaken.
+  const selectedUrls = Object.entries(zaakSelection)
+    .filter(([_, { selected }]) => selected)
+    .map(([url]) => ({ url }));
+
+  // Get the base props for the DataGrid component.
+  const { props: dataGridProps } = useDataGridProps(
+    storageKey,
+    reviewItems
+      ? // FIXME: Accept no/implement real pagination?
+        {
+          count: reviewItems.length,
+          next: null,
+          previous: null,
+          results: reviewItems.map((ri) => ri.zaak),
+        }
+      : isEditingState
+        ? selectableZaken
+        : zaken,
+    isEditingState
+      ? [...zaken.results, ...selectedUrls]
+      : isProcessingZaakReviewState
+        ? selectedUrls
+        : [],
+    isProcessingZaakReviewState ? processZaakReviewZaakActions : undefined,
+  );
+
+  // Update the selected zaken to session storage.
+  useAsync(async () => {
+    await addToZaakSelection(storageKey, zaken.results);
+  }, []);
+
   return (
     <>
       <ProcessZaakReviewModal
@@ -326,37 +356,13 @@ export function DestructionListItems() {
         loading={state === "loading"}
         selectable={Boolean(isEditingState || isProcessingZaakReviewState)}
         allowSelectAll={!reviewItems}
-        selectionActions={
-          review
-            ? undefined
-            : isEditingState
-              ? [
-                  {
-                    children: "Vernietigingslijst aanpassen",
-                    onClick: handleUpdate,
-                    wrap: false,
-                  },
-                  {
-                    children: "Annuleren",
-                    onClick: () => handleSetEditing(false),
-                    wrap: false,
-                  },
-                ]
-              : [
-                  {
-                    "aria-label": "bewerken",
-                    children: <Outline.PencilIcon />,
-                    onClick: () => handleSetEditing(true),
-                    wrap: false,
-                  },
-                ]
-        }
+        selectionActions={review ? undefined : editSelectionActions}
         showPaginator={!isProcessingZaakReviewState}
         sort={isEditingState}
         title="Zaakdossiers"
         onSelect={
           isProcessingZaakReviewState
-            ? handleReviewZaakSelect
+            ? handleProcessReviewZaakSelect
             : dataGridProps.onSelect
         }
       />
