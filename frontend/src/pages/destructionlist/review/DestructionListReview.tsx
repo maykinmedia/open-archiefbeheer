@@ -3,7 +3,7 @@ import {
   Body,
   Form,
   FormField,
-  H2,
+  H3,
   Modal,
   Outline,
   P,
@@ -11,7 +11,6 @@ import {
 import { FormEvent, useState } from "react";
 import {
   ActionFunctionArgs,
-  LoaderFunctionArgs,
   redirect,
   useLoaderData,
   useSubmit,
@@ -245,13 +244,14 @@ export function DestructionListReviewPage() {
         actions={[
           {
             children: <Outline.ChatBubbleBottomCenterIcon />,
+            title: "Uitzonderen",
             tooltip: tooltipMotivation && (
               <>
-                <H2>Opmerking</H2>
+                <H3>Opmerking</H3>
                 <P>{tooltipMotivation}</P>
               </>
             ),
-            onMouseEnter: (_, detail) => {
+            onInteract: (_, detail) => {
               const _detail = detail as FormDataState | undefined;
               if (_detail) {
                 setTooltipMotivation(_detail.motivation);
