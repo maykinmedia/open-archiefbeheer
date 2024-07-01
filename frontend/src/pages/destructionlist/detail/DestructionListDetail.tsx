@@ -23,6 +23,10 @@ import {
 } from "../../../lib/api/destructionLists";
 import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
 import { getLatestReview, listReviewItems } from "../../../lib/api/review";
+import {
+  ReviewResponse,
+  createReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -108,9 +112,37 @@ export function DestructionListDetailPage() {
 }
 
 /**
- * React Router loader.
+ * React Router action.
  */
 export async function destructionListUpdateAction({
+  request,
+  params,
+}: ActionFunctionArgs) {
+  const formData = await request.clone().formData();
+  if (formData.get("reviewResponseJSON")) {
+    return await destructionListProcessReviewAction({ request, params });
+  }
+  return await destructionListEditAction({ request, params });
+}
+
+/**
+ * React Router action (user intents to adds/remove zaken to/from the destruction list).
+ */
+export async function destructionListProcessReviewAction({
+  request,
+}: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const reviewResponse = JSON.parse(
+    formData.get("reviewResponseJSON") as string,
+  ) as ReviewResponse;
+  await createReviewResponse(reviewResponse);
+  return redirect("/");
+}
+
+/**
+ * React Router action (user intents to adds/remove zaken to/from the destruction list).
+ */
+export async function destructionListEditAction({
   request,
   params,
 }: ActionFunctionArgs) {
@@ -230,17 +262,20 @@ export const destructionListDetailLoader = loginRequired(
         // Fetch selectielijst choices if review collected.
         // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
         reviewItems
-          ? cacheMemo("selectieLijstKlasseChoicesMap", async () =>
-              Object.fromEntries(
-                await Promise.all(
-                  reviewItems.map(async (ri) => {
-                    const choices = await listSelectieLijstKlasseChoices({
-                      zaak: ri.zaak.url,
-                    });
-                    return [ri.zaak.url, choices];
-                  }),
+          ? cacheMemo(
+              "selectieLijstKlasseChoicesMap",
+              async () =>
+                Object.fromEntries(
+                  await Promise.all(
+                    reviewItems.map(async (ri) => {
+                      const choices = await listSelectieLijstKlasseChoices({
+                        zaak: ri.zaak.url,
+                      });
+                      return [ri.zaak.url, choices];
+                    }),
+                  ),
                 ),
-              ),
+              reviewItems.map((ri) => ri.pk),
             )
           : null,
       ];
