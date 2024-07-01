@@ -83,6 +83,14 @@ class Role(models.Model):
             "Indicates whether a user can create a list of cases to be deleted."
         ),
     )
+    can_review_final_list = models.BooleanField(
+        _("can review final list"),
+        default=False,
+        help_text=_(
+            "Indicates whether a user is an 'archivist'. "
+            "This user can only review lists that have been marked as 'final'."
+        ),
+    )
     can_review_destruction = models.BooleanField(
         _("can review destruction"),
         default=False,

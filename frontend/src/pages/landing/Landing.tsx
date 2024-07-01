@@ -38,6 +38,18 @@ const STATUSES: FieldSet[] = [
     },
   ],
   [
+    STATUS_MAPPING.internally_reviewed,
+    {
+      fields: ["assignees"],
+    },
+  ],
+  [
+    STATUS_MAPPING.ready_for_archivist,
+    {
+      fields: ["assignees"],
+    },
+  ],
+  [
     STATUS_MAPPING.ready_to_delete,
     {
       fields: ["assignees"],

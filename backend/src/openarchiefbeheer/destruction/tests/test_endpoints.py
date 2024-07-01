@@ -17,6 +17,7 @@ from ..constants import (
 )
 from ..models import (
     DestructionList,
+    DestructionListAssignee,
     DestructionListItemReview,
     DestructionListReview,
     ReviewItemResponse,
@@ -366,6 +367,105 @@ class DestructionListViewSetTest(APITestCase):
             [destruction_list["uuid"] for destruction_list in response.json()].sort(),
             [lists[0].uuid, lists[1].uuid].sort(),
         )
+
+    def test_mark_as_final(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        archivist = UserFactory.create(
+            username="archivist", role__can_review_final_list=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.internally_reviewed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={"user": archivist.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        assignee_archivist = DestructionListAssignee.objects.get(
+            destruction_list=destruction_list, role=ListRole.archivist
+        )
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(assignee_archivist.user, destruction_list.assignee)
+        self.assertEqual(destruction_list.status, ListStatus.ready_for_archivist)
+
+    def test_cannot_mark_as_final_if_not_authenticated(self):
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            status=ListStatus.internally_reviewed,
+        )
+
+        response = self.client.post(
+            reverse(
+                "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_mark_as_final_if_not_author(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        archivist = UserFactory.create(
+            username="archivist", role__can_review_final_list=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            status=ListStatus.internally_reviewed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={"user": archivist.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_mark_as_finally_if_not_internally_reviewed(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        archivist = UserFactory.create(
+            username="archivist", role__can_review_final_list=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            status=ListStatus.changes_requested,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={"user": archivist.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class DestructionListItemsViewSetTest(APITestCase):

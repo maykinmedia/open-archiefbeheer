@@ -10,10 +10,10 @@ from .serializers import UserSerializer
 
 
 @extend_schema(
-    tags=["Reviewers"],
+    tags=["Users"],
     summary=_("Reviewers list"),
     description=_(
-        "List all the users that have the permission to review destruction lists."
+        "List all the users that have the permission to review draft destruction lists."
     ),
     responses={
         200: UserSerializer(many=True),
@@ -27,6 +27,24 @@ class ReviewersView(ListAPIView):
 
 
 @extend_schema(
+    tags=["Users"],
+    summary=_("Archivists list"),
+    description=_(
+        "List all the users that have the permission to review final destruction lists."
+    ),
+    responses={
+        200: UserSerializer(many=True),
+    },
+)
+class ArchivistsView(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self) -> QuerySet[User]:
+        return User.objects.archivists()
+
+
+@extend_schema(
+    tags=["Users"],
     summary=_("Who Am I"),
     description=_("Returns the current logged in user."),
     responses={
