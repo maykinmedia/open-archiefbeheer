@@ -1,6 +1,7 @@
 import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
+import { cacheMemo } from "../cache/cache";
 import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
@@ -35,7 +36,9 @@ export async function listSelectieLijstKlasseChoices(
  * an the value is the URL. The response is cached for 15 minutes.
  */
 export async function listZaaktypeChoices() {
-  const response = await request("GET", "/_zaaktypen-choices/");
-  const promise: Promise<ZaaktypeChoice[]> = response.json();
-  return promise;
+  return cacheMemo("listZaaktypeChoices", async () => {
+    const response = await request("GET", "/_zaaktypen-choices/");
+    const promise: Promise<ZaaktypeChoice[]> = response.json();
+    return promise;
+  });
 }

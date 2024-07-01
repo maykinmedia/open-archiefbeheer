@@ -1,3 +1,4 @@
+import { cacheDelete, cacheMemo } from "../cache/cache";
 import { request } from "./request";
 
 export type User = {
@@ -32,15 +33,17 @@ export async function login(username: string, password: string) {
  * API call for logout.
  */
 export async function logout() {
+  await cacheDelete("whoAmI");
   return request("POST", "/auth/logout/");
 }
 
 /**
- * API call to get the current logged in user.
- *
- * @returns {Promise<User>}
+ * API call to get the current logged-in user.
  */
-export async function whoAmI(): Promise<User> {
-  const response = await request("GET", "/whoami/");
-  return response.json();
+export async function whoAmI() {
+  return cacheMemo<User>("whoAmI", async () => {
+    const response = await request("GET", "/whoami/");
+    const promise: Promise<User> = response.json();
+    return promise;
+  });
 }

@@ -29,6 +29,7 @@ import {
   canUpdateDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
+import { cacheMemo } from "../../../lib/cache/cache";
 import {
   ZaakSelection,
   getZaakSelection,
@@ -231,14 +232,16 @@ export const destructionListDetailLoader = loginRequired(
         // Fetch selectielijst choices if review collected.
         // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
         reviewItems
-          ? Object.fromEntries(
-              await Promise.all(
-                reviewItems.map(async (ri) => {
-                  const choices = await listSelectieLijstKlasseChoices({
-                    zaak: ri.zaak.url,
-                  });
-                  return [ri.zaak.url, choices];
-                }),
+          ? cacheMemo("selectieLijstKlasseChoicesMap", async () =>
+              Object.fromEntries(
+                await Promise.all(
+                  reviewItems.map(async (ri) => {
+                    const choices = await listSelectieLijstKlasseChoices({
+                      zaak: ri.zaak.url,
+                    });
+                    return [ri.zaak.url, choices];
+                  }),
+                ),
               ),
             )
           : null,
