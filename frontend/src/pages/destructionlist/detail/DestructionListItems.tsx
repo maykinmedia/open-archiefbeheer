@@ -2,6 +2,7 @@ import {
   AttributeData,
   AttributeTable,
   Body,
+  ButtonProps,
   Column,
   DataGrid,
   ErrorMessage,
@@ -28,6 +29,7 @@ import {
 import { useAsync } from "react-use";
 
 import { ReviewItem } from "../../../lib/api/review";
+import { ReviewItemResponse } from "../../../lib/api/reviewResponse";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -53,13 +55,9 @@ const LABEL_KEEP = "Afwijzen van het voorstel (terug op de vernietigingslijst)";
 
 interface ProcessZaakReviewSelectionDetail {
   comment: string;
-  processAction: ProcessAction;
-  processActionValue:
-    | typeof LABEL_CHANGE_SELECTION_LIST_CLASS
-    | typeof LABEL_POSTPONE_DESTRUCTION
-    | typeof LABEL_KEEP
-    | string
-    | null;
+  action: ProcessReviewAction;
+  selectielijstklasse: string;
+  archiefactiedatum: string;
 }
 
 /**
@@ -74,6 +72,7 @@ export function DestructionListItems() {
   const submit = useSubmit();
   const {
     storageKey,
+    destructionList,
     zaken,
     selectableZaken,
     zaakSelection,
@@ -91,7 +90,16 @@ export function DestructionListItems() {
   const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
 
   //
-  // EDITING VARS
+  // SHARED VARS
+  //
+
+  // An object of {url: string} items used to indicate (additional) selected zaken.
+  const selectedUrls = Object.entries(zaakSelection)
+    .filter(([_, { selected }]) => selected)
+    .map(([url]) => ({ url }));
+
+  //
+  // EDITING MODE VARS
   //
 
   /**
@@ -123,7 +131,7 @@ export function DestructionListItems() {
   };
 
   // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
-  const editSelectionActions = isEditingState
+  const editSelectionActions: ButtonProps[] = isEditingState
     ? [
         {
           children: "Vernietigingslijst aanpassen",
@@ -146,7 +154,7 @@ export function DestructionListItems() {
       ];
 
   //
-  // PROCESSING REVIEW VARS
+  // PROCESSING REVIEW MODE VARS
   //
 
   /**
@@ -185,15 +193,12 @@ export function DestructionListItems() {
   /**
    * Gets called when the user submits review feedback.
    * Stores the provided feedback along with the `ZaakSelection`.
-   * @param zaakUrl
-   * @param processAction
-   * @param processActionValue
-   * @param comment
    */
-  const handleProcessReviewSubmit = async (
+  const handleProcessReviewSubmitZaak = async (
     zaakUrl: string,
-    processAction: ProcessAction,
-    processActionValue: string | null,
+    action: ProcessReviewAction,
+    selectielijstklasse: string,
+    archiefactiedatum: string,
     comment: string,
   ) => {
     // Add `zaak` to `ZaakSelection`
@@ -201,8 +206,9 @@ export function DestructionListItems() {
     // We add the selected zaak to the zaak selection and add our feedback as
     // details, this allows us to recover (and submit) the feedback later.
     await addToZaakSelection(storageKey, [zaakUrl], {
-      processAction,
-      processActionValue,
+      action,
+      selectielijstklasse,
+      archiefactiedatum,
       comment,
     });
 
@@ -218,8 +224,59 @@ export function DestructionListItems() {
     revalidator.revalidate();
   };
 
+  /**
+   * Gets called when the "Opnieuw indienen" button is clicked.
+   */
+  const handleProcessReviewClick = () => {
+    setProcessZaakReviewCommentModalOpenState(true);
+  };
+
+  /**
+   * Gets called when the destruction list feedback is submitted.
+   */
+  const handleProcessReviewSubmitList = (
+    _: React.FormEvent,
+    data: SerializedFormData,
+  ) => {
+    console.assert(
+      reviewItems?.length && reviewItems?.length === selectedUrls.length,
+      "The amount of review items does not match the amount of selected zaken!",
+    );
+
+    // Use JSON as `FormData` can't contain complex types.
+    const actionData = {
+      reviewResponseJSON: JSON.stringify({
+        review: review?.pk as number,
+        comment: data.comment as string,
+        itemsResponses:
+          reviewItems?.map<ReviewItemResponse>((ri) => {
+            const detail = zaakSelection[ri.zaak.url || ""]
+              .detail as ProcessZaakReviewSelectionDetail;
+
+            return {
+              reviewItem: ri.pk,
+              actionItem: detail.action === "keep" ? "keep" : "remove",
+              actionZaak: {
+                selectielijstklasse: detail.selectielijstklasse,
+                archiefactiedatum: detail.archiefactiedatum,
+              },
+              comment: "FIXME",
+            };
+          }) || [],
+      }),
+    };
+
+    submit(actionData, { method: "POST" });
+  };
+
   // Whether the user is processing a review.
   const isProcessingZaakReviewState = Boolean(reviewItems);
+
+  // State to manage the state of the comment modal (when submitting review feedback).
+  const [
+    processZaakReviewCommentModalOpenState,
+    setProcessZaakReviewCommentModalOpenState,
+  ] = useState(false);
 
   // State to manage the state of the zaak modal (when clicking a checkbox)
   const [processZaakReviewModalState, setProcessZaakReviewModalState] =
@@ -238,12 +295,23 @@ export function DestructionListItems() {
       processZaakReviewModalState.zaak?.url || ""
     ]?.detail;
 
+  const processZaakReviewSelectionActions: ButtonProps[] = [
+    {
+      children:
+        selectedUrls.length !== zaken.count
+          ? `Selecter ${zaken.count - selectedUrls.length} zaken`
+          : "Opnieuw indienen",
+      disabled: selectedUrls.length !== zaken.count,
+      onClick: handleProcessReviewClick,
+    },
+  ];
+
   const processZaakReviewZaakActions: DataGridAction[] = [
     {
       children: <Outline.ChatBubbleLeftRightIcon />,
       title: "Muteren",
       tooltip:
-        (processZaakReviewSelectionDetailState?.processAction ===
+        (processZaakReviewSelectionDetailState?.action ===
           "change_selectielijstklasse" && (
           <AttributeTable
             object={{
@@ -253,24 +321,24 @@ export function DestructionListItems() {
                 .find(
                   (o) =>
                     o.value ===
-                    processZaakReviewSelectionDetailState.processActionValue,
+                    processZaakReviewSelectionDetailState.selectielijstklasse,
                 )?.label,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
           />
         )) ||
-        (processZaakReviewSelectionDetailState?.processAction ===
+        (processZaakReviewSelectionDetailState?.action ===
           "change_archiefactiedatum" && (
           <AttributeTable
             object={{
               Actie: LABEL_POSTPONE_DESTRUCTION,
-              Archief_datum:
-                processZaakReviewSelectionDetailState.processActionValue,
+              archiefactiedatum:
+                processZaakReviewSelectionDetailState.archiefactiedatum,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
           />
         )) ||
-        (processZaakReviewSelectionDetailState?.processAction === "keep" && (
+        (processZaakReviewSelectionDetailState?.action === "keep" && (
           <AttributeTable
             object={{
               Actie: LABEL_KEEP,
@@ -293,13 +361,8 @@ export function DestructionListItems() {
   ];
 
   //
-  // SHARED VARS
+  // RENDERING
   //
-
-  // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([_, { selected }]) => selected)
-    .map(([url]) => ({ url }));
 
   // Get the base props for the DataGrid component.
   const { props: dataGridProps } = useDataGridProps(
@@ -330,6 +393,29 @@ export function DestructionListItems() {
 
   return (
     <>
+      {/* The "comment" modal */}
+      <Modal
+        allowClose={true}
+        open={processZaakReviewCommentModalOpenState}
+        size="m"
+        title={`${destructionList.name} opnieuw indienen`}
+        onClose={() => setProcessZaakReviewCommentModalOpenState(false)}
+      >
+        <Body>
+          <Form
+            fields={[
+              {
+                label: "Opmerking",
+                name: "comment",
+              },
+            ]}
+            onSubmit={handleProcessReviewSubmitList}
+            validateOnChange={true}
+            labelSubmit={"Opnieuw indienen"}
+          />
+        </Body>
+      </Modal>
+      {/* The "feedback" modal */}
       <ProcessZaakReviewModal
         zaakModalDataState={processZaakReviewModalState}
         reviewItem={
@@ -337,17 +423,27 @@ export function DestructionListItems() {
             (ri) => ri.zaak.url === processZaakReviewModalState.zaak?.url,
           ) || null
         }
+        action={processZaakReviewDetail?.action}
+        selectielijstklasse={
+          processZaakReviewDetail?.selectielijstklasse ||
+          processZaakReviewModalState.zaak?.selectielijstklasse ||
+          ""
+        }
         selectieLijstKlasseChoices={
           selectieLijstKlasseChoicesMap?.[
             processZaakReviewModalState.zaak?.url || ""
           ] || []
         }
-        processAction={processZaakReviewDetail?.processAction}
-        processActionValue={processZaakReviewDetail?.processActionValue}
+        archiefactiedatum={
+          processZaakReviewDetail?.archiefactiedatum ||
+          processZaakReviewModalState.zaak?.archiefactiedatum ||
+          ""
+        }
         comment={processZaakReviewDetail?.comment}
         onClose={handleProcessReviewClose}
-        onSubmit={handleProcessReviewSubmit}
+        onSubmit={handleProcessReviewSubmitZaak}
       />
+      {/* DataGrid */}
       <DataGrid
         {...dataGridProps}
         boolProps={{ explicit: true }}
@@ -356,7 +452,9 @@ export function DestructionListItems() {
         loading={state === "loading"}
         selectable={Boolean(isEditingState || isProcessingZaakReviewState)}
         allowSelectAll={!reviewItems}
-        selectionActions={review ? undefined : editSelectionActions}
+        selectionActions={
+          review ? processZaakReviewSelectionActions : editSelectionActions
+        }
         showPaginator={!isProcessingZaakReviewState}
         sort={isEditingState}
         title="Zaakdossiers"
@@ -373,20 +471,22 @@ export function DestructionListItems() {
 type ProcessZaakReviewModalProps = {
   zaakModalDataState: ZaakModalDataState;
   reviewItem: ReviewItem | null;
+  action?: ProcessReviewAction;
+  selectielijstklasse: string;
   selectieLijstKlasseChoices: Option[];
-  processAction?: ProcessAction;
-  processActionValue?: string | null;
+  archiefactiedatum: string;
   comment?: string;
   onClose: () => void;
   onSubmit: (
     zaakUrl: string,
-    processAction: ProcessAction,
-    processActionValue: string | null,
+    processAction: ProcessReviewAction,
+    selectielijstklasse: string,
+    archiefactiedatum: string,
     comment: string,
   ) => void;
 };
 
-type ProcessAction =
+type ProcessReviewAction =
   | "change_selectielijstklasse"
   | "change_archiefactiedatum"
   | "keep";
@@ -401,27 +501,28 @@ type ProcessAction =
 const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
   zaakModalDataState: { open, zaak },
   reviewItem,
+  action,
+  selectielijstklasse,
   selectieLijstKlasseChoices,
+  archiefactiedatum,
   comment,
-  processAction,
-  processActionValue,
   onClose,
   onSubmit,
 }) => {
   type ProcessZaakFormState = {
     zaakUrl: string;
-    processAction: ProcessAction | "";
+    action: ProcessReviewAction | "";
     selectielijstklasse: string;
-    archief_datum: string;
+    archiefactiedatum: string;
     comment: string;
   };
 
   // Initial form state.
   const initialFormState: ProcessZaakFormState = {
     zaakUrl: zaak?.url || "",
-    processAction: "",
+    action: "",
     selectielijstklasse: "",
-    archief_datum: "",
+    archiefactiedatum: "",
     comment: "",
   };
 
@@ -433,20 +534,16 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
   useEffect(() => {
     const newFormState: ProcessZaakFormState = {
       ...initialFormState,
-      processAction: processAction || initialFormState.processAction,
+      action: action || initialFormState.action,
       selectielijstklasse:
-        processAction === "change_selectielijstklasse"
-          ? processActionValue || ""
-          : initialFormState.selectielijstklasse,
-      archief_datum:
-        processAction === "change_archiefactiedatum"
-          ? processActionValue || ""
-          : initialFormState.archief_datum,
+        selectielijstklasse || initialFormState.selectielijstklasse,
+      archiefactiedatum:
+        archiefactiedatum || initialFormState.archiefactiedatum,
       comment: comment || initialFormState.comment,
     };
 
     setFormState(newFormState);
-  }, [comment, processAction, processActionValue, zaak]);
+  }, [action, selectielijstklasse, archiefactiedatum, comment]);
 
   // Show an error if zaak and review item are out of sync (this should not happen).
   if (open && !reviewItem) {
@@ -465,6 +562,14 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
    * Returns the `FormField[]` to show in the modal after selecting a Zaak (when processing review).
    */
   const getFields = (_formState: typeof formState = formState) => {
+    const isSelectielijstklasseActive =
+      formState.action === "change_selectielijstklasse" ||
+      !formState.selectielijstklasse;
+
+    const isArchiefactiedatumActive =
+      formState.action === "change_archiefactiedatum" ||
+      !formState.archiefactiedatum;
+
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
       {
@@ -473,11 +578,12 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
         type: "hidden",
         value: zaak?.url,
       },
+
       {
         label: "Actie",
-        name: "processAction",
+        name: "action",
         required: true,
-        value: _formState.processAction,
+        value: _formState.action,
         options: [
           {
             label: LABEL_CHANGE_SELECTION_LIST_CLASS,
@@ -493,6 +599,25 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
           },
         ],
       },
+
+      {
+        label: isSelectielijstklasseActive ? "Selectielijstklasse" : undefined,
+        name: "selectielijstklasse",
+        required: true,
+        type: isSelectielijstklasseActive ? undefined : "hidden",
+        options: isSelectielijstklasseActive
+          ? selectieLijstKlasseChoices
+          : undefined,
+        value: _formState.selectielijstklasse,
+      },
+
+      {
+        label: isArchiefactiedatumActive ? "Archief datum" : undefined,
+        name: "archiefactiedatum",
+        required: true,
+        type: isArchiefactiedatumActive ? "date" : "hidden",
+        value: _formState.archiefactiedatum,
+      },
     ];
 
     // Fields shown when an action is selected (regardless of the action).
@@ -505,37 +630,7 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
       },
     ];
 
-    // Fields shown when action is to change the "selectielijstklasse".
-    const changeSelectielijstKlasseFields: FormField[] = [
-      {
-        label: "Selectielijstklasse",
-        name: "selectielijstklasse",
-        required: true,
-        options: selectieLijstKlasseChoices,
-        value: _formState.selectielijstklasse,
-      },
-    ];
-
-    // Fields shown when action is to change the "archiefactiedatum".
-    const changeArchiefActieDatumFields: FormField[] = [
-      {
-        label: "Archief datum",
-        name: "archief_datum",
-        required: true,
-        type: "date",
-        value: _formState.archief_datum,
-      },
-    ];
-
-    return [
-      ...baseFields,
-      ...(_formState.processAction === "change_selectielijstklasse"
-        ? changeSelectielijstKlasseFields
-        : _formState.processAction === "change_archiefactiedatum"
-          ? changeArchiefActieDatumFields
-          : []),
-      ...(_formState.processAction ? actionSelectedFields : []),
-    ];
+    return [...baseFields, ...(_formState.action ? actionSelectedFields : [])];
   };
 
   /**
@@ -554,25 +649,14 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
    * @param data
    */
   const handleSubmit = (_: FormEvent, data: SerializedFormData) => {
-    const {
-      zaakUrl,
-      processAction,
-      selectielijstklasse,
-      archief_datum,
-      comment,
-    } = data as ProcessZaakFormState;
-
-    const processActionValue =
-      processAction === "change_selectielijstklasse"
-        ? (selectielijstklasse as string)
-        : processAction === "change_archiefactiedatum"
-          ? (archief_datum as string)
-          : null;
+    const { zaakUrl, action, selectielijstklasse, archiefactiedatum, comment } =
+      data as ProcessZaakFormState;
 
     onSubmit(
       zaakUrl as string,
-      processAction as ProcessAction,
-      processActionValue,
+      action as ProcessReviewAction,
+      selectielijstklasse,
+      archiefactiedatum,
       comment,
     );
   };

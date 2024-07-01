@@ -4,13 +4,13 @@ import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 
 export type Review = {
-  pk: number;
   destructionList: string;
-  author: User;
   decision: "accepted" | "rejected";
   listFeedback: string;
   zakenReviews: ZaakReview[];
-  created: string;
+  pk?: number;
+  author?: User;
+  created?: string;
 };
 
 export type ZaakReview = {
@@ -23,6 +23,22 @@ export type ReviewItem = {
   zaak: Zaak;
   feedback: string;
 };
+
+/**
+ * Create a new destruction list review
+ */
+export async function createDestructionListReview({ ...data }: Review) {
+  const response = await request(
+    "POST",
+    "/destruction-list-reviews/",
+    undefined,
+    {
+      ...data,
+    },
+  );
+  const promise: Promise<unknown> = response.json();
+  return promise;
+}
 
 /**
  * Get the latest review for a destruction list.

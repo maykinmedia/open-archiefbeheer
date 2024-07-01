@@ -20,13 +20,10 @@ import { useAsync } from "react-use";
 import { DestructionList as DestructionListComponent } from "../../../components";
 import { User } from "../../../lib/api/auth";
 import {
-  CreateDestructionListReviewData,
-  createDestructionListReview,
-} from "../../../lib/api/destruction-list-reviews";
-import {
   DestructionList,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
+import { Review, createDestructionListReview } from "../../../lib/api/review";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -368,7 +365,7 @@ export const destructionListReviewAction = async ({
     (f) => f.selected,
   );
 
-  const data: CreateDestructionListReviewData = {
+  const data: Review = {
     destructionList: destructionListUuid,
     decision: zaakSelectionValid.length > 0 ? "rejected" : "accepted",
     listFeedback: details.listFeedback,
@@ -379,7 +376,7 @@ export const destructionListReviewAction = async ({
       const detail = zaak.detail as FormDataState;
 
       return {
-        zaak_url: detail.url,
+        zaakUrl: detail.url,
         feedback: detail.motivation,
       };
     }),
