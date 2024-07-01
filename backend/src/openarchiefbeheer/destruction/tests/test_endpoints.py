@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
@@ -10,6 +12,7 @@ from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import (
     DestructionListItemAction,
+    InternalStatus,
     ListItemStatus,
     ListRole,
     ListStatus,
@@ -366,6 +369,75 @@ class DestructionListViewSetTest(APITestCase):
             [destruction_list["uuid"] for destruction_list in response.json()].sort(),
             [lists[0].uuid, lists[1].uuid].sort(),
         )
+
+    def test_start_destruction(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
+        ) as m_task:
+            response = self.client.delete(
+                reverse(
+                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                ),
+            )
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        m_task.assert_called_once_with(destruction_list.pk)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.processing_status, InternalStatus.queued)
+
+    def test_cannot_start_destruction_if_not_author(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            status=ListStatus.ready_to_delete,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
+        ) as m_task:
+            response = self.client.delete(
+                reverse(
+                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                ),
+            )
+
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+        m_task.assert_not_called()
+
+    def test_cannot_start_destruction_if_not_ready_to_delete(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.ready_to_review,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
+        ) as m_task:
+            response = self.client.delete(
+                reverse(
+                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                ),
+            )
+
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
+        m_task.assert_not_called()
 
 
 class DestructionListItemsViewSetTest(APITestCase):

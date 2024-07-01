@@ -6,6 +6,7 @@ from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_v
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from ..constants import InternalStatus
 from ..models import (
     DestructionList,
     DestructionListItem,
@@ -13,6 +14,7 @@ from ..models import (
     DestructionListReview,
     ReviewResponse,
 )
+from ..tasks import delete_destruction_list
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
@@ -20,7 +22,11 @@ from .filtersets import (
     DestructionListReviewItemFilterset,
     ReviewResponseFilterset,
 )
-from .permissions import CanStartDestructionPermission, CanUpdateDestructionList
+from .permissions import (
+    CanStartDestructionPermission,
+    CanTriggerDeletion,
+    CanUpdateDestructionList,
+)
 from .serializers import (
     DestructionListAPIResponseSerializer,
     DestructionListItemReviewSerializer,
@@ -126,12 +132,21 @@ from .serializers import (
         description=_("Retrieve details about a destruction list."),
         responses={200: DestructionListAPIResponseSerializer},
     ),
+    destroy=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Destroy destruction list"),
+        description=_(
+            "Calling this endpoint will start a background process that will "
+            "delete the cases in the list from the case system."
+        ),
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListSerializer
@@ -145,6 +160,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
         elif self.action == "update":
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
+        elif self.action == "destroy":
+            permission_classes = [IsAuthenticated & CanTriggerDeletion]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -161,6 +178,12 @@ class DestructionListViewSet(
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
+
+    def perform_destroy(self, instance: DestructionList) -> None:
+        instance.processing_status = InternalStatus.queued
+        instance.save()
+
+        delete_destruction_list.delay(instance.pk)
 
 
 @extend_schema_view(
