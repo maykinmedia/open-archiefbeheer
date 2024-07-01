@@ -2,6 +2,7 @@ import { DestructionList } from "../lib/api/destructionLists";
 import { FIXTURE_USERS } from "./users";
 
 export const FIXTURE_DESTRUCTION_LIST: DestructionList = {
+  pk: 1,
   uuid: "00000000-0000-0000-0000-000000000000",
   name: "My First Destruction List",
   author: FIXTURE_USERS[0],

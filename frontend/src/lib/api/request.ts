@@ -20,10 +20,11 @@ export const API_BASE_URL = `${API_URL}${API_PATH}`;
 export async function request(
   method: "GET" | "POST" | "PATCH",
   endpoint: string,
-  params?: URLSearchParams | Record<string, string>,
+  params?: URLSearchParams | Record<string, string | number>,
   data?: Record<string, unknown>,
   headers?: Record<string, string>,
 ) {
+  // @ts-expect-error - params can be number, ignoring...
   const queryString = params ? new URLSearchParams(params).toString() : "";
   const url = `${API_BASE_URL + endpoint}?${queryString}`;
   const csrfToken = getCookie("csrftoken");

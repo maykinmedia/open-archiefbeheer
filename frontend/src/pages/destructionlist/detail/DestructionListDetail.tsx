@@ -5,8 +5,9 @@ import {
   CardBaseTemplate,
   Column,
   Grid,
-  H1,
+  H2,
   LabeledAttributeData,
+  Option,
   P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
@@ -20,12 +21,19 @@ import {
   getDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
+import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
+import { getLatestReview, listReviewItems } from "../../../lib/api/review";
+import {
+  ReviewResponse,
+  createReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canUpdateDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
+import { cacheMemo } from "../../../lib/cache/cache";
 import {
   ZaakSelection,
   getZaakSelection,
@@ -81,38 +89,60 @@ export function DestructionListDetailPage() {
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
 
   return (
-    <div className="destruction-list-detail">
-      <CardBaseTemplate>
-        <Body>
-          <H1>{destructionList.name}</H1>
-          <P>
-            <Grid>
-              <Column span={3}>
-                <AttributeTable
-                  labeledObject={getDisplayableList(destructionList)}
-                />
-              </Column>
-              <Column span={9}>
-                <AssigneesEditable
-                  assignees={destructionList.assignees}
-                  reviewers={reviewers}
-                />
-              </Column>
-            </Grid>
-          </P>
-          <P>
-            <DestructionListItems />
-          </P>
-        </Body>
-      </CardBaseTemplate>
-    </div>
+    <CardBaseTemplate>
+      <Body>
+        <H2>{destructionList.name}</H2>
+        <Grid>
+          <Column span={3}>
+            <AttributeTable
+              labeledObject={getDisplayableList(destructionList)}
+            />
+          </Column>
+          <Column span={9}>
+            <AssigneesEditable
+              assignees={destructionList.assignees}
+              reviewers={reviewers}
+            />
+          </Column>
+        </Grid>
+      </Body>
+      <DestructionListItems />
+    </CardBaseTemplate>
   );
 }
 
 /**
- * React Router loader.
+ * React Router action.
  */
 export async function destructionListUpdateAction({
+  request,
+  params,
+}: ActionFunctionArgs) {
+  const formData = await request.clone().formData();
+  if (formData.get("reviewResponseJSON")) {
+    return await destructionListProcessReviewAction({ request, params });
+  }
+  return await destructionListEditAction({ request, params });
+}
+
+/**
+ * React Router action (user intents to adds/remove zaken to/from the destruction list).
+ */
+export async function destructionListProcessReviewAction({
+  request,
+}: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const reviewResponse = JSON.parse(
+    formData.get("reviewResponseJSON") as string,
+  ) as ReviewResponse;
+  await createReviewResponse(reviewResponse);
+  return redirect("/");
+}
+
+/**
+ * React Router action (user intents to adds/remove zaken to/from the destruction list).
+ */
+export async function destructionListEditAction({
   request,
   params,
 }: ActionFunctionArgs) {
@@ -158,55 +188,122 @@ export const destructionListDetailLoader = loginRequired(
       params,
     }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
       const uuid = params.uuid as string;
-      const storageKey = `destruction-list-detail-${uuid}`;
       const searchParams = Object.fromEntries(
         new URL(request.url).searchParams,
       );
 
-      // Get reviewers, zaken and zaaktypen.
-      const promises = [
-        getDestructionList(uuid as string),
-        listReviewers(),
-        /*
-       Intercept and ignore 404 due to the following scenario cause by shared `page` parameter:
+      // We need to fetch the destruction list first to get the status.
+      const destructionList = await getDestructionList(uuid as string);
+      const storageKey = `destruction-list-detail-${uuid}-${destructionList.status}`;
 
-       - User navigates to destruction list with 1 page of items.
-       - Users click edit button
-       - User navigates to page 2
-       - zaken API with param `in_destruction_list` may return 404.
-      */
-        listZaken({ ...searchParams, in_destruction_list: uuid }).catch((e) => {
-          if (e.status === 404) {
-            return {
+      // If status indicates review: collect it.
+      const review =
+        destructionList.status === "changes_requested"
+          ? await getLatestReview({
+              destructionList__uuid: uuid,
+            })
+          : null;
+
+      // If review collected: collect items.
+      const reviewItems = review
+        ? await listReviewItems({ review: review.pk })
+        : null;
+
+      // Run multiple requests in parallel, some requests are based on context.
+      const promises = [
+        // Fetch all possible reviewers to allow reassignment.
+        listReviewers(),
+
+        // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
+        // FIXME: Accept no/implement real pagination?
+        reviewItems
+          ? ({
+              count: reviewItems.length,
+              next: null,
+              previous: null,
+              results: [],
+            } as PaginatedZaken)
+          : listZaken({ ...searchParams, in_destruction_list: uuid }).catch(
+              // Intercept (and ignore) 404 due to the following scenario cause by shared `page` parameter:
+              //
+              // User navigates to destruction list with 1 page of items.
+              // Users click edit button
+              // User navigates to page 2
+              // zaken API with param `in_destruction_list` may return 404.
+              (e) => {
+                if (e.status === 404) {
+                  return {
+                    count: 0,
+                    next: null,
+                    previous: null,
+                    results: [],
+                  };
+                }
+              },
+            ),
+
+        // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
+        // FIXME: Accept no/implement real pagination?
+        reviewItems
+          ? ({
               count: 0,
               next: null,
               previous: null,
               results: [],
-            };
-          }
-        }),
-        listZaken({
-          ...searchParams,
-          not_in_destruction_list_except: uuid,
-        }),
-        getZaakSelection(storageKey),
-      ];
-      const [destructionList, reviewers, zaken, allZaken, zaakSelection] =
-        (await Promise.all(promises)) as [
-          DestructionList,
-          User[],
-          PaginatedZaken,
-          PaginatedZaken,
-          ZaakSelection,
-        ];
+            } as PaginatedZaken)
+          : listZaken({
+              ...searchParams,
+              not_in_destruction_list_except: uuid,
+            }),
 
-      return {
-        destructionList,
-        storageKey,
+        // Fetch the selected zaken.
+        getZaakSelection(storageKey),
+
+        // Fetch selectielijst choices if review collected.
+        // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
+        reviewItems
+          ? cacheMemo(
+              "selectieLijstKlasseChoicesMap",
+              async () =>
+                Object.fromEntries(
+                  await Promise.all(
+                    reviewItems.map(async (ri) => {
+                      const choices = await listSelectieLijstKlasseChoices({
+                        zaak: ri.zaak.url,
+                      });
+                      return [ri.zaak.url, choices];
+                    }),
+                  ),
+                ),
+              reviewItems.map((ri) => ri.pk),
+            )
+          : null,
+      ];
+
+      const [
         reviewers,
         zaken,
         allZaken,
         zaakSelection,
+        selectieLijstKlasseChoicesMap,
+      ] = (await Promise.all(promises)) as [
+        User[],
+        PaginatedZaken,
+        PaginatedZaken,
+        ZaakSelection,
+        Record<string, Option[]>,
+      ];
+
+      return {
+        storageKey,
+        destructionList,
+        reviewers,
+        zaken,
+        selectableZaken: allZaken,
+        zaakSelection,
+        review: review,
+        reviewItems: reviewItems,
+        selectieLijstKlasseChoicesMap,
       };
     },
   ),
