@@ -325,7 +325,7 @@ export function DestructionListItems() {
                 )?.label,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
-            // valign="start" // FIXME: Enable after admin-ui update.
+            valign="start"
           />
         )) ||
         (processZaakReviewSelectionDetailState?.action ===
@@ -337,6 +337,7 @@ export function DestructionListItems() {
                 processZaakReviewSelectionDetailState.archiefactiedatum,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
+            valign="start"
           />
         )) ||
         (processZaakReviewSelectionDetailState?.action === "keep" && (
@@ -345,6 +346,7 @@ export function DestructionListItems() {
               Actie: LABEL_KEEP,
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
+            valign="start"
           />
         )),
       onInteract: (_, detail) => {
