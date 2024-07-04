@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { assertColumnSelection } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
-import { FIXTURE_USERS } from "../../../fixtures/users";
+import { FIXTURE_USERS } from "../../../fixtures/user";
 import {
   DestructionListReviewLoaderContext,
   DestructionListReviewPage,
@@ -51,4 +52,5 @@ export const ReviewDestructionList: Story = {
       },
     },
   },
+  play: assertColumnSelection,
 };
