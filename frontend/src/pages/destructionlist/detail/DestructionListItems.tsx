@@ -146,7 +146,7 @@ export function DestructionListItems() {
       ]
     : [
         {
-          "aria-label": "bewerken",
+          "aria-label": "Bewerken",
           children: <Outline.PencilIcon />,
           onClick: () => handleEditSetEditing(true),
           wrap: false,

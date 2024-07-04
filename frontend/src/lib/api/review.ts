@@ -7,10 +7,10 @@ export type Review = {
   destructionList: string;
   decision: "accepted" | "rejected";
   listFeedback: string;
-  zakenReviews: ZaakReview[];
   pk?: number;
   author?: User;
   created?: string;
+  zakenReviews?: ZaakReview[];
 };
 
 export type ZaakReview = {
