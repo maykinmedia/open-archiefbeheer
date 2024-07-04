@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("destruction", "0010_reviewitemresponse_processing_status_and_more"),
+        ("destruction", "0012_alter_destructionlist_status"),
     ]
 
     operations = [
