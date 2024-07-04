@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from backend.src.openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -787,6 +788,107 @@ class DestructionListReviewViewSetTest(APITestCase):
         self.assertIn(data[0]["pk"], expected_pks)
         self.assertIn(data[1]["pk"], expected_pks)
         self.assertEqual(len(data), 2)
+
+    def test_create_last_review_accepted_long_procedure(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        zaken_short = ZaakFactory.create_batch(
+            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
+        )
+        zaak_long = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaken_short[0].url
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaken_short[1].url
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaak_long.url
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.accepted,
+            "list_feedback": "I accept with this list",
+        }
+        self.client.force_authenticate(user=reviewer)
+
+        with patch(
+            "openarchiefbeheer.destruction.api.serializers.ArchiveConfig.get_solo",
+            return_value=ArchiveConfig(
+                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/1"]
+            ),
+        ):
+            response = self.client.post(
+                reverse("api:destruction-list-reviews-list"), data=data, format="json"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
+
+    def test_create_last_review_accepted_short_procedure(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        zaken_short = ZaakFactory.create_batch(
+            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
+        )
+        zaak_short = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaken_short[0].url
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaken_short[1].url
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list, zaak=zaak_short.url
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.accepted,
+            "list_feedback": "I accept with this list",
+        }
+        self.client.force_authenticate(user=reviewer)
+
+        with patch(
+            "openarchiefbeheer.destruction.api.serializers.ArchiveConfig.get_solo",
+            return_value=ArchiveConfig(
+                zaaktypes_short_process=[
+                    "http://catalogi-api.nl/zaaktype/1",
+                    "http://catalogi-api.nl/zaaktype/2",
+                ]
+            ),
+        ):
+            response = self.client.post(
+                reverse("api:destruction-list-reviews-list"), data=data, format="json"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
 
 
 class DestructionListItemReviewViewSetTests(APITestCase):
