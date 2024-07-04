@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     "openarchiefbeheer.logging",
     "openarchiefbeheer.zaken",
     "openarchiefbeheer.emails",
+    "openarchiefbeheer.config",
 ]
 
 MIDDLEWARE = [
