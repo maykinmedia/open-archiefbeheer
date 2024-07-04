@@ -8,7 +8,6 @@ import {
   H2,
   LabeledAttributeData,
   Option,
-  P,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect, useLoaderData } from "react-router-dom";
