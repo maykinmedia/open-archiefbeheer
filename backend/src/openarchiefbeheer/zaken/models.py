@@ -122,7 +122,7 @@ class Zaak(models.Model):
                     "Accept-Crs": "EPSG:4326",
                     "Content-Crs": "EPSG:4326",
                 },
-                data=data,
+                json=data,
                 timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
             )
             response.raise_for_status()
