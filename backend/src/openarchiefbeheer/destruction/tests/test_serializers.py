@@ -605,7 +605,7 @@ class DestructionListReviewSerializerTests(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+        self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "Last review accepted")
         self.assertEqual(mail.outbox[0].recipients(), ["record_manager@oab.nl"])
