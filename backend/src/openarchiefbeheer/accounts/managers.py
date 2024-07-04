@@ -35,3 +35,6 @@ class UserManager(BaseUserManager):
 
     def reviewers(self):
         return self.select_related("role").filter(role__can_review_destruction=True)
+
+    def archivists(self):
+        return self.select_related("role").filter(role__can_review_final_list=True)

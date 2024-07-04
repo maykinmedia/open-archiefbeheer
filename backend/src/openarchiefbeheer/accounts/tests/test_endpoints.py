@@ -48,3 +48,24 @@ class WhoAmIViewTest(APITestCase):
         response = self.client.post(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class ArchivistViewTest(APITestCase):
+    def test_not_authenticated_cant_access(self):
+        endpoint = reverse("api:archivists")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_archivists(self):
+        UserFactory.create_batch(2, role__can_review_final_list=True)
+        UserFactory.create_batch(3, role__can_review_final_list=False)
+
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        self.client.force_login(record_manager)
+        response = self.client.get(reverse("api:archivists"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
