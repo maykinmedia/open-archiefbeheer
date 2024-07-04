@@ -50,6 +50,40 @@ class EmailConfig(SingletonModel):
             "when a reviewer has requested changes to a destruction list."
         ),
     )
+    subject_positive_review = models.CharField(
+        max_length=250,
+        verbose_name=_("subject positive review"),
+        help_text=_(
+            "Subject of the email that will be sent to the record manager "
+            "when a reviewer has approved a destruction list."
+        ),
+        blank=True,
+    )
+    body_positive_review = models.TextField(
+        verbose_name=_("body positive review"),
+        help_text=_(
+            "Body of the email that will be sent to the record manager "
+            "when a reviewer has approved a destruction list."
+        ),
+        blank=True,
+    )
+    subject_last_review = models.CharField(
+        max_length=250,
+        verbose_name=_("subject last review"),
+        help_text=_(
+            "Subject of the email that will be sent to the record manager "
+            "when the last reviewer has approved a destruction list."
+        ),
+        blank=True,
+    )
+    body_last_review = models.TextField(
+        verbose_name=_("body last review"),
+        help_text=_(
+            "Body of the email that will be sent to the record manager "
+            "when the last reviewer has approved a destruction list."
+        ),
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("email configuration")

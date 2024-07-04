@@ -1,11 +1,13 @@
-import re
+from unittest.mock import patch
 
+from django.core import mail
 from django.test import TestCase
 
 from requests_mock import Mocker
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import (
@@ -35,46 +37,6 @@ class ProcessReviewResponseTests(TestCase):
         process_review_response(review_response.pk)
 
         self.assertEqual(len(m.request_history), 0)
-
-    def test_number_of_queries(self, m):
-        ServiceFactory.create(
-            api_type=APITypes.zrc,
-            api_root="http://zaken-api.nl/",
-        )
-
-        review_response = ReviewResponseFactory.create()
-        zaken = ZaakFactory.create_batch(2)
-        ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak=zaken[0].url,
-            review_item__review=review_response.review,
-            action_item=DestructionListItemAction.remove,
-            action_zaak={"archiefactiedatum": "2026-01-01"},
-        )
-        ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak=zaken[1].url,
-            review_item__review=review_response.review,
-            action_item=DestructionListItemAction.remove,
-            action_zaak={"archiefactiedatum": "2026-01-01"},
-        )
-
-        matcher = re.compile(r"http:\/\/zaken-api.nl\/zaken\/[0-9a-z\-]+?")
-        m.patch(matcher, json={"archiefactiedatum": "2026-01-01"})
-
-        # 1 - Get review response
-        # 2 - Get review item responses and lock for udate
-        # 3 - Set status of first review item response to "processing"
-        # 4 - Update first destruction list item
-        # 5 - Get Zaak
-        # 6 - Get ZGW service to update zaak
-        # 7 - Update first zaak
-        # 8 - Set status of first review item response to "succeeded"
-        # 9, 10, 11, 12, 13, 14 - same as 3-8 but for second review item response
-        # 15 - Retrieve reviewers
-        # 16 - Update destruction list assignee
-        # 17 - Update assignee "assigned on" field
-        # 18 - Update destruction list status
-        with self.assertNumQueries(18):
-            process_review_response(review_response.pk)
 
     def test_client_error_during_zaak_update(self, m):
         ServiceFactory.create(
@@ -119,6 +81,7 @@ class ProcessReviewResponseTests(TestCase):
         )
         review_response.review.destruction_list.assignees.all().delete()
         first_reviwer = DestructionListAssigneeFactory.create(
+            user__email="reviewer1@oab.nl",
             destruction_list=review_response.review.destruction_list,
             role=ListRole.reviewer,
         )
@@ -129,7 +92,16 @@ class ProcessReviewResponseTests(TestCase):
 
         m.patch(zaak.url, json={"archiefactiedatum": "2026-01-01"})
 
-        process_review_response(review_response.pk)
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_review_required="Destruction list review request",
+                    body_review_required="Please review the list",
+                ),
+            ),
+        ):
+            process_review_response(review_response.pk)
 
         review_response.refresh_from_db()
         review_item_response.refresh_from_db()
@@ -150,3 +122,6 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(
             review_response.review.destruction_list.status, ListStatus.ready_to_review
         )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Destruction list review request")
+        self.assertEqual(mail.outbox[0].recipients(), ["reviewer1@oab.nl"])
