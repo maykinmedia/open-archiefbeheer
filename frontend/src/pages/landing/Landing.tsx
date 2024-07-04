@@ -6,7 +6,6 @@ import {
   P,
   Tooltip,
 } from "@maykin-ui/admin-ui";
-import React from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { User, whoAmI } from "../../lib/api/auth";
@@ -121,6 +120,10 @@ export const Landing = () => {
       case "ready_to_review":
         return canReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
+          : undefined;
+      case "internally_reviewed":
+        return canUpdateDestructionList(user, list)
+          ? `/destruction-lists/${list.uuid}`
           : undefined;
 
       default:
