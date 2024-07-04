@@ -321,6 +321,10 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             destruction_list.set_status(ListStatus.changes_requested)
             destruction_list.get_author().assign()
 
+        logevent.destruction_list_reviewed(
+            destruction_list=destruction_list, review=review, user=review.author
+        )
+
         return review
 
 
