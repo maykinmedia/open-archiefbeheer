@@ -80,6 +80,15 @@ class DestructionList(models.Model):
         ),
         blank=True,
     )
+    processing_status = models.CharField(
+        _("processing status"),
+        choices=InternalStatus.choices,
+        max_length=80,
+        help_text=_(
+            "Field used to track the status of the deletion of a destruction list."
+        ),
+        default=InternalStatus.new,
+    )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
 
