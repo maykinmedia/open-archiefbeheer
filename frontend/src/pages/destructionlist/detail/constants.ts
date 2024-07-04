@@ -6,11 +6,11 @@ export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
 export const STATUSES_ELIGIBLE_FOR_REVIEW = ["ready_to_review"];
 
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
-  changes_requested: "Wijzigingen Aangevraagd",
-  ready_to_review: "Klaar om te Beoordelen",
-  ready_to_delete: "Klaar om te Vernietigen",
-  internally_reviewed: "Intern Beoordeeld",
-  ready_for_archivist: "Klaar voor Archivaris",
+  changes_requested: "Wijzigingen aangevraagd",
+  ready_to_review: "Klaar om te beoordelen",
+  ready_to_delete: "Klaar om te vernietigen",
+  internally_reviewed: "Intern beoordeeld",
+  ready_for_archivist: "Klaar voor archivaris",
   deleted: "Vernietigd",
 };
 
