@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from backend.src.openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import (
@@ -814,6 +814,11 @@ class DestructionListReviewViewSetTest(APITestCase):
             role=ListRole.author,
             destruction_list=destruction_list,
         )
+        DestructionListAssigneeFactory.create(
+            user=reviewer,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -823,7 +828,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         self.client.force_authenticate(user=reviewer)
 
         with patch(
-            "openarchiefbeheer.destruction.api.serializers.ArchiveConfig.get_solo",
+            "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
             return_value=ArchiveConfig(
                 zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/1"]
             ),
@@ -863,6 +868,11 @@ class DestructionListReviewViewSetTest(APITestCase):
             role=ListRole.author,
             destruction_list=destruction_list,
         )
+        DestructionListAssigneeFactory.create(
+            user=reviewer,
+            role=ListRole.reviewer,
+            destruction_list=destruction_list,
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -872,7 +882,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         self.client.force_authenticate(user=reviewer)
 
         with patch(
-            "openarchiefbeheer.destruction.api.serializers.ArchiveConfig.get_solo",
+            "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
             return_value=ArchiveConfig(
                 zaaktypes_short_process=[
                     "http://catalogi-api.nl/zaaktype/1",
