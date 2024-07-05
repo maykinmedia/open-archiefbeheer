@@ -1,10 +1,10 @@
 import { getCookie } from "../cookie/cookie";
 
 /** Scheme for all API requests. */
-export const API_URL = process.env.REACT_APP_API_URL;
+export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 /** The base path for all API requests. */
-export const API_PATH = process.env.REACT_APP_API_PATH;
+export const API_PATH = process.env.REACT_APP_API_PATH || "/api/v1";
 
 /** The base url for all API requests. */
 export const API_BASE_URL = `${API_URL}${API_PATH}`;

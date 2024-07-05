@@ -25,7 +25,7 @@ const meta: Meta<typeof DestructionListCreatePage> = {
   parameters: {
     mockData: [
       {
-        url: "http://localhost:8080/api/v1/_zaaktypen-choices?",
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
         method: "GET",
         status: 200,
         response: [
