@@ -396,6 +396,8 @@ REQUESTS_READ_TIMEOUT = config("REQUESTS_READ_TIMEOUT", 30)
 # Default (connection timeout, read timeout) for the requests library (in seconds)
 REQUESTS_DEFAULT_TIMEOUT = (10, REQUESTS_READ_TIMEOUT)
 
+ZAKEN_CHUNK_SIZE = config("ZAKEN_CHUNK_SIZE", 10)
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #

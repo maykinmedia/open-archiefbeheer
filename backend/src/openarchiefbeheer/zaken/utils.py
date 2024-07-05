@@ -1,11 +1,15 @@
-from functools import lru_cache
-from typing import Generator
+from functools import lru_cache, partial
+from typing import TYPE_CHECKING, Callable, Generator
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
+from furl import furl
+from requests import HTTPError
+from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
@@ -13,7 +17,12 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.utils.results_store import ResultStore
+
 from .types import DropDownChoice
+
+if TYPE_CHECKING:
+    from .models import Zaak
 
 
 def pagination_helper(
@@ -136,3 +145,141 @@ def retrieve_selectielijstklasse_choices(process_type_url: str) -> list:
         ]
 
     return results
+
+
+def execute_unless_result_exist(
+    store: ResultStore,
+    resource_type: str,
+    resource: str,
+    callable: Callable,
+    http_error_handler: Callable | None = None,
+) -> None:
+    if store.has_deleted_resource(resource_type, resource):
+        return
+
+    try:
+        response = callable(timeout=settings.REQUESTS_DEFAULT_TIMEOUT)
+        response.raise_for_status()
+    except HTTPError as exc:
+        if not http_error_handler:
+            raise exc
+
+        return http_error_handler(exc)
+
+    store.add_deleted_resource(resource_type, resource)
+    store.save()
+
+
+def delete_decisions(zaak: "Zaak", result_store: ResultStore) -> None:
+    brc_service = Service.objects.get(api_type=APITypes.brc)
+    brc_client = build_client(brc_service)
+
+    with brc_client:
+        response = brc_client.get("besluiten", params={"zaak": zaak.url})
+        response.raise_for_status()
+
+        data = response.json()
+        if data["count"] == 0:
+            return
+
+        for decision in data["results"]:
+            decision_uuid = furl(decision["url"]).path.segments[-1]
+            execute_unless_result_exist(
+                result_store,
+                "besluiten",
+                decision["url"],
+                partial(brc_client.delete, f"besluiten/{decision_uuid}"),
+            )
+
+
+def handle_document_delete_exc(exc: HTTPError) -> None:
+    response = exc.response
+    if not response.status_code == status.HTTP_204_NO_CONTENT and not (
+        response.status_code == status.HTTP_400_BAD_REQUEST
+        and response.json()["invalidParams"][0]["code"] == "pending-relations"
+    ):
+        response.raise_for_status()
+
+
+def delete_documents(
+    zaak: "Zaak", zrc_client: APIClient, result_store: ResultStore
+) -> None:
+    with zrc_client:
+        response = zrc_client.get("zaakinformatieobjecten", params={"zaak": zaak.url})
+        response.raise_for_status()
+        zios = response.json()
+        if not len(zios) and not result_store.has_resource_to_delete(
+            "enkelvoudiginformatieobjecten"
+        ):
+            return
+
+        for zio in zios:
+            result_store.add_resource_to_delete(
+                "enkelvoudiginformatieobjecten", zio["informatieobject"]
+            )
+            zio_uuid = furl(zio["url"]).path.segments[-1]
+            execute_unless_result_exist(
+                result_store,
+                "zaakinformatieobjecten",
+                zio["url"],
+                partial(zrc_client.delete, f"zaakinformatieobjecten/{zio_uuid}"),
+            )
+
+    drc_service = Service.objects.get(api_type=APITypes.drc)
+    drc_client = build_client(drc_service)
+
+    with drc_client:
+        for document_url in result_store.get_resources_to_delete(
+            "enkelvoudiginformatieobjecten"
+        ):
+            document_uuid = furl(document_url).path.segments[-1]
+            execute_unless_result_exist(
+                result_store,
+                "enkelvoudiginformatieobjecten",
+                document_url,
+                partial(
+                    drc_client.delete, f"enkelvoudiginformatieobjecten/{document_uuid}"
+                ),
+                handle_document_delete_exc,
+            )
+
+    result_store.clear_resources_to_delete("enkelvoudiginformatieobjecten")
+
+
+def delete_zaak(zaak: "Zaak", zrc_client: APIClient, result_store: ResultStore) -> None:
+    with zrc_client:
+        execute_unless_result_exist(
+            result_store,
+            "zaken",
+            zaak.url,
+            partial(zrc_client.delete, f"zaken/{zaak.uuid}"),
+        )
+
+
+def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> None:
+    """Delete a zaak and related objects
+
+    The procedure to delete all objects related to a zaak is as follows:
+    - Check if there are besluiten (in the Besluiten API) related to the zaak and delete them. This automatically deletes
+      ZaakBesluiten in the Zaken API.
+      Q: does it automatically delete BIOs and Documents related to the deleted besluit?
+    - Check if there are ZaakInformatieOjecten. Store the URLs of the corresponding documents.
+      Then delete the ZIOs, which automatically deletes the corresponding OIOs.
+    - Delete the documents. If the documents are still related to other objects, this will raise a
+      400 error.
+    - Delete the zaak.
+
+    The result store keeps track of which objects have been deleted from the
+    external API. In case of a retry after an error, no calls are made for
+    resources that have already been deleted.
+
+    The store also keeps track of any document that needs to be deleted.
+    If an error occurs after deleting the ZIOs, we wouldn't know which documents
+    should be deleted.
+    """
+    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_client = build_client(zrc_service)
+
+    delete_decisions(zaak, result_store)
+    delete_documents(zaak, zrc_client, result_store)
+    delete_zaak(zaak, zrc_client, result_store)

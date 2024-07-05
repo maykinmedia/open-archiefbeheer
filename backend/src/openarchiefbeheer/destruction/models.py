@@ -2,6 +2,7 @@ import logging
 import uuid as _uuid
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
@@ -21,6 +22,7 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +208,23 @@ class DestructionListItem(models.Model):
         null=True,
         blank=True,
     )
+    processing_status = models.CharField(
+        _("processing status"),
+        choices=InternalStatus.choices,
+        max_length=80,
+        help_text=_(
+            "Field used to track the status of the deletion of a destruction list item."
+        ),
+        default=InternalStatus.new,
+    )
+    internal_results = models.JSONField(
+        verbose_name=_("internal result"),
+        help_text=_(
+            "When this item gets processed, "
+            "the URL of the resources deleted from Open Zaak get stored here."
+        ),
+        default=dict,
+    )
 
     class Meta:
         verbose_name = _("destruction list item")
@@ -231,6 +250,32 @@ class DestructionListItem(models.Model):
 
         serializer = ZaakSerializer(instance=zaak)
         return serializer.data
+
+    def set_processing_status(self, status: InternalStatus) -> None:
+        self.processing_status = status
+        self.save()
+
+    def process_deletion(self) -> None:
+        from .utils import mark_as_failed_on_error
+
+        self.processing_status = InternalStatus.processing
+        self.save()
+
+        with mark_as_failed_on_error(self):
+            try:
+                zaak = Zaak.objects.get(url=self.zaak)
+            except ObjectDoesNotExist as exc:
+                logger.error(
+                    "Could not find zaak with URL %s. Aborting deletion.", self.zaak
+                )
+                raise exc
+
+            delete_zaak_and_related_objects(zaak=zaak, result_store=self)
+
+            zaak.delete()
+
+        self.processing_status = InternalStatus.succeeded
+        self.save()
 
 
 class DestructionListAssignee(OrderedModel):
