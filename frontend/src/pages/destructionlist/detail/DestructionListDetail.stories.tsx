@@ -1,12 +1,15 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { findAllByRole, userEvent, waitFor, within } from "@storybook/test";
+import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
+  clickButton,
   fillButtonConfirmationForm,
   fillCheckboxConfirmationForm,
+  fillForm,
 } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
@@ -17,7 +20,6 @@ import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 } from "../../../fixtures/selectieLijstKlasseChoices";
 import { FIXTURE_USERS } from "../../../fixtures/user";
-import { FIXTURE_ZAKEN } from "../../../fixtures/zaak";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -51,6 +53,64 @@ const meta: Meta<typeof DestructionListDetailPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  await clickButton({
+    ...context,
+    parameters: {
+      name: 'Edit "Beoordelaar 1"',
+    },
+  });
+
+  await clickButton({
+    ...context,
+    parameters: {
+      name: 'Edit "Beoordelaar 2"',
+    },
+  });
+
+  let form;
+  await waitFor(() => {
+    form = document.forms[0];
+    if (!form) {
+      throw new Error();
+    }
+  });
+
+  await fillForm({
+    ...context,
+    parameters: {
+      form,
+      formValues: {
+        "Beoordelaar 1": "Proces ei Genaar (Proces ei Genaar)",
+        "Beoordelaar 2": "Beoor del Laar (Beoor del Laar)",
+      },
+      submitForm: false,
+    },
+  });
+
+  await fillButtonConfirmationForm({
+    ...context,
+    parameters: {
+      formValues: {
+        Reden: "omdat het kan",
+      },
+      name: "Toewijzen",
+      submitForm: false,
+    },
+  });
+
+  const dialog = await within(
+    context.canvasElement,
+  ).findByRole<HTMLDialogElement>("dialog");
+  const close = await within(dialog).findByRole("button", {
+    name: "Close",
+  });
+
+  await userEvent.click(close, { delay: 300 });
+};
+
 const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
   destructionList: FIXTURE_DESTRUCTION_LIST,
@@ -72,6 +132,8 @@ export const EditDestructionList: Story = {
     },
   },
   play: async (context) => {
+    await assertReassignDestructionList(context);
+
     const canvas = within(context.canvasElement);
     const editButton = await canvas.findByRole("button", { name: "Bewerken" });
     userEvent.click(editButton, { delay: 10 });
@@ -121,6 +183,8 @@ export const ProcessReview: Story = {
     },
   },
   play: async (context) => {
+    await assertReassignDestructionList(context);
+
     await fillCheckboxConfirmationForm({
       ...context,
       parameters: {
