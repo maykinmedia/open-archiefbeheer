@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
+import { findAllByRole, userEvent, waitFor, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
+  fillButtonConfirmationForm,
+  fillCheckboxConfirmationForm,
 } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
@@ -15,6 +17,11 @@ import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 } from "../../../fixtures/selectieLijstKlasseChoices";
 import { FIXTURE_USERS } from "../../../fixtures/user";
+import { FIXTURE_ZAKEN } from "../../../fixtures/zaak";
+import {
+  clearZaakSelection,
+  getZaakSelection,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { DestructionListDetailPage } from "./DestructionListDetail";
 import { DestructionListDetailContext } from "./types";
 
@@ -82,10 +89,15 @@ export const EditDestructionList: Story = {
 };
 
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
-  storageKey: "storybook-storage-key",
+  storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
   destructionList: { ...FIXTURE_DESTRUCTION_LIST, status: "changes_requested" },
   reviewers: FIXTURE_USERS,
-  zaken: FIXTURE_PAGINATED_ZAKEN,
+  zaken: {
+    count: FIXTURE_REVIEW_ITEMS.length,
+    next: null,
+    previous: null,
+    results: [],
+  },
   selectableZaken: FIXTURE_PAGINATED_ZAKEN,
   zaakSelection: {},
   review: FIXTURE_REVIEW,
@@ -97,35 +109,84 @@ export const ProcessReview: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE_PROCESS_REVIEW,
+        action: async () => true,
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
+          );
+
+          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
+        },
       },
     },
   },
   play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const checkbox = await canvas.findAllByRole("checkbox");
-    await userEvent.click(checkbox[0], { delay: 10 });
-    const modal = await canvas.findByRole("dialog");
-
-    const checkboxActie = await within(modal).findByLabelText(
-      "Aanpassen van selectielijstklasse",
-    );
-    await userEvent.click(checkboxActie, { delay: 10 });
-
-    const selectSelectielijstKlasse = await within(modal).findByLabelText(
-      "Selectielijstklasse",
-    );
-    await userEvent.click(selectSelectielijstKlasse, { delay: 10 });
-
-    const selectSelectielijstKlasseOption = await within(modal).findAllByText(
-      FIXTURE_SELECTIELIJSTKLASSE_CHOICES[0].label,
-    );
-    await userEvent.click(selectSelectielijstKlasseOption[0], {
-      delay: 10,
+    await fillCheckboxConfirmationForm({
+      ...context,
+      parameters: {
+        elementIndex: 0,
+        formValues: {
+          "Aanpassen van selectielijstklasse": true,
+          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[0].label,
+          Reden: "omdat het moet",
+        },
+      },
     });
 
-    const inputReden = await within(modal).findByLabelText("Reden");
-    await userEvent.type(inputReden, "Omdat het moet", { delay: 10 });
-    await userEvent.tab();
+    await fillCheckboxConfirmationForm({
+      ...context,
+      parameters: {
+        elementIndex: 1,
+        formValues: {
+          "Aanpassen van selectielijstklasse": true,
+          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[1].label,
+          Reden: "omdat het kan",
+        },
+      },
+    });
+
+    await fillCheckboxConfirmationForm({
+      ...context,
+      parameters: {
+        elementIndex: 2,
+        formValues: {
+          "Aanpassen van selectielijstklasse": true,
+          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[2].label,
+          Reden: "Waarom niet",
+        },
+      },
+    });
+
+    await fillButtonConfirmationForm({
+      ...context,
+      parameters: {
+        name: "Opnieuw indienen",
+        formValues: {
+          Opmerking: "Kan gewoon",
+        },
+        submitForm: false,
+      },
+    });
+
+    const canvas = within(context.canvasElement);
+    await userEvent.keyboard("{Escape}");
+
+    const dialog = await canvas.findByRole("dialog");
+    const close = await within(dialog).findByRole("button", { name: "Close" });
+    await userEvent.click(close, { delay: 300 });
+
+    await waitFor(
+      async () => {
+        const mutateButtons = canvas.getAllByRole("button", {
+          name: "Muteren",
+        });
+        await userEvent.click(mutateButtons[1], { delay: 10 });
+        await canvas.findByRole("dialog");
+      },
+      { timeout: 10000 },
+    );
+
+    // Clean up.
+    await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
   },
 };
