@@ -371,7 +371,7 @@ class DestructionListViewSetTest(APITestCase):
             [lists[0].uuid, lists[1].uuid].sort(),
         )
 
-    def test_start_destruction(self):
+    def test_mark_as_final(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
         archivist = UserFactory.create(
             username="archivist", role__can_review_final_list=True
@@ -452,6 +452,7 @@ class DestructionListViewSetTest(APITestCase):
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
+            author=record_manager,
             contains_sensitive_info=True,
             status=ListStatus.changes_requested,
         )
@@ -468,7 +469,37 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_mark_as_final(self):
+    def test_cannot_mark_as_final_if_posted_user_is_not_archivist(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        internal_reviewer = UserFactory.create(
+            username="archivist", role__can_review_final_list=False
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            contains_sensitive_info=True,
+            status=ListStatus.internally_reviewed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={"user": internal_reviewer.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["user"],
+            _("The chosen user does not have the permission to review a final list."),
+        )
+
+    def test_start_destruction(self):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
