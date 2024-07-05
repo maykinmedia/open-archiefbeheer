@@ -124,7 +124,32 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def validate_assignees(
         self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
+        current_assignee_pks = (
+            list(
+                self.instance.assignees.filter(role=ListRole.reviewer).values_list(
+                    "user__pk", flat=True
+                )
+            )
+            if self.instance
+            else []
+        )
         assignees_pks = [assignee["user"].pk for assignee in assignees]
+
+        if current_assignee_pks and current_assignee_pks != assignees_pks:
+            comment = str(self.initial_data.get("comment")).strip()
+
+            if not comment:
+                raise ValidationError(
+                    _("A comment should be provided when changing assignees.")
+                )
+
+            logevent.destruction_list_reassigned(
+                destruction_list=self.instance,
+                assignees=assignees,
+                comment=comment,
+                user=self.context["request"].user,
+            )
+
         if len(assignees) != len(set(assignees_pks)):
             raise ValidationError(
                 _("The same user should not be selected as a reviewer more than once.")

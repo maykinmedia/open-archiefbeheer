@@ -5,6 +5,7 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.destruction.models import (
     DestructionList,
+    DestructionListAssignee,
     DestructionListReview,
     ReviewDecisionChoices,
 )
@@ -27,6 +28,32 @@ def destruction_list_created(destruction_list: DestructionList, user: User) -> N
 
 def destruction_list_updated(destruction_list: DestructionList) -> None:
     _create_log(model=destruction_list, event="destruction_list_updated")
+
+
+def destruction_list_reassigned(
+    destruction_list: DestructionList,
+    assignees: list[DestructionListAssignee],
+    comment: str,
+    user: User,
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_reassigned",
+        user=user,
+        extra_data={
+            "assignees": [
+                {
+                    "user": {
+                        "pk": assignee["user"].pk,
+                        "email": assignee["user"].email,
+                        "username": assignee["user"].username,
+                    },
+                }
+                for assignee in assignees
+            ],
+            "comment": comment,
+        },
+    )
 
 
 def destruction_list_reviewed(

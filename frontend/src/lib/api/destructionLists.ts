@@ -33,6 +33,7 @@ export type DestructionListAssignee = {
 export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];
   items?: DestructionListItemUpdate[];
+  comment?: string;
 };
 
 export type DestructionListAssigneeUpdate = {

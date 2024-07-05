@@ -247,6 +247,7 @@ class DestructionListSerializerTests(TestCase):
                 {"user": user1.pk, "order": 0},
                 {"user": user3.pk, "order": 1},
             ],
+            "comment": "Lorem ipsum...",
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",

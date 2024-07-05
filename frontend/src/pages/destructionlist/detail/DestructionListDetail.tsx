@@ -159,6 +159,8 @@ export async function destructionListEditAction({
         user: Number(id),
         order: index,
       }));
+
+    data.comment = (formData.get("comment") as string) || "";
   }
 
   if (items) {
