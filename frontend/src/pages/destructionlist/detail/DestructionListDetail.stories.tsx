@@ -1,5 +1,5 @@
 import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
-import { findAllByRole, userEvent, waitFor, within } from "@storybook/test";
+import { userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
@@ -115,6 +115,7 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
   destructionList: FIXTURE_DESTRUCTION_LIST,
   reviewers: FIXTURE_USERS,
+  archivists: FIXTURE_USERS,
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectableZaken: FIXTURE_PAGINATED_ZAKEN,
   zaakSelection: {},
@@ -154,6 +155,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
   destructionList: { ...FIXTURE_DESTRUCTION_LIST, status: "changes_requested" },
   reviewers: FIXTURE_USERS,
+  archivists: FIXTURE_USERS,
   zaken: {
     count: FIXTURE_REVIEW_ITEMS.length,
     next: null,

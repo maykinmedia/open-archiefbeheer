@@ -13,6 +13,7 @@ export interface DestructionListDetailContext {
   storageKey: string;
   destructionList: DestructionList;
   reviewers: User[];
+  archivists: User[];
   zaken: PaginatedZaken;
   selectableZaken: PaginatedZaken;
   zaakSelection: ZaakSelection;

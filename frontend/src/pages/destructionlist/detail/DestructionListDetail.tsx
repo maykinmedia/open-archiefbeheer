@@ -2,22 +2,30 @@ import {
   AttributeTable,
   Badge,
   Body,
+  Button,
   CardBaseTemplate,
   Column,
+  Form,
+  FormField,
   Grid,
-  H2,
+  H1,
   LabeledAttributeData,
+  Modal,
   Option,
+  SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
+import { FormEvent, useState } from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
-import { TypedAction } from "../../../hooks/useSubmitAction";
+import { TypedAction } from "../../../hooks";
+import { listArchivists } from "../../../lib/api/archivists";
 import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
   DestructionListItemUpdate,
   getDestructionList,
+  markDestructionListAsFinal,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
 import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
@@ -81,16 +89,63 @@ function getDisplayableList(
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { destructionList, reviewers } =
+  const { destructionList, reviewers, archivists } =
     useLoaderData() as DestructionListDetailContext;
+
+  const [modalOpenState, setModalOpenState] = useState(false);
+
+  const modalFormFields: FormField[] = [
+    {
+      label: "Arhivaris",
+      name: "assigneeIds",
+      options: archivists.map((user) => ({
+        value: String(user.pk),
+        label: user.username,
+      })),
+      required: true,
+    },
+  ];
 
   // TODO - Make a 404 page
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
 
+  const onSubmit = async (_: FormEvent, data: SerializedFormData) => {
+    await markDestructionListAsFinal(destructionList.uuid, {
+      user: Number(data.assigneeIds),
+    });
+    setModalOpenState(false);
+    return redirect("/");
+  };
+
   return (
     <CardBaseTemplate>
       <Body>
-        <H2>{destructionList.name}</H2>
+        <Grid>
+          <Column span={2}>
+            <H1>{destructionList.name}</H1>
+          </Column>
+          {destructionList.status === "internally_reviewed" && (
+            <Column span={8}>
+              <Modal
+                title="Mark as final"
+                open={modalOpenState}
+                size="m"
+                onClose={() => setModalOpenState(false)}
+              >
+                <Body>
+                  <Form
+                    fields={modalFormFields}
+                    onSubmit={onSubmit}
+                    validateOnChange={true}
+                  />
+                </Body>
+              </Modal>
+              <Button type="submit" onClick={() => setModalOpenState(true)}>
+                Mark as final
+              </Button>
+            </Column>
+          )}
+        </Grid>
         <Grid>
           <Column span={3}>
             <AttributeTable
@@ -251,6 +306,7 @@ export const destructionListDetailLoader = loginRequired(
       const promises = [
         // Fetch all possible reviewers to allow reassignment.
         listReviewers(),
+        listArchivists(),
 
         // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
         // FIXME: Accept no/implement real pagination?
@@ -320,11 +376,13 @@ export const destructionListDetailLoader = loginRequired(
 
       const [
         reviewers,
+        archivists,
         zaken,
         allZaken,
         zaakSelection,
         selectieLijstKlasseChoicesMap,
       ] = (await Promise.all(promises)) as [
+        User[],
         User[],
         PaginatedZaken,
         PaginatedZaken,
@@ -336,6 +394,7 @@ export const destructionListDetailLoader = loginRequired(
         storageKey,
         destructionList,
         reviewers,
+        archivists,
         zaken,
         selectableZaken: allZaken,
         zaakSelection,

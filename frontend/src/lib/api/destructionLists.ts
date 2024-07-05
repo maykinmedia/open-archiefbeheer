@@ -47,6 +47,9 @@ export type DestructionListItemUpdate = {
   zaakData?: Zaak;
 };
 
+export type DestructionListMarkAsFinalData = {
+  user: number;
+};
 /**
  * Create a new destruction list.
  * @param name
@@ -114,5 +117,24 @@ export async function updateDestructionList(
     data,
   );
   const promise: Promise<DestructionList[]> = response.json();
+  return promise;
+}
+
+/**
+ * Mark destruction list as final.
+ * @param uuid
+ * @returns
+ */
+export async function markDestructionListAsFinal(
+  uuid: string,
+  data: DestructionListMarkAsFinalData,
+) {
+  const response = await request(
+    "POST",
+    `/destruction-lists/${uuid}/make_final/`,
+    {},
+    data,
+  );
+  const promise: Promise<DestructionList> = response.json();
   return promise;
 }
