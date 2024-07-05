@@ -115,7 +115,7 @@ django-timeline-logger==4.0.0
     # via -r requirements/base.in
 django-two-factor-auth[phonenumberslite,webauthn]==1.16.0
     # via maykin-2fa
-djangorestframework==3.15.1
+djangorestframework==3.15.2
     # via
     #   -r requirements/base.in
     #   djangorestframework-gis
@@ -184,7 +184,7 @@ referencing==0.35.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.3
     # via
     #   ape-pie
     #   django-rosetta
@@ -210,7 +210,7 @@ tzdata==2024.1
     # via celery
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==2.2.1
+urllib3==2.2.2
     # via
     #   elastic-apm
     #   requests
