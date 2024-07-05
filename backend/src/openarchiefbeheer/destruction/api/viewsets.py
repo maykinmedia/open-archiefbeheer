@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -214,6 +215,16 @@ class DestructionListViewSet(
             }
         )
         serialiser.is_valid(raise_exception=True)
+
+        if not serialiser.validated_data["user"].role.can_review_final_list:
+            raise ValidationError(
+                {
+                    "user": _(
+                        "The chosen user does not have the permission to review a final list."
+                    )
+                }
+            )
+
         archivist = serialiser.save()
 
         destruction_list.assign(archivist)
