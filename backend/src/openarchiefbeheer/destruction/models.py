@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from ordered_model.models import OrderedModel
 from timeline_logger.models import TimelineLog
 
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.constants import (
     DestructionListItemAction,
     InternalStatus,
@@ -142,15 +143,39 @@ class DestructionList(models.Model):
     def assign_next(self) -> None:
         reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
 
-        # All reviews have reviewed the draft destruction list
+        # All reviewers have reviewed the draft destruction list
         if self.assignee == reviewers.last().user:
             self.get_author().assign()
-            self.set_status(ListStatus.internally_reviewed)
+            status = (
+                ListStatus.ready_to_delete
+                if self.has_short_review_process()
+                else ListStatus.internally_reviewed
+            )
+            self.set_status(status)
             return
 
         current_assignee = self.assignees.get(user=self.assignee)
         next_reviewer = current_assignee.next()
         next_reviewer.assign()
+
+    def has_short_review_process(self) -> bool:
+        zaken_urls = self.items.all().values_list("zaak", flat=True)
+
+        zaken = Zaak.objects.filter(url__in=zaken_urls)
+        zaaktypes_urls = set(zaken.values_list("zaaktype", flat=True))
+
+        config = ArchiveConfig.get_solo()
+
+        return all(
+            [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
+        )
+
+    def determine_next_step_post_review(self, review: "DestructionListReview") -> None:
+        if review.decision == ReviewDecisionChoices.accepted:
+            self.assign_next()
+        else:
+            self.set_status(ListStatus.changes_requested)
+            self.get_author().assign()
 
 
 class DestructionListItem(models.Model):
