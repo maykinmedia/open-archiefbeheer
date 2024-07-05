@@ -15,7 +15,7 @@ def process_review_response(pk: int) -> None:
     ).get(pk=pk)
     items_review_responses = review_response.items_responses.select_related(
         "review_item", "review_item__destruction_list_item"
-    ).select_for_update()
+    )
 
     for item_response in items_review_responses:
         try:
