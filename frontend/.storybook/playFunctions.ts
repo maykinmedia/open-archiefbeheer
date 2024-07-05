@@ -1,6 +1,11 @@
-import { ReactRenderer } from "@storybook/react";
+import { contexts } from "@maykin-ui/admin-ui";
+import { Parameters, ReactRenderer } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
+
+//
+// Assertions
+//
 
 /**
  * Selects and deselects the "Identificatie" column and asserts whether it's shown/hidden based on the selected state.
@@ -123,4 +128,194 @@ export const assertColumnSelection: PlayFunction<ReactRenderer> = async ({
     name: "Identificatie",
   });
   expect(identificatieColumn2).toBeVisible();
+};
+
+//
+// Utils
+//
+
+type ClickElementParameters = Parameters & {
+  checked?: boolean;
+  elementIndex?: number;
+  inTBody?: boolean;
+  role?: string;
+  name?: string;
+};
+
+/**
+ * Clicks button at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * @param context
+ */
+export const clickButton: PlayFunction<ReactRenderer> = async (context) => {
+  await clickElement({
+    ...context,
+    parameters: {
+      ...context.parameters,
+      role: "button",
+    },
+  });
+};
+
+/**
+ * Clicks checkbox at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * @param context
+ */
+export const clickCheckbox: PlayFunction<ReactRenderer> = async (context) => {
+  await clickElement({
+    ...context,
+    parameters: {
+      ...context.parameters,
+      role: "checkbox",
+    },
+  });
+};
+
+/**
+ * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * @param context
+ */
+export const clickElement: PlayFunction<ReactRenderer> = async (context) => {
+  const {
+    checked,
+    elementIndex = 0,
+    inTBody = false,
+    role,
+    name,
+  } = context.parameters as ClickElementParameters;
+
+  console.assert(
+    role,
+    'clickElement requires an element role be set using the "role" parameter!',
+  );
+
+  const canvas = within(context.canvasElement);
+  const rowGroups = await canvas.findAllByRole("rowgroup");
+
+  const tbody = rowGroups.find((rg) => {
+    return rg.tagName === "TBODY";
+  }) as HTMLTableSectionElement;
+
+  const elements = await within(
+    inTBody ? tbody : context.canvasElement,
+    // @ts-expect-error - role now set.
+  ).findAllByRole(role, { name });
+
+  const element = elements[elementIndex];
+
+  const checkedState = (element as HTMLInputElement).checked;
+
+  // Normalize state.
+  if (typeof checked !== "undefined" && checked === checkedState) {
+    await userEvent.click(element, { delay: 10 });
+  }
+
+  await userEvent.click(element, { delay: 10 });
+};
+
+type FillFormParameters = Parameters & {
+  form?: HTMLFormElement;
+  formValues?: Record<string, boolean | string>;
+  submitForm?: boolean;
+};
+
+/**
+ * Fills in `form` with `formValues`, then submits if `submitForm` is truthy.
+ * @param context
+ */
+export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
+  const canvas = within(context.canvasElement);
+
+  const {
+    form = await canvas.findByRole("form"),
+    formValues = {},
+    submitForm = true,
+  } = context.parameters as FillFormParameters;
+
+  for (const [name, value] of Object.entries(formValues)) {
+    const field: HTMLInputElement | HTMLSelectElement =
+      await within(form).findByLabelText(name);
+
+    switch (typeof value) {
+      case "boolean":
+        const checkbox = field as HTMLInputElement;
+        if (checkbox.checked !== value) {
+          await userEvent.click(checkbox, { delay: 100 });
+        }
+        break;
+      case "string":
+        if ((field as HTMLSelectElement).options) {
+          const select = field as HTMLSelectElement;
+          await userEvent.click(select, { delay: 100 });
+          const option = (await within(form).findAllByText(value))[0];
+          await userEvent.click(option, { delay: 100 });
+        } else {
+          const input = field as HTMLInputElement;
+          await userEvent.type(input, value, { delay: 10 });
+        }
+    }
+  }
+
+  if (submitForm) {
+    const buttons = await within(form).findAllByRole("button");
+    // Assume that last button is submit.
+    const submit = buttons[buttons.length - 1];
+    await userEvent.click(submit, { delay: 100 });
+  }
+};
+
+type FillConfirmationFormParameters = ClickElementParameters &
+  FillFormParameters;
+
+/**
+ * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * Then fills in dialog form, submits if `submitForm` is truthy.
+ * @param context
+ */
+export const fillButtonConfirmationForm: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  await fillConfirmationForm({
+    ...context,
+    parameters: { ...context.parameters, role: "button" },
+  });
+};
+
+/**
+ * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * Then fills in dialog form, submits if `submitForm` is truthy.
+ * @param context
+ */
+export const fillCheckboxConfirmationForm: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  await fillConfirmationForm({
+    ...context,
+    parameters: { ...context.parameters, checked: true, role: "checkbox" },
+  });
+};
+
+/**
+ * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
+ * Then fills in dialog form, submits if `submitForm` is truthy.
+ * @param context
+ */
+export const fillConfirmationForm: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  const parameters = context.parameters as FillConfirmationFormParameters;
+  const _context = { ...context, parameters };
+  await clickElement(_context);
+
+  const canvas = within(context.canvasElement);
+  const modal = await canvas.findByRole("dialog");
+  // FIXME: Fix in admin-ui form should be picked up by role.
+  // const form = await within(modal).findByRole("form", {}, { timeout: 3000 });
+
+  await fillForm({
+    ..._context,
+    parameters: {
+      ...parameters,
+      form: modal,
+    },
+  });
 };
