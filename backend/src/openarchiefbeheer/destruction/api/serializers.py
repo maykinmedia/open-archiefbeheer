@@ -136,7 +136,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         assignees_pks = [assignee["user"].pk for assignee in assignees]
 
         if current_assignee_pks and current_assignee_pks != assignees_pks:
-            comment = str(self.initial_data.get("comment")).strip()
+            comment = str(self.initial_data.get("comment", "")).strip()
 
             if not comment:
                 raise ValidationError(
