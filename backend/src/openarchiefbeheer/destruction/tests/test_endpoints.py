@@ -370,7 +370,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def reassign_destruction_list_creates_log_entry(self):
+    def test_reassign_destruction_list_creates_log_entry(self):
         record_manager1 = UserFactory.create(role__can_start_destruction=True)
         reviewer1 = UserFactory.create(role__can_review_destruction=True)
         reviewer2 = UserFactory.create(role__can_review_destruction=True)
