@@ -320,11 +320,12 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         ]
         DestructionListItemReview.objects.bulk_create(review_items_data)
 
-        destruction_list = validated_data["destruction_list"]
-        destruction_list.determine_next_step_post_review(review)
+        review.determine_next_step()
 
         logevent.destruction_list_reviewed(
-            destruction_list=destruction_list, review=review, user=review.author
+            destruction_list=validated_data["destruction_list"],
+            review=review,
+            user=review.author,
         )
 
         return review

@@ -170,13 +170,6 @@ class DestructionList(models.Model):
             [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
         )
 
-    def determine_next_step_post_review(self, review: "DestructionListReview") -> None:
-        if review.decision == ReviewDecisionChoices.accepted:
-            self.assign_next()
-        else:
-            self.set_status(ListStatus.changes_requested)
-            self.get_author().assign()
-
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
@@ -306,6 +299,13 @@ class DestructionListReview(models.Model):
 
     def __str__(self):
         return f"Review for {self.destruction_list} ({self.author})"
+
+    def determine_next_step(self) -> None:
+        if self.decision == ReviewDecisionChoices.accepted:
+            self.destruction_list.assign_next()
+        else:
+            self.destruction_list.set_status(ListStatus.changes_requested)
+            self.destruction_list.get_author().assign()
 
 
 class DestructionListItemReview(models.Model):
