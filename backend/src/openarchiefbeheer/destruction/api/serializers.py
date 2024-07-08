@@ -143,13 +143,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
                     _("A comment should be provided when changing assignees.")
                 )
 
-            logevent.destruction_list_reassigned(
-                destruction_list=self.instance,
-                assignees=assignees,
-                comment=comment,
-                user=self.context["request"].user,
-            )
-
         if len(assignees) != len(set(assignees_pks)):
             raise ValidationError(
                 _("The same user should not be selected as a reviewer more than once.")
@@ -186,7 +179,9 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def update(
         self, instance: DestructionList, validated_data: dict
     ) -> DestructionList:
+
         assignees_data = validated_data.pop("assignees", None)
+        comment = validated_data.pop("comment", None)
         items_data = validated_data.pop("items", None)
 
         instance.contains_sensitive_info = validated_data.pop(
@@ -205,6 +200,15 @@ class DestructionListSerializer(serializers.ModelSerializer):
         instance.save()
 
         logevent.destruction_list_updated(instance)
+
+        if assignees_data is not None:
+            logevent.destruction_list_reassigned(
+                destruction_list=self.instance,
+                assignees=assignees_data,
+                comment=comment,
+                user=self.context["request"].user,
+            )
+
         return instance
 
 
