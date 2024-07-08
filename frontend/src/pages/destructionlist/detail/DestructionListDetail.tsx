@@ -13,11 +13,11 @@ import {
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect, useLoaderData } from "react-router-dom";
 
+import { TypedAction } from "../../../hooks/useSubmitAction";
 import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
   DestructionListItemUpdate,
-  DestructionListUpdateData,
   getDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
@@ -111,7 +111,7 @@ export function DestructionListDetailPage() {
   );
 }
 
-export type UpdateDestructionListAction<T> = StateMutationAction<
+export type UpdateDestructionListAction<T> = TypedAction<
   "PROCESS_REVIEW" | "UPDATE_ASSIGNEES" | "UPDATE_ZAKEN",
   T
 >;

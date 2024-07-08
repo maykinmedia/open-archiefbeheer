@@ -24,10 +24,10 @@ import {
   useNavigation,
   useRevalidator,
   useSearchParams,
-  useSubmit,
 } from "react-router-dom";
 import { useAsync } from "react-use";
 
+import { useSubmitAction } from "../../../hooks/useSubmitAction";
 import { ReviewItem } from "../../../lib/api/review";
 import {
   ReviewItemResponse,
@@ -73,7 +73,8 @@ interface ProcessZaakReviewSelectionDetail {
 export function DestructionListItems() {
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
-  const submit = useSubmit();
+  const submitAction = useSubmitAction();
+
   const {
     storageKey,
     destructionList,
@@ -134,7 +135,7 @@ export function DestructionListItems() {
         zaakUrls,
       },
     };
-    submit(action, { method: "PATCH", encType: "application/json" });
+    submitAction(action);
   };
 
   // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
@@ -274,7 +275,7 @@ export function DestructionListItems() {
       },
     };
 
-    submit(actionData, { method: "POST", encType: "application/json" });
+    submitAction(actionData);
   };
 
   // Whether the user is processing a review.
