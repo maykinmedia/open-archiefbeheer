@@ -96,6 +96,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
 
 class DestructionListSerializer(serializers.ModelSerializer):
     assignees = ReviewerAssigneeSerializer(many=True)
+    comment = serializers.CharField(allow_blank=True, required=False)
     items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
 
@@ -107,6 +108,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "author",
             "contains_sensitive_info",
             "assignees",
+            "comment",
             "items",
             "status",
         )
@@ -121,27 +123,40 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         self._context["destruction_list"] = self.instance
 
+    def validate(self, attrs: dict) -> dict:
+        """
+        Run "cross field" validation.
+
+        - Validate that assignees can only be set when comment is provided.
+        """
+        assignees = attrs.get("assignees")
+
+        if assignees:
+            # Validate that assignees can only be set when comment is provided.
+            current_reviewers = (
+                self.instance.assignees.filter(role=ListRole.reviewer)
+                if self.instance
+                else DestructionListAssignee.objects.none()
+            )
+            current_reviewer_pks = list(
+                current_reviewers.values_list("user__pk", flat=True)
+            )
+            assignee_pks = [assignee["user"].pk for assignee in assignees]
+
+            if current_reviewer_pks and current_reviewer_pks != assignee_pks:
+                comment = attrs.get("comment", "").strip()
+
+                if not comment:
+                    raise ValidationError(
+                        _("A comment should be provided when changing assignees.")
+                    )
+
+        return attrs
+
     def validate_assignees(
         self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
-        current_assignee_pks = (
-            list(
-                self.instance.assignees.filter(role=ListRole.reviewer).values_list(
-                    "user__pk", flat=True
-                )
-            )
-            if self.instance
-            else []
-        )
         assignees_pks = [assignee["user"].pk for assignee in assignees]
-
-        if current_assignee_pks and current_assignee_pks != assignees_pks:
-            comment = str(self.initial_data.get("comment", "")).strip()
-
-            if not comment:
-                raise ValidationError(
-                    _("A comment should be provided when changing assignees.")
-                )
 
         if len(assignees) != len(set(assignees_pks)):
             raise ValidationError(
