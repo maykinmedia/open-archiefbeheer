@@ -111,6 +111,11 @@ export function DestructionListDetailPage() {
   );
 }
 
+export type UpdateDestructionListAction<T> = StateMutationAction<
+  "PROCESS_REVIEW" | "UPDATE_ASSIGNEES" | "UPDATE_ZAKEN",
+  T
+>;
+
 /**
  * React Router action.
  */
@@ -118,11 +123,19 @@ export async function destructionListUpdateAction({
   request,
   params,
 }: ActionFunctionArgs) {
-  const formData = await request.clone().formData();
-  if (formData.get("reviewResponseJSON")) {
-    return await destructionListProcessReviewAction({ request, params });
+  const data = await request.clone().json();
+  const action = data as UpdateDestructionListAction<unknown>;
+
+  switch (action.type) {
+    case "PROCESS_REVIEW":
+      return await destructionListProcessReviewAction({ request, params });
+    case "UPDATE_ASSIGNEES":
+      return await destructionListUpdateAssigneesAction({ request, params });
+    case "UPDATE_ZAKEN":
+      return await destructionListUpdateZakenAction({ request, params });
+    default:
+      throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
-  return await destructionListEditAction({ request, params });
 }
 
 /**
@@ -131,46 +144,70 @@ export async function destructionListUpdateAction({
 export async function destructionListProcessReviewAction({
   request,
 }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const reviewResponse = JSON.parse(
-    formData.get("reviewResponseJSON") as string,
-  ) as ReviewResponse;
-  await createReviewResponse(reviewResponse);
+  const data = await request.json();
+  const reviewResponse: ReviewResponse = data.payload;
+
+  try {
+    await createReviewResponse(reviewResponse);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return redirect("/");
+}
+
+/**
+ * React Router action (user intents to reassign the destruction list).
+ */
+export async function destructionListUpdateAssigneesAction({
+  request,
+  params,
+}: ActionFunctionArgs) {
+  const data: UpdateDestructionListAction<
+    Record<string, string | Array<number | string>>
+  > = await request.json();
+  const { assigneeIds, comment } = data.payload;
+
+  const assignees = (assigneeIds as Array<number | string>)
+    .filter((id) => id !== "") // Case in which a reviewer is removed
+    .map((id, index) => ({
+      user: Number(id),
+      order: index,
+    }));
+
+  try {
+    await updateDestructionList(params.uuid as string, {
+      assignees,
+      comment: String(comment),
+    });
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
+  return redirect(`/destruction-lists/${params.uuid}/`);
 }
 
 /**
  * React Router action (user intents to adds/remove zaken to/from the destruction list).
  */
-export async function destructionListEditAction({
+export async function destructionListUpdateZakenAction({
   request,
   params,
 }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const assigneesData =
-    formData.has("assigneeIds") && formData.getAll("assigneeIds");
-  const items = formData.has("zaakUrls") && formData.getAll("zaakUrls");
-  const data: DestructionListUpdateData = {};
+  const data: UpdateDestructionListAction<Record<string, string[]>> =
+    await request.json();
+  const { zaakUrls } = data.payload;
 
-  if (assigneesData) {
-    data.assignees = assigneesData
-      .filter((id) => id !== "") // Case in which a reviewer is removed
-      .map((id, index) => ({
-        user: Number(id),
-        order: index,
-      }));
-
-    data.comment = (formData.get("comment") as string) || "";
-  }
-
-  if (items) {
-    data.items = items.map((zaakUrl) => ({
-      zaak: zaakUrl,
-    })) as DestructionListItemUpdate[];
-  }
+  const items = zaakUrls.map((zaakUrl) => ({
+    zaak: zaakUrl,
+  })) as DestructionListItemUpdate[];
 
   try {
-    await updateDestructionList(params.uuid as string, data);
+    await updateDestructionList(params.uuid as string, { items });
   } catch (e: unknown) {
     if (e instanceof Response) return await (e as Response).json();
 

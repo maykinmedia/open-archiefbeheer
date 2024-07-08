@@ -29,7 +29,10 @@ import {
 import { useAsync } from "react-use";
 
 import { ReviewItem } from "../../../lib/api/review";
-import { ReviewItemResponse } from "../../../lib/api/reviewResponse";
+import {
+  ReviewItemResponse,
+  ReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -38,6 +41,7 @@ import {
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { DataGridAction, useDataGridProps } from "../hooks";
+import { UpdateDestructionListAction } from "./DestructionListDetail";
 import "./DestructionListDetail.css";
 import { DestructionListDetailContext } from "./types";
 
@@ -124,10 +128,13 @@ export function DestructionListItems() {
       .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
 
-    const formData = new FormData();
-    zaakUrls.forEach((url) => formData.append("zaakUrls", url));
-
-    submit(formData, { method: "PATCH" });
+    const action: UpdateDestructionListAction<Record<string, string[]>> = {
+      type: "UPDATE_ZAKEN",
+      payload: {
+        zaakUrls,
+      },
+    };
+    submit(action, { method: "PATCH", encType: "application/json" });
   };
 
   // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
@@ -244,8 +251,9 @@ export function DestructionListItems() {
     );
 
     // Use JSON as `FormData` can't contain complex types.
-    const actionData = {
-      reviewResponseJSON: JSON.stringify({
+    const actionData: UpdateDestructionListAction<ReviewResponse> = {
+      type: "PROCESS_REVIEW",
+      payload: {
         review: review?.pk as number,
         comment: data.comment as string,
         itemsResponses:
@@ -263,10 +271,10 @@ export function DestructionListItems() {
               comment: "FIXME",
             };
           }) || [],
-      }),
+      },
     };
 
-    submit(actionData, { method: "POST" });
+    submit(actionData, { method: "POST", encType: "application/json" });
   };
 
   // Whether the user is processing a review.
