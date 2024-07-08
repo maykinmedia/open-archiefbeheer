@@ -6,8 +6,9 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useState } from "react";
-import { useActionData, useSubmit } from "react-router-dom";
+import { useActionData } from "react-router-dom";
 
+import { useSubmitAction } from "../../../hooks";
 import { DestructionListAssignee } from "../../../lib/api/destructionLists";
 import { formatUser } from "../utils";
 import { UpdateDestructionListAction } from "./DestructionListDetail";
@@ -18,7 +19,8 @@ export function AssigneesEditable({
   reviewers,
 }: AssigneesEditableProps) {
   const errors = useActionData() || {};
-  const submit = useSubmit();
+  const submitAction = useSubmitAction();
+
   const reviewerAssignees = [...assignees].splice(1);
   const [confirmationModalState, setConfirmationModalState] = useState<{
     open: boolean;
@@ -84,7 +86,7 @@ export function AssigneesEditable({
     >;
     Object.assign(action.payload, { comment: String(comment) });
 
-    submit(action, { method: "PATCH", encType: "application/json" });
+    submitAction(action);
     setConfirmationModalState({ ...confirmationModalState, open: false });
   };
 
