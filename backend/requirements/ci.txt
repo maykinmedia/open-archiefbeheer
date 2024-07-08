@@ -55,7 +55,7 @@ celery==5.4.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-certifi==2024.2.2
+certifi==2024.7.4
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

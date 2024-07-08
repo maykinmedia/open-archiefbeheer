@@ -24,7 +24,7 @@ cbor2==5.6.3
     # via webauthn
 celery==5.4.0
     # via -r requirements/base.in
-certifi==2024.2.2
+certifi==2024.7.4
     # via
     #   elastic-apm
     #   requests
