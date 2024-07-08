@@ -5,12 +5,12 @@ import {
   Modal,
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
-import { bool } from "prop-types";
 import React, { FormEvent, useState } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 
 import { DestructionListAssignee } from "../../../lib/api/destructionLists";
 import { formatUser } from "../utils";
+import { UpdateDestructionListAction } from "./DestructionListDetail";
 import { AssigneesEditableProps } from "./types";
 
 export function AssigneesEditable({
@@ -22,7 +22,9 @@ export function AssigneesEditable({
   const reviewerAssignees = [...assignees].splice(1);
   const [confirmationModalState, setConfirmationModalState] = useState<{
     open: boolean;
-    formData?: FormData;
+    action?: UpdateDestructionListAction<
+      Record<string, string | Array<number | string>>
+    >;
   }>({
     open: false,
   });
@@ -62,9 +64,13 @@ export function AssigneesEditable({
     });
 
     const assigneeIds = selectedAssignees.map((a) => a.user.pk);
-    const formData = new FormData();
-    assigneeIds.forEach((id) => formData.append("assigneeIds", id.toString()));
-    setConfirmationModalState({ open: true, formData });
+    setConfirmationModalState({
+      open: true,
+      action: {
+        type: "UPDATE_ASSIGNEES",
+        payload: { assigneeIds },
+      },
+    });
   };
 
   /**
@@ -73,9 +79,12 @@ export function AssigneesEditable({
    * @param data
    */
   const handleConfirm = (_: FormEvent, { comment }: SerializedFormData) => {
-    const formData = confirmationModalState.formData as FormData;
-    formData.set("comment", String(comment));
-    submit(formData, { method: "PATCH" });
+    const action = confirmationModalState.action as UpdateDestructionListAction<
+      Record<string, string | Array<number | string>>
+    >;
+    Object.assign(action.payload, { comment: String(comment) });
+
+    submit(action, { method: "PATCH", encType: "application/json" });
     setConfirmationModalState({ ...confirmationModalState, open: false });
   };
 
