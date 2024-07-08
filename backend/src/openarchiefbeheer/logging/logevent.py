@@ -3,6 +3,7 @@ from django.db.models import Model
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.destruction.constants import ListRole
 from openarchiefbeheer.destruction.models import (
     DestructionList,
     DestructionListAssignee,
@@ -23,7 +24,30 @@ def _create_log(
 
 
 def destruction_list_created(destruction_list: DestructionList, user: User) -> None:
-    _create_log(model=destruction_list, event="destruction_list_created", user=user)
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_created",
+        user=user,
+        extra_data={
+            "pk": destruction_list.pk,
+            "name": destruction_list.name,
+            "author": {
+                "pk": destruction_list.author.pk,
+                "email": destruction_list.author.email,
+                "username": destruction_list.author.username,
+            },
+            "assignees": [
+                {
+                    "user": {
+                        "pk": assignee.user.pk,
+                        "email": assignee.user.email,
+                        "username": assignee.user.username,
+                    },
+                }
+                for assignee in destruction_list.assignees.exclude(role=ListRole.author)
+            ],
+        },
+    )
 
 
 def destruction_list_updated(destruction_list: DestructionList) -> None:
