@@ -28,12 +28,13 @@ import {
 import { useAsync } from "react-use";
 
 import { useSubmitAction } from "../../../hooks/useSubmitAction";
-import { ReviewItem } from "../../../lib/api/review";
+import { Review, ReviewItem } from "../../../lib/api/review";
 import {
   ReviewItemResponse,
   ReviewResponse,
 } from "../../../lib/api/reviewResponse";
 import { canUpdateDestructionList } from "../../../lib/auth/permissions";
+import { formatDate } from "../../../lib/format/date";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -434,6 +435,7 @@ export function DestructionListItems() {
       {/* The "feedback" modal */}
       <ProcessZaakReviewModal
         zaakModalDataState={processZaakReviewModalState}
+        review={review}
         reviewItem={
           reviewItems?.find(
             (ri) => ri.zaak.url === processZaakReviewModalState.zaak?.url,
@@ -486,6 +488,7 @@ export function DestructionListItems() {
 
 type ProcessZaakReviewModalProps = {
   zaakModalDataState: ZaakModalDataState;
+  review: Review | null;
   reviewItem: ReviewItem | null;
   action?: ProcessReviewAction;
   selectielijstklasse: string;
@@ -516,6 +519,7 @@ type ProcessReviewAction =
  */
 const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
   zaakModalDataState: { open, zaak },
+  review,
   reviewItem,
   action,
   selectielijstklasse,
@@ -688,7 +692,7 @@ const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
       <Body>
         <Grid>
           <Column span={3}>
-            <H3>Beoordeling</H3>
+            <H3>Beoordeeld ({formatDate(String(review?.created))})</H3>
           </Column>
 
           <Column span={9}>

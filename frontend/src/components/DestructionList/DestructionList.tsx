@@ -8,21 +8,24 @@ import {
 } from "../../pages/destructionlist/hooks";
 import { Zaak } from "../../types";
 
-export type DestructionList = {
-  zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
-  onSubmitSelection: () => void;
-  // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
-  storageKey: string;
-  title: string;
-  labelAction?: string;
-  actions?: DataGridAction[];
-} & Omit<DataGridProps, "objectList">;
+export type DestructionList = React.PropsWithChildren<
+  {
+    zaken: PaginatedZaken;
+    selectedZaken: Zaak[];
+    onSubmitSelection: () => void;
+    // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
+    storageKey: string;
+    title: string;
+    labelAction?: string;
+    actions?: DataGridAction[];
+  } & Omit<DataGridProps, "objectList">
+>;
 
 /**
  * Review-destruction-list page
  */
 export function DestructionList({
+  children,
   storageKey,
   zaken,
   selectedZaken,
@@ -56,6 +59,8 @@ export function DestructionList({
           },
         ],
       }}
-    />
+    >
+      {children}
+    </ListTemplate>
   );
 }

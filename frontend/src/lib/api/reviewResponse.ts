@@ -1,3 +1,4 @@
+import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review, ReviewItem } from "./review";
 
@@ -36,6 +37,37 @@ export async function createReviewResponse(
       },
 ) {
   const response = await request("POST", "/review-responses/", params, data);
+  const promise: Promise<ReviewResponse> = response.json();
+  return promise;
+}
+
+/**
+ * Get the latest review for a destruction list.
+ */
+export async function getLatestReviewResponse(
+  params?:
+    | URLSearchParams
+    | {
+        review?: Review["pk"];
+      },
+) {
+  const reviews = await listReviewResponses({
+    ...params,
+  });
+  return reviews[0];
+}
+
+/**
+ * List all the responses to the reviews of a destruction list.
+ */
+export async function listReviewResponses(
+  params?:
+    | URLSearchParams
+    | {
+        review?: Review["pk"];
+      },
+) {
+  const response = await request("GET", "/review-responses/", params);
   const promise: Promise<ReviewResponse[]> = response.json();
   return promise;
 }
