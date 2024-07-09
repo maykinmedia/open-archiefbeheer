@@ -10,6 +10,7 @@ import {
   fillButtonConfirmationForm,
   fillCheckboxConfirmationForm,
   fillForm,
+  fillMarkListAsFinalForm,
 } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
@@ -256,5 +257,54 @@ export const ProcessReview: Story = {
 
     // Clean up.
     await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
+  },
+};
+
+const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
+  storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
+  destructionList: {
+    ...FIXTURE_DESTRUCTION_LIST,
+    status: "internally_reviewed",
+  },
+  reviewers: FIXTURE_USERS,
+  archivists: FIXTURE_USERS,
+  user: FIXTURE_USERS[0],
+  zaken: {
+    count: FIXTURE_REVIEW_ITEMS.length,
+    next: null,
+    previous: null,
+    results: [],
+  },
+  selectableZaken: FIXTURE_PAGINATED_ZAKEN,
+  zaakSelection: {},
+  review: FIXTURE_REVIEW,
+  reviewItems: FIXTURE_REVIEW_ITEMS,
+  selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
+};
+export const ViewFinalDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        action: async () => true,
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            `${FIXTURE_FINAL_DESTRUCTION.storageKey}`,
+          );
+
+          return { ...FIXTURE_FINAL_DESTRUCTION, zaakSelection };
+        },
+      },
+    },
+  },
+  play: async (context) => {
+    fillMarkListAsFinalForm({
+      ...context,
+      parameters: {
+        elementIndex: 0,
+        formValues: {
+          Archivaris: "Record Manager",
+        },
+      },
+    });
   },
 };
