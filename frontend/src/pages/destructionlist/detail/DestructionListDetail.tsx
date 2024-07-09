@@ -2,7 +2,6 @@ import {
   AttributeTable,
   Badge,
   Body,
-  Button,
   CardBaseTemplate,
   Column,
   Form,
@@ -19,8 +18,8 @@ import { FormEvent, useState } from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
-import { listArchivists } from "../../../lib/api/archivists";
-import { User } from "../../../lib/api/auth";
+import { listArchivist } from "../../../lib/api/archivist";
+import { User, whoAmI } from "../../../lib/api/auth";
 import {
   DestructionList,
   DestructionListItemUpdate,
@@ -40,6 +39,7 @@ import {
   canUpdateDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
+import { canMarkListAsFinal } from "../../../lib/auth/permissions";
 import { cacheMemo } from "../../../lib/cache/cache";
 import {
   ZaakSelection,
@@ -89,14 +89,14 @@ function getDisplayableList(
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { destructionList, reviewers, archivists } =
+  const { destructionList, reviewers, archivists, user } =
     useLoaderData() as DestructionListDetailContext;
 
   const [modalOpenState, setModalOpenState] = useState(false);
 
   const modalFormFields: FormField[] = [
     {
-      label: "Arhivaris",
+      label: "Archivaris",
       name: "assigneeIds",
       options: archivists.map((user) => ({
         value: String(user.pk),
@@ -118,16 +118,29 @@ export function DestructionListDetailPage() {
   };
 
   return (
-    <CardBaseTemplate>
+    <CardBaseTemplate
+      secondaryNavigationItems={
+        canMarkListAsFinal(user, destructionList)
+          ? [
+              {
+                children: "Markeren als definitief",
+                onClick: () => setModalOpenState(true),
+                pad: "h",
+              },
+            ]
+          : undefined
+      }
+    >
       <Body>
         <Grid>
           <Column span={2}>
             <H1>{destructionList.name}</H1>
           </Column>
-          {destructionList.status === "internally_reviewed" && (
+
+          {canMarkListAsFinal(user, destructionList) && (
             <Column span={8}>
               <Modal
-                title="Mark as final"
+                title="Markeer als definitief"
                 open={modalOpenState}
                 size="m"
                 onClose={() => setModalOpenState(false)}
@@ -140,9 +153,6 @@ export function DestructionListDetailPage() {
                   />
                 </Body>
               </Modal>
-              <Button type="submit" onClick={() => setModalOpenState(true)}>
-                Mark as final
-              </Button>
             </Column>
           )}
         </Grid>
@@ -306,7 +316,8 @@ export const destructionListDetailLoader = loginRequired(
       const promises = [
         // Fetch all possible reviewers to allow reassignment.
         listReviewers(),
-        listArchivists(),
+        listArchivist(),
+        whoAmI(),
 
         // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
         // FIXME: Accept no/implement real pagination?
@@ -377,6 +388,7 @@ export const destructionListDetailLoader = loginRequired(
       const [
         reviewers,
         archivists,
+        user,
         zaken,
         allZaken,
         zaakSelection,
@@ -384,6 +396,7 @@ export const destructionListDetailLoader = loginRequired(
       ] = (await Promise.all(promises)) as [
         User[],
         User[],
+        User,
         PaginatedZaken,
         PaginatedZaken,
         ZaakSelection,
@@ -395,6 +408,7 @@ export const destructionListDetailLoader = loginRequired(
         destructionList,
         reviewers,
         archivists,
+        user,
         zaken,
         selectableZaken: allZaken,
         zaakSelection,

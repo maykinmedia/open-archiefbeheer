@@ -15,6 +15,7 @@ import {
 } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/auth/loaders";
 import {
+  canMarkListAsFinal,
   canReviewDestructionList,
   canUpdateDestructionList,
 } from "../../lib/auth/permissions";
@@ -122,7 +123,7 @@ export const Landing = () => {
           ? `/destruction-lists/${list.uuid}/review`
           : undefined;
       case "internally_reviewed":
-        return canUpdateDestructionList(user, list)
+        return canMarkListAsFinal(user, list)
           ? `/destruction-lists/${list.uuid}`
           : undefined;
 

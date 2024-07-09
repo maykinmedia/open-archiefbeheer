@@ -116,6 +116,7 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
   destructionList: FIXTURE_DESTRUCTION_LIST,
   reviewers: FIXTURE_USERS,
   archivists: FIXTURE_USERS,
+  user: FIXTURE_USERS[0],
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectableZaken: FIXTURE_PAGINATED_ZAKEN,
   zaakSelection: {},
@@ -156,6 +157,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   destructionList: { ...FIXTURE_DESTRUCTION_LIST, status: "changes_requested" },
   reviewers: FIXTURE_USERS,
   archivists: FIXTURE_USERS,
+  user: FIXTURE_USERS[0],
   zaken: {
     count: FIXTURE_REVIEW_ITEMS.length,
     next: null,

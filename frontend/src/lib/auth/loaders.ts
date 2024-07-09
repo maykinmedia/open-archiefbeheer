@@ -8,6 +8,7 @@ import {
   canReviewDestructionList,
   canStartDestructionList,
   canUpdateDestructionList,
+  canViewDestructionList,
 } from "./permissions";
 
 export type ContextLoaderFunction<T extends object = object> = (
@@ -111,7 +112,10 @@ export function canUpdateDestructionListRequired<
     }
 
     const user = await whoAmI();
-    if (!canUpdateDestructionList(user, destructionList)) {
+    if (
+      !canUpdateDestructionList(user, destructionList) &&
+      !canViewDestructionList(user, destructionList)
+    ) {
       throw new Response("Not Permitted", {
         status: 403,
         statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
