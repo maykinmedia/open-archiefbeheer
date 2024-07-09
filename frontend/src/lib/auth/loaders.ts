@@ -112,10 +112,30 @@ export function canUpdateDestructionListRequired<
     }
 
     const user = await whoAmI();
-    if (
-      !canUpdateDestructionList(user, destructionList) &&
-      !canViewDestructionList(user, destructionList)
-    ) {
+    if (!canUpdateDestructionList(user, destructionList)) {
+      throw new Response("Not Permitted", {
+        status: 403,
+        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
+      });
+    }
+
+    return data;
+  };
+}
+
+export function canViewDestructionListRequired<
+  T extends { destructionList: DestructionList },
+>(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
+  return async (loaderFunctionArgs, handlerCtx) => {
+    const data = await fn(loaderFunctionArgs, handlerCtx);
+
+    const destructionList = data.destructionList;
+    if (!destructionList) {
+      throw new Response("Not Found", { status: 404 });
+    }
+
+    const user = await whoAmI();
+    if (!canViewDestructionList(user, destructionList)) {
       throw new Response("Not Permitted", {
         status: 403,
         statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,

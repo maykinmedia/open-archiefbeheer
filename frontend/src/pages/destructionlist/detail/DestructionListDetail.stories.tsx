@@ -10,7 +10,6 @@ import {
   fillButtonConfirmationForm,
   fillCheckboxConfirmationForm,
   fillForm,
-  fillMarkListAsFinalForm,
 } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
@@ -281,6 +280,32 @@ const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
   reviewItems: FIXTURE_REVIEW_ITEMS,
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
+
+const fillMarkListAsFinalForm: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  const canvas = within(context.canvasElement);
+  const buttons = await canvas.findAllByRole("button");
+  const markListAsFinalButton = buttons.find((button) => {
+    return button.textContent === "Markeren als definitief";
+  });
+
+  if (!markListAsFinalButton) {
+    throw new Error("Markeren als definitief knop niet gevonden.");
+  }
+  await userEvent.click(markListAsFinalButton, { delay: 100 });
+
+  const modal = await canvas.findByRole("dialog");
+  const form = await within(modal).findByRole("form");
+  await fillForm({
+    ...context,
+    parameters: {
+      ...context.parameters,
+      form,
+    },
+  });
+};
+
 export const ViewFinalDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {

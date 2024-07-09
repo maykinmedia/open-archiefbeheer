@@ -18,7 +18,7 @@ import { FormEvent, useState } from "react";
 import { redirect, useLoaderData } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
-import { listArchivist } from "../../../lib/api/archivist";
+import { listArchivists } from "../../../lib/api/archivist";
 import { User, whoAmI } from "../../../lib/api/auth";
 import {
   DestructionList,
@@ -36,7 +36,7 @@ import {
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
-  canUpdateDestructionListRequired,
+  canViewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
 import { canMarkListAsFinal } from "../../../lib/auth/permissions";
@@ -283,7 +283,7 @@ export async function destructionListUpdateZakenAction({
  * React Router loader.
  */
 export const destructionListDetailLoader = loginRequired(
-  canUpdateDestructionListRequired(
+  canViewDestructionListRequired(
     async ({
       request,
       params,
@@ -314,7 +314,7 @@ export const destructionListDetailLoader = loginRequired(
       const promises = [
         // Fetch all possible reviewers to allow reassignment.
         listReviewers(),
-        listArchivist(),
+        listArchivists(),
         whoAmI(),
 
         // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
