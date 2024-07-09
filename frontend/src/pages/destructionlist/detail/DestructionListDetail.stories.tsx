@@ -306,7 +306,7 @@ const fillMarkListAsFinalForm: PlayFunction<ReactRenderer> = async (
   });
 };
 
-export const ViewFinalDestructionList: Story = {
+export const MarkDestructionListAsFinal: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
