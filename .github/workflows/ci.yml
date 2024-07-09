@@ -45,7 +45,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.1
         with:
-          apt-packages: 'gettext postgresql-client libgdal-dev gdal-bin'
+          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
           optimize-postgres: 'yes'
           pg-service: 'postgres'
