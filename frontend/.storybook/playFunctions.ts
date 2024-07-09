@@ -1,4 +1,3 @@
-import { contexts } from "@maykin-ui/admin-ui";
 import { Parameters, ReactRenderer } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
@@ -316,6 +315,31 @@ export const fillConfirmationForm: PlayFunction<ReactRenderer> = async (
     parameters: {
       ...parameters,
       form: modal,
+    },
+  });
+};
+
+export const fillMarkListAsFinalForm: PlayFunction<ReactRenderer> = async (
+  context,
+) => {
+  const canvas = within(context.canvasElement);
+  const buttons = await canvas.findAllByRole("button");
+  const markListAsFinalButton = buttons.find((button) => {
+    return button.textContent === "Markeren als definitief";
+  });
+
+  if (!markListAsFinalButton) {
+    throw new Error("Markeren als definitief knop niet gevonden.");
+  }
+  await userEvent.click(markListAsFinalButton, { delay: 100 });
+
+  const modal = await canvas.findByRole("dialog");
+  const form = await within(modal).findByRole("form");
+  await fillForm({
+    ...context,
+    parameters: {
+      ...context.parameters,
+      form,
     },
   });
 };
