@@ -43,6 +43,7 @@ import { Zaak } from "../../../types";
 import { DataGridAction, useDataGridProps } from "../hooks";
 import { UpdateDestructionListAction } from "./DestructionListDetail";
 import "./DestructionListDetail.css";
+import { STATUSES_ELIGIBLE_FOR_EDIT } from "./constants";
 import { DestructionListDetailContext } from "./types";
 
 /**
@@ -92,7 +93,10 @@ export function DestructionListItems() {
   ] = useState<ProcessZaakReviewSelectionDetail>();
 
   // Whether the user is adding/removing items from the destruction list.
-  const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
+  const isEditingState =
+    !review &&
+    Boolean(urlSearchParams.get("is_editing")) &&
+    STATUSES_ELIGIBLE_FOR_EDIT.includes(destructionList.status);
 
   //
   // SHARED VARS

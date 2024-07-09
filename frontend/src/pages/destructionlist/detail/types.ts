@@ -14,6 +14,7 @@ export interface DestructionListDetailContext {
   destructionList: DestructionList;
   reviewers: User[];
   archivists: User[];
+  user: User;
   zaken: PaginatedZaken;
   selectableZaken: PaginatedZaken;
   zaakSelection: ZaakSelection;

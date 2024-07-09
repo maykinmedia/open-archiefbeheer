@@ -1,7 +1,7 @@
 import { User } from "./auth";
 import { request } from "./request";
 
-export type Archivists = {
+export type Archivist = {
   user: User;
   order: number;
 };
@@ -9,7 +9,7 @@ export type Archivists = {
 /**
  * List all the users that have the permission to archive destruction lists.
  */
-export async function listArchivists() {
+export async function listArchivist() {
   const response = await request("GET", "/archivists/");
   const promise: Promise<User[]> = response.json();
   return promise;

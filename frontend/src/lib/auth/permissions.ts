@@ -4,6 +4,7 @@ import {
 } from "../../pages/destructionlist/detail/constants";
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
+import { STATUSES_ELIGABLE_FOR_READONLY_EDIT } from "./../../pages/destructionlist/detail/constants";
 
 /**
  * Returns whether `user` is allowed to create a new destruction list.
@@ -51,4 +52,26 @@ export function canUpdateDestructionList(
   }
 
   return user.pk === destructionList.assignee.pk;
+}
+
+export function canViewDestructionList(
+  user: User,
+  destructionList: DestructionList,
+) {
+  if (!STATUSES_ELIGABLE_FOR_READONLY_EDIT.includes(destructionList.status)) {
+    return false;
+  }
+
+  return user.pk === destructionList.author.pk;
+}
+
+export function canMarkListAsFinal(
+  user: User,
+  destructionList: DestructionList,
+) {
+  return (
+    user.pk === destructionList.author.pk &&
+    destructionList.status === "internally_reviewed" &&
+    user.role.canStartDestruction
+  );
 }
