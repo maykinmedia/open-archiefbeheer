@@ -1,6 +1,20 @@
 import { BadgeProps } from "@maykin-ui/admin-ui";
 
 import { DestructionListStatus } from "../../../lib/api/destructionLists";
+import { Review } from "../../../lib/api/review";
+
+export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
+  accepted: "Goedgekeurd",
+  rejected: "Afgewezen",
+};
+
+export const REVIEW_DECISION_LEVEL_MAPPING: Record<
+  Review["decision"],
+  BadgeProps["level"]
+> = {
+  accepted: "success",
+  rejected: "danger",
+};
 
 export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
 export const STATUSES_ELIGABLE_FOR_REASSIGNMENT = ["internally_reviewed"];
