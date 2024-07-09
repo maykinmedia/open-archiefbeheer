@@ -1,14 +1,8 @@
 import {
-  AttributeTable,
-  Badge,
   Body,
   CardBaseTemplate,
-  Column,
   Form,
   FormField,
-  Grid,
-  H1,
-  LabeledAttributeData,
   Modal,
   Option,
   SerializedFormData,
@@ -17,11 +11,11 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { FormEvent, useState } from "react";
 import { redirect, useLoaderData, useNavigate } from "react-router-dom";
 
+import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
 import { TypedAction } from "../../../hooks";
 import { listArchivists } from "../../../lib/api/archivist";
 import { User, whoAmI } from "../../../lib/api/auth";
 import {
-  DestructionList,
   DestructionListItemUpdate,
   getDestructionList,
   markDestructionListAsFinal,
@@ -45,50 +39,9 @@ import {
   ZaakSelection,
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
-import { formatUser } from "../utils";
-import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
-import {
-  REVIEW_DECISION_LEVEL_MAPPING,
-  REVIEW_DECISION_MAPPING,
-  STATUS_LEVEL_MAPPING,
-  STATUS_MAPPING,
-} from "./constants";
 import { DestructionListDetailContext } from "./types";
-
-function getDisplayableList(
-  destructionList: DestructionList,
-): LabeledAttributeData {
-  const createdOn = new Date(destructionList.created);
-  const formattedCreatedOn = createdOn.toLocaleString("nl-nl", {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
-
-  return {
-    auteur: { label: "Auteur", value: formatUser(destructionList.author) },
-    bevatGevoeligeInformatie: {
-      label: "Bevat gevoelige informatie",
-      value: destructionList.containsSensitiveInfo,
-    },
-    status: {
-      label: "Status",
-      value: (
-        <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
-          {STATUS_MAPPING[destructionList.status]}
-        </Badge>
-      ),
-    },
-    aangemaakt: {
-      label: "Aangemaakt",
-      value: formattedCreatedOn,
-    },
-  };
-}
 
 /**
  * Destruction list detail page
@@ -137,44 +90,11 @@ export function DestructionListDetailPage() {
           : undefined
       }
     >
-      <Body>
-        <Grid>
-          <Column span={2}>
-            <H1>{destructionList.name}</H1>
-          </Column>
-        </Grid>
-        <Grid>
-          <Column span={3}>
-            <AttributeTable
-              labeledObject={getDisplayableList(destructionList)}
-            />
-          </Column>
-          <Column span={3}>
-            <AssigneesEditable
-              assignees={destructionList.assignees}
-              reviewers={reviewers}
-            />
-          </Column>
-          {review && (
-            <Column span={3}>
-              <AttributeTable
-                object={{
-                  "Laatste review door":
-                    review.author && formatUser(review.author),
-                  Beoordeling: (
-                    <Badge
-                      level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}
-                    >
-                      {REVIEW_DECISION_MAPPING[review.decision]}
-                    </Badge>
-                  ),
-                  Opmerking: review.listFeedback,
-                }}
-              />
-            </Column>
-          )}
-        </Grid>
-      </Body>
+      <DestructionListToolbar
+        destructionList={destructionList}
+        review={review}
+        reviewers={reviewers}
+      />
       <DestructionListItems />
       <Modal
         title="Markeer als definitief"
@@ -423,8 +343,8 @@ export const destructionListDetailLoader = loginRequired(
         Record<string, Option[]>,
       ];
 
-      // remove all the archivarists that are currently as assignees
-      const filteredArchivarists = archivists.filter(
+      // remove all the archivists that are currently as assignees
+      const filteredArchivists = archivists.filter(
         (archivist) =>
           !destructionList.assignees.some(
             (assignee) => assignee.user.pk === archivist.pk,
@@ -434,7 +354,7 @@ export const destructionListDetailLoader = loginRequired(
         storageKey,
         destructionList,
         reviewers,
-        archivists: filteredArchivarists,
+        archivists: filteredArchivists,
         user,
         zaken,
         selectableZaken: allZaken,

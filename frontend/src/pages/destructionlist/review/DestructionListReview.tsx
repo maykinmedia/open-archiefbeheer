@@ -1,14 +1,19 @@
 import {
   AttributeData,
+  AttributeTable,
   Body,
+  Column,
   Form,
   FormField,
+  Grid,
+  H2,
   H3,
+  Hr,
   Modal,
   Outline,
   P,
 } from "@maykin-ui/admin-ui";
-import { FormEvent, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import {
   ActionFunctionArgs,
   redirect,
@@ -18,18 +23,30 @@ import {
 import { useAsync } from "react-use";
 
 import { DestructionList as DestructionListComponent } from "../../../components";
+import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
 import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
-import { Review, createDestructionListReview } from "../../../lib/api/review";
+import {
+  Review,
+  ReviewItem,
+  createDestructionListReview,
+  getLatestReview,
+  listReviewItems,
+} from "../../../lib/api/review";
+import {
+  ReviewResponse,
+  getLatestReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canReviewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
+import { formatDate } from "../../../lib/format/date";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -38,7 +55,6 @@ import {
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
-import { DestructionListDetailContext } from "../detail/types";
 import "./DestructionListReview.css";
 
 const getDestructionListReviewKey = (id: string) =>
@@ -74,8 +90,14 @@ interface FormDataState {
  * Review-destruction-list page
  */
 export function DestructionListReviewPage() {
-  const { zaken, selectedZaken, uuid, destructionList } =
-    useLoaderData() as DestructionListReviewLoaderContext;
+  const {
+    reviewItems,
+    reviewResponse,
+    zaken,
+    selectedZaken,
+    uuid,
+    destructionList,
+  } = useLoaderData() as DestructionListReviewLoaderContext;
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
@@ -194,6 +216,15 @@ export function DestructionListReviewPage() {
     setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
   };
 
+  const activeReviewItem = reviewItems?.find(
+    (ri) => ri.zaak.uuid === zaakModalDataState.uuid,
+  );
+  const activeItemResponse =
+    activeReviewItem &&
+    reviewResponse?.itemsResponses.find(
+      (ir) => ir.reviewItem === activeReviewItem.pk,
+    );
+
   return (
     <>
       <Modal
@@ -203,12 +234,40 @@ export function DestructionListReviewPage() {
         title={zaakModalDataState.title}
       >
         <Body>
-          <Form
-            fields={zaakModalFormFields}
-            onSubmit={onSubmitZaakForm}
-            validateOnChange={true}
-            labelSubmit={"Uitzonderen"}
-          />
+          {activeItemResponse && (
+            <>
+              <Grid>
+                <Column span={3}>
+                  <H3>
+                    Antwoord (
+                    {formatDate(new Date(String(activeItemResponse?.created)))})
+                  </H3>
+                </Column>
+
+                <Column span={9}>
+                  <P bold>Opmerkingen</P>
+                  <P muted>{activeItemResponse.comment}</P>
+                </Column>
+              </Grid>
+
+              <Hr />
+            </>
+          )}
+
+          <Grid>
+            <Column span={3}>
+              <H3>Wijzigingen</H3>
+            </Column>
+
+            <Column span={9}>
+              <Form
+                fields={zaakModalFormFields}
+                onSubmit={onSubmitZaakForm}
+                validateOnChange={true}
+                labelSubmit={"Uitzonderen"}
+              />
+            </Column>
+          </Grid>
         </Body>
       </Modal>
       <Modal
@@ -232,7 +291,7 @@ export function DestructionListReviewPage() {
         zaken={zaken}
         selectedZaken={selectedZaken}
         labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
-        title={`${destructionList.name} beoordelen`}
+        title="Zaakdossiers"
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
         allowSelectAll={false}
@@ -241,10 +300,13 @@ export function DestructionListReviewPage() {
             children: <Outline.ChatBubbleBottomCenterIcon />,
             title: "Uitzonderen",
             tooltip: tooltipMotivation && (
-              <>
-                <H3>Opmerking</H3>
-                <P>{tooltipMotivation}</P>
-              </>
+              <AttributeTable
+                object={{
+                  // "Opmerking van auteur":
+                  "Reden van uitzondering": tooltipMotivation,
+                }}
+                valign="start"
+              />
             ),
             onInteract: (_, detail) => {
               const _detail = detail as FormDataState | undefined;
@@ -263,7 +325,12 @@ export function DestructionListReviewPage() {
             },
           },
         ]}
-      />
+      >
+        <DestructionListToolbar
+          destructionList={destructionList}
+          reviewResponse={reviewResponse}
+        />
+      </DestructionListComponent>
     </>
   );
 }
@@ -273,6 +340,8 @@ export function DestructionListReviewPage() {
  */
 export type DestructionListReviewLoaderContext = {
   reviewers: User[];
+  reviewItems?: ReviewItem[];
+  reviewResponse?: ReviewResponse;
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
   uuid: string;
@@ -301,12 +370,27 @@ export const destructionListReviewLoader = loginRequired(
       });
       const listsPromise = getDestructionList(uuid);
       const reviewersPromise = listReviewers();
+      const latestReview = await getLatestReview({
+        destructionList__uuid: uuid,
+      });
+      const reviewItemsPromise = latestReview
+        ? listReviewItems({ review: latestReview.pk })
+        : undefined;
 
-      const [zaken, list, reviewers] = await Promise.all([
-        zakenPromise,
-        listsPromise,
-        reviewersPromise,
-      ]);
+      const reviewResponsePromise = latestReview
+        ? getLatestReviewResponse({
+            review: latestReview.pk,
+          })
+        : undefined;
+
+      const [zaken, list, reviewers, reviewItems, reviewResponse] =
+        await Promise.all([
+          zakenPromise,
+          listsPromise,
+          reviewersPromise,
+          reviewItemsPromise,
+          reviewResponsePromise,
+        ]);
 
       const isZaakSelectedPromises = zaken.results.map((zaak) =>
         isZaakSelected(getDestructionListReviewKey(uuid), zaak),
@@ -318,6 +402,8 @@ export const destructionListReviewLoader = loginRequired(
 
       return {
         reviewers,
+        reviewItems,
+        reviewResponse,
         zaken,
         selectedZaken,
         uuid,
