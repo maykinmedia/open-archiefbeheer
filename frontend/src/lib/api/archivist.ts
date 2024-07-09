@@ -9,7 +9,7 @@ export type Archivist = {
 /**
  * List all the users that have the permission to archive destruction lists.
  */
-export async function listArchivist() {
+export async function listArchivists() {
   const response = await request("GET", "/archivists/");
   const promise: Promise<User[]> = response.json();
   return promise;

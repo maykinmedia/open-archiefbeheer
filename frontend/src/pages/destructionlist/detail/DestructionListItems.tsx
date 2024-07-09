@@ -33,6 +33,7 @@ import {
   ReviewItemResponse,
   ReviewResponse,
 } from "../../../lib/api/reviewResponse";
+import { canUpdateDestructionList } from "../../../lib/auth/permissions";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -43,7 +44,6 @@ import { Zaak } from "../../../types";
 import { DataGridAction, useDataGridProps } from "../hooks";
 import { UpdateDestructionListAction } from "./DestructionListDetail";
 import "./DestructionListDetail.css";
-import { STATUSES_ELIGIBLE_FOR_EDIT } from "./constants";
 import { DestructionListDetailContext } from "./types";
 
 /**
@@ -80,6 +80,7 @@ export function DestructionListItems() {
     storageKey,
     destructionList,
     zaken,
+    user,
     selectableZaken,
     zaakSelection,
     review,
@@ -96,7 +97,7 @@ export function DestructionListItems() {
   const isEditingState =
     !review &&
     Boolean(urlSearchParams.get("is_editing")) &&
-    STATUSES_ELIGIBLE_FOR_EDIT.includes(destructionList.status);
+    canUpdateDestructionList(user, destructionList);
 
   //
   // SHARED VARS
