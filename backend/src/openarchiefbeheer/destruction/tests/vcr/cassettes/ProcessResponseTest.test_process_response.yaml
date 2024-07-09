@@ -1,0 +1,154 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTcyMDUzMjg4OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.xch9-Mz30ttMKGGmqG_c9EtaQ6_Jb3n_yrh_tm6SXFo
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/zaken/api/v1/zaken?expand=resultaat%2Cresultaat.resultaattype%2Czaaktype%2Crollen&archiefnominatie=vernietigen
+  response:
+    body:
+      string: '{"count":2,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaken/141ed208-ef2d-4003-8f50-de9035f281fe","uuid":"141ed208-ef2d-4003-8f50-de9035f281fe","identificatie":"ZAAK_11","bronorganisatie":"920416834","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","registratiedatum":"2024-07-06","verantwoordelijkeOrganisatie":"362510477","startdatum":"2024-07-06","einddatum":"2024-07-07","einddatumGepland":null,"uiterlijkeEinddatumAfdoening":null,"publicatiedatum":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"zaakvertrouwelijk","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":{"type":"Point","coordinates":[2.744564195586603,61.80226372995608]},"verlenging":null,"opschorting":{"indicatie":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":["http://localhost:8003/zaken/api/v1/zaken/141ed208-ef2d-4003-8f50-de9035f281fe/zaakeigenschappen/44f71f63-88bc-4177-9d9c-f88d96ee089f"],"rollen":["http://localhost:8003/zaken/api/v1/rollen/5cc04841-2655-494a-b4a8-1d6f413f9514"],"status":"http://localhost:8003/zaken/api/v1/statussen/8604b778-9134-4f33-9078-e13876d9c814","zaakinformatieobjecten":["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/5baf2180-9d70-4e8f-95fb-aa3094fa0bd7"],"zaakobjecten":["http://localhost:8003/zaken/api/v1/zaakobjecten/53a605c8-6ac3-48e9-abdb-570e1163cace"],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2024-10-01","resultaat":"http://localhost:8003/zaken/api/v1/resultaten/64f538de-a592-45cf-ba51-db3aeb5a4378","opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""},"_expand":{"zaaktype":{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","identificatie":"","omschrijving":"incentivize
+        cross-media architectures","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"","doel":"Property
+        month start how three discuss type against. Game week foreign approach seat.","aanleiding":"During
+        score husband idea. Need under television we modern into reflect. Possible
+        capital walk me woman.","toelichting":"","indicatieInternOfExtern":"intern","handelingInitiator":"aanvragen","onderwerp":"Geboorte","handelingBehandelaar":"uitvoeren","doorlooptijd":"P30D","servicenorm":null,"opschortingEnAanhoudingMogelijk":true,"verlengingMogelijk":true,"verlengingstermijn":"P30D","trefwoorden":[],"publicatieIndicatie":false,"publicatietekst":"","verantwoordingsrelatie":[],"productenOfDiensten":["https://example.com/product/123"],"selectielijstProcestype":"","referentieproces":{"naam":"ReferentieProces
+        2","link":""},"concept":false,"verantwoordelijke":"100000002","beginGeldigheid":"2018-01-01","eindeGeldigheid":null,"versiedatum":"2018-01-01","beginObject":"2018-01-01","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/ba78bd8c-4490-4bbd-835c-f528ee471df8","statustypen":["http://localhost:8003/catalogi/api/v1/statustypen/e5f40414-e96a-41b1-9f79-99acf1c3a94b","http://localhost:8003/catalogi/api/v1/statustypen/8b19ca4a-865e-4eed-9dd4-8e7371e00d89","http://localhost:8003/catalogi/api/v1/statustypen/7007da68-5648-49c2-a208-8cbed65fab26"],"resultaattypen":["http://localhost:8003/catalogi/api/v1/resultaattypen/213b5ade-3e13-408d-813e-3438bee1a85b","http://localhost:8003/catalogi/api/v1/resultaattypen/8fa37b8f-a032-468c-866e-03f98e1844ec"],"eigenschappen":["http://localhost:8003/catalogi/api/v1/eigenschappen/72c17fd1-c919-4104-9ca3-bbb0e9156620"],"informatieobjecttypen":["http://localhost:8003/catalogi/api/v1/informatieobjecttypen/be99a65c-69e3-44a2-a165-d81015a93b97"],"roltypen":["http://localhost:8003/catalogi/api/v1/roltypen/e1acc4c7-906c-4920-ba7e-46633320e447"],"besluittypen":["http://localhost:8003/catalogi/api/v1/besluittypen/003bf211-fa42-486b-add0-851e991b41ec"],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]},"rollen":[{"url":"http://localhost:8003/zaken/api/v1/rollen/5cc04841-2655-494a-b4a8-1d6f413f9514","uuid":"5cc04841-2655-494a-b4a8-1d6f413f9514","zaak":"http://localhost:8003/zaken/api/v1/zaken/141ed208-ef2d-4003-8f50-de9035f281fe","betrokkene":"http://smith.com/","betrokkeneType":"niet_natuurlijk_persoon","afwijkendeNaamBetrokkene":"","roltype":"http://localhost:8003/catalogi/api/v1/roltypen/e1acc4c7-906c-4920-ba7e-46633320e447","omschrijving":"smile","omschrijvingGeneriek":"behandelaar","roltoelichting":"","registratiedatum":"2024-07-09T08:24:41.538000Z","indicatieMachtiging":"","contactpersoonRol":{"emailadres":"","functie":"","telefoonnummer":"","naam":""},"statussen":[],"betrokkeneIdentificatie":null}],"resultaat":{"url":"http://localhost:8003/zaken/api/v1/resultaten/64f538de-a592-45cf-ba51-db3aeb5a4378","uuid":"64f538de-a592-45cf-ba51-db3aeb5a4378","zaak":"http://localhost:8003/zaken/api/v1/zaken/141ed208-ef2d-4003-8f50-de9035f281fe","resultaattype":"http://localhost:8003/catalogi/api/v1/resultaattypen/8fa37b8f-a032-468c-866e-03f98e1844ec","toelichting":"","_expand":{"resultaattype":{"url":"http://localhost:8003/catalogi/api/v1/resultaattypen/8fa37b8f-a032-468c-866e-03f98e1844ec","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","zaaktypeIdentificatie":"","omschrijving":"resultaattype
+        5","resultaattypeomschrijving":"","omschrijvingGeneriek":"join","selectielijstklasse":"https://www.camacho.com/","toelichting":"","archiefnominatie":"blijvend_bewaren","archiefactietermijn":"P10Y","brondatumArchiefprocedure":{"afleidingswijze":"","datumkenmerk":"","einddatumBekend":false,"objecttype":"","registratie":"","procestermijn":null},"procesobjectaard":"","indicatieSpecifiek":null,"procestermijn":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/ba78bd8c-4490-4bbd-835c-f528ee471df8","besluittypen":[],"besluittypeOmschrijving":[],"informatieobjecttypen":[],"informatieobjecttypeOmschrijving":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}}}}},{"url":"http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89","uuid":"01483422-576d-468f-9233-47293aba7c89","identificatie":"ZAAK_10","bronorganisatie":"309816257","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","registratiedatum":"2024-07-05","verantwoordelijkeOrganisatie":"975321043","startdatum":"2024-07-01","einddatum":"2024-07-03","einddatumGepland":null,"uiterlijkeEinddatumAfdoening":null,"publicatiedatum":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":{"type":"Point","coordinates":[2.744564195586603,61.80226372995608]},"verlenging":null,"opschorting":{"indicatie":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":["http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89/zaakeigenschappen/a2803135-c57d-48bc-8767-f52c28845b4a"],"rollen":["http://localhost:8003/zaken/api/v1/rollen/18c79432-a584-4147-b852-75eef1bcbbf1"],"status":"http://localhost:8003/zaken/api/v1/statussen/2155bb2f-a0d4-4423-9b68-86e0249fb4e0","zaakinformatieobjecten":["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/c9ea4f1b-581c-4ef2-b304-d9639af79df6"],"zaakobjecten":["http://localhost:8003/zaken/api/v1/zaakobjecten/5fd473d8-9694-4168-a0e0-c60cb7d85976"],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2024-10-01","resultaat":"http://localhost:8003/zaken/api/v1/resultaten/693da061-b670-4af2-a5b6-d7bf193d5d0c","opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""},"_expand":{"zaaktype":{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","identificatie":"","omschrijving":"incentivize
+        cross-media architectures","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"","doel":"Property
+        month start how three discuss type against. Game week foreign approach seat.","aanleiding":"During
+        score husband idea. Need under television we modern into reflect. Possible
+        capital walk me woman.","toelichting":"","indicatieInternOfExtern":"intern","handelingInitiator":"aanvragen","onderwerp":"Geboorte","handelingBehandelaar":"uitvoeren","doorlooptijd":"P30D","servicenorm":null,"opschortingEnAanhoudingMogelijk":true,"verlengingMogelijk":true,"verlengingstermijn":"P30D","trefwoorden":[],"publicatieIndicatie":false,"publicatietekst":"","verantwoordingsrelatie":[],"productenOfDiensten":["https://example.com/product/123"],"selectielijstProcestype":"","referentieproces":{"naam":"ReferentieProces
+        2","link":""},"concept":false,"verantwoordelijke":"100000002","beginGeldigheid":"2018-01-01","eindeGeldigheid":null,"versiedatum":"2018-01-01","beginObject":"2018-01-01","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/ba78bd8c-4490-4bbd-835c-f528ee471df8","statustypen":["http://localhost:8003/catalogi/api/v1/statustypen/e5f40414-e96a-41b1-9f79-99acf1c3a94b","http://localhost:8003/catalogi/api/v1/statustypen/8b19ca4a-865e-4eed-9dd4-8e7371e00d89","http://localhost:8003/catalogi/api/v1/statustypen/7007da68-5648-49c2-a208-8cbed65fab26"],"resultaattypen":["http://localhost:8003/catalogi/api/v1/resultaattypen/213b5ade-3e13-408d-813e-3438bee1a85b","http://localhost:8003/catalogi/api/v1/resultaattypen/8fa37b8f-a032-468c-866e-03f98e1844ec"],"eigenschappen":["http://localhost:8003/catalogi/api/v1/eigenschappen/72c17fd1-c919-4104-9ca3-bbb0e9156620"],"informatieobjecttypen":["http://localhost:8003/catalogi/api/v1/informatieobjecttypen/be99a65c-69e3-44a2-a165-d81015a93b97"],"roltypen":["http://localhost:8003/catalogi/api/v1/roltypen/e1acc4c7-906c-4920-ba7e-46633320e447"],"besluittypen":["http://localhost:8003/catalogi/api/v1/besluittypen/003bf211-fa42-486b-add0-851e991b41ec"],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]},"rollen":[{"url":"http://localhost:8003/zaken/api/v1/rollen/18c79432-a584-4147-b852-75eef1bcbbf1","uuid":"18c79432-a584-4147-b852-75eef1bcbbf1","zaak":"http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89","betrokkene":"http://www.banks-allen.com/","betrokkeneType":"medewerker","afwijkendeNaamBetrokkene":"","roltype":"http://localhost:8003/catalogi/api/v1/roltypen/e1acc4c7-906c-4920-ba7e-46633320e447","omschrijving":"imagine","omschrijvingGeneriek":"initiator","roltoelichting":"","registratiedatum":"2024-07-09T08:24:41.538000Z","indicatieMachtiging":"","contactpersoonRol":{"emailadres":"","functie":"","telefoonnummer":"","naam":""},"statussen":[],"betrokkeneIdentificatie":null}],"resultaat":{"url":"http://localhost:8003/zaken/api/v1/resultaten/693da061-b670-4af2-a5b6-d7bf193d5d0c","uuid":"693da061-b670-4af2-a5b6-d7bf193d5d0c","zaak":"http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89","resultaattype":"http://localhost:8003/catalogi/api/v1/resultaattypen/213b5ade-3e13-408d-813e-3438bee1a85b","toelichting":"","_expand":{"resultaattype":{"url":"http://localhost:8003/catalogi/api/v1/resultaattypen/213b5ade-3e13-408d-813e-3438bee1a85b","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","zaaktypeIdentificatie":"","omschrijving":"resultaattype
+        4","resultaattypeomschrijving":"","omschrijvingGeneriek":"become","selectielijstklasse":"https://perkins.biz/","toelichting":"","archiefnominatie":"blijvend_bewaren","archiefactietermijn":"P10Y","brondatumArchiefprocedure":{"afleidingswijze":"","datumkenmerk":"","einddatumBekend":false,"objecttype":"","registratie":"","procestermijn":null},"procesobjectaard":"","indicatieSpecifiek":null,"procestermijn":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/ba78bd8c-4490-4bbd-835c-f528ee471df8","besluittypen":[],"besluittypeOmschrijving":[],"informatieobjecttypen":[],"informatieobjecttypeOmschrijving":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}}}}}]}'
+    headers:
+      API-version:
+      - 1.5.1
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '12539'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"archiefactiedatum": "2024-10-01"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTcyMDUzMjg5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.-NQULWrcj-Xd6nYohTmxfj871LXo738FHNDBspcS2D0
+      Connection:
+      - keep-alive
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '35'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.3
+    method: PATCH
+    uri: http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89
+  response:
+    body:
+      string: '{"url":"http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89","uuid":"01483422-576d-468f-9233-47293aba7c89","identificatie":"ZAAK_10","bronorganisatie":"309816257","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","registratiedatum":"2024-07-05","verantwoordelijkeOrganisatie":"975321043","startdatum":"2024-07-01","einddatum":"2024-07-03","einddatumGepland":null,"uiterlijkeEinddatumAfdoening":null,"publicatiedatum":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":{"type":"Point","coordinates":[2.744564195586603,61.80226372995608]},"verlenging":null,"opschorting":{"indicatie":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":["http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89/zaakeigenschappen/a2803135-c57d-48bc-8767-f52c28845b4a"],"rollen":["http://localhost:8003/zaken/api/v1/rollen/18c79432-a584-4147-b852-75eef1bcbbf1"],"status":"http://localhost:8003/zaken/api/v1/statussen/2155bb2f-a0d4-4423-9b68-86e0249fb4e0","zaakinformatieobjecten":["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/c9ea4f1b-581c-4ef2-b304-d9639af79df6"],"zaakobjecten":["http://localhost:8003/zaken/api/v1/zaakobjecten/5fd473d8-9694-4168-a0e0-c60cb7d85976"],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2024-10-01","resultaat":"http://localhost:8003/zaken/api/v1/resultaten/693da061-b670-4af2-a5b6-d7bf193d5d0c","opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""}}'
+    headers:
+      API-version:
+      - 1.5.1
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '1914'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTcyMDUzMjg5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.-NQULWrcj-Xd6nYohTmxfj871LXo738FHNDBspcS2D0
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89
+  response:
+    body:
+      string: '{"url":"http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89","uuid":"01483422-576d-468f-9233-47293aba7c89","identificatie":"ZAAK_10","bronorganisatie":"309816257","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b98d7aa6-9c39-4fe6-aeb6-b2b1f56127f1","registratiedatum":"2024-07-05","verantwoordelijkeOrganisatie":"975321043","startdatum":"2024-07-01","einddatum":"2024-07-03","einddatumGepland":null,"uiterlijkeEinddatumAfdoening":null,"publicatiedatum":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":{"type":"Point","coordinates":[2.744564195586603,61.80226372995608]},"verlenging":null,"opschorting":{"indicatie":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":["http://localhost:8003/zaken/api/v1/zaken/01483422-576d-468f-9233-47293aba7c89/zaakeigenschappen/a2803135-c57d-48bc-8767-f52c28845b4a"],"rollen":["http://localhost:8003/zaken/api/v1/rollen/18c79432-a584-4147-b852-75eef1bcbbf1"],"status":"http://localhost:8003/zaken/api/v1/statussen/2155bb2f-a0d4-4423-9b68-86e0249fb4e0","zaakinformatieobjecten":["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/c9ea4f1b-581c-4ef2-b304-d9639af79df6"],"zaakobjecten":["http://localhost:8003/zaken/api/v1/zaakobjecten/5fd473d8-9694-4168-a0e0-c60cb7d85976"],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2024-10-01","resultaat":"http://localhost:8003/zaken/api/v1/resultaten/693da061-b670-4af2-a5b6-d7bf193d5d0c","opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""}}'
+    headers:
+      API-version:
+      - 1.5.1
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '1914'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      ETag:
+      - '"5fd54a006a2bdcd742f477be2f3ba733"'
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+version: 1
