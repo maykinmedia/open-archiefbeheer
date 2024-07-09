@@ -49,7 +49,12 @@ import { formatUser } from "../utils";
 import { AssigneesEditable } from "./Assignees";
 import "./DestructionListDetail.css";
 import { DestructionListItems } from "./DestructionListItems";
-import { STATUS_LEVEL_MAPPING, STATUS_MAPPING } from "./constants";
+import {
+  REVIEW_DECISION_LEVEL_MAPPING,
+  REVIEW_DECISION_MAPPING,
+  STATUS_LEVEL_MAPPING,
+  STATUS_MAPPING,
+} from "./constants";
 import { DestructionListDetailContext } from "./types";
 
 function getDisplayableList(
@@ -89,7 +94,7 @@ function getDisplayableList(
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { destructionList, reviewers, archivists, user } =
+  const { archivists, destructionList, review, reviewers, user } =
     useLoaderData() as DestructionListDetailContext;
 
   const [modalOpenState, setModalOpenState] = useState(false);
@@ -144,12 +149,30 @@ export function DestructionListDetailPage() {
               labeledObject={getDisplayableList(destructionList)}
             />
           </Column>
-          <Column span={9}>
+          <Column span={3}>
             <AssigneesEditable
               assignees={destructionList.assignees}
               reviewers={reviewers}
             />
           </Column>
+          {review && (
+            <Column span={3}>
+              <AttributeTable
+                object={{
+                  "Laatste review door":
+                    review.author && formatUser(review.author),
+                  Beoordeling: (
+                    <Badge
+                      level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}
+                    >
+                      {REVIEW_DECISION_MAPPING[review.decision]}
+                    </Badge>
+                  ),
+                  Opmerking: review.listFeedback,
+                }}
+              />
+            </Column>
+          )}
         </Grid>
       </Body>
       <DestructionListItems />
