@@ -273,7 +273,7 @@ export function DestructionListItems() {
                 selectielijstklasse: detail.selectielijstklasse,
                 archiefactiedatum: detail.archiefactiedatum,
               },
-              comment: "FIXME",
+              comment: detail.comment,
             };
           }) || [],
       },
