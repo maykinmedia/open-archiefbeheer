@@ -94,10 +94,7 @@ export function DestructionListItems() {
   ] = useState<ProcessZaakReviewSelectionDetail>();
 
   // Whether the user is adding/removing items from the destruction list.
-  const isEditingState =
-    !review &&
-    Boolean(urlSearchParams.get("is_editing")) &&
-    canUpdateDestructionList(user, destructionList);
+  const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
 
   //
   // SHARED VARS
@@ -157,14 +154,16 @@ export function DestructionListItems() {
           wrap: false,
         },
       ]
-    : [
-        {
-          "aria-label": "Bewerken",
-          children: <Outline.PencilIcon />,
-          onClick: () => handleEditSetEditing(true),
-          wrap: false,
-        },
-      ];
+    : canUpdateDestructionList(user, destructionList)
+      ? [
+          {
+            "aria-label": "Bewerken",
+            children: <Outline.PencilIcon />,
+            onClick: () => handleEditSetEditing(true),
+            wrap: false,
+          },
+        ]
+      : [];
 
   //
   // PROCESSING REVIEW MODE VARS

@@ -136,23 +136,6 @@ export function DestructionListDetailPage() {
           <Column span={2}>
             <H1>{destructionList.name}</H1>
           </Column>
-          <Column span={8}>
-            <Modal
-              title="Markeer als definitief"
-              open={modalOpenState}
-              size="m"
-              onClose={() => setModalOpenState(false)}
-            >
-              <Body>
-                <Form
-                  fields={modalFormFields}
-                  onSubmit={onSubmit}
-                  validateOnChange={true}
-                  role="form"
-                />
-              </Body>
-            </Modal>
-          </Column>
         </Grid>
         <Grid>
           <Column span={3}>
@@ -169,6 +152,21 @@ export function DestructionListDetailPage() {
         </Grid>
       </Body>
       <DestructionListItems />
+      <Modal
+        title="Markeer als definitief"
+        open={modalOpenState}
+        size="m"
+        onClose={() => setModalOpenState(false)}
+      >
+        <Body>
+          <Form
+            fields={modalFormFields}
+            onSubmit={onSubmit}
+            validateOnChange={true}
+            role="form"
+          />
+        </Body>
+      </Modal>
     </CardBaseTemplate>
   );
 }
