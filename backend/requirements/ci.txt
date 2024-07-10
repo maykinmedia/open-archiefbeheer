@@ -276,6 +276,7 @@ idna==3.7
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests
+    #   yarl
 imagesize==1.4.1
     # via sphinx
 inflection==0.5.1
@@ -316,6 +317,8 @@ mccabe==0.7.0
     # via
     #   flake8
     #   pylint
+multidict==6.0.5
+    # via yarl
 mypy-extensions==1.0.0
     # via black
 orderedmultidict==1.0.1
@@ -412,6 +415,7 @@ pyyaml==6.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
+    #   vcrpy
 qrcode==7.4.2
     # via
     #   -c requirements/base.txt
@@ -519,6 +523,8 @@ uwsgi==2.0.25.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+vcrpy==6.0.1
+    # via -r requirements/test-tools.in
 vine==5.1.0
     # via
     #   -c requirements/base.txt
@@ -547,6 +553,9 @@ wrapt==1.14.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   elastic-apm
+    #   vcrpy
+yarl==1.9.4
+    # via vcrpy
 zgw-consumers==0.33.0
     # via
     #   -c requirements/base.txt
