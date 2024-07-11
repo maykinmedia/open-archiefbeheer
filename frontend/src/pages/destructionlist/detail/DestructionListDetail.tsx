@@ -40,7 +40,8 @@ import {
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import "./DestructionListDetail.css";
-import { DestructionListItems } from "./DestructionListItems";
+import { DestructionListEdit } from "./DestructionListEdit";
+import { DestructionListProcessReview } from "./DestructionListProcessReview";
 import { DestructionListDetailContext } from "./types";
 
 /**
@@ -95,7 +96,7 @@ export function DestructionListDetailPage() {
         review={review}
         reviewers={reviewers}
       />
-      <DestructionListItems />
+      {review ? <DestructionListProcessReview /> : <DestructionListEdit />}
       <Modal
         title="Markeer als definitief"
         open={modalOpenState}
