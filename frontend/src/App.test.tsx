@@ -1,15 +1,15 @@
 import { render } from "@testing-library/react";
 import * as React from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import App from "./App";
 
 test("renders app", () => {
-  createBrowserRouter([
+  const router = createBrowserRouter([
     {
       path: "*",
       element: <App />,
     },
   ]);
-  render(<App />);
+  render(<RouterProvider router={router} />);
 });

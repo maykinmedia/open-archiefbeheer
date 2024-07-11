@@ -19,7 +19,7 @@ import {
   canReviewDestructionList,
   canUpdateDestructionList,
 } from "../../lib/auth/permissions";
-import { timeAgo } from "../../lib/string";
+import { timeAgo } from "../../lib/format/date";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
