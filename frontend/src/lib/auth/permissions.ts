@@ -4,7 +4,6 @@ import {
 } from "../../pages/destructionlist/detail/constants";
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
-import { STATUSES_ELIGABLE_FOR_REASSIGNMENT } from "./../../pages/destructionlist/detail/constants";
 
 /**
  * Returns whether `user` is allowed to create a new destruction list.
@@ -58,10 +57,6 @@ export function canViewDestructionList(
   user: User,
   destructionList: DestructionList,
 ) {
-  if (!STATUSES_ELIGABLE_FOR_REASSIGNMENT.includes(destructionList.status)) {
-    return false;
-  }
-
   return user.pk === destructionList.author.pk;
 }
 
