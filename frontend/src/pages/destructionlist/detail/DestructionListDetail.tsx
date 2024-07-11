@@ -15,7 +15,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { FormEvent, useState } from "react";
-import { redirect, useLoaderData } from "react-router-dom";
+import { redirect, useLoaderData, useNavigate } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
 import { listArchivists } from "../../../lib/api/archivist";
@@ -93,6 +93,7 @@ export function DestructionListDetailPage() {
     useLoaderData() as DestructionListDetailContext;
 
   const [modalOpenState, setModalOpenState] = useState(false);
+  const navigate = useNavigate();
 
   const modalFormFields: FormField[] = [
     {
@@ -114,7 +115,7 @@ export function DestructionListDetailPage() {
       user: Number(data.assigneeIds),
     });
     setModalOpenState(false);
-    return redirect("/");
+    return navigate("/");
   };
 
   return (
@@ -399,11 +400,18 @@ export const destructionListDetailLoader = loginRequired(
         Record<string, Option[]>,
       ];
 
+      // remove all the archivarists that are currently as assignees
+      const filteredArchivarists = archivists.filter(
+        (archivist) =>
+          !destructionList.assignees.some(
+            (assignee) => assignee.user.pk === archivist.pk,
+          ),
+      );
       return {
         storageKey,
         destructionList,
         reviewers,
-        archivists,
+        archivists: filteredArchivarists,
         user,
         zaken,
         selectableZaken: allZaken,
