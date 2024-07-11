@@ -135,6 +135,10 @@ export async function markDestructionListAsFinal(
     {},
     data,
   );
+  // Check if the response is a 201 Created status code.
+  if (response.status === 201) {
+    return null;
+  }
   const promise: Promise<DestructionList> = response.json();
   return promise;
 }

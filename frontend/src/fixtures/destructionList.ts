@@ -7,7 +7,7 @@ export const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   name: "My First Destruction List",
   author: FIXTURE_USERS[0],
   containsSensitiveInfo: false,
-  status: "ready_to_review",
+  status: "changes_requested",
   assignees: FIXTURE_USERS.map((u, i) => ({ user: u, order: i })),
   assignee: FIXTURE_USERS[0],
   created: "2024-07-11T16:57",
