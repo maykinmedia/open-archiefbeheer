@@ -7,11 +7,12 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
-import { markDestructionListAsFinal } from "../../../lib/api/destructionLists";
+import { useSubmitAction } from "../../../hooks";
 import { canMarkListAsFinal } from "../../../lib/auth/permissions";
+import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListEdit } from "./DestructionListEdit";
 import { DestructionListProcessReview } from "./DestructionListProcessReview";
 import { DestructionListDetailContext } from "./types";
@@ -22,9 +23,9 @@ import { DestructionListDetailContext } from "./types";
 export function DestructionListDetailPage() {
   const { archivists, destructionList, review, reviewers, user } =
     useLoaderData() as DestructionListDetailContext;
+  const submitAction = useSubmitAction<UpdateDestructionListAction>();
 
   const [modalOpenState, setModalOpenState] = useState(false);
-  const navigate = useNavigate();
 
   const modalFormFields: FormField[] = [
     {
@@ -41,12 +42,14 @@ export function DestructionListDetailPage() {
   // TODO - Make a 404 page
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
 
-  const onSubmit = async (_: FormEvent, data: SerializedFormData) => {
-    await markDestructionListAsFinal(destructionList.uuid, {
-      user: Number(data.assigneeIds),
+  const handleSubmit = async (_: FormEvent, data: SerializedFormData) => {
+    submitAction({
+      type: "MAKE_FINAL",
+      payload: {
+        uuid: destructionList.uuid,
+        user: Number(data.assigneeIds),
+      },
     });
-    setModalOpenState(false);
-    return navigate("/");
   };
 
   return (
@@ -78,7 +81,7 @@ export function DestructionListDetailPage() {
         <Body>
           <Form
             fields={modalFormFields}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
             validateOnChange={true}
             role="form"
           />

@@ -123,6 +123,7 @@ export async function updateDestructionList(
 /**
  * Mark destruction list as final.
  * @param uuid
+ * @param data
  * @returns
  */
 export async function markDestructionListAsFinal(

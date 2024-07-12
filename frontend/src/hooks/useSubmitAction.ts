@@ -1,14 +1,14 @@
 import { SubmitOptions, useSubmit } from "react-router-dom";
 
 // From React Router
-type JsonObject = {
+export type JsonObject = {
   [Key in string]: JsonValue;
 } & {
   [Key in string]?: JsonValue | undefined;
 };
-type JsonArray = JsonValue[] | readonly JsonValue[];
-type JsonPrimitive = string | number | boolean | null;
-type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+export type JsonArray = JsonValue[] | readonly JsonValue[];
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 
 /**
  * Can be used when using (React Router) actions to explicitly set the type
@@ -55,10 +55,10 @@ export type TypedAction<T = string, P = JsonValue> = {
  * used to retrieve the `TypedAction`. If multiple actions should be handled the
  * type of the action can be used to determine the applicable logic.
  */
-export function useSubmitAction() {
+export function useSubmitAction<T extends TypedAction = TypedAction>() {
   const submit = useSubmit();
 
-  return (typedAction: TypedAction, options: SubmitOptions = {}) => {
+  return (typedAction: T, options: SubmitOptions = {}) => {
     const targetOptions: SubmitOptions = {
       method: "POST",
       encType: "application/json",

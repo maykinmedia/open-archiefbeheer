@@ -1,9 +1,10 @@
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect } from "react-router-dom";
 
-import { TypedAction } from "../../../hooks";
+import { JsonValue, TypedAction } from "../../../hooks";
 import {
   DestructionListItemUpdate,
+  markDestructionListAsFinal,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
@@ -11,8 +12,8 @@ import {
   createReviewResponse,
 } from "../../../lib/api/reviewResponse";
 
-export type UpdateDestructionListAction<T> = TypedAction<
-  "PROCESS_REVIEW" | "UPDATE_ASSIGNEES" | "UPDATE_ZAKEN",
+export type UpdateDestructionListAction<T = JsonValue> = TypedAction<
+  "MAKE_FINAL" | "PROCESS_REVIEW" | "UPDATE_ASSIGNEES" | "UPDATE_ZAKEN",
   T
 >;
 
@@ -27,6 +28,8 @@ export async function destructionListUpdateAction({
   const action = data as UpdateDestructionListAction<unknown>;
 
   switch (action.type) {
+    case "MAKE_FINAL":
+      return await destructionListMakeFinalAction({ request, params });
     case "PROCESS_REVIEW":
       return await destructionListProcessReviewAction({ request, params });
     case "UPDATE_ASSIGNEES":
@@ -36,6 +39,19 @@ export async function destructionListUpdateAction({
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
+}
+
+/**
+ * React Router action (user intents to mark the destruction list as final (assign to archivist)).
+ */
+export async function destructionListMakeFinalAction({
+  request,
+}: ActionFunctionArgs) {
+  const { payload } = await request.json();
+  await markDestructionListAsFinal(payload.uuid, {
+    user: payload.user,
+  });
+  return redirect("/");
 }
 
 /**
