@@ -242,7 +242,7 @@ export function DestructionListReviewPage() {
         </Body>
       </Modal>
       <Modal
-        title={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
+        title={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
         open={listModalDataState.open}
         size="m"
         onClose={() => setListModalDataState({ open: false })}
@@ -252,7 +252,7 @@ export function DestructionListReviewPage() {
             fields={listModalFormFields}
             onSubmit={onSubmitDestructionListForm}
             validateOnChange
-            labelSubmit={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
+            labelSubmit={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
           />
         </Body>
       </Modal>
@@ -261,7 +261,7 @@ export function DestructionListReviewPage() {
         storageKey={destructionListReviewKey}
         zaken={zaken}
         selectedZaken={selectedZaken}
-        labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accoderen"}
+        labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
         title="Zaakdossiers"
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
