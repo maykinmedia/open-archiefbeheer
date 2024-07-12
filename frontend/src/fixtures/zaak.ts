@@ -1,6 +1,7 @@
 import { Zaak } from "../types";
+import { createArrayFactory, createObjectFactory } from "./factory";
 
-export const FIXTURE_ZAAK: Zaak = {
+const FIXTURE_ZAAK: Zaak = {
   uuid: "87691e74-1b0b-491a-aa63-0a396bbb1e3e",
   url: "http://localhost:8000/zaken/api/v1/zaken/87691e74-1b0b-491a-aa63-0a396bbb1e3e",
   rollen: [],
@@ -56,7 +57,7 @@ export const FIXTURE_ZAAK: Zaak = {
   verantwoordelijkeOrganisatie: "104567387",
 } as Zaak;
 
-export const FIXTURE_ZAKEN: Zaak[] = [
+const FIXTURE_ZAKEN: Zaak[] = [
   FIXTURE_ZAAK,
   {
     uuid: "3038cc8e-003b-411c-b6ef-7dc5ddc5a3ee",
@@ -541,3 +542,8 @@ export const FIXTURE_ZAKEN: Zaak[] = [
     verantwoordelijkeOrganisatie: "104567387",
   },
 ] as Zaak[];
+
+const zaakFactory = createObjectFactory<Zaak>(FIXTURE_ZAAK);
+const zakenFactory = createArrayFactory<Zaak>(FIXTURE_ZAKEN);
+
+export { zaakFactory, zakenFactory };

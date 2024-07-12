@@ -6,12 +6,12 @@ import {
   assertCheckboxSelection,
   assertColumnSelection,
 } from "../../../../.storybook/playFunctions";
-import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
+import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import {
-  FIXTURE_BEOORDELAAR,
-  FIXTURE_PROCES_EIGENAAR,
-  FIXTURE_RECORD_MANAGER,
-  FIXTURE_USERS,
+  beoordelaarFactory,
+  procesEigenaarFactory,
+  recordManagerFactory,
+  usersFactory,
 } from "../../../fixtures/user";
 import {
   DestructionListCreateContext,
@@ -45,8 +45,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListCreateContext = {
-  reviewers: FIXTURE_USERS,
-  zaken: FIXTURE_PAGINATED_ZAKEN,
+  reviewers: usersFactory(),
+  zaken: paginatedZakenFactory(),
   selectedZaken: [],
 };
 
@@ -76,7 +76,7 @@ export const DestructionListCreatePageStory: Story = {
     const inputName = await within(modal).findByLabelText("Naam");
     await userEvent.type(
       inputName,
-      [FIXTURE_RECORD_MANAGER.firstName, FIXTURE_RECORD_MANAGER.lastName].join(
+      [recordManagerFactory().firstName, recordManagerFactory().lastName].join(
         " ",
       ),
       { delay: 10 },
@@ -89,7 +89,7 @@ export const DestructionListCreatePageStory: Story = {
     const selectFirstReviewerBeoordelaarOption = await within(
       modal,
     ).findAllByText(
-      [FIXTURE_BEOORDELAAR.firstName, FIXTURE_BEOORDELAAR.lastName].join(" "),
+      [beoordelaarFactory().firstName, beoordelaarFactory().lastName].join(" "),
     );
     await userEvent.click(selectFirstReviewerBeoordelaarOption[0], {
       delay: 10,
@@ -103,8 +103,8 @@ export const DestructionListCreatePageStory: Story = {
       modal,
     ).findAllByText(
       [
-        FIXTURE_PROCES_EIGENAAR.firstName,
-        FIXTURE_PROCES_EIGENAAR.lastName,
+        procesEigenaarFactory().firstName,
+        procesEigenaarFactory().lastName,
       ].join(" "),
     );
     await userEvent.click(selectSecondReviewerBeoordelaarOption[0], {
