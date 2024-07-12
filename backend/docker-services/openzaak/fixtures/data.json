@@ -120,9 +120,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -165,9 +165,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -210,9 +210,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -255,9 +255,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -300,9 +300,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -345,9 +345,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -390,9 +390,9 @@
             "opschorting_indicatie": false,
             "opschorting_reden": "",
             "selectielijstklasse": "",
-            "archiefnominatie": null,
+            "archiefnominatie": "vernietigen",
             "archiefstatus": "nog_te_archiveren",
-            "archiefactiedatum": null,
+            "archiefactiedatum": "2024-10-10",
             "opdrachtgevende_organisatie": "",
             "processobjectaard": "",
             "startdatum_bewaartermijn": null,
@@ -1800,6 +1800,28 @@
         }
     },
     {
+        "model": "besluiten.besluit",
+        "pk": 10,
+        "fields": {
+            "_etag": "f5b940849a55134e419a367fa22a2b53",
+            "uuid": "f5fe89b7-8d91-48b3-ba06-00d55de5c492",
+            "identificatie": "BESLUIT_00",
+            "verantwoordelijke_organisatie": "596270410",
+            "_besluittype": 1,
+            "_zaak": 1,
+            "datum": "2024-07-10",
+            "toelichting": "",
+            "bestuursorgaan": "",
+            "ingangsdatum": "2024-07-01",
+            "vervaldatum": null,
+            "vervalreden": "",
+            "publicatiedatum": null,
+            "verzenddatum": null,
+            "uiterlijke_reactiedatum": null,
+            "_zaakbesluit_url": ""
+        }
+    },
+    {
         "model": "besluiten.besluitinformatieobject",
         "pk": 1,
         "fields": {
@@ -1898,6 +1920,28 @@
             "_objectinformatieobject_url": ""
         }
     },
+    {
+        "model": "besluiten.besluitinformatieobject",
+        "pk": 10,
+        "fields": {
+            "_etag": "a573430e26915fe46042174e7af66434",
+            "uuid": "af5d225c-91fa-4c52-baaf-623b34511c68",
+            "besluit": 10,
+            "_informatieobject": 1,
+            "_objectinformatieobject_url": ""
+        }
+    },
+    {
+        "model": "besluiten.besluitinformatieobject",
+        "pk": 11,
+        "fields": {
+          "_etag": "279e22621d23c4c656c4821c98b76c77",
+          "uuid": "7081674c-6462-49cb-849e-cbd224ce1c64",
+          "besluit": 6,
+          "_informatieobject": 3,
+          "_objectinformatieobject_url": ""
+        }
+      },
     {
         "model": "documenten.enkelvoudiginformatieobjectcanonical",
         "pk": 1,
@@ -2551,6 +2595,21 @@
             "_zaak": null,
             "zaak": null,
             "_besluit": 9
+        }
+    },
+    {
+        "model": "documenten.objectinformatieobject",
+        "pk": 19,
+        "fields": {
+            "uuid": "596aaeeb-1aa4-48fe-aa97-a25aa2e666d4",
+            "informatieobject": 1,
+            "object_type": "besluit",
+            "_object_base_url": null,
+            "_object_relative_url": null,
+            "_object_url": null,
+            "_zaak": null,
+            "zaak": null,
+            "_besluit": 10
         }
     },
     {
