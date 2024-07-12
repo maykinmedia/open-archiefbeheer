@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import { assertColumnSelection } from "../../../../.storybook/playFunctions";
-import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
-import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
-import { FIXTURE_USERS } from "../../../fixtures/user";
+import { destructionListFactory } from "../../../fixtures/destructionList";
+import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { usersFactory } from "../../../fixtures/user";
 import { DestructionListReviewPage } from "./DestructionListReview";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
@@ -35,11 +35,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListReviewContext = {
-  reviewers: FIXTURE_USERS,
-  zaken: FIXTURE_PAGINATED_ZAKEN,
+  reviewers: usersFactory(),
+  zaken: paginatedZakenFactory(),
   selectedZaken: [],
   uuid: "00000000-0000-0000-0000-000000000000",
-  destructionList: FIXTURE_DESTRUCTION_LIST,
+  destructionList: destructionListFactory(),
 };
 
 export const ReviewDestructionList: Story = {

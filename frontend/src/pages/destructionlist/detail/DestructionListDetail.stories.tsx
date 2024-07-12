@@ -11,15 +11,15 @@ import {
   fillCheckboxConfirmationForm,
   fillForm,
 } from "../../../../.storybook/playFunctions";
-import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
-import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
-import { FIXTURE_REVIEW } from "../../../fixtures/review";
-import { FIXTURE_REVIEW_ITEMS } from "../../../fixtures/reviewItem";
+import { destructionListFactory } from "../../../fixtures/destructionList";
+import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { reviewFactory } from "../../../fixtures/review";
+import { reviewItemsFactory } from "../../../fixtures/reviewItem";
 import {
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
+  selectieLijstKlasseFactory,
 } from "../../../fixtures/selectieLijstKlasseChoices";
-import { FIXTURE_USERS } from "../../../fixtures/user";
+import { usersFactory } from "../../../fixtures/user";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -119,12 +119,12 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
 
 const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
-  destructionList: FIXTURE_DESTRUCTION_LIST,
-  reviewers: FIXTURE_USERS,
-  archivists: FIXTURE_USERS,
-  user: FIXTURE_USERS[0],
-  zaken: FIXTURE_PAGINATED_ZAKEN,
-  selectableZaken: FIXTURE_PAGINATED_ZAKEN,
+  destructionList: destructionListFactory(),
+  reviewers: usersFactory(),
+  archivists: usersFactory(),
+  user: usersFactory()[0],
+  zaken: paginatedZakenFactory(),
+  selectableZaken: paginatedZakenFactory(),
   zaakSelection: {},
   review: null,
   reviewItems: null,
@@ -160,20 +160,20 @@ export const EditDestructionList: Story = {
 
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
-  destructionList: { ...FIXTURE_DESTRUCTION_LIST, status: "changes_requested" },
-  reviewers: FIXTURE_USERS,
-  archivists: FIXTURE_USERS,
-  user: FIXTURE_USERS[0],
+  destructionList: { ...destructionListFactory(), status: "changes_requested" },
+  reviewers: usersFactory(),
+  archivists: usersFactory(),
+  user: usersFactory()[0],
   zaken: {
-    count: FIXTURE_REVIEW_ITEMS.length,
+    count: reviewItemsFactory().length,
     next: null,
     previous: null,
     results: [],
   },
-  selectableZaken: FIXTURE_PAGINATED_ZAKEN,
+  selectableZaken: paginatedZakenFactory(),
   zaakSelection: {},
-  review: FIXTURE_REVIEW,
-  reviewItems: FIXTURE_REVIEW_ITEMS,
+  review: reviewFactory(),
+  reviewItems: reviewItemsFactory(),
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
 
@@ -201,7 +201,7 @@ export const ProcessReview: Story = {
         elementIndex: 0,
         formValues: {
           "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[0].label,
+          Selectielijstklasse: selectieLijstKlasseFactory()[0].label,
           Reden: "omdat het moet",
         },
       },
@@ -213,7 +213,7 @@ export const ProcessReview: Story = {
         elementIndex: 1,
         formValues: {
           "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[1].label,
+          Selectielijstklasse: selectieLijstKlasseFactory()[1].label,
           Reden: "omdat het kan",
         },
       },
@@ -225,7 +225,7 @@ export const ProcessReview: Story = {
         elementIndex: 2,
         formValues: {
           "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[2].label,
+          Selectielijstklasse: selectieLijstKlasseFactory()[2].label,
           Reden: "Waarom niet",
         },
       },
@@ -268,22 +268,22 @@ export const ProcessReview: Story = {
 const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
   destructionList: {
-    ...FIXTURE_DESTRUCTION_LIST,
+    ...destructionListFactory(),
     status: "internally_reviewed",
   },
-  reviewers: FIXTURE_USERS,
-  archivists: FIXTURE_USERS,
-  user: FIXTURE_USERS[0],
+  reviewers: usersFactory(),
+  archivists: usersFactory(),
+  user: usersFactory()[0],
   zaken: {
-    count: FIXTURE_REVIEW_ITEMS.length,
+    count: reviewItemsFactory().length,
     next: null,
     previous: null,
     results: [],
   },
-  selectableZaken: FIXTURE_PAGINATED_ZAKEN,
+  selectableZaken: paginatedZakenFactory(),
   zaakSelection: {},
-  review: FIXTURE_REVIEW,
-  reviewItems: FIXTURE_REVIEW_ITEMS,
+  review: reviewFactory(),
+  reviewItems: reviewItemsFactory(),
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
 

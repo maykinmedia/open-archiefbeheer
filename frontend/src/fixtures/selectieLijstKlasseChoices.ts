@@ -46,7 +46,7 @@ const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
   },
 ];
 
-export const FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP = zakenFactory().reduce(
+const FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP = zakenFactory().reduce(
   (acc, val) => ({
     ...acc,
     [val.url as string]: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
@@ -58,4 +58,4 @@ const selectieLijstKlasseFactory = createArrayFactory<Option>(
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
 );
 
-export { selectieLijstKlasseFactory };
+export { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP, selectieLijstKlasseFactory };
