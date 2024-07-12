@@ -46,6 +46,12 @@ const meta: Meta<typeof DestructionListDetailPage> = {
           },
         ],
       },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",
+        method: "POST",
+        status: 200,
+        response: [],
+      },
     ],
   },
 };
