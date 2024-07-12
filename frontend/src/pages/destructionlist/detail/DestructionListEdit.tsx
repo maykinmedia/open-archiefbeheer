@@ -14,8 +14,7 @@ import {
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { useDataGridProps } from "../hooks";
-import { UpdateDestructionListAction } from "./DestructionListDetail";
-import "./DestructionListDetail.css";
+import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./types";
 
 /**

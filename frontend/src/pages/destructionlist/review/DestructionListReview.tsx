@@ -6,7 +6,6 @@ import {
   Form,
   FormField,
   Grid,
-  H2,
   H3,
   Hr,
   Modal,
@@ -14,50 +13,22 @@ import {
   P,
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useState } from "react";
-import {
-  ActionFunctionArgs,
-  redirect,
-  useLoaderData,
-  useSubmit,
-} from "react-router-dom";
+import { useLoaderData, useSubmit } from "react-router-dom";
 import { useAsync } from "react-use";
 
 import { DestructionList as DestructionListComponent } from "../../../components";
 import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
-import { User } from "../../../lib/api/auth";
-import {
-  DestructionList,
-  getDestructionList,
-} from "../../../lib/api/destructionLists";
-import {
-  Review,
-  ReviewItem,
-  createDestructionListReview,
-  getLatestReview,
-  listReviewItems,
-} from "../../../lib/api/review";
-import {
-  ReviewResponse,
-  getLatestReviewResponse,
-} from "../../../lib/api/reviewResponse";
-import { listReviewers } from "../../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
-import {
-  canReviewDestructionListRequired,
-  loginRequired,
-} from "../../../lib/auth/loaders";
 import { formatDate } from "../../../lib/format/date";
 import {
-  ZaakSelection,
   addToZaakSelection,
   getZaakSelection,
-  isZaakSelected,
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import "./DestructionListReview.css";
+import { DestructionListReviewLoaderContext } from "./DestructionListReview.loader";
 
-const getDestructionListReviewKey = (id: string) =>
+export const getDestructionListReviewKey = (id: string) =>
   `destruction-list-review-${id}`;
 
 /**
@@ -80,7 +51,7 @@ interface ListModalDataState {
 /**
  * The interface for the form data of the zaken
  */
-interface FormDataState {
+export interface FormDataState {
   motivation: string;
   uuid: string;
   url: string;
@@ -334,137 +305,3 @@ export function DestructionListReviewPage() {
     </>
   );
 }
-
-/**
- * The context of the loader
- */
-export type DestructionListReviewLoaderContext = {
-  reviewers: User[];
-  reviewItems?: ReviewItem[];
-  reviewResponse?: ReviewResponse;
-  zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
-  uuid: string;
-  destructionList: DestructionList;
-};
-
-/**
- * React Router loader.
- * @param request
- * @param params
- */
-export const destructionListReviewLoader = loginRequired(
-  canReviewDestructionListRequired<DestructionListReviewLoaderContext>(
-    async ({
-      request,
-      params,
-    }: ActionFunctionArgs): Promise<DestructionListReviewLoaderContext> => {
-      const searchParams = new URL(request.url).searchParams;
-      const uuid = params.uuid as string;
-      searchParams.set("destruction_list", uuid);
-      const objParams = Object.fromEntries(searchParams);
-
-      const zakenPromise = listZaken({
-        ...objParams,
-        in_destruction_list: uuid,
-      });
-      const listsPromise = getDestructionList(uuid);
-      const reviewersPromise = listReviewers();
-      const latestReview = await getLatestReview({
-        destructionList__uuid: uuid,
-      });
-      const reviewItemsPromise = latestReview
-        ? listReviewItems({ review: latestReview.pk })
-        : undefined;
-
-      const reviewResponsePromise = latestReview
-        ? getLatestReviewResponse({
-            review: latestReview.pk,
-          })
-        : undefined;
-
-      const [zaken, list, reviewers, reviewItems, reviewResponse] =
-        await Promise.all([
-          zakenPromise,
-          listsPromise,
-          reviewersPromise,
-          reviewItemsPromise,
-          reviewResponsePromise,
-        ]);
-
-      const isZaakSelectedPromises = zaken.results.map((zaak) =>
-        isZaakSelected(getDestructionListReviewKey(uuid), zaak),
-      );
-      const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-      const selectedZaken = zaken.results.filter(
-        (_, index) => isZaakSelectedResults[index],
-      );
-
-      return {
-        reviewers,
-        reviewItems,
-        reviewResponse,
-        zaken,
-        selectedZaken,
-        uuid,
-        destructionList: list,
-      } satisfies DestructionListReviewLoaderContext;
-    },
-  ),
-);
-
-type DestructionListReviewActionContext = {
-  details: {
-    listFeedback: string;
-  };
-};
-
-/**
- * React Router action.
- * @param request
- * @param params
- */
-export const destructionListReviewAction = async ({
-  request,
-  params,
-}: ActionFunctionArgs<DestructionListReviewActionContext>) => {
-  const details =
-    (await request.json()) as DestructionListReviewActionContext["details"];
-  const destructionListUuid = params.uuid;
-
-  if (!destructionListUuid) {
-    throw new Error("No uuid provided");
-  }
-
-  const storageKey = getDestructionListReviewKey(destructionListUuid as string);
-  const searchParams = new URLSearchParams();
-  searchParams.set("destruction_list", destructionListUuid);
-
-  // Get data
-  const promises = [getZaakSelection(storageKey)];
-
-  const [zaakSelection] = (await Promise.all(promises)) as [ZaakSelection];
-
-  const zaakSelectionValid = Object.values(zaakSelection).filter(
-    (f) => f.selected,
-  );
-
-  const data: Review = {
-    destructionList: destructionListUuid,
-    decision: zaakSelectionValid.length > 0 ? "rejected" : "accepted",
-    listFeedback: details.listFeedback,
-    zakenReviews: zaakSelectionValid.map((zaak) => {
-      if (!zaak.detail) {
-        throw new Error("Details are missing for one or more zaken");
-      }
-      const detail = zaak.detail as FormDataState;
-
-      return {
-        zaakUrl: detail.url,
-        feedback: detail.motivation,
-      };
-    }),
-  };
-  await createDestructionListReview(data);
-  return redirect("/");
-};

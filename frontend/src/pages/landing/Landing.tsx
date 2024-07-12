@@ -8,12 +8,8 @@ import {
 } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
-import { User, whoAmI } from "../../lib/api/auth";
-import {
-  DestructionList,
-  listDestructionLists,
-} from "../../lib/api/destructionLists";
-import { loginRequired } from "../../lib/auth/loaders";
+import { User } from "../../lib/api/auth";
+import { DestructionList } from "../../lib/api/destructionLists";
 import {
   canMarkListAsFinal,
   canReviewDestructionList,
@@ -23,8 +19,9 @@ import { timeAgo } from "../../lib/format/date";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
+import { LandingLoaderReturn } from "./Landing.loader";
 
-const STATUSES: FieldSet[] = [
+export const STATUSES: FieldSet[] = [
   [
     STATUS_MAPPING.changes_requested,
     {
@@ -62,33 +59,6 @@ const STATUSES: FieldSet[] = [
     },
   ],
 ];
-
-interface LandingLoaderReturn {
-  statusMap: { [key: string]: DestructionList[] };
-  user: User;
-}
-
-export const landingLoader = loginRequired(
-  async (): Promise<LandingLoaderReturn> => {
-    const listsPromise = listDestructionLists();
-    const userPromise = whoAmI();
-
-    const [lists, user] = await Promise.all([listsPromise, userPromise]);
-    // Initialize statusMap with empty arrays for each status
-    const statusMap = STATUSES.reduce((acc, val) => {
-      const status = val[0] || "";
-      const destructionLists = lists.filter(
-        (l) => STATUS_MAPPING[l.status] === status,
-      );
-      return { ...acc, [status]: destructionLists };
-    }, {});
-
-    return {
-      statusMap,
-      user,
-    };
-  },
-);
 
 export const Landing = () => {
   const { statusMap, user } = useLoaderData() as LandingLoaderReturn;
