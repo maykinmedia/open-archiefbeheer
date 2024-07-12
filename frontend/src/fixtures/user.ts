@@ -1,6 +1,21 @@
 import { User } from "../lib/api/auth";
+import { createArrayFactory, createObjectFactory } from "./factory";
 
-export const FIXTURE_RECORD_MANAGER: User = {
+const FIXTURE_USER: User = {
+  pk: 1,
+  username: "testuser",
+  firstName: "Test",
+  lastName: "User",
+  email: "user@example.com",
+  role: {
+    name: "Test Role",
+    canStartDestruction: false,
+    canReviewDestruction: false,
+    canViewCaseDetails: true,
+  },
+};
+
+const FIXTURE_RECORD_MANAGER: User = {
   pk: 1,
   username: "Record Manager",
   firstName: "Record",
@@ -14,7 +29,7 @@ export const FIXTURE_RECORD_MANAGER: User = {
   },
 };
 
-export const FIXTURE_BEOORDELAAR: User = {
+const FIXTURE_BEOORDELAAR: User = {
   pk: 2,
   username: "Beoor del Laar",
   firstName: "Beoor",
@@ -28,7 +43,7 @@ export const FIXTURE_BEOORDELAAR: User = {
   },
 };
 
-export const FIXTURE_PROCES_EIGENAAR: User = {
+const FIXTURE_PROCES_EIGENAAR: User = {
   pk: 3,
   username: "Proces ei Genaar",
   firstName: "Proces",
@@ -42,8 +57,25 @@ export const FIXTURE_PROCES_EIGENAAR: User = {
   },
 };
 
-export const FIXTURE_USERS = [
-  FIXTURE_RECORD_MANAGER,
-  FIXTURE_BEOORDELAAR,
+const userFactory = createObjectFactory<User>(FIXTURE_USER);
+const recordManagerFactory = createObjectFactory<User>(FIXTURE_RECORD_MANAGER);
+const beoordelaarFactory = createObjectFactory<User>(FIXTURE_BEOORDELAAR);
+const procesEigenaarFactory = createObjectFactory<User>(
   FIXTURE_PROCES_EIGENAAR,
+);
+
+const defaultUsers: User[] = [
+  recordManagerFactory(),
+  beoordelaarFactory(),
+  procesEigenaarFactory(),
 ];
+
+const usersFactory = createArrayFactory(defaultUsers);
+
+export {
+  beoordelaarFactory,
+  procesEigenaarFactory,
+  recordManagerFactory,
+  userFactory,
+  usersFactory,
+};

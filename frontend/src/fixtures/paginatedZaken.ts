@@ -1,8 +1,16 @@
-import { FIXTURE_ZAKEN } from "./zaak";
+import { PaginatedZaken } from "../lib/api/zaken";
+import { createObjectFactory } from "./factory";
+import { zakenFactory } from "./zaak";
 
-export const FIXTURE_PAGINATED_ZAKEN = {
+const FIXTURE_PAGINATED_ZAKEN = {
   count: 10,
   next: null,
   previous: null,
-  results: FIXTURE_ZAKEN,
+  results: zakenFactory(),
 };
+
+const paginatedZakenFactory = createObjectFactory<PaginatedZaken>(
+  FIXTURE_PAGINATED_ZAKEN,
+);
+
+export { paginatedZakenFactory };

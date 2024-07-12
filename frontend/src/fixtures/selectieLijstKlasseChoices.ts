@@ -1,8 +1,9 @@
 import { Option } from "@maykin-ui/admin-ui";
 
-import { FIXTURE_ZAKEN } from "./zaak";
+import { createArrayFactory } from "./factory";
+import { zakenFactory } from "./zaak";
 
-export const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
+const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
   {
     label: "1.1 - Ingericht - vernietigen - P10Y",
     value:
@@ -45,10 +46,16 @@ export const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
   },
 ];
 
-export const FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP = FIXTURE_ZAKEN.reduce(
+export const FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP = zakenFactory().reduce(
   (acc, val) => ({
     ...acc,
     [val.url as string]: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   }),
   {},
 );
+
+const selectieLijstKlasseFactory = createArrayFactory<Option>(
+  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+);
+
+export { selectieLijstKlasseFactory };
