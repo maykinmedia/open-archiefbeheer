@@ -102,7 +102,7 @@ export function DestructionListProcessReview() {
     //
     // Remove the zaak from the selection in the background.
     if (!selected) {
-      await removeFromZaakSelection(storageKey, [zaak.url as string]);
+      await removeFromZaakSelection(storageKey, [zaak.url as string], true);
 
       // Call the Route's loader function
       //
@@ -138,12 +138,17 @@ export function DestructionListProcessReview() {
     //
     // We add the selected zaak to the zaak selection and add our feedback as
     // details, this allows us to recover (and submit) the feedback later.
-    await addToZaakSelection(storageKey, [zaakUrl], {
-      action,
-      selectielijstklasse,
-      archiefactiedatum,
-      comment,
-    });
+    await addToZaakSelection(
+      storageKey,
+      [zaakUrl],
+      {
+        action,
+        selectielijstklasse,
+        archiefactiedatum,
+        comment,
+      },
+      true,
+    );
 
     setProcessZaakReviewModalState({
       open: false,
@@ -312,7 +317,7 @@ export function DestructionListProcessReview() {
 
   // Update the selected zaken to session storage.
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
+    await addToZaakSelection(storageKey, zaken.results, undefined, true);
   }, []);
 
   return (

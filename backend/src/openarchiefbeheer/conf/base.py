@@ -130,12 +130,13 @@ INSTALLED_APPS = [
     "solo",
     # Project applications.
     "openarchiefbeheer.accounts",
-    "openarchiefbeheer.destruction",
-    "openarchiefbeheer.utils",
-    "openarchiefbeheer.logging",
-    "openarchiefbeheer.zaken",
-    "openarchiefbeheer.emails",
     "openarchiefbeheer.config",
+    "openarchiefbeheer.destruction",
+    "openarchiefbeheer.emails",
+    "openarchiefbeheer.logging",
+    "openarchiefbeheer.selection",
+    "openarchiefbeheer.utils",
+    "openarchiefbeheer.zaken",
 ]
 
 MIDDLEWARE = [
@@ -343,7 +344,8 @@ LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 #
 SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", "Lax")
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", IS_HTTPS)
-SESSION_COOKIE_HTTPONLY = True
+# TODO: Check
+SESSION_COOKIE_HTTPONLY = False
 
 CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", "Lax")
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", IS_HTTPS)

@@ -11,12 +11,11 @@ import {
   beoordelaarFactory,
   procesEigenaarFactory,
   recordManagerFactory,
+  userFactory,
   usersFactory,
 } from "../../../fixtures/user";
-import {
-  DestructionListCreateContext,
-  DestructionListCreatePage,
-} from "./DestructionListCreate";
+import { DestructionListCreatePage } from "./DestructionListCreate";
+import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
@@ -46,8 +45,9 @@ type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
-  zaken: paginatedZakenFactory(),
   selectedZaken: [],
+  sessionHash: "s3cret",
+  zaken: paginatedZakenFactory(),
 };
 
 export const DestructionListCreatePageStory: Story = {

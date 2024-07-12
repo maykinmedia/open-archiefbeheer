@@ -1,6 +1,12 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
+import {
+  addToRemoteZaakSelection,
+  clearRemoteZaakSelection,
+  getRemoteZaakSelection,
+  removeFromRemoteZaakSelection,
+} from "../api/zaakSelection";
 
 export type ZaakSelection<DetailType = unknown> = {
   /**
@@ -21,13 +27,24 @@ export type ZaakSelection<DetailType = unknown> = {
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
  * @param detail An optional detail object of generic type
+ * @param remote If true, the zaak selection is synced to the backend.
  */
 export async function addToZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
   detail?: DetailType,
+  remote = false,
 ) {
-  await _mutateZaakSelection(key, zaken, true, detail);
+  console.log("addToZaakSelection");
+  await _mutateLocalZaakSelection(key, zaken, true, detail);
+
+  if (remote) {
+    await addToRemoteZaakSelection(
+      key,
+      zaken.map((z) => (isPrimitive(z) ? z : (z.url as string))),
+      detail,
+    );
+  }
 }
 
 /**
@@ -36,12 +53,22 @@ export async function addToZaakSelection<DetailType = unknown>(
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
+ * @param remote If true, the zaak selection is synced to the backend.
  */
 export async function removeFromZaakSelection(
   key: string,
   zaken: string[] | Zaak[],
+  remote = false,
 ) {
-  await _mutateZaakSelection(key, zaken, false);
+  console.log("removeFromZaakSelection");
+  await _mutateLocalZaakSelection(key, zaken, false);
+
+  if (remote) {
+    await removeFromRemoteZaakSelection(
+      key,
+      zaken.map((z) => (isPrimitive(z) ? z : (z.url as string))),
+    );
+  }
 }
 
 /**
@@ -49,27 +76,21 @@ export async function removeFromZaakSelection(
  * Note: only the `url` of selected `zaken` are stored.
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
+ * @param remote If true, the zaak selection is obtained from the backend.
  */
-export async function getZaakSelection<DetailType = unknown>(key: string) {
-  const computedKey = _getComputedKey(key);
-  const json = sessionStorage.getItem(computedKey) || "{}";
-  return JSON.parse(json) as ZaakSelection<DetailType>;
-}
-
-/**
- * Sets zaak selection cache.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
- * @param key A key identifying the selection
- * @param zaakSelection
- */
-export async function setZaakSelection<DetailType = unknown>(
+export async function getZaakSelection<DetailType = unknown>(
   key: string,
-  zaakSelection: ZaakSelection<DetailType>,
+  remote = false,
 ) {
-  const computedKey = _getComputedKey(key);
-  const json = JSON.stringify(zaakSelection);
-  sessionStorage.setItem(computedKey, json);
+  console.log("getZaakSelection");
+
+  if (remote) {
+    return (await getRemoteZaakSelection(key)) as ZaakSelection<DetailType>;
+  } else {
+    const computedKey = _getComputedKey(key);
+    const json = sessionStorage.getItem(computedKey) || "{}";
+    return JSON.parse(json) as ZaakSelection<DetailType>;
+  }
 }
 
 /**
@@ -77,25 +98,18 @@ export async function setZaakSelection<DetailType = unknown>(
  * Note: only the `url` of selected `zaken` are stored.
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
+ * @param remote If true, the zaak selection is synced to the backend.
  */
-export async function clearZaakSelection(key: string) {
+export async function clearZaakSelection(key: string, remote = false) {
+  console.log("clearZaakSelection");
+
   const computedKey = _getComputedKey(key);
   const json = "{}";
   sessionStorage.setItem(computedKey, json);
-}
 
-/**
- * Returns whether zaak is selected.
- * @param key A key identifying the selection
- * @param zaak Either a `Zaak.url` or `Zaak` object.
- */
-export async function isZaakSelected<DetailType = unknown>(
-  key: string,
-  zaak: string | Zaak,
-) {
-  const zaakSelection = await getZaakSelection<DetailType>(key);
-  const url = _getZaakUrl(zaak);
-  return zaakSelection[url]?.selected;
+  if (remote) {
+    await clearRemoteZaakSelection(key);
+  }
 }
 
 /**
@@ -107,7 +121,7 @@ export async function isZaakSelected<DetailType = unknown>(
  * @param selected Indicating whether the selection should be added (`true) or removed (`false).
  * @param detail An optional detail object of generic type
  */
-export async function _mutateZaakSelection<DetailType = unknown>(
+export async function _mutateLocalZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
   selected: boolean,
@@ -132,7 +146,25 @@ export async function _mutateZaakSelection<DetailType = unknown>(
     ...zaakSelectionOverrides,
   };
 
-  await setZaakSelection(key, combinedZaakSelection);
+  await _setLocalZaakSelection(key, combinedZaakSelection);
+}
+
+/**
+ * Sets zaak selection cache.
+ * Note: only the `url` of selected `zaken` are stored.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ * @param zaakSelection
+ */
+export async function _setLocalZaakSelection<DetailType = unknown>(
+  key: string,
+  zaakSelection: ZaakSelection<DetailType>,
+) {
+  console.log("setZaakSelection");
+
+  const computedKey = _getComputedKey(key);
+  const json = JSON.stringify(zaakSelection);
+  sessionStorage.setItem(computedKey, json);
 }
 
 /**

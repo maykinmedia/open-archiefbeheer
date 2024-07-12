@@ -20,7 +20,7 @@ import {
   canReviewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import { isZaakSelected } from "../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
@@ -78,12 +78,13 @@ export const destructionListReviewLoader = loginRequired(
           reviewResponsePromise,
         ]);
 
-      const isZaakSelectedPromises = zaken.results.map((zaak) =>
-        isZaakSelected(getDestructionListReviewKey(uuid), zaak),
+      // Get zaak selection.
+      const zaakSelection = await getZaakSelection(
+        getDestructionListReviewKey(uuid),
+        false,
       );
-      const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
       const selectedZaken = zaken.results.filter(
-        (_, index) => isZaakSelectedResults[index],
+        (zaak) => zaakSelection[zaak.url as string]?.selected,
       );
 
       return {

@@ -8,31 +8,23 @@ import {
 import { FormEvent, useState } from "react";
 import { useLoaderData, useSubmit } from "react-router-dom";
 
-import { User } from "../../../lib/api/auth";
-import { PaginatedZaken } from "../../../lib/api/zaken";
 import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
 import "./DestructionListCreate.css";
+import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 import { DestructionList } from "./components";
 
-/** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
-export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
-
-export type DestructionListCreateContext = {
-  reviewers: User[];
-  zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
-};
+/** Used if session hash cannot be created. */
+export const DEFAULT_STORAGE_KEY = "destruction-list-create";
 
 /**
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, zaken, selectedZaken } =
+  const { reviewers, selectedZaken, sessionHash, zaken } =
     useLoaderData() as DestructionListCreateContext;
   const submit = useSubmit();
-
   const [modalOpenState, setModalOpenState] = useState(false);
+  const storageKey = sessionHash || DEFAULT_STORAGE_KEY;
 
   const onSubmitSelection = () => setModalOpenState(true);
 
@@ -40,7 +32,10 @@ export function DestructionListCreatePage() {
    * Gets called when the form is submitted.
    */
   const onSubmitForm = async (event: FormEvent, data: SerializedFormData) => {
-    const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
+    const zaakSelection = await getZaakSelection(
+      storageKey,
+      Boolean(sessionHash),
+    );
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
@@ -102,7 +97,7 @@ export function DestructionListCreatePage() {
         </Body>
       </Modal>
       <DestructionList
-        storageKey={DESTRUCTION_LIST_CREATE_KEY}
+        storageKey={storageKey}
         zaken={zaken}
         selectedZaken={selectedZaken}
         title="Vernietigingslijst opstellen"

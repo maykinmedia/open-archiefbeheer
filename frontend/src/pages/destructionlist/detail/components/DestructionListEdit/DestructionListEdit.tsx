@@ -70,7 +70,7 @@ export function DestructionListEdit() {
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
   const handleEditUpdate = async () => {
-    const zaakSelection = await getZaakSelection(storageKey);
+    const zaakSelection = await getZaakSelection(storageKey, true);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
@@ -132,7 +132,7 @@ export function DestructionListEdit() {
 
   // Update the selected zaken to session storage.
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
+    await addToZaakSelection(storageKey, zaken.results, undefined, true);
   }, []);
 
   return (
