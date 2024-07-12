@@ -8,19 +8,19 @@ import {
 } from "@maykin-ui/admin-ui";
 import React from "react";
 
-import { User } from "../../lib/api/auth";
-import { DestructionList } from "../../lib/api/destructionLists";
-import { Review } from "../../lib/api/review";
-import { ReviewResponse } from "../../lib/api/reviewResponse";
-import { formatDate } from "../../lib/format/date";
-import { AssigneesEditable } from "../../pages/destructionlist/detail/Assignees";
+import { User } from "../../../../../lib/api/auth";
+import { DestructionList } from "../../../../../lib/api/destructionLists";
+import { Review } from "../../../../../lib/api/review";
+import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
+import { formatDate } from "../../../../../lib/format/date";
+import { formatUser } from "../../../utils";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
-} from "../../pages/destructionlist/detail/constants";
-import { formatUser } from "../../pages/destructionlist/utils";
+} from "../../constants";
+import { DestructionListAssignees } from "../index";
 
 export type DestructionListToolbarProps = {
   destructionList: DestructionList;
@@ -75,7 +75,7 @@ export function DestructionListToolbar({
 
         {reviewers && (
           <Column span={3}>
-            <AssigneesEditable
+            <DestructionListAssignees
               assignees={destructionList.assignees}
               reviewers={reviewers}
             />

@@ -8,12 +8,12 @@ import {
 import { FormEvent, useState } from "react";
 import { useLoaderData, useSubmit } from "react-router-dom";
 
-import { DestructionList } from "../../../components";
 import { User } from "../../../lib/api/auth";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import "./DestructionListCreate.css";
+import { DestructionList } from "./components";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";

@@ -8,16 +8,26 @@ import {
 import React, { FormEvent, useState } from "react";
 import { useActionData } from "react-router-dom";
 
-import { useSubmitAction } from "../../../hooks";
-import { DestructionListAssignee } from "../../../lib/api/destructionLists";
-import { formatUser } from "../utils";
-import { UpdateDestructionListAction } from "./DestructionListDetail.action";
-import { AssigneesEditableProps } from "./types";
+import { useSubmitAction } from "../../../../../hooks";
+import { User } from "../../../../../lib/api/auth";
+import { DestructionListAssignee } from "../../../../../lib/api/destructionLists";
+import { formatUser } from "../../../utils";
+import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
 
-export function AssigneesEditable({
+export type DestructionListAssigneesProps = {
+  assignees: DestructionListAssignee[];
+  reviewers: User[];
+};
+
+/**
+ * Allows viewing/assigning the reviewers of a destruction list.
+ * @param assignees
+ * @param reviewers
+ */
+export function DestructionListAssignees({
   assignees,
   reviewers,
-}: AssigneesEditableProps) {
+}: DestructionListAssigneesProps) {
   const errors = useActionData() || {};
   const submitAction = useSubmitAction();
 

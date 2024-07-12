@@ -19,7 +19,7 @@ import { timeAgo } from "../../lib/format/date";
 import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
-import { LandingLoaderReturn } from "./Landing.loader";
+import { LandingContext } from "./Landing.loader";
 
 export const STATUSES: FieldSet[] = [
   [
@@ -61,7 +61,7 @@ export const STATUSES: FieldSet[] = [
 ];
 
 export const Landing = () => {
-  const { statusMap, user } = useLoaderData() as LandingLoaderReturn;
+  const { statusMap, user } = useLoaderData() as LandingContext;
 
   /**
    * Determines the href for a given destruction list based on its status and the user's role.

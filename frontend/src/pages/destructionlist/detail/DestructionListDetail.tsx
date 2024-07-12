@@ -9,13 +9,13 @@ import {
 import { FormEvent, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
 import { useSubmitAction } from "../../../hooks";
 import { canMarkListAsFinal } from "../../../lib/auth/permissions";
 import { UpdateDestructionListAction } from "./DestructionListDetail.action";
-import { DestructionListEdit } from "./DestructionListEdit";
-import { DestructionListProcessReview } from "./DestructionListProcessReview";
-import { DestructionListDetailContext } from "./types";
+import { DestructionListDetailContext } from "./DestructionListDetail.loader";
+import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";
+import { DestructionListProcessReview } from "./components/DestructionListProcessReview/DestructionListProcessReview";
+import { DestructionListToolbar } from "./components/DestructionListToolbar/DestructionListToolbar";
 
 /**
  * Destruction list detail page

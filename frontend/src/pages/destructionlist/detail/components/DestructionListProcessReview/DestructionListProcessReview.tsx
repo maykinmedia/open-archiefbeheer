@@ -13,21 +13,21 @@ import React, { useState } from "react";
 import { useLoaderData, useNavigation, useRevalidator } from "react-router-dom";
 import { useAsync } from "react-use";
 
-import { useSubmitAction } from "../../../hooks/useSubmitAction";
+import { useSubmitAction } from "../../../../../hooks";
 import {
   ReviewItemResponse,
   ReviewResponse,
-} from "../../../lib/api/reviewResponse";
+} from "../../../../../lib/api/reviewResponse";
 import {
   ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
-import { DataGridAction, useDataGridProps } from "../hooks";
-import { UpdateDestructionListAction } from "./DestructionListDetail.action";
-import { ProcessZaakReviewModal } from "./ProcessZaakReviewModal";
-import { DestructionListDetailContext } from "./types";
+} from "../../../../../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../../../../../types";
+import { DataGridAction, useDataGridProps } from "../../../hooks";
+import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
+import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
+import { DestructionListProcessZaakReviewModal } from "../index";
 
 /**
  * The interface for the zaken modal state
@@ -340,7 +340,7 @@ export function DestructionListProcessReview() {
       </Modal>
 
       {/* The "feedback" modal */}
-      <ProcessZaakReviewModal
+      <DestructionListProcessZaakReviewModal
         zaakModalDataState={processZaakReviewModalState}
         reviewItem={
           reviewItems?.find(

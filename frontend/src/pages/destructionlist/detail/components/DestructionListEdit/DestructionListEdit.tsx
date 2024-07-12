@@ -7,15 +7,15 @@ import {
 } from "react-router-dom";
 import { useAsync } from "react-use";
 
-import { useSubmitAction } from "../../../hooks/useSubmitAction";
-import { canUpdateDestructionList } from "../../../lib/auth/permissions";
+import { useSubmitAction } from "../../../../../hooks";
+import { canUpdateDestructionList } from "../../../../../lib/auth/permissions";
 import {
   addToZaakSelection,
   getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
-import { useDataGridProps } from "../hooks";
-import { UpdateDestructionListAction } from "./DestructionListDetail.action";
-import { DestructionListDetailContext } from "./types";
+} from "../../../../../lib/zaakSelection/zaakSelection";
+import { useDataGridProps } from "../../../hooks";
+import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
+import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 
 /**
  * Show items of a destruction list.

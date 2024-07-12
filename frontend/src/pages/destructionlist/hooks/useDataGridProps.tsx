@@ -10,20 +10,20 @@ import {
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
-import { PaginatedZaken } from "../../lib/api/zaken";
+import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+import { PaginatedZaken } from "../../../lib/api/zaken";
 import {
   FieldSelection,
   addToFieldSelection,
   getFieldSelection,
   removeFromFieldSelection,
-} from "../../lib/fieldSelection/fieldSelection";
+} from "../../../lib/fieldSelection/fieldSelection";
 import {
   addToZaakSelection,
   getZaakSelection,
   removeFromZaakSelection,
-} from "../../lib/zaakSelection/zaakSelection";
-import { ExpandZaak, Zaak } from "../../types";
+} from "../../../lib/zaakSelection/zaakSelection";
+import { ExpandZaak, Zaak } from "../../../types";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;

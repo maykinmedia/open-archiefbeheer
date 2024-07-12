@@ -1,12 +1,12 @@
 import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
 import { useActionData } from "react-router-dom";
 
-import { PaginatedZaken } from "../../lib/api/zaken";
+import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { Zaak } from "../../../../../types";
 import {
   DataGridAction,
   useDataGridProps,
-} from "../../pages/destructionlist/hooks";
-import { Zaak } from "../../types";
+} from "../../../hooks/useDataGridProps";
 
 export type DestructionList = React.PropsWithChildren<
   {
