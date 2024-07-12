@@ -624,8 +624,8 @@ class DestructionListViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with patch(
-            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
-        ) as m_task:
+            "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
+        ) as m_delete:
             response = self.client.delete(
                 reverse(
                     "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
@@ -633,7 +633,8 @@ class DestructionListViewSetTest(APITestCase):
             )
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-        m_task.assert_called_once_with(destruction_list.pk)
+        m_delete.assert_called_once()
+        self.assertEqual(m_delete.call_args_list[0].args[0].pk, destruction_list.pk)
 
         destruction_list.refresh_from_db()
 
@@ -649,7 +650,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with patch(
-            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
+            "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
         ) as m_task:
             response = self.client.delete(
                 reverse(
@@ -671,7 +672,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with patch(
-            "openarchiefbeheer.destruction.tasks.delete_destruction_list.delay"
+            "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
         ) as m_task:
             response = self.client.delete(
                 reverse(
