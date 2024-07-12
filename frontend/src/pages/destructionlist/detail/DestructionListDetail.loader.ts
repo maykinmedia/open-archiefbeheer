@@ -3,9 +3,17 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
 import { User, whoAmI } from "../../../lib/api/auth";
-import { getDestructionList } from "../../../lib/api/destructionLists";
+import {
+  DestructionList,
+  getDestructionList,
+} from "../../../lib/api/destructionLists";
 import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
-import { getLatestReview, listReviewItems } from "../../../lib/api/review";
+import {
+  Review,
+  ReviewItem,
+  getLatestReview,
+  listReviewItems,
+} from "../../../lib/api/review";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -17,7 +25,20 @@ import {
   ZaakSelection,
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
-import { DestructionListDetailContext } from "./types";
+
+export interface DestructionListDetailContext {
+  storageKey: string;
+  destructionList: DestructionList;
+  reviewers: User[];
+  archivists: User[];
+  user: User;
+  zaken: PaginatedZaken;
+  selectableZaken: PaginatedZaken;
+  zaakSelection: ZaakSelection;
+  review: Review | null;
+  reviewItems: ReviewItem[] | null;
+  selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
+}
 
 /**
  * React Router loader.

@@ -16,16 +16,16 @@ import {
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useEffect, useState } from "react";
 
-import { ReviewItem } from "../../../lib/api/review";
-import { Zaak } from "../../../types";
-import { ProcessReviewAction } from "./DestructionListProcessReview";
+import { ReviewItem } from "../../../../../lib/api/review";
+import { Zaak } from "../../../../../types";
+import { ProcessReviewAction } from "../DestructionListProcessReview/DestructionListProcessReview";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Aanpassen van selectielijstklasse";
 export const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
 export const LABEL_KEEP = "Afwijzen van het voorstel";
 
-export type ProcessZaakReviewModalProps = {
+export type DestructionListProcessZaakReviewModalProps = {
   zaakModalDataState: {
     open: boolean;
     zaak?: Zaak;
@@ -53,7 +53,9 @@ export type ProcessZaakReviewModalProps = {
  * @param reviewItem
  * @param selectielijstklasseChoices
  */
-export const ProcessZaakReviewModal: React.FC<ProcessZaakReviewModalProps> = ({
+export const DestructionListProcessZaakReviewModal: React.FC<
+  DestructionListProcessZaakReviewModalProps
+> = ({
   zaakModalDataState: { open, zaak },
   reviewItem,
   action,

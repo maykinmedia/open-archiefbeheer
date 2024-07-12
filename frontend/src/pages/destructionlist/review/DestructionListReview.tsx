@@ -16,8 +16,6 @@ import React, { FormEvent, useState } from "react";
 import { useLoaderData, useSubmit } from "react-router-dom";
 import { useAsync } from "react-use";
 
-import { DestructionList as DestructionListComponent } from "../../../components";
-import { DestructionListToolbar } from "../../../components/DestructionListToolbar/DestructionListToolbar";
 import { formatDate } from "../../../lib/format/date";
 import {
   addToZaakSelection,
@@ -25,8 +23,10 @@ import {
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
+import { DestructionList as DestructionListComponent } from "../create/components";
+import { DestructionListToolbar } from "../detail/components/DestructionListToolbar/DestructionListToolbar";
 import "./DestructionListReview.css";
-import { DestructionListReviewLoaderContext } from "./DestructionListReview.loader";
+import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
 export const getDestructionListReviewKey = (id: string) =>
   `destruction-list-review-${id}`;
@@ -68,7 +68,7 @@ export function DestructionListReviewPage() {
     selectedZaken,
     uuid,
     destructionList,
-  } = useLoaderData() as DestructionListReviewLoaderContext;
+  } = useLoaderData() as DestructionListReviewContext;
   const submit = useSubmit();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 

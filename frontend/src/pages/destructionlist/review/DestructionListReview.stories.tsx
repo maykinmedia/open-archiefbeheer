@@ -6,7 +6,7 @@ import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
 import { FIXTURE_USERS } from "../../../fixtures/user";
 import { DestructionListReviewPage } from "./DestructionListReview";
-import { DestructionListReviewLoaderContext } from "./DestructionListReview.loader";
+import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
 const meta: Meta<typeof DestructionListReviewPage> = {
   title: "Pages/DestructionList/DestructionListReviewPage",
@@ -34,7 +34,7 @@ const meta: Meta<typeof DestructionListReviewPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const FIXTURE: DestructionListReviewLoaderContext = {
+const FIXTURE: DestructionListReviewContext = {
   reviewers: FIXTURE_USERS,
   zaken: FIXTURE_PAGINATED_ZAKEN,
   selectedZaken: [],

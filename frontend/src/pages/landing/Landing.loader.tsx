@@ -8,13 +8,13 @@ import { STATUS_MAPPING } from "../destructionlist/detail/constants";
 import { STATUSES } from "./Landing";
 import "./Landing.css";
 
-export interface LandingLoaderReturn {
+export interface LandingContext {
   statusMap: { [key: string]: DestructionList[] };
   user: User;
 }
 
 export const landingLoader = loginRequired(
-  async (): Promise<LandingLoaderReturn> => {
+  async (): Promise<LandingContext> => {
     const listsPromise = listDestructionLists();
     const userPromise = whoAmI();
 

@@ -25,7 +25,7 @@ import {
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { DestructionListDetailPage } from "./DestructionListDetail";
-import { DestructionListDetailContext } from "./types";
+import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 
 const meta: Meta<typeof DestructionListDetailPage> = {
   title: "Pages/DestructionList/DestructionListDetailPage",

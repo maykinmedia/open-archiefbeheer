@@ -24,10 +24,7 @@ import { isZaakSelected } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
-/**
- * The context of the loader
- */
-export type DestructionListReviewLoaderContext = {
+export type DestructionListReviewContext = {
   reviewers: User[];
   reviewItems?: ReviewItem[];
   reviewResponse?: ReviewResponse;
@@ -43,11 +40,11 @@ export type DestructionListReviewLoaderContext = {
  * @param params
  */
 export const destructionListReviewLoader = loginRequired(
-  canReviewDestructionListRequired<DestructionListReviewLoaderContext>(
+  canReviewDestructionListRequired<DestructionListReviewContext>(
     async ({
       request,
       params,
-    }: ActionFunctionArgs): Promise<DestructionListReviewLoaderContext> => {
+    }: ActionFunctionArgs): Promise<DestructionListReviewContext> => {
       const searchParams = new URL(request.url).searchParams;
       const uuid = params.uuid as string;
       searchParams.set("destruction_list", uuid);
@@ -97,7 +94,7 @@ export const destructionListReviewLoader = loginRequired(
         selectedZaken,
         uuid,
         destructionList: list,
-      } satisfies DestructionListReviewLoaderContext;
+      } satisfies DestructionListReviewContext;
     },
   ),
 );

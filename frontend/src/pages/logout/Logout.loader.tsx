@@ -4,7 +4,6 @@ import { logout } from "../../lib/api/auth";
 
 /**
  * React Router loader.
- * @param request
  */
 export const logoutLoader = async () => {
   await logout();
