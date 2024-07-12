@@ -5,93 +5,24 @@ import {
   Modal,
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-} from "@remix-run/router/utils";
 import { FormEvent, useState } from "react";
-import { redirect, useLoaderData, useSubmit } from "react-router-dom";
+import { useLoaderData, useSubmit } from "react-router-dom";
 
 import { DestructionList } from "../../../components";
 import { User } from "../../../lib/api/auth";
-import { createDestructionList } from "../../../lib/api/destructionLists";
-import { listReviewers } from "../../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
-import {
-  canStartDestructionListRequired,
-  loginRequired,
-} from "../../../lib/auth/loaders";
-import {
-  clearZaakSelection,
-  getZaakSelection,
-  isZaakSelected,
-} from "../../../lib/zaakSelection/zaakSelection";
+import { PaginatedZaken } from "../../../lib/api/zaken";
+import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import "./DestructionListCreate.css";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
-const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
+export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
 
 export type DestructionListCreateContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   selectedZaken: Zaak[];
 };
-
-/**
- * React Router loader.
- * @param request
- */
-export const destructionListCreateLoader = loginRequired(
-  canStartDestructionListRequired(async ({ request }: LoaderFunctionArgs) => {
-    const searchParamsZakenEndpoint: Record<string, string> = {
-      not_in_destruction_list: "true",
-    };
-    const searchParams = new URL(request.url).searchParams;
-    Object.keys(searchParamsZakenEndpoint).forEach((key) =>
-      searchParams.set(key, searchParamsZakenEndpoint[key]),
-    );
-
-    // Get reviewers, zaken and zaaktypen.
-    const promises = [listReviewers(), listZaken(searchParams)];
-    const [reviewers, zaken] = (await Promise.all(promises)) as [
-      User[],
-      PaginatedZaken,
-    ];
-
-    // Get zaak selection.
-    const isZaakSelectedPromises = zaken.results.map((zaak) =>
-      isZaakSelected(DESTRUCTION_LIST_CREATE_KEY, zaak),
-    );
-    const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-    const selectedZaken = zaken.results.filter(
-      (_, index) => isZaakSelectedResults[index],
-    );
-
-    return { reviewers, zaken, selectedZaken };
-  }),
-);
-
-/**
- * React Router action.
- * @param request
- */
-export async function destructionListCreateAction({
-  request,
-}: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const zaakUrls = formData.getAll("zaakUrls") as string[];
-  const assigneeIds = formData.getAll("assigneeIds") as string[];
-
-  try {
-    await createDestructionList(name, zaakUrls, assigneeIds);
-  } catch (e: unknown) {
-    return await (e as Response).json();
-  }
-  await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
-  return redirect("/");
-}
 
 /**
  * Destruction list creation page

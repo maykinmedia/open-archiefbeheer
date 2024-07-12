@@ -25,8 +25,7 @@ import {
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { DataGridAction, useDataGridProps } from "../hooks";
-import { UpdateDestructionListAction } from "./DestructionListDetail";
-import "./DestructionListDetail.css";
+import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { ProcessZaakReviewModal } from "./ProcessZaakReviewModal";
 import { DestructionListDetailContext } from "./types";
 

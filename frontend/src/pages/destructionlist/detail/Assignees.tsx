@@ -11,7 +11,7 @@ import { useActionData } from "react-router-dom";
 import { useSubmitAction } from "../../../hooks";
 import { DestructionListAssignee } from "../../../lib/api/destructionLists";
 import { formatUser } from "../utils";
-import { UpdateDestructionListAction } from "./DestructionListDetail";
+import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { AssigneesEditableProps } from "./types";
 
 export function AssigneesEditable({

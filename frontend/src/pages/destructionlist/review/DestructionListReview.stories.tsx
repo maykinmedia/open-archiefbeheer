@@ -5,10 +5,8 @@ import { assertColumnSelection } from "../../../../.storybook/playFunctions";
 import { FIXTURE_DESTRUCTION_LIST } from "../../../fixtures/destructionList";
 import { FIXTURE_PAGINATED_ZAKEN } from "../../../fixtures/paginatedZaken";
 import { FIXTURE_USERS } from "../../../fixtures/user";
-import {
-  DestructionListReviewLoaderContext,
-  DestructionListReviewPage,
-} from "./DestructionListReview";
+import { DestructionListReviewPage } from "./DestructionListReview";
+import { DestructionListReviewLoaderContext } from "./DestructionListReview.loader";
 
 const meta: Meta<typeof DestructionListReviewPage> = {
   title: "Pages/DestructionList/DestructionListReviewPage",
