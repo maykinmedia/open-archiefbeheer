@@ -132,6 +132,8 @@ jobs:
         with:
           working-directory: frontend/coverage
           files: ./clover.xml
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   docs:
    name: Build and check documentation
