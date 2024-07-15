@@ -72,6 +72,8 @@ jobs:
         with:
           working-directory: backend
           files: ./coverage.xml
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   frontend-build:
     name: Build frontend
