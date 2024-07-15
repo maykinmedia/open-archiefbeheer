@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import App from "./App";
+import { appLoader } from "./App.loader";
 import "./index.css";
 import {
   DestructionListCreatePage,
@@ -30,6 +31,7 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
+    loader: appLoader,
     element: <App />,
     children: [
       {
