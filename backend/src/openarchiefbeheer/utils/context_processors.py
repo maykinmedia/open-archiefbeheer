@@ -3,6 +3,7 @@ from django.conf import settings as django_settings
 
 def settings(request):
     public_settings = (
+        "FRONTEND_URL",
         "GOOGLE_ANALYTICS_ID",
         "ENVIRONMENT",
         "SHOW_ALERT",
