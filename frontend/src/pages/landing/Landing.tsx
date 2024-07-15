@@ -6,7 +6,7 @@ import {
   P,
   Tooltip,
 } from "@maykin-ui/admin-ui";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
@@ -61,6 +61,7 @@ export const STATUSES: FieldSet[] = [
 ];
 
 export const Landing = () => {
+  const navigate = useNavigate();
   const { statusMap, user } = useLoaderData() as LandingContext;
 
   /**
@@ -106,6 +107,7 @@ export const Landing = () => {
     lists.map((list) => {
       const currentAssignee = list.assignee;
       const otherAssignees = [...list.assignees].splice(1);
+      const href = constructHref(user, list) || "";
 
       const footer = (
         <P muted size="xs">
@@ -121,7 +123,8 @@ export const Landing = () => {
 
       return {
         key: list.name,
-        href: constructHref(user, list),
+        onClick: () => navigate(href),
+        disabled: !href,
         title: list.name,
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
