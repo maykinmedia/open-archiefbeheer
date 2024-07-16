@@ -1,41 +1,30 @@
 import { Zaak } from "../../types";
-import { ZaakSelection } from "../zaakSelection/zaakSelection";
 import { User } from "./auth";
 import { request } from "./request";
 
-export type ZaakSelectionAPIResponse = {
+export type ZaakSelection<DetailType = unknown> = {
   key: string;
   lastUpdated: string;
   lastUpdatedBy: User;
-  items: [
-    {
-      zaak: Zaak["url"];
-      selected: boolean;
-      detail: unknown;
-    },
-  ];
+  items: ZaakSelectionItem<DetailType>[];
+};
+
+export type ZaakSelectionItem<DetailType = unknown> = {
+  zaak: Zaak["url"];
+  selected: boolean;
+  detail: DetailType;
 };
 
 /**
  * Adds zaken to zaak selection.
  */
-export async function getRemoteZaakSelection(
+export async function getRemoteZaakSelection<DetailType = unknown>(
   key: string,
   params?: URLSearchParams,
 ) {
   const response = await request("GET", `/zaak-selection/${key}/`, params);
-  const data: ZaakSelectionAPIResponse = await response.json();
-  const zaakSelection: ZaakSelection = data.items.reduce(
-    (acc, val) => ({
-      ...acc,
-      [val.zaak as string]: {
-        selected: val.selected,
-        detail: val.detail,
-      },
-    }),
-    {},
-  );
-  return zaakSelection;
+  const remoteZaakSelection: ZaakSelection<DetailType> = await response.json();
+  return remoteZaakSelection;
 }
 
 /**

@@ -205,9 +205,7 @@ export function DestructionListReviewPage() {
     const zaakSelection = await getZaakSelection<FormDataState>(
       destructionListReviewKey,
     );
-    const zaakSelectionSelected = Object.values(zaakSelection).filter(
-      (f) => f.selected,
-    );
+    const zaakSelectionSelected = zaakSelection.items.filter((i) => i.selected);
     setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
   };
 

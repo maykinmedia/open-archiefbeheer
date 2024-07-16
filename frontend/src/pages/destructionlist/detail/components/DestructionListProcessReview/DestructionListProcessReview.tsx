@@ -18,8 +18,8 @@ import {
   ReviewItemResponse,
   ReviewResponse,
 } from "../../../../../lib/api/reviewResponse";
+import { ZaakSelection } from "../../../../../lib/api/zaakSelection";
 import {
-  ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
 } from "../../../../../lib/zaakSelection/zaakSelection";
@@ -81,9 +81,9 @@ export function DestructionListProcessReview() {
   //
 
   // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([, { selected }]) => selected)
-    .map(([url]) => ({ url }));
+  const selectedUrls = zaakSelection.items
+    .filter((i) => i.selected)
+    .map((i) => ({ url: i.zaak as string }));
 
   //
   // PROCESSING REVIEW MODE VARS
@@ -189,8 +189,9 @@ export function DestructionListProcessReview() {
         comment: data.comment as string,
         itemsResponses:
           reviewItems?.map<ReviewItemResponse>((ri) => {
-            const detail = zaakSelection[ri.zaak.url || ""]
-              .detail as ProcessZaakReviewSelectionDetail;
+            const detail = zaakSelection.items.find(
+              (i) => i.zaak === ri.zaak.url,
+            )?.detail as ProcessZaakReviewSelectionDetail;
 
             return {
               reviewItem: ri.pk,
@@ -225,10 +226,9 @@ export function DestructionListProcessReview() {
     zaakSelection as ZaakSelection<ProcessZaakReviewSelectionDetail>;
 
   // The details possibly provided by the user after processing a review for a zaak.
-  const processZaakReviewDetail =
-    processZaakReviewSelectionState?.[
-      processZaakReviewModalState.zaak?.url || ""
-    ]?.detail;
+  const processZaakReviewDetail = processZaakReviewSelectionState?.items.find(
+    (i) => i.zaak === processZaakReviewModalState.zaak?.url,
+  )?.detail;
 
   const processZaakReviewSelectionActions: ButtonProps[] = [
     {

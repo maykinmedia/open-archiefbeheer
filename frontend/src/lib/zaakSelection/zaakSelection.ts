@@ -1,24 +1,15 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
+import { whoAmI } from "../api/auth";
 import {
+  ZaakSelection,
+  ZaakSelectionItem,
   addToRemoteZaakSelection,
   clearRemoteZaakSelection,
   getRemoteZaakSelection,
   removeFromRemoteZaakSelection,
 } from "../api/zaakSelection";
-
-export type ZaakSelection<DetailType = unknown> = {
-  /**
-   * A `Zaak.url` mapped to a `boolean`.
-   * - `true`: The zaak is added to the selection.
-   * - `false`: The zaak is removed from the selection.
-   */
-  [index: string]: {
-    selected: boolean;
-    detail?: DetailType;
-  };
-};
 
 /**
  * Adds `zaken` to zaak selection identified by key.
@@ -35,7 +26,6 @@ export async function addToZaakSelection<DetailType = unknown>(
   detail?: DetailType,
   remote = false,
 ) {
-  console.log("addToZaakSelection");
   await _mutateLocalZaakSelection(key, zaken, true, detail);
 
   if (remote) {
@@ -60,7 +50,6 @@ export async function removeFromZaakSelection(
   zaken: string[] | Zaak[],
   remote = false,
 ) {
-  console.log("removeFromZaakSelection");
   await _mutateLocalZaakSelection(key, zaken, false);
 
   if (remote) {
@@ -82,13 +71,19 @@ export async function getZaakSelection<DetailType = unknown>(
   key: string,
   remote = false,
 ) {
-  console.log("getZaakSelection");
-
   if (remote) {
-    return (await getRemoteZaakSelection(key)) as ZaakSelection<DetailType>;
+    return await getRemoteZaakSelection<DetailType>(key);
   } else {
     const computedKey = _getComputedKey(key);
-    const json = sessionStorage.getItem(computedKey) || "{}";
+    const defaultZaakSelection: ZaakSelection = {
+      key: key,
+      lastUpdated: "",
+      lastUpdatedBy: await whoAmI(),
+      items: [],
+    };
+    const json =
+      sessionStorage.getItem(computedKey) ||
+      JSON.stringify(defaultZaakSelection);
     return JSON.parse(json) as ZaakSelection<DetailType>;
   }
 }
@@ -101,8 +96,6 @@ export async function getZaakSelection<DetailType = unknown>(
  * @param remote If true, the zaak selection is synced to the backend.
  */
 export async function clearZaakSelection(key: string, remote = false) {
-  console.log("clearZaakSelection");
-
   const computedKey = _getComputedKey(key);
   const json = "{}";
   sessionStorage.setItem(computedKey, json);
@@ -128,25 +121,28 @@ export async function _mutateLocalZaakSelection<DetailType = unknown>(
   detail?: DetailType,
 ) {
   const currentZaakSelection = await getZaakSelection<DetailType>(key);
-  const urls = _getZaakUrls(zaken);
-
-  const zaakSelectionOverrides = urls.reduce<ZaakSelection<DetailType>>(
-    (partialZaakSelection, url) => ({
-      ...partialZaakSelection,
-      [url]: {
-        selected,
-        detail,
-      },
+  const currentItems = currentZaakSelection?.items || [];
+  const newItems = _getZaakUrls(zaken).map<ZaakSelectionItem<DetailType>>(
+    (url) => ({
+      zaak: url,
+      selected,
+      detail: detail as DetailType,
     }),
-    {},
   );
 
-  const combinedZaakSelection = {
-    ...currentZaakSelection,
-    ...zaakSelectionOverrides,
-  };
+  const combinedItems = [...currentItems, ...newItems];
 
-  await _setLocalZaakSelection(key, combinedZaakSelection);
+  const distinctItems = Object.values(
+    combinedItems.reduce<{ [index: string]: ZaakSelectionItem }>(
+      (acc, i) => ({ ...acc, [i.zaak as string]: i }),
+      {},
+    ),
+  );
+
+  await _setLocalZaakSelection(key, {
+    ...currentZaakSelection,
+    items: distinctItems,
+  });
 }
 
 /**
@@ -160,8 +156,6 @@ export async function _setLocalZaakSelection<DetailType = unknown>(
   key: string,
   zaakSelection: ZaakSelection<DetailType>,
 ) {
-  console.log("setZaakSelection");
-
   const computedKey = _getComputedKey(key);
   const json = JSON.stringify(zaakSelection);
   sessionStorage.setItem(computedKey, json);

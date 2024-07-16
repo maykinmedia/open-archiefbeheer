@@ -36,9 +36,9 @@ export function DestructionListCreatePage() {
       storageKey,
       Boolean(sessionHash),
     );
-    const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selection]) => selection.selected)
-      .map(([url]) => url);
+    const zaakUrls = zaakSelection.items
+      .filter((i) => i.selected)
+      .map((i) => i.zaak as string);
     const { name, assigneeIds } = data;
 
     const formData = new FormData();

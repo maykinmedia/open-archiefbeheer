@@ -51,7 +51,8 @@ export const destructionListCreateLoader = loginRequired(
         Boolean(sessionHash),
       );
       const selectedZaken = zaken.results.filter(
-        (zaak) => zaakSelection[zaak.url as string]?.selected,
+        (zaak) =>
+          zaakSelection.items.find((i) => i.zaak === zaak.url)?.selected,
       );
 
       return {

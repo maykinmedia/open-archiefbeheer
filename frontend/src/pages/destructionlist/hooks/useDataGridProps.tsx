@@ -96,8 +96,9 @@ export function useDataGridProps(
   //
   const getSpecificZaakSelection = async (url: string) => {
     const zaakSelection = await getZaakSelection(storageKey, true);
-    if (!zaakSelection[url]?.selected) return;
-    return zaakSelection[url].detail;
+    const item = zaakSelection.items.find((i) => i.zaak === url);
+    if (!item?.selected) return;
+    return item.detail;
   };
 
   const hasActions = Boolean(actions?.length);
