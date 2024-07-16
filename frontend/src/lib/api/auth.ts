@@ -14,6 +14,7 @@ export type Role = {
   name: string;
   canStartDestruction: boolean;
   canReviewDestruction: boolean;
+  canReviewFinalList: boolean;
   canViewCaseDetails: boolean;
 };
 

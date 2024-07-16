@@ -1,5 +1,5 @@
 import { destructionListFactory } from "../../fixtures/destructionList";
-import { userFactory } from "../../fixtures/user";
+import { roleFactory, userFactory } from "../../fixtures/user";
 import {
   STATUSES_ELIGIBLE_FOR_EDIT,
   STATUSES_ELIGIBLE_FOR_REVIEW,
@@ -16,6 +16,96 @@ import {
   canUpdateDestructionList,
   canViewDestructionList,
 } from "./permissions";
+
+describe("canReviewDestructionList()", () => {
+  test("canReviewDestructionList() returns false if user has no appropriate role", () => {
+    const me = userFactory({
+      pk: 1,
+      role: roleFactory({
+        canReviewDestruction: false,
+        canReviewFinalList: false,
+      }),
+    });
+
+    const list = destructionListFactory({
+      assignee: me,
+      status: "ready_to_review",
+    });
+
+    expect(canReviewDestructionList(me, list)).toBeFalsy();
+  });
+  test("canReviewDestructionList() returns false if list has no appropriate status", () => {
+    const me = userFactory({
+      pk: 1,
+      role: roleFactory({
+        canReviewDestruction: true,
+        canReviewFinalList: true,
+      }),
+    });
+
+    const list = destructionListFactory({
+      assignee: me,
+      status: "changes_requested",
+    });
+
+    expect(canReviewDestructionList(me, list)).toBeFalsy();
+  });
+
+  test("canReviewDestructionList() returns false if user is assignee", () => {
+    const me = userFactory({
+      pk: 1,
+      role: roleFactory({
+        canReviewDestruction: true,
+        canReviewFinalList: true,
+      }),
+    });
+
+    const other = userFactory({
+      pk: 2,
+      role: roleFactory({
+        canReviewDestruction: true,
+        canReviewFinalList: true,
+      }),
+    });
+
+    const list = destructionListFactory({
+      assignee: other,
+      status: "ready_to_review",
+    });
+
+    expect(canReviewDestructionList(me, list)).toBeFalsy();
+  });
+
+  test("canReviewDestructionList() returns true", () => {
+    const me = userFactory({
+      pk: 1,
+      role: roleFactory({
+        canReviewDestruction: true,
+        canReviewFinalList: false,
+      }),
+    });
+
+    const other = userFactory({
+      pk: 2,
+      role: roleFactory({
+        canReviewDestruction: false,
+        canReviewFinalList: true,
+      }),
+    });
+
+    const list1 = destructionListFactory({
+      assignee: me,
+      status: "ready_to_review",
+    });
+    const list2 = destructionListFactory({
+      assignee: other,
+      status: "ready_to_review",
+    });
+
+    expect(canReviewDestructionList(me, list1)).toBeTruthy();
+    expect(canReviewDestructionList(other, list2)).toBeTruthy();
+  });
+});
 
 DESTRUCTION_LIST_STATUSES.forEach((status) => {
   describe(`canStartDestructionList() with destruction list status: ${status}`, () => {

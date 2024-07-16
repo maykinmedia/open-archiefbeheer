@@ -90,6 +90,7 @@ export const Landing = () => {
           : undefined;
 
       case "ready_to_review":
+      case "ready_for_archivist":
         return canReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
           : undefined;

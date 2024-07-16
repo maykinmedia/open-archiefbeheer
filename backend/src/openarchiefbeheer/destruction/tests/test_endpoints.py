@@ -835,6 +835,41 @@ class DestructionListReviewViewSetTest(APITestCase):
             1,
         )
 
+    def test_create_review_archivist(self):
+        archivist = UserFactory.create(
+            username="archivaris",
+            email="archivaris@oab.nl",
+            role__can_review_final_list=True,
+        )
+        destruction_list = DestructionListFactory.create(assignee=archivist)
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            user=archivist,
+            role=ListRole.archivist,
+            destruction_list=destruction_list,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.accepted,
+        }
+        self.client.force_authenticate(user=archivist)
+        response = self.client.post(
+            reverse("api:destruction-list-reviews-list"), data=data
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            DestructionListReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            1,
+        )
+
     def test_create_review_rejected(self):
         reviewer = UserFactory.create(
             username="reviewer",

@@ -1,6 +1,9 @@
 import { BadgeProps } from "@maykin-ui/admin-ui";
 
-import { DestructionListStatus } from "../../../lib/api/destructionLists";
+import {
+  DESTRUCTION_LIST_STATUSES,
+  DestructionListStatus,
+} from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 
 export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
@@ -18,7 +21,8 @@ export const REVIEW_DECISION_LEVEL_MAPPING: Record<
 
 export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
 export const STATUSES_ELIGABLE_FOR_REASSIGNMENT = ["internally_reviewed"];
-export const STATUSES_ELIGIBLE_FOR_REVIEW = ["ready_to_review"];
+export const STATUSES_ELIGIBLE_FOR_REVIEW: (typeof DESTRUCTION_LIST_STATUSES)[number][] =
+  ["ready_to_review", "ready_for_archivist"];
 
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
   changes_requested: "Wijzigingen aangevraagd",

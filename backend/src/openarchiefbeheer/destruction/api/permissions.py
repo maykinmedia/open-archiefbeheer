@@ -16,7 +16,10 @@ class CanReviewPermission(permissions.BasePermission):
     message = _("You are not allowed to review a destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_review_destruction
+        return request.user.role and (
+            request.user.role.can_review_destruction
+            or request.user.role.can_review_final_list
+        )
 
 
 class CanUpdateDestructionList(permissions.BasePermission):
