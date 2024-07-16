@@ -1,4 +1,4 @@
-import { AttributeData, LoginTemplate } from "@maykin-ui/admin-ui";
+import { AttributeData, LoginTemplate, forceArray } from "@maykin-ui/admin-ui";
 import { useActionData, useSubmit } from "react-router-dom";
 
 import "./Login.css";
@@ -31,15 +31,18 @@ export function LoginPage({ ...props }: LoginProps) {
   const submit = useSubmit();
 
   const formErrors = Object.fromEntries(
-    Object.entries(actionData).map(([key, values]) => [key, values.join(", ")]),
+    Object.entries(actionData).map(([key, values]) => [
+      key,
+      forceArray(values)?.join(", "),
+    ]),
   );
-  const { nonFieldErrors, ...errors } = formErrors;
+  const { detail, nonFieldErrors, ...errors } = formErrors;
 
   return (
     <LoginTemplate
-      slotPrimaryNavigation={<></>} // FIXME: Shoudl be easier to override
+      slotPrimaryNavigation={<></>} // FIXME: Should be easier to override
       formProps={{
-        nonFieldErrors,
+        nonFieldErrors: nonFieldErrors || detail,
         errors,
         fields,
         onSubmit: (_, data) =>
