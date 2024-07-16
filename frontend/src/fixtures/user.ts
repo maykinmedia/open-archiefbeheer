@@ -1,5 +1,14 @@
-import { User } from "../lib/api/auth";
+import { Role, User } from "../lib/api/auth";
 import { createArrayFactory, createObjectFactory } from "./factory";
+
+const FIXTURE_ROLE = {
+  name: "Test Role",
+  canStartDestruction: false,
+  canReviewDestruction: false,
+  canReviewFinalList: false,
+  canViewCaseDetails: true,
+};
+export const roleFactory = createObjectFactory<Role>(FIXTURE_ROLE);
 
 const FIXTURE_USER: User = {
   pk: 1,
@@ -7,12 +16,7 @@ const FIXTURE_USER: User = {
   firstName: "Test",
   lastName: "User",
   email: "user@example.com",
-  role: {
-    name: "Test Role",
-    canStartDestruction: false,
-    canReviewDestruction: false,
-    canViewCaseDetails: true,
-  },
+  role: roleFactory(),
 };
 
 const FIXTURE_RECORD_MANAGER: User = {
@@ -25,6 +29,7 @@ const FIXTURE_RECORD_MANAGER: User = {
     name: "recordmanager",
     canStartDestruction: true,
     canReviewDestruction: false,
+    canReviewFinalList: false,
     canViewCaseDetails: false,
   },
 };
@@ -39,6 +44,7 @@ const FIXTURE_BEOORDELAAR: User = {
     name: "beoordelaar",
     canStartDestruction: false,
     canReviewDestruction: true,
+    canReviewFinalList: false,
     canViewCaseDetails: false,
   },
 };
@@ -53,6 +59,7 @@ const FIXTURE_PROCES_EIGENAAR: User = {
     name: "proceseigenaar",
     canStartDestruction: false,
     canReviewDestruction: true,
+    canReviewFinalList: false,
     canViewCaseDetails: false,
   },
 };

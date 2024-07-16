@@ -10,6 +10,7 @@ class RoleSerializer(serializers.ModelSerializer):
             "name",
             "can_start_destruction",
             "can_review_destruction",
+            "can_review_final_list",
             "can_view_case_details",
         )
 

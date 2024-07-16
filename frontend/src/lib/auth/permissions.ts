@@ -22,7 +22,7 @@ export function canReviewDestructionList(
   user: User,
   destructionList: DestructionList,
 ) {
-  if (!user.role.canReviewDestruction) {
+  if (!(user.role.canReviewDestruction || user.role.canReviewFinalList)) {
     return false;
   }
 
