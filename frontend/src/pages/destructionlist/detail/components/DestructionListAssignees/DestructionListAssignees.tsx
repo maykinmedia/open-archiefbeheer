@@ -41,13 +41,15 @@ export function DestructionListAssignees({
     open: false,
   });
 
-  const fields = reviewerAssignees.map((_, i) => ({
-    name: `reviewer_${i + 1}`,
-    type: "string",
-    options: reviewers.map((user) => ({
-      label: formatUser(user),
-    })),
-  }));
+  const fields = reviewerAssignees
+    .filter((r) => r.user.role.canReviewDestruction)
+    .map((_, i) => ({
+      name: `reviewer_${i + 1}`,
+      type: "string",
+      options: reviewers.map((user) => ({
+        label: formatUser(user),
+      })),
+    }));
 
   const labeledObject = reviewerAssignees.reduce(
     (acc, val, i) => ({
