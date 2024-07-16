@@ -87,7 +87,7 @@ export function DestructionListToolbar({
             <AttributeTable
               object={{
                 "Laatste review door":
-                  review.author && formatUser(review.author),
+                  review.author && formatUser(review.author, true),
                 Opmerking: review.listFeedback,
                 Beoordeling: (
                   <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
