@@ -1,7 +1,8 @@
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect } from "react-router-dom";
 
-import { login, logout } from "../../lib/api/auth";
+import { login } from "../../lib/api/auth";
+import { cacheDelete } from "../../lib/cache/cache";
 import "./Login.css";
 
 /**
@@ -14,7 +15,7 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   const password = formData.get("password");
 
   try {
-    await logout();
+    await cacheDelete("whoAmI");
     await login(username as string, password as string);
     const url = new URL(request.url);
     const next = url.searchParams.get("next") || "/";
