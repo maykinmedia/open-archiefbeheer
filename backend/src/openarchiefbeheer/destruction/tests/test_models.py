@@ -321,14 +321,7 @@ class DestructionListTest(TestCase):
             destruction_list=destruction_list,
         )
 
-        with patch(
-            "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(
-                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/2"]
-            ),
-        ):
-            destruction_list.assign_next()
-
+        destruction_list.assign_next()
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
