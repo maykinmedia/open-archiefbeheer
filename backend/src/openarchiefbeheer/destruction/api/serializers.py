@@ -281,12 +281,36 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs: dict) -> dict:
         destruction_list = attrs["destruction_list"]
-        if destruction_list.assignee != self.context["request"].user:
+        user = self.context["request"].user
+
+        # User is not assigned
+        if destruction_list.assignee != user:
             raise ValidationError(
                 {
                     "author": _(
                         "This user is not currently assigned to the destruction list, "
                         "so they cannot create a review at this stage."
+                    )
+                }
+            )
+
+        # User is not permitted based on role + status
+        if (
+            (
+                destruction_list.status == ListStatus.ready_to_review
+                and not user.role.can_review_destruction
+            )
+            or (
+                destruction_list.status == ListStatus.ready_for_archivist
+                and not user.role.can_review_final_list
+            )
+            or destruction_list.status
+            not in [ListStatus.ready_to_review, ListStatus.ready_for_archivist]
+        ):
+            raise ValidationError(
+                {
+                    "author": _(
+                        "The status of this destruction list prevents you from creating a review at this stage."
                     )
                 }
             )

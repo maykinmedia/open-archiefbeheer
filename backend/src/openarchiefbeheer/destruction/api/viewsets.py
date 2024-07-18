@@ -27,6 +27,7 @@ from .filtersets import (
 )
 from .permissions import (
     CanMarkListAsFinal,
+    CanReviewPermission,
     CanStartDestructionPermission,
     CanTriggerDeletion,
     CanUpdateDestructionList,
@@ -277,6 +278,13 @@ class DestructionListReviewViewSet(
     queryset = DestructionListReview.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListReviewFilterset
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated & CanReviewPermission]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 @extend_schema_view(
