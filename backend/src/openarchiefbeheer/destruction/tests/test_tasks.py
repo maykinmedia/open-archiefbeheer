@@ -206,7 +206,7 @@ class ProcessDeletingZakenTests(TestCase):
         calls_kwargs = [
             {
                 "zaak": call.kwargs["zaak"].url,
-                "result_store": call.kwargs["result_store"].pk,
+                "result_store": call.kwargs["result_store"].store.pk,
             }
             for call in m_delete.call_args_list
         ]

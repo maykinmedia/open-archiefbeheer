@@ -111,7 +111,7 @@ class DestructionListItemTest(TestCase):
         m_delete_in_openzaak.assert_called_once()
         kwargs = m_delete_in_openzaak.call_args_list[0].kwargs
         self.assertEqual(kwargs["zaak"].url, zaak.url)
-        self.assertEqual(kwargs["result_store"].pk, item.pk)
+        self.assertEqual(kwargs["result_store"].store.pk, item.pk)
 
         item.refresh_from_db()
 

@@ -20,6 +20,7 @@ from openarchiefbeheer.destruction.constants import (
     ListStatus,
     ReviewDecisionChoices,
 )
+from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
@@ -270,7 +271,9 @@ class DestructionListItem(models.Model):
                 )
                 raise exc
 
-            delete_zaak_and_related_objects(zaak=zaak, result_store=self)
+            delete_zaak_and_related_objects(
+                zaak=zaak, result_store=ResultStore(store=self)
+            )
 
             zaak.delete()
 
