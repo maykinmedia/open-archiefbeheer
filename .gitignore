@@ -40,3 +40,6 @@ backend/log/nginx/*.log*
 # Static files
 backend/src/openarchiefbeheer/static/bundles/
 backend/src/openarchiefbeheer/fonts/
+backend/src/openarchiefbeheer/static/css
+backend/src/openarchiefbeheer/static/js
+backend/src/openarchiefbeheer/templates/index.html
