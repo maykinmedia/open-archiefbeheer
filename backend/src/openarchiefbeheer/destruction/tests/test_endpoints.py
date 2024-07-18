@@ -806,7 +806,9 @@ class DestructionListReviewViewSetTest(APITestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
             role=ListRole.author,
@@ -835,13 +837,67 @@ class DestructionListReviewViewSetTest(APITestCase):
             1,
         )
 
+    def test_create_review_rejected(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            role__can_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
+        items = DestructionListItemFactory.create_batch(
+            3, destruction_list=destruction_list
+        )
+        DestructionListAssigneeFactory.create(
+            user=destruction_list.author,
+            role=ListRole.author,
+            destruction_list=destruction_list,
+        )
+
+        data = {
+            "destruction_list": destruction_list.uuid,
+            "decision": ReviewDecisionChoices.rejected,
+            "list_feedback": "I disagree with this list",
+            "zaken_reviews": [
+                {
+                    "zaak_url": items[0].zaak,
+                    "feedback": "This item should not be deleted.",
+                },
+                {
+                    "zaak_url": items[1].zaak,
+                    "feedback": "We should wait to delete this.",
+                },
+            ],
+        }
+        self.client.force_authenticate(user=reviewer)
+        response = self.client.post(
+            reverse("api:destruction-list-reviews-list"), data=data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            DestructionListReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            1,
+        )
+        self.assertEqual(
+            DestructionListItemReview.objects.filter(
+                destruction_list=destruction_list
+            ).count(),
+            2,
+        )
+
     def test_create_review_archivist(self):
         archivist = UserFactory.create(
             username="archivaris",
             email="archivaris@oab.nl",
             role__can_review_final_list=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=archivist)
+        destruction_list = DestructionListFactory.create(
+            assignee=archivist, status=ListStatus.ready_for_archivist
+        )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
             role=ListRole.author,
@@ -870,13 +926,15 @@ class DestructionListReviewViewSetTest(APITestCase):
             1,
         )
 
-    def test_create_review_rejected(self):
+    def test_create_review_archivist_rejected(self):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            role__can_review_final_list=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_for_archivist
+        )
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
         )
@@ -972,7 +1030,9 @@ class DestructionListReviewViewSetTest(APITestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         zaken_short = ZaakFactory.create_batch(
             2, zaaktype="http://catalogi-api.nl/zaaktype/1"
         )
@@ -1026,7 +1086,9 @@ class DestructionListReviewViewSetTest(APITestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         zaken_short = ZaakFactory.create_batch(
             2, zaaktype="http://catalogi-api.nl/zaaktype/1"
         )
