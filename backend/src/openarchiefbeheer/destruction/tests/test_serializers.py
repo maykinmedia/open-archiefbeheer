@@ -487,7 +487,9 @@ class DestructionListReviewSerializerTests(TestCase):
             role__can_review_destruction=True,
             role__can_review_final_list=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=user, status=ListStatus.changes_requested)
+        destruction_list = DestructionListFactory.create(
+            assignee=user, status=ListStatus.changes_requested
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -503,7 +505,9 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["author"][0],
-            _("The status of this destruction list prevents you from creating a review at this stage."),
+            _(
+                "The status of this destruction list prevents you from creating a review at this stage."
+            ),
         )
 
     @override_settings(LANGUAGE_CODE="en")
@@ -513,7 +517,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer1@oab.nl",
             role__can_review_destruction=False,
         )
-        destruction_list = DestructionListFactory.create(assignee=user, status=ListStatus.ready_to_review)
+        destruction_list = DestructionListFactory.create(
+            assignee=user, status=ListStatus.ready_to_review
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -529,7 +535,9 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["author"][0],
-            _("The status of this destruction list prevents you from creating a review at this stage."),
+            _(
+                "The status of this destruction list prevents you from creating a review at this stage."
+            ),
         )
 
     @override_settings(LANGUAGE_CODE="en")
@@ -539,7 +547,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer1@oab.nl",
             role__can_review_final_list=False,
         )
-        destruction_list = DestructionListFactory.create(assignee=user, status=ListStatus.ready_for_archivist)
+        destruction_list = DestructionListFactory.create(
+            assignee=user, status=ListStatus.ready_for_archivist
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -555,7 +565,9 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors["author"][0],
-            _("The status of this destruction list prevents you from creating a review at this stage."),
+            _(
+                "The status of this destruction list prevents you from creating a review at this stage."
+            ),
         )
 
     @override_settings(LANGUAGE_CODE="en")
@@ -646,8 +658,9 @@ class DestructionListReviewSerializerTests(TestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=reviewer, author__email="record_manager@oab.nl",
-            status=ListStatus.ready_to_review
+            assignee=reviewer,
+            author__email="record_manager@oab.nl",
+            status=ListStatus.ready_to_review,
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -703,8 +716,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer,
-            status=ListStatus.ready_to_review)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         item = DestructionListItemFactory.create(destruction_list=destruction_list)
 
         data = {
@@ -737,8 +751,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer,
-            status=ListStatus.ready_to_review)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -765,8 +780,7 @@ class DestructionListReviewSerializerTests(TestCase):
             role__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=reviewer, name="Test list",
-            status=ListStatus.ready_to_review
+            assignee=reviewer, name="Test list", status=ListStatus.ready_to_review
         )
         items = DestructionListItemFactory.create_batch(
             3, destruction_list=destruction_list
@@ -828,8 +842,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer,
-            status=ListStatus.ready_to_review)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         # Not part of the destruction list
         item = DestructionListItemFactory.create(status=ListItemStatus.suggested)
 
@@ -865,8 +880,9 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             role__can_review_destruction=True,
         )
-        destruction_list = DestructionListFactory.create(assignee=reviewer,
-            status=ListStatus.ready_to_review)
+        destruction_list = DestructionListFactory.create(
+            assignee=reviewer, status=ListStatus.ready_to_review
+        )
         item = DestructionListItemFactory.create(
             status=ListItemStatus.removed, destruction_list=destruction_list
         )
