@@ -326,6 +326,11 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
     # via -r requirements/dev.in
+greenlet==3.0.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   playwright
 idna==3.7
     # via
     #   -c requirements/ci.txt
@@ -438,6 +443,11 @@ platformdirs==4.2.1
     #   -r requirements/ci.txt
     #   black
     #   pylint
+playwright==1.45.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
@@ -467,6 +477,11 @@ pycparser==2.22
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cffi
+pyee==11.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   playwright
 pyflakes==3.2.0
     # via
     #   -c requirements/ci.txt
@@ -508,6 +523,17 @@ pytest==8.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   pytest-base-url
+    #   pytest-playwright
+pytest-base-url==2.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
+pytest-playwright==0.5.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 python-dateutil==2.9.0.post0
     # via
     #   -c requirements/ci.txt
@@ -524,6 +550,11 @@ python-dotenv==1.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+python-slugify==8.0.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
 pyyaml==6.0.1
     # via
     #   -c requirements/ci.txt
@@ -552,6 +583,7 @@ requests==2.32.3
     #   -r requirements/ci.txt
     #   ape-pie
     #   django-rosetta
+    #   pytest-base-url
     #   requests-mock
     #   sphinx
     #   zgw-consumers
@@ -649,6 +681,11 @@ testfixtures==8.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+text-unidecode==1.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   python-slugify
 tomlkit==0.12.4
     # via
     #   -c requirements/ci.txt
@@ -658,6 +695,7 @@ typing-extensions==4.11.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   pyee
     #   qrcode
     #   zgw-consumers
 tzdata==2024.1
