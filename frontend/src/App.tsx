@@ -45,6 +45,11 @@ function App() {
             },
             "spacer",
             {
+              children: <Outline.CogIcon />,
+              title: "Settings",
+              onClick: () => navigate("/settings"),
+            },
+            {
               children: <Outline.ArrowRightOnRectangleIcon />,
               title: "Uitloggen",
               onClick: () => navigate("/logout"),
