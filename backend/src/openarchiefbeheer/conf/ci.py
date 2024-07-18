@@ -1,6 +1,8 @@
 import os
 import warnings
 
+from .utils import config
+
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 # Do not log requests in CI/tests:
@@ -9,6 +11,11 @@ os.environ.setdefault("SECRET_KEY", "dummy")
 # * it conflicts with SimpleTestCase in some cases when the run-time configuration is
 #   looked up from the django-solo model
 os.environ.setdefault("LOG_REQUESTS", "no")
+
+# Playwright settings
+PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
+PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
+PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
 
 from .base import *  # noqa isort:skip
 
@@ -24,6 +31,8 @@ CACHES.update(
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
 
 ENVIRONMENT = "CI"
+
+SERVE_FRONTEND = config("SERVE_FRONTEND", default=False)
 
 #
 # Django-axes
