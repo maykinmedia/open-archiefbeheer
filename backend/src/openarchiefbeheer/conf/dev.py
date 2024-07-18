@@ -1,6 +1,8 @@
 import os
 import warnings
 
+from .utils import config
+
 os.environ.setdefault("DEBUG", "yes")
 os.environ.setdefault("ALLOWED_HOSTS", "*")
 os.environ.setdefault(
@@ -91,6 +93,14 @@ warnings.filterwarnings(
     RuntimeWarning,
     r"django\.db\.models\.fields",
 )
+
+# Playwright settings
+PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
+PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
+PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
+
+# Serve the frontend on /.
+SERVE_FRONTEND = config("SERVE_FRONTEND", default=False)
 
 # Override settings with local settings.
 try:
