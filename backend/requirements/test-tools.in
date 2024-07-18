@@ -15,6 +15,7 @@ tblib
 pytest  # documentation tests
 testfixtures
 vcrpy
+pytest-playwright 
 
 # Documentation
 sphinx
