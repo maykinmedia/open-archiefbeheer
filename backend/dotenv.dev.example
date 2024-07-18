@@ -1,0 +1,21 @@
+DISABLE_2FA=yes
+
+ALLOWED_HOSTS=localhost
+CORS_ALLOWED_ORIGINS=http://localhost:8080,http://localhost:3000
+CSRF_TRUSTED_ORIGINS=http://localhost:3000
+CSRF_COOKIE_SAMESITE='None'
+CSRF_COOKIE_SECURE=False
+
+SESSION_COOKIE_SAMESITE='None'
+SESSION_COOKIE_SECURE=False
+
+# For openzaak being slow
+REQUESTS_READ_TIMEOUT=5000
+
+# For debugging celery tasks
+# CELERY_TASK_ALWAYS_EAGER=True
+
+# For running e2e tests
+PLAYWRIGHT_BROWSER=firefox
+PLAYWRIGHT_HEADLESS=no
+SERVE_FRONTEND=no
