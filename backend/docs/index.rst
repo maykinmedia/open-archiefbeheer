@@ -15,4 +15,5 @@ Documentation
 
     general/index
     install/index
+    developers/index
     testing
