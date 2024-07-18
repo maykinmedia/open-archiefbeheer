@@ -141,18 +141,11 @@ class DestructionList(models.Model):
         reviewers[0].assign()
 
     def assign_next(self) -> None:
-        archivists = (
-            self.assignees.filter(role=ListRole.archivist).order_by("order").last()
-        )
         reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
 
-        if archivists and self.assignee == archivists.user:
-            self.get_author().assign()
-            self.set_status(ListStatus.ready_to_delete)
-            return
-
         # All reviewers have reviewed the draft destruction list
-        if self.assignee == reviewers.last().user:
+        last_reviewer = reviewers.last()
+        if last_reviewer and self.assignee == reviewers.last().user:
             self.get_author().assign()
             status = (
                 ListStatus.ready_to_delete
@@ -162,6 +155,17 @@ class DestructionList(models.Model):
             self.set_status(status)
             return
 
+        # Check if archivist has approved the list.
+        try:
+            archivist = self.assignees.get(role=ListRole.archivist)
+            if archivist and self.assignee == archivist.user:
+                self.get_author().assign()
+                self.set_status(ListStatus.ready_to_delete)
+                return
+        except DestructionListAssignee.DoesNotExist:
+            pass
+
+        # Assign (next) reviewer
         current_assignee = self.assignees.get(user=self.assignee)
         next_reviewer = current_assignee.next()
         next_reviewer.assign()
