@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { ReactRouterDecorator } from "../../../.storybook/decorators";
 import { SettingsPage } from "./Settings";
 
 const meta: Meta<typeof SettingsPage> = {
   title: "Pages/Settings",
   component: SettingsPage,
+  decorators: [ReactRouterDecorator],
 };
 
 export default meta;
