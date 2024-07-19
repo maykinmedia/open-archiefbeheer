@@ -296,15 +296,7 @@ class DestructionListTest(TestCase):
         destruction_list = DestructionListFactory.create(
             assignee=archivist, status=ListStatus.ready_for_archivist
         )
-        zaken = ZaakFactory.create_batch(
-            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[0].url
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[1].url
-        )
+        DestructionListItemFactory.create_batch(2, destruction_list=destruction_list)
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
             role=ListRole.author,
