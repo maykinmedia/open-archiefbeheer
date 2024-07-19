@@ -155,15 +155,12 @@ class DestructionList(models.Model):
             self.set_status(status)
             return
 
-        # Check if archivist has approved the list.
-        try:
-            archivist = self.assignees.get(role=ListRole.archivist)
-            if archivist and self.assignee == archivist.user:
-                self.get_author().assign()
-                self.set_status(ListStatus.ready_to_delete)
-                return
-        except DestructionListAssignee.DoesNotExist:
-            pass
+        # Archivist has approved the (now final) list.
+        current_assignee = self.assignees.get(user=self.assignee)
+        if current_assignee.role == ListRole.archivist:
+            self.get_author().assign()
+            self.set_status(ListStatus.ready_to_delete)
+            return
 
         # Assign (next) reviewer
         current_assignee = self.assignees.get(user=self.assignee)
