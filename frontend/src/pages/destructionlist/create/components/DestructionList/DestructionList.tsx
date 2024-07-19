@@ -56,6 +56,7 @@ export function DestructionList({
             children: labelAction,
             onClick: onSubmitSelection,
             wrap: false,
+            variant: "primary",
           },
         ],
       }}
