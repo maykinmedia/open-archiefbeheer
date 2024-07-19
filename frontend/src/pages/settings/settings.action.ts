@@ -29,6 +29,14 @@ export async function settingsAction({ request, params }: ActionFunctionArgs) {
 async function patchArchiveConfigAction({ request }: ActionFunctionArgs) {
   const { payload } = await request.json();
   const _payload = payload as ArchiveConfiguration;
-  await patchArchiveConfiguration(_payload);
+
+  try {
+    await patchArchiveConfiguration(_payload);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return null;
 }
