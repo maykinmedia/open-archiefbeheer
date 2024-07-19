@@ -11,7 +11,7 @@ export type ArchiveConfiguration = {
  * const archiveConfig = await getArchiveConfig();
  * console.log(archiveConfig);
  */
-export async function getArchiveConfig(): Promise<ArchiveConfiguration> {
+export async function getArchiveConfiguration(): Promise<ArchiveConfiguration> {
   const response = await request("GET", "/archive-config");
   const promise: Promise<ArchiveConfiguration> = response.json();
   return promise;
@@ -26,7 +26,7 @@ export async function getArchiveConfig(): Promise<ArchiveConfiguration> {
  * await patchArchiveConfig(archiveConfig);
  * console.log("Archive configuration updated");
  */
-export async function patchArchiveConfig(
+export async function patchArchiveConfiguration(
   archiveConfig: ArchiveConfiguration,
 ): Promise<void> {
   const response = await request(

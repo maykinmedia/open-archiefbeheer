@@ -1,7 +1,10 @@
 import { ActionFunctionArgs } from "react-router-dom";
 
 import { JsonValue, TypedAction } from "../../hooks";
-import { ArchiveConfiguration, patchArchiveConfig } from "../../lib/api/config";
+import {
+  ArchiveConfiguration,
+  patchArchiveConfiguration,
+} from "../../lib/api/config";
 
 export type UpdateSettingsAction<T = JsonValue> = TypedAction<
   "PATCH-ARCHIVE-CONFIG",
@@ -26,6 +29,6 @@ export async function settingsAction({ request, params }: ActionFunctionArgs) {
 async function patchArchiveConfigAction({ request }: ActionFunctionArgs) {
   const { payload } = await request.json();
   const _payload = payload as ArchiveConfiguration;
-  await patchArchiveConfig(_payload);
+  await patchArchiveConfiguration(_payload);
   return null;
 }
