@@ -1,11 +1,11 @@
 import { ActionFunctionArgs } from "react-router-dom";
 
-import { GetArchiveConfigReturn, getArchiveConfig } from "../../lib/api/config";
+import { ArchiveConfiguration, getArchiveConfig } from "../../lib/api/config";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import { loginRequired } from "../../lib/auth/loaders";
 
 export type SettingsContext = {
-  zaaktypesShortProcess: GetArchiveConfigReturn["zaaktypesShortProcess"];
+  zaaktypesShortProcess: ArchiveConfiguration["zaaktypesShortProcess"];
   zaaktypeChoices: ZaaktypeChoice[];
 };
 
