@@ -445,7 +445,6 @@ class DestructionListSerializerTests(TestCase):
 
 
 class DestructionListReviewSerializerTests(TestCase):
-    @override_settings(LANGUAGE_CODE="en")
     def test_if_user_not_assigned_cannot_create_review(self):
         reviewer1 = UserFactory.create(
             username="reviewer1",
