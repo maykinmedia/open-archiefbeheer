@@ -132,7 +132,7 @@ export const Landing = () => {
             content={otherAssignees
               .map((a) => formatUser(a.user, true))
               .join(", ")}
-            placement="top"
+            placement="bottom"
           >
             <span>{footer}</span>
           </Tooltip>
