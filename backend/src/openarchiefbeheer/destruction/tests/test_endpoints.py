@@ -889,7 +889,7 @@ class DestructionListReviewViewSetTest(APITestCase):
             2,
         )
 
-    def test_create_review_archivist(self):
+    def test_create_review_archivist_accepted(self):
         archivist = UserFactory.create(
             username="archivaris",
             email="archivaris@oab.nl",
