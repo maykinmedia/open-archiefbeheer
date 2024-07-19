@@ -1,11 +1,9 @@
 import {
   Body,
-  Card,
-  CardBaseTemplate,
-  Column,
+  BodyBaseTemplate,
+  Button,
   Form,
   FormField,
-  Grid,
   H2,
   Modal,
   P,
@@ -62,7 +60,7 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
   };
 
   return (
-    <CardBaseTemplate>
+    <BodyBaseTemplate>
       <Modal
         title={"Instellingen opgeslagen"}
         open={modalOpenState}
@@ -71,27 +69,20 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
       >
         <Body>
           <P>De instellingen zijn succesvol opgeslagen.</P>
+          <Button onClick={() => setModalOpenState(false)}>Sluiten</Button>
         </Body>
       </Modal>
-      <Body>
-        <Grid>
-          <Column span={12}>
-            <H2>Instellingen</H2>
-            <P>
-              Hier kun je instellingen aanpassen die van invloed zijn op de
-              applicatie.
-            </P>
-            <br />
-          </Column>
-        </Grid>
-        <Card>
-          <Form
-            fields={verkorteProcedureFormFields}
-            validateOnChange={true}
-            onSubmit={handleSubmitPatchArchiveConfig}
-          />
-        </Card>
-      </Body>
-    </CardBaseTemplate>
+      <H2>Instellingen</H2>
+      <P>
+        Hier kun je instellingen aanpassen die van invloed zijn op de
+        applicatie.
+      </P>
+      <br />
+      <Form
+        fields={verkorteProcedureFormFields}
+        validateOnChange={true}
+        onSubmit={handleSubmitPatchArchiveConfig}
+      />
+    </BodyBaseTemplate>
   );
 }
