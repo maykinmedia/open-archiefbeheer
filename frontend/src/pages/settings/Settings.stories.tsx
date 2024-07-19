@@ -12,8 +12,21 @@ const meta: Meta<typeof SettingsPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const FIXTURE = {
+  zaaktypesShortProcess: ["1", "2", "3"],
+  zaaktypeChoices: [
+    { value: 1, label: "Zaaktype 1" },
+    { value: 2, label: "Zaaktype 2" },
+    { value: 3, label: "Zaaktype 3" },
+  ],
+};
+
 export const settingsPage: Story = {
-  args: {
-    children: "The quick brown fox jumps over the lazy dog.",
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE,
+      },
+    },
   },
 };

@@ -1,21 +1,21 @@
 import {
-  BaseTemplate,
   Body,
+  Card,
+  CardBaseTemplate,
   Column,
   Form,
   FormField,
   Grid,
-  H1,
+  H2,
   Modal,
   P,
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
-import { FormEvent, Fragment, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../hooks";
 import "./Settings.css";
-import { SettingsSection, SettingsSectionProps } from "./components";
 import { UpdateSettingsAction } from "./settings.action";
 import { SettingsContext } from "./settings.loader";
 
@@ -61,23 +61,8 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
     setModalOpenState(true);
   };
 
-  const settingsArray: SettingsSectionProps[] = [
-    {
-      settingTitle: "Verkorte procedure",
-      settingDescription:
-        "Pas hier de zaaktypes aan die in aanmerking komen voor de verkorte procedure.",
-      children: (
-        <Form
-          fields={verkorteProcedureFormFields}
-          validateOnChange={true}
-          onSubmit={handleSubmitPatchArchiveConfig}
-        />
-      ),
-    },
-  ];
-
   return (
-    <BaseTemplate>
+    <CardBaseTemplate>
       <Modal
         title={"Instellingen opgeslagen"}
         open={modalOpenState}
@@ -91,25 +76,22 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
       <Body>
         <Grid>
           <Column span={12}>
-            <H1>Instellingen</H1>
+            <H2>Instellingen</H2>
             <P>
               Hier kun je instellingen aanpassen die van invloed zijn op de
               applicatie.
             </P>
             <br />
-            <br />
           </Column>
         </Grid>
-        <Grid cols={4}>
-          {settingsArray.map((setting, index) => (
-            <Fragment key={index}>
-              <SettingsSection {...setting} />
-              {/* TODO: Can add a Separator here once we have more setting entries. Currently we don't have a Separator component. For example: */}
-              {/* {index < settingsArray.length - 1 && <Separator />} */}
-            </Fragment>
-          ))}
-        </Grid>
+        <Card>
+          <Form
+            fields={verkorteProcedureFormFields}
+            validateOnChange={true}
+            onSubmit={handleSubmitPatchArchiveConfig}
+          />
+        </Card>
       </Body>
-    </BaseTemplate>
+    </CardBaseTemplate>
   );
 }
