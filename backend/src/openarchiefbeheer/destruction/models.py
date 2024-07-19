@@ -145,7 +145,7 @@ class DestructionList(models.Model):
 
         # All reviewers have reviewed the draft destruction list
         last_reviewer = reviewers.last()
-        if last_reviewer and self.assignee == reviewers.last().user:
+        if last_reviewer and self.assignee == last_reviewer.user:
             self.get_author().assign()
             status = (
                 ListStatus.ready_to_delete
