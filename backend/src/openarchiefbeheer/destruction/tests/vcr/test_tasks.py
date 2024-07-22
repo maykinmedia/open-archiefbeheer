@@ -6,6 +6,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixture
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
 
@@ -33,12 +34,10 @@ class ProcessResponseTest(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    def setUp(self) -> None:
-        super().setUp()
-
+    @reload_openzaak_fixture("complex_relations.json")
+    def test_process_response(self):
         retrieve_and_cache_zaken_from_openzaak()
 
-    def test_process_response(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
         reviewer = UserFactory.create(
             role__can_review_destruction=True,

@@ -8,6 +8,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixture
 
 from ...models import Zaak
 from ...tasks import retrieve_and_cache_zaken_from_openzaak
@@ -39,12 +40,10 @@ class DeletingZakenTests(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    def setUp(self) -> None:
-        super().setUp()
-
+    @reload_openzaak_fixture("complex_relations.json")
+    def test_delete_zaak_related_to_besluit_related_to_document(self):
         retrieve_and_cache_zaken_from_openzaak()
 
-    def test_delete_zaak_related_to_besluit_related_to_document(self):
         zaak = Zaak.objects.get(identificatie="ZAAK-00")
         destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
