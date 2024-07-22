@@ -170,6 +170,15 @@ def execute_unless_result_exist(
     store.save()
 
 
+def handle_delete_with_pending_relations(exc: HTTPError) -> None:
+    response = exc.response
+    if not response.status_code == status.HTTP_204_NO_CONTENT and not (
+        response.status_code == status.HTTP_400_BAD_REQUEST
+        and response.json()["invalidParams"][0]["code"] == "pending-relations"
+    ):
+        response.raise_for_status()
+
+
 def delete_decisions_and_relation_objects(
     zaak: "Zaak", result_store: ResultStore
 ) -> None:
@@ -206,6 +215,7 @@ def delete_decisions_and_relation_objects(
                     "besluiten",
                     besluit["url"],
                     partial(brc_client.delete, f"besluiten/{besluit_uuid}"),
+                    handle_delete_with_pending_relations,
                 )
 
 
@@ -250,14 +260,6 @@ def delete_documents(result_store: ResultStore) -> None:
     drc_service = Service.objects.get(api_type=APITypes.drc)
     drc_client = build_client(drc_service)
 
-    def _handle_document_delete_exc(exc: HTTPError) -> None:
-        response = exc.response
-        if not response.status_code == status.HTTP_204_NO_CONTENT and not (
-            response.status_code == status.HTTP_400_BAD_REQUEST
-            and response.json()["invalidParams"][0]["code"] == "pending-relations"
-        ):
-            response.raise_for_status()
-
     with drc_client:
         for document_url in result_store.get_resources_to_delete(
             "enkelvoudiginformatieobjecten"
@@ -270,7 +272,7 @@ def delete_documents(result_store: ResultStore) -> None:
                 partial(
                     drc_client.delete, f"enkelvoudiginformatieobjecten/{document_uuid}"
                 ),
-                _handle_document_delete_exc,
+                handle_delete_with_pending_relations,
             )
 
     result_store.clear_resources_to_delete("enkelvoudiginformatieobjecten")
@@ -290,11 +292,12 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     """Delete a zaak and related objects
 
     The procedure to delete all objects related to a zaak is as follows:
-    - Check if there are besluiten (in the Besluiten API).
+    - Check if there are besluiten (in the Besluiten API) related to the zaak.
     - Check if there are documents related to these besluiten (BesluitenInformatieObjecten).
       If yes, store the URLs of the corresponding documents.
     - Delete the BIOs.
     - Delete the besluiten related to the zaak. This automatically deletes ZaakBesluiten in the Zaken API.
+      If the besluiten are still related to other objects, this will raise a 400 error.
     - Check if there are ZaakInformatieOjecten. If yes, store the URLs of the corresponding documents.
     - Delete the ZIOs, which automatically deletes the corresponding OIOs.
     - Delete the documents (that were related to both the zaak and to the besluiten that were related to the zaak).
