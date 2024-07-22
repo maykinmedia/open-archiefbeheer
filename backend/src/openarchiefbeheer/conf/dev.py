@@ -103,7 +103,7 @@ PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
 PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
 
-# Serve the frontend on /.
+ENVIRONMENT = "development"
 
 # Override settings with local settings.
 try:
