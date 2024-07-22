@@ -43,7 +43,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
         reviewer = UserFactory.create(
             role__can_review_destruction=True,
         )
-        zaak = Zaak.objects.get(identificatie="ZAAK_10")
+        zaak = Zaak.objects.get(identificatie="ZAAK-01")
 
         destruction_list = DestructionListFactory.create(
             author=record_manager, status=ListStatus.changes_requested
