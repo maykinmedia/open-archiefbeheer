@@ -281,6 +281,10 @@ djangorestframework-gis==1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+docker==7.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 docutils==0.20.1
     # via
     #   -c requirements/ci.txt
@@ -583,6 +587,7 @@ requests==2.32.3
     #   -r requirements/ci.txt
     #   ape-pie
     #   django-rosetta
+    #   docker
     #   pytest-base-url
     #   requests-mock
     #   sphinx
@@ -712,6 +717,7 @@ urllib3==2.2.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   docker
     #   elastic-apm
     #   requests
     #   sentry-sdk

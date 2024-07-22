@@ -241,6 +241,8 @@ djangorestframework-gis==1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+docker==7.1.0
+    # via -r requirements/test-tools.in
 docutils==0.20.1
     # via
     #   sphinx
@@ -453,6 +455,7 @@ requests==2.32.3
     #   -r requirements/base.txt
     #   ape-pie
     #   django-rosetta
+    #   docker
     #   pytest-base-url
     #   requests-mock
     #   sphinx
@@ -535,6 +538,7 @@ urllib3==2.2.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   docker
     #   elastic-apm
     #   requests
     #   sentry-sdk
