@@ -97,6 +97,7 @@ warnings.filterwarnings(
 # Playwright settings
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
+PLAYWRIGHT_PORT = config("PLAYWRIGHT_PORT", default=8080)
 PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
 
 # Serve the frontend on /.

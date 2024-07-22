@@ -44,4 +44,4 @@ async def browser_page_with_tracing():
 
 
 class PlaywrightTestCase(StaticLiveServerTestCase):
-    port = 8080
+    port = settings.PLAYWRIGHT_PORT
