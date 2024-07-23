@@ -115,6 +115,8 @@ to:
 
 **Note 2**
 
-When trying to delete a document that has been loaded through a fixture, an error happens because the corresponding file is not created on disk (see: https://github.com/open-zaak/open-zaak/issues/1711).
+When trying to delete a document that has been loaded through a fixture, an error happens because the corresponding file is not created on disk (see: https://github.com/open-zaak/open-zaak/issues/1711). 
 
-To get around this problem, I manually created an empty file in the container.
+To get around this problem, there are 2 ways:
+- Manually created an empty file in the container.
+- Make the `inhoud` field of the `enkelvoudiginformatieobject` in the fixture an empty string. 

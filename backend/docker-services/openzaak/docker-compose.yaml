@@ -54,21 +54,6 @@ services:
     networks:
       - oab-dev
 
-  web-init:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
-    environment: *openzaak_web_env
-    command: >
-      bash -c "touch /app/private-media/uploads/2024/07/file_IjdPvzs.bin
-      && touch /app/private-media/uploads/2024/07/file_bbbGmj1.bin
-      && touch /app/private-media/uploads/2024/07/file_t5YPfR9.bin
-      && touch /app/private-media/uploads/2024/07/file_bCRkKh2.bin
-      && echo Created files in /app/private-media/uploads/2024/07
-      "
-    volumes: *openzaak_web_volumes
-    depends_on:
-      - openzaak-db
-      - openzaak-redis
-
   celery:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
     environment: *openzaak_web_env
