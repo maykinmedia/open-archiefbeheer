@@ -44,4 +44,4 @@ async def browser_page_with_tracing():
 
 
 class PlaywrightTestCase(StaticLiveServerTestCase):
-    port = settings.PLAYWRIGHT_PORT
+    port = settings.E2E_PORT

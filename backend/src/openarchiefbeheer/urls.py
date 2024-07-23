@@ -68,7 +68,7 @@ if settings.DEBUG and apps.is_installed("debug_toolbar"):
     ] + urlpatterns
 
 # For this to work, you need to have built the frontend (`npm run build` in the frontend/ dir)
-if settings.SERVE_FRONTEND:
+if settings.E2E_SERVE_FRONTEND:
     urlpatterns = [
         path("", TemplateView.as_view(template_name="index.html"), name="frontend")
     ] + urlpatterns
