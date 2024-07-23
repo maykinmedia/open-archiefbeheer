@@ -94,14 +94,16 @@ warnings.filterwarnings(
     r"django\.db\.models\.fields",
 )
 
+# End-to-end test settings
+E2E_PORT = config("E2E_PORT", default=8080)
+E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
+
 # Playwright settings
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
-PLAYWRIGHT_PORT = config("PLAYWRIGHT_PORT", default=8080)
 PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
 
 # Serve the frontend on /.
-SERVE_FRONTEND = config("SERVE_FRONTEND", default=False)
 
 # Override settings with local settings.
 try:

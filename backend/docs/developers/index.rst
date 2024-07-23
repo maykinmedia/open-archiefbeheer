@@ -13,3 +13,4 @@ Content
     :maxdepth: 3
 
     e2e-tests
+    gherkin-like-tests

@@ -38,7 +38,7 @@ so that these files can be served by the live server.
    ln -s frontend/build/static/css backend/src/openarchiefbeheer/static/css
    ln -s frontend/build/static/js backend/src/openarchiefbeheer/static/js
 
-Make sure that the environment variable ``SERVE_FRONTEND`` is truthy. This will serve the ``index.html`` file
+Make sure that the environment variable ``E2E_SERVE_FRONTEND`` is truthy. This will serve the ``index.html`` file
 on the ``/`` path.
 
 Once this is done, you can run the Playwright tests with:
@@ -53,10 +53,11 @@ Once this is done, you can run the Playwright tests with:
 Environment variables
 =====================
 
+- ``E2E_PORT``: specifies the port the ``StaticLiveServerTestCase`` listens to.
+- ``E2E_SERVE_FRONTEND``:  can be ``yes`` or ``no``. Specifies that the ``index.html`` file should be served on the ``/`` path.
 - ``PLAYWRIGHT_BROWSER``: can be ``chromium``, ``firefox`` or ``webkit``. It specifies which browser will be used to run the tests.
 - ``PLAYWRIGHT_HEADLESS``: can be ``yes`` or ``no``. If it is ``no``, you will see the browser being opened.
 - ``PLAYWRIGHT_TRACE_PATH``: if you are recording a trace with the trace viewer, you can specify the path/filename where it should be written.
-- ``SERVE_FRONTEND``:  can be ``yes`` or ``no``. Specifies that the ``index.html`` file should be served on the ``/`` path.
 
 Trace viewer
 ============

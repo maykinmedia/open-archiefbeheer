@@ -67,10 +67,13 @@ export const DestructionListCreatePageStory: Story = {
     });
 
     const canvas = within(context.canvasElement);
-    const buttonCreate = await canvas.findByRole("button", {
+    const buttonsCreate = await canvas.findAllByRole("button", {
       name: "Vernietigingslijst opstellen",
     });
-    await userEvent.click(buttonCreate, { delay: 10 });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [navigationCreate, actionCreate] = buttonsCreate;
+    await userEvent.click(actionCreate, { delay: 10 });
 
     const modal = await canvas.findByRole("dialog");
     const inputName = await within(modal).findByLabelText("Naam");

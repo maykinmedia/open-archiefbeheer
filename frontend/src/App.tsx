@@ -40,7 +40,7 @@ function App() {
             },
             {
               children: <Outline.PlusCircleIcon />,
-              title: "Add destruction list",
+              title: "Vernietigingslijst opstellen",
               onClick: () => navigate("/destruction-lists/create"),
             },
             "spacer",

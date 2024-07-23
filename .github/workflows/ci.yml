@@ -223,10 +223,10 @@ jobs:
           SECRET_KEY: dummy
           DB_USER: postgres
           DB_PASSWORD: ''
+          E2E_SERVE_FRONTEND: yes
           PLAYWRIGHT_HEADLESS: yes
           PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
           PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
-          SERVE_FRONTEND: yes 
 
       # # Uncomment if you are recording traces for debug purposes
       # - uses: actions/upload-artifact@v4
