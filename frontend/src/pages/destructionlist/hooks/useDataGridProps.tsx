@@ -7,6 +7,7 @@ import {
   TypedField,
   formatMessage,
 } from "@maykin-ui/admin-ui";
+import { object } from "prop-types";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
@@ -339,9 +340,9 @@ export function getFields(
     },
     {
       name: "zaaktype",
-      filterLookup: "zaaktype",
-      filterValue: searchParams.get("zaaktype") || "",
-      valueLookup: "_expand.zaaktype.omschrijving",
+      filterLookup: "zaaktype__in",
+      filterValue: searchParams.get("zaaktype__in") || "",
+      valueLookup: "_expand.zaaktype.identificatie",
       options: zaaktypeChoices,
       type: "string",
       width: "300px",
