@@ -47,6 +47,7 @@ class ZaaktypenChoicesView(APIView):
             "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
+            "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
             "The response is cached for 15 minutes."
         ),
         tags=["private"],
