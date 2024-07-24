@@ -45,7 +45,8 @@ class ZaaktypenChoicesView(APIView):
         summary=_("Retrieve zaaktypen choices"),
         description=_(
             "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
-            "The label is the 'omschrijving' field an the value is the URL. "
+            "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
+            "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "The response is cached for 15 minutes."
         ),
         tags=["private"],

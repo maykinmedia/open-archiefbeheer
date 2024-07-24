@@ -15,6 +15,7 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
+    BaseInFilter,
     BooleanFilter,
     CharFilter,
     FilterSet,
@@ -76,6 +77,13 @@ class ZaakFilter(FilterSet):
         help_text=_(
             "Filter on whether this case has other related cases. "
             "This is done by looking at the property 'relevanteAndereZaken'."
+        ),
+    )
+
+    zaaktype__in = BaseInFilter(
+        field_name="zaaktype",
+        help_text=_(
+            "Filter all zaaktype that have a URL contained in the provided list."
         ),
     )
 

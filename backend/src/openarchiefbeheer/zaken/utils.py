@@ -1,8 +1,8 @@
+from collections import defaultdict
 from functools import lru_cache, partial
 from typing import TYPE_CHECKING, Callable, Generator, Literal
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 
 from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
@@ -77,16 +77,6 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
     return processed_zaken
 
 
-def get_zaaktype_extra_info(zaaktype: dict) -> str:
-    if eind_geldigheid := zaaktype.get("eind_geldigheid"):
-        return _("%(identificatie)s (valid until %(end_validity)s)") % {
-            "identificatie": zaaktype["identificatie"],
-            "end_validity": eind_geldigheid,
-        }
-
-    return zaaktype["identificatie"]
-
-
 def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
     ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
     if not ztc_service:
@@ -101,18 +91,15 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         response.raise_for_status()
         data_iterator = pagination_helper(ztc_client, response.json())
 
-    zaaktypen = []
+    zaaktypen = defaultdict(list)
     for page in data_iterator:
-        zaaktypen += [
-            {
-                "label": result["omschrijving"],
-                "value": result["url"],
-                "extra": get_zaaktype_extra_info(result),
-            }
-            for result in page["results"]
-        ]
+        for result in page["results"]:
+            zaaktypen[result["identificatie"]].append(result["url"])
 
-    return zaaktypen
+    zaaktypen_choices = [
+        {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
+    ]
+    return zaaktypen_choices
 
 
 def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
