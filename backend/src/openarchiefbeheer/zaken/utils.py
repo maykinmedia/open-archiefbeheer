@@ -1,6 +1,6 @@
 from collections import defaultdict
 from functools import lru_cache, partial
-from typing import TYPE_CHECKING, Callable, Generator, Literal
+from typing import Callable, Generator, Literal
 
 from django.conf import settings
 
@@ -19,10 +19,8 @@ from zgw_consumers.utils import PaginatedResponseData
 
 from openarchiefbeheer.utils.results_store import ResultStore
 
+from .models import Zaak
 from .types import DropDownChoice
-
-if TYPE_CHECKING:
-    from .models import Zaak
 
 
 def pagination_helper(
@@ -96,8 +94,15 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         for result in page["results"]:
             zaaktypen[result["identificatie"]].append(result["url"])
 
+    zaaktypes_to_include = (
+        Zaak.objects.all()
+        .values_list("_expand__zaaktype__identificatie", flat=True)
+        .distinct()
+    )
     zaaktypen_choices = [
-        {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
+        {"label": key, "value": ",".join(value)}
+        for key, value in zaaktypen.items()
+        if key in zaaktypes_to_include
     ]
     return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
 
