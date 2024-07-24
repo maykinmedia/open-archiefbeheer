@@ -390,3 +390,26 @@ class FilterZakenTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 1)
         self.assertEqual(item.zaak, data["results"][0]["url"])
+
+    def test_filter_on_zaaktype(self):
+        ZaakFactory.create_batch(3, identificatie="ZAAK-01")
+        zaken_2 = ZaakFactory.create_batch(2, identificatie="ZAAK-02")
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["zaaktype__in"] = ",".join(
+            [zaken_2[0].zaaktype, zaken_2[1].zaaktype]
+        )
+
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 2)
+
+        urls_zaken = [zaak["url"] for zaak in data["results"]]
+
+        self.assertIn(zaken_2[0].url, urls_zaken)
+        self.assertIn(zaken_2[1].url, urls_zaken)
