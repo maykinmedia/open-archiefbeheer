@@ -80,6 +80,14 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             api_root="http://catalogi-api.nl/catalogi/api/v1",
         )
         user = UserFactory.create(role__can_start_destruction=True)
+        ZaakFactory.create(
+            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            _expand={"zaaktype": {"identificatie": "ZAAK-01"}},
+        )
+        ZaakFactory.create(
+            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+            _expand={"zaaktype": {"identificatie": "ZAAK-02"}},
+        )
 
         m.get(
             "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
@@ -98,6 +106,11 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
                     {
                         "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
                         "identificatie": "ZAAK-02",
+                    },
+                    # No zaken with this zaaktype in the DB
+                    {
+                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/444-444-444",
+                        "identificatie": "ZAAK-03",
                     },
                 ],
             },
