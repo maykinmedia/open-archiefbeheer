@@ -465,7 +465,7 @@ rpds-py==0.18.0
     #   -r requirements/base.txt
     #   jsonschema
     #   referencing
-sentry-sdk==2.0.1
+sentry-sdk==2.11.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
