@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.1
+        uses: maykinmedia/setup-django-backend@v1.1.1
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
