@@ -311,6 +311,7 @@ export function getFields(
     },
     {
       name: "archiefnominatie",
+      filterValue: searchParams.get("archiefnominatie") || "",
       type: "string",
       options: [
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
