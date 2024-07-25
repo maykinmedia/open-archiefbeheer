@@ -70,3 +70,14 @@ export function canMarkListAsFinal(
     user.role.canStartDestruction
   );
 }
+
+export function canTriggerDestruction(
+  user: User,
+  destructionList: DestructionList,
+) {
+  return (
+    user.pk === destructionList.author.pk &&
+    destructionList.status === "ready_to_delete" &&
+    user.role.canStartDestruction
+  );
+}

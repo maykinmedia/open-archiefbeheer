@@ -55,6 +55,7 @@ export type DestructionListItemUpdate = {
 export type DestructionListMarkAsFinalData = {
   user: number;
 };
+
 /**
  * Create a new destruction list.
  * @param name
@@ -145,6 +146,27 @@ export async function markDestructionListAsFinal(
   if (response.status === 201) {
     return null;
   }
+  const promise: Promise<DestructionList> = response.json();
+  return promise;
+}
+
+/**
+ * Destroy destruction list
+ * @param uuid
+ * @returns
+ */
+export async function destroyDestructionList(uuid: string) {
+  const response = await request(
+    "DELETE",
+    `/destruction-lists/${uuid}/`,
+    {},
+    { uuid },
+  );
+  // Check if the response is a 201 Created status code.
+  if (response.status === 204) {
+    return null;
+  }
+
   const promise: Promise<DestructionList> = response.json();
   return promise;
 }

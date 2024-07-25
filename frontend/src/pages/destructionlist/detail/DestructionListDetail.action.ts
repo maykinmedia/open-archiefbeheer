@@ -4,6 +4,7 @@ import { redirect } from "react-router-dom";
 import { JsonValue, TypedAction } from "../../../hooks";
 import {
   DestructionListItemUpdate,
+  destroyDestructionList,
   markDestructionListAsFinal,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
@@ -13,7 +14,11 @@ import {
 } from "../../../lib/api/reviewResponse";
 
 export type UpdateDestructionListAction<T = JsonValue> = TypedAction<
-  "MAKE_FINAL" | "PROCESS_REVIEW" | "UPDATE_ASSIGNEES" | "UPDATE_ZAKEN",
+  | "DESTROY"
+  | "MAKE_FINAL"
+  | "PROCESS_REVIEW"
+  | "UPDATE_ASSIGNEES"
+  | "UPDATE_ZAKEN",
   T
 >;
 
@@ -28,6 +33,8 @@ export async function destructionListUpdateAction({
   const action = data as UpdateDestructionListAction<unknown>;
 
   switch (action.type) {
+    case "DESTROY":
+      return await destructionListDestroyAction({ request, params });
     case "MAKE_FINAL":
       return await destructionListMakeFinalAction({ request, params });
     case "PROCESS_REVIEW":
@@ -51,6 +58,17 @@ export async function destructionListMakeFinalAction({
   await markDestructionListAsFinal(payload.uuid, {
     user: payload.user,
   });
+  return redirect("/");
+}
+
+/**
+ * React Router action (user intents to DESTROY ALL ZAKEN ON THE DESTRUCTION LIST!).
+ */
+export async function destructionListDestroyAction({
+  request,
+}: ActionFunctionArgs) {
+  const { payload } = await request.json();
+  await destroyDestructionList(payload.uuid);
   return redirect("/");
 }
 

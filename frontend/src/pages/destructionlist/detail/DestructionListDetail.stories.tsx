@@ -1,5 +1,5 @@
 import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
-import { userEvent, waitFor, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
@@ -337,5 +337,51 @@ export const MarkDestructionListAsFinal: Story = {
         },
       },
     });
+  },
+};
+
+const FIXTURE_DELETE: DestructionListDetailContext = {
+  storageKey: "storybook-storage-key",
+  destructionList: destructionListFactory({ status: "ready_to_delete" }),
+  reviewers: usersFactory(),
+  archivists: usersFactory(),
+  user: usersFactory()[0],
+  zaken: paginatedZakenFactory(),
+  selectableZaken: paginatedZakenFactory(),
+  zaakSelection: {},
+  review: null,
+  reviewItems: null,
+  selectieLijstKlasseChoicesMap: null,
+};
+
+export const DeleteDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE_DELETE,
+      },
+    },
+  },
+  play: async (context) => {
+    await clickButton({
+      ...context,
+      parameters: {
+        ...context.parameters,
+        name: "Zaken op lijst definitief vernietigen",
+      },
+    });
+    const canvas = within(context.canvasElement);
+    const submit = await canvas.findByText<HTMLButtonElement>(
+      "10 zaken vernietigen",
+    );
+    expect(submit).toBeDisabled();
+    userEvent.type(
+      document.activeElement as HTMLInputElement,
+      "My First Destruction List",
+      {
+        delay: 10,
+      },
+    );
+    await waitFor(async () => await expect(submit).not.toBeDisabled());
   },
 };
