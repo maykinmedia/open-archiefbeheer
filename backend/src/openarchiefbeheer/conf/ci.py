@@ -12,16 +12,16 @@ os.environ.setdefault("SECRET_KEY", "dummy")
 #   looked up from the django-solo model
 os.environ.setdefault("LOG_REQUESTS", "no")
 
-# End-to-end test settings
-E2E_PORT = config("E2E_PORT", default=8080)
-E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
-
 # Playwright settings
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
 PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
 
 from .base import *  # noqa isort:skip
+
+# End-to-end test settings
+E2E_PORT = config("E2E_PORT", default=8080)
+E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
 
 CACHES.update(
     {

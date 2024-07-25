@@ -398,6 +398,8 @@ REQUESTS_DEFAULT_TIMEOUT = (10, REQUESTS_READ_TIMEOUT)
 
 ZAKEN_CHUNK_SIZE = config("ZAKEN_CHUNK_SIZE", 10)
 
+E2E_SERVE_FRONTEND = False
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #
