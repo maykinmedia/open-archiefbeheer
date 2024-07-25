@@ -13,6 +13,8 @@ import { DestructionList } from "../../lib/api/destructionLists";
 import {
   canMarkListAsFinal,
   canReviewDestructionList,
+  canStartDestructionList,
+  canTriggerDestruction,
   canUpdateDestructionList,
 } from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/format/date";
@@ -94,8 +96,14 @@ export const Landing = () => {
         return canReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
           : undefined;
+
       case "internally_reviewed":
         return canMarkListAsFinal(user, list)
+          ? `/destruction-lists/${list.uuid}`
+          : undefined;
+
+      case "ready_to_delete":
+        return canTriggerDestruction(user, list)
           ? `/destruction-lists/${list.uuid}`
           : undefined;
 

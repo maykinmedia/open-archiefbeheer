@@ -7,6 +7,7 @@ import { DestructionList } from "../api/destructionLists";
 import {
   canReviewDestructionList,
   canStartDestructionList,
+  canTriggerDestruction,
   canUpdateDestructionList,
   canViewDestructionList,
 } from "./permissions";
@@ -139,6 +140,29 @@ export function canViewDestructionListRequired<
       throw new Response("Not Permitted", {
         status: 403,
         statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
+      });
+    }
+
+    return data;
+  };
+}
+
+export function canTriggerDestructionRequired<
+  T extends { destructionList: DestructionList },
+>(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
+  return async (loaderFunctionArgs, handlerCtx) => {
+    const data = await fn(loaderFunctionArgs, handlerCtx);
+
+    const destructionList = data.destructionList;
+    if (!destructionList) {
+      throw new Response("Not Found", { status: 404 });
+    }
+
+    const user = await whoAmI();
+    if (!canTriggerDestruction(user, destructionList)) {
+      throw new Response("Not Permitted", {
+        status: 403,
+        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te vernietigen.`,
       });
     }
 

@@ -1,8 +1,12 @@
 from asgiref.sync import sync_to_async
 from playwright.async_api import expect
 
-from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.tests.factories import (
+    DestructionListAssigneeFactory,
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -75,16 +79,45 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         def __init__(self, testcase):
             self.testcase = testcase
 
+        async def list_exists(self, **kwargs):
+            @sync_to_async()
+            def add_items(destruction_list, zaken):
+                for zaak in zaken:
+                    item = DestructionListItemFactory.create(
+                        destruction_list=destruction_list, zaak=zaak.url
+                    )
+                    destruction_list.items.add(item)
+
+            record_manager = await self.record_manager_exists()
+            base_kwargs = {
+                "name": "My First Destruction List",
+                "assignee": record_manager,
+                "author": record_manager,
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            destruction_list = await self._get_or_create(
+                DestructionListFactory, **merged_kwargs
+            )
+            zaken = await self.zaken_are_indexed(100)
+            await add_items(destruction_list, zaken)
+            return destruction_list
+
+        async def assignee_exists(self, **kwargs):
+            base_kwargs = {"user": await self.record_manager_exists()}
+            merged_kwargs = {**base_kwargs, **kwargs}
+            return await self._get_or_create(
+                DestructionListAssigneeFactory, **merged_kwargs
+            )
+
         async def record_manager_exists(self, **kwargs):
             base_kwargs = {
                 "username": "Record Manager",
                 "first_name": "Record",
                 "last_name": "Manager",
                 "role__can_start_destruction": True,
-                "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
-            return await self._get_or_create(UserFactory, **merged_kwargs)
+            return await self.user_exists(**merged_kwargs)
 
         async def reviewer_exists(self, **kwargs):
             base_kwargs = {
@@ -92,10 +125,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "first_name": "Beoor",
                 "last_name": "del Laar",
                 "role__can_review_destruction": True,
-                "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
-            return await self._get_or_create(UserFactory, **merged_kwargs)
+            return await self.user_exists(**merged_kwargs)
 
         async def archivist_exists(self, **kwargs):
             base_kwargs = {
@@ -103,16 +135,17 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "first_name": "Archi",
                 "last_name": "Varis",
                 "role__can_review_final_list": True,
-                "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
-            return await self._get_or_create(UserFactory, **merged_kwargs)
+            return await self.user_exists(**merged_kwargs)
 
         async def user_exists(self, **kwargs):
-            return await self._get_or_create(UserFactory, **kwargs)
+            return await self._get_or_create(
+                UserFactory, password="ANic3Password", **kwargs
+            )
 
-        async def zaken_are_indexed(self, amount):
-            return await self._get_or_create_batch(ZaakFactory, amount)
+        async def zaken_are_indexed(self, amount, **kwargs):
+            return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
 
         @sync_to_async
         def _orm_get(self, model, **kwargs):
@@ -134,8 +167,11 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def _get_or_create(self, factory, **kwargs):
             try:
-                return await self._orm_get(factory._meta.model, **kwargs)
-            except User.DoesNotExist:
+                get_kwargs = kwargs.copy()
+                if "password" in get_kwargs:
+                    get_kwargs.pop("password")
+                return await self._orm_get(factory._meta.model, **get_kwargs)
+            except factory._meta.model.DoesNotExist:
                 return await self._factory_create(factory, **kwargs)
 
         async def _get_or_create_batch(self, factory, amount, **kwargs):

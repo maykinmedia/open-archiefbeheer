@@ -108,7 +108,7 @@ export const destructionListDetailLoader = loginRequired(
 
         // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
         // FIXME: Accept no/implement real pagination?
-        reviewItems
+        reviewItems || destructionList.status === "ready_to_delete"
           ? ({
               count: 0,
               next: null,
