@@ -99,7 +99,7 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
     zaaktypen_choices = [
         {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
     ]
-    return zaaktypen_choices
+    return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
 
 
 def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
