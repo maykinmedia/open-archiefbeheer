@@ -16,6 +16,7 @@ pytest  # documentation tests
 testfixtures
 vcrpy
 pytest-playwright 
+docker
 
 # Documentation
 sphinx

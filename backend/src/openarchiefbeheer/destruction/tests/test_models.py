@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from unittest.mock import patch
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils import timezone
 
@@ -10,6 +11,7 @@ from testfixtures import log_capture
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import InternalStatus, ListItemStatus, ListRole, ListStatus
@@ -78,6 +80,45 @@ class DestructionListItemTest(TestCase):
             destruction_list.status_changed,
             timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
         )
+
+    def test_process_deletion_zaak_not_found(self):
+        item = DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+
+        with self.assertRaises(ObjectDoesNotExist):
+            item.process_deletion()
+
+        item.refresh_from_db()
+
+        self.assertEqual(item.processing_status, InternalStatus.failed)
+
+    def test_process_deletion(self):
+        zaak = ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/111-111-111",
+            omschrijving="Test description",
+        )
+
+        item = DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+
+        with patch(
+            "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects"
+        ) as m_delete_in_openzaak:
+            item.process_deletion()
+
+        m_delete_in_openzaak.assert_called_once()
+        kwargs = m_delete_in_openzaak.call_args_list[0].kwargs
+        self.assertEqual(kwargs["zaak"].url, zaak.url)
+        self.assertEqual(kwargs["result_store"].store.pk, item.pk)
+
+        item.refresh_from_db()
+
+        self.assertEqual(item.processing_status, InternalStatus.succeeded)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Zaak.objects.get(url=zaak.url)
 
 
 class ReviewResponseTests(TestCase):

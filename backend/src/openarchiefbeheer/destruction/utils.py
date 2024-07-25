@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+from typing import Protocol
+
 from django.conf import settings
 from django.core.mail import send_mail
 
@@ -5,6 +8,7 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 
+from .constants import InternalStatus
 from .models import DestructionList
 
 
@@ -93,3 +97,16 @@ def notify_author_last_review(
         },
         recipients=[user.email],
     )
+
+
+class ObjectWithStatus(Protocol):
+    def set_processing_status(self, status: InternalStatus) -> None: ...
+
+
+@contextmanager
+def mark_as_failed_on_error(object_with_status: ObjectWithStatus):
+    try:
+        yield
+    except Exception as exc:
+        object_with_status.set_processing_status(InternalStatus.failed)
+        raise exc

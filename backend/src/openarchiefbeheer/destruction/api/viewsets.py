@@ -201,7 +201,7 @@ class DestructionListViewSet(
         instance.processing_status = InternalStatus.queued
         instance.save()
 
-        delete_destruction_list.delay(instance.pk)
+        delete_destruction_list(instance)
 
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
