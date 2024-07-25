@@ -64,7 +64,8 @@ class ZaaktypeChoiceSerializer(serializers.Serializer):
         help_text=_(
             "A combination of the identification and the date on which "
             "the zaaktype will no longer be valid (if present)."
-        )
+        ),
+        required=False,
     )
 
 
