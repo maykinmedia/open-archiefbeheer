@@ -1,3 +1,4 @@
+import traceback
 from collections import defaultdict
 from functools import lru_cache, partial
 from typing import Callable, Generator, Literal
@@ -139,24 +140,23 @@ def retrieve_selectielijstklasse_choices(process_type_url: str) -> list:
     return results
 
 
-def execute_unless_result_exist(
+def delete_object_and_store_result(
     store: ResultStore,
     resource_type: str,
     resource: str,
     callable: Callable,
     http_error_handler: Callable | None = None,
 ) -> None:
-    if store.has_deleted_resource(resource_type, resource):
-        return
-
     try:
         response = callable(timeout=settings.REQUESTS_DEFAULT_TIMEOUT)
         response.raise_for_status()
     except HTTPError as exc:
         if not http_error_handler:
             raise exc
-
         return http_error_handler(exc)
+    except Exception as exc:
+        store.add_error(traceback.format_exc())
+        raise exc
 
     store.add_deleted_resource(resource_type, resource)
     store.save()
@@ -202,7 +202,7 @@ def delete_decisions_and_relation_objects(
                     brc_client, "besluit", besluit["url"], result_store
                 )
 
-                execute_unless_result_exist(
+                delete_object_and_store_result(
                     result_store,
                     "besluiten",
                     besluit["url"],
@@ -240,7 +240,7 @@ def delete_relation_object(
             "enkelvoudiginformatieobjecten", relation_object["informatieobject"]
         )
         relation_object_uuid = furl(relation_object["url"]).path.segments[-1]
-        execute_unless_result_exist(
+        delete_object_and_store_result(
             result_store,
             relation_object_name,
             relation_object["url"],
@@ -257,7 +257,7 @@ def delete_documents(result_store: ResultStore) -> None:
             "enkelvoudiginformatieobjecten"
         ):
             document_uuid = furl(document_url).path.segments[-1]
-            execute_unless_result_exist(
+            delete_object_and_store_result(
                 result_store,
                 "enkelvoudiginformatieobjecten",
                 document_url,
@@ -272,7 +272,7 @@ def delete_documents(result_store: ResultStore) -> None:
 
 def delete_zaak(zaak: "Zaak", zrc_client: APIClient, result_store: ResultStore) -> None:
     with zrc_client:
-        execute_unless_result_exist(
+        delete_object_and_store_result(
             result_store,
             "zaken",
             zaak.url,
