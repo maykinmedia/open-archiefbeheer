@@ -8,6 +8,7 @@ import {
   Modal,
   P,
   SerializedFormData,
+  Toolbar,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -69,7 +70,9 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
       >
         <Body>
           <P>De instellingen zijn succesvol opgeslagen.</P>
-          <Button onClick={() => setModalOpenState(false)}>Sluiten</Button>
+          <Toolbar align="end">
+            <Button onClick={() => setModalOpenState(false)}>Sluiten</Button>
+          </Toolbar>
         </Body>
       </Modal>
       <H2>Instellingen</H2>
