@@ -155,7 +155,7 @@ def delete_object_and_store_result(
             raise exc
         return http_error_handler(exc)
     except Exception as exc:
-        store.add_error(traceback.format_exc())
+        store.add_traceback(traceback.format_exc())
         raise exc
 
     store.add_deleted_resource(resource_type, resource)

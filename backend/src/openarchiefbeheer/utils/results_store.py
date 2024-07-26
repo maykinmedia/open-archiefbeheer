@@ -67,7 +67,12 @@ class ResultStore:
         results = self.get_internal_results()
         del results["resources_to_delete"][resource_type]
 
-    def add_error(self, formatted_traceback: str) -> None:
+    def add_traceback(self, formatted_traceback: str) -> None:
         results = self.get_internal_results()
         results["traceback"] = formatted_traceback
+        self.save()
+
+    def clear_traceback(self):
+        results = self.get_internal_results()
+        results["traceback"] = ""
         self.save()
