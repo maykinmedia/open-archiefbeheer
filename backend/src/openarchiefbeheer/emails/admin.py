@@ -38,4 +38,13 @@ class EmailConfigAdmin(SingletonModelAdmin):
                 ]
             },
         ),
+        (
+            _("Templates error during deletion"),
+            {
+                "fields": [
+                    "subject_error_during_deletion",
+                    "body_error_during_deletion",
+                ]
+            },
+        ),
     ]

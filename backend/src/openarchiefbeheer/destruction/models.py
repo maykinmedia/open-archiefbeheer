@@ -271,9 +271,10 @@ class DestructionListItem(models.Model):
                 )
                 raise exc
 
-            delete_zaak_and_related_objects(
-                zaak=zaak, result_store=ResultStore(store=self)
-            )
+            store = ResultStore(store=self)
+            store.clear_traceback()
+
+            delete_zaak_and_related_objects(zaak=zaak, result_store=store)
 
             zaak.delete()
 

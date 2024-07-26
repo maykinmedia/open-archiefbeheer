@@ -2,9 +2,12 @@ import django.dispatch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from openarchiefbeheer.emails.models import EmailConfig
+
 from .constants import ListRole, ReviewDecisionChoices
-from .models import DestructionListAssignee, DestructionListReview
+from .models import DestructionList, DestructionListAssignee, DestructionListReview
 from .utils import (
+    notify,
     notify_author_changes_requested,
     notify_author_last_review,
     notify_author_positive_review,
@@ -12,6 +15,7 @@ from .utils import (
 )
 
 user_assigned = django.dispatch.Signal()
+deletion_failure = django.dispatch.Signal()
 
 
 @receiver(post_save, sender=DestructionListReview)
@@ -46,3 +50,15 @@ def notify_reviewer_of_assignment(sender, assignee, **kwargs):
         return
 
     notify_reviewer(assignee.user, assignee.destruction_list)
+
+
+@receiver(deletion_failure)
+def notify_author_of_failure(sender: DestructionList, **kwargs):
+    config = EmailConfig.get_solo()
+
+    notify(
+        subject=config.subject_error_during_deletion,
+        body=config.body_error_during_deletion,
+        context={"list": sender},
+        recipients=[sender.author.email],
+    )

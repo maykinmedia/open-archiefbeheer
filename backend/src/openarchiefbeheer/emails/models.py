@@ -84,6 +84,23 @@ class EmailConfig(SingletonModel):
         ),
         blank=True,
     )
+    subject_error_during_deletion = models.CharField(
+        max_length=250,
+        verbose_name=_("subject error during deletion"),
+        help_text=_(
+            "Subject of the email that will be sent to the record manager "
+            "when an error happened during deletion."
+        ),
+        blank=True,
+    )
+    body_error_during_deletion = models.TextField(
+        verbose_name=_("body error during deletion"),
+        help_text=_(
+            "Body of the email that will be sent to the record manager "
+            "when an error happened during deletion."
+        ),
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("email configuration")
