@@ -81,7 +81,7 @@ export function DestructionListCreatePage() {
         value: String(user.pk),
         label: user.username,
       })),
-      required: true,
+      required: false,
     },
   ];
 

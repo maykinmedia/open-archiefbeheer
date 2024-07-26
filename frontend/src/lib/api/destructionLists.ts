@@ -68,9 +68,11 @@ export async function createDestructionList(
   assignees: string[] | number[] | User[],
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
-  const assigneeIds = assignees.map((assignee) =>
-    isPrimitive(assignee) ? assignee.toString() : assignee.pk.toString(),
-  );
+  const assigneeIds = assignees
+    .map((assignee) =>
+      isPrimitive(assignee) ? assignee.toString() : assignee.pk.toString(),
+    )
+    .filter((v) => v);
 
   const destructionList = {
     name,
