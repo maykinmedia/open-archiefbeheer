@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.1.1
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
           python-version: '3.12'
           setup-node: 'no'
@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.1.1
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
           python-version: '3.12'
           setup-node: 'no'
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.1.1
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
           python-version: '3.12'
           setup-node: 'no'
@@ -134,7 +134,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.1.1
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev gdal-bin'
           python-version: '3.12'
