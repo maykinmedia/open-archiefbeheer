@@ -40,11 +40,6 @@ class ResultStore:
     def save(self) -> None:
         self.store.save()
 
-    def has_deleted_resource(self, resource_type: str, value: str) -> bool:
-        results = self.get_internal_results()
-
-        return value in results["deleted_resources"][resource_type]
-
     def has_resource_to_delete(self, resource_type: str) -> bool:
         results = self.get_internal_results()
 
