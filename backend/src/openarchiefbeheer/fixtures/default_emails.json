@@ -14,7 +14,9 @@
       "subject_changes_requested": "Voorstel voor wijziging van uw vernietigingslijst",
       "body_changes_requested": "Beste {{ user }},\r\n\r\nEr is een voorstel tot aanpassing van uw vernietigingslijst {{ list }}. U kunt de lijst en de voorgestelde wijziging in de Open-Archiefbeheer web app bekijken en af te handelen.",
       "subject_error_during_deletion": "Fout tijdens vernietiging",
-      "body_error_during_deletion": "Beste {{ user }},\r\n\r\nEr is een fout opgetreden tijdens het vernietigen van vernietigingslijst {{ list }}. Probeer het opnieuw of neem contact op met de IT afdeling."
+      "body_error_during_deletion": "Beste {{ user }},\r\n\r\nEr is een fout opgetreden tijdens het vernietigen van vernietigingslijst {{ list }}. Probeer het opnieuw of neem contact op met de IT afdeling.",
+      "subject_successful_deletion": "Lijst succesvol verwerkt",
+      "body_successful_deletion": "Beste,\r\n\r\nLijst {{ list }} is succesvol verwerkt. Alle zaken en gerelateerde objecten zijn vernietigd."
     }
   }
 ]
