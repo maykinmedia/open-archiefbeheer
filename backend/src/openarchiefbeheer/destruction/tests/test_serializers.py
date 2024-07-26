@@ -11,8 +11,10 @@ from rest_framework.test import APIRequestFactory
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 
+from ...zaken.tests.factories import ZaakFactory
 from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
 from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
@@ -120,6 +122,76 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             message,
             '[2024-05-02T16:00:00+02:00]: Destruction list "A test list" created by user record_manager.',
+        )
+
+    def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
+        reviewer = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        zaak = ZaakFactory.create()
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        with patch(
+            "openarchiefbeheer.config.models.ArchiveConfig.get_solo",
+            return_value=ArchiveConfig(zaaktypes_short_process=[zaak.zaaktype]),
+        ):
+            data = {
+                "name": "A test list",
+                "contains_sensitive_info": True,
+                "assignees": [
+                    {"user": reviewer.pk, "order": 0},
+                ],
+                "items": [
+                    {
+                        "zaak": zaak.url,
+                        "extra_zaak_data": {},
+                    },
+                ],
+            }
+            serializer = DestructionListSerializer(
+                data=data, context={"request": request}
+            )
+            self.assertTrue(serializer.is_valid())
+
+    def test_destruction_list_without_short_procedure_requires_multiple_reviewers(self):
+        reviewer = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        zaak = ZaakFactory.create()
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "assignees": [
+                {"user": reviewer.pk, "order": 0},
+            ],
+            "items": [
+                {
+                    "zaak": zaak.url,
+                    "extra_zaak_data": {},
+                },
+            ],
+        }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer.is_valid()
+
+        self.assertIn(
+            "A destruction list without a short reviewing process must have more than 1 reviewer.",
+            serializer.errors["non_field_errors"],
         )
 
     def test_zaak_already_included_in_other_list(self):

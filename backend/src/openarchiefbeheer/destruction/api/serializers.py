@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
@@ -131,25 +132,49 @@ class DestructionListSerializer(serializers.ModelSerializer):
         """
         assignees = attrs.get("assignees")
 
-        if assignees:
-            # Validate that assignees can only be set when comment is provided.
-            current_reviewers = (
-                self.instance.assignees.filter(role=ListRole.reviewer)
-                if self.instance
-                else DestructionListAssignee.objects.none()
-            )
-            current_reviewer_pks = list(
-                current_reviewers.values_list("user__pk", flat=True)
-            )
-            assignee_pks = [assignee["user"].pk for assignee in assignees]
+        if not assignees:
+            return attrs
 
-            if current_reviewer_pks and current_reviewer_pks != assignee_pks:
-                comment = attrs.get("comment", "").strip()
+        # Validate that assignees can only be set when comment is provided.
+        current_reviewers = (
+            self.instance.assignees.filter(role=ListRole.reviewer)
+            if self.instance
+            else DestructionListAssignee.objects.none()
+        )
+        current_reviewer_pks = list(
+            current_reviewers.values_list("user__pk", flat=True)
+        )
+        assignee_pks = [assignee["user"].pk for assignee in assignees]
 
-                if not comment:
-                    raise ValidationError(
-                        _("A comment should be provided when changing assignees.")
+        if current_reviewer_pks and current_reviewer_pks != assignee_pks:
+            comment = attrs.get("comment", "").strip()
+
+            if not comment:
+                raise ValidationError(
+                    _("A comment should be provided when changing assignees.")
+                )
+
+        if len(assignees) == 1:
+            items = self.initial_data["items"]
+            zaken_urls = [i["zaak"] for i in items]
+            zaaktypes_urls = (
+                Zaak.objects.filter(url__in=zaken_urls)
+                .values_list("zaaktype", flat=True)
+                .distinct()
+            )
+            config = ArchiveConfig.get_solo()
+
+            if not all(
+                [
+                    zaaktype in config.zaaktypes_short_process
+                    for zaaktype in zaaktypes_urls
+                ]
+            ):
+                raise ValidationError(
+                    _(
+                        "A destruction list without a short reviewing process must have more than 1 reviewer."
                     )
+                )
 
         return attrs
 
