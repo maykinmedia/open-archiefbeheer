@@ -152,6 +152,7 @@ def delete_object_and_store_result(
         response.raise_for_status()
     except HTTPError as exc:
         if not http_error_handler:
+            store.add_traceback(traceback.format_exc())
             raise exc
         return http_error_handler(exc)
     except Exception as exc:

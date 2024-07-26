@@ -302,3 +302,36 @@ class ProcessDeletingZakenTests(TestCase):
             ),
             logs[0],
         )
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_processing_list_with_failed_item(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete, processing_status=InternalStatus.failed
+        )
+        zaak = ZaakFactory.create()
+        DestructionListItemFactory.create(
+            zaak=zaak.url,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
+            internal_results={"traceback": "Some traceback"},
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+            ),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
+        self.assertEqual(destruction_list.status, ListStatus.deleted)
+
+        item = destruction_list.items.first()
+
+        self.assertEqual(item.processing_status, InternalStatus.succeeded)
+        self.assertEqual(
+            item.internal_results,
+            {"deleted_resources": {}, "resources_to_delete": {}, "traceback": ""},
+        )

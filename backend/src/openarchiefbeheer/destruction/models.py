@@ -274,9 +274,7 @@ class DestructionListItem(models.Model):
             store = ResultStore(store=self)
             store.clear_traceback()
 
-            delete_zaak_and_related_objects(
-                zaak=zaak, result_store=store
-            )
+            delete_zaak_and_related_objects(zaak=zaak, result_store=store)
 
             zaak.delete()
 
