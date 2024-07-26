@@ -9,6 +9,7 @@ from openarchiefbeheer.celery import app
 from .constants import InternalStatus, ListItemStatus, ListStatus
 from .models import DestructionList, DestructionListItem, ReviewResponse
 from .signals import deletion_failure
+from .utils import notify_assignees_successful_deletion
 
 logger = logging.getLogger(__name__)
 
@@ -104,4 +105,4 @@ def complete_and_notify(pk: int) -> None:
 
     destruction_list.set_status(ListStatus.deleted)
 
-    # TODO notify
+    notify_assignees_successful_deletion(destruction_list)
