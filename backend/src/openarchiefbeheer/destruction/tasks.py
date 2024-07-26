@@ -8,6 +8,7 @@ from openarchiefbeheer.celery import app
 
 from .constants import InternalStatus, ListItemStatus, ListStatus
 from .models import DestructionList, DestructionListItem, ReviewResponse
+from .signals import deletion_failure
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,8 @@ def handle_processing_error(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
     destruction_list.processing_status = InternalStatus.failed
     destruction_list.save()
+
+    deletion_failure.send(sender=destruction_list)
 
 
 @app.task
