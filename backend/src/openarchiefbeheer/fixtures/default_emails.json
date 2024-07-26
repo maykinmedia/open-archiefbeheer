@@ -12,7 +12,9 @@
       "subject_last_review": "Vernietigingslijst klaar om vernietigd te worden",
       "body_last_review": "Beste {{ user }}, \r\n\r\nReviewer {{ last_reviewer }} heeft de Vernietigingslijst {{ list }} goedgekeurd. Alle reviewers hebben de lijst goedgekeurd dus die is klaar om te worden vernietigd.",
       "subject_changes_requested": "Voorstel voor wijziging van uw vernietigingslijst",
-      "body_changes_requested": "Beste {{ user }},\r\n\r\nEr is een voorstel tot aanpassing van uw vernietigingslijst {{ list }}. U kunt de lijst en de voorgestelde wijziging in de Open-Archiefbeheer web app bekijken en af te handelen."
+      "body_changes_requested": "Beste {{ user }},\r\n\r\nEr is een voorstel tot aanpassing van uw vernietigingslijst {{ list }}. U kunt de lijst en de voorgestelde wijziging in de Open-Archiefbeheer web app bekijken en af te handelen.",
+      "subject_error_during_deletion": "Fout tijdens vernietiging",
+      "body_error_during_deletion": "Beste {{ user }},\r\n\r\nEr is een fout opgetreden tijdens het vernietigen van vernietigingslijst {{ list }}. Probeer het opnieuw of neem contact op met de IT afdeling."
     }
   }
 ]
