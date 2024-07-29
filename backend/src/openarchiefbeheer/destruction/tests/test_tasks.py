@@ -362,6 +362,7 @@ class ProcessDeletingZakenTests(TestCase):
             sorted(mail.outbox[0].to),
             sorted([assignee.user.email for assignee in assignees]),
         )
+        self.assertEqual(mail.outbox[0].subject, "DELETED!")
 
         list.refresh_from_db()
 
