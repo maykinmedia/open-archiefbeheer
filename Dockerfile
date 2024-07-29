@@ -112,5 +112,5 @@ LABEL org.label-schema.vcs-ref=$COMMIT_HASH \
 RUN python src/manage.py collectstatic --noinput \
     && python src/manage.py compilemessages
 
-EXPOSE 8080
+EXPOSE 8000
 CMD ["/start.sh"]
