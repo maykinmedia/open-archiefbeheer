@@ -99,6 +99,20 @@ def notify_author_last_review(
     )
 
 
+def notify_assignees_successful_deletion(destruction_list: DestructionList) -> None:
+    config = EmailConfig.get_solo()
+    recipients = destruction_list.assignees.all().values_list("user__email", flat=True)
+
+    notify(
+        subject=config.subject_successful_deletion,
+        body=config.body_successful_deletion,
+        context={
+            "list": destruction_list,
+        },
+        recipients=list(recipients),
+    )
+
+
 class ObjectWithStatus(Protocol):
     def set_processing_status(self, status: InternalStatus) -> None: ...
 

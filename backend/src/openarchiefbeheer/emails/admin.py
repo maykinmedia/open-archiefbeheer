@@ -47,4 +47,13 @@ class EmailConfigAdmin(SingletonModelAdmin):
                 ]
             },
         ),
+        (
+            _("Templates successful deletion"),
+            {
+                "fields": [
+                    "subject_successful_deletion",
+                    "body_successful_deletion",
+                ]
+            },
+        ),
     ]

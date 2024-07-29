@@ -21,6 +21,7 @@ class UserFactory(DjangoModelFactory):
     last_name = factory.Faker("last_name")
     password = factory.PostGenerationMethodCall("set_password", "password")
     role = factory.SubFactory(RoleFactory)
+    email = factory.Faker("email")
 
     class Meta:
         model = User

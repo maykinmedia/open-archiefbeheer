@@ -101,6 +101,23 @@ class EmailConfig(SingletonModel):
         ),
         blank=True,
     )
+    subject_successful_deletion = models.CharField(
+        max_length=250,
+        verbose_name=_("subject successful deletion"),
+        help_text=_(
+            "Subject of the email that will be sent to all the assignees "
+            "when a list is successfully deleted."
+        ),
+        blank=True,
+    )
+    body_successful_deletion = models.TextField(
+        verbose_name=_("body successful deletion"),
+        help_text=_(
+            "Body of the email that will be sent to all the assignees "
+            "when a list is successfully deleted."
+        ),
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("email configuration")

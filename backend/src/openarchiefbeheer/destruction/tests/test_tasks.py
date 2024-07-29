@@ -21,6 +21,7 @@ from ..constants import (
     ListStatus,
 )
 from ..tasks import (
+    complete_and_notify,
     delete_destruction_list,
     delete_destruction_list_item,
     process_review_response,
@@ -335,3 +336,35 @@ class ProcessDeletingZakenTests(TestCase):
             item.internal_results,
             {"deleted_resources": {}, "resources_to_delete": {}, "traceback": ""},
         )
+
+    def test_complete_and_notify(self):
+        list = DestructionListFactory.create(
+            processing_status=InternalStatus.processing,
+            status=ListStatus.ready_to_delete,
+        )
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3, destruction_list=list
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_successful_deletion="DELETED!",
+                    body_successful_deletion="Wohoo deleted list",
+                ),
+            ),
+        ):
+            complete_and_notify(list.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            sorted(mail.outbox[0].to),
+            sorted([assignee.user.email for assignee in assignees]),
+        )
+        self.assertEqual(mail.outbox[0].subject, "DELETED!")
+
+        list.refresh_from_db()
+
+        self.assertEqual(list.status, ListStatus.deleted)
+        self.assertEqual(list.processing_status, InternalStatus.succeeded)
