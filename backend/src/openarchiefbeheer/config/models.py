@@ -15,6 +15,7 @@ class ArchiveConfig(SingletonModel):
             "have to approve this list before it is deleted."
         ),
         default=list,
+        blank=True,
     )
 
     class Meta:

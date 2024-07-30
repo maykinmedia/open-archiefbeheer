@@ -10,25 +10,29 @@ import {
   SerializedFormData,
   Toolbar,
 } from "@maykin-ui/admin-ui";
-import { FormEvent, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { useActionData, useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../hooks";
 import "./Settings.css";
 import { UpdateSettingsAction } from "./settings.action";
 import { SettingsContext } from "./settings.loader";
 
-export type SettingsPageProps = React.ComponentProps<"main"> & {
-  // Props here.
-};
-
 /**
  * Settings page
  */
-export function SettingsPage({ children, ...props }: SettingsPageProps) {
+export function SettingsPage() {
   const { zaaktypesShortProcess, zaaktypeChoices } =
     useLoaderData() as SettingsContext;
   const submitAction = useSubmitAction<UpdateSettingsAction>();
+  const errors = (useActionData() || undefined) as
+    | Record<string, string>
+    | undefined;
+
+  // Close modal on error.
+  useEffect(() => {
+    errors && setModalOpenState(false);
+  }, [errors]);
 
   const [modalOpenState, setModalOpenState] = useState<boolean>(false);
 
@@ -36,7 +40,7 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
     {
       autoComplete: "off",
       label: "Verkorte zaaktypes",
-      name: "verkorte_zaaktypes",
+      name: "zaaktypesShortProcess",
       type: "checkbox",
       options: zaaktypeChoices.map((choice) => ({
         value: choice.value,
@@ -50,11 +54,12 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
     _: FormEvent,
     data: SerializedFormData,
   ) => {
-    const verkorteZaaktypes = (data.verkorte_zaaktypes ?? []) as string[];
+    const zaaktypesShortProcess = (data.zaaktypesShortProcess ??
+      []) as string[];
     submitAction({
       type: "PATCH-ARCHIVE-CONFIG",
       payload: {
-        zaaktypesShortProcess: verkorteZaaktypes,
+        zaaktypesShortProcess: zaaktypesShortProcess,
       },
     });
     setModalOpenState(true);
@@ -82,6 +87,7 @@ export function SettingsPage({ children, ...props }: SettingsPageProps) {
       </P>
       <br />
       <Form
+        errors={errors}
         fields={verkorteProcedureFormFields}
         validateOnChange={true}
         onSubmit={handleSubmitPatchArchiveConfig}
