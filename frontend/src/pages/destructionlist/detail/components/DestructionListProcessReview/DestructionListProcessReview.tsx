@@ -231,6 +231,7 @@ export function DestructionListProcessReview() {
           ? `Selecter ${zaken.count - selectedUrls.length} zaken`
           : "Opnieuw indienen",
       disabled: selectedUrls.length !== zaken.count,
+      variant: "primary",
       onClick: handleProcessReviewClick,
     },
   ];
