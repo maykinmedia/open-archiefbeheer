@@ -20,6 +20,7 @@ import {
   canReviewDestructionList,
   canTriggerDestruction,
   canUpdateDestructionList,
+  canViewDestructionList,
 } from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/format/date";
 import {
@@ -117,7 +118,9 @@ export const Landing = () => {
       case "ready_for_archivist":
         return canReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
-          : undefined;
+          : canViewDestructionList(user, list)
+            ? `/destruction-lists/${list.uuid}`
+            : undefined;
 
       case "internally_reviewed":
         return canMarkListAsFinal(user, list)
