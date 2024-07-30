@@ -18,6 +18,11 @@ export type DestructionList = {
   uuid: string;
 };
 
+export type DestructionListAssignee = {
+  user: User;
+  order: number;
+};
+
 // An array to be used in various parts of the application.
 export const DESTRUCTION_LIST_STATUSES = [
   "ready_to_review",
@@ -37,11 +42,6 @@ export type DestructionListProcessingStatus =
   | "processing"
   | "failed"
   | "succeeded";
-
-export type DestructionListAssignee = {
-  user: User;
-  order: number;
-};
 
 export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];
@@ -179,4 +179,22 @@ export async function destroyDestructionList(uuid: string) {
 
   const promise: Promise<DestructionList> = response.json();
   return promise;
+}
+
+export type DestructionListReassignData = {
+  comment: string;
+  role: "reviewer" | "author" | "archivist";
+  assignees: DestructionListAssigneeUpdate[];
+};
+
+/**
+ * Update destruction list.
+ * @param uuid
+ * @param data
+ */
+export async function reassignDestructionList(
+  uuid: string,
+  data: DestructionListReassignData,
+) {
+  return request("POST", `/destruction-lists/${uuid}/reassign/`, {}, data);
 }

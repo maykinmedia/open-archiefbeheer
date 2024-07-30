@@ -2,10 +2,12 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect } from "react-router-dom";
 
 import { JsonValue, TypedAction } from "../../../hooks";
+import { User } from "../../../lib/api/auth";
 import {
   DestructionListItemUpdate,
   destroyDestructionList,
   markDestructionListAsFinal,
+  reassignDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
@@ -13,13 +15,13 @@ import {
   createReviewResponse,
 } from "../../../lib/api/reviewResponse";
 
-export type UpdateDestructionListAction<T = JsonValue> = TypedAction<
+export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "DESTROY"
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
   | "UPDATE_ASSIGNEES"
   | "UPDATE_ZAKEN",
-  T
+  P
 >;
 
 /**
@@ -92,6 +94,12 @@ export async function destructionListProcessReviewAction({
   return redirect("/");
 }
 
+export type DestructionListUpdateAssigneesActionPayload =
+  UpdateDestructionListAction<{
+    assignees: { user: User["pk"] }[];
+    comment: string;
+  }>;
+
 /**
  * React Router action (user intents to reassign the destruction list).
  */
@@ -99,22 +107,17 @@ export async function destructionListUpdateAssigneesAction({
   request,
   params,
 }: ActionFunctionArgs) {
-  const data: UpdateDestructionListAction<
-    Record<string, string | Array<number | string>>
-  > = await request.json();
-  const { assigneeIds, comment } = data.payload;
+  const data: DestructionListUpdateAssigneesActionPayload =
+    await request.json();
+  const { assignees, comment } = data.payload;
 
-  const assignees = (assigneeIds as Array<number | string>)
-    .filter((id) => id !== "") // Case in which a reviewer is removed
-    .map((id, index) => ({
-      user: Number(id),
-      order: index,
-    }));
+  const _assignees = assignees.filter((assignee) => Boolean(assignee?.user)); // Case in which a reviewer is removed
 
   try {
-    await updateDestructionList(params.uuid as string, {
-      assignees,
-      comment: String(comment),
+    await reassignDestructionList(params.uuid as string, {
+      assignees: _assignees,
+      comment: comment,
+      role: "reviewer",
     });
   } catch (e: unknown) {
     if (e instanceof Response) {
