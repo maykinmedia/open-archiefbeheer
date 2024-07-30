@@ -134,7 +134,7 @@ export function DestructionListDetailPage() {
       />
       {review ? <DestructionListProcessReview /> : <DestructionListEdit />}
 
-      {destructionList.status === "ready_for_archivist" && (
+      {destructionList.status === "internally_reviewed" && (
         <Modal
           title="Markeer als definitief"
           open={archivistModalOpenState}
