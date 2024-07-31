@@ -156,9 +156,9 @@ from .serializers import (
     ),
     reassign=extend_schema(
         tags=["Destruction list"],
-        summary=_("Reassign the destruction list to new assignees."),
+        summary=_("Reassign the current assignee"),
         description=_(
-            "This endpoint can be used to change the users that are assigned to a list."
+            "This endpoint can be used to change the user that is currently assigned to a list to some other user with same or more elevated role permissions.."
         ),
         request=ReassignementSerializer,
         responses={200: None},
@@ -249,18 +249,18 @@ class DestructionListViewSet(
         )
         serialiser.is_valid(raise_exception=True)
 
+        new_user = serialiser.validated_data["user"]
         with transaction.atomic():
-            destruction_list.assignees.filter(
-                role=serialiser.validated_data["role"]
-            ).delete()
-            new_assignees = destruction_list.bulk_create_assignees(
-                serialiser.validated_data["assignees"],
-                serialiser.validated_data["role"],
-            )
+            assignee = destruction_list.get_assignee(destruction_list.assignee)
+            assignee.user = new_user
+            assignee.save()
+
+            destruction_list.assignee = new_user
+            destruction_list.save()
 
         logevent.destruction_list_reassigned(
             destruction_list,
-            new_assignees,
+            new_user,
             serialiser.validated_data["comment"],
             request.user,
         )

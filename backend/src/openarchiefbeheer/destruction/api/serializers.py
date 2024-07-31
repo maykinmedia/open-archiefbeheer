@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
+from openarchiefbeheer.accounts.models import Role, User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
@@ -54,19 +55,16 @@ class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
 
 class ReassignementSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
-    role = serializers.ChoiceField(choices=ListRole.choices)
-    assignees = ReviewerAssigneeSerializer(many=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def validate(self, attrs):
         destruction_list = self.context["destruction_list"]
-        if (
-            attrs["role"] == ListRole.reviewer
-            and not destruction_list.has_short_review_process()
-            and len(attrs["assignees"]) < 2
+        if not Role.has_same_permissions_or_more(
+            attrs["user"].role, destruction_list.assignee.role
         ):
             raise ValidationError(
                 _(
-                    "A destruction list without a short reviewing process must have more than 1 reviewer."
+                    "You can only replace the current assignee with a user that has the same permissions or more."
                 )
             )
 

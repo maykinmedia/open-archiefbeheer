@@ -77,7 +77,4 @@ class CanReassignDestructionList(permissions.BasePermission):
         return request.user.role and request.user.role.can_start_destruction
 
     def has_object_permission(self, request, view, destruction_list):
-        return request.user == destruction_list.author and destruction_list.status in [
-            ListStatus.new,
-            ListStatus.ready_to_review,
-        ]
+        return request.user == destruction_list.author

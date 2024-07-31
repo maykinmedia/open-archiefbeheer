@@ -113,3 +113,23 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def has_same_permissions_or_more(role1, role2):
+        if role1.can_start_destruction:
+            if not role2.can_start_destruction:
+                return False
+
+        if role1.can_review_final_list:
+            if not role2.can_review_final_list:
+                return False
+
+        if role1.can_review_destruction:
+            if not role2.can_review_destruction:
+                return False
+
+        if role1.can_view_case_details:
+            if not role2.can_view_case_details:
+                return False
+
+        return True

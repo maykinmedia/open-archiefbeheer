@@ -1,5 +1,6 @@
 import logging
 import uuid as _uuid
+from typing import Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from ordered_model.models import OrderedModel
 from timeline_logger.models import TimelineLog
 
+from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.constants import (
     DestructionListItemAction,
@@ -134,6 +136,9 @@ class DestructionList(models.Model):
 
     def get_author(self) -> "DestructionListAssignee":
         return self.assignees.get(role=ListRole.author)
+
+    def get_assignee(self, user: User) -> Optional["DestructionListAssignee"]:
+        return self.assignees.filter(user=user).first()
 
     def assign_first_reviewer(self) -> None:
         reviewers = (

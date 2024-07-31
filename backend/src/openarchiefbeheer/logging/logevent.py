@@ -6,7 +6,6 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.destruction.constants import ListRole
 from openarchiefbeheer.destruction.models import (
     DestructionList,
-    DestructionListAssignee,
     DestructionListReview,
     ReviewDecisionChoices,
 )
@@ -56,7 +55,7 @@ def destruction_list_updated(destruction_list: DestructionList) -> None:
 
 def destruction_list_reassigned(
     destruction_list: DestructionList,
-    assignees: list[DestructionListAssignee],
+    new_assignee: User,
     comment: str,
     user: User,
 ) -> None:
@@ -65,16 +64,11 @@ def destruction_list_reassigned(
         event="destruction_list_reassigned",
         user=user,
         extra_data={
-            "assignees": [
-                {
-                    "user": {
-                        "pk": assignee.user.pk,
-                        "email": assignee.user.email,
-                        "username": assignee.user.username,
-                    },
-                }
-                for assignee in assignees
-            ],
+            "user": {
+                "pk": new_assignee.pk,
+                "email": new_assignee.email,
+                "username": new_assignee.username,
+            },
             "comment": comment,
         },
     )
