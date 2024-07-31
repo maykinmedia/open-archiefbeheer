@@ -112,13 +112,13 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         self.save()
 
-    def bulk_create_reviewers(
-        self, assignees_data: dict
+    def bulk_create_assignees(
+        self, assignees_data: dict, role: str
     ) -> list["DestructionListAssignee"]:
         return DestructionListAssignee.objects.bulk_create(
             [
                 DestructionListAssignee(
-                    **{**assignee, "role": ListRole.reviewer, "destruction_list": self}
+                    **{**assignee, "role": role, "destruction_list": self}
                 )
                 for assignee in assignees_data
             ]
