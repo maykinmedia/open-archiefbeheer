@@ -95,7 +95,7 @@ warnings.filterwarnings(
 )
 
 # End-to-end test settings
-E2E_PORT = config("E2E_PORT", default=8080)
+E2E_PORT = config("E2E_PORT", default=8000)
 E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
 
 # Playwright settings

@@ -33,8 +33,8 @@ services:
       - DB_HOST=db
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
-      - CORS_ALLOWED_ORIGINS=http://localhost:9000,http://localhost:8080
-      - CSRF_TRUSTED_ORIGINS=http://localhost:9000,http://localhost:8080
+      - CORS_ALLOWED_ORIGINS=http://localhost:9000,http://localhost:8000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:9000,http://localhost:8000
       - CSRF_COOKIE_SAMESITE=none
       - CSRF_COOKIE_SECURE=False
       - SESSION_COOKIE_SAMESITE=none
@@ -44,11 +44,11 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
-      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_API_URL=http://localhost:8000
       - REACT_APP_API_PATH=/api/v1
       - REACT_APP_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
     ports:
-      - 8080:8080
+      - 8000:8000
     depends_on:
       - db
       - redis
