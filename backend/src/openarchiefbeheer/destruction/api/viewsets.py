@@ -10,6 +10,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from openarchiefbeheer.logging import logevent
+
 from ..constants import InternalStatus, ListRole, ListStatus
 from ..models import (
     DestructionList,
@@ -29,6 +31,7 @@ from .filtersets import (
 )
 from .permissions import (
     CanMarkListAsFinal,
+    CanReassignDestructionList,
     CanReviewPermission,
     CanStartDestructionPermission,
     CanTriggerDeletion,
@@ -41,6 +44,7 @@ from .serializers import (
     DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
 )
@@ -87,7 +91,8 @@ from .serializers import (
         summary=_("Update destruction list"),
         description=_(
             "Update a destruction list. "
-            "The cases and the assignees are updated in bulk."
+            "The cases are updated in bulk. "
+            "The assignees can only be changed through the 'reassign' endpoint."
         ),
         examples=[
             OpenApiExample(
@@ -96,10 +101,6 @@ from .serializers import (
                 value={
                     "name": "An example updated list",
                     "containsSensitiveInfo": False,
-                    "assignees": [
-                        {"user": 2, "order": 0},
-                        {"user": 1, "order": 1},
-                    ],
                     "items": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
@@ -119,17 +120,14 @@ from .serializers import (
         summary=_("Partially update a destruction list"),
         description=_(
             "Partially update a destruction list. "
-            "The cases and the assignees are updated in bulk."
+            "The cases are updated in bulk. "
+            "The assignees can only be changed through the 'reassign' endpoint."
         ),
         examples=[
             OpenApiExample(
                 name="Example list partial update",
                 value={
                     "name": "Partially updated list",
-                    "assignees": [
-                        {"user": 2, "order": 0},
-                        {"user": 1, "order": 1},
-                    ],
                 },
                 request_only=True,
             )
@@ -157,6 +155,15 @@ from .serializers import (
         ),
         request=ReviewerAssigneeSerializer,
         responses={201: None},
+    ),
+    reassign=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Reassign the destruction list to new assignees."),
+        description=_(
+            "This endpoint can be used to change the users that are assigned to a list."
+        ),
+        request=ReassignementSerializer,
+        responses={200: None},
     ),
 )
 class DestructionListViewSet(
@@ -193,6 +200,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanTriggerDeletion]
         elif self.action == "make_final":
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
+        elif self.action == "reassign":
+            permission_classes = [IsAuthenticated & CanReassignDestructionList]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -244,6 +253,31 @@ class DestructionListViewSet(
         destruction_list.assign(archivist)
 
         return Response(status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], name="reassign")
+    def reassign(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+        serialiser = ReassignementSerializer(
+            data=request.data, context={"destruction_list": destruction_list}
+        )
+        serialiser.is_valid(raise_exception=True)
+
+        with transaction.atomic():
+            destruction_list.assignees.filter(
+                role=serialiser.validated_data["role"]
+            ).delete()
+            new_assignees = destruction_list.bulk_create_assignees(
+                serialiser.validated_data["assignees"],
+                serialiser.validated_data["role"],
+            )
+
+        logevent.destruction_list_reassigned(
+            destruction_list,
+            new_assignees,
+            serialiser.validated_data["comment"],
+            request.user,
+        )
+        return Response()
 
 
 @extend_schema_view(

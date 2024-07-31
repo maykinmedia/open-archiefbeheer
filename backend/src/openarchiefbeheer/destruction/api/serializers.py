@@ -52,6 +52,27 @@ class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
         fields = ("user", "order")
 
 
+class ReassignementSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=True, allow_blank=False)
+    role = serializers.ChoiceField(choices=ListRole.choices)
+    assignees = ReviewerAssigneeSerializer(many=True)
+
+    def validate(self, attrs):
+        destruction_list = self.context["destruction_list"]
+        if (
+            attrs["role"] == ListRole.reviewer
+            and not destruction_list.has_short_review_process()
+            and len(attrs["assignees"]) < 2
+        ):
+            raise ValidationError(
+                _(
+                    "A destruction list without a short reviewing process must have more than 1 reviewer."
+                )
+            )
+
+        return attrs
+
+
 class DestructionListItemSerializer(serializers.ModelSerializer):
     zaak_data = serializers.SerializerMethodField(
         help_text=_(
@@ -96,8 +117,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
 
 
 class DestructionListSerializer(serializers.ModelSerializer):
-    assignees = ReviewerAssigneeSerializer(many=True)
-    comment = serializers.CharField(allow_blank=True, required=False)
+    assignees = ReviewerAssigneeSerializer(many=True, required=False)
     items = DestructionListItemSerializer(many=True)
     author = UserSerializer(read_only=True)
 
@@ -109,7 +129,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "author",
             "contains_sensitive_info",
             "assignees",
-            "comment",
             "items",
             "status",
         )
@@ -125,62 +144,38 @@ class DestructionListSerializer(serializers.ModelSerializer):
         self._context["destruction_list"] = self.instance
 
     def validate(self, attrs: dict) -> dict:
-        """
-        Run "cross field" validation.
-
-        - Validate that assignees can only be set when comment is provided.
-        """
         assignees = attrs.get("assignees")
-
         if not assignees:
             return attrs
 
-        # Validate that assignees can only be set when comment is provided.
-        current_reviewers = (
-            self.instance.assignees.filter(role=ListRole.reviewer)
-            if self.instance
-            else DestructionListAssignee.objects.none()
-        )
-        current_reviewer_pks = list(
-            current_reviewers.values_list("user__pk", flat=True)
-        )
-        assignee_pks = [assignee["user"].pk for assignee in assignees]
+        if len(assignees) > 1:
+            return attrs
 
-        if current_reviewer_pks and current_reviewer_pks != assignee_pks:
-            comment = attrs.get("comment", "").strip()
+        zaken_urls = [i["zaak"] for i in attrs["items"]]
+        zaaktypes_urls = (
+            Zaak.objects.filter(url__in=zaken_urls)
+            .values_list("zaaktype", flat=True)
+            .distinct()
+        )
+        config = ArchiveConfig.get_solo()
 
-            if not comment:
-                raise ValidationError(
-                    _("A comment should be provided when changing assignees.")
+        if not all(
+            [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
+        ):
+            raise ValidationError(
+                _(
+                    "A destruction list without a short reviewing process must have more than 1 reviewer."
                 )
-
-        if len(assignees) == 1:
-            items = self.initial_data["items"]
-            zaken_urls = [i["zaak"] for i in items]
-            zaaktypes_urls = (
-                Zaak.objects.filter(url__in=zaken_urls)
-                .values_list("zaaktype", flat=True)
-                .distinct()
             )
-            config = ArchiveConfig.get_solo()
-
-            if not all(
-                [
-                    zaaktype in config.zaaktypes_short_process
-                    for zaaktype in zaaktypes_urls
-                ]
-            ):
-                raise ValidationError(
-                    _(
-                        "A destruction list without a short reviewing process must have more than 1 reviewer."
-                    )
-                )
 
         return attrs
 
     def validate_assignees(
         self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
+        if self.instance:
+            return assignees
+
         assignees_pks = [assignee["user"].pk for assignee in assignees]
 
         if len(assignees) != len(set(assignees_pks)):
@@ -208,7 +203,9 @@ class DestructionListSerializer(serializers.ModelSerializer):
         DestructionListAssignee.objects.create(
             user=author, destruction_list=destruction_list, role=ListRole.author
         )
-        reviewers = destruction_list.bulk_create_reviewers(assignees_data)
+        reviewers = destruction_list.bulk_create_assignees(
+            assignees_data, role=ListRole.reviewer
+        )
 
         destruction_list.assign(reviewers[0])
 
@@ -219,11 +216,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def update(
         self, instance: DestructionList, validated_data: dict
     ) -> DestructionList:
-
-        assignees_data = validated_data.pop("assignees", None)
-        comment = validated_data.pop("comment", None)
+        validated_data.pop("assignees", None)
         items_data = validated_data.pop("items", None)
-
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
         )
@@ -233,22 +227,9 @@ class DestructionListSerializer(serializers.ModelSerializer):
             instance.items.all().delete()
             instance.bulk_create_items(items_data)
 
-        if assignees_data is not None:
-            instance.assignees.filter(role=ListRole.reviewer).delete()
-            instance.bulk_create_reviewers(assignees_data)
-
         instance.save()
 
         logevent.destruction_list_updated(instance)
-
-        if assignees_data is not None:
-            logevent.destruction_list_reassigned(
-                destruction_list=self.instance,
-                assignees=assignees_data,
-                comment=comment,
-                user=self.context["request"].user,
-            )
-
         return instance
 
 
