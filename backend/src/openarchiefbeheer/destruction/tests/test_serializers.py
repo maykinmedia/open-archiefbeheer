@@ -187,7 +187,7 @@ class DestructionListSerializerTests(TestCase):
         }
 
         serializer = DestructionListSerializer(data=data, context={"request": request})
-        serializer.is_valid()
+        self.assertFalse(serializer.is_valid())
 
         self.assertIn(
             "A destruction list without a short reviewing process must have more than 1 reviewer.",
@@ -290,21 +290,9 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
-        user1 = UserFactory.create(
-            username="reviewer1", role__can_review_destruction=True
-        )
-        user2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
-        )
-        user3 = UserFactory.create(
-            username="reviewer3", role__can_review_destruction=True
-        )
 
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True, author=record_manager
-        )
-        destruction_list.bulk_create_reviewers(
-            [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
         )
         DestructionListItemFactory.create_batch(
             2,
@@ -315,11 +303,6 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "An updated test list",
             "contains_sensitive_info": False,
-            "assignees": [
-                {"user": user1.pk, "order": 0},
-                {"user": user3.pk, "order": 1},
-            ],
-            "comment": "Lorem ipsum...",
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -347,11 +330,6 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(items.count(), 1)
         self.assertEqual(items[0].extra_zaak_data["key"], "value")
 
-        assignees = destruction_list.assignees.all().order_by("order")
-
-        self.assertEqual(assignees[0].user.pk, user1.pk)
-        self.assertEqual(assignees[1].user.pk, user3.pk)
-
         logs = TimelineLog.objects.filter(
             template="logging/destruction_list_updated.txt"
         )
@@ -376,8 +354,9 @@ class DestructionListSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_reviewers(
-            [{"user": user1, "order": 0}, {"user": user2, "order": 1}]
+        destruction_list.bulk_create_assignees(
+            [{"user": user1, "order": 0}, {"user": user2, "order": 1}],
+            role=ListRole.reviewer,
         )
         DestructionListItemFactory.create_batch(
             2,
