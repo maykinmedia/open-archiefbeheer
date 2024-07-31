@@ -68,9 +68,9 @@ def destruction_list_reassigned(
             "assignees": [
                 {
                     "user": {
-                        "pk": assignee["user"].pk,
-                        "email": assignee["user"].email,
-                        "username": assignee["user"].username,
+                        "pk": assignee.user.pk,
+                        "email": assignee.user.email,
+                        "username": assignee.user.username,
                     },
                 }
                 for assignee in assignees
