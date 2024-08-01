@@ -222,50 +222,55 @@ export function DestructionListReviewPage() {
 
   return (
     <>
-      <Modal
-        allowClose={true}
-        open={zaakModalDataState.open}
-        size="m"
-        title={zaakModalDataState.title}
-        onClose={onCloseModal}
-      >
-        <Body>
-          {activeItemResponse && (
-            <>
-              <Grid>
-                <Column span={3}>
-                  <H3>
-                    Antwoord (
-                    {formatDate(new Date(String(activeItemResponse?.created)))})
-                  </H3>
-                </Column>
+      {zaakModalDataState.open && (
+        <Modal
+          allowClose={true}
+          open={zaakModalDataState.open}
+          size="m"
+          title={zaakModalDataState.title}
+          onClose={onCloseModal}
+        >
+          <Body>
+            {activeItemResponse && (
+              <>
+                <Grid>
+                  <Column span={3}>
+                    <H3>
+                      Antwoord (
+                      {formatDate(
+                        new Date(String(activeItemResponse?.created)),
+                      )}
+                      )
+                    </H3>
+                  </Column>
 
-                <Column span={9}>
-                  <P bold>Opmerkingen</P>
-                  <P muted>{activeItemResponse.comment}</P>
-                </Column>
-              </Grid>
+                  <Column span={9}>
+                    <P bold>Opmerkingen</P>
+                    <P muted>{activeItemResponse.comment}</P>
+                  </Column>
+                </Grid>
 
-              <Hr />
-            </>
-          )}
+                <Hr />
+              </>
+            )}
 
-          <Grid>
-            <Column span={3}>
-              <H3>Wijzigingen</H3>
-            </Column>
+            <Grid>
+              <Column span={3}>
+                <H3>Wijzigingen</H3>
+              </Column>
 
-            <Column span={9}>
-              <Form
-                fields={zaakModalFormFields}
-                onSubmit={onSubmitZaakForm}
-                validateOnChange={true}
-                labelSubmit={"Uitzonderen"}
-              />
-            </Column>
-          </Grid>
-        </Body>
-      </Modal>
+              <Column span={9}>
+                <Form
+                  fields={zaakModalFormFields}
+                  onSubmit={onSubmitZaakForm}
+                  validateOnChange={true}
+                  labelSubmit={"Uitzonderen"}
+                />
+              </Column>
+            </Grid>
+          </Body>
+        </Modal>
+      )}
       <Modal
         title={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
         open={listModalDataState.open}
