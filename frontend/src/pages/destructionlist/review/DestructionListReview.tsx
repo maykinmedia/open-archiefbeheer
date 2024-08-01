@@ -12,8 +12,8 @@ import {
   Outline,
   P,
 } from "@maykin-ui/admin-ui";
-import React, { FormEvent, useState } from "react";
-import { useLoaderData, useSubmit } from "react-router-dom";
+import { FormEvent, useState } from "react";
+import { useLoaderData, useRevalidator, useSubmit } from "react-router-dom";
 import { useAsync } from "react-use";
 
 import { formatDate } from "../../../lib/format/date";
@@ -70,6 +70,7 @@ export function DestructionListReviewPage() {
     destructionList,
   } = useLoaderData() as DestructionListReviewContext;
   const submit = useSubmit();
+  const revalidator = useRevalidator();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
 
   /* Tooltip Motivation */
@@ -95,13 +96,28 @@ export function DestructionListReviewPage() {
     await updateZaakSelectionCountState();
   }, []);
 
+  const removeZaakFromSelection = async (zaak: Zaak) => {
+    await removeFromZaakSelection(destructionListReviewKey, [zaak]);
+    void updateZaakSelectionCountState();
+    revalidator.revalidate();
+  };
+
+  const addZaakToSelection = async (zaak: Zaak, motivation: string) => {
+    await addToZaakSelection<FormDataState>(destructionListReviewKey, [zaak], {
+      motivation,
+      uuid: zaak.uuid!,
+      url: zaak.url as string,
+    });
+    void updateZaakSelectionCountState();
+    revalidator.revalidate;
+  };
+
   /* Triggered once you select (click a checkbox) a specific row in the list */
   const onSelect = async (row: AttributeData[], selected: boolean) => {
     const firstZaak = row[0] as unknown as Zaak;
     /* If we deselect, we remove it from the selection list and update the count */
     if (!selected) {
-      await removeFromZaakSelection(destructionListReviewKey, [firstZaak]);
-      void updateZaakSelectionCountState();
+      await removeZaakFromSelection(firstZaak);
       return;
     }
     /* Otherwise, we open up a modal */
@@ -110,6 +126,18 @@ export function DestructionListReviewPage() {
       open: true,
       uuid: firstZaak.uuid,
       title: `${firstZaak.identificatie} uitzonderen`,
+    });
+  };
+
+  const onCloseModal = async () => {
+    const zaak = zaken.results.find((z) => z.uuid === zaakModalDataState.uuid)!;
+    const zaakInSelection = zaakSelection.some((z) => z?.uuid === zaak?.uuid);
+
+    // We make this check so that if we click on the action icon, we don't accidentally remove the zaak from the selection if it was selected already
+    if (!zaakInSelection) await removeZaakFromSelection(zaak);
+
+    setZaakModalDataState({
+      open: false,
     });
   };
 
@@ -146,15 +174,11 @@ export function DestructionListReviewPage() {
    */
   const onSubmitZaakForm = async (_: FormEvent, data: AttributeData) => {
     const zaak = zaken.results.find((z) => z.uuid === zaakModalDataState.uuid)!;
-    await addToZaakSelection<FormDataState>(destructionListReviewKey, [zaak], {
-      ...(data as {
-        motivation: string;
-      }),
-      uuid: zaakModalDataState.uuid!,
-      url: zaak.url as string,
+    const motivation = data.motivation as string;
+    await addZaakToSelection(zaak, motivation);
+    setZaakModalDataState({
+      open: false,
     });
-    setZaakModalDataState({ open: false });
-    await updateZaakSelectionCountState();
   };
 
   /**
@@ -199,10 +223,11 @@ export function DestructionListReviewPage() {
   return (
     <>
       <Modal
-        allowClose={false}
+        allowClose={true}
         open={zaakModalDataState.open}
         size="m"
         title={zaakModalDataState.title}
+        onClose={onCloseModal}
       >
         <Body>
           {activeItemResponse && (
