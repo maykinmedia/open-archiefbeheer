@@ -97,6 +97,7 @@ export function DestructionListProcessReview() {
     selected: boolean,
   ) => {
     const zaak = data[0] as unknown as Zaak;
+
     // Remove from selection.
     //
     // Remove the zaak from the selection in the background.
