@@ -144,9 +144,10 @@ export function DestructionListDetailPage() {
           <Body>
             <Form
               fields={archivistModalFormFields}
-              onSubmit={handleMakeFinal}
-              validateOnChange={true}
+              labelSubmit="Markeer als definitief"
               role="form"
+              validateOnChange={true}
+              onSubmit={handleMakeFinal}
             />
           </Body>
         </Modal>

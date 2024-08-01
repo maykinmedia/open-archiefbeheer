@@ -6,6 +6,8 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
 )
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -79,29 +81,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         def __init__(self, testcase):
             self.testcase = testcase
 
-        async def list_exists(self, **kwargs):
-            @sync_to_async()
-            def add_items(destruction_list, zaken):
-                for zaak in zaken:
-                    item = DestructionListItemFactory.create(
-                        destruction_list=destruction_list, zaak=zaak.url
-                    )
-                    destruction_list.items.add(item)
-
-            record_manager = await self.record_manager_exists()
-            base_kwargs = {
-                "name": "My First Destruction List",
-                "assignee": record_manager,
-                "author": record_manager,
-            }
-            merged_kwargs = {**base_kwargs, **kwargs}
-            destruction_list = await self._get_or_create(
-                DestructionListFactory, **merged_kwargs
-            )
-            zaken = await self.zaken_are_indexed(100)
-            await add_items(destruction_list, zaken)
-            return destruction_list
-
         async def assignee_exists(self, **kwargs):
             base_kwargs = {"user": await self.record_manager_exists()}
             merged_kwargs = {**base_kwargs, **kwargs}
@@ -143,6 +122,104 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             return await self._get_or_create(
                 UserFactory, password="ANic3Password", **kwargs
             )
+
+        async def list_exists(self, **kwargs):
+            @sync_to_async()
+            def add_items(destruction_list, assignees=[], items=[]):
+                if assignees:
+                    destruction_list.assignees.set(assignees)
+
+                if items:
+                    destruction_list.items.set(items)
+
+            record_manager = await self.record_manager_exists()
+            base_kwargs = {
+                "name": "My First Destruction List",
+                "assignee": record_manager,
+                "author": record_manager,
+                "zaken": await self.zaken_are_indexed(100),
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            assignees = merged_kwargs.pop("assignees", [])
+            zaken = merged_kwargs.pop("zaken", [])
+
+            destruction_list = await self._get_or_create(
+                DestructionListFactory, **merged_kwargs
+            )
+
+            items = [
+                await self.list_item_exists(
+                    destruction_list=destruction_list, zaak=zaak.url
+                )
+                for zaak in zaken
+            ]
+            await add_items(destruction_list, assignees, items)
+            return destruction_list
+
+        async def list_item_exists(self, **kwargs):
+            zaken = await self.zaken_are_indexed(100)
+            base_kwargs = {
+                "zaak": zaken[0].url if "zaak" not in kwargs else None,
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            return await self._get_or_create(
+                DestructionListItemFactory, **merged_kwargs
+            )
+
+        async def review_exists(self, **kwargs):
+            @sync_to_async()
+            def add_items(review, items=None):
+                if items:
+                    review.item_reviews.set(items)
+
+            base_kwargs = {
+                "destruction_list": (
+                    await self.list_exists() if "destruction_list" not in kwargs else {}
+                )
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            items = merged_kwargs.pop(
+                "items",
+                [
+                    await self.review_item_exists(
+                        destruction_list=merged_kwargs["destruction_list"]
+                    )
+                ],
+            )
+
+            review = await self._get_or_create(
+                DestructionListReviewFactory, **merged_kwargs
+            )
+            await add_items(review, items)
+            return review
+
+        async def review_item_exists(self, **kwargs):
+            @sync_to_async()
+            def get_item(merged_kwargs):
+                return merged_kwargs["destruction_list"].items.first()
+
+            destruction_list = await self.list_exists()
+            base_kwargs = {"destruction_list": destruction_list}
+            merged_kwargs = {**base_kwargs, **kwargs}
+            item = merged_kwargs.pop("items", await get_item(merged_kwargs))
+
+            return await self._get_or_create(
+                DestructionListItemReviewFactory,
+                destruction_list_item=item,
+                **merged_kwargs,
+            )
+
+        async def selectielijstklasse_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "11.1 - Verleend - vernietigen - P1Y",
+                        "value": "https://www.example.com",
+                    }
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_selectielijstklasse-choices/?zaak=*", handle)
 
         async def zaken_are_indexed(self, amount, **kwargs):
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
@@ -224,27 +301,26 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await page.get_by_label("Wachtwoord").fill("ANic3Password")
             await page.get_by_role("button", name="Inloggen").click()
 
-        async def user_clicks_button(self, page, name, index=None):
+        async def user_clicks_button(self, page, name, index=0):
             await self._user_clicks("button", page, name, index=index)
 
-        async def user_clicks_checkbox(self, page, name, index=None):
+        async def user_clicks_checkbox(self, page, name, index=0):
             await self._user_clicks("checkbox", page, name, index=index)
 
-        async def _user_clicks(self, role, page, name, index=None):
+        async def user_clicks_radio(self, page, name, index=0):
+            await self._user_clicks("radio", page, name, index=index)
+
+        async def _user_clicks(self, role, page, name, index=0):
             locator = page.get_by_role(role, name=name)
-
-            if index is None:
-                return await page.get_by_role(role, name=name).click()
-
-            buttons = await locator.all()
-            await buttons[index].click()
+            await locator.first.wait_for()
+            elements = await locator.all()
+            element = elements[index]
+            await element.wait_for()
+            await element.click()
 
         async def user_fills_form_field(self, page, label, value):
-            locator = page.get_by_label(label)
-            html = await locator.inner_html()
-
-            if html:  # has content so select?
-                select = await page.query_selector(f'.mykn-select[title="{label}"]')
+            select = await page.query_selector(f'.mykn-select[title="{label}"]')
+            if select:  # has content so select?
                 await select.click()
                 options = await select.query_selector_all(".mykn-option")
 
@@ -255,6 +331,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
                 return
 
+            locator = page.get_by_label(label)
             await locator.fill(value)
 
     class Then:
@@ -270,6 +347,14 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         def __init__(self, testcase):
             self.testcase = testcase
+
+        async def list_should_have_status(self, page, destruction_list, status):
+            @sync_to_async()
+            def refresh_list():
+                destruction_list.refresh_from_db()
+
+            await refresh_list()
+            self.testcase.assertEqual(destruction_list.status, status)
 
         async def page_should_contain_text(self, page, text):
             locator = page.get_by_text(text)
