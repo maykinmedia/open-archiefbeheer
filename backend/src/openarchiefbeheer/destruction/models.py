@@ -158,17 +158,20 @@ class DestructionList(models.Model):
             self.set_status(status)
             return
 
-        # Archivist has approved the (now final) list.
-        current_assignee = self.assignees.get(user=self.assignee)
-        if current_assignee.role == ListRole.archivist:
-            self.get_author().assign()
-            self.set_status(ListStatus.ready_to_delete)
-            return
+        try:
+            current_assignee = self.assignees.get(user=self.assignee)
 
-        # Assign (next) reviewer
-        current_assignee = self.assignees.get(user=self.assignee)
-        next_reviewer = current_assignee.next()
-        next_reviewer.assign()
+            # Archivist has approved the (now final) list.
+            if current_assignee.role == ListRole.archivist:
+                self.get_author().assign()
+                self.set_status(ListStatus.ready_to_delete)
+                return
+
+            # Assign (next) reviewer
+            next_reviewer = current_assignee.next()
+            next_reviewer.assign()
+        except DestructionListAssignee.DoesNotExist:
+            pass  # No more assignees
 
     def has_short_review_process(self) -> bool:
         zaken_urls = self.items.all().values_list("zaak", flat=True)
