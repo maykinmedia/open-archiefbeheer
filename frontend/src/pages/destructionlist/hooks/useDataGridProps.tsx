@@ -7,7 +7,6 @@ import {
   TypedField,
   formatMessage,
 } from "@maykin-ui/admin-ui";
-import { object } from "prop-types";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
@@ -19,6 +18,7 @@ import {
   getFieldSelection,
   removeFromFieldSelection,
 } from "../../../lib/fieldSelection/fieldSelection";
+import { formatDate } from "../../../lib/format/date";
 import {
   addToZaakSelection,
   getZaakSelection,
@@ -166,6 +166,15 @@ export function useDataGridProps(
   const objectList = paginatedResults.results.map((zaak) => {
     return {
       ...zaak,
+      // Transform the string dates to formatted string dates (dd-mm-yyyy)
+      startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
+      einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
+      archiefactiedatum: zaak.archiefactiedatum
+        ? formatDate(zaak.archiefactiedatum)
+        : "",
+      einddatumGepland: zaak.einddatumGepland
+        ? formatDate(zaak.einddatumGepland)
+        : "",
       href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
       acties: <>{renderActionButtons(zaak, actions)}</>,
     };
