@@ -10,9 +10,10 @@ import {
   ToolbarItem,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useRevalidator } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
+import { usePoll } from "../../../hooks/usePoll";
 import {
   canMarkListAsFinal,
   canTriggerDestruction,

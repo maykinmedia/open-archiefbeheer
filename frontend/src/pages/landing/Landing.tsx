@@ -6,14 +6,14 @@ import {
   P,
   Tooltip,
 } from "@maykin-ui/admin-ui";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
+import { usePoll } from "../../hooks/usePoll";
 import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
 import {
   canMarkListAsFinal,
   canReviewDestructionList,
-  canStartDestructionList,
   canTriggerDestruction,
   canUpdateDestructionList,
 } from "../../lib/auth/permissions";
@@ -64,6 +64,9 @@ export const STATUSES: FieldSet[] = [
 
 export const Landing = () => {
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
+  usePoll(revalidator.revalidate);
+
   const { statusMap, user } = useLoaderData() as LandingContext;
 
   /**
