@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
-import { assertColumnSelection } from "../../../../.storybook/playFunctions";
+import {
+  assertColumnSelection,
+  clickButton,
+  clickCheckbox,
+} from "../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { usersFactory } from "../../../fixtures/user";
@@ -50,5 +55,30 @@ export const ReviewDestructionList: Story = {
       },
     },
   },
-  play: assertColumnSelection,
+  play: async (context) => {
+    const { canvasElement } = context;
+    await assertColumnSelection(context);
+    await clickCheckbox(context);
+
+    const canvas = within(canvasElement);
+
+    // Get "Identificatie" checkbox in modal.
+    const motivationInput = canvas.getByLabelText<HTMLInputElement>(
+      "Reden van uitzondering",
+    );
+
+    // Type in the input field.
+    await userEvent.type(motivationInput, "Uitzonderen", { delay: 10 });
+
+    // Type in the input field.
+    await clickButton({
+      ...context,
+      parameters: {
+        name: "Uitzonderen",
+      },
+    });
+
+    // Expect the motivationInput to be "Uitzonderen".
+    expect(motivationInput.value).toBe("Uitzonderen");
+  },
 };

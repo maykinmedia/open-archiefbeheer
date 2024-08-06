@@ -148,6 +148,7 @@ export function DestructionListReviewPage() {
       autoFocus: zaakModalDataState?.open,
       label: "Reden van uitzondering",
       placeholder: "Vul hier een reden voor uitzondering in",
+      value: tooltipMotivation,
       name: "motivation",
       type: "text",
       required: true,
