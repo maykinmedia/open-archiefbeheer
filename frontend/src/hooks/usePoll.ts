@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect } from "react";
 
 /**
  * Polls `fn` every [`options.timeout=30000`]ms.
@@ -12,29 +12,33 @@ export function usePoll<T = unknown>(
     timeout?: number;
   },
 ) {
-  const timeoutRef = useRef<number>();
+  useEffect(() => {
+    let active = true;
+    let ref: number;
 
-  /** Performs single "tick", awaits`fn()`, then calls `poll()` to reschedule. */
-  const tick = async () => {
-    await fn();
+    /** Performs single "tick", awaits`fn()`, then calls `poll()` to reschedule. */
+    const tick = async () => {
+      await fn();
+      poll();
+    };
+
+    /** Sets a timeout of `[options.timeout=3000]` to schedule `tick()`. */
+    const poll = () => {
+      // Stop.
+      if (!active) {
+        return;
+      }
+
+      ref = window.setTimeout(() => tick(), options?.timeout ?? 3000);
+    };
+
+    // Schedule first run.
     poll();
-  };
 
-  /** Sets a timeout of `[options.timeout=3000]` to schedule `tick()`. */
-  const poll = () => {
-    timeoutRef.current = window.setTimeout(
-      () => tick(),
-      options?.timeout ?? 3000,
-    );
-  };
-
-  // If `timeoutRef.current` is not set, schedule first run.
-  if (!timeoutRef.current) {
-    poll();
-  }
-
-  // Return a function that clears the scheduled `tick()`.
-  return () => {
-    window.clearTimeout(timeoutRef.current);
-  };
+    // Return a function that clears the scheduled `tick()`.
+    return () => {
+      active = false;
+      window.clearTimeout(ref);
+    };
+  }, []);
 }
