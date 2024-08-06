@@ -267,6 +267,7 @@ class DestructionListAPIResponseSerializer(serializers.ModelSerializer):
             "assignees",
             "assignee",
             "status",
+            "processing_status",
             "created",
             "status_changed",
         )

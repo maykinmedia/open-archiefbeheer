@@ -13,13 +13,13 @@ import { DestructionList } from "../../../../../lib/api/destructionLists";
 import { Review } from "../../../../../lib/api/review";
 import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
 import { formatDate } from "../../../../../lib/format/date";
-import { formatUser } from "../../../utils";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
-} from "../../constants";
+} from "../../../../constants";
+import { formatUser } from "../../../utils";
 import { DestructionListAssignees } from "../index";
 
 export type DestructionListToolbarProps = {
