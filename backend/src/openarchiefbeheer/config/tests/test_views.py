@@ -1,3 +1,5 @@
+from django.test import override_settings, tag
+
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -62,3 +64,25 @@ class ArchiveConfigViews(APITestCase):
         config = ArchiveConfig.get_solo()
 
         self.assertEqual(config.zaaktypes_short_process, ["http://tralala.nl"])
+
+    @tag("gh-227")
+    @override_settings(SOLO_CACHE=None)
+    def test_can_send_empty_list(self):
+        user = UserFactory.create(role__can_start_destruction=True)
+
+        config = ArchiveConfig.get_solo()
+        config.zaaktypes_short_process = ["http://tralala.nl"]
+        config.save()
+
+        self.client.force_login(user)
+        response = self.client.patch(
+            reverse("api:archive-config"),
+            data={"zaaktypesShortProcess": []},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        config = ArchiveConfig.get_solo()
+
+        self.assertEqual(config.zaaktypes_short_process, [])
