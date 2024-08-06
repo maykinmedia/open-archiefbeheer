@@ -355,6 +355,7 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["comment"][0], _("This field is required."))
 
     def test_cannot_reassign_destruction_list_with_empty_comment(self):
         record_manager1 = UserFactory.create(role__can_start_destruction=True)
@@ -389,6 +390,76 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["comment"][0], _("This field may not be blank.")
+        )
+
+    def test_cannot_reassign_destruction_list_with_same_reviewer_twice(self):
+        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        reviewer = UserFactory.create(role__can_review_destruction=True)
+        assignee = DestructionListAssigneeFactory.create(user=reviewer)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager1,
+            status=ListStatus.new,
+        )
+        destruction_list.assignees.set([assignee])
+
+        self.client.force_authenticate(user=record_manager1)
+        endpoint = reverse(
+            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={
+                "assignees": [
+                    {"order": 0, "user": reviewer.pk},
+                    {"order": 1, "user": reviewer.pk},
+                ],
+                "comment": "comment",
+                "role": ListRole.reviewer,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["assignees"]["nonFieldErrors"][0],
+            _("The same user should not be selected as a reviewer more than once."),
+        )
+
+    def test_cannot_reassign_destruction_list_with_author_as_reviewer(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.new,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={
+                "assignees": [
+                    {"order": 0, "user": record_manager.pk},
+                ],
+                "comment": "comment",
+                "role": ListRole.reviewer,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["assignees"]["nonFieldErrors"][0],
+            _("The author of a list cannot also be a reviewer."),
+        )
 
     def test_reassign_destruction_list(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
