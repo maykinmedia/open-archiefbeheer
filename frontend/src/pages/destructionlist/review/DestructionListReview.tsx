@@ -148,7 +148,10 @@ export function DestructionListReviewPage() {
       autoFocus: zaakModalDataState?.open,
       label: "Reden van uitzondering",
       placeholder: "Vul hier een reden voor uitzondering in",
-      value: tooltipMotivation,
+      value: zaakModalDataState?.uuid
+        ? zaakSelection.find((z) => z.uuid === zaakModalDataState.uuid)
+            ?.motivation
+        : "",
       name: "motivation",
       type: "text",
       required: true,
