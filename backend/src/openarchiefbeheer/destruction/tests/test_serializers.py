@@ -449,7 +449,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["assignees"][0],
+            serializer.errors["assignees"]["non_field_errors"][0],
             _("The same user should not be selected as a reviewer more than once."),
         )
 
@@ -490,7 +490,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["assignees"][0],
+            serializer.errors["assignees"]["non_field_errors"][0],
             _("The author of a list cannot also be a reviewer."),
         )
 
