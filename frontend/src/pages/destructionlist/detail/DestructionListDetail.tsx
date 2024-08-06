@@ -1,5 +1,6 @@
 import {
   AttributeData,
+  Badge,
   Body,
   CardBaseTemplate,
   Form,
@@ -8,6 +9,7 @@ import {
   P,
   SerializedFormData,
   ToolbarItem,
+  field2Title,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -17,6 +19,11 @@ import {
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../lib/auth/permissions";
+import {
+  PROCESSING_STATUS_ICON_MAPPING,
+  PROCESSING_STATUS_LEVEL_MAPPING,
+  PROCESSING_STATUS_MAPPING,
+} from "../../constants";
 import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";
@@ -76,13 +83,37 @@ export function DestructionListDetailPage() {
     }
     if (canTriggerDestruction(user, destructionList)) {
       return [
-        {
-          bold: true,
-          children: "Zaken op lijst definitief vernietigen",
-          variant: "danger",
-          onClick: () => setDestroyModalOpenState(true),
-          pad: "h",
-        },
+        destructionList.processingStatus === "new" ? (
+          <></>
+        ) : (
+          <Badge
+            key={destructionList.pk}
+            level={
+              PROCESSING_STATUS_LEVEL_MAPPING[destructionList.processingStatus]
+            }
+          >
+            {PROCESSING_STATUS_ICON_MAPPING[destructionList.processingStatus]}
+            &nbsp;
+            {field2Title(
+              PROCESSING_STATUS_MAPPING[destructionList.processingStatus],
+            )}
+          </Badge>
+        ),
+        "spacer",
+        ["new", "failed"].includes(destructionList.processingStatus) ? (
+          {
+            bold: true,
+            children:
+              destructionList.processingStatus === "new"
+                ? "Vernietigen starten"
+                : "Vernietigen herstarten  ",
+            variant: "danger",
+            onClick: () => setDestroyModalOpenState(true),
+            pad: "h",
+          }
+        ) : (
+          <></>
+        ),
       ];
     }
   };

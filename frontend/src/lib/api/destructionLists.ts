@@ -13,6 +13,7 @@ export type DestructionList = {
   created: string;
   name: string;
   status: DestructionListStatus;
+  processingStatus: DestructionListProcessingStatus;
   statusChanged: string | null;
   uuid: string;
 };
@@ -29,6 +30,13 @@ export const DESTRUCTION_LIST_STATUSES = [
 
 // Inferring the type of the array, so that we don't have to repeat the same.
 export type DestructionListStatus = (typeof DESTRUCTION_LIST_STATUSES)[number];
+
+export type DestructionListProcessingStatus =
+  | "new"
+  | "queued"
+  | "processing"
+  | "failed"
+  | "succeeded";
 
 export type DestructionListAssignee = {
   user: User;

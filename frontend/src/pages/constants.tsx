@@ -1,10 +1,11 @@
-import { BadgeProps } from "@maykin-ui/admin-ui";
+import { BadgeProps, Outline } from "@maykin-ui/admin-ui";
 
 import {
   DESTRUCTION_LIST_STATUSES,
+  DestructionListProcessingStatus,
   DestructionListStatus,
-} from "../../../lib/api/destructionLists";
-import { Review } from "../../../lib/api/review";
+} from "../lib/api/destructionLists";
+import { Review } from "../lib/api/review";
 
 export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
   accepted: "Goedgekeurd",
@@ -20,7 +21,6 @@ export const REVIEW_DECISION_LEVEL_MAPPING: Record<
 };
 
 export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
-export const STATUSES_ELIGABLE_FOR_REASSIGNMENT = ["internally_reviewed"];
 export const STATUSES_ELIGIBLE_FOR_REVIEW: (typeof DESTRUCTION_LIST_STATUSES)[number][] =
   ["ready_to_review", "ready_for_archivist"];
 
@@ -37,9 +37,39 @@ export const STATUS_LEVEL_MAPPING: {
   [key in DestructionListStatus]: BadgeProps["level"];
 } = {
   changes_requested: "warning",
-  ready_to_review: "danger",
+  ready_to_review: "info",
   internally_reviewed: "info",
-  ready_for_archivist: "danger",
-  ready_to_delete: "success",
-  deleted: "info",
+  ready_for_archivist: "success",
+  ready_to_delete: "warning",
+  deleted: "danger",
+};
+
+export const PROCESSING_STATUS_MAPPING: {
+  [key in DestructionListProcessingStatus]: string;
+} = {
+  new: "new",
+  queued: "queued",
+  processing: "processing",
+  failed: "failed",
+  succeeded: "succeeded",
+};
+
+export const PROCESSING_STATUS_ICON_MAPPING: {
+  [key in DestructionListProcessingStatus]: React.ReactNode;
+} = {
+  new: <Outline.PlusCircleIcon />,
+  queued: <Outline.CircleStackIcon />,
+  processing: <Outline.ClockIcon />,
+  failed: <Outline.ExclamationCircleIcon />,
+  succeeded: <Outline.CheckCircleIcon />,
+};
+
+export const PROCESSING_STATUS_LEVEL_MAPPING: {
+  [key in DestructionListProcessingStatus]: BadgeProps["level"];
+} = {
+  new: "info",
+  queued: "info",
+  processing: "warning",
+  failed: "danger",
+  succeeded: "success",
 };

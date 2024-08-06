@@ -3,7 +3,7 @@ import { roleFactory, userFactory } from "../../fixtures/user";
 import {
   STATUSES_ELIGIBLE_FOR_EDIT,
   STATUSES_ELIGIBLE_FOR_REVIEW,
-} from "../../pages/destructionlist/detail/constants";
+} from "../../pages/constants";
 import { User } from "../api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,

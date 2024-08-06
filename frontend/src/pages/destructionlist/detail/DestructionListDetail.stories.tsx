@@ -367,7 +367,7 @@ export const DeleteDestructionList: Story = {
       ...context,
       parameters: {
         ...context.parameters,
-        name: "Zaken op lijst definitief vernietigen",
+        name: "Vernietigen starten",
       },
     });
     const canvas = within(context.canvasElement);

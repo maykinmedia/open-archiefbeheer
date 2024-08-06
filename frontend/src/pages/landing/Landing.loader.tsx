@@ -4,7 +4,7 @@ import {
   listDestructionLists,
 } from "../../lib/api/destructionLists";
 import { loginRequired } from "../../lib/auth/loaders";
-import { STATUS_MAPPING } from "../destructionlist/detail/constants";
+import { STATUS_MAPPING } from "../constants";
 import { STATUSES } from "./Landing";
 import "./Landing.css";
 

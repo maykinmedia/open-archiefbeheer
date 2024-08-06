@@ -5,23 +5,41 @@ import {
   KanbanTemplate,
   P,
   Tooltip,
+  field2Title,
 } from "@maykin-ui/admin-ui";
 import { useLoaderData, useNavigate } from "react-router-dom";
 
 import { User } from "../../lib/api/auth";
-import { DestructionList } from "../../lib/api/destructionLists";
+import {
+  DestructionList,
+  DestructionListProcessingStatus,
+} from "../../lib/api/destructionLists";
 import {
   canMarkListAsFinal,
   canReviewDestructionList,
-  canStartDestructionList,
   canTriggerDestruction,
   canUpdateDestructionList,
 } from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/format/date";
-import { STATUS_MAPPING } from "../destructionlist/detail/constants";
+import {
+  PROCESSING_STATUS_ICON_MAPPING,
+  PROCESSING_STATUS_LEVEL_MAPPING,
+  PROCESSING_STATUS_MAPPING,
+  STATUS_MAPPING,
+} from "../constants";
 import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
 import { LandingContext } from "./Landing.loader";
+
+export type LandingKanbanEntry = {
+  key: string;
+  onClick: () => void;
+  disabled: boolean;
+  processingStatus: DestructionListProcessingStatus;
+  title: string;
+  timeAgo: string;
+  assignees: React.ReactNode;
+};
 
 export const STATUSES: FieldSet[] = [
   [
@@ -112,8 +130,8 @@ export const Landing = () => {
     }
   };
 
-  const objectLists: AttributeData[][] = Object.values(statusMap).map((lists) =>
-    lists.map((list) => {
+  const objectLists = Object.values(statusMap).map((lists: DestructionList[]) =>
+    lists.map<LandingKanbanEntry>((list) => {
       const currentAssignee = list.assignee;
       const otherAssignees = [...list.assignees].splice(1);
       const href = constructHref(user, list) || "";
@@ -134,6 +152,7 @@ export const Landing = () => {
         key: list.name,
         onClick: () => navigate(href),
         disabled: !href,
+        processingStatus: list.processingStatus,
         title: list.name,
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
@@ -157,9 +176,22 @@ export const Landing = () => {
         title: "Vernietigingslijsten",
         fieldsets: STATUSES,
         objectLists: objectLists,
-        renderPreview: (object: AttributeData) => (
-          <Badge>{object.timeAgo as string}</Badge>
-        ),
+        renderPreview: (object: AttributeData) => {
+          const entry = object as LandingKanbanEntry;
+
+          if (entry.processingStatus === "new") {
+            return <Badge>{entry.timeAgo as string}</Badge>;
+          }
+          return (
+            <Badge
+              level={PROCESSING_STATUS_LEVEL_MAPPING[entry.processingStatus]}
+            >
+              {PROCESSING_STATUS_ICON_MAPPING[entry.processingStatus]}
+              &nbsp;
+              {field2Title(PROCESSING_STATUS_MAPPING[entry.processingStatus])}
+            </Badge>
+          );
+        },
       }}
     />
   );
