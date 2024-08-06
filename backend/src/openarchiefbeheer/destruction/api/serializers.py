@@ -32,10 +32,32 @@ from ..models import (
 from ..tasks import process_review_response
 
 
+class ReviewerAssigneeListSerializer(serializers.ListSerializer):
+    def validate(
+        self, assignees: list[DestructionListAssignee]
+    ) -> list[DestructionListAssignee]:
+        if self.parent.instance:
+            return assignees
+
+        assignees_pks = [assignee["user"].pk for assignee in assignees]
+
+        if len(assignees) != len(set(assignees_pks)):
+            raise ValidationError(
+                _("The same user should not be selected as a reviewer more than once.")
+            )
+
+        author = self.parent.context["request"].user
+        if author.pk in assignees_pks:
+            raise ValidationError(_("The author of a list cannot also be a reviewer."))
+
+        return assignees
+
+
 class ReviewerAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
         fields = ("user", "order")
+        list_serializer_class = ReviewerAssigneeListSerializer
 
 
 class DestructionListAssigneeSerializer(serializers.ModelSerializer):
@@ -169,25 +191,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
             )
 
         return attrs
-
-    def validate_assignees(
-        self, assignees: list[DestructionListAssignee]
-    ) -> list[DestructionListAssignee]:
-        if self.instance:
-            return assignees
-
-        assignees_pks = [assignee["user"].pk for assignee in assignees]
-
-        if len(assignees) != len(set(assignees_pks)):
-            raise ValidationError(
-                _("The same user should not be selected as a reviewer more than once.")
-            )
-
-        author = self.context["request"].user
-        if author.pk in assignees_pks:
-            raise ValidationError(_("The author of a list cannot also be a reviewer."))
-
-        return assignees
 
     def create(self, validated_data: dict) -> DestructionList:
         assignees_data = validated_data.pop("assignees")

@@ -258,7 +258,8 @@ class DestructionListViewSet(
     def reassign(self, request, *args, **kwargs):
         destruction_list = self.get_object()
         serialiser = ReassignementSerializer(
-            data=request.data, context={"destruction_list": destruction_list}
+            data=request.data,
+            context={"destruction_list": destruction_list, "request": request},
         )
         serialiser.is_valid(raise_exception=True)
 
