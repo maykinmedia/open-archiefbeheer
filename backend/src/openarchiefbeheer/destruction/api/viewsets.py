@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Prefetch
 from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +13,7 @@ from rest_framework.response import Response
 from ..constants import InternalStatus, ListRole, ListStatus
 from ..models import (
     DestructionList,
+    DestructionListAssignee,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
@@ -166,7 +168,18 @@ class DestructionListViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListSerializer
-    queryset = DestructionList.objects.all()
+    queryset = (
+        DestructionList.objects.all()
+        .select_related("author", "author__role", "assignee", "assignee__role")
+        .prefetch_related(
+            Prefetch(
+                "assignees",
+                queryset=DestructionListAssignee.objects.select_related(
+                    "user", "user__role"
+                ),
+            )
+        )
+    )
     lookup_field = "uuid"
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListFilterset
