@@ -147,6 +147,9 @@ class DestructionList(models.Model):
     def assign_next(self) -> None:
         STATE_MANAGER[self.status].assign_next(self)
 
+    def reassign(self) -> None:
+        STATE_MANAGER[self.status].reassign(self)
+
     def all_reviewers_approved(self) -> bool:
         number_of_reviewers = self.assignees.filter(role=ListRole.reviewer).count()
         latest_reviews = self.reviews.order_by("created")

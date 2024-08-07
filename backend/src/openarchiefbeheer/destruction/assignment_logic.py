@@ -5,11 +5,13 @@ from django.db.models import Count, Min
 from .constants import ListRole, ListStatus, ReviewDecisionChoices
 
 if TYPE_CHECKING:
-    from .models import DestructionList
+    from .models import DestructionList, DestructionListAssignee
 
 
 class State(Protocol):
     def assign_next(self, destruction_list: "DestructionList") -> None: ...
+
+    def reassign(self, destruction_list: "DestructionList") -> None: ...
 
 
 class NewList:
@@ -23,8 +25,27 @@ class NewList:
         destruction_list.set_status(ListStatus.ready_to_review)
         destruction_list.assign(assignee)
 
+    def reassign(self, destruction_list: "DestructionList") -> None:
+        # When a list is new, it is assigned to the author. No action needed.
+        pass
+
 
 class ReadyToReview:
+    def _deduce_next_reviewer(
+        self, destruction_list: "DestructionList"
+    ) -> "DestructionListAssignee":
+        # Find the reviewers who have given fewer reviews
+        reviewers = destruction_list.assignees.filter(role=ListRole.reviewer).annotate(
+            num_reviews=Count("user__created_reviews")
+        )
+        min_number_reviews = reviewers.aggregate(min_reviews=Min("num_reviews"))
+        next_reviewer = (
+            reviewers.filter(num_reviews=min_number_reviews["min_reviews"])
+            .order_by("pk")
+            .first()
+        )
+        return next_reviewer
+
     def assign_next(self, destruction_list: "DestructionList") -> None:
         last_review = destruction_list.reviews.order_by("created").last()
         if last_review and last_review.decision == ReviewDecisionChoices.rejected:
@@ -42,16 +63,11 @@ class ReadyToReview:
             destruction_list.assign(destruction_list.get_author())
             return
 
-        # Find the reviewers who have given fewer reviews
-        reviewers = destruction_list.assignees.filter(role=ListRole.reviewer).annotate(
-            num_reviews=Count("user__created_reviews")
-        )
-        min_number_reviews = reviewers.aggregate(min_reviews=Min("num_reviews"))
-        next_reviewer = (
-            reviewers.filter(num_reviews=min_number_reviews["min_reviews"])
-            .order_by("pk")
-            .first()
-        )
+        next_reviewer = self._deduce_next_reviewer(destruction_list)
+        destruction_list.assign(next_reviewer)
+
+    def reassign(self, destruction_list: "DestructionList") -> None:
+        next_reviewer = self._deduce_next_reviewer(destruction_list)
         destruction_list.assign(next_reviewer)
 
 
@@ -62,6 +78,10 @@ class ChangesRequested:
         # The reviewer who rejected the list reviews first
         last_review = destruction_list.reviews.order_by("created").last()
         destruction_list.assign(destruction_list.get_assignee(last_review.author))
+
+    def reassign(self, destruction_list: "DestructionList") -> None:
+        # When a list has requested changes, it is assigned to the author. No action needed.
+        pass
 
 
 class InternallyReviewed:
@@ -75,6 +95,10 @@ class InternallyReviewed:
         )
         destruction_list.assign(archivist)
 
+    def reassign(self, destruction_list: "DestructionList") -> None:
+        # When a list has been internally reviewed, it is assigned to the author. No action needed.
+        pass
+
 
 class ReadyForArchivist:
     def assign_next(self, destruction_list: "DestructionList") -> None:
@@ -84,6 +108,10 @@ class ReadyForArchivist:
             destruction_list.assign(destruction_list.get_author())
 
         # TODO in the case where the archivist rejects it is not clear yet what should happen!
+
+    def reassign(self, destruction_list: "DestructionList") -> None:
+        # TODO
+        raise NotImplementedError
 
 
 STATE_MANAGER = {
