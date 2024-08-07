@@ -3,13 +3,15 @@ from typing import Protocol
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import transaction
+from django.db.models import Q
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 
 from .constants import InternalStatus
-from .models import DestructionList
+from .models import DestructionList, DestructionListAssignee
 
 
 def notify(subject: str, body: str, context: dict, recipients: list[str]) -> None:
@@ -124,3 +126,38 @@ def mark_as_failed_on_error(object_with_status: ObjectWithStatus):
     except Exception as exc:
         object_with_status.set_processing_status(InternalStatus.failed)
         raise exc
+
+
+def process_new_assignees(
+    destruction_list: DestructionList,
+    assignees: list[dict],
+    role: str,
+) -> list[DestructionListAssignee]:
+    """
+    Remove any assignees that are not present in the new assignees and create the new ones.
+
+    Example:
+    Before reassigning there are reviewerA, reviewerB and reviewerC.
+    The record manager requests that the new reviewers are reviewerB and reviewerD.
+    This function deletes reviewerA and reviewerC and creates reviewerD.
+    """
+    users = [assignee["user"] for assignee in assignees]
+
+    with transaction.atomic():
+        destruction_list.assignees.filter(~Q(user__in=users), role=role).delete()
+
+        existing_assignees_users = [
+            assignee.user.pk
+            for assignee in destruction_list.assignees.filter(role=role)
+        ]
+        assignees_to_create = []
+        for assignee in assignees:
+            if assignee["user"].pk not in existing_assignees_users:
+                assignees_to_create.append(assignee)
+
+        new_assignees = destruction_list.bulk_create_assignees(
+            assignees_to_create,
+            role,
+        )
+
+    return new_assignees

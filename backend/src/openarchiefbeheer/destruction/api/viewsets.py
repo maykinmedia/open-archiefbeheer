@@ -22,6 +22,7 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
+from ..utils import process_new_assignees
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
@@ -265,14 +266,12 @@ class DestructionListViewSet(
         )
         serialiser.is_valid(raise_exception=True)
 
-        with transaction.atomic():
-            destruction_list.assignees.filter(
-                role=serialiser.validated_data["role"]
-            ).delete()
-            new_assignees = destruction_list.bulk_create_assignees(
-                serialiser.validated_data["assignees"],
-                serialiser.validated_data["role"],
-            )
+        new_assignees = process_new_assignees(
+            destruction_list,
+            serialiser.validated_data["assignees"],
+            serialiser.validated_data["role"],
+        )
+        destruction_list.reassign()
 
         logevent.destruction_list_reassigned(
             destruction_list,
