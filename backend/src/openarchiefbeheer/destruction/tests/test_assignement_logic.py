@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -214,3 +215,58 @@ class AssignementLogicTest(TestCase):
 
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
         self.assertEqual(destruction_list.assignee, record_manager.user)
+
+    def test_reassign_reviewers_ready_to_review(self):
+        reviewer_old = UserFactory.create(role__can_review_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review, assignee=reviewer_old
+        )
+        assignees = DestructionListAssigneeFactory.create_batch(
+            2, role=ListRole.reviewer, destruction_list=destruction_list
+        )
+
+        destruction_list.reassign()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
+        self.assertEqual(destruction_list.assignee, assignees[0].user)
+
+    def test_reassign_reviewers_noop(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.new, assignee=record_manager, author=record_manager
+        )
+        DestructionListAssigneeFactory.create_batch(
+            2, role=ListRole.reviewer, destruction_list=destruction_list
+        )
+
+        with self.subTest("New"):
+            destruction_list.reassign()
+
+            destruction_list.refresh_from_db()
+
+            self.assertEqual(destruction_list.status, ListStatus.new)
+            self.assertEqual(destruction_list.assignee, record_manager)
+
+        with self.subTest("Changes requested"):
+            destruction_list.status = ListStatus.changes_requested
+            destruction_list.save()
+
+            destruction_list.reassign()
+
+            destruction_list.refresh_from_db()
+
+            self.assertEqual(destruction_list.status, ListStatus.changes_requested)
+            self.assertEqual(destruction_list.assignee, record_manager)
+
+        with self.subTest("Internally reviewed"):
+            destruction_list.status = ListStatus.internally_reviewed
+            destruction_list.save()
+
+            destruction_list.reassign()
+
+            destruction_list.refresh_from_db()
+
+            self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
+            self.assertEqual(destruction_list.assignee, record_manager)
