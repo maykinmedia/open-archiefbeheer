@@ -1,5 +1,6 @@
 import logging
 import uuid as _uuid
+from typing import Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,11 +9,17 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from ordered_model.models import OrderedModel
 from timeline_logger.models import TimelineLog
 
+from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.destruction.constants import (
+from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
+from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
+
+from .assignment_logic import STATE_MANAGER
+from .constants import (
     DestructionListItemAction,
     InternalStatus,
     ListItemStatus,
@@ -20,10 +27,6 @@ from openarchiefbeheer.destruction.constants import (
     ListStatus,
     ReviewDecisionChoices,
 )
-from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
-from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
 
 logger = logging.getLogger(__name__)
 
@@ -135,43 +138,32 @@ class DestructionList(models.Model):
     def get_author(self) -> "DestructionListAssignee":
         return self.assignees.get(role=ListRole.author)
 
-    def assign_first_reviewer(self) -> None:
-        reviewers = (
-            self.assignees.filter(role=ListRole.reviewer)
-            .select_related("user")
-            .order_by("order")
-        )
-        reviewers[0].assign()
+    def get_assignee(self, user: User) -> Optional["DestructionListAssignee"]:
+        return self.assignees.filter(user=user).first()
+
+    def get_current_assignee(self) -> Optional["DestructionListAssignee"]:
+        return self.assignees.filter(user=self.assignee).first()
 
     def assign_next(self) -> None:
-        reviewers = self.assignees.filter(role=ListRole.reviewer).order_by("order")
+        STATE_MANAGER[self.status].assign_next(self)
 
-        # All reviewers have reviewed the draft destruction list
-        last_reviewer = reviewers.last()
-        if last_reviewer and self.assignee == last_reviewer.user:
-            self.get_author().assign()
-            status = (
-                ListStatus.ready_to_delete
-                if self.has_short_review_process()
-                else ListStatus.internally_reviewed
-            )
-            self.set_status(status)
-            return
+    def all_reviewers_approved(self) -> bool:
+        number_of_reviewers = self.assignees.filter(role=ListRole.reviewer).count()
+        latest_reviews = self.reviews.order_by("created")
+        number_of_reviews = len(latest_reviews)
 
-        try:
-            current_assignee = self.assignees.get(user=self.assignee)
+        if number_of_reviews < number_of_reviewers:
+            return False
 
-            # Archivist has approved the (now final) list.
-            if current_assignee.role == ListRole.archivist:
-                self.get_author().assign()
-                self.set_status(ListStatus.ready_to_delete)
-                return
+        if number_of_reviews >= number_of_reviewers:
+            latest_reviews = latest_reviews[number_of_reviews - number_of_reviewers :]
 
-            # Assign (next) reviewer
-            next_reviewer = current_assignee.next()
-            next_reviewer.assign()
-        except DestructionListAssignee.DoesNotExist:
-            pass  # No more assignees
+        return all(
+            [
+                review.decision == ReviewDecisionChoices.accepted
+                for review in latest_reviews
+            ]
+        )
 
     def has_short_review_process(self) -> bool:
         zaken_urls = self.items.all().values_list("zaak", flat=True)
@@ -285,7 +277,7 @@ class DestructionListItem(models.Model):
         self.save()
 
 
-class DestructionListAssignee(OrderedModel):
+class DestructionListAssignee(models.Model):
     destruction_list = models.ForeignKey(
         DestructionList,
         on_delete=models.CASCADE,
@@ -306,13 +298,13 @@ class DestructionListAssignee(OrderedModel):
         max_length=80,
     )
 
-    class Meta(OrderedModel.Meta):
+    class Meta:
         verbose_name = _("destruction list assignee")
         verbose_name_plural = _("destruction list assignees")
         unique_together = ("destruction_list", "user")
 
     def __str__(self):
-        return f"{self.user} ({self.destruction_list}, {self.order})"
+        return f"{self.user} ({self.destruction_list})"
 
     def assign(self) -> None:
         from .signals import user_assigned
@@ -360,13 +352,6 @@ class DestructionListReview(models.Model):
 
     def __str__(self):
         return f"Review for {self.destruction_list} ({self.author})"
-
-    def determine_next_step(self) -> None:
-        if self.decision == ReviewDecisionChoices.accepted:
-            self.destruction_list.assign_next()
-        else:
-            self.destruction_list.set_status(ListStatus.changes_requested)
-            self.destruction_list.get_author().assign()
 
 
 class DestructionListItemReview(models.Model):

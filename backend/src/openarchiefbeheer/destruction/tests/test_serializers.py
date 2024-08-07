@@ -83,7 +83,7 @@ class DestructionListSerializerTests(TestCase):
         ):
             destruction_list = serializer.save()
 
-        assignees = destruction_list.assignees.order_by("order")
+        assignees = destruction_list.assignees.order_by("pk")
 
         self.assertEqual(assignees.count(), 3)
         self.assertEqual(assignees[0].user.username, "record_manager")
@@ -355,7 +355,7 @@ class DestructionListSerializerTests(TestCase):
             name="A test list", contains_sensitive_info=True
         )
         destruction_list.bulk_create_assignees(
-            [{"user": user1, "order": 0}, {"user": user2, "order": 1}],
+            [{"user": user1}, {"user": user2}],
             role=ListRole.reviewer,
         )
         DestructionListItemFactory.create_batch(

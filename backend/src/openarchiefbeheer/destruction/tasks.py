@@ -36,8 +36,7 @@ def process_review_response(pk: int) -> None:
             item_response.save()
             return
 
-    review_response.review.destruction_list.assign_first_reviewer()
-    review_response.review.destruction_list.set_status(ListStatus.ready_to_review)
+    review_response.review.destruction_list.assign_next()
 
 
 def delete_destruction_list(destruction_list: DestructionList) -> None:

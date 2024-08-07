@@ -80,7 +80,8 @@ class ProcessReviewResponseTests(TestCase):
         )
 
         review_response = ReviewResponseFactory.create(
-            review__destruction_list__status=ListStatus.changes_requested
+            review__destruction_list__status=ListStatus.changes_requested,
+            review__author__email="reviewer1@oab.nl",
         )
         zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
         review_item_response = ReviewItemResponseFactory.create(
@@ -91,7 +92,7 @@ class ProcessReviewResponseTests(TestCase):
         )
         review_response.review.destruction_list.assignees.all().delete()
         first_reviwer = DestructionListAssigneeFactory.create(
-            user__email="reviewer1@oab.nl",
+            user=review_response.review.author,
             destruction_list=review_response.review.destruction_list,
             role=ListRole.reviewer,
         )
