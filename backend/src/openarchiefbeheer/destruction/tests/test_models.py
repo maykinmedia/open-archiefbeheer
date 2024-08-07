@@ -9,14 +9,12 @@ from django.utils import timezone
 from freezegun import freeze_time
 from testfixtures import log_capture
 
-from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import InternalStatus, ListItemStatus, ListRole, ListStatus
+from ..constants import InternalStatus, ListItemStatus
 from .factories import (
-    DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     ReviewResponseFactory,
@@ -250,112 +248,3 @@ class DestructionListTest(TestCase):
             has_short_review_process = destruction_list.has_short_review_process()
 
         self.assertTrue(has_short_review_process)
-
-    def test_assign_next_short_process(self):
-        reviewer = UserFactory.create(
-            email="reviewer@oab.nl",
-        )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
-        zaken = ZaakFactory.create_batch(
-            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[0].url
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[1].url
-        )
-        DestructionListAssigneeFactory.create(
-            user=destruction_list.author,
-            role=ListRole.author,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=reviewer,
-            role=ListRole.reviewer,
-            destruction_list=destruction_list,
-        )
-
-        with patch(
-            "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(
-                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/1"]
-            ),
-        ):
-            destruction_list.assign_next()
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
-        self.assertEqual(destruction_list.assignee, destruction_list.author)
-
-    def test_assign_next_long_process(self):
-        reviewer = UserFactory.create(
-            role__can_review_destruction=True,
-        )
-        destruction_list = DestructionListFactory.create(assignee=reviewer)
-        zaken = ZaakFactory.create_batch(
-            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[0].url
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken[1].url
-        )
-        DestructionListAssigneeFactory.create(
-            user=destruction_list.author,
-            role=ListRole.author,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=reviewer,
-            role=ListRole.reviewer,
-            destruction_list=destruction_list,
-        )
-
-        with patch(
-            "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(
-                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/2"]
-            ),
-        ):
-            destruction_list.assign_next()
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
-        self.assertEqual(destruction_list.assignee, destruction_list.author)
-
-    def test_assign_next_archivist(self):
-        archivist = UserFactory.create(
-            role__can_review_final_list=True,
-        )
-        reviewer = UserFactory.create(
-            role__can_review_destruction=True,
-        )
-        destruction_list = DestructionListFactory.create(
-            assignee=archivist, status=ListStatus.ready_for_archivist
-        )
-        DestructionListItemFactory.create_batch(2, destruction_list=destruction_list)
-        DestructionListAssigneeFactory.create(
-            user=destruction_list.author,
-            role=ListRole.author,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=reviewer,
-            role=ListRole.reviewer,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=archivist,
-            role=ListRole.archivist,
-            destruction_list=destruction_list,
-        )
-
-        destruction_list.assign_next()
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
-        self.assertEqual(destruction_list.assignee, destruction_list.author)

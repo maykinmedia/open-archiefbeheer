@@ -30,14 +30,7 @@ def notify_author_after_review(sender, instance, created, **kwargs):
         notify_author_changes_requested(destruction_list.author, destruction_list)
         return
 
-    reviewers = destruction_list.assignees.filter(role=ListRole.reviewer).order_by(
-        "order"
-    )
-    if not reviewers.exists():
-        return
-
-    is_last_review = review.author == reviewers.last().user
-    if is_last_review:
+    if destruction_list.all_reviewers_approved():
         notify_author_last_review(destruction_list.author, destruction_list)
         return
 

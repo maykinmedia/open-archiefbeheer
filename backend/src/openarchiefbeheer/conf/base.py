@@ -110,7 +110,6 @@ INSTALLED_APPS = [
     "two_factor.plugins.webauthn",  # USB key/token support
     "maykin_2fa",
     # Optional applications.
-    "ordered_model",
     "django_admin_index",
     "django.contrib.admin",
     # 'django.contrib.admindocs',

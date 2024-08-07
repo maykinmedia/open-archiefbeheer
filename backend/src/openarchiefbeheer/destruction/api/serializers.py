@@ -56,14 +56,14 @@ class ReviewerAssigneeListSerializer(serializers.ListSerializer):
 class ReviewerAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
-        fields = ("user", "order")
+        fields = ("user",)
         list_serializer_class = ReviewerAssigneeListSerializer
 
 
 class DestructionListAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
-        fields = ("user", "order", "destruction_list", "role")
+        fields = ("user", "destruction_list", "role")
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DestructionListAssignee
-        fields = ("user", "order")
+        fields = ("user",)
 
 
 class ReassignementSerializer(serializers.Serializer):
@@ -198,7 +198,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         author = self.context["request"].user
         validated_data["author"] = author
-        validated_data["status"] = ListStatus.ready_to_review
+        validated_data["status"] = ListStatus.new
         destruction_list = DestructionList.objects.create(**validated_data)
         destruction_list.bulk_create_items(items_data)
 
@@ -206,11 +206,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
         DestructionListAssignee.objects.create(
             user=author, destruction_list=destruction_list, role=ListRole.author
         )
-        reviewers = destruction_list.bulk_create_assignees(
-            assignees_data, role=ListRole.reviewer
-        )
-
-        destruction_list.assign(reviewers[0])
+        destruction_list.bulk_create_assignees(assignees_data, role=ListRole.reviewer)
+        destruction_list.assign_next()
 
         logevent.destruction_list_created(destruction_list, author)
 
@@ -398,7 +395,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         ]
         DestructionListItemReview.objects.bulk_create(review_items_data)
 
-        review.determine_next_step()
+        validated_data["destruction_list"].assign_next()
 
         logevent.destruction_list_reviewed(
             destruction_list=validated_data["destruction_list"],

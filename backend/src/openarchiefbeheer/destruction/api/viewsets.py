@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from openarchiefbeheer.logging import logevent
 
-from ..constants import InternalStatus, ListRole, ListStatus
+from ..constants import InternalStatus, ListRole
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -69,8 +69,12 @@ from .serializers import (
                     "name": "An example list",
                     "containsSensitiveInfo": True,
                     "assignees": [
-                        {"user": 1, "order": 0},
-                        {"user": 2, "order": 1},
+                        {
+                            "user": 1,
+                        },
+                        {
+                            "user": 2,
+                        },
                     ],
                     "items": [
                         {
@@ -228,7 +232,6 @@ class DestructionListViewSet(
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
         destruction_list = self.get_object()
-        destruction_list.set_status(ListStatus.ready_for_archivist)
 
         serialiser = DestructionListAssigneeSerializer(
             data={
@@ -248,9 +251,8 @@ class DestructionListViewSet(
                 }
             )
 
-        archivist = serialiser.save()
-
-        destruction_list.assign(archivist)
+        serialiser.save()
+        destruction_list.assign_next()
 
         return Response(status=status.HTTP_201_CREATED)
 

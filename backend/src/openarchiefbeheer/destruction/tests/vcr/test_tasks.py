@@ -61,7 +61,8 @@ class ProcessResponseTest(VCRMixin, TestCase):
             destruction_list=destruction_list,
         )
         review_response = ReviewResponseFactory.create(
-            review__destruction_list=destruction_list
+            review__destruction_list=destruction_list,
+            review__author=reviewer,
         )
         ReviewItemResponseFactory.create(
             review_item__destruction_list_item__zaak=zaak.url,

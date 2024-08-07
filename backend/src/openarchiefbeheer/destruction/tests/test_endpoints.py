@@ -98,7 +98,7 @@ class DestructionListViewSetTest(APITestCase):
 
         destruction_list = DestructionList.objects.get(name="A test list")
 
-        assignees = destruction_list.assignees.order_by("order")
+        assignees = destruction_list.assignees.order_by("pk")
 
         self.assertEqual(assignees.count(), 3)
         self.assertEqual(assignees[0].user.username, "record_manager")
@@ -210,7 +210,7 @@ class DestructionListViewSetTest(APITestCase):
             status=ListStatus.new,
         )
         destruction_list.bulk_create_assignees(
-            [{"user": user1, "order": 0}, {"user": user2, "order": 1}],
+            [{"user": user1}, {"user": user2}],
             role=ListRole.reviewer,
         )
         DestructionListItemFactory.create_batch(
@@ -492,7 +492,7 @@ class DestructionListViewSetTest(APITestCase):
 
         new_assignees = DestructionListAssignee.objects.filter(
             destruction_list=destruction_list, role=ListRole.reviewer
-        ).order_by("order")
+        ).order_by("pk")
 
         self.assertEqual(new_assignees[0].user, other_reviewers[0])
         self.assertEqual(new_assignees[1].user, other_reviewers[1])
@@ -523,7 +523,7 @@ class DestructionListViewSetTest(APITestCase):
             name="A test list", contains_sensitive_info=True
         )
         destruction_list.bulk_create_assignees(
-            [{"user": user1, "order": 0}, {"user": user2, "order": 1}],
+            [{"user": user1}, {"user": user2}],
             role=ListRole.reviewer,
         )
         DestructionListItemFactory.create_batch(
