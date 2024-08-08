@@ -4,7 +4,6 @@ from typing import Protocol
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.emails.models import EmailConfig
@@ -133,30 +132,10 @@ def process_new_assignees(
     assignees: list[dict],
     role: str,
 ) -> list[DestructionListAssignee]:
-    """
-    Remove any assignees that are not present in the new assignees and create the new ones.
-
-    Example:
-    Before reassigning there are reviewerA, reviewerB and reviewerC.
-    The record manager requests that the new reviewers are reviewerB and reviewerD.
-    This function deletes reviewerA and reviewerC and creates reviewerD.
-    """
-    users = [assignee["user"] for assignee in assignees]
-
     with transaction.atomic():
-        destruction_list.assignees.filter(~Q(user__in=users), role=role).delete()
-
-        existing_assignees_users = [
-            assignee.user.pk
-            for assignee in destruction_list.assignees.filter(role=role)
-        ]
-        assignees_to_create = []
-        for assignee in assignees:
-            if assignee["user"].pk not in existing_assignees_users:
-                assignees_to_create.append(assignee)
-
+        destruction_list.assignees.filter(role=role).delete()
         new_assignees = destruction_list.bulk_create_assignees(
-            assignees_to_create,
+            assignees,
             role,
         )
 

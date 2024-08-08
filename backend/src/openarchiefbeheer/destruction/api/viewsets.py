@@ -188,7 +188,7 @@ class DestructionListViewSet(
                 "assignees",
                 queryset=DestructionListAssignee.objects.select_related(
                     "user", "user__role"
-                ),
+                ).order_by("pk"),
             )
         )
     )
