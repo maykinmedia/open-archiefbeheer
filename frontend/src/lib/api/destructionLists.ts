@@ -20,7 +20,6 @@ export type DestructionList = {
 
 export type DestructionListAssignee = {
   user: User;
-  order: number;
 };
 
 // An array to be used in various parts of the application.
@@ -51,7 +50,6 @@ export type DestructionListUpdateData = {
 
 export type DestructionListAssigneeUpdate = {
   user: number;
-  order: number;
 };
 
 export type DestructionListItemUpdate = {
