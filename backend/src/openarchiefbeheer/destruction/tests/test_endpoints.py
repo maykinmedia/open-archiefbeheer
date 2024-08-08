@@ -779,6 +779,58 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         m_task.assert_not_called()
 
+    def test_reassign_swaps_reviewers(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+        )
+        assignees = DestructionListAssigneeFactory.create_batch(
+            2, destruction_list=destruction_list, role=ListRole.reviewer
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        response = self.client.get(
+            reverse(
+                "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["assignees"][0]["user"]["pk"], assignees[0].user.pk)
+        self.assertEqual(data["assignees"][1]["user"]["pk"], assignees[1].user.pk)
+
+        # Swap the assignees
+        self.client.post(
+            reverse(
+                "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+            ),
+            data={
+                "assignees": [
+                    {"user": assignees[1].user.pk},
+                    {"user": assignees[0].user.pk},
+                ],
+                "comment": "Lorem ipsum...",
+                "role": ListRole.reviewer,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(
+            reverse(
+                "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["assignees"][0]["user"]["pk"], assignees[1].user.pk)
+        self.assertEqual(data["assignees"][1]["user"]["pk"], assignees[0].user.pk)
+
 
 class DestructionListItemsViewSetTest(APITestCase):
     def test_not_authenticated(self):
