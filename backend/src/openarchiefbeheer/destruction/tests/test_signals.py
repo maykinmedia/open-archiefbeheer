@@ -55,7 +55,6 @@ class SignalsTests(TestCase):
                     body_error_during_deletion="ERROR AAAh!",
                 ),
             ),
-            self.assertRaises(Exception),
         ):
             delete_destruction_list(destruction_list)
 

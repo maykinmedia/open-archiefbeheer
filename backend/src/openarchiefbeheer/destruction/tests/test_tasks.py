@@ -241,53 +241,6 @@ class ProcessDeletingZakenTests(TestCase):
             ).exists()
         )
 
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_process_item_raises_error(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete
-        )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-        )
-        item1 = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            destruction_list=destruction_list,
-        )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/222-222-222",
-        )
-        item2 = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
-            destruction_list=destruction_list,
-        )
-
-        with (
-            patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
-                side_effect=Exception,
-            ),
-            self.assertRaises(Exception),
-        ):
-            delete_destruction_list(destruction_list)
-
-        destruction_list.refresh_from_db()
-        item1.refresh_from_db()
-        item2.refresh_from_db()
-
-        self.assertEqual(destruction_list.processing_status, InternalStatus.failed)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
-
-        # We don't know which item is processed first
-        statuses = [item1.processing_status, item2.processing_status]
-        self.assertIn(InternalStatus.failed, statuses)
-        self.assertIn(InternalStatus.new, statuses)
-        self.assertTrue(
-            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/111-111-111").exists()
-        )
-        self.assertTrue(
-            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/222-222-222").exists()
-        )
-
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
         item = DestructionListItemFactory.create(
@@ -369,3 +322,46 @@ class ProcessDeletingZakenTests(TestCase):
 
         self.assertEqual(list.status, ListStatus.deleted)
         self.assertEqual(list.processing_status, InternalStatus.succeeded)
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_other_items_processed_if_one_fails(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete
+        )
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+        item1 = DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            destruction_list=destruction_list,
+        )
+        ZaakFactory.create(
+            url="http://zaken.nl/api/v1/zaken/222-222-222",
+        )
+        item2 = DestructionListItemFactory.create(
+            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
+            destruction_list=destruction_list,
+        )
+
+        def mock_exceptions(zaak, result_store):
+            if zaak.url == item1.zaak:
+                raise Exception("An errur occurred!")
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+                side_effect=mock_exceptions,
+            ),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+        item1.refresh_from_db()
+        item2.refresh_from_db()
+
+        self.assertEqual(destruction_list.processing_status, InternalStatus.failed)
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+        self.assertEqual(item1.processing_status, InternalStatus.failed)
+        self.assertEqual(item2.processing_status, InternalStatus.succeeded)
+        self.assertTrue(Zaak.objects.filter(url=item1.zaak).exists())
+        self.assertFalse(Zaak.objects.filter(url=item2.zaak).exists())
