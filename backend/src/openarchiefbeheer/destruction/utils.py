@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from typing import Protocol
 
 from django.conf import settings
@@ -116,15 +115,6 @@ def notify_assignees_successful_deletion(destruction_list: DestructionList) -> N
 
 class ObjectWithStatus(Protocol):
     def set_processing_status(self, status: InternalStatus) -> None: ...
-
-
-@contextmanager
-def mark_as_failed_on_error(object_with_status: ObjectWithStatus):
-    try:
-        yield
-    except Exception as exc:
-        object_with_status.set_processing_status(InternalStatus.failed)
-        raise exc
 
 
 def process_new_assignees(

@@ -180,6 +180,14 @@ class DestructionList(models.Model):
             [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
         )
 
+    def has_failures(self) -> bool:
+        return any(
+            [
+                status == InternalStatus.failed
+                for status in self.items.values_list("processing_status", flat=True)
+            ]
+        )
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
@@ -254,27 +262,31 @@ class DestructionListItem(models.Model):
         self.processing_status = status
         self.save()
 
-    def process_deletion(self) -> None:
-        from .utils import mark_as_failed_on_error
+    def _delete_zaak(self):
+        try:
+            zaak = Zaak.objects.get(url=self.zaak)
+        except ObjectDoesNotExist as exc:
+            logger.error(
+                "Could not find zaak with URL %s. Aborting deletion.", self.zaak
+            )
+            raise exc
 
+        store = ResultStore(store=self)
+        store.clear_traceback()
+
+        delete_zaak_and_related_objects(zaak=zaak, result_store=store)
+
+        zaak.delete()
+
+    def process_deletion(self) -> None:
         self.processing_status = InternalStatus.processing
         self.save()
 
-        with mark_as_failed_on_error(self):
-            try:
-                zaak = Zaak.objects.get(url=self.zaak)
-            except ObjectDoesNotExist as exc:
-                logger.error(
-                    "Could not find zaak with URL %s. Aborting deletion.", self.zaak
-                )
-                raise exc
-
-            store = ResultStore(store=self)
-            store.clear_traceback()
-
-            delete_zaak_and_related_objects(zaak=zaak, result_store=store)
-
-            zaak.delete()
+        try:
+            self._delete_zaak()
+        except Exception:
+            self.set_processing_status(InternalStatus.failed)
+            return
 
         self.processing_status = InternalStatus.succeeded
         self.save()
