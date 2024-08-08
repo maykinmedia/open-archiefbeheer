@@ -10,7 +10,7 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 
-from .constants import InternalStatus
+from .constants import InternalStatus, ListRole
 from .models import DestructionList, DestructionListAssignee
 
 
@@ -141,23 +141,55 @@ def process_new_assignees(
     The record manager requests that the new reviewers are reviewerB and reviewerD.
     This function deletes reviewerA and reviewerC and creates reviewerD.
     """
-    users = [assignee["user"] for assignee in assignees]
-
+    new_reviewers = []
     with transaction.atomic():
-        destruction_list.assignees.filter(~Q(user__in=users), role=role).delete()
-
-        existing_assignees_users = [
-            assignee.user.pk
-            for assignee in destruction_list.assignees.filter(role=role)
-        ]
-        assignees_to_create = []
-        for assignee in assignees:
-            if assignee["user"].pk not in existing_assignees_users:
-                assignees_to_create.append(assignee)
-
-        new_assignees = destruction_list.bulk_create_assignees(
-            assignees_to_create,
-            role,
+        current_assignees = destruction_list.assignees.all()
+        current_users = [assignee["user"] for assignee in assignees]
+        current_reviewers = current_assignees.filter(role=ListRole.reviewer)
+        current_reviewers_list = list(
+            current_reviewers.values_list("user__pk", flat=True)
         )
 
-    return new_assignees
+        for new_index, assignee in enumerate(assignees):
+            """
+            Iterate over every (new) `assignee` in `assignees` to create `new_reviewers`:
+
+              - Check if the `assignee` is already in the `current_reviewers_list`
+
+              - If `assignee` is in the `current_reviewers_list`:
+                - Get the `current_index` of the `DestructionListAssignee` in  (filtered) `current_reviewers`
+                - Use the index to get the `DestructionListAssignee`
+                - Add the `DestructionListAssignee` to `new_reviewers`
+
+              - If `assignee` is not the `current_reviewers_list`:
+                - Create a new `DestructionListAssignee` based on `assignee`
+                - Add the newly created `DestructionListAssignee` to new_reviewers
+            """
+            try:  # If `assignee` is in the `current_reviewers_list`
+                # Get the `current_index` of the `DestructionListAssignee` in  (filtered) `current_reviewers`
+                current_index = current_reviewers_list.index(assignee["user"].pk)
+
+                # Use the index to get the `DestructionListAssignee`
+                current_assignee = current_reviewers[current_index]
+
+                # Add the `DestructionListAssignee` to `new_reviewers`
+                new_reviewers.append(current_assignee)
+            except ValueError:  # If `assignee` is not the `current_reviewers_list`
+                # Create a new `DestructionListAssignee` based on `assignee`
+                created_assignee = DestructionListAssignee.objects.create(
+                    **assignee,
+                    role=ListRole.reviewer,
+                    destruction_list=destruction_list
+                )
+                # Add the newly created `DestructionListAssignee` to new_reviewers
+                new_reviewers.append(created_assignee)
+
+        # Destroy old `DestructionListAssignee` instances
+        destruction_list.assignees.filter(
+            ~Q(user__in=current_users), role=role
+        ).delete()
+
+        # Create new `DestructionListAssignee` instances
+        destruction_list.assignees.set(new_reviewers)
+    # FIXME: Order seems to be ok here, but incorrect in API response?
+    return new_reviewers
