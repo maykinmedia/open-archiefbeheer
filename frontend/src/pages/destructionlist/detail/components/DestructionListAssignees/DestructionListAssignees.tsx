@@ -38,7 +38,7 @@ export function DestructionListAssignees({
   const errors = useActionData() || {};
   const submitAction = useSubmitAction();
 
-  const reviewerAssignees = [...assignees].splice(1);
+  const reviewerAssignees = [...assignees].filter((a) => a.role === "reviewer");
 
   type TempAction = Omit<
     DestructionListUpdateAssigneesActionPayload,
@@ -78,7 +78,7 @@ export function DestructionListAssignees({
       confirmationModalState.action?.payload.assignees[i].user;
     const user =
       assignees.find((a) => a.user.pk === modalAssignee)?.user ??
-      assignees[i + 1].user;
+      reviewerAssignees[i].user;
     return {
       ...acc,
       [`reviewer_${i + 1}`]: {

@@ -10,7 +10,11 @@ const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   containsSensitiveInfo: false,
   status: "changes_requested",
   processingStatus: "new",
-  assignees: usersFactory().map((u, i) => ({ user: u, order: i })),
+  assignees: usersFactory().map((u, i) => ({
+    user: u,
+    order: i,
+    role: "reviewer",
+  })),
   assignee: userFactory(),
   created: "2024-07-11T16:57",
   statusChanged: "2024-07-11:16:57",

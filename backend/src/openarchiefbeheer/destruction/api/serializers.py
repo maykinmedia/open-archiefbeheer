@@ -71,7 +71,7 @@ class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DestructionListAssignee
-        fields = ("user",)
+        fields = ("user", "role")
 
 
 class ReassignementSerializer(serializers.Serializer):
