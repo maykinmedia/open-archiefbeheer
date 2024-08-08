@@ -169,12 +169,8 @@ export function useDataGridProps(
       // Transform the string dates to formatted string dates (dd-mm-yyyy)
       startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
       einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
-      archiefactiedatum: zaak.archiefactiedatum
-        ? formatDate(zaak.archiefactiedatum)
-        : "",
-      einddatumGepland: zaak.einddatumGepland
-        ? formatDate(zaak.einddatumGepland)
-        : "",
+      archiefactiedatum: zaak.archiefactiedatum,
+      einddatumGepland: zaak.einddatumGepland,
       href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
       acties: <>{renderActionButtons(zaak, actions)}</>,
     };
@@ -401,6 +397,7 @@ export function getFields(
       name: "archiefactiedatum",
       type: "daterange",
       width: "130px",
+      valueTransform: (rowData: object) => dateTransform(rowData as Zaak),
     },
     {
       active: false,
@@ -432,4 +429,11 @@ export function getFields(
       Boolean,
     ) as TypedField[]),
   ];
+}
+
+function dateTransform(zaak: Zaak) {
+  if (!zaak.archiefactiedatum) {
+    return null;
+  }
+  return formatDate(zaak.archiefactiedatum);
 }
