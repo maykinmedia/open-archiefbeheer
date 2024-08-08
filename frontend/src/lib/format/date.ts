@@ -1,14 +1,17 @@
+import { format as _format, add, formatISO } from "date-fns";
+import { parse } from "tinyduration";
+
 /**
  * Formats date.
  * @param date
+ * @param format
  */
-export function formatDate(date: Date | string) {
+export function formatDate(date: Date | string, format: "nl" | "iso" = "nl") {
   const _date = new Date(date);
-  const year = _date.getFullYear();
-  const month = String(_date.getMonth() + 1).padStart(2, "0");
-  const day = String(_date.getDate()).padStart(2, "0");
-
-  return `${day}/${month}/${year}`;
+  if (format === "iso") {
+    return formatISO(date, { representation: "date" });
+  }
+  return _format(_date, "dd/MM/yyyy");
 }
 
 /**
@@ -76,4 +79,15 @@ export function timeAgo(
 
   // Return the result or default to "just now" or "0m" for short format
   return result.trim() || (shortFormat ? "0m" : "Nu");
+}
+
+/**
+ * Adds (ISO 8601) `duration` string to `date`.
+ * @param dateInput
+ * @param durationString
+ */
+export function addDuration(dateInput: Date | string, durationString: string) {
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  const duration = parse(durationString);
+  return add(date, duration);
 }

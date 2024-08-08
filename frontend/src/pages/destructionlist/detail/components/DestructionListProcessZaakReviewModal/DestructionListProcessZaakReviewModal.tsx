@@ -17,6 +17,7 @@ import {
 import React, { FormEvent, useEffect, useState } from "react";
 
 import { ReviewItem } from "../../../../../lib/api/review";
+import { addDuration, formatDate } from "../../../../../lib/format/date";
 import { Zaak } from "../../../../../types";
 import { ProcessReviewAction } from "../DestructionListProcessReview/DestructionListProcessReview";
 
@@ -124,6 +125,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       !formState.selectielijstklasse;
 
     const isArchiefactiedatumActive =
+      formState.action === "change_selectielijstklasse" ||
       formState.action === "change_archiefactiedatum" ||
       !formState.archiefactiedatum;
 
@@ -191,11 +193,28 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     return [...baseFields, ...(_formState.action ? actionSelectedFields : [])];
   };
 
-  /**
-   * Updates the form state, and validates the form.
-   * @param values
-   */
   const validate = (values: AttributeData) => {
+    const action = values.action;
+    /**
+     * Updates the form state, and validates the form.
+     * @param values
+     */
+    const archiefactiedatum = zaak?.archiefactiedatum as string;
+    const selectedSelectieLijstKlasseChoice = selectieLijstKlasseChoices.find(
+      (s) => s.value === values.selectielijstklasse,
+    ) as (Option & { detail: { bewaartermijn: string } }) | undefined;
+    const detail = selectedSelectieLijstKlasseChoice?.detail;
+
+    const bewaartermijn = detail?.bewaartermijn;
+    if (
+      action === "change_selectielijstklasse" &&
+      archiefactiedatum &&
+      bewaartermijn
+    ) {
+      const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
+      values.archiefactiedatum = formatDate(archiveDate, "iso");
+    }
+
     setFormState(values as typeof formState);
     const _fields = getFields(values as typeof formState);
     return validateForm(values, _fields);
