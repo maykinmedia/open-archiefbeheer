@@ -129,7 +129,9 @@ class DestructionList(models.Model):
     def bulk_create_items(self, items_data: dict) -> list["DestructionListItem"]:
         return DestructionListItem.objects.bulk_create(
             [
-                DestructionListItem(**{**item, "destruction_list": self})
+                DestructionListItem(
+                    **{**item, "destruction_list": self, "zaak_url": item["zaak"].url}
+                )
                 for item in items_data
             ]
         )
@@ -201,6 +203,14 @@ class DestructionListItem(models.Model):
         help_text=_(
             "URL-reference to the ZAAK (in Zaken API), which is planned to be destroyed."
         ),
+    )
+    zaak = models.ForeignKey(
+        "zaken.Zaak",
+        on_delete=models.SET_NULL,
+        related_name="items",
+        verbose_name=_("zaak"),
+        blank=True,
+        null=True,
     )
     status = models.CharField(
         _("status"),

@@ -95,22 +95,16 @@ class ReassignementSerializer(serializers.Serializer):
         return attrs
 
 
-class DestructionListItemSerializer(serializers.ModelSerializer):
-    zaak_data = serializers.SerializerMethodField(
-        help_text=_(
-            "If the case has not been deleted yet, this field contains all the zaak data."
-        ),
-        allow_null=True,
-    )
+class DestructionListItemWriteSerializer(serializers.ModelSerializer):
+    zaak = serializers.SlugRelatedField(slug_field="url", queryset=Zaak.objects.all())
 
     class Meta:
         model = DestructionListItem
         fields = (
             "pk",
-            "zaak_url",
             "status",
             "extra_zaak_data",
-            "zaak_data",
+            "zaak",
             "processing_status",
         )
 
@@ -118,14 +112,14 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
         destruction_list = self.context["destruction_list"]
         is_create = destruction_list is None
 
-        filters = ~Q(status=ListItemStatus.removed) & Q(zaak_url=attrs["zaak_url"])
+        filters = ~Q(status=ListItemStatus.removed) & Q(zaak_url=attrs["zaak"].url)
         if not is_create:
             filters = filters & ~Q(destruction_list=destruction_list)
 
         if DestructionListItem.objects.filter(filters).exists():
             raise ValidationError(
                 {
-                    "zaak_url": _(
+                    "zaak": _(
                         "This case was already included in another destruction list and was not exempt during the "
                         "review process."
                     )
@@ -134,14 +128,25 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    @extend_schema_field(ZaakSerializer)
-    def get_zaak_data(self, instance: DestructionListItem) -> dict | None:
-        return {}
+
+class DestructionListItemReadSerializer(serializers.ModelSerializer):
+    zaak = ZaakSerializer(allow_null=True, read_only=True)
+
+    class Meta:
+        model = DestructionListItem
+        fields = (
+            "pk",
+            "zaak_url",
+            "status",
+            "extra_zaak_data",
+            "zaak",
+            "processing_status",
+        )
 
 
 class DestructionListSerializer(serializers.ModelSerializer):
     assignees = ReviewerAssigneeSerializer(many=True, required=False)
-    items = DestructionListItemSerializer(many=True)
+    items = DestructionListItemWriteSerializer(many=True)
     author = UserSerializer(read_only=True)
 
     class Meta:
@@ -174,7 +179,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         if len(assignees) > 1:
             return attrs
 
-        zaken_urls = [i["zaak_url"] for i in attrs["items"]]
+        zaken_urls = [i["zaak"].url for i in attrs["items"]]
         zaaktypes_urls = (
             Zaak.objects.filter(url__in=zaken_urls)
             .values_list("zaaktype", flat=True)
@@ -420,12 +425,11 @@ class DestructionListItemReviewSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(ZaakSerializer)
     def get_zaak(self, obj) -> dict:
-        zaak_url = obj.destruction_list_item.zaak_url
-        zaak = Zaak.objects.filter(url=zaak_url).first()
+        zaak = obj.destruction_list_item.zaak
         # The zaak is no longer present in the cache,
         # it might have already been removed
         if not zaak:
-            return {"url": zaak_url}
+            return {"url": obj.destruction_list_item.zaak_url}
 
         serializer = ZaakSerializer(instance=zaak)
         return serializer.data
