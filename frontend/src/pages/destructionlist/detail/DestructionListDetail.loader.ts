@@ -15,16 +15,14 @@ import {
   listReviewItems,
 } from "../../../lib/api/review";
 import { listReviewers } from "../../../lib/api/reviewers";
+import { ZaakSelection } from "../../../lib/api/zaakSelection";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canViewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
 import { cacheMemo } from "../../../lib/cache/cache";
-import {
-  ZaakSelection,
-  getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export interface DestructionListDetailContext {
   storageKey: string;
@@ -121,7 +119,7 @@ export const destructionListDetailLoader = loginRequired(
             }),
 
         // Fetch the selected zaken.
-        getZaakSelection(storageKey),
+        getZaakSelection(storageKey, true),
 
         // Fetch selectielijst choices if review collected.
         // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,

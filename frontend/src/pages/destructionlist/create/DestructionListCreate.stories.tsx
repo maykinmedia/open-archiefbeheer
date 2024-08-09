@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { MOCKS_COMMON } from "../../../../.storybook/mocks";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
@@ -13,31 +14,15 @@ import {
   recordManagerFactory,
   usersFactory,
 } from "../../../fixtures/user";
-import {
-  DestructionListCreateContext,
-  DestructionListCreatePage,
-} from "./DestructionListCreate";
+import { DestructionListCreatePage } from "./DestructionListCreate";
+import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
   component: DestructionListCreatePage,
   decorators: [ReactRouterDecorator],
   parameters: {
-    mockData: [
-      {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            label: "Melding klein kansspel",
-            value:
-              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
-            extra: "MKK",
-          },
-        ],
-      },
-    ],
+    mockData: MOCKS_COMMON,
   },
 };
 
@@ -46,8 +31,9 @@ type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
-  zaken: paginatedZakenFactory(),
   selectedZaken: [],
+  sessionHash: "s3cret",
+  zaken: paginatedZakenFactory(),
 };
 
 export const DestructionListCreatePageStory: Story = {

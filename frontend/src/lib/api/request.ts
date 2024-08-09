@@ -18,9 +18,9 @@ export const API_BASE_URL = `${API_URL}${API_PATH}`;
  * @param headers
  */
 export async function request(
-  method: "DELETE" | "GET" | "PATCH" | "POST",
+  method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT",
   endpoint: string,
-  params?: URLSearchParams | Record<string, string | number>,
+  params?: URLSearchParams | Record<string, number | string | string[]>,
   data?: Record<string, unknown>,
   headers?: Record<string, string>,
 ) {

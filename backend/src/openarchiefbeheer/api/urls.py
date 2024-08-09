@@ -26,6 +26,7 @@ from openarchiefbeheer.zaken.api.views import (
     SelectielijstklasseChoicesView,
     ZaaktypenChoicesView,
 )
+from openarchiefbeheer.selection.api.viewsets import ZaakSelectionViewSet
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
 app_name = "api"
@@ -53,7 +54,7 @@ router.register(
     basename="review-responses",
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
-
+router.register(r"zaak-selection", ZaakSelectionViewSet, basename="zaak-selection")
 
 urlpatterns = [
     # API documentation

@@ -1,10 +1,7 @@
 import { ActionFunctionArgs, redirect } from "react-router-dom";
 
 import { Review, createDestructionListReview } from "../../../lib/api/review";
-import {
-  ZaakSelection,
-  getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import {
   FormDataState,
   getDestructionListReviewKey,
@@ -38,13 +35,8 @@ export const destructionListReviewAction = async ({
   searchParams.set("destruction_list", destructionListUuid);
 
   // Get data
-  const promises = [getZaakSelection(storageKey)];
-
-  const [zaakSelection] = (await Promise.all(promises)) as [ZaakSelection];
-
-  const zaakSelectionValid = Object.values(zaakSelection).filter(
-    (f) => f.selected,
-  );
+  const zaakSelection = await getZaakSelection(storageKey);
+  const zaakSelectionValid = zaakSelection.items.filter((i) => i.selected);
 
   const data: Review = {
     destructionList: destructionListUuid,

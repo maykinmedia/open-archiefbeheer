@@ -45,9 +45,9 @@ export function DestructionListEdit() {
   //
 
   // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([, { selected }]) => selected)
-    .map(([url]) => ({ url }));
+  const selectedUrls = zaakSelection.items
+    .filter((i) => i.selected)
+    .map((i) => ({ url: i.zaak as string }));
 
   //
   // EDITING MODE VARS
@@ -70,10 +70,10 @@ export function DestructionListEdit() {
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
   const handleEditUpdate = async () => {
-    const zaakSelection = await getZaakSelection(storageKey);
-    const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selection]) => selection.selected)
-      .map(([url]) => url);
+    const zaakSelection = await getZaakSelection(storageKey, true);
+    const zaakUrls = zaakSelection.items
+      .filter((i) => i.selected)
+      .map((i) => i.zaak as string);
 
     const action: UpdateDestructionListAction<Record<string, string[]>> = {
       type: "UPDATE_ZAKEN",
@@ -132,7 +132,7 @@ export function DestructionListEdit() {
 
   // Update the selected zaken to session storage.
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
+    await addToZaakSelection(storageKey, zaken.results, undefined, true);
   }, []);
 
   return (

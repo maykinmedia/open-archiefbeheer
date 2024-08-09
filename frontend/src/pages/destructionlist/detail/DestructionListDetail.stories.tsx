@@ -3,6 +3,7 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { MOCKS_COMMON } from "../../../../.storybook/mocks";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
@@ -19,7 +20,7 @@ import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
   selectieLijstKlasseFactory,
 } from "../../../fixtures/selectieLijstKlasseChoices";
-import { usersFactory } from "../../../fixtures/user";
+import { userFactory, usersFactory } from "../../../fixtures/user";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -33,19 +34,7 @@ const meta: Meta<typeof DestructionListDetailPage> = {
   decorators: [ReactRouterDecorator],
   parameters: {
     mockData: [
-      {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            label: "Melding klein kansspel",
-            value:
-              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
-            extra: "MKK",
-          },
-        ],
-      },
+      ...MOCKS_COMMON,
       {
         url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",
         method: "POST",
@@ -125,7 +114,12 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
   user: usersFactory()[0],
   zaken: paginatedZakenFactory(),
   selectableZaken: paginatedZakenFactory(),
-  zaakSelection: {},
+  zaakSelection: {
+    key: "storybook-storage-key",
+    lastUpdatedBy: userFactory(),
+    lastUpdated: "2023-09-15",
+    items: [],
+  },
   review: null,
   reviewItems: null,
   selectieLijstKlasseChoicesMap: null,
@@ -159,7 +153,7 @@ export const EditDestructionList: Story = {
 };
 
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
-  storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
+  storageKey: `storybook-storage-key`,
   destructionList: { ...destructionListFactory(), status: "changes_requested" },
   reviewers: usersFactory(),
   archivists: usersFactory(),
@@ -171,7 +165,12 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
     results: [],
   },
   selectableZaken: paginatedZakenFactory(),
-  zaakSelection: {},
+  zaakSelection: {
+    key: `storybook-storage-key`,
+    lastUpdatedBy: userFactory(),
+    lastUpdated: "2023-09-15",
+    items: [],
+  },
   review: reviewFactory(),
   reviewItems: reviewItemsFactory(),
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
@@ -266,7 +265,7 @@ export const ProcessReview: Story = {
 };
 
 const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
-  storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
+  storageKey: "storybook-storage-key",
   destructionList: {
     ...destructionListFactory(),
     status: "internally_reviewed",
@@ -281,7 +280,12 @@ const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
     results: [],
   },
   selectableZaken: paginatedZakenFactory(),
-  zaakSelection: {},
+  zaakSelection: {
+    key: "storybook-storage-key",
+    lastUpdatedBy: userFactory(),
+    lastUpdated: "2023-09-15",
+    items: [],
+  },
   review: reviewFactory(),
   reviewItems: reviewItemsFactory(),
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
@@ -316,7 +320,9 @@ export const MarkDestructionListAsFinal: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        action: async () => true,
+        action: () => {
+          return true;
+        },
         loader: async () => {
           const zaakSelection = await getZaakSelection(
             `${FIXTURE_FINAL_DESTRUCTION.storageKey}`,

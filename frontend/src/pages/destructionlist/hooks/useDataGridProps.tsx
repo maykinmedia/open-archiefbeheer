@@ -95,9 +95,10 @@ export function useDataGridProps(
   // Gets a specific zaak selection based on the url.
   //
   const getSpecificZaakSelection = async (url: string) => {
-    const zaakSelection = await getZaakSelection(storageKey);
-    if (!zaakSelection[url]?.selected) return;
-    return zaakSelection[url].detail;
+    const zaakSelection = await getZaakSelection(storageKey, true);
+    const item = zaakSelection.items.find((i) => i.zaak === url);
+    if (!item?.selected) return;
+    return item.detail;
   };
 
   const hasActions = Boolean(actions?.length);
@@ -217,12 +218,18 @@ export function useDataGridProps(
     selected: boolean,
   ) => {
     selected
-      ? await addToZaakSelection(storageKey, attributeData as unknown as Zaak[])
+      ? await addToZaakSelection(
+          storageKey,
+          attributeData as unknown as Zaak[],
+          undefined,
+          true,
+        )
       : await removeFromZaakSelection(
           storageKey,
           attributeData.length
             ? (attributeData as unknown as Zaak[])
             : paginatedResults.results,
+          true,
         );
   };
 
