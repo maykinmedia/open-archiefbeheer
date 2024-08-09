@@ -202,6 +202,14 @@ class DestructionListItem(models.Model):
             "URL-reference to the ZAAK (in Zaken API), which is planned to be destroyed."
         ),
     )
+    zaak = models.ForeignKey(
+        "zaken.Zaak",
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name=_("zaak"),
+        blank=True,
+        null=True,
+    )
     status = models.CharField(
         _("status"),
         default=ListItemStatus.suggested,

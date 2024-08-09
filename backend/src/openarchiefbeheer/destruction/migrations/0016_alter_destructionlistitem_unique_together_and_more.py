@@ -21,4 +21,13 @@ class Migration(migrations.Migration):
             name="destructionlistitem",
             unique_together={("destruction_list", "zaak_url")},
         ),
+        migrations.AlterField(
+            model_name="destructionlistitem",
+            name="zaak_url",
+            field=models.URLField(
+                db_index=True,
+                help_text="URL-reference to the ZAAK (in Zaken API), which is planned to be destroyed.",
+                verbose_name="zaak_url",
+            ),
+        ),
     ]
