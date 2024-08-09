@@ -21,11 +21,11 @@ class FilterZakenTests(APITestCase):
 
         # This zaak should NOT be returned by the endpoint (it's included in a destruction list)
         DestructionListItemFactory.create(
-            status=ListItemStatus.suggested, zaak=zaken[0].url
+            status=ListItemStatus.suggested, zaak_url=zaken[0].url
         )
         # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
         DestructionListItemFactory.create(
-            status=ListItemStatus.removed, zaak=zaken[1].url
+            status=ListItemStatus.removed, zaak_url=zaken[1].url
         )
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
@@ -232,15 +232,15 @@ class FilterZakenTests(APITestCase):
 
         # This zaak should NOT be returned by the endpoint (it's included in a destruction list)
         DestructionListItemFactory.create(
-            status=ListItemStatus.suggested, zaak=zaken[0].url
+            status=ListItemStatus.suggested, zaak_url=zaken[0].url
         )
         # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
         DestructionListItemFactory.create(
-            status=ListItemStatus.removed, zaak=zaken[1].url
+            status=ListItemStatus.removed, zaak_url=zaken[1].url
         )
         # This zaak SHOULD be returned, because it is included in the 'exception' list
         item = DestructionListItemFactory.create(
-            status=ListItemStatus.suggested, zaak=zaken[2].url
+            status=ListItemStatus.suggested, zaak_url=zaken[2].url
         )
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
@@ -258,7 +258,7 @@ class FilterZakenTests(APITestCase):
         urls_zaken = [zaak["url"] for zaak in data["results"]]
 
         # The zaken in the 'exception' list should be returned first
-        self.assertEqual(item.zaak, urls_zaken[0])
+        self.assertEqual(item.zaak_url, urls_zaken[0])
 
     def test_filter_behandelend_afdeling(self):
         # Should NOT be returned: natuurlijk_persoon != organisatorische_eenheid
@@ -368,13 +368,13 @@ class FilterZakenTests(APITestCase):
         # This zaak SHOULD be returned by the endpoint (it's in the destruction list)
         item = DestructionListItemFactory.create(
             status=ListItemStatus.suggested,
-            zaak=zaken[0].url,
+            zaak_url=zaken[0].url,
             destruction_list=destruction_list,
         )
         # This zaak should NOT be returned by the endpoint (it was included in the destruction list, but was excluded)
         DestructionListItemFactory.create(
             status=ListItemStatus.removed,
-            zaak=zaken[1].url,
+            zaak_url=zaken[1].url,
             destruction_list=destruction_list,
         )
 
@@ -389,7 +389,7 @@ class FilterZakenTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 1)
-        self.assertEqual(item.zaak, data["results"][0]["url"])
+        self.assertEqual(item.zaak_url, data["results"][0]["url"])
 
     def test_filter_on_zaaktype(self):
         ZaakFactory.create_batch(3, identificatie="ZAAK-01")

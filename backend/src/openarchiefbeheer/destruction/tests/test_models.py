@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from unittest.mock import patch
 
@@ -7,7 +6,6 @@ from django.test import TestCase
 from django.utils import timezone
 
 from freezegun import freeze_time
-from testfixtures import log_capture
 
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.models import Zaak
@@ -22,50 +20,6 @@ from .factories import (
 
 
 class DestructionListItemTest(TestCase):
-    def test_get_zaak_data(self):
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-            omschrijving="Test description",
-        )
-
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.suggested,
-        )
-
-        zaak_data = item.get_zaak_data()
-
-        self.assertEqual(zaak_data["omschrijving"], "Test description")
-
-    def test_get_zaak_data_removed_case(self):
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.removed,
-        )
-
-        zaak_data = item.get_zaak_data()
-
-        self.assertIsNone(zaak_data)
-
-    @log_capture(level=logging.ERROR)
-    def test_get_zaak_data_missing_case(self, logs):
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.suggested,
-        )
-        zaak_data = item.get_zaak_data()
-
-        self.assertEqual(
-            (
-                "openarchiefbeheer.destruction.models",
-                "ERROR",
-                "Zaak with url http://zaken.nl/api/v1/zaken/111-111-111 and status "
-                '"suggested" could not be found in the cache.',
-            ),
-            logs[0],
-        )
-        self.assertIsNone(zaak_data)
-
     def test_set_status(self):
         destruction_list = DestructionListFactory.create()
 
@@ -81,7 +35,7 @@ class DestructionListItemTest(TestCase):
 
     def test_process_deletion_zaak_not_found(self):
         item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
         )
 
         item.process_deletion()
@@ -97,7 +51,7 @@ class DestructionListItemTest(TestCase):
         )
 
         item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
         )
 
         with patch(
@@ -200,13 +154,13 @@ class DestructionListTest(TestCase):
         )
         zaak_long = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
+            destruction_list=destruction_list, zaak_url=zaken_short[0].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list, zaak_url=zaken_short[1].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_long.url
+            destruction_list=destruction_list, zaak_url=zaak_long.url
         )
 
         with patch(
@@ -226,13 +180,13 @@ class DestructionListTest(TestCase):
         )
         zaak_short = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
+            destruction_list=destruction_list, zaak_url=zaken_short[0].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list, zaak_url=zaken_short[1].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_short.url
+            destruction_list=destruction_list, zaak_url=zaak_short.url
         )
 
         with patch(
