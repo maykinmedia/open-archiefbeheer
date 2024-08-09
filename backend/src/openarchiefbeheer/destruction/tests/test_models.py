@@ -84,8 +84,7 @@ class DestructionListItemTest(TestCase):
             zaak="http://zaken.nl/api/v1/zaken/111-111-111",
         )
 
-        with self.assertRaises(ObjectDoesNotExist):
-            item.process_deletion()
+        item.process_deletion()
 
         item.refresh_from_db()
 

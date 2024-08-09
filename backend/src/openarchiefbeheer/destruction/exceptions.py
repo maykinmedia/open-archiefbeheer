@@ -1,0 +1,2 @@
+class DeletionProcessingError(Exception):
+    pass

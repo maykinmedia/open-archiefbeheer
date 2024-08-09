@@ -7,6 +7,7 @@ from celery import chain
 from openarchiefbeheer.celery import app
 
 from .constants import InternalStatus, ListItemStatus, ListStatus
+from .exceptions import DeletionProcessingError
 from .models import DestructionList, DestructionListItem, ReviewResponse
 from .signals import deletion_failure
 from .utils import notify_assignees_successful_deletion
@@ -66,11 +67,11 @@ def delete_destruction_list(destruction_list: DestructionList) -> None:
     chunk_tasks = delete_destruction_list_item.chunks(
         items_pks, settings.ZAKEN_CHUNK_SIZE
     )
-    notify_task = complete_and_notify.si(destruction_list.pk)
+    complete_and_notify_task = complete_and_notify.si(destruction_list.pk)
 
     task_chain = chain(
         chunk_tasks.group(),
-        notify_task,
+        complete_and_notify_task,
         link_error=handle_processing_error.si(destruction_list.pk),
     )
     task_chain.delay()
@@ -99,6 +100,9 @@ def delete_destruction_list_item(pk: int) -> None:
 @app.task
 def complete_and_notify(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
+    if destruction_list.has_failures():
+        raise DeletionProcessingError()
+
     destruction_list.processing_status = InternalStatus.succeeded
     destruction_list.save()
 
