@@ -85,7 +85,7 @@ class AssignementLogicTest(TestCase):
         )
         zaak = ZaakFactory.create()
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak.url
+            destruction_list=destruction_list, zaak_url=zaak.url
         )
         record_manager = DestructionListAssigneeFactory.create(
             role=ListRole.author,
@@ -119,7 +119,7 @@ class AssignementLogicTest(TestCase):
         )
         zaak = ZaakFactory.create()
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak.url
+            destruction_list=destruction_list, zaak_url=zaak.url
         )
         record_manager = DestructionListAssigneeFactory.create(
             role=ListRole.author,

@@ -48,7 +48,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
             author=record_manager, status=ListStatus.changes_requested
         )
         DestructionListItemFactory.create(
-            zaak=zaak.url, destruction_list=destruction_list
+            zaak_url=zaak.url, destruction_list=destruction_list
         )
         DestructionListAssigneeFactory.create(
             user=record_manager,
@@ -65,7 +65,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
             review__author=reviewer,
         )
         ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak=zaak.url,
+            review_item__destruction_list_item__zaak_url=zaak.url,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
             action_zaak={"archiefactiedatum": "2024-10-01"},

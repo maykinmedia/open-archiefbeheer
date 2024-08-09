@@ -57,11 +57,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -90,14 +90,14 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(assignees[1].user.username, "reviewer1")
         self.assertEqual(assignees[2].user.username, "reviewer2")
 
-        items = destruction_list.items.order_by("zaak")
+        items = destruction_list.items.order_by("zaak_url")
 
         self.assertEqual(items.count(), 2)
         self.assertEqual(
-            items[0].zaak, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+            items[0].zaak_url, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
         )
         self.assertEqual(
-            items[1].zaak, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
+            items[1].zaak_url, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
         )
 
         self.assertEqual(destruction_list.author, record_manager)
@@ -149,7 +149,7 @@ class DestructionListSerializerTests(TestCase):
                 ],
                 "items": [
                     {
-                        "zaak": zaak.url,
+                        "zaak_url": zaak.url,
                         "extra_zaak_data": {},
                     },
                 ],
@@ -180,7 +180,7 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": zaak.url,
+                    "zaak_url": zaak.url,
                     "extra_zaak_data": {},
                 },
             ],
@@ -206,7 +206,7 @@ class DestructionListSerializerTests(TestCase):
         )
 
         DestructionListItemFactory.create(
-            zaak="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.suggested,
         )
 
@@ -222,11 +222,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -236,7 +236,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["items"][0]["zaak"],
+            serializer.errors["items"][0]["zaak_url"],
             [
                 _(
                     "This case was already included in another destruction list and was not exempt during the review process."
@@ -256,7 +256,7 @@ class DestructionListSerializerTests(TestCase):
         )
 
         DestructionListItemFactory.create(
-            zaak="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.removed,
         )
 
@@ -272,11 +272,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -305,7 +305,7 @@ class DestructionListSerializerTests(TestCase):
             "contains_sensitive_info": False,
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {"key": "value"},
                 },
             ],
@@ -394,7 +394,7 @@ class DestructionListSerializerTests(TestCase):
 
         # We are removing 2 zaken from the destruction list
         data = {
-            "items": [{"zaak": items[0].zaak}, {"zaak": items[1].zaak}],
+            "items": [{"zaak_url": items[0].zaak_url}, {"zaak_url": items[1].zaak_url}],
         }
 
         serializer = DestructionListSerializer(
@@ -406,11 +406,11 @@ class DestructionListSerializerTests(TestCase):
         serializer.save()
 
         items = DestructionListItem.objects.filter(destruction_list=destruction_list)
-        items_in_list = items.values_list("zaak", flat=True)
+        items_in_list = items.values_list("zaak_url", flat=True)
 
         self.assertEqual(items_in_list.count(), 2)
-        self.assertIn(data["items"][0]["zaak"], items_in_list)
-        self.assertIn(data["items"][1]["zaak"], items_in_list)
+        self.assertIn(data["items"][0]["zaak_url"], items_in_list)
+        self.assertIn(data["items"][1]["zaak_url"], items_in_list)
 
     @tag("gh-58")
     def test_create_destruction_list_with_same_reviewer_twice(self):
@@ -435,11 +435,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -476,11 +476,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -777,7 +777,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "This is a list with inconsisten feedback.",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
             ],
@@ -847,11 +847,11 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": items[0].zaak,
+                    "zaak_url": items[0].zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "zaak_url": items[1].zaak,
+                    "zaak_url": items[1].zaak_url,
                     "feedback": "We should wait to delete this.",
                 },
             ],
@@ -904,7 +904,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
             ],
@@ -943,7 +943,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
             ],

@@ -186,7 +186,7 @@ def delete_decisions_and_relation_objects(
     brc_client = build_client(brc_service)
 
     with brc_client:
-        response = brc_client.get("besluiten", params={"zaak": zaak.url})
+        response = brc_client.get("besluiten", params={"zaak_url": zaak.url})
         response.raise_for_status()
 
         data = response.json()
@@ -196,7 +196,7 @@ def delete_decisions_and_relation_objects(
         data_iterator = pagination_helper(
             brc_client,
             data,
-            params={"zaak": zaak.url},
+            params={"zaak_url": zaak.url},
         )
 
         for data in data_iterator:
