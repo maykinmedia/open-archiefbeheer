@@ -149,7 +149,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             items = [
                 await self.list_item_exists(
-                    destruction_list=destruction_list, zaak_url=zaak.url
+                    destruction_list=destruction_list, zaak_url=zaak.url, zaak=zaak
                 )
                 for zaak in zaken
             ]

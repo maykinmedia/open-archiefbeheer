@@ -44,6 +44,12 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
 
         request = factory.get("/foo")
         request.user = record_manager
@@ -57,11 +63,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -149,7 +155,7 @@ class DestructionListSerializerTests(TestCase):
                 ],
                 "items": [
                     {
-                        "zaak_url": zaak.url,
+                        "zaak": zaak.url,
                         "extra_zaak_data": {},
                     },
                 ],
@@ -180,7 +186,7 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak_url": zaak.url,
+                    "zaak": zaak.url,
                     "extra_zaak_data": {},
                 },
             ],
@@ -204,6 +210,12 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
 
         DestructionListItemFactory.create(
             zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -222,11 +234,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -236,7 +248,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["items"][0]["zaak_url"],
+            serializer.errors["items"][0]["zaak"],
             [
                 _(
                     "This case was already included in another destruction list and was not exempt during the review process."
@@ -254,7 +266,12 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
-
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
         DestructionListItemFactory.create(
             zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.removed,
@@ -272,11 +289,11 @@ class DestructionListSerializerTests(TestCase):
             ],
             "items": [
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
                 },
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                     "extra_zaak_data": {},
                 },
             ],
@@ -299,13 +316,15 @@ class DestructionListSerializerTests(TestCase):
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
         )
-
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
         data = {
             "name": "An updated test list",
             "contains_sensitive_info": False,
             "items": [
                 {
-                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {"key": "value"},
                 },
             ],
@@ -390,11 +409,12 @@ class DestructionListSerializerTests(TestCase):
             4,
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
+            with_zaak=True,
         )
 
         # We are removing 2 zaken from the destruction list
         data = {
-            "items": [{"zaak_url": items[0].zaak_url}, {"zaak_url": items[1].zaak_url}],
+            "items": [{"zaak": items[0].zaak_url}, {"zaak": items[1].zaak_url}],
         }
 
         serializer = DestructionListSerializer(
@@ -409,8 +429,8 @@ class DestructionListSerializerTests(TestCase):
         items_in_list = items.values_list("zaak_url", flat=True)
 
         self.assertEqual(items_in_list.count(), 2)
-        self.assertIn(data["items"][0]["zaak_url"], items_in_list)
-        self.assertIn(data["items"][1]["zaak_url"], items_in_list)
+        self.assertIn(data["items"][0]["zaak"], items_in_list)
+        self.assertIn(data["items"][1]["zaak"], items_in_list)
 
     @tag("gh-58")
     def test_create_destruction_list_with_same_reviewer_twice(self):
