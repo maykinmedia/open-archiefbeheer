@@ -819,7 +819,7 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        data = sorted(response.json(), key=lambda item: item["zaak"])
+        data = sorted(response.json()["results"], key=lambda item: item["zaak"])
 
         self.assertEqual(
             data[0]["zaakData"]["omschrijving"],
@@ -868,7 +868,7 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         data = response.json()
 
-        self.assertEqual(len(data), 2)
+        self.assertEqual(data["count"], 2)
 
 
 class DestructionListReviewViewSetTest(APITestCase):
