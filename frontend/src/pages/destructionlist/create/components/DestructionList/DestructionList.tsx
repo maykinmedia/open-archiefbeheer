@@ -10,6 +10,7 @@ import {
 
 export type DestructionList = React.PropsWithChildren<
   {
+    errors?: string | string[];
     zaken: PaginatedZaken;
     selectedZaken: Zaak[];
     onSubmitSelection: () => void;
@@ -26,6 +27,7 @@ export type DestructionList = React.PropsWithChildren<
  */
 export function DestructionList({
   children,
+  errors,
   storageKey,
   zaken,
   selectedZaken,
@@ -35,14 +37,15 @@ export function DestructionList({
   actions,
   ...props
 }: DestructionList) {
-  const errors = useActionData() || {};
+  const actionErrors = useActionData() || {};
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
     zaken,
     selectedZaken,
     actions,
   );
-  const _errors = [...Object.values(errors), error].filter((v) => v);
+  const _errors =
+    errors || [...Object.values(actionErrors), error].filter((v) => v);
 
   return (
     <ListTemplate
