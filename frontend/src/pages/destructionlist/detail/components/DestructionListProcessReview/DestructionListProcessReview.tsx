@@ -64,7 +64,7 @@ export function DestructionListProcessReview() {
   const {
     storageKey,
     destructionList,
-    zaken,
+    destructionListItems,
     zaakSelection,
     review,
     reviewItems = [],
@@ -228,10 +228,10 @@ export function DestructionListProcessReview() {
   const processZaakReviewSelectionActions: ButtonProps[] = [
     {
       children:
-        selectedUrls.length !== zaken.count
-          ? `Selecter ${zaken.count - selectedUrls.length} zaken`
+        selectedUrls.length !== destructionListItems.count
+          ? `Selecter ${destructionListItems.count - selectedUrls.length} zaken`
           : "Opnieuw indienen",
-      disabled: selectedUrls.length !== zaken.count,
+      disabled: selectedUrls.length !== destructionListItems.count,
       variant: "primary",
       onClick: handleProcessReviewClick,
     },
@@ -313,7 +313,12 @@ export function DestructionListProcessReview() {
 
   // Update the selected zaken to session storage.
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
+    await addToZaakSelection(
+      storageKey,
+      destructionListItems.results
+        .map((di) => di.zaakData)
+        .filter((v): v is Zaak => Boolean(v)),
+    );
   }, []);
 
   return (
@@ -374,7 +379,7 @@ export function DestructionListProcessReview() {
       <DataGrid
         {...dataGridProps}
         boolProps={{ explicit: true }}
-        count={zaken.count}
+        count={destructionListItems.count}
         loading={state === "loading"}
         selectable={true}
         allowSelectAll={!reviewItems}
