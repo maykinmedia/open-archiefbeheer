@@ -35,9 +35,13 @@ export function DestructionListAssignees({
   reviewers,
 }: DestructionListAssigneesProps) {
   const { state } = useNavigation();
-  const errors = useActionData() || {};
+  const { assignees: errors } = (useActionData() || {}) as Record<
+    string,
+    unknown
+  >;
   const submitAction = useSubmitAction();
 
+  // FIXME: First assinee is author, possibly make explicit?
   const reviewerAssignees = [...assignees].splice(1);
 
   type TempAction = Omit<
