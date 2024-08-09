@@ -53,7 +53,7 @@ export type DestructionListAssigneeUpdate = {
 };
 
 export type DestructionListItemUpdate = {
-  zaak: string;
+  zaakUrl: string;
   status?: string;
   zaakData?: Zaak;
 };
