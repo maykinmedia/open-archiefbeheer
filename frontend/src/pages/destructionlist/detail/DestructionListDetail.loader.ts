@@ -7,6 +7,10 @@ import {
   DestructionList,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
+import {
+  PaginatedDestructionListItems,
+  listDestructionListItems,
+} from "../../../lib/api/destructionListsItem";
 import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
 import {
   Review,
@@ -32,7 +36,7 @@ export interface DestructionListDetailContext {
   reviewers: User[];
   archivists: User[];
   user: User;
-  zaken: PaginatedZaken;
+  destructionListItems: PaginatedDestructionListItems;
   selectableZaken: PaginatedZaken;
   zaakSelection: ZaakSelection;
   review: Review | null;
@@ -81,13 +85,16 @@ export const destructionListDetailLoader = loginRequired(
         // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
         // FIXME: Accept no/implement real pagination?
         reviewItems
-          ? ({
+          ? {
               count: reviewItems.length,
               next: null,
               previous: null,
               results: [],
-            } as PaginatedZaken)
-          : listZaken({ ...searchParams, in_destruction_list: uuid }).catch(
+            }
+          : listDestructionListItems(
+              uuid,
+              searchParams as unknown as URLSearchParams,
+            ).catch(
               // Intercept (and ignore) 404 due to the following scenario cause by shared `page` parameter:
               //
               // User navigates to destruction list with 1 page of items.
@@ -148,7 +155,7 @@ export const destructionListDetailLoader = loginRequired(
         reviewers,
         archivists,
         user,
-        zaken,
+        destructionListItems,
         allZaken,
         zaakSelection,
         selectieLijstKlasseChoicesMap,
@@ -156,7 +163,7 @@ export const destructionListDetailLoader = loginRequired(
         User[],
         User[],
         User,
-        PaginatedZaken,
+        PaginatedDestructionListItems,
         PaginatedZaken,
         ZaakSelection,
         Record<string, Option[]>,
@@ -175,7 +182,7 @@ export const destructionListDetailLoader = loginRequired(
         reviewers,
         archivists: filteredArchivists,
         user,
-        zaken,
+        destructionListItems: destructionListItems,
         selectableZaken: allZaken,
         zaakSelection,
         review: review,

@@ -11,10 +11,8 @@ import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
 import { usePoll } from "../../hooks/usePoll";
 import { User } from "../../lib/api/auth";
-import {
-  DestructionList,
-  DestructionListProcessingStatus,
-} from "../../lib/api/destructionLists";
+import { DestructionList } from "../../lib/api/destructionLists";
+import { ProcessingStatus } from "../../lib/api/processingStatus";
 import {
   canMarkListAsFinal,
   canReviewDestructionList,
@@ -37,7 +35,7 @@ export type LandingKanbanEntry = {
   key: string;
   onClick: () => void;
   disabled: boolean;
-  processingStatus: DestructionListProcessingStatus;
+  processingStatus: ProcessingStatus;
   title: string;
   timeAgo: string;
   assignees: React.ReactNode;

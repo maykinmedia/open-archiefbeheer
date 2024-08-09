@@ -2,6 +2,7 @@ import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 import { User } from "./auth";
+import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
 
 export type DestructionList = {
@@ -13,7 +14,7 @@ export type DestructionList = {
   created: string;
   name: string;
   status: DestructionListStatus;
-  processingStatus: DestructionListProcessingStatus;
+  processingStatus: ProcessingStatus;
   statusChanged: string | null;
   uuid: string;
 };
@@ -34,13 +35,6 @@ export const DESTRUCTION_LIST_STATUSES = [
 
 // Inferring the type of the array, so that we don't have to repeat the same.
 export type DestructionListStatus = (typeof DESTRUCTION_LIST_STATUSES)[number];
-
-export type DestructionListProcessingStatus =
-  | "new"
-  | "queued"
-  | "processing"
-  | "failed"
-  | "succeeded";
 
 export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];

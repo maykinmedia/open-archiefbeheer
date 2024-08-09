@@ -2,9 +2,9 @@ import { BadgeProps, Outline } from "@maykin-ui/admin-ui";
 
 import {
   DESTRUCTION_LIST_STATUSES,
-  DestructionListProcessingStatus,
   DestructionListStatus,
 } from "../lib/api/destructionLists";
+import { ProcessingStatus } from "../lib/api/processingStatus";
 import { Review } from "../lib/api/review";
 
 export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
@@ -45,7 +45,7 @@ export const STATUS_LEVEL_MAPPING: {
 };
 
 export const PROCESSING_STATUS_MAPPING: {
-  [key in DestructionListProcessingStatus]: string;
+  [key in ProcessingStatus]: string;
 } = {
   new: "new",
   queued: "queued",
@@ -55,7 +55,7 @@ export const PROCESSING_STATUS_MAPPING: {
 };
 
 export const PROCESSING_STATUS_ICON_MAPPING: {
-  [key in DestructionListProcessingStatus]: React.ReactNode;
+  [key in ProcessingStatus]: React.ReactNode;
 } = {
   new: <Outline.PlusCircleIcon />,
   queued: <Outline.CircleStackIcon />,
@@ -65,7 +65,7 @@ export const PROCESSING_STATUS_ICON_MAPPING: {
 };
 
 export const PROCESSING_STATUS_LEVEL_MAPPING: {
-  [key in DestructionListProcessingStatus]: BadgeProps["level"];
+  [key in ProcessingStatus]: BadgeProps["level"];
 } = {
   new: "info",
   queued: "info",

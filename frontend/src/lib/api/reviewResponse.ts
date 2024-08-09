@@ -1,4 +1,3 @@
-import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review, ReviewItem } from "./review";
 

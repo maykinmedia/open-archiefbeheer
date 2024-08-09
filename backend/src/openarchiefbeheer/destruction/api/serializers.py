@@ -111,6 +111,7 @@ class DestructionListItemSerializer(serializers.ModelSerializer):
             "status",
             "extra_zaak_data",
             "zaak_data",
+            "processing_status",
         )
 
     def validate(self, attrs: dict) -> dict:

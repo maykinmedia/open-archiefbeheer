@@ -1,7 +1,9 @@
-from django.db.models import QuerySet
+from django.db.models import Case, QuerySet, Value, When
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import FilterSet, NumberFilter, OrderingFilter, UUIDFilter
 
+from ..constants import InternalStatus
 from ..models import (
     DestructionList,
     DestructionListItem,
@@ -12,9 +14,36 @@ from ..models import (
 
 
 class DestructionListItemFilterset(FilterSet):
+    destruction_list = UUIDFilter(
+        field_name="destruction_list",
+        method="filter_in_destruction_list",
+        help_text=_(
+            "Retrieve the items that are in a destruction list and "
+            "order them based on processing status."
+        ),
+    )
+
     class Meta:
         model = DestructionListItem
-        fields = ("destruction_list",)
+        fields = ("destruction_list", "status", "processing_status")
+
+    def filter_in_destruction_list(
+        self, queryset: QuerySet[DestructionListItem], name: str, value: str
+    ) -> QuerySet[DestructionListItem]:
+        return (
+            queryset.filter(destruction_list__uuid=value)
+            .annotate(
+                processing_status_index=Case(
+                    When(processing_status=InternalStatus.failed, then=Value(1)),
+                    When(processing_status=InternalStatus.processing, then=Value(2)),
+                    When(processing_status=InternalStatus.queued, then=Value(3)),
+                    When(processing_status=InternalStatus.new, then=Value(4)),
+                    When(processing_status=InternalStatus.succeeded, then=Value(5)),
+                    default=Value(1),
+                ),
+            )
+            .order_by("processing_status_index")
+        )
 
 
 class DestructionListFilterset(FilterSet):

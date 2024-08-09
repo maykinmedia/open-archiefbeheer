@@ -4,22 +4,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
 from rest_framework.filters import OrderingFilter
-from rest_framework.pagination import PageNumberPagination as _PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from openarchiefbeheer.destruction.api.permissions import (
     CanReviewPermission,
     CanStartDestructionPermission,
 )
+from openarchiefbeheer.utils.paginators import PageNumberPagination
 
 from ..models import Zaak
 from .filtersets import ZaakFilter
 from .serializers import ZaakSerializer
-
-
-class PageNumberPagination(_PageNumberPagination):
-    page_size_query_param = "page_size"
-    page_size = 100
 
 
 @extend_schema_view(
