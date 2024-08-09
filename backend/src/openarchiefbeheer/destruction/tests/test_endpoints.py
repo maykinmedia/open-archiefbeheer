@@ -858,7 +858,7 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         endpoint = furl(reverse("api:destruction-list-items-list"))
-        endpoint.args["destruction_list"] = destruction_list.pk
+        endpoint.args["destruction_list"] = str(destruction_list.uuid)
 
         response = self.client.get(
             endpoint.url,
@@ -869,6 +869,41 @@ class DestructionListItemsViewSetTest(APITestCase):
         data = response.json()
 
         self.assertEqual(data["count"], 2)
+
+    def test_order_on_processing_status(self):
+        record_manager = UserFactory.create(username="record_manager")
+        destruction_list = DestructionListFactory.create()
+        item1 = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.succeeded,
+        )
+        item2 = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.processing,
+        )
+        item3 = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destruction-list-items-list"))
+        endpoint.args["destruction_list"] = str(destruction_list.uuid)
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["results"][0]["pk"], item3.pk)
+        self.assertEqual(data["results"][1]["pk"], item2.pk)
+        self.assertEqual(data["results"][2]["pk"], item1.pk)
 
 
 class DestructionListReviewViewSetTest(APITestCase):
