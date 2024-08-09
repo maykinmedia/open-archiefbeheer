@@ -45,7 +45,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
         retrieve_and_cache_zaken_from_openzaak()
 
         zaak = Zaak.objects.get(identificatie="ZAAK-00")
-        destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
+        destruction_list_item = DestructionListItemFactory.create(zaak_url=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
 
         delete_zaak_and_related_objects(zaak, result_store)

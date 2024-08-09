@@ -22,7 +22,7 @@ class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
 
 class DestructionListItemFactory(factory.django.DjangoModelFactory):
     destruction_list = factory.SubFactory(DestructionListFactory)
-    zaak = factory.Faker("url")
+    zaak_url = factory.Faker("url")
 
     class Meta:
         model = "destruction.DestructionListItem"

@@ -82,11 +82,11 @@ class DestructionListViewSetTest(APITestCase):
                 ],
                 "items": [
                     {
-                        "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                        "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                         "extra_zaak_data": {},
                     },
                     {
-                        "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                        "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                         "extra_zaak_data": {},
                     },
                 ],
@@ -108,14 +108,14 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(assignees[2].user.username, "reviewer2")
         self.assertEqual(assignees[2].role, ListRole.reviewer)
 
-        items = destruction_list.items.order_by("zaak")
+        items = destruction_list.items.order_by("zaak_url")
 
         self.assertEqual(items.count(), 2)
         self.assertEqual(
-            items[0].zaak, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+            items[0].zaak_url, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
         )
         self.assertEqual(
-            items[1].zaak, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
+            items[1].zaak_url, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
         )
 
         self.assertEqual(destruction_list.author, record_manager)
@@ -141,7 +141,7 @@ class DestructionListViewSetTest(APITestCase):
             username="reviewer2", role__can_review_destruction=True
         )
         DestructionListItemFactory.create(
-            zaak="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.suggested,
         )
 
@@ -159,11 +159,11 @@ class DestructionListViewSetTest(APITestCase):
                 ],
                 "items": [
                     {
-                        "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                        "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                         "extra_zaak_data": {},
                     },
                     {
-                        "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                        "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
                         "extra_zaak_data": {},
                     },
                 ],
@@ -180,7 +180,7 @@ class DestructionListViewSetTest(APITestCase):
             {
                 "items": [
                     {
-                        "zaak": [
+                        "zaakUrl": [
                             _(
                                 "This case was already included in another destruction list and was"
                                 " not exempt during the review process."
@@ -224,7 +224,7 @@ class DestructionListViewSetTest(APITestCase):
             "contains_sensitive_info": False,
             "items": [
                 {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                    "zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {"key": "value"},
                 },
             ],
@@ -850,15 +850,15 @@ class DestructionListItemsViewSetTest(APITestCase):
         )
 
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
             status=ListItemStatus.suggested,
         )
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
+            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
             status=ListItemStatus.suggested,
         )
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/333-333-333",
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
             status=ListItemStatus.removed,
         )
 
@@ -870,8 +870,8 @@ class DestructionListItemsViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = sorted(response.json()["results"], key=lambda item: item["zaak"])
+        
+        data = sorted(response.json()["results"], key=lambda item: item["zaakUrl"])
 
         self.assertEqual(
             data[0]["zaakData"]["omschrijving"],
@@ -894,17 +894,17 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         destruction_list = DestructionListFactory.create()
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
         )
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/222-222-222",
+            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
         )
         DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/333-333-333",
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
             status=ListItemStatus.removed,
         )
 
@@ -1045,11 +1045,11 @@ class DestructionListReviewViewSetTest(APITestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": items[0].zaak,
+                    "zaak_url": items[0].zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "zaak_url": items[1].zaak,
+                    "zaak_url": items[1].zaak_url,
                     "feedback": "We should wait to delete this.",
                 },
             ],
@@ -1134,11 +1134,11 @@ class DestructionListReviewViewSetTest(APITestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": items[0].zaak,
+                    "zaak_url": items[0].zaak_url,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "zaak_url": items[1].zaak,
+                    "zaak_url": items[1].zaak_url,
                     "feedback": "We should wait to delete this.",
                 },
             ],
@@ -1222,13 +1222,13 @@ class DestructionListReviewViewSetTest(APITestCase):
         )
         zaak_long = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
+            destruction_list=destruction_list, zaak_url=zaken_short[0].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list, zaak_url=zaken_short[1].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_long.url
+            destruction_list=destruction_list, zaak_url=zaak_long.url
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -1278,13 +1278,13 @@ class DestructionListReviewViewSetTest(APITestCase):
         )
         zaak_short = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
+            destruction_list=destruction_list, zaak_url=zaken_short[0].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list, zaak_url=zaken_short[1].url
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_short.url
+            destruction_list=destruction_list, zaak_url=zaak_short.url
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -1360,7 +1360,9 @@ class DestructionListItemReviewViewSetTests(APITestCase):
         user = UserFactory.create()
 
         zaak = ZaakFactory.create()
-        DestructionListItemReviewFactory.create(destruction_list_item__zaak=zaak.url)
+        DestructionListItemReviewFactory.create(
+            destruction_list_item__zaak_url=zaak.url
+        )
 
         zaak.delete()
 
@@ -1371,7 +1373,7 @@ class DestructionListItemReviewViewSetTests(APITestCase):
 
         data = response.json()
 
-        self.assertEqual(len(data[0]["zaak"].keys()), 1)
+        self.assertEqual(len(data[0]["zaak_url"].keys()), 1)
 
 
 class ReviewResponsesViewSetTests(APITestCase):

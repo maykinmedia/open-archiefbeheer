@@ -36,7 +36,7 @@ class DeletingZakenWithErrorsTests(TestCase):
         zaak = ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
         )
-        destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
+        destruction_list_item = DestructionListItemFactory.create(zaak_url=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
 
         m.get(
@@ -92,7 +92,7 @@ class DeletingZakenWithErrorsTests(TestCase):
         zaak = ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
         )
-        destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
+        destruction_list_item = DestructionListItemFactory.create(zaak_url=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
 
         m.get(
