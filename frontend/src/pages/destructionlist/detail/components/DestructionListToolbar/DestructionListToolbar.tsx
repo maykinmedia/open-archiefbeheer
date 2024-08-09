@@ -53,6 +53,10 @@ export function DestructionListToolbar({
                 label: "Auteur",
                 value: formatUser(destructionList.author),
               },
+              toegewezen: {
+                label: "Toegewezen aan",
+                value: formatUser(destructionList.assignee),
+              },
               bevatGevoeligeInformatie: {
                 label: "Bevat gevoelige informatie",
                 value: destructionList.containsSensitiveInfo,
