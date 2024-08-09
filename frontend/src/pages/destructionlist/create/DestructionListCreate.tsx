@@ -6,7 +6,7 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useLoaderData, useSubmit } from "react-router-dom";
+import { useActionData, useLoaderData, useSubmit } from "react-router-dom";
 
 import { User } from "../../../lib/api/auth";
 import { PaginatedZaken } from "../../../lib/api/zaken";
@@ -30,6 +30,12 @@ export type DestructionListCreateContext = {
 export function DestructionListCreatePage() {
   const { reviewers, zaken, selectedZaken } =
     useLoaderData() as DestructionListCreateContext;
+
+  const { assignees: errors } = (useActionData() || {}) as Record<
+    string,
+    Record<string, string | string[]>
+  >;
+
   const submit = useSubmit();
 
   const [modalOpenState, setModalOpenState] = useState(false);
@@ -102,6 +108,7 @@ export function DestructionListCreatePage() {
         </Body>
       </Modal>
       <DestructionList
+        errors={errors?.nonFieldErrors}
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
         zaken={zaken}
         selectedZaken={selectedZaken}
