@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.utils.paginators import PageNumberPagination
 
 from ..constants import InternalStatus, ListRole
 from ..models import (
@@ -299,6 +300,7 @@ class DestructionListItemsViewSet(
     queryset = DestructionListItem.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListItemFilterset
+    pagination_class = PageNumberPagination
 
 
 @extend_schema_view(

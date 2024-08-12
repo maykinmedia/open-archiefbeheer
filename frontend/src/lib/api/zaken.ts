@@ -1,12 +1,8 @@
 import { Zaak } from "../../types";
+import { PaginatedResults } from "./paginatedResults";
 import { request } from "./request";
 
-export type PaginatedZaken = {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Zaak[];
-};
+export type PaginatedZaken = PaginatedResults<Zaak>;
 
 /**
  * Retrieve zaken using the configured ZRC service. For information over the query parameters accepted and the schema of

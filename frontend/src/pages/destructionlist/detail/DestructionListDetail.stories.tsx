@@ -12,6 +12,7 @@ import {
   fillForm,
 } from "../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../fixtures/destructionList";
+import { paginatedDestructionListItemsFactory } from "../../../fixtures/destructionListItem";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
 import { reviewItemsFactory } from "../../../fixtures/reviewItem";
@@ -123,7 +124,7 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
   reviewers: usersFactory(),
   archivists: usersFactory(),
   user: usersFactory()[0],
-  zaken: paginatedZakenFactory(),
+  destructionListItems: paginatedDestructionListItemsFactory(),
   selectableZaken: paginatedZakenFactory(),
   zaakSelection: {},
   review: null,
@@ -164,7 +165,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   reviewers: usersFactory(),
   archivists: usersFactory(),
   user: usersFactory()[0],
-  zaken: {
+  destructionListItems: {
     count: reviewItemsFactory().length,
     next: null,
     previous: null,
@@ -274,7 +275,7 @@ const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
   reviewers: usersFactory(),
   archivists: usersFactory(),
   user: usersFactory()[0],
-  zaken: {
+  destructionListItems: {
     count: reviewItemsFactory().length,
     next: null,
     previous: null,
@@ -346,7 +347,7 @@ const FIXTURE_DELETE: DestructionListDetailContext = {
   reviewers: usersFactory(),
   archivists: usersFactory(),
   user: usersFactory()[0],
-  zaken: paginatedZakenFactory(),
+  destructionListItems: paginatedDestructionListItemsFactory(),
   selectableZaken: paginatedZakenFactory(),
   zaakSelection: {},
   review: null,

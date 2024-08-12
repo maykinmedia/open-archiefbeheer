@@ -13,6 +13,7 @@ import {
   addToZaakSelection,
   getZaakSelection,
 } from "../../../../../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../../../../../types";
 import { useDataGridProps } from "../../../hooks";
 import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
@@ -29,13 +30,16 @@ export function DestructionListEdit() {
   const {
     storageKey,
     destructionList,
-    zaken,
+    destructionListItems,
     user,
     selectableZaken,
     zaakSelection,
     review,
     reviewItems,
   } = useLoaderData() as DestructionListDetailContext;
+  const zakenOnPage = destructionListItems.results
+    .map((dt) => dt.zaakData)
+    .filter((v): v is Zaak => Boolean(v));
 
   // Whether the user is adding/removing items from the destruction list.
   const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
@@ -126,20 +130,22 @@ export function DestructionListEdit() {
         }
       : isEditingState
         ? selectableZaken
-        : zaken,
-    isEditingState ? [...zaken.results, ...selectedUrls] : [],
+        : destructionListItems,
+    isEditingState ? [...zakenOnPage, ...selectedUrls] : [],
   );
 
   // Update the selected zaken to session storage.
   useAsync(async () => {
-    await addToZaakSelection(storageKey, zaken.results);
+    await addToZaakSelection(storageKey, zakenOnPage);
   }, []);
 
   return (
     <DataGrid
       {...dataGridProps}
       boolProps={{ explicit: true }}
-      count={isEditingState ? selectableZaken.count : zaken.count}
+      count={
+        isEditingState ? selectableZaken.count : destructionListItems.count
+      }
       filterable={isEditingState}
       loading={state === "loading"}
       selectable={Boolean(isEditingState)}

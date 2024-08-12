@@ -10,6 +10,10 @@ import {
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
+import {
+  DestructionListItem,
+  PaginatedDestructionListItems,
+} from "../../../lib/api/destructionListsItem";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import {
@@ -41,7 +45,7 @@ export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
  */
 export function useDataGridProps(
   storageKey: string,
-  paginatedResults: PaginatedZaken,
+  paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
   actions?: DataGridAction[],
 ): { props: DataGridProps; error: unknown } {
@@ -163,7 +167,11 @@ export function useDataGridProps(
   //
   // Get object list.
   //
-  const objectList = paginatedResults.results.map((zaak) => {
+  const objectList = paginatedResults.results.map((itemOrZaak) => {
+    const zaak = Object.hasOwn(itemOrZaak, "zaakData")
+      ? ((itemOrZaak as DestructionListItem).zaakData as Zaak)
+      : (itemOrZaak as Zaak);
+
     return {
       ...zaak,
       // Transform the string dates to formatted string dates (dd-mm-yyyy)
@@ -216,13 +224,17 @@ export function useDataGridProps(
     attributeData: AttributeData[],
     selected: boolean,
   ) => {
+    const zaken = paginatedResults.results.map((iorz) =>
+      Object.hasOwn(iorz, "zaakData")
+        ? ((iorz as DestructionListItem).zaakData as Zaak)
+        : (iorz as Zaak),
+    );
+
     selected
       ? await addToZaakSelection(storageKey, attributeData as unknown as Zaak[])
       : await removeFromZaakSelection(
           storageKey,
-          attributeData.length
-            ? (attributeData as unknown as Zaak[])
-            : paginatedResults.results,
+          attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
         );
   };
 

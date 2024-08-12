@@ -12,10 +12,9 @@ import {
   field2Title,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useLoaderData, useRevalidator } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
-import { usePoll } from "../../../hooks/usePoll";
 import {
   canMarkListAsFinal,
   canTriggerDestruction,
@@ -35,8 +34,14 @@ import { DestructionListToolbar } from "./components/DestructionListToolbar/Dest
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { archivists, destructionList, review, reviewers, user, zaken } =
-    useLoaderData() as DestructionListDetailContext;
+  const {
+    archivists,
+    destructionList,
+    review,
+    reviewers,
+    user,
+    destructionListItems,
+  } = useLoaderData() as DestructionListDetailContext;
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
 
   const [archivistModalOpenState, setArchivistModalOpenState] = useState(false);
@@ -194,8 +199,8 @@ export function DestructionListDetailPage() {
         >
           <Body>
             <P>
-              U staat op het punt om {zaken.count} zaken definitief te
-              vernietigen.
+              U staat op het punt om {destructionListItems.count} zaken
+              definitief te vernietigen.
             </P>
           </Body>
           <Body>
@@ -204,7 +209,7 @@ export function DestructionListDetailPage() {
                 variant: "danger",
               }}
               fields={destroyModalFormFields}
-              labelSubmit={`${zaken.count} zaken vernietigen`}
+              labelSubmit={`${destructionListItems.count} zaken vernietigen`}
               validate={validateDestroy}
               validateOnChange={true}
               role="form"
