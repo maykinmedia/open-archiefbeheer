@@ -34,9 +34,9 @@ so that these files can be served by the live server.
 
 .. code:: bash
 
-   ln -s frontend/build/index.html backend/src/openarchiefbeheer/templates/index.html
-   ln -s frontend/build/static/css backend/src/openarchiefbeheer/static/css
-   ln -s frontend/build/static/js backend/src/openarchiefbeheer/static/js
+   ln -s full/path/to/frontend/build/index.html backend/src/openarchiefbeheer/templates/index.html
+   ln -s full/path/to/frontend/build/static/css backend/src/openarchiefbeheer/static/css
+   ln -s full/path/to/frontend/build/static/js backend/src/openarchiefbeheer/static/js
 
 Make sure that the environment variable ``E2E_SERVE_FRONTEND`` is truthy. This will serve the ``index.html`` file
 on the ``/`` path.
