@@ -38,7 +38,7 @@ export function DestructionListEdit() {
     reviewItems,
   } = useLoaderData() as DestructionListDetailContext;
   const zakenOnPage = destructionListItems.results
-    .map((dt) => dt.zaakData)
+    .map((dt) => dt.zaak)
     .filter((v): v is Zaak => Boolean(v));
 
   // Whether the user is adding/removing items from the destruction list.
