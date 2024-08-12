@@ -231,7 +231,9 @@ export function DestructionListProcessReview() {
         selectedUrls.length !== destructionListItems.count
           ? `Selecter ${destructionListItems.count - selectedUrls.length} zaken`
           : "Opnieuw indienen",
-      disabled: selectedUrls.length !== destructionListItems.count,
+      disabled:
+        ["loading", "submitting"].includes(state) ||
+        selectedUrls.length !== destructionListItems.count,
       variant: "primary",
       onClick: handleProcessReviewClick,
     },

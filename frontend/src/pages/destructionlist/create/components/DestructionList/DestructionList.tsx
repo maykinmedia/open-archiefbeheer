@@ -1,5 +1,5 @@
 import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
-import { useActionData } from "react-router-dom";
+import { useActionData, useNavigation } from "react-router-dom";
 
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
 import { Zaak } from "../../../../../types";
@@ -35,6 +35,7 @@ export function DestructionList({
   actions,
   ...props
 }: DestructionList) {
+  const { state } = useNavigation();
   const errors = useActionData() || {};
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
@@ -54,9 +55,10 @@ export function DestructionList({
         selectionActions: [
           {
             children: labelAction,
-            onClick: onSubmitSelection,
-            wrap: false,
+            disabled: ["loading", "submitting"].includes(state),
             variant: "primary",
+            wrap: false,
+            onClick: onSubmitSelection,
           },
         ],
       }}
