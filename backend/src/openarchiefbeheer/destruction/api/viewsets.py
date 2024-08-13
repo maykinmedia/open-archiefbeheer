@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Prefetch
 from django.utils.translation import gettext_lazy as _
@@ -9,6 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
@@ -40,6 +42,7 @@ from .permissions import (
     CanUpdateDestructionList,
 )
 from .serializers import (
+    AuditTrailItemSerializer,
     DestructionListAPIResponseSerializer,
     DestructionListAssigneeSerializer,
     DestructionListItemReadSerializer,
@@ -171,6 +174,12 @@ from .serializers import (
         request=ReassignementSerializer,
         responses={200: None},
     ),
+    auditlog=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Retrieve audit log."),
+        description=_("Retrieve the audit log for this destruction list."),
+        responses={200: AuditTrailItemSerializer(many=True)},
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
@@ -208,6 +217,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
         elif self.action == "reassign":
             permission_classes = [IsAuthenticated & CanReassignDestructionList]
+        elif self.action == "auditlog":
+            permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -281,6 +292,16 @@ class DestructionListViewSet(
             request.user,
         )
         return Response()
+
+    @action(detail=True, methods=["get"], name="audit_log")
+    def auditlog(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+        items = TimelineLog.objects.filter(
+            content_type=ContentType.objects.get_for_model(DestructionList),
+            object_id=destruction_list.pk,
+        )
+        serializer = AuditTrailItemSerializer(instance=items, many=True)
+        return Response(serializer.data)
 
 
 @extend_schema_view(

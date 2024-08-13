@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.config.models import ArchiveConfig
@@ -506,3 +507,17 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         process_review_response.delay(review_response.pk)
 
         return review_response
+
+
+class AuditTrailItemSerializer(serializers.ModelSerializer):
+    message = serializers.CharField(source="get_message")
+
+    class Meta:
+        model = TimelineLog
+        fields = (
+            "pk",
+            "timestamp",
+            "user",
+            "message",
+            "extra_data",
+        )

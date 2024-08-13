@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.utils.translation import gettext_lazy as _
 
+import freezegun
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -1591,4 +1592,63 @@ class ReviewResponsesViewSetTests(APITestCase):
                 "This user is either not allowed to update the destruction list or "
                 "the destruction list cannot currently be updated."
             ),
+        )
+
+    @freezegun.freeze_time("2023-09-15T21:36:00+02:00")
+    def test_audit_log(self):
+        # Reassign
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="Test audittrail",
+            status=ListStatus.ready_to_review,
+            author=record_manager,
+        )
+        DestructionListAssigneeFactory.create_batch(
+            2, destruction_list=destruction_list
+        )
+        other_reviewers = UserFactory.create_batch(2, role__can_review_destruction=True)
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint_reassign = reverse(
+            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+        )
+        self.client.post(
+            endpoint_reassign,
+            data={
+                "assignees": [
+                    {"order": 0, "user": other_reviewers[0].pk},
+                    {"order": 1, "user": other_reviewers[1].pk},
+                ],
+                "comment": "Lorem ipsum...",
+                "role": ListRole.reviewer,
+            },
+            format="json",
+        )
+
+        endpoint_audittrail = reverse(
+            "api:destructionlist-auditlog", kwargs={"uuid": destruction_list.uuid}
+        )
+        response_audittrail = self.client.get(endpoint_audittrail)
+        self.assertEqual(response_audittrail.status_code, status.HTTP_200_OK)
+        data = response_audittrail.data
+        self.assertEqual(data[0]["user"], record_manager.pk)
+        self.assertEqual(
+            data[0]["message"],
+            '[2023-09-15T21:36:00+02:00]: Destruction list "Test audittrail" was reassigned.',
+        )
+        self.assertEqual(
+            data[0]["extra_data"]["assignees"][0]["user"],
+            {
+                "email": other_reviewers[0].email,
+                "pk": other_reviewers[0].pk,
+                "username": other_reviewers[0].username,
+            },
+        )
+        self.assertEqual(
+            data[0]["extra_data"]["assignees"][1]["user"],
+            {
+                "email": other_reviewers[1].email,
+                "pk": other_reviewers[1].pk,
+                "username": other_reviewers[1].username,
+            },
         )
