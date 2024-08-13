@@ -164,11 +164,7 @@ export function DestructionListDetailPage() {
 
   return (
     <CardBaseTemplate secondaryNavigationItems={getSecondaryNavigationItems()}>
-      <DestructionListToolbar
-        destructionList={destructionList}
-        review={review}
-        reviewers={reviewers}
-      />
+      <DestructionListToolbar />
       {review ? <DestructionListProcessReview /> : <DestructionListEdit />}
 
       {destructionList.status === "internally_reviewed" && (

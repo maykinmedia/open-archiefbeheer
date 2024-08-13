@@ -61,14 +61,8 @@ export interface FormDataState {
  * Review-destruction-list page
  */
 export function DestructionListReviewPage() {
-  const {
-    reviewItems,
-    reviewResponse,
-    zaken,
-    selectedZaken,
-    uuid,
-    destructionList,
-  } = useLoaderData() as DestructionListReviewContext;
+  const { reviewItems, reviewResponse, zaken, selectedZaken, uuid } =
+    useLoaderData() as DestructionListReviewContext;
   const submit = useSubmit();
   const revalidator = useRevalidator();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
@@ -331,10 +325,7 @@ export function DestructionListReviewPage() {
           },
         ]}
       >
-        <DestructionListToolbar
-          destructionList={destructionList}
-          reviewResponse={reviewResponse}
-        />
+        <DestructionListToolbar />
       </DestructionListComponent>
     </>
   );

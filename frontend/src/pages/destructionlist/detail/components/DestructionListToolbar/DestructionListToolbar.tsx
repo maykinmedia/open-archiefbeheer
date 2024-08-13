@@ -7,6 +7,7 @@ import {
   H2,
 } from "@maykin-ui/admin-ui";
 import React from "react";
+import { useLoaderData } from "react-router-dom";
 
 import { User } from "../../../../../lib/api/auth";
 import { DestructionList } from "../../../../../lib/api/destructionLists";
@@ -22,26 +23,19 @@ import {
 } from "../../../../constants";
 import { DestructionListAssignees } from "../index";
 
-export type DestructionListToolbarProps = {
-  destructionList: DestructionList;
-  review?: Review | null;
-  reviewers?: User[];
-  reviewResponse?: ReviewResponse;
-};
-
 /**
  * Toolbar on top of destruction list page providing meta information.
- * @param destructionList
- * @param review
- * @param reviewers
  * @constructor
  */
-export function DestructionListToolbar({
-  destructionList,
-  review,
-  reviewers,
-  reviewResponse,
-}: DestructionListToolbarProps) {
+export function DestructionListToolbar() {
+  const { destructionList, review, reviewers, reviewResponse } =
+    useLoaderData() as {
+      destructionList: DestructionList;
+      review: Review;
+      reviewers: User[];
+      reviewResponse?: ReviewResponse;
+    };
+
   return (
     <Body>
       <H2>{destructionList.name}</H2>
