@@ -87,7 +87,7 @@ function App() {
                   }
                 />
               }
-              pad={false}
+              pad="v"
             >
               <Body>
                 <Card>
