@@ -21,13 +21,13 @@ import {
   canViewDestructionList,
 } from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/format/date";
+import { formatUser } from "../../lib/format/user";
 import {
   PROCESSING_STATUS_ICON_MAPPING,
   PROCESSING_STATUS_LEVEL_MAPPING,
   PROCESSING_STATUS_MAPPING,
   STATUS_MAPPING,
 } from "../constants";
-import { formatUser } from "../destructionlist/utils";
 import "./Landing.css";
 import { LandingContext } from "./Landing.loader";
 
@@ -143,7 +143,7 @@ export const Landing = () => {
 
       const footer = (
         <P muted size="xs">
-          {formatUser(currentAssignee, true)}
+          {formatUser(currentAssignee, { showRole: true })}
           {otherAssignees.length && (
             <strong className="LandingPage__assignees-count">
               {" "}
@@ -163,7 +163,7 @@ export const Landing = () => {
         assignees: otherAssignees.length ? (
           <Tooltip
             content={otherAssignees
-              .map((a) => formatUser(a.user, true))
+              .map((a) => formatUser(a.user, { showRole: true }))
               .join(", ")}
             placement="bottom"
           >

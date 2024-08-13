@@ -13,13 +13,13 @@ import { DestructionList } from "../../../../../lib/api/destructionLists";
 import { Review } from "../../../../../lib/api/review";
 import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
 import { formatDate } from "../../../../../lib/format/date";
+import { formatUser } from "../../../../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
 } from "../../../../constants";
-import { formatUser } from "../../../utils";
 import { DestructionListAssignees } from "../index";
 
 export type DestructionListToolbarProps = {
@@ -91,7 +91,8 @@ export function DestructionListToolbar({
             <AttributeTable
               object={{
                 "Laatste review door":
-                  review.author && formatUser(review.author, true),
+                  review.author &&
+                  formatUser(review.author, { showRole: true }),
                 Opmerking: review.listFeedback,
                 Beoordeling: (
                   <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
