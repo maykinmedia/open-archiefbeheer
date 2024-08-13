@@ -15,18 +15,8 @@ export interface LandingContext {
 
 export const landingLoader = loginRequired(
   async (): Promise<LandingContext> => {
-    const listsPromise = listDestructionLists();
-    const userPromise = whoAmI();
-
-    const [lists, user] = await Promise.all([listsPromise, userPromise]);
-    // Initialize statusMap with empty arrays for each status
-    const statusMap = STATUSES.reduce((acc, val) => {
-      const status = val[0] || "";
-      const destructionLists = lists.filter(
-        (l) => STATUS_MAPPING[l.status] === status,
-      );
-      return { ...acc, [status]: destructionLists };
-    }, {});
+    const statusMap = await getStatusMap();
+    const user = await whoAmI();
 
     return {
       statusMap,
@@ -34,3 +24,14 @@ export const landingLoader = loginRequired(
     };
   },
 );
+
+export const getStatusMap = async () => {
+  const lists = await listDestructionLists();
+  return STATUSES.reduce((acc, val) => {
+    const status = val[0] || "";
+    const destructionLists = lists.filter(
+      (l) => STATUS_MAPPING[l.status] === status,
+    );
+    return { ...acc, [status]: destructionLists };
+  }, {});
+};

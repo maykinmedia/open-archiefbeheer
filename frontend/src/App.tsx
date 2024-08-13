@@ -16,7 +16,12 @@ import {
   formatMessage,
 } from "@maykin-ui/admin-ui";
 import { useState } from "react";
-import { Outlet, useMatches, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  useMatches,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
 import { useAsync } from "react-use";
 
 import "./App.css";
@@ -24,6 +29,7 @@ import { User, whoAmI } from "./lib/api/auth";
 import { formatUser } from "./lib/format/user";
 
 function App() {
+  const { state } = useNavigation();
   const navigate = useNavigate();
   const matches = useMatches();
   const match = matches[matches.length - 1];
@@ -34,7 +40,7 @@ function App() {
   useAsync(async () => {
     const user = await whoAmI();
     setUser(user);
-  }, []);
+  }, [state]);
 
   const breadcrumbItems = (
     (handle?.breadcrumbItems || []) as BreadcrumbItem[]
