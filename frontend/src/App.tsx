@@ -57,13 +57,13 @@ function App() {
             {
               children: <Outline.HomeIcon />,
               title: "Home",
-              size: "xl",
+              // size: "xl",
               onClick: () => navigate("/destruction-lists/"),
             },
             {
               children: <Outline.PlusCircleIcon />,
               title: "Vernietigingslijst opstellen",
-              size: "xl",
+              // size: "xl",
               onClick: () => navigate("/destruction-lists/create"),
             },
             "spacer",
