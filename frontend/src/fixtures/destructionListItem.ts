@@ -7,7 +7,6 @@ import { zaakFactory } from "./zaak";
 
 export const FIXTURE_DESTRUCTION_LIST_ITEM: DestructionListItem = {
   pk: 1,
-  zaakUrl: zaakFactory().url,
   status: "suggested",
   extraZaakData: null,
   zaak: zaakFactory(),

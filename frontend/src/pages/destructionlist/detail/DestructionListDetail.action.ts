@@ -140,7 +140,7 @@ export async function destructionListUpdateZakenAction({
   const { zaakUrls } = data.payload;
 
   const items = zaakUrls.map((zaakUrl) => ({
-    zaakUrl: zaakUrl,
+    zaak: zaakUrl,
   })) as DestructionListItemUpdate[];
 
   try {

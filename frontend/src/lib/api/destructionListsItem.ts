@@ -5,7 +5,6 @@ import { request } from "./request";
 
 export type DestructionListItem = {
   pk: number;
-  zaakUrl: Zaak["url"];
   status?: DestructionListItemStatus;
   extraZaakData?: Record<string, unknown> | null;
   zaak: Zaak | null;
