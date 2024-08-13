@@ -2,6 +2,7 @@ import { Option } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
+import { AuditLogItem, listAuditLog } from "../../../lib/api/auditLog";
 import { User, whoAmI } from "../../../lib/api/auth";
 import {
   DestructionList,
@@ -32,15 +33,21 @@ import {
 
 export interface DestructionListDetailContext {
   storageKey: string;
+
   destructionList: DestructionList;
-  reviewers: User[];
-  archivists: User[];
-  user: User;
   destructionListItems: PaginatedDestructionListItems;
-  selectableZaken: PaginatedZaken;
+  logItems: AuditLogItem[];
+
   zaakSelection: ZaakSelection;
+  selectableZaken: PaginatedZaken;
+
+  archivists: User[];
+  reviewers: User[];
+  user: User;
+
   review: Review | null;
   reviewItems: ReviewItem[] | null;
+
   selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }
 
@@ -75,63 +82,29 @@ export const destructionListDetailLoader = loginRequired(
         ? await listReviewItems({ review: review.pk })
         : null;
 
-      // Run multiple requests in parallel, some requests are based on context.
-      const promises = [
-        // Fetch all possible reviewers to allow reassignment.
-        listReviewers(),
-        listArchivists(),
-        whoAmI(),
+      /**
+       * Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
+       * FIXME: Accept no/implement real pagination?
+       */
+      const getDestructionListItems =
+        async (): Promise<PaginatedDestructionListItems> =>
+          reviewItems
+            ? {
+                count: reviewItems.length,
+                next: null,
+                previous: null,
+                results: [],
+              }
+            : await listDestructionListItems(
+                uuid,
+                searchParams as unknown as URLSearchParams,
+              );
 
-        // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
-        // FIXME: Accept no/implement real pagination?
-        reviewItems
-          ? {
-              count: reviewItems.length,
-              next: null,
-              previous: null,
-              results: [],
-            }
-          : listDestructionListItems(
-              uuid,
-              searchParams as unknown as URLSearchParams,
-            ).catch(
-              // Intercept (and ignore) 404 due to the following scenario cause by shared `page` parameter:
-              //
-              // User navigates to destruction list with 1 page of items.
-              // Users click edit button
-              // User navigates to page 2
-              // zaken API with param `in_destruction_list` may return 404.
-              (e) => {
-                if (e.status === 404) {
-                  return {
-                    count: 0,
-                    next: null,
-                    previous: null,
-                    results: [],
-                  };
-                }
-              },
-            ),
-
-        // Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
-        // FIXME: Accept no/implement real pagination?
-        reviewItems || destructionList.status === "ready_to_delete"
-          ? ({
-              count: 0,
-              next: null,
-              previous: null,
-              results: [],
-            } as PaginatedZaken)
-          : listZaken({
-              ...searchParams,
-              not_in_destruction_list_except: uuid,
-            }),
-
-        // Fetch the selected zaken.
-        getZaakSelection(storageKey),
-
-        // Fetch selectielijst choices if review collected.
-        // reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
+      /**
+       * Fetch selectielijst choices if review collected.
+       * reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
+       */
+      const getReviewItems = () =>
         reviewItems
           ? cacheMemo(
               "selectieLijstKlasseChoicesMap",
@@ -148,26 +121,40 @@ export const destructionListDetailLoader = loginRequired(
                 ),
               reviewItems.map((ri) => ri.pk),
             )
-          : null,
-      ];
+          : null;
+
+      const getSelectableZaken = () =>
+        reviewItems || destructionList.status === "ready_to_delete"
+          ? ({
+              count: 0,
+              next: null,
+              previous: null,
+              results: [],
+            } as PaginatedZaken)
+          : listZaken({
+              ...searchParams,
+              not_in_destruction_list_except: uuid,
+            });
 
       const [
-        reviewers,
-        archivists,
-        user,
         destructionListItems,
-        allZaken,
+        logItems,
         zaakSelection,
+        allZaken,
+        archivists,
+        reviewers,
+        user,
         selectieLijstKlasseChoicesMap,
-      ] = (await Promise.all(promises)) as [
-        User[],
-        User[],
-        User,
-        PaginatedDestructionListItems,
-        PaginatedZaken,
-        ZaakSelection,
-        Record<string, Option[]>,
-      ];
+      ] = await Promise.all([
+        getDestructionListItems(),
+        listAuditLog(destructionList.uuid),
+        getZaakSelection(storageKey),
+        getSelectableZaken(),
+        listArchivists(),
+        listReviewers(),
+        whoAmI(),
+        getReviewItems(),
+      ]);
 
       // remove all the archivists that are currently as assignees
       const filteredArchivists = archivists.filter(
@@ -178,15 +165,21 @@ export const destructionListDetailLoader = loginRequired(
       );
       return {
         storageKey,
+
         destructionList,
-        reviewers,
-        archivists: filteredArchivists,
-        user,
         destructionListItems: destructionListItems,
-        selectableZaken: allZaken,
+        logItems,
+
         zaakSelection,
+        selectableZaken: allZaken,
+
+        archivists: filteredArchivists,
+        reviewers,
+        user,
+
         review: review,
         reviewItems: reviewItems,
+
         selectieLijstKlasseChoicesMap,
       };
     },
