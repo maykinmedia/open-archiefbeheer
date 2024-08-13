@@ -1,17 +1,18 @@
 import {
+  Body,
   BreadcrumbItem,
-  Button,
+  ButtonLink,
   Card,
   Column,
+  Dropdown,
   Grid,
   H3,
   Hr,
-  Iconinitials,
+  IconInitials,
   Logo,
   NavigationContext,
   Outline,
   P,
-  Tooltip,
   formatMessage,
 } from "@maykin-ui/admin-ui";
 import { useState } from "react";
@@ -41,9 +42,9 @@ function App() {
     href: formatMessage(b.href, match?.params as Record<string, string>),
   }));
 
-  const getUserInitials = (user: User | null) => {
+  const getUserFullName = (user: User | null) => {
     if (!user) return "";
-    return user.firstName.charAt(0) + user.lastName.charAt(0);
+    return `${user.firstName} ${user.lastName}`;
   };
 
   return (
@@ -55,82 +56,70 @@ function App() {
             <Logo
               key="logo"
               variant={"compact"}
-              style={{ width: "32px", ["--page-color-logo"]: "#FFF" }}
+              style={{ width: "42px", ["--page-color-logo"]: "#FFF" }}
             />,
             {
               children: <Outline.HomeIcon />,
               title: "Home",
+              size: "xl",
               onClick: () => navigate("/destruction-lists/"),
             },
             {
               children: <Outline.PlusCircleIcon />,
               title: "Vernietigingslijst opstellen",
+              size: "xl",
               onClick: () => navigate("/destruction-lists/create"),
             },
             "spacer",
             {
               children: <Outline.CogIcon />,
+              align: "center",
+              pad: false,
+              size: "xl",
+              justify: true,
               title: "Settings",
               onClick: () => navigate("/settings"),
             },
-            {
-              children: (
-                <Tooltip
-                  keepOpenOnHover
-                  content={
-                    <Card>
-                      <H3>Account</H3>
-                      <Hr />
-                      <Grid>
-                        <Column span={2}>
-                          <Iconinitials
-                            size="32px"
-                            initials={getUserInitials(user)}
-                          />
+            <Dropdown
+              key="account"
+              label={<IconInitials name={getUserFullName(user)} />}
+              pad={false}
+            >
+              <Body>
+                <Card>
+                  <H3>Account</H3>
+                  <Hr />
+                  <Grid>
+                    <Column span={2}>
+                      <IconInitials name={getUserFullName(user)} />
+                    </Column>
+                    <Column span={8}>
+                      <Grid gutter={false}>
+                        <Column span={12}>
+                          <P bold>
+                            {user?.firstName} {user?.lastName}
+                          </P>
                         </Column>
-                        <Column span={8}>
-                          <Grid gutter={false}>
-                            <Column span={12}>
-                              <P bold>
-                                {user?.firstName} {user?.lastName}
-                              </P>
-                            </Column>
-                            <Column span={12}>
-                              <P>{user?.role.name}</P>
-                            </Column>
-                            <Column span={12}>
-                              <P muted>{user?.email}</P>
-                            </Column>
-                          </Grid>
+                        <Column span={12}>
+                          <P>{user?.role.name}</P>
                         </Column>
-                        <Hr />
-                        <Column span={9}>
-                          <P>Uitloggen</P>
-                        </Column>
-                        <Column span={2}>
-                          <Button
-                            variant="outline"
-                            onClick={() => navigate("/logout")}
-                          >
-                            <Outline.ArrowRightOnRectangleIcon />
-                          </Button>
+                        <Column span={12}>
+                          <P muted>{user?.email}</P>
                         </Column>
                       </Grid>
-                    </Card>
-                  }
-                  placement={"right-start"}
-                  size="lg"
-                >
-                  <div>
-                    <Iconinitials
-                      size="14px"
-                      initials={getUserInitials(user)}
-                    />
-                  </div>
-                </Tooltip>
-              ),
-              title: "Uitloggen",
-            },
+                    </Column>
+                    <Hr />
+                    <Column span={6} />
+                    <Column span={6}>
+                      <ButtonLink href={"/logout"} variant="outline">
+                        <Outline.ArrowRightEndOnRectangleIcon />
+                        Uitloggen
+                      </ButtonLink>
+                    </Column>
+                  </Grid>
+                </Card>
+              </Body>
+            </Dropdown>,
           ],
         }}
       >
