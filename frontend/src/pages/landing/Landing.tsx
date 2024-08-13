@@ -29,7 +29,7 @@ import {
   STATUS_MAPPING,
 } from "../constants";
 import "./Landing.css";
-import { LandingContext } from "./Landing.loader";
+import { LandingContext, getStatusMap, landingLoader } from "./Landing.loader";
 
 export type LandingKanbanEntry = {
   key: string;
@@ -81,11 +81,16 @@ export const STATUSES: FieldSet[] = [
 ];
 
 export const Landing = () => {
+  const { statusMap, user } = useLoaderData() as LandingContext;
   const navigate = useNavigate();
   const revalidator = useRevalidator();
-  usePoll(revalidator.revalidate);
-
-  const { statusMap, user } = useLoaderData() as LandingContext;
+  usePoll(async () => {
+    const _statusMap = await getStatusMap();
+    const equal = JSON.stringify(_statusMap) === JSON.stringify(statusMap);
+    if (!equal) {
+      revalidator.revalidate();
+    }
+  });
 
   /**
    * Determines the href for a given destruction list based on its status and the user's role.
