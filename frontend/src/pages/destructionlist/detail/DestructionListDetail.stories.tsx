@@ -11,6 +11,7 @@ import {
   fillCheckboxConfirmationForm,
   fillForm,
 } from "../../../../.storybook/playFunctions";
+import { auditLogFactory } from "../../../fixtures/auditLog";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedDestructionListItemsFactory } from "../../../fixtures/destructionListItem";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
@@ -120,15 +121,21 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
 
 const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
+
   destructionList: destructionListFactory(),
-  reviewers: usersFactory(),
-  archivists: usersFactory(),
-  user: usersFactory()[0],
   destructionListItems: paginatedDestructionListItemsFactory(),
-  selectableZaken: paginatedZakenFactory(),
+  logItems: auditLogFactory(),
+
   zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
   review: null,
   reviewItems: null,
+
   selectieLijstKlasseChoicesMap: null,
 };
 
@@ -161,20 +168,26 @@ export const EditDestructionList: Story = {
 
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
+
   destructionList: { ...destructionListFactory(), status: "changes_requested" },
-  reviewers: usersFactory(),
-  archivists: usersFactory(),
-  user: usersFactory()[0],
   destructionListItems: {
     count: reviewItemsFactory().length,
     next: null,
     previous: null,
     results: [],
   },
-  selectableZaken: paginatedZakenFactory(),
+  logItems: auditLogFactory(),
+
   zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
   review: reviewFactory(),
   reviewItems: reviewItemsFactory(),
+
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
 
@@ -268,23 +281,29 @@ export const ProcessReview: Story = {
 
 const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
+
   destructionList: {
     ...destructionListFactory(),
     status: "internally_reviewed",
   },
-  reviewers: usersFactory(),
-  archivists: usersFactory(),
-  user: usersFactory()[0],
   destructionListItems: {
     count: reviewItemsFactory().length,
     next: null,
     previous: null,
     results: [],
   },
-  selectableZaken: paginatedZakenFactory(),
+  logItems: auditLogFactory(),
+
   zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
   review: reviewFactory(),
   reviewItems: reviewItemsFactory(),
+
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
 
@@ -343,15 +362,21 @@ export const MarkDestructionListAsFinal: Story = {
 
 const FIXTURE_DELETE: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
+
   destructionList: destructionListFactory({ status: "ready_to_delete" }),
-  reviewers: usersFactory(),
-  archivists: usersFactory(),
-  user: usersFactory()[0],
   destructionListItems: paginatedDestructionListItemsFactory(),
-  selectableZaken: paginatedZakenFactory(),
+  logItems: auditLogFactory(),
+
   zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
   review: null,
   reviewItems: null,
+
   selectieLijstKlasseChoicesMap: null,
 };
 
