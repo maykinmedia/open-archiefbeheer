@@ -21,6 +21,7 @@ import { useAsync } from "react-use";
 
 import "./App.css";
 import { User, whoAmI } from "./lib/api/auth";
+import { formatUser } from "./lib/format/user";
 
 function App() {
   const navigate = useNavigate();
@@ -41,11 +42,6 @@ function App() {
     label: formatMessage(b.label, match?.params as Record<string, string>),
     href: formatMessage(b.href, match?.params as Record<string, string>),
   }));
-
-  const getUserFullName = (user: User | null) => {
-    if (!user) return "";
-    return `${user.firstName} ${user.lastName}`;
-  };
 
   return (
     <div className="App">
@@ -75,14 +71,22 @@ function App() {
               children: <Outline.CogIcon />,
               align: "center",
               pad: false,
-              size: "xl",
+              // size: "xl",
               justify: true,
               title: "Settings",
               onClick: () => navigate("/settings"),
             },
             <Dropdown
               key="account"
-              label={<IconInitials name={getUserFullName(user)} />}
+              label={
+                <IconInitials
+                  name={
+                    user
+                      ? formatUser(user as User, { showUsername: false })
+                      : ""
+                  }
+                />
+              }
               pad={false}
             >
               <Body>
@@ -91,7 +95,13 @@ function App() {
                   <Hr />
                   <Grid>
                     <Column span={2}>
-                      <IconInitials name={getUserFullName(user)} />
+                      <IconInitials
+                        name={
+                          user
+                            ? formatUser(user as User, { showUsername: false })
+                            : ""
+                        }
+                      />
                     </Column>
                     <Column span={8}>
                       <Grid gutter={false}>

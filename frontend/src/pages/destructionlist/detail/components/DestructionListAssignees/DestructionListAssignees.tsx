@@ -14,11 +14,8 @@ import {
   DestructionListAssignee,
   DestructionListAssigneeUpdate,
 } from "../../../../../lib/api/destructionLists";
-import { formatUser } from "../../../utils";
-import {
-  DestructionListUpdateAssigneesActionPayload,
-  UpdateDestructionListAction,
-} from "../../DestructionListDetail.action";
+import { formatUser } from "../../../../../lib/format/user";
+import { DestructionListUpdateAssigneesActionPayload } from "../../DestructionListDetail.action";
 
 export type DestructionListAssigneesProps = {
   assignees: DestructionListAssignee[];
