@@ -20,7 +20,7 @@ def reload_openzaak_fixture(fixture_name: str):
         ```
         and then replace `client = docker.from_env()` with `client = docker.DockerClient(base_url='tcp://127.0.0.1:2375')`
         """
-        if settings.ENVIRONMENT == "CI":
+        if settings.ENVIRONMENT == "development":
             return func
 
         client = docker.from_env()

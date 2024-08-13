@@ -80,11 +80,11 @@ from .serializers import (
                     ],
                     "items": [
                         {
-                            "zaak_url": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
                             "extraZaakData": {},
                         },
                         {
-                            "zaak_url": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
                             "extraZaakData": {},
                         },
                     ],
@@ -109,11 +109,11 @@ from .serializers import (
                     "containsSensitiveInfo": False,
                     "items": [
                         {
-                            "zaak_url": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
                             "extraZaakData": {},
                         },
                         {
-                            "zaak_url": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
+                            "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
                             "extraZaakData": {},
                         },
                     ],

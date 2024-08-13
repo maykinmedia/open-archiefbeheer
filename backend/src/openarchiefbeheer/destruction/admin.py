@@ -22,11 +22,11 @@ class DestructionListAdmin(admin.ModelAdmin):
 @admin.register(DestructionListItem)
 class DestructionListItemAdmin(admin.ModelAdmin):
     list_display = (
-        "zaak_url",
+        "zaak",
         "status",
     )
     list_filter = ("status",)
-    search_fields = ("zaak_url",)
+    search_fields = ("zaak__url",)
     raw_id_fields = ("destruction_list",)
 
 

@@ -196,7 +196,7 @@ def delete_decisions_and_relation_objects(
         data_iterator = pagination_helper(
             brc_client,
             data,
-            params={"zaak_url": zaak.url},
+            params={"zaak": zaak.url},
         )
 
         for data in data_iterator:

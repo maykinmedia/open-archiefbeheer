@@ -10,7 +10,7 @@ from zgw_consumers.models import Service
 
 class Zaak(models.Model):
     uuid = models.UUIDField("UUID", unique=True)
-    url = models.URLField("URL", max_length=1000)
+    url = models.URLField("URL", max_length=1000, unique=True)
     rollen = ArrayField(
         models.URLField("rollen", max_length=1000, blank=True), null=True, blank=True
     )
