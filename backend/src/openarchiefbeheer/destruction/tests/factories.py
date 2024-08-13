@@ -23,16 +23,13 @@ class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
 
 class DestructionListItemFactory(factory.django.DjangoModelFactory):
     destruction_list = factory.SubFactory(DestructionListFactory)
-    zaak_url = factory.Faker("url")
 
     class Meta:
         model = "destruction.DestructionListItem"
 
     class Params:
         with_zaak = factory.Trait(
-            zaak=factory.SubFactory(
-                ZaakFactory, url=factory.SelfAttribute("..zaak_url")
-            ),
+            zaak=factory.SubFactory(ZaakFactory),
         )
 
 

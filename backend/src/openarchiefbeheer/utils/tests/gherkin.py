@@ -149,7 +149,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             items = [
                 await self.list_item_exists(
-                    destruction_list=destruction_list, zaak_url=zaak.url, zaak=zaak
+                    destruction_list=destruction_list, zaak=zaak
                 )
                 for zaak in zaken
             ]
@@ -159,7 +159,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def list_item_exists(self, **kwargs):
             zaken = await self.zaken_are_indexed(100)
             base_kwargs = {
-                "zaak_url": zaken[0].url if "zaak" not in kwargs else None,
+                "zaak": zaken[0] if "zaak" not in kwargs else None,
             }
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self._get_or_create(

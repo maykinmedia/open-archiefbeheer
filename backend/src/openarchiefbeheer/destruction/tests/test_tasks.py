@@ -57,7 +57,7 @@ class ProcessReviewResponseTests(TestCase):
         review_response = ReviewResponseFactory.create()
         zaak = ZaakFactory.create()
         review_item_response = ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak_url=zaak.url,
+            review_item__destruction_list_item__zaak=zaak,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
             action_zaak={"archiefactiedatum": "2026-01-01"},
@@ -85,7 +85,7 @@ class ProcessReviewResponseTests(TestCase):
         )
         zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
         review_item_response = ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak_url=zaak.url,
+            review_item__destruction_list_item__zaak=zaak,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
             action_zaak={"archiefactiedatum": "2026-01-01"},
@@ -179,18 +179,15 @@ class ProcessDeletingZakenTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete
         )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-        )
+
         item1 = DestructionListItemFactory.create(
-            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
             destruction_list=destruction_list,
         )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/222-222-222",
-        )
         item2 = DestructionListItemFactory.create(
-            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/222-222-222",
             destruction_list=destruction_list,
         )
 
@@ -263,9 +260,9 @@ class ProcessDeletingZakenTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete, processing_status=InternalStatus.failed
         )
-        zaak = ZaakFactory.create()
+
         DestructionListItemFactory.create(
-            zaak_url=zaak.url,
+            with_zaak=True,
             destruction_list=destruction_list,
             processing_status=InternalStatus.failed,
             internal_results={"traceback": "Some traceback"},
@@ -328,23 +325,20 @@ class ProcessDeletingZakenTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete
         )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-        )
+
         item1 = DestructionListItemFactory.create(
-            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
             destruction_list=destruction_list,
         )
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/222-222-222",
-        )
         item2 = DestructionListItemFactory.create(
-            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/222-222-222",
             destruction_list=destruction_list,
         )
 
         def mock_exceptions(zaak, result_store):
-            if zaak.url == item1.zaak_url:
+            if zaak.url == item1.zaak.url:
                 raise Exception("An errur occurred!")
 
         with (
@@ -363,5 +357,9 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
         self.assertEqual(item1.processing_status, InternalStatus.failed)
         self.assertEqual(item2.processing_status, InternalStatus.succeeded)
-        self.assertTrue(Zaak.objects.filter(url=item1.zaak_url).exists())
-        self.assertFalse(Zaak.objects.filter(url=item2.zaak_url).exists())
+        self.assertTrue(
+            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/111-111-111").exists()
+        )
+        self.assertFalse(
+            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/222-222-222").exists()
+        )

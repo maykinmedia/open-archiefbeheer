@@ -47,8 +47,9 @@ class ProcessResponseTest(VCRMixin, TestCase):
         destruction_list = DestructionListFactory.create(
             author=record_manager, status=ListStatus.changes_requested
         )
-        DestructionListItemFactory.create(
-            zaak_url=zaak.url, destruction_list=destruction_list
+        item = DestructionListItemFactory.create(
+            zaak=zaak,
+            destruction_list=destruction_list,
         )
         DestructionListAssigneeFactory.create(
             user=record_manager,
@@ -65,7 +66,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
             review__author=reviewer,
         )
         ReviewItemResponseFactory.create(
-            review_item__destruction_list_item__zaak_url=zaak.url,
+            review_item__destruction_list_item__zaak=item.zaak,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
             action_zaak={"archiefactiedatum": "2024-10-01"},
@@ -73,6 +74,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
 
         process_review_response(review_response.pk)
 
+        zaak = item.zaak
         zaak.refresh_from_db()
 
         self.assertEqual(zaak.archiefactiedatum.isoformat(), "2024-10-01")
