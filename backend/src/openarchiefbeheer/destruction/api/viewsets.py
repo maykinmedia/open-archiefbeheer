@@ -26,6 +26,7 @@ from ..models import (
 )
 from ..tasks import delete_destruction_list
 from ..utils import process_new_assignees
+from .backends import DestructionListItemFilterBackend
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
@@ -338,7 +339,7 @@ class DestructionListItemsViewSet(
 ):
     serializer_class = DestructionListItemReadSerializer
     queryset = DestructionListItem.objects.all()
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DestructionListItemFilterBackend,)
     filterset_class = DestructionListItemFilterset
     pagination_class = PageNumberPagination
 
