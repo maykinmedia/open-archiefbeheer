@@ -1066,16 +1066,19 @@ class DestructionListItemsViewSetTest(APITestCase):
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             processing_status=InternalStatus.succeeded,
+            with_zaak=True,
         )
         item2 = DestructionListItemFactory.create(
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             processing_status=InternalStatus.processing,
+            with_zaak=True,
         )
         item3 = DestructionListItemFactory.create(
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             processing_status=InternalStatus.failed,
+            with_zaak=True,
         )
 
         self.client.force_authenticate(user=record_manager)
