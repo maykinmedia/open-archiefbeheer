@@ -7,3 +7,4 @@ class DestructionConfig(AppConfig):
 
     def ready(self):
         from . import signals  # noqa
+        from .api.drf_spectacular import extensions  # noqa
