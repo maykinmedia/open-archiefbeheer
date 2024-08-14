@@ -1,7 +1,10 @@
-from django.db.models import Case, QuerySet, Value, When
+from django.db.models import Case, QuerySet, Subquery, Value, When
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import FilterSet, NumberFilter, OrderingFilter, UUIDFilter
+
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
+from openarchiefbeheer.zaken.models import Zaak
 
 from ..constants import InternalStatus
 from ..models import (
@@ -26,6 +29,48 @@ class DestructionListItemFilterset(FilterSet):
     class Meta:
         model = DestructionListItem
         fields = ("destruction_list", "status", "processing_status")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Add all the filters of the ZaakFilter filterset
+        for name, filter_field in ZaakFilter().filters.items():
+            self.filters["zaak__" + name] = filter_field
+
+    def filter_queryset(self, queryset):
+        zaak_filters = {}
+        # Process the DestructionListItem filters. Extract all the zaak filters as these
+        # will be handled by the ZaakFilter
+        for name, value in self.form.cleaned_data.items():
+            if name.startswith("zaak__"):
+                zaak_filters[name.removeprefix("zaak__")] = value
+                continue
+
+            queryset = self.filters[name].filter(queryset, value)
+            assert isinstance(
+                queryset, QuerySet
+            ), "Expected '%s.%s' to return a QuerySet, but got a %s instead." % (
+                type(self).__name__,
+                name,
+                type(queryset).__name__,
+            )
+
+        zaak_qs = Zaak.objects.all()
+        zaak_filter = ZaakFilter(data=self.data, queryset=zaak_qs)
+        for name, value in zaak_filters.items():
+            zaak_qs = zaak_filter.filters[name].filter(zaak_qs, value)
+            assert isinstance(
+                zaak_qs, QuerySet
+            ), "Expected '%s.%s' to return a QuerySet, but got a %s instead." % (
+                type(ZaakFilter).__name__,
+                name,
+                type(zaak_qs).__name__,
+            )
+
+        # Filter the destruction list item queryset to contain only
+        # the items related to a zaak in the filtered zaken
+        queryset = queryset.filter(zaak__url__in=Subquery(zaak_qs.values_list("url")))
+        return queryset
 
     def filter_in_destruction_list(
         self, queryset: QuerySet[DestructionListItem], name: str, value: str
