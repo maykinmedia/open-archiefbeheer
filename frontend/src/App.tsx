@@ -74,13 +74,20 @@ function App() {
               onClick: () => navigate("/destruction-lists/create"),
             },
             "spacer",
+            <>
+              {state === "loading" ? (
+                <P title="Bezig met laden...">
+                  <Outline.ArrowPathIcon
+                    spin
+                    stroke="var(--button-color-text-primary)"
+                  />
+                </P>
+              ) : undefined}
+            </>,
             {
               children: <Outline.CogIcon />,
-              align: "center",
-              pad: false,
-              // size: "xl",
-              justify: true,
               title: "Settings",
+              // size: "xl",
               onClick: () => navigate("/settings"),
             },
             <Dropdown
