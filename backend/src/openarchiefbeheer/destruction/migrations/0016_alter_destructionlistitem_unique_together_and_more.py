@@ -17,10 +17,6 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name="destructionlistitem", old_name="zaak", new_name="zaak_url"
         ),
-        migrations.AlterUniqueTogether(
-            name="destructionlistitem",
-            unique_together={("destruction_list", "zaak_url")},
-        ),
         migrations.AlterField(
             model_name="destructionlistitem",
             name="zaak_url",
@@ -28,6 +24,7 @@ class Migration(migrations.Migration):
                 db_index=True,
                 help_text="URL-reference to the ZAAK (in Zaken API), which is planned to be destroyed.",
                 verbose_name="zaak_url",
+                blank=True,
             ),
         ),
     ]

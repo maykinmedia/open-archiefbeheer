@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.db.models import Q
 
 
 def relate_zaak(apps, schema_editor):
@@ -21,6 +22,23 @@ def relate_zaak(apps, schema_editor):
         updated_items.append(item)
 
     DestructionListItem.objects.bulk_update(updated_items, fields=["zaak"])
+
+
+def backwards_operation(apps, schema_editor):
+    DestructionListItem = apps.get_model("destruction", "DestructionListItem")
+
+    items = DestructionListItem.objects.filter(~Q(zaak__isnull=True)).iterator(
+        chunk_size=1000
+    )
+    updated_items = []
+    for item in items:
+        if item.zaak_url == item.zaak.url:
+            continue
+
+        item.zaak_url = item.zaak.url
+        updated_items.append(item)
+
+    DestructionListItem.objects.bulk_update(updated_items, fields=["zaak_url"])
 
 
 class Migration(migrations.Migration):
@@ -43,5 +61,5 @@ class Migration(migrations.Migration):
                 verbose_name="zaak",
             ),
         ),
-        migrations.RunPython(relate_zaak, migrations.RunPython.noop),
+        migrations.RunPython(relate_zaak, backwards_operation),
     ]
