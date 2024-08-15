@@ -26,7 +26,7 @@ class DestructionListItemAdmin(admin.ModelAdmin):
         "status",
     )
     list_filter = ("status",)
-    search_fields = ("zaak",)
+    search_fields = ("zaak__url",)
     raw_id_fields = ("destruction_list",)
 
 

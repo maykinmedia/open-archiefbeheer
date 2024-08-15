@@ -3,7 +3,6 @@ import uuid as _uuid
 from typing import Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
@@ -14,8 +13,6 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
-from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
 
 from .assignment_logic import STATE_MANAGER
@@ -27,6 +24,7 @@ from .constants import (
     ListStatus,
     ReviewDecisionChoices,
 )
+from .exceptions import ZaakNotFound
 
 logger = logging.getLogger(__name__)
 
@@ -169,10 +167,12 @@ class DestructionList(models.Model):
         )
 
     def has_short_review_process(self) -> bool:
-        zaken_urls = self.items.all().values_list("zaak", flat=True)
-
-        zaken = Zaak.objects.filter(url__in=zaken_urls)
-        zaaktypes_urls = set(zaken.values_list("zaaktype", flat=True))
+        zaaktypes_urls = (
+            self.items.all()
+            .select_related("zaak")
+            .values_list("zaak__zaaktype", flat=True)
+            .distinct()
+        )
 
         config = ArchiveConfig.get_solo()
 
@@ -196,12 +196,13 @@ class DestructionListItem(models.Model):
         related_name="items",
         verbose_name=_("destruction list"),
     )
-    zaak = models.URLField(
-        _("zaak"),
-        db_index=True,
-        help_text=_(
-            "URL-reference to the ZAAK (in Zaken API), which is planned to be destroyed."
-        ),
+    zaak = models.ForeignKey(
+        "zaken.Zaak",
+        on_delete=models.SET_NULL,
+        related_name="items",
+        verbose_name=_("zaak"),
+        blank=True,
+        null=True,
     )
     status = models.CharField(
         _("status"),
@@ -239,44 +240,25 @@ class DestructionListItem(models.Model):
         unique_together = ("destruction_list", "zaak")
 
     def __str__(self):
-        return f"{self.destruction_list}: {self.zaak}"
-
-    def get_zaak_data(self) -> dict | None:
-        if self.status == ListItemStatus.removed:
-            # The case does not exist anymore. We cannot retrieve details.
-            return None
-
-        zaak = Zaak.objects.filter(url=self.zaak).first()
-        if not zaak:
-            logger.error(
-                'Zaak with url %s and status "%s" could not be found in the cache.',
-                self.zaak,
-                self.status,
-            )
-            return None
-
-        serializer = ZaakSerializer(instance=zaak)
-        return serializer.data
+        if self.zaak:
+            return f"{self.destruction_list}: {self.zaak.identificatie}"
+        return f"{self.destruction_list}: (deleted)"
 
     def set_processing_status(self, status: InternalStatus) -> None:
         self.processing_status = status
         self.save()
 
     def _delete_zaak(self):
-        try:
-            zaak = Zaak.objects.get(url=self.zaak)
-        except ObjectDoesNotExist as exc:
-            logger.error(
-                "Could not find zaak with URL %s. Aborting deletion.", self.zaak
-            )
-            raise exc
+        if not self.zaak:
+            logger.error("Could not find the zaak. Aborting deletion.")
+            raise ZaakNotFound()
 
         store = ResultStore(store=self)
         store.clear_traceback()
 
-        delete_zaak_and_related_objects(zaak=zaak, result_store=store)
+        delete_zaak_and_related_objects(zaak=self.zaak, result_store=store)
 
-        zaak.delete()
+        self.zaak.delete()
 
     def process_deletion(self) -> None:
         self.processing_status = InternalStatus.processing
@@ -288,6 +270,7 @@ class DestructionListItem(models.Model):
             self.set_processing_status(InternalStatus.failed)
             return
 
+        self.zaak = None
         self.processing_status = InternalStatus.succeeded
         self.save()
 
@@ -523,8 +506,7 @@ class ReviewItemResponse(models.Model):
             destruction_list_item.save()
 
         if self.action_zaak:
-            zaak = Zaak.objects.get(url=destruction_list_item.zaak)
-            zaak.update_data(self.action_zaak)
+            destruction_list_item.zaak.update_data(self.action_zaak)
 
         self.processing_status = InternalStatus.succeeded
         self.save()

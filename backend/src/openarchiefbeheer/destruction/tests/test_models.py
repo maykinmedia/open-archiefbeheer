@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from unittest.mock import patch
 
@@ -7,11 +6,9 @@ from django.test import TestCase
 from django.utils import timezone
 
 from freezegun import freeze_time
-from testfixtures import log_capture
 
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import InternalStatus, ListItemStatus
 from .factories import (
@@ -22,50 +19,6 @@ from .factories import (
 
 
 class DestructionListItemTest(TestCase):
-    def test_get_zaak_data(self):
-        ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-            omschrijving="Test description",
-        )
-
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.suggested,
-        )
-
-        zaak_data = item.get_zaak_data()
-
-        self.assertEqual(zaak_data["omschrijving"], "Test description")
-
-    def test_get_zaak_data_removed_case(self):
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.removed,
-        )
-
-        zaak_data = item.get_zaak_data()
-
-        self.assertIsNone(zaak_data)
-
-    @log_capture(level=logging.ERROR)
-    def test_get_zaak_data_missing_case(self, logs):
-        item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
-            status=ListItemStatus.suggested,
-        )
-        zaak_data = item.get_zaak_data()
-
-        self.assertEqual(
-            (
-                "openarchiefbeheer.destruction.models",
-                "ERROR",
-                "Zaak with url http://zaken.nl/api/v1/zaken/111-111-111 and status "
-                '"suggested" could not be found in the cache.',
-            ),
-            logs[0],
-        )
-        self.assertIsNone(zaak_data)
-
     def test_set_status(self):
         destruction_list = DestructionListFactory.create()
 
@@ -81,7 +34,8 @@ class DestructionListItemTest(TestCase):
 
     def test_process_deletion_zaak_not_found(self):
         item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
         )
 
         item.process_deletion()
@@ -91,13 +45,10 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(item.processing_status, InternalStatus.failed)
 
     def test_process_deletion(self):
-        zaak = ZaakFactory.create(
-            url="http://zaken.nl/api/v1/zaken/111-111-111",
-            omschrijving="Test description",
-        )
-
         item = DestructionListItemFactory.create(
-            zaak="http://zaken.nl/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak__omschrijving="Test description",
         )
 
         with patch(
@@ -107,7 +58,7 @@ class DestructionListItemTest(TestCase):
 
         m_delete_in_openzaak.assert_called_once()
         kwargs = m_delete_in_openzaak.call_args_list[0].kwargs
-        self.assertEqual(kwargs["zaak"].url, zaak.url)
+        self.assertEqual(kwargs["zaak"].url, "http://zaken.nl/api/v1/zaken/111-111-111")
         self.assertEqual(kwargs["result_store"].store.pk, item.pk)
 
         item.refresh_from_db()
@@ -115,7 +66,7 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(item.processing_status, InternalStatus.succeeded)
 
         with self.assertRaises(ObjectDoesNotExist):
-            Zaak.objects.get(url=zaak.url)
+            Zaak.objects.get(url="http://zaken.nl/api/v1/zaken/111-111-111")
 
 
 class ReviewResponseTests(TestCase):
@@ -195,18 +146,21 @@ class ReviewResponseTests(TestCase):
 class DestructionListTest(TestCase):
     def test_has_long_review_process(self):
         destruction_list = DestructionListFactory.create()
-        zaken_short = ZaakFactory.create_batch(
-            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
-        )
-        zaak_long = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
+
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_long.url
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/2",
         )
 
         with patch(
@@ -221,18 +175,21 @@ class DestructionListTest(TestCase):
 
     def test_has_short_review_process(self):
         destruction_list = DestructionListFactory.create()
-        zaken_short = ZaakFactory.create_batch(
-            2, zaaktype="http://catalogi-api.nl/zaaktype/1"
-        )
-        zaak_short = ZaakFactory.create(zaaktype="http://catalogi-api.nl/zaaktype/2")
+
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[0].url
-        )
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaken_short[1].url
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak_short.url
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__zaaktype="http://catalogi-api.nl/zaaktype/2",
         )
 
         with patch(

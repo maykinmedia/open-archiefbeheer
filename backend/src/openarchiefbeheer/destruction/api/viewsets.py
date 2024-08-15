@@ -42,8 +42,8 @@ from .permissions import (
 from .serializers import (
     DestructionListAPIResponseSerializer,
     DestructionListAssigneeSerializer,
+    DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
-    DestructionListItemSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
     ReassignementSerializer,
@@ -296,7 +296,7 @@ class DestructionListItemsViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = DestructionListItemSerializer
+    serializer_class = DestructionListItemReadSerializer
     queryset = DestructionListItem.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListItemFilterset

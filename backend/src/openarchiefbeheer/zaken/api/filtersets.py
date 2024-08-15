@@ -170,7 +170,7 @@ class ZaakFilter(FilterSet):
 
         zaken_to_exclude = DestructionListItem.objects.filter(
             ~Q(status=ListItemStatus.removed)
-        ).values_list("zaak", flat=True)
+        ).values_list("zaak__url", flat=True)
 
         return queryset.exclude(url__in=Subquery(zaken_to_exclude))
 
@@ -179,7 +179,7 @@ class ZaakFilter(FilterSet):
     ) -> QuerySet[Zaak]:
         list_items = DestructionListItem.objects.filter(
             Q(destruction_list__uuid=value) & ~Q(status=ListItemStatus.removed)
-        ).values_list("zaak", flat=True)
+        ).values_list("zaak__url", flat=True)
         return queryset.filter(url__in=Subquery(list_items))
 
     def filter_not_in_destruction_list_except(
@@ -187,11 +187,11 @@ class ZaakFilter(FilterSet):
     ) -> QuerySet[Zaak]:
         zaken_to_exclude = DestructionListItem.objects.filter(
             ~Q(status=ListItemStatus.removed) & ~Q(destruction_list__uuid=value)
-        ).values_list("zaak", flat=True)
+        ).values_list("zaak__url", flat=True)
 
         exception_list = DestructionListItem.objects.filter(
             destruction_list__uuid=value
-        ).values_list("zaak", flat=True)
+        ).values_list("zaak__url", flat=True)
 
         return (
             queryset.exclude(url__in=Subquery(zaken_to_exclude))

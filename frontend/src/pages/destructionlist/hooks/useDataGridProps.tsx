@@ -168,8 +168,8 @@ export function useDataGridProps(
   // Get object list.
   //
   const objectList = paginatedResults.results.map((itemOrZaak) => {
-    const zaak = Object.hasOwn(itemOrZaak, "zaakData")
-      ? ((itemOrZaak as DestructionListItem).zaakData as Zaak)
+    const zaak = Object.hasOwn(itemOrZaak, "zaak")
+      ? ((itemOrZaak as DestructionListItem).zaak as Zaak)
       : (itemOrZaak as Zaak);
 
     return {
@@ -225,8 +225,8 @@ export function useDataGridProps(
     selected: boolean,
   ) => {
     const zaken = paginatedResults.results.map((iorz) =>
-      Object.hasOwn(iorz, "zaakData")
-        ? ((iorz as DestructionListItem).zaakData as Zaak)
+      Object.hasOwn(iorz, "zaak")
+        ? ((iorz as DestructionListItem).zaak as Zaak)
         : (iorz as Zaak),
     );
 

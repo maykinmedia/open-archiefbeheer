@@ -4,7 +4,6 @@ from django.test import TestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import ListRole, ListStatus, ReviewDecisionChoices
 from .factories import (
@@ -83,9 +82,8 @@ class AssignementLogicTest(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
-        zaak = ZaakFactory.create()
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak.url
+            destruction_list=destruction_list, with_zaak=True
         )
         record_manager = DestructionListAssigneeFactory.create(
             role=ListRole.author,
@@ -117,9 +115,8 @@ class AssignementLogicTest(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
-        zaak = ZaakFactory.create()
-        DestructionListItemFactory.create(
-            destruction_list=destruction_list, zaak=zaak.url
+        item = DestructionListItemFactory.create(
+            destruction_list=destruction_list, with_zaak=True
         )
         record_manager = DestructionListAssigneeFactory.create(
             role=ListRole.author,
@@ -142,7 +139,7 @@ class AssignementLogicTest(TestCase):
 
         with patch(
             "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(zaaktypes_short_process=[zaak.zaaktype]),
+            return_value=ArchiveConfig(zaaktypes_short_process=[item.zaak.zaaktype]),
         ):
             destruction_list.assign_next()
 

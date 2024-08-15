@@ -318,7 +318,7 @@ export function DestructionListProcessReview() {
     await addToZaakSelection(
       storageKey,
       destructionListItems.results
-        .map((di) => di.zaakData)
+        .map((di) => di.zaak)
         .filter((v): v is Zaak => Boolean(v)),
     );
   }, []);

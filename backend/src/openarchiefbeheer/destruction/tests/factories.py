@@ -2,6 +2,7 @@ import factory.fuzzy
 from factory import post_generation
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
 class DestructionListFactory(factory.django.DjangoModelFactory):
@@ -22,10 +23,14 @@ class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
 
 class DestructionListItemFactory(factory.django.DjangoModelFactory):
     destruction_list = factory.SubFactory(DestructionListFactory)
-    zaak = factory.Faker("url")
 
     class Meta:
         model = "destruction.DestructionListItem"
+
+    class Params:
+        with_zaak = factory.Trait(
+            zaak=factory.SubFactory(ZaakFactory),
+        )
 
 
 class DestructionListReviewFactory(factory.django.DjangoModelFactory):

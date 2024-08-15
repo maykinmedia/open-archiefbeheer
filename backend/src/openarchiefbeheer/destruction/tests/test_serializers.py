@@ -44,6 +44,12 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
         )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
 
         request = factory.get("/foo")
         request.user = record_manager
@@ -90,14 +96,14 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(assignees[1].user.username, "reviewer1")
         self.assertEqual(assignees[2].user.username, "reviewer2")
 
-        items = destruction_list.items.order_by("zaak")
+        items = destruction_list.items.order_by("zaak__url")
 
         self.assertEqual(items.count(), 2)
         self.assertEqual(
-            items[0].zaak, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+            items[0].zaak.url, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
         )
         self.assertEqual(
-            items[1].zaak, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
+            items[1].zaak.url, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
         )
 
         self.assertEqual(destruction_list.author, record_manager)
@@ -205,8 +211,13 @@ class DestructionListSerializerTests(TestCase):
             username="record_manager", role__can_start_destruction=True
         )
 
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
+
         DestructionListItemFactory.create(
-            zaak="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.suggested,
         )
 
@@ -255,8 +266,12 @@ class DestructionListSerializerTests(TestCase):
             username="record_manager", role__can_start_destruction=True
         )
 
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
         DestructionListItemFactory.create(
-            zaak="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             status=ListItemStatus.removed,
         )
 
@@ -299,7 +314,9 @@ class DestructionListSerializerTests(TestCase):
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
         )
-
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
         data = {
             "name": "An updated test list",
             "contains_sensitive_info": False,
@@ -390,11 +407,12 @@ class DestructionListSerializerTests(TestCase):
             4,
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
+            with_zaak=True,
         )
 
         # We are removing 2 zaken from the destruction list
         data = {
-            "items": [{"zaak": items[0].zaak}, {"zaak": items[1].zaak}],
+            "items": [{"zaak": items[0].zaak.url}, {"zaak": items[1].zaak.url}],
         }
 
         serializer = DestructionListSerializer(
@@ -406,7 +424,7 @@ class DestructionListSerializerTests(TestCase):
         serializer.save()
 
         items = DestructionListItem.objects.filter(destruction_list=destruction_list)
-        items_in_list = items.values_list("zaak", flat=True)
+        items_in_list = items.values_list("zaak__url", flat=True)
 
         self.assertEqual(items_in_list.count(), 2)
         self.assertIn(data["items"][0]["zaak"], items_in_list)
@@ -769,7 +787,9 @@ class DestructionListReviewSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
         )
-        item = DestructionListItemFactory.create(destruction_list=destruction_list)
+        item = DestructionListItemFactory.create(
+            destruction_list=destruction_list, with_zaak=True
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -777,7 +797,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "This is a list with inconsisten feedback.",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak.url,
                     "feedback": "This item should not be deleted.",
                 },
             ],
@@ -833,7 +853,7 @@ class DestructionListReviewSerializerTests(TestCase):
             assignee=reviewer, name="Test list", status=ListStatus.ready_to_review
         )
         items = DestructionListItemFactory.create_batch(
-            3, destruction_list=destruction_list
+            3, destruction_list=destruction_list, with_zaak=True
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -847,11 +867,11 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": items[0].zaak,
+                    "zaak_url": items[0].zaak.url,
                     "feedback": "This item should not be deleted.",
                 },
                 {
-                    "zaak_url": items[1].zaak,
+                    "zaak_url": items[1].zaak.url,
                     "feedback": "We should wait to delete this.",
                 },
             ],
@@ -896,7 +916,9 @@ class DestructionListReviewSerializerTests(TestCase):
             assignee=reviewer, status=ListStatus.ready_to_review
         )
         # Not part of the destruction list
-        item = DestructionListItemFactory.create(status=ListItemStatus.suggested)
+        item = DestructionListItemFactory.create(
+            status=ListItemStatus.suggested, with_zaak=True
+        )
 
         data = {
             "destruction_list": destruction_list.uuid,
@@ -904,7 +926,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak.url,
                     "feedback": "This item should not be deleted.",
                 },
             ],
@@ -934,7 +956,9 @@ class DestructionListReviewSerializerTests(TestCase):
             assignee=reviewer, status=ListStatus.ready_to_review
         )
         item = DestructionListItemFactory.create(
-            status=ListItemStatus.removed, destruction_list=destruction_list
+            status=ListItemStatus.removed,
+            destruction_list=destruction_list,
+            with_zaak=True,
         )
 
         data = {
@@ -943,7 +967,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "list_feedback": "I disagree with this list",
             "zaken_reviews": [
                 {
-                    "zaak_url": item.zaak,
+                    "zaak_url": item.zaak.url,
                     "feedback": "This item should not be deleted.",
                 },
             ],

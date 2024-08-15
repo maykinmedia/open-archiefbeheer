@@ -10,8 +10,6 @@ from openarchiefbeheer.destruction.tests.factories import DestructionListItemFac
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
 
-from .factories import ZaakFactory
-
 
 class DeletingZakenWithErrorsTests(TestCase):
     @classmethod
@@ -33,10 +31,10 @@ class DeletingZakenWithErrorsTests(TestCase):
 
     @Mocker()
     def test_failure_on_deleting_besluit_relation_is_handled(self, m):
-        zaak = ZaakFactory.create(
-            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+        destruction_list_item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
         )
-        destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
 
         m.get(
@@ -69,7 +67,7 @@ class DeletingZakenWithErrorsTests(TestCase):
         )
 
         try:
-            delete_zaak_and_related_objects(zaak, result_store)
+            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
         except ConnectTimeout:
             # We configured the mock to raise this error
             pass
@@ -89,10 +87,10 @@ class DeletingZakenWithErrorsTests(TestCase):
 
     @Mocker()
     def test_failure_on_deleting_zaak_relation_is_handled(self, m):
-        zaak = ZaakFactory.create(
-            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+        destruction_list_item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
         )
-        destruction_list_item = DestructionListItemFactory.create(zaak=zaak.url)
         result_store = ResultStore(store=destruction_list_item)
 
         m.get(
@@ -103,7 +101,7 @@ class DeletingZakenWithErrorsTests(TestCase):
             },
         )
         m.get(
-            f"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak={zaak.url}",
+            f"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak={destruction_list_item.zaak.url}",
             json=[
                 {
                     "url": "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/111-111-111",
@@ -121,7 +119,7 @@ class DeletingZakenWithErrorsTests(TestCase):
         )
 
         try:
-            delete_zaak_and_related_objects(zaak, result_store)
+            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
         except ConnectTimeout:
             # We configured the mock to raise this error
             pass
@@ -141,9 +139,9 @@ class DeletingZakenWithErrorsTests(TestCase):
 
         # The ZIO has already been deleted, so it is not returned anymore by OpenZaak
         m.get(
-            f"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak={zaak.url}",
+            f"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak={destruction_list_item.zaak.url}",
             json=[],
         )
 
         with self.assertRaises(ConnectTimeout):
-            delete_zaak_and_related_objects(zaak, result_store)
+            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
