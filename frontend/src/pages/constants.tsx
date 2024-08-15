@@ -20,11 +20,12 @@ export const REVIEW_DECISION_LEVEL_MAPPING: Record<
   rejected: "danger",
 };
 
-export const STATUSES_ELIGIBLE_FOR_EDIT = ["changes_requested"];
+export const STATUSES_ELIGIBLE_FOR_EDIT = ["new", "changes_requested"];
 export const STATUSES_ELIGIBLE_FOR_REVIEW: (typeof DESTRUCTION_LIST_STATUSES)[number][] =
   ["ready_to_review", "ready_for_archivist"];
 
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
+  new: "Nieuw",
   changes_requested: "Wijzigingen aangevraagd",
   ready_to_review: "Klaar om te beoordelen",
   ready_to_delete: "Klaar om te vernietigen",
@@ -36,6 +37,7 @@ export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
 export const STATUS_LEVEL_MAPPING: {
   [key in DestructionListStatus]: BadgeProps["level"];
 } = {
+  new: "success",
   changes_requested: "warning",
   ready_to_review: "info",
   internally_reviewed: "info",

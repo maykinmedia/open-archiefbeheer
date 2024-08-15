@@ -52,7 +52,9 @@ export function DestructionListToolbar() {
             },
             toegewezen: {
               label: "Toegewezen aan",
-              value: formatUser(destructionList.assignee),
+              value: destructionList.assignee
+                ? formatUser(destructionList.assignee)
+                : "-",
             },
             bevatGevoeligeInformatie: {
               label: "Bevat gevoelige informatie",
