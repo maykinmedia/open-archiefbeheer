@@ -81,3 +81,16 @@ class CanReassignDestructionList(permissions.BasePermission):
             ListStatus.new,
             ListStatus.ready_to_review,
         ]
+
+
+class CanMarkAsReadyToReview(permissions.BasePermission):
+    message = _("You are not allowed to mark this destruction list as ready to review.")
+
+    def has_permission(self, request, view):
+        return request.user.role and request.user.role.can_start_destruction
+
+    def has_object_permission(self, request, view, destruction_list):
+        return (
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.new
+        )

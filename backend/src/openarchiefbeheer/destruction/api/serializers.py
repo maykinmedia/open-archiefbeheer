@@ -213,7 +213,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
             user=author, destruction_list=destruction_list, role=ListRole.author
         )
         destruction_list.bulk_create_assignees(assignees_data, role=ListRole.reviewer)
-        destruction_list.assign_next()
 
         logevent.destruction_list_created(destruction_list, author)
 

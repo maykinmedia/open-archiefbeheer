@@ -26,7 +26,7 @@ class NewList:
         destruction_list.assign(assignee)
 
     def reassign(self, destruction_list: "DestructionList") -> None:
-        # When a list is new, it is assigned to the author. No action needed.
+        # When a list is new, it does not have an assignee. No action needed.
         pass
 
 
