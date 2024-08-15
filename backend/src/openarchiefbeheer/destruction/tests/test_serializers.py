@@ -1,9 +1,7 @@
-from datetime import datetime
 from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings, tag
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from freezegun import freeze_time
@@ -77,16 +75,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
-                ),
-            ),
-            freeze_time("2024-05-02T16:00:00+02:00"),
-        ):
+        with (freeze_time("2024-05-02T16:00:00+02:00"),):
             destruction_list = serializer.save()
 
         assignees = destruction_list.assignees.order_by("pk")
@@ -107,17 +96,12 @@ class DestructionListSerializerTests(TestCase):
         )
 
         self.assertEqual(destruction_list.author, record_manager)
-        self.assertEqual(destruction_list.assignee, user1)
-        self.assertEqual(
-            assignees[1].assigned_on,
-            timezone.make_aware(datetime(2024, 5, 2, 16, 0)),
-        )
+        self.assertEqual(destruction_list.status, ListStatus.new)
+        self.assertIsNone(destruction_list.assignee)
 
         sent_mail = mail.outbox
 
-        self.assertEqual(len(sent_mail), 1)
-        self.assertEqual(sent_mail[0].subject, "Destruction list review request")
-        self.assertEqual(sent_mail[0].recipients(), ["reviewer1@oab.nl"])
+        self.assertEqual(len(sent_mail), 0)
 
         logs = TimelineLog.objects.filter(user=record_manager)
 

@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.core import mail
 from django.utils.translation import gettext_lazy as _
 
 import freezegun
@@ -11,6 +12,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import (
@@ -850,6 +852,87 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(data["assignees"][0]["user"]["pk"], assignees[1].user.pk)
         self.assertEqual(data["assignees"][1]["user"]["pk"], assignees[0].user.pk)
+
+    def test_mark_as_ready_to_review(self):
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.new,
+        )
+        DestructionListAssigneeFactory.create(
+            user=record_manager, destruction_list=destruction_list, role=ListRole.author
+        )
+        reviewers = DestructionListAssigneeFactory.create_batch(
+            2,
+            destruction_list=destruction_list,
+            role=ListRole.reviewer,
+            user__role__can_review_destruction=True,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_review_required="Destruction list review request",
+                    body_review_required="Please review the list",
+                ),
+            ),
+        ):
+            response = self.client.post(
+                reverse(
+                    "api:destructionlist-mark-ready-review",
+                    kwargs={"uuid": destruction_list.uuid},
+                ),
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, reviewers[0].user)
+
+        sent_mail = mail.outbox
+
+        self.assertEqual(len(sent_mail), 1)
+        self.assertEqual(sent_mail[0].subject, "Destruction list review request")
+        self.assertEqual(sent_mail[0].recipients(), [reviewers[0].user.email])
+
+    def test_cannot_mark_as_ready_to_review_if_not_authenticated(self):
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            status=ListStatus.new,
+        )
+
+        response = self.client.post(
+            reverse(
+                "api:destructionlist-mark-ready-review",
+                kwargs={"uuid": destruction_list.uuid},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_mark_as_ready_to_review_if_not_author(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            status=ListStatus.new,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        response = self.client.post(
+            reverse(
+                "api:destructionlist-mark-ready-review",
+                kwargs={"uuid": destruction_list.uuid},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class DestructionListItemsViewSetTest(APITestCase):
