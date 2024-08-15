@@ -43,6 +43,12 @@ export type LandingKanbanEntry = {
 
 export const STATUSES: FieldSet[] = [
   [
+    STATUS_MAPPING.new,
+    {
+      fields: [],
+    },
+  ],
+  [
     STATUS_MAPPING.changes_requested,
     {
       fields: ["assignees"],
@@ -112,6 +118,10 @@ export const Landing = () => {
     list: DestructionList,
   ): string | undefined => {
     switch (list.status) {
+      case "new":
+        return canUpdateDestructionList(user, list)
+          ? `/destruction-lists/${list.uuid}`
+          : undefined;
       case "changes_requested":
         return canUpdateDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}`
@@ -148,7 +158,7 @@ export const Landing = () => {
 
       const footer = (
         <P muted size="xs">
-          {formatUser(currentAssignee, { showRole: true })}
+          {currentAssignee && formatUser(currentAssignee, { showRole: true })}
           {otherAssignees.length && (
             <strong className="LandingPage__assignees-count">
               {" "}

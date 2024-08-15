@@ -7,7 +7,7 @@ import { request } from "./request";
 
 export type DestructionList = {
   pk: number;
-  assignee: User;
+  assignee: User | null;
   assignees: DestructionListAssignee[];
   author: User;
   containsSensitiveInfo: boolean;
@@ -25,6 +25,7 @@ export type DestructionListAssignee = {
 
 // An array to be used in various parts of the application.
 export const DESTRUCTION_LIST_STATUSES = [
+  "new",
   "ready_to_review",
   "changes_requested",
   "ready_to_delete",

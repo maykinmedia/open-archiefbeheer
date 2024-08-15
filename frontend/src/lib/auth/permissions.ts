@@ -30,7 +30,7 @@ export function canReviewDestructionList(
     return false;
   }
 
-  return user.pk === destructionList.assignee.pk;
+  return destructionList.assignee && user.pk === destructionList.assignee.pk;
 }
 
 /**
@@ -50,7 +50,9 @@ export function canUpdateDestructionList(
     return false;
   }
 
-  return user.pk === destructionList.assignee.pk;
+  return destructionList.assignee
+    ? user.pk === destructionList.assignee.pk
+    : user.pk === destructionList.author.pk;
 }
 
 export function canViewDestructionList(
