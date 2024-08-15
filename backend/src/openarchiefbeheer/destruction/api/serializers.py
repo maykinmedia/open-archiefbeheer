@@ -511,6 +511,7 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
 
 class AuditTrailItemSerializer(serializers.ModelSerializer):
     message = serializers.CharField(source="get_message")
+    user = UserSerializer()
 
     class Meta:
         model = TimelineLog

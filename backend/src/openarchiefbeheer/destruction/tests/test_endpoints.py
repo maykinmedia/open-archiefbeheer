@@ -1631,10 +1631,14 @@ class ReviewResponsesViewSetTests(APITestCase):
         response_audittrail = self.client.get(endpoint_audittrail)
         self.assertEqual(response_audittrail.status_code, status.HTTP_200_OK)
         data = response_audittrail.data
-        self.assertEqual(data[0]["user"], record_manager.pk)
+        self.assertEqual(data[0]["user"]["pk"], record_manager.pk)
+        self.assertEqual(
+            data[0]["timestamp"],
+            "2023-09-15T21:36:00+02:00",
+        )
         self.assertEqual(
             data[0]["message"],
-            '[2023-09-15T21:36:00+02:00]: Destruction list "Test audittrail" was reassigned.',
+            'Destruction list "Test audittrail" was reassigned.',
         )
         self.assertEqual(
             data[0]["extra_data"]["assignees"][0]["user"],

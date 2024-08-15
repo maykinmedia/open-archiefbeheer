@@ -18,7 +18,7 @@ export type AuditLogAssignedExtraData = {
 export type AuditLogItem = {
   pk: number;
   timestamp: string;
-  user: User["pk"]; // User triggering log entry.
+  user: User; // User triggering log entry.
   message: string;
   extraData: AuditLogAssignedExtraData | unknown;
 };

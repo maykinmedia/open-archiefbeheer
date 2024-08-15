@@ -127,7 +127,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            '[2024-05-02T16:00:00+02:00]: Destruction list "A test list" created by user record_manager.',
+            'Destruction list "A test list" created by user record_manager.',
         )
 
     def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
@@ -357,7 +357,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            '[2024-05-02T16:00:00+02:00]: Destruction list "An updated test list" was updated.',
+            'Destruction list "An updated test list" was updated.',
         )
 
     def test_partial_list_update(self):
@@ -716,7 +716,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertTrue(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            '[2024-05-02T16:00:00+02:00]: User "reviewer1" has reviewed the list "Test list". They approved the list.',
+            'User "reviewer1" has reviewed the list "Test list". They approved the list.',
         )
 
     def test_create_review_accepted_last_reviewer(self):
@@ -903,7 +903,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            '[2024-05-02T16:00:00+02:00]: User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
+            'User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):
