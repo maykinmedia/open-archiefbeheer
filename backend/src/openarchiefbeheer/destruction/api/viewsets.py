@@ -181,6 +181,14 @@ from .serializers import (
         description=_("Retrieve the audit log for this destruction list."),
         responses={200: AuditTrailItemSerializer(many=True)},
     ),
+    mark_ready_review=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Mark as ready to review."),
+        description=_(
+            "This endpoint can be used to mark a new list as 'ready to review' and assign the first reviewer to it."
+        ),
+        responses={201: None},
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
