@@ -34,6 +34,7 @@ from .filtersets import (
     ReviewResponseFilterset,
 )
 from .permissions import (
+    CanMarkAsReadyToReview,
     CanMarkListAsFinal,
     CanReassignDestructionList,
     CanReviewPermission,
@@ -219,6 +220,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanReassignDestructionList]
         elif self.action == "auditlog":
             permission_classes = [IsAuthenticated]
+        elif self.action == "mark_ready_review":
+            permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -302,6 +305,14 @@ class DestructionListViewSet(
         )
         serializer = AuditTrailItemSerializer(instance=items, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["post"], name="mark-ready-review")
+    def mark_ready_review(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+
+        destruction_list.assign_next()
+
+        return Response(status=status.HTTP_201_CREATED)
 
 
 @extend_schema_view(
