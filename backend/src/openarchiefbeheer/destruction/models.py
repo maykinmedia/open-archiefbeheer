@@ -13,7 +13,6 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects
 
 from .assignment_logic import STATE_MANAGER
@@ -168,12 +167,12 @@ class DestructionList(models.Model):
         )
 
     def has_short_review_process(self) -> bool:
-        zaken_urls = (
-            self.items.all().select_related("zaak").values_list("zaak__url", flat=True)
+        zaaktypes_urls = (
+            self.items.all()
+            .select_related("zaak")
+            .values_list("zaak__zaaktype", flat=True)
+            .distinct()
         )
-
-        zaken = Zaak.objects.filter(url__in=zaken_urls)
-        zaaktypes_urls = set(zaken.values_list("zaaktype", flat=True))
 
         config = ArchiveConfig.get_solo()
 
