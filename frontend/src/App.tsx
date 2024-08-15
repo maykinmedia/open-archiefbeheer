@@ -56,9 +56,10 @@ function App() {
           breadcrumbItems,
           primaryNavigationItems: [
             <Logo
+              href="https://www.maykinmedia.nl"
               key="logo"
-              variant={"compact"}
-              style={{ width: "42px", ["--page-color-logo"]: "#FFF" }}
+              abbreviated={true}
+              variant="contrast"
             />,
             {
               children: <Outline.HomeIcon />,
