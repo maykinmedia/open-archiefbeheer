@@ -14,7 +14,7 @@ export const FIXTURE_AUDIT_LOG_ITEM: AuditLogItem = {
   pk: 1,
   timestamp: "2023-09-15T21:36:00+02:00",
   message: `[2023-09-15T21:36:00+02:00]: Destruction list "${destructionList.name}" created by user ${recordManager}.`,
-  user: recordManager.pk,
+  user: recordManager,
   extraData: {
     pk: destructionList.pk,
     name: destructionList.name,
