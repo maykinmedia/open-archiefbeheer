@@ -369,8 +369,17 @@ class DestructionListSerializerTests(TestCase):
             "name": "An updated test list",
         }
 
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        request = factory.get("/foo")
+        request.user = record_manager
+
         serializer = DestructionListSerializer(
-            instance=destruction_list, data=data, partial=True
+            instance=destruction_list,
+            data=data,
+            partial=True,
+            context={"request": request},
         )
 
         self.assertTrue(serializer.is_valid())
@@ -399,8 +408,15 @@ class DestructionListSerializerTests(TestCase):
             "items": [{"zaak": items[0].zaak.url}, {"zaak": items[1].zaak.url}],
         }
 
+        record_manager = UserFactory.create(role__can_start_destruction=True)
+        request = factory.get("/foo")
+        request.user = record_manager
+
         serializer = DestructionListSerializer(
-            instance=destruction_list, data=data, partial=True
+            instance=destruction_list,
+            data=data,
+            partial=True,
+            context={"request": request},
         )
 
         self.assertTrue(serializer.is_valid())

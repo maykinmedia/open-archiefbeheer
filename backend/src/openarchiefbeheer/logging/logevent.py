@@ -50,8 +50,8 @@ def destruction_list_created(destruction_list: DestructionList, user: User) -> N
     )
 
 
-def destruction_list_updated(destruction_list: DestructionList) -> None:
-    _create_log(model=destruction_list, event="destruction_list_updated")
+def destruction_list_updated(destruction_list: DestructionList, user: User) -> None:
+    _create_log(model=destruction_list, event="destruction_list_updated", user=user)
 
 
 def destruction_list_reassigned(
