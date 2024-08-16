@@ -122,8 +122,10 @@ export function DestructionListToolbar() {
       <H2>{destructionList.name}</H2>
       {logItems ? (
         <Tabs>
-          <Tab label="Gegevens">{properties}</Tab>
-          <Tab label="Geschiedenis">
+          <Tab id="gegevens" label="Gegevens">
+            {properties}
+          </Tab>
+          <Tab id="geschiedenis" label="Geschiedenis">
             <DestructionListAuditLog />
           </Tab>
         </Tabs>
