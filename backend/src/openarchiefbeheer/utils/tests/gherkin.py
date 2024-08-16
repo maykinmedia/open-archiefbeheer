@@ -348,6 +348,19 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         def __init__(self, testcase):
             self.testcase = testcase
 
+        async def list_should_have_assignee(self, page, destruction_list, assignee):
+            @sync_to_async()
+            def refresh_list():
+                destruction_list.refresh_from_db()
+
+            @sync_to_async()
+            def get_assignee():
+                return destruction_list.assignee
+
+            await refresh_list()
+            list_assignee = await get_assignee()
+            self.testcase.assertEqual(list_assignee, assignee)
+
         async def list_should_have_status(self, page, destruction_list, status):
             @sync_to_async()
             def refresh_list():

@@ -129,6 +129,23 @@ export async function updateDestructionList(
 }
 
 /**
+ * Mark destruction list as ready to reveiw.
+ * @param uuid
+ */
+export async function markDestructionListAsReadyToReview(uuid: string) {
+  const response = await request(
+    "POST",
+    `/destruction-lists/${uuid}/mark_ready_review/`,
+  );
+  // Check if the response is a 201 Created status code.
+  if (response.status === 201) {
+    return null;
+  }
+  const promise: Promise<DestructionList> = response.json();
+  return promise;
+}
+
+/**
  * Mark destruction list as final.
  * @param uuid
  * @param data

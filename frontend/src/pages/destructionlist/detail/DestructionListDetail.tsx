@@ -2,12 +2,14 @@ import {
   AttributeData,
   Badge,
   Body,
+  Button,
   CardBaseTemplate,
   Form,
   FormField,
   Modal,
   P,
   SerializedFormData,
+  Toolbar,
   ToolbarItem,
   field2Title,
 } from "@maykin-ui/admin-ui";
@@ -16,6 +18,7 @@ import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
 import {
+  canMarkAsReadyToReview,
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../lib/auth/permissions";
@@ -34,17 +37,13 @@ import { DestructionListToolbar } from "./components/DestructionListToolbar/Dest
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const {
-    archivists,
-    destructionList,
-    review,
-    reviewers,
-    user,
-    destructionListItems,
-  } = useLoaderData() as DestructionListDetailContext;
+  const { archivists, destructionList, review, user, destructionListItems } =
+    useLoaderData() as DestructionListDetailContext;
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
 
   const [archivistModalOpenState, setArchivistModalOpenState] = useState(false);
+  const [readyToReviewModalOpenState, setReadyToReviewModalOpenState] =
+    useState(false);
   const [destroyModalOpenState, setDestroyModalOpenState] = useState(false);
 
   // TODO - Make a 404 page (or remove?)
@@ -78,6 +77,15 @@ export function DestructionListDetailPage() {
    * Returns the items to show in the secondary navigation (top bar).
    */
   const getSecondaryNavigationItems = (): ToolbarItem[] | undefined => {
+    if (canMarkAsReadyToReview(user, destructionList)) {
+      return [
+        {
+          children: "Ter beoordeling indienen",
+          onClick: () => setReadyToReviewModalOpenState(true),
+          pad: "h",
+        },
+      ];
+    }
     if (canMarkListAsFinal(user, destructionList)) {
       return [
         {
@@ -126,6 +134,18 @@ export function DestructionListDetailPage() {
 
   /**
    * Dispatches action to mark the destruction list as final (archivist approves).
+   */
+  const handleReadyToReview = async () => {
+    submitAction({
+      type: "READY_TO_REVIEW",
+      payload: {
+        uuid: destructionList.uuid,
+      },
+    });
+  };
+
+  /**
+   * Dispatches action to mark the destruction list as final (archivist approves).
    * @param _
    * @param data
    */
@@ -166,6 +186,28 @@ export function DestructionListDetailPage() {
     <CardBaseTemplate secondaryNavigationItems={getSecondaryNavigationItems()}>
       <DestructionListToolbar />
       {review ? <DestructionListProcessReview /> : <DestructionListEdit />}
+
+      {destructionList.status === "new" && (
+        <Modal
+          title="Ter beoordeling indienen"
+          open={readyToReviewModalOpenState}
+          size="m"
+          onClose={() => setReadyToReviewModalOpenState(false)}
+        >
+          <Body>
+            <P>
+              U staat op het punt om de lijst ter beoordeling in te dienen,
+              hierna kunt u geen zaken meer toevoegen en/of verwijderen van de
+              vernietigingslijst.
+            </P>
+            <Toolbar align="end">
+              <Button variant="primary" onClick={handleReadyToReview}>
+                Ter beoordeling indienen
+              </Button>
+            </Toolbar>
+          </Body>
+        </Modal>
+      )}
 
       {destructionList.status === "internally_reviewed" && (
         <Modal

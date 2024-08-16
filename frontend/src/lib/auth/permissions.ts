@@ -14,6 +14,22 @@ export function canStartDestructionList(user: User) {
 }
 
 /**
+ * Returns whether `user` is allowed to mark `destructionList` as ready to review.
+ * @param user
+ * @param destructionList
+ */
+export function canMarkAsReadyToReview(
+  user: User,
+  destructionList: DestructionList,
+) {
+  return (
+    user.role.canStartDestruction &&
+    destructionList.author.pk === user.pk &&
+    destructionList.status === "new"
+  );
+}
+
+/**
  * Returns whether `user` is allowed to review `destructionList`.
  * @param user
  * @param destructionList
