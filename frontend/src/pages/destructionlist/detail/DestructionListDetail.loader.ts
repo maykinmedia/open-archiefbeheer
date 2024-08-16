@@ -98,7 +98,23 @@ export const destructionListDetailLoader = loginRequired(
             : await listDestructionListItems(
                 uuid,
                 searchParams as unknown as URLSearchParams,
-              );
+              ).catch((e) => {
+                // This happens when the user is browsing selectable zaken and exceeds
+                // the last page of the destruction list items.
+                if (
+                  searchParams.is_editing &&
+                  e instanceof Response &&
+                  e.status === 404
+                ) {
+                  return {
+                    count: 0,
+                    next: null,
+                    previous: null,
+                    results: [],
+                  };
+                }
+                throw e;
+              });
 
       /**
        * Fetch selectielijst choices if review collected.
