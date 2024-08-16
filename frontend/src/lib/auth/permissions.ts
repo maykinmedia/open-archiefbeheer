@@ -46,7 +46,7 @@ export function canReviewDestructionList(
     return false;
   }
 
-  return destructionList.assignee && user.pk === destructionList.assignee.pk;
+  return user.pk === destructionList.assignee.pk;
 }
 
 /**
@@ -66,9 +66,7 @@ export function canUpdateDestructionList(
     return false;
   }
 
-  return destructionList.assignee
-    ? user.pk === destructionList.assignee.pk
-    : user.pk === destructionList.author.pk;
+  return user.pk === destructionList.assignee.pk;
 }
 
 export function canViewDestructionList(
