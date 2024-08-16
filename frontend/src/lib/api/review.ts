@@ -81,7 +81,7 @@ export async function listReviewItems(
   params?:
     | URLSearchParams
     | {
-        review?: Review["pk"];
+        "item-review-review"?: Review["pk"];
       },
 ) {
   const response = await request("GET", "/review-items/", params);

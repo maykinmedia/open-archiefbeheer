@@ -26,15 +26,15 @@ export async function listDestructionListItems(
     | {
         page?: number;
         page_size?: number;
-        processing_status?: ProcessingStatus;
-        status: DestructionListItemStatus; // TODO ?
+        "item-processing_status"?: ProcessingStatus;
+        "item-status": DestructionListItemStatus; // TODO ?
       },
 ) {
   const response = await request("GET", "/destruction-list-items/", {
-    destruction_list: destructionListUuid,
-    status: "suggested",
+    "item-destruction_list": destructionListUuid,
+    "item-status": "suggested",
     ...params,
-  } as typeof params & { destruction_list: string });
+  } as typeof params & { "item-destruction_list": string });
   const promise: Promise<PaginatedDestructionListItems> = response.json();
   return promise;
 }

@@ -79,7 +79,7 @@ export const destructionListDetailLoader = loginRequired(
 
       // If review collected: collect items.
       const reviewItems = review
-        ? await listReviewItems({ review: review.pk })
+        ? await listReviewItems({ "item-review-review": review.pk })
         : null;
 
       /**
