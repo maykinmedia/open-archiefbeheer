@@ -60,7 +60,7 @@ export const destructionListReviewLoader = loginRequired(
         destructionList__uuid: uuid,
       });
       const reviewItemsPromise = latestReview
-        ? listReviewItems({ review: latestReview.pk })
+        ? listReviewItems({ "item-review-review": latestReview.pk })
         : undefined;
 
       const reviewResponsePromise = latestReview
