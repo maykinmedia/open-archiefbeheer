@@ -339,7 +339,7 @@ class DestructionListItemsViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListItemReadSerializer
-    queryset = DestructionListItem.objects.all()
+    queryset = DestructionListItem.objects.all().select_related("zaak")
     filter_backends = (NestedFilterBackend,)
     filterset_class = DestructionListItemFilterset
     filterset_kwargs = {"prefix": "item"}
@@ -394,7 +394,9 @@ class DestructionListReviewViewSet(
 )
 class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DestructionListItemReviewSerializer
-    queryset = DestructionListItemReview.objects.all()
+    queryset = DestructionListItemReview.objects.all().select_related(
+        "destruction_list_item__zaak"
+    )
     filterset_class = DestructionListReviewItemFilterset
     filter_backends = (NestedFilterBackend,)
     filterset_kwargs = {"prefix": "item-review"}
