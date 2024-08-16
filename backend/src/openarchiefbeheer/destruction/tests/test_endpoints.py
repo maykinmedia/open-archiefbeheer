@@ -1010,7 +1010,7 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         endpoint = furl(reverse("api:destruction-list-items-list"))
-        endpoint.args["destruction_list"] = str(destruction_list.uuid)
+        endpoint.args["item-destruction_list"] = str(destruction_list.uuid)
 
         response = self.client.get(
             endpoint.url,
@@ -1046,8 +1046,8 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         endpoint = furl(reverse("api:destruction-list-items-list"))
-        endpoint.args["destruction_list"] = str(destruction_list.uuid)
-        endpoint.args["status"] = ListItemStatus.suggested
+        endpoint.args["item-destruction_list"] = str(destruction_list.uuid)
+        endpoint.args["item-status"] = ListItemStatus.suggested
 
         response = self.client.get(
             endpoint.url,
@@ -1083,7 +1083,7 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         endpoint = furl(reverse("api:destruction-list-items-list"))
-        endpoint.args["destruction_list"] = str(destruction_list.uuid)
+        endpoint.args["item-destruction_list"] = str(destruction_list.uuid)
 
         response = self.client.get(
             endpoint.url,
@@ -1485,11 +1485,11 @@ class DestructionListItemReviewViewSetTests(APITestCase):
         reviews = DestructionListReviewFactory.create_batch(2)
         DestructionListItemReviewFactory.create_batch(3, review=reviews[0])
         item_reviews = DestructionListItemReviewFactory.create_batch(
-            2, review=reviews[1]
+            2, review=reviews[1], destruction_list_item__with_zaak=True
         )
 
         endpoint = furl(reverse("api:reviews-items-list"))
-        endpoint.args["review"] = reviews[1].pk
+        endpoint.args["item-review-review"] = reviews[1].pk
 
         self.client.force_authenticate(user=user)
         response = self.client.get(endpoint.url)
@@ -1506,10 +1506,11 @@ class DestructionListItemReviewViewSetTests(APITestCase):
     def test_with_deleted_zaken(self):
         user = UserFactory.create()
 
-        zaak = ZaakFactory.create()
-        DestructionListItemReviewFactory.create(destruction_list_item__zaak=zaak)
+        item_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True
+        )
 
-        zaak.delete()
+        item_review.destruction_list_item.zaak.delete()
 
         self.client.force_authenticate(user=user)
         response = self.client.get(reverse("api:reviews-items-list"))
