@@ -8,7 +8,11 @@ import {
   formatMessage,
 } from "@maykin-ui/admin-ui";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { useNavigation, useSearchParams } from "react-router-dom";
+import {
+  useNavigation,
+  useRevalidator,
+  useSearchParams,
+} from "react-router-dom";
 
 import {
   DestructionListItem,
@@ -27,6 +31,7 @@ import {
   addToZaakSelection,
   getZaakSelection,
   removeFromZaakSelection,
+  setZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
 
@@ -48,11 +53,36 @@ export function useDataGridProps(
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
   actions?: DataGridAction[],
-  onZaakSelectionChangeCallback?: () => void,
-): { props: DataGridProps; error: unknown } {
+  labelCancelAction?: string,
+): {
+  props: DataGridProps;
+  error: unknown;
+} {
+  console.log(selectedResults);
   const { state } = useNavigation();
+  const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorState, setErrorState] = useState<unknown>();
+
+  const [selectedZakenCount, setSelectedZakenCount] = useState(0);
+
+  useEffect(() => {
+    void updateZaakSelectionStateCount();
+  });
+
+  const updateZaakSelectionStateCount = async () => {
+    const selectedZaken = await getZaakSelection(storageKey);
+    const countSelectedZaken = Object.values(selectedZaken).filter(
+      (z) => z.selected,
+    ).length;
+    setSelectedZakenCount(countSelectedZaken);
+  };
+
+  const onClickCancelAction = async () => {
+    await setZaakSelection(storageKey, {});
+    await updateZaakSelectionStateCount();
+    revalidator.revalidate();
+  };
 
   const timeoutRef = useRef<NodeJS.Timeout>();
   const setParams = (params: Record<string, string>) => {
@@ -237,7 +267,7 @@ export function useDataGridProps(
           storageKey,
           attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
         );
-    onZaakSelectionChangeCallback?.();
+    updateZaakSelectionStateCount?.();
   };
 
   const onSort = (sort: string) => {
@@ -299,6 +329,16 @@ export function useDataGridProps(
     onFilter,
     onSelect,
     onSort: onSort,
+    selectionActions: [
+      {
+        children: labelCancelAction
+          ? `${labelCancelAction} ${selectedZakenCount}`
+          : `Annuleren (${selectedZakenCount})`,
+        disabled: ["loading", "submitting"].includes(state),
+        variant: "secondary",
+        onClick: onClickCancelAction,
+      },
+    ],
   };
 
   //

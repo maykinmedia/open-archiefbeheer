@@ -1,13 +1,7 @@
 import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
-import { useState } from "react";
-import { useActionData, useNavigation, useRevalidator } from "react-router-dom";
-import { useEffectOnce } from "react-use";
+import { useActionData, useNavigation } from "react-router-dom";
 
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import {
-  getZaakSelection,
-  setZaakSelection,
-} from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import {
   DataGridAction,
@@ -47,36 +41,15 @@ export function DestructionList({
 }: DestructionList) {
   const { state } = useNavigation();
   const actionErrors = useActionData() || {};
-  const revalidator = useRevalidator();
-  const [selectedZakenCount, setSelectedZakenCount] = useState(0);
-
-  const onZaakSelectionChangeCallback = async () => {
-    const selectedZaken = await getZaakSelection(storageKey);
-    const countSelectedZaken = Object.values(selectedZaken).filter(
-      (z) => z.selected,
-    ).length;
-    setSelectedZakenCount(countSelectedZaken);
-  };
 
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
     zaken,
     selectedZaken,
     actions,
-    onZaakSelectionChangeCallback,
   );
   const _errors =
     errors || [...Object.values(actionErrors), error].filter((v) => v);
-
-  useEffectOnce(() => {
-    void onZaakSelectionChangeCallback();
-  });
-
-  const onCancel = async () => {
-    await setZaakSelection(storageKey, {});
-    await onZaakSelectionChangeCallback();
-    revalidator.revalidate();
-  };
 
   return (
     <ListTemplate
@@ -93,14 +66,7 @@ export function DestructionList({
             wrap: false,
             onClick: onSubmitSelection,
           },
-          {
-            children: labelCancel
-              ? `${labelCancel} ${selectedZakenCount}`
-              : `Annuleren (${selectedZakenCount})`,
-            disabled: ["loading", "submitting"].includes(state),
-            variant: "secondary",
-            onClick: onCancel,
-          },
+          ...(dataGridProps.selectionActions ?? []),
         ],
       }}
     >

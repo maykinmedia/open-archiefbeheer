@@ -85,6 +85,90 @@ export function DestructionListProcessReview() {
     .filter(([, { selected }]) => selected)
     .map(([url]) => ({ url }));
 
+  const processZaakReviewZaakActions: DataGridAction[] = [
+    {
+      children: <Outline.ChatBubbleLeftRightIcon />,
+      title: "Muteren",
+      tooltip:
+        (processZaakReviewSelectionDetailState?.action ===
+          "change_selectielijstklasse" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
+              Selectielijst: Object.values(selectieLijstKlasseChoicesMap || {})
+                .flatMap((v) => v)
+                .find(
+                  (o) =>
+                    o.value ===
+                    processZaakReviewSelectionDetailState.selectielijstklasse,
+                )?.label,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+            valign="start"
+          />
+        )) ||
+        (processZaakReviewSelectionDetailState?.action ===
+          "change_archiefactiedatum" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_POSTPONE_DESTRUCTION,
+              archiefactiedatum:
+                processZaakReviewSelectionDetailState.archiefactiedatum,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+            valign="start"
+          />
+        )) ||
+        (processZaakReviewSelectionDetailState?.action === "keep" && (
+          <AttributeTable
+            object={{
+              Actie: LABEL_KEEP,
+              Reden: processZaakReviewSelectionDetailState.comment,
+            }}
+            valign="start"
+          />
+        )),
+      onInteract: (_, detail) => {
+        setProcessZaakReviewSelectionDetailState(
+          detail as ProcessZaakReviewSelectionDetail,
+        );
+      },
+      onClick: (zaak) => {
+        handleProcessReviewZaakSelect(
+          [zaak] as unknown as AttributeData[],
+          true,
+        );
+      },
+    },
+  ];
+
+  //
+  // RENDERING
+  //
+
+  // Get the base props for the DataGrid component.
+  const { props: dataGridProps } = useDataGridProps(
+    storageKey,
+    {
+      count: reviewItems?.length || 0,
+      next: null,
+      previous: null,
+      results: reviewItems?.map((ri) => ri.zaak) || [],
+    },
+    selectedUrls,
+    processZaakReviewZaakActions,
+  );
+
+  // Update the selected zaken to session storage.
+  useAsync(async () => {
+    await addToZaakSelection(
+      storageKey,
+      destructionListItems.results
+        .map((di) => di.zaak)
+        .filter((v): v is Zaak => Boolean(v)),
+    );
+  }, []);
+
   //
   // PROCESSING REVIEW MODE VARS
   //
@@ -239,90 +323,6 @@ export function DestructionListProcessReview() {
     },
   ];
 
-  const processZaakReviewZaakActions: DataGridAction[] = [
-    {
-      children: <Outline.ChatBubbleLeftRightIcon />,
-      title: "Muteren",
-      tooltip:
-        (processZaakReviewSelectionDetailState?.action ===
-          "change_selectielijstklasse" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
-              Selectielijst: Object.values(selectieLijstKlasseChoicesMap || {})
-                .flatMap((v) => v)
-                .find(
-                  (o) =>
-                    o.value ===
-                    processZaakReviewSelectionDetailState.selectielijstklasse,
-                )?.label,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.action ===
-          "change_archiefactiedatum" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_POSTPONE_DESTRUCTION,
-              archiefactiedatum:
-                processZaakReviewSelectionDetailState.archiefactiedatum,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.action === "keep" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_KEEP,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )),
-      onInteract: (_, detail) => {
-        setProcessZaakReviewSelectionDetailState(
-          detail as ProcessZaakReviewSelectionDetail,
-        );
-      },
-      onClick: (zaak) => {
-        handleProcessReviewZaakSelect(
-          [zaak] as unknown as AttributeData[],
-          true,
-        );
-      },
-    },
-  ];
-
-  //
-  // RENDERING
-  //
-
-  // Get the base props for the DataGrid component.
-  const { props: dataGridProps } = useDataGridProps(
-    storageKey,
-    {
-      count: reviewItems?.length || 0,
-      next: null,
-      previous: null,
-      results: reviewItems?.map((ri) => ri.zaak) || [],
-    },
-    selectedUrls,
-    processZaakReviewZaakActions,
-  );
-
-  // Update the selected zaken to session storage.
-  useAsync(async () => {
-    await addToZaakSelection(
-      storageKey,
-      destructionListItems.results
-        .map((di) => di.zaak)
-        .filter((v): v is Zaak => Boolean(v)),
-    );
-  }, []);
-
   return (
     <>
       {/* The "comment" modal */}
@@ -385,7 +385,10 @@ export function DestructionListProcessReview() {
         loading={state === "loading"}
         selectable={true}
         allowSelectAll={!reviewItems}
-        selectionActions={processZaakReviewSelectionActions}
+        selectionActions={[
+          ...(dataGridProps.selectionActions ?? []),
+          ...processZaakReviewSelectionActions,
+        ]}
         showPaginator={false}
         // sort={isEditingState}
         title="Zaakdossiers"
