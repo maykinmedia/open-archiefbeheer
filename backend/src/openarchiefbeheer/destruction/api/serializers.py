@@ -221,6 +221,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
     def update(
         self, instance: DestructionList, validated_data: dict
     ) -> DestructionList:
+        user = self.context["request"].user
         validated_data.pop("assignees", None)
         items_data = validated_data.pop("items", None)
         instance.contains_sensitive_info = validated_data.pop(
@@ -234,7 +235,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        logevent.destruction_list_updated(instance)
+        logevent.destruction_list_updated(instance, user)
         return instance
 
 
