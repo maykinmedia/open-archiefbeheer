@@ -48,6 +48,7 @@ export function useDataGridProps(
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
   actions?: DataGridAction[],
+  onZaakSelectionChangeCallback?: () => void,
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -236,6 +237,7 @@ export function useDataGridProps(
           storageKey,
           attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
         );
+    onZaakSelectionChangeCallback?.();
   };
 
   const onSort = (sort: string) => {

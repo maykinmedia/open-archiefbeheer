@@ -1,7 +1,13 @@
 import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
-import { useActionData, useNavigation } from "react-router-dom";
+import { useState } from "react";
+import { useActionData, useNavigation, useRevalidator } from "react-router-dom";
+import { useEffectOnce } from "react-use";
 
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import {
+  getZaakSelection,
+  setZaakSelection,
+} from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import {
   DataGridAction,
@@ -18,6 +24,7 @@ export type DestructionList = React.PropsWithChildren<
     storageKey: string;
     title: string;
     labelAction?: string;
+    labelCancel?: string;
     actions?: DataGridAction[];
   } & Omit<DataGridProps, "objectList">
 >;
@@ -33,20 +40,43 @@ export function DestructionList({
   selectedZaken,
   title,
   labelAction = title,
+  labelCancel,
   onSubmitSelection,
   actions,
   ...props
 }: DestructionList) {
   const { state } = useNavigation();
   const actionErrors = useActionData() || {};
+  const revalidator = useRevalidator();
+  const [selectedZakenCount, setSelectedZakenCount] = useState(0);
+
+  const onZaakSelectionChangeCallback = async () => {
+    const selectedZaken = await getZaakSelection(storageKey);
+    const countSelectedZaken = Object.values(selectedZaken).filter(
+      (z) => z.selected,
+    ).length;
+    setSelectedZakenCount(countSelectedZaken);
+  };
+
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
     zaken,
     selectedZaken,
     actions,
+    onZaakSelectionChangeCallback,
   );
   const _errors =
     errors || [...Object.values(actionErrors), error].filter((v) => v);
+
+  useEffectOnce(() => {
+    void onZaakSelectionChangeCallback();
+  });
+
+  const onCancel = async () => {
+    await setZaakSelection(storageKey, {});
+    await onZaakSelectionChangeCallback();
+    revalidator.revalidate();
+  };
 
   return (
     <ListTemplate
@@ -62,6 +92,14 @@ export function DestructionList({
             variant: "primary",
             wrap: false,
             onClick: onSubmitSelection,
+          },
+          {
+            children: labelCancel
+              ? `${labelCancel} ${selectedZakenCount}`
+              : `Annuleren (${selectedZakenCount})`,
+            disabled: ["loading", "submitting"].includes(state),
+            variant: "secondary",
+            onClick: onCancel,
           },
         ],
       }}
