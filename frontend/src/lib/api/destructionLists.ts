@@ -7,7 +7,7 @@ import { request } from "./request";
 
 export type DestructionList = {
   pk: number;
-  assignee: User | null;
+  assignee: User;
   assignees: DestructionListAssignee[];
   author: User;
   containsSensitiveInfo: boolean;

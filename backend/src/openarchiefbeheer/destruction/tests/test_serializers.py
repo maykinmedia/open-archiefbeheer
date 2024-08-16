@@ -97,7 +97,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(destruction_list.author, record_manager)
         self.assertEqual(destruction_list.status, ListStatus.new)
-        self.assertIsNone(destruction_list.assignee)
+        self.assertEqual(destruction_list.assignee, destruction_list.author)
 
         sent_mail = mail.outbox
 

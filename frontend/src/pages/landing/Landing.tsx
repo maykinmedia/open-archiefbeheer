@@ -45,7 +45,7 @@ export const STATUSES: FieldSet[] = [
   [
     STATUS_MAPPING.new,
     {
-      fields: [],
+      fields: ["assignees"],
     },
   ],
   [
@@ -158,7 +158,7 @@ export const Landing = () => {
 
       const footer = (
         <P muted size="xs">
-          {currentAssignee && formatUser(currentAssignee, { showRole: true })}
+          {formatUser(currentAssignee, { showRole: true })}
           {otherAssignees.length && (
             <strong className="LandingPage__assignees-count">
               {" "}

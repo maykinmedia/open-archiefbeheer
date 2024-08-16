@@ -204,6 +204,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         author = self.context["request"].user
         validated_data["author"] = author
+        validated_data["assignee"] = author
         validated_data["status"] = ListStatus.new
         destruction_list = DestructionList.objects.create(**validated_data)
         destruction_list.bulk_create_items(items_data)
