@@ -8,6 +8,7 @@ from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 class DestructionListFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("word")
     author = factory.SubFactory(UserFactory)
+    assignee = factory.SelfAttribute("author")
 
     class Meta:
         model = "destruction.DestructionList"
