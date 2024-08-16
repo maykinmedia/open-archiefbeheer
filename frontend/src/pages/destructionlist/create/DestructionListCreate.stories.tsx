@@ -48,6 +48,7 @@ const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
   zaken: paginatedZakenFactory(),
   zaakSelection: {},
+  allZakenSelected: false,
 };
 
 export const DestructionListCreatePageStory: Story = {
