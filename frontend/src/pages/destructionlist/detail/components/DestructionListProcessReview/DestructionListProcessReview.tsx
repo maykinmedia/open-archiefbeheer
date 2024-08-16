@@ -302,6 +302,7 @@ export function DestructionListProcessReview() {
       results: reviewItems?.map((ri) => ri.zaak) || [],
     },
     zaakSelection,
+    undefined,
     processZaakReviewZaakActions,
   );
 

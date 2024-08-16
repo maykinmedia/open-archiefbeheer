@@ -82,6 +82,7 @@ export function DestructionListEdit() {
         : zaakSelection // Selection explicitly cleared, don't show default zaken.
       : {},
     undefined,
+    undefined,
     handleClearSelection,
   );
 

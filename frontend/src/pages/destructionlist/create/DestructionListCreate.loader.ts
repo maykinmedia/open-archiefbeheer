@@ -7,7 +7,11 @@ import {
   canStartDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import {
+  getAllZakenSelected,
+  getZaakSelection,
+  isZaakSelected,
+} from "../../../lib/zaakSelection/zaakSelection";
 import {
   DESTRUCTION_LIST_CREATE_KEY,
   DestructionListCreateContext,
@@ -40,8 +44,11 @@ export const destructionListCreateLoader = loginRequired(
 
       // Get zaak selection.
       const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
+      const allZakenSelected = await getAllZakenSelected(
+        DESTRUCTION_LIST_CREATE_KEY,
+      );
 
-      return { reviewers, zaken, zaakSelection };
+      return { reviewers, zaken, zaakSelection, allZakenSelected };
     },
   ),
 );

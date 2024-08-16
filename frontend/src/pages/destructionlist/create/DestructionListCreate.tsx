@@ -21,13 +21,14 @@ export type DestructionListCreateContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
   zaakSelection: ZaakSelection;
+  allZakenSelected: boolean;
 };
 
 /**
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, zaken, zaakSelection } =
+  const { reviewers, zaken, zaakSelection, allZakenSelected } =
     useLoaderData() as DestructionListCreateContext;
 
   const { assignees: errors } = (useActionData() || {}) as Record<
@@ -110,6 +111,7 @@ export function DestructionListCreatePage() {
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
         zaken={zaken}
         zaakSelection={zaakSelection}
+        allZakenSelected={allZakenSelected}
         title="Vernietigingslijst opstellen"
         onSubmitSelection={onSubmitSelection}
       />

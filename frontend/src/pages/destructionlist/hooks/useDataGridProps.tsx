@@ -33,6 +33,7 @@ import {
   clearZaakSelection,
   getZaakSelection,
   removeFromZaakSelection,
+  setAllZakenSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
 
@@ -53,6 +54,7 @@ export function useDataGridProps(
   storageKey: string,
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   zaakSelection: ZaakSelection,
+  allZakenSelected?: boolean,
   actions?: DataGridAction[],
   onClearSelection?: () => void | Promise<void>,
 ): { props: DataGridProps; error: unknown } {
@@ -222,19 +224,20 @@ export function useDataGridProps(
     },
   );
 
-  const selectionActions: ButtonProps[] = selectedUrls.length
-    ? [
-        {
-          children: `Huidige selectie wissen (${selectedUrls.length} geselecteerd)`,
-          variant: "warning",
-          onClick: async () => {
-            await clearZaakSelection(storageKey);
-            revalidator.revalidate();
-            await onClearSelection?.();
+  const selectionActions: ButtonProps[] =
+    allZakenSelected || selectedUrls.length
+      ? [
+          {
+            children: `Huidige selectie wissen (${allZakenSelected ? paginatedResults.count : selectedUrls.length} geselecteerd)`,
+            variant: "warning",
+            onClick: async () => {
+              await clearZaakSelection(storageKey);
+              revalidator.revalidate();
+              await onClearSelection?.();
+            },
           },
-        },
-      ]
-    : [];
+        ]
+      : [];
 
   /**
    * Gets called when the fields selection is changed.
@@ -292,6 +295,15 @@ export function useDataGridProps(
     revalidator.revalidate();
   };
 
+  /**
+   * Gets called when the select all pages checkbox is toggled.
+   * @param selected
+   */
+  const onSelectAllPages = async (selected: boolean) => {
+    setAllZakenSelected(storageKey, selected);
+    revalidator.revalidate();
+  };
+
   const onSort = (sort: string) => {
     setParams({ ordering: sort });
   };
@@ -319,6 +331,8 @@ export function useDataGridProps(
     selectable: true,
     selected: selectedZakenOnPage,
     selectionActions: selectionActions,
+    allPagesSelected: allZakenSelected,
+    allowSelectAllPages: typeof allZakenSelected === "boolean",
     filterable: true,
     filterTransform: (filterData: AttributeData) => {
       const {
@@ -352,6 +366,7 @@ export function useDataGridProps(
     onFilter,
     onSelect,
     onSort: onSort,
+    onSelectAllPages,
   };
 
   //

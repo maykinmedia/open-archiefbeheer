@@ -12,11 +12,12 @@ export type DestructionList = React.PropsWithChildren<
   {
     errors?: string | string[];
     zaken: PaginatedZaken;
+    zaakSelection: ZaakSelection;
+    allZakenSelected?: boolean;
     onSubmitSelection: () => void;
     // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
     storageKey: string;
     title: string;
-    zaakSelection: ZaakSelection;
     labelAction?: string;
     actions?: DataGridAction[];
   } & Omit<DataGridProps, "objectList">
@@ -30,11 +31,12 @@ export function DestructionList({
   errors,
   storageKey,
   zaken,
+  zaakSelection,
+  allZakenSelected,
   title,
   labelAction = title,
   onSubmitSelection,
   actions,
-  zaakSelection,
   ...props
 }: DestructionList) {
   const { state } = useNavigation();
@@ -43,6 +45,7 @@ export function DestructionList({
     storageKey,
     zaken,
     zaakSelection,
+    allZakenSelected,
     actions,
   );
   const _errors =
