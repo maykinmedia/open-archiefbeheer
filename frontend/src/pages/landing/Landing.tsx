@@ -14,6 +14,7 @@ import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
 import { ProcessingStatus } from "../../lib/api/processingStatus";
 import {
+  canMarkAsReadyToReview,
   canMarkListAsFinal,
   canReviewDestructionList,
   canTriggerDestruction,
@@ -119,7 +120,8 @@ export const Landing = () => {
   ): string | undefined => {
     switch (list.status) {
       case "new":
-        return canUpdateDestructionList(user, list)
+        return canMarkAsReadyToReview(user, list) ||
+          canUpdateDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}`
           : undefined;
       case "changes_requested":

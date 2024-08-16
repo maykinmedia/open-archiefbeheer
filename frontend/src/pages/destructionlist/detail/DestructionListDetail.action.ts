@@ -7,6 +7,7 @@ import {
   DestructionListItemUpdate,
   destroyDestructionList,
   markDestructionListAsFinal,
+  markDestructionListAsReadyToReview,
   reassignDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
@@ -19,6 +20,7 @@ export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "DESTROY"
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
+  | "READY_TO_REVIEW"
   | "UPDATE_ASSIGNEES"
   | "UPDATE_ZAKEN",
   P
@@ -41,6 +43,11 @@ export async function destructionListUpdateAction({
       return await destructionListMakeFinalAction({ request, params });
     case "PROCESS_REVIEW":
       return await destructionListProcessReviewAction({ request, params });
+    case "READY_TO_REVIEW":
+      return await destructionListProcessReadyToReviewAction({
+        request,
+        params,
+      });
     case "UPDATE_ASSIGNEES":
       return await destructionListUpdateAssigneesAction({ request, params });
     case "UPDATE_ZAKEN":
@@ -91,6 +98,17 @@ export async function destructionListProcessReviewAction({
     }
     throw e;
   }
+  return redirect("/");
+}
+
+/**
+ * React Router action (user intents to mark destruction list as ready to review).
+ */
+export async function destructionListProcessReadyToReviewAction({
+  request,
+}: ActionFunctionArgs) {
+  const { payload } = await request.json();
+  markDestructionListAsReadyToReview(payload.uuid);
   return redirect("/");
 }
 
