@@ -93,11 +93,13 @@ export function DestructionListEdit() {
     ? [
         {
           children: "Vernietigingslijst aanpassen",
+          disabled: ["loading", "submitting"].includes(state),
           onClick: handleEditUpdate,
           wrap: false,
         },
         {
           children: "Annuleren",
+          disabled: ["loading", "submitting"].includes(state),
           onClick: () => handleEditSetEditing(false),
           wrap: false,
         },
