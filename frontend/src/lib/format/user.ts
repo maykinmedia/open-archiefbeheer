@@ -10,6 +10,10 @@ export function formatUser(
   user: User,
   { showUsername = true, showRole = false } = {},
 ) {
+  if (!user) {
+    return "";
+  }
+
   const userNameSuffix = showUsername ? ` (${user.username})` : "";
   const displayName =
     user.firstName && user.lastName
