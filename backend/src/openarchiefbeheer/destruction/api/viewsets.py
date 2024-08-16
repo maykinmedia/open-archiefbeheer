@@ -14,6 +14,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 
 from ..constants import InternalStatus, ListRole
 from ..models import (
@@ -26,7 +27,7 @@ from ..models import (
 )
 from ..tasks import delete_destruction_list
 from ..utils import process_new_assignees
-from .backends import DestructionListItemFilterBackend
+from .backends import NestedFilterBackend
 from .filtersets import (
     DestructionListFilterset,
     DestructionListItemFilterset,
@@ -339,8 +340,11 @@ class DestructionListItemsViewSet(
 ):
     serializer_class = DestructionListItemReadSerializer
     queryset = DestructionListItem.objects.all()
-    filter_backends = (DestructionListItemFilterBackend,)
+    filter_backends = (NestedFilterBackend,)
     filterset_class = DestructionListItemFilterset
+    filterset_kwargs = {"prefix": "item"}
+    nested_filterset_class = ZaakFilter
+    nested_filterset_relation_field = "zaak"
     pagination_class = PageNumberPagination
 
 
@@ -391,8 +395,11 @@ class DestructionListReviewViewSet(
 class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DestructionListItemReviewSerializer
     queryset = DestructionListItemReview.objects.all()
-    filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListReviewItemFilterset
+    filter_backends = (NestedFilterBackend,)
+    filterset_kwargs = {"prefix": "item-review"}
+    nested_filterset_class = ZaakFilter
+    nested_filterset_relation_field = "destruction_list_item__zaak"
 
 
 @extend_schema_view(
