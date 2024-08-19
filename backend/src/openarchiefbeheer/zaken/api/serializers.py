@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
-from openarchiefbeheer.destruction.models import DestructionList
+from openarchiefbeheer.destruction.models import DestructionList, DestructionListReview
 
 from ..models import Zaak
 
@@ -94,5 +94,11 @@ class ZaakTypeChoicesQueryParamSerializer(serializers.Serializer):
     destruction_list = serializers.SlugRelatedField(
         slug_field="uuid",
         required=False,
-        queryset=DestructionList.objects.all().prefetch_related("items", "items__zaak"),
+        queryset=DestructionList.objects.all().prefetch_related("items__zaak"),
+    )
+    review = serializers.PrimaryKeyRelatedField(
+        required=False,
+        queryset=DestructionListReview.objects.all().prefetch_related(
+            "item_reviews__destruction_list_item__zaak",
+        ),
     )

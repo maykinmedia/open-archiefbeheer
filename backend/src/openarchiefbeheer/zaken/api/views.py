@@ -17,6 +17,7 @@ from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from ..utils import (
     get_zaaktypen_choices_from_list,
+    get_zaaktypen_choices_from_review,
     retrieve_selectielijstklasse_choices,
     retrieve_zaaktypen_choices,
 )
@@ -70,6 +71,8 @@ class ZaaktypenChoicesView(APIView):
 
         if destruction_list := param_serializer.validated_data.get("destruction_list"):
             zaaktypen_choices = get_zaaktypen_choices_from_list(destruction_list)
+        elif review := param_serializer.validated_data.get("review"):
+            zaaktypen_choices = get_zaaktypen_choices_from_review(review)
         else:
             zaaktypen_choices = retrieve_zaaktypen_choices()
 
