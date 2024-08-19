@@ -1,5 +1,3 @@
-import { ActionFunctionArgs } from "react-router-dom";
-
 import {
   ArchiveConfiguration,
   getArchiveConfiguration,
@@ -13,7 +11,7 @@ export type SettingsContext = {
 };
 
 export const settingsLoader = loginRequired(
-  async ({ request }: ActionFunctionArgs): Promise<SettingsContext> => {
+  async (): Promise<SettingsContext> => {
     const archiveConfigPromise = getArchiveConfiguration();
     const zaaktypeChoicesPromise = listZaaktypeChoices();
 

@@ -170,10 +170,8 @@ export function DestructionListDetailPage() {
 
   /**
    * Dispatches action to DESTROY ALL ZAKEN ON THE DESTRUCTION LIST!
-   * @param _
-   * @param data
    */
-  const handleDestroy = async (_: FormEvent, data: SerializedFormData) => {
+  const handleDestroy = async () => {
     submitAction({
       type: "DESTROY",
       payload: {
