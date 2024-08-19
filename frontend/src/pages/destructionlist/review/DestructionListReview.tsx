@@ -99,7 +99,7 @@ export function DestructionListReviewPage() {
   const addZaakToSelection = async (zaak: Zaak, motivation: string) => {
     await addToZaakSelection<FormDataState>(destructionListReviewKey, [zaak], {
       motivation,
-      uuid: zaak.uuid!,
+      uuid: zaak.uuid as string,
       url: zaak.url as string,
     });
     void updateZaakSelectionCountState();
@@ -124,7 +124,9 @@ export function DestructionListReviewPage() {
   };
 
   const onCloseModal = async () => {
-    const zaak = zaken.results.find((z) => z.uuid === zaakModalDataState.uuid)!;
+    const zaak = zaken.results.find(
+      (z) => z.uuid === zaakModalDataState.uuid,
+    ) as Zaak;
     const zaakInSelection = zaakSelection.some((z) => z?.uuid === zaak?.uuid);
 
     // We make this check so that if we click on the action icon, we don't accidentally remove the zaak from the selection if it was selected already
@@ -171,7 +173,9 @@ export function DestructionListReviewPage() {
    * @param data
    */
   const onSubmitZaakForm = async (_: FormEvent, data: AttributeData) => {
-    const zaak = zaken.results.find((z) => z.uuid === zaakModalDataState.uuid)!;
+    const zaak = zaken.results.find(
+      (z) => z.uuid === zaakModalDataState.uuid,
+    ) as Zaak;
     const motivation = data.motivation as string;
     await addZaakToSelection(zaak, motivation);
     setZaakModalDataState({
@@ -207,7 +211,9 @@ export function DestructionListReviewPage() {
     const zaakSelectionSelected = Object.values(zaakSelection).filter(
       (f) => f.selected,
     );
-    setZaakSelection(zaakSelectionSelected.map((f) => f.detail!));
+    setZaakSelection(
+      zaakSelectionSelected.map((f) => f.detail as FormDataState),
+    );
   };
 
   const activeReviewItem = reviewItems?.find(

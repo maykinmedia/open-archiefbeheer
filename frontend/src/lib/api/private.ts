@@ -2,9 +2,7 @@ import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 import { cacheMemo } from "../cache/cache";
-import { DestructionList } from "./destructionLists";
 import { request } from "./request";
-import { Review } from "./review";
 
 export type ZaaktypeChoice = Option & {
   /** A combination of the identification and the date on which the zaaktype will no longer be valid (if present). */
