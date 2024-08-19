@@ -135,7 +135,7 @@ export function DestructionListEdit() {
         : destructionListItems,
     isEditingState ? [...zakenOnPage, ...selectedUrls] : [],
     undefined,
-    { destructionList: destructionList.uuid },
+    destructionList.uuid,
   );
 
   // Update the selected zaken to session storage.

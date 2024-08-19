@@ -10,11 +10,6 @@ export type ZaaktypeChoice = Option & {
   extra: string;
 };
 
-export type ZaaktypeChoicesQueryParam = {
-  destructionList?: DestructionList["uuid"];
-  review?: Review["pk"];
-};
-
 /**
  * This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves all the 'resultaten' possible for this
  * 'procestype' from the selectielijst API.
@@ -40,9 +35,18 @@ export async function listSelectieLijstKlasseChoices(
  * an the value is the URL. The response is cached for 15 minutes.
  */
 export async function listZaaktypeChoices(
-  zaaktypeChoicesQueryParam?: ZaaktypeChoicesQueryParam,
+  destructionListUuid?: DestructionList["uuid"],
+  reviewPk?: Review["pk"],
 ) {
-  const params = zaaktypeChoicesQueryParam || undefined;
+  let params;
+  if (reviewPk) {
+    params = { review: reviewPk };
+  } else if (destructionListUuid) {
+    params = { destructionList: destructionListUuid };
+  } else {
+    params = undefined;
+  }
+
   const response = await request("GET", "/_zaaktypen-choices/", params);
   const promise: Promise<ZaaktypeChoice[]> = response.json();
   return promise;
