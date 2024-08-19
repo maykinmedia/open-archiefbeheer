@@ -1,7 +1,6 @@
 import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
-import { cacheMemo } from "../cache/cache";
 import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
@@ -9,6 +8,11 @@ import { Review } from "./review";
 export type ZaaktypeChoice = Option & {
   /** A combination of the identification and the date on which the zaaktype will no longer be valid (if present). */
   extra: string;
+};
+
+export type ZaaktypeChoicesQueryParam = {
+  destructionList?: DestructionList["uuid"];
+  review?: Review["pk"];
 };
 
 /**
@@ -35,12 +39,10 @@ export async function listSelectieLijstKlasseChoices(
  * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. The label is the 'omschrijving' field
  * an the value is the URL. The response is cached for 15 minutes.
  */
-export async function listZaaktypeChoices(destructionListUuid?: string) {
-  const params = destructionListUuid
-    ? {
-        destructionList: destructionListUuid,
-      }
-    : undefined;
+export async function listZaaktypeChoices(
+  zaaktypeChoicesQueryParam?: ZaaktypeChoicesQueryParam,
+) {
+  const params = zaaktypeChoicesQueryParam || undefined;
   const response = await request("GET", "/_zaaktypen-choices/", params);
   const promise: Promise<ZaaktypeChoice[]> = response.json();
   return promise;

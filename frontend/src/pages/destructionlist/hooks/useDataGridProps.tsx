@@ -10,12 +10,15 @@ import {
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
-import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   DestructionListItem,
   PaginatedDestructionListItems,
 } from "../../../lib/api/destructionListsItem";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+import {
+  ZaaktypeChoice,
+  ZaaktypeChoicesQueryParam,
+  listZaaktypeChoices,
+} from "../../../lib/api/private";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import {
   FieldSelection,
@@ -49,7 +52,7 @@ export function useDataGridProps(
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
   actions?: DataGridAction[],
-  uuid?: DestructionList["uuid"],
+  zaaktypeChoicesQueryParams?: ZaaktypeChoicesQueryParam,
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,7 +84,7 @@ export function useDataGridProps(
     ZaaktypeChoice[]
   >([]);
   useEffect(() => {
-    listZaaktypeChoices(uuid)
+    listZaaktypeChoices(zaaktypeChoicesQueryParams)
       .then((z) => setZaaktypeChoicesState(z))
       .catch((e) => setErrorState(e));
   }, []);
