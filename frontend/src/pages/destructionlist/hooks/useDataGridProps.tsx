@@ -10,6 +10,7 @@ import {
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useNavigation, useSearchParams } from "react-router-dom";
 
+import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   DestructionListItem,
   PaginatedDestructionListItems,
@@ -48,6 +49,7 @@ export function useDataGridProps(
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
   selectedResults: (Zaak | { url: string })[],
   actions?: DataGridAction[],
+  uuid?: DestructionList["uuid"],
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -79,7 +81,7 @@ export function useDataGridProps(
     ZaaktypeChoice[]
   >([]);
   useEffect(() => {
-    listZaaktypeChoices()
+    listZaaktypeChoices(uuid)
       .then((z) => setZaaktypeChoicesState(z))
       .catch((e) => setErrorState(e));
   }, []);

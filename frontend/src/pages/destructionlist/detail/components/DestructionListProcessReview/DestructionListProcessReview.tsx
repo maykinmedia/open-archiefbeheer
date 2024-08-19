@@ -311,6 +311,7 @@ export function DestructionListProcessReview() {
     },
     selectedUrls,
     processZaakReviewZaakActions,
+    destructionList.uuid,
   );
 
   // Update the selected zaken to session storage.

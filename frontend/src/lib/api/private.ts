@@ -35,10 +35,13 @@ export async function listSelectieLijstKlasseChoices(
  * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. The label is the 'omschrijving' field
  * an the value is the URL. The response is cached for 15 minutes.
  */
-export async function listZaaktypeChoices() {
-  return cacheMemo("listZaaktypeChoices", async () => {
-    const response = await request("GET", "/_zaaktypen-choices/");
-    const promise: Promise<ZaaktypeChoice[]> = response.json();
-    return promise;
-  });
+export async function listZaaktypeChoices(destructionListUuid?: string) {
+  const params = destructionListUuid
+    ? {
+        destructionList: destructionListUuid,
+      }
+    : undefined;
+  const response = await request("GET", "/_zaaktypen-choices/", params);
+  const promise: Promise<ZaaktypeChoice[]> = response.json();
+  return promise;
 }
