@@ -15,6 +15,8 @@ from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
 )
 
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
@@ -299,6 +301,64 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 3)
+
+    def test_retrieve_zaaktypen_choices_for_review(self):
+        user = UserFactory.create(role__can_start_destruction=True)
+
+        review = DestructionListReviewFactory.create()
+        # The zaaktypen of these items should be returned,
+        # because they are in the review
+        review_items = DestructionListItemReviewFactory.create_batch(
+            3,
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__zaak__with_expand=True,
+            destruction_list=review.destruction_list,
+            review=review,
+        )
+        # We simulate 2 items having different versions of the same zaaktype
+        review_items[0].destruction_list_item.zaak._expand["zaaktype"][
+            "identificatie"
+        ] = "ZAAKTYPE-1"
+        review_items[0].destruction_list_item.zaak.save()
+        review_items[1].destruction_list_item.zaak._expand["zaaktype"][
+            "identificatie"
+        ] = "ZAAKTYPE-1"
+        review_items[1].destruction_list_item.zaak.save()
+        review_items[2].destruction_list_item.zaak._expand["zaaktype"][
+            "identificatie"
+        ] = "ZAAKTYPE-2"
+        review_items[2].destruction_list_item.zaak.save()
+
+        # These zaaktypen should NOT be returned because they are not in the review
+        DestructionListItemReviewFactory.create_batch(
+            3,
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__zaak__with_expand=True,
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
+        endpoint.args["review"] = review.pk
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        choices = sorted(response.json(), key=lambda choice: choice["label"])
+
+        self.assertEqual(len(choices), 2)
+        self.assertEqual(choices[0]["label"], "ZAAKTYPE-1")
+        self.assertEqual(choices[1]["label"], "ZAAKTYPE-2")
+
+        values = choices[0]["value"].split(",")
+
+        self.assertEqual(len(values), 2)
+        self.assertIn(review_items[0].destruction_list_item.zaak.zaaktype, values)
+        self.assertIn(review_items[1].destruction_list_item.zaak.zaaktype, values)
+
+        self.assertEqual(
+            choices[1]["value"], review_items[2].destruction_list_item.zaak.zaaktype
+        )
 
 
 class SelectielijstklasseChoicesViewTests(APITestCase):
