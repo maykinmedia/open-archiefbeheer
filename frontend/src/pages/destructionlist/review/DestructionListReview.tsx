@@ -177,6 +177,7 @@ export function DestructionListReviewPage() {
     setZaakModalDataState({
       open: false,
     });
+    revalidator.revalidate();
   };
 
   /**
@@ -288,7 +289,13 @@ export function DestructionListReviewPage() {
       <DestructionListComponent
         storageKey={destructionListReviewKey}
         zaken={zaken}
-        selectedZaken={selectedZaken}
+        zaakSelection={selectedZaken.reduce(
+          (selection, zaak) => ({
+            ...selection,
+            [zaak.url as string]: { selected: true },
+          }),
+          {},
+        )}
         labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
         title="Zaakdossiers"
         onSubmitSelection={() => setListModalDataState({ open: true })}

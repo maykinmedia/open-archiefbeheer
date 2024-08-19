@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>;
 const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
   zaken: paginatedZakenFactory(),
-  selectedZaken: [],
+  zaakSelection: {},
 };
 
 export const DestructionListCreatePageStory: Story = {
