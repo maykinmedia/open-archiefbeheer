@@ -7,7 +7,7 @@ import { cacheDelete } from "./lib/cache/cache";
  * @param request
  * @param params
  */
-export const appLoader: LoaderFunction = async ({ request, params }) => {
+export const appLoader: LoaderFunction = async ({ request }) => {
   const searchParams = Object.fromEntries(new URL(request.url).searchParams);
   // If hijack search param is set, delete "whoAmI" cache.
   if (searchParams.hijack) {

@@ -73,7 +73,7 @@ export function useDataGridProps(
           zaak: Zaak,
           actionFn?: (zaak: Zaak, detail?: unknown) => void,
         ) => {
-          const foundZaak = await getSpecificZaakSelection(zaak.url!);
+          const foundZaak = await getSpecificZaakSelection(zaak.url as string);
           actionFn?.(zaak, foundZaak);
         };
 
@@ -141,6 +141,7 @@ export function useDataGridProps(
   const selectedUrls = useMemo(
     () =>
       Object.entries(zaakSelection)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .filter(([_, value]) => value.selected)
         .map(([key]) => key),
     [zaakSelection],
