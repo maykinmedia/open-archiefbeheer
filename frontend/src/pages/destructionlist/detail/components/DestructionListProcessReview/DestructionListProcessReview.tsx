@@ -76,18 +76,10 @@ export function DestructionListProcessReview() {
     setProcessZaakReviewSelectionDetailState,
   ] = useState<ProcessZaakReviewSelectionDetail>();
 
-  //
-  // SHARED VARS
-  //
-
   // An object of {url: string} items used to indicate (additional) selected zaken.
   const selectedUrls = Object.entries(zaakSelection)
     .filter(([, { selected }]) => selected)
     .map(([url]) => ({ url }));
-
-  //
-  // PROCESSING REVIEW MODE VARS
-  //
 
   /**
    * Get called when the user selects a zaak when a review is received.
@@ -309,7 +301,7 @@ export function DestructionListProcessReview() {
       previous: null,
       results: reviewItems?.map((ri) => ri.zaak) || [],
     },
-    selectedUrls,
+    zaakSelection,
     processZaakReviewZaakActions,
     undefined,
     review?.pk,
@@ -387,7 +379,10 @@ export function DestructionListProcessReview() {
         loading={state === "loading"}
         selectable={true}
         allowSelectAll={!reviewItems}
-        selectionActions={processZaakReviewSelectionActions}
+        selectionActions={[
+          ...processZaakReviewSelectionActions,
+          ...(dataGridProps?.selectionActions || []),
+        ]}
         showPaginator={false}
         // sort={isEditingState}
         title="Zaakdossiers"
