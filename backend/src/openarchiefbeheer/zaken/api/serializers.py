@@ -3,7 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
-from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.destruction.models import DestructionList
+
+from ..models import Zaak
 
 
 class ZaakSerializer(serializers.ModelSerializer):
@@ -85,4 +87,12 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
         help_text=_(
             "The URL of the zaak for which the selectielijstklasse choices are needed."
         )
+    )
+
+
+class ZaakTypeChoicesQueryParamSerializer(serializers.Serializer):
+    destruction_list = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        queryset=DestructionList.objects.all().prefetch_related("items", "items__zaak"),
     )

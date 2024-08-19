@@ -1,7 +1,7 @@
 import traceback
 from collections import defaultdict
 from functools import lru_cache, partial
-from typing import Callable, Generator, Literal
+from typing import TYPE_CHECKING, Callable, Generator, Literal
 
 from django.conf import settings
 
@@ -18,10 +18,14 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import Zaak
 from .types import DropDownChoice
+
+if TYPE_CHECKING:
+    from openarchiefbeheer.destruction.models import DestructionList
 
 
 def pagination_helper(
@@ -104,6 +108,25 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         {"label": key, "value": ",".join(value)}
         for key, value in zaaktypen.items()
         if key in zaaktypes_to_include
+    ]
+    return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
+
+
+def get_zaaktypen_choices_from_list(
+    destruction_list: "DestructionList",
+) -> list[DropDownChoice]:
+    items_qs = destruction_list.items.filter(status=ListItemStatus.suggested).distinct(
+        "zaak__zaaktype"
+    )
+    zaaktypen_to_include = items_qs.values_list(
+        "zaak__zaaktype", "zaak___expand__zaaktype__identificatie"
+    )
+
+    zaaktypen = defaultdict(list)
+    for zaaktype_url, zaaktype_identificatie in zaaktypen_to_include:
+        zaaktypen[zaaktype_identificatie].append(zaaktype_url)
+    zaaktypen_choices = [
+        {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
     ]
     return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
 
