@@ -222,7 +222,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await page.route("**/*/api/v1/_selectielijstklasse-choices/?zaak=*", handle)
 
         async def zaken_are_indexed(self, amount, **kwargs):
-            return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
+            return await self._get_or_create_batch(
+                ZaakFactory, amount, with_expand=True, **kwargs
+            )
 
         @sync_to_async
         def _orm_get(self, model, **kwargs):
@@ -252,7 +254,14 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 return await self._factory_create(factory, **kwargs)
 
         async def _get_or_create_batch(self, factory, amount, **kwargs):
-            queryset = await self._orm_filter(factory._meta.model, **kwargs)
+            # Remove any traits of the factory
+            orm_params = {
+                key: value
+                for key, value in kwargs.items()
+                if key not in factory._meta.parameters
+            }
+
+            queryset = await self._orm_filter(factory._meta.model, **orm_params)
             if queryset:
                 return queryset
             return await self._factory_create_batch(factory, amount, **kwargs)

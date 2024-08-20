@@ -31,6 +31,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                         "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     "omschrijving": "Aangifte behandelen",
+                    "identificatie": "ZAAKTYPE-01",
                 },
                 "resultaat": {
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
