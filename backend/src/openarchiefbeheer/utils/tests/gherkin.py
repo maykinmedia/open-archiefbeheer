@@ -1,3 +1,5 @@
+import re
+
 from asgiref.sync import sync_to_async
 from playwright.async_api import expect
 
@@ -318,7 +320,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await element.wait_for()
             await element.click()
 
-        async def user_fills_form_field(self, page, label, value):
+        async def user_fills_form_field(self, page, label, value, role=None):
             select = await page.query_selector(f'.mykn-select[title="{label}"]')
             if select:  # has content so select?
                 await select.click()
@@ -331,7 +333,11 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
                 return
 
-            locator = page.get_by_label(label)
+            if role:
+                locator = page.get_by_label(label).and_(page.get_by_role("textbox"))
+            else:
+                locator = page.get_by_label(label)
+
             await locator.fill(value)
 
     class Then:
@@ -347,6 +353,29 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         def __init__(self, testcase):
             self.testcase = testcase
+
+        @property
+        def not_(self):
+            class InvertedThen:
+                def __init__(self, then):
+                    self.then = then
+
+                def __getattr__(self, item):
+                    method = getattr(self.then, item)
+
+                    async def inverted_method(*args, **kwargs):
+                        try:
+                            await method(*args, **kwargs)
+                        except AssertionError:
+                            return
+
+                        raise AssertionError(
+                            f'Expected {method.__name__} to raise an AssertionError due to "not_".'
+                        )
+
+                    return inverted_method
+
+            return InvertedThen(self)
 
         async def list_should_have_assignee(self, page, destruction_list, assignee):
             @sync_to_async()
@@ -379,3 +408,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def url_should_be(self, page, url):
             await expect(page).to_have_url(url)
+
+        async def url_should_contain_text(self, page, text):
+            await expect(page).to_have_url(re.compile(text))
