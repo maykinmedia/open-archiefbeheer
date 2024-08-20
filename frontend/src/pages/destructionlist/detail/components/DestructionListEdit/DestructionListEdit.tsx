@@ -64,10 +64,8 @@ export function DestructionListEdit() {
    */
   const handleEditSetEditing = (value: boolean) => {
     urlSearchParams.set("page", "1");
-    value
-      ? urlSearchParams.set("is_editing", "true")
-      : urlSearchParams.delete("is_editing");
-    setUrlSearchParams(urlSearchParams);
+    urlSearchParams.set("is_editing", "true");
+    setUrlSearchParams(value ? urlSearchParams : {});
   };
 
   /**
