@@ -49,6 +49,19 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         ],
       },
       {
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?review=1",
+        method: "GET",
+        status: 200,
+        response: [
+          {
+            label: "Melding klein kansspel",
+            value:
+              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
+            extra: "MKK",
+          },
+        ],
+      },
+      {
         url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",
         method: "POST",
         status: 200,
