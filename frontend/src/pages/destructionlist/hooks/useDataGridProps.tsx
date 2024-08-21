@@ -29,6 +29,7 @@ import {
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
+import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
@@ -90,7 +91,7 @@ export function useDataGridProps(
   const [fieldSelectionState, setFieldSelectionState] =
     useState<FieldSelection>();
   useEffect(() => {
-    getFieldSelection(storageKey).then((fieldSelection) =>
+    getFieldSelection(FIELD_SELECTION_STORAGE_KEY).then((fieldSelection) =>
       setFieldSelectionState(fieldSelection),
     );
   }, []);
@@ -191,9 +192,9 @@ export function useDataGridProps(
   const onFieldsChange = async (fields: TypedField[]) => {
     const activeFields = fields.filter((f) => f.active !== false);
     const inActiveFields = fields.filter((f) => f.active === false);
-    await addToFieldSelection(storageKey, activeFields);
-    await removeFromFieldSelection(storageKey, inActiveFields);
-    const fieldSelection = await getFieldSelection(storageKey);
+    await addToFieldSelection(FIELD_SELECTION_STORAGE_KEY, activeFields);
+    await removeFromFieldSelection(FIELD_SELECTION_STORAGE_KEY, inActiveFields);
+    const fieldSelection = await getFieldSelection(FIELD_SELECTION_STORAGE_KEY);
     setFieldSelectionState(fieldSelection);
   };
 

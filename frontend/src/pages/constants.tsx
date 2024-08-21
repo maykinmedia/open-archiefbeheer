@@ -75,3 +75,5 @@ export const PROCESSING_STATUS_LEVEL_MAPPING: {
   failed: "danger",
   succeeded: "success",
 };
+
+export const FIELD_SELECTION_STORAGE_KEY = "field-selection-list";
