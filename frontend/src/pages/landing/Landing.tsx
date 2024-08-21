@@ -30,7 +30,7 @@ import {
   STATUS_MAPPING,
 } from "../constants";
 import "./Landing.css";
-import { LandingContext, getStatusMap, landingLoader } from "./Landing.loader";
+import { LandingContext, getStatusMap } from "./Landing.loader";
 
 export type LandingKanbanEntry = {
   key: string;

@@ -7,8 +7,8 @@ import {
   H2,
   Tab,
   Tabs,
+  field2Title,
 } from "@maykin-ui/admin-ui";
-import React from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { AuditLogItem } from "../../../../../lib/api/auditLog";
@@ -117,7 +117,7 @@ export function DestructionListToolbar() {
 
   return (
     <Body>
-      <H2>{destructionList.name}</H2>
+      <H2>{field2Title(destructionList.name)}</H2>
       {logItems ? (
         <Tabs>
           <Tab id="gegevens" label="Gegevens">
