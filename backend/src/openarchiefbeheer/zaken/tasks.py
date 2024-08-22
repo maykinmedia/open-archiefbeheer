@@ -37,10 +37,6 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
             zrc_client,
             response.json(),
             headers={"Accept-Crs": "EPSG:4326"},
-            params={
-                "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
-                "archiefnominatie": "vernietigen",
-            },
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
 
