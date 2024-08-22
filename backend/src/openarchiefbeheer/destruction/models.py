@@ -204,6 +204,14 @@ class DestructionListItem(models.Model):
         blank=True,
         null=True,
     )
+    _zaak_url = models.URLField(
+        _("zaak url"),
+        max_length=1000,
+        help_text=_(
+            "Keep a relation to the zaak for when the zaken cached are being re-synced."
+        ),
+        blank=True,
+    )
     status = models.CharField(
         _("status"),
         default=ListItemStatus.suggested,
@@ -243,6 +251,11 @@ class DestructionListItem(models.Model):
         if self.zaak:
             return f"{self.destruction_list}: {self.zaak.identificatie}"
         return f"{self.destruction_list}: (deleted)"
+
+    def save(self, *args, **kwargs):
+        if self.zaak:
+            self._zaak_url = self.zaak.url
+        return super().save(*args, **kwargs)
 
     def set_processing_status(self, status: InternalStatus) -> None:
         self.processing_status = status
