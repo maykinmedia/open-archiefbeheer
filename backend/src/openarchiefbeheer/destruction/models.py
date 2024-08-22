@@ -285,6 +285,7 @@ class DestructionListItem(models.Model):
 
         self.zaak = None
         self.processing_status = InternalStatus.succeeded
+        self._zaak_url = ""
         self.save()
 
 
