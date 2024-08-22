@@ -1,0 +1,4 @@
+{% load i18n %}
+{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name archivaris=log.extra_data.archivaris.username %}
+   Destruction list "{{ list_name }}" was finalized by archivist {{ archivaris }}.
+{% endblocktranslate %}

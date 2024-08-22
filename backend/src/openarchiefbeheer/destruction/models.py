@@ -274,7 +274,6 @@ class DestructionListItem(models.Model):
         self.processing_status = InternalStatus.succeeded
         self.save()
 
-
 class DestructionListAssignee(models.Model):
     destruction_list = models.ForeignKey(
         DestructionList,
@@ -295,6 +294,7 @@ class DestructionListAssignee(models.Model):
         choices=ListRole.choices,
         max_length=80,
     )
+    comment = models.TextField(_("comment"), blank=True, null=True)
 
     class Meta:
         verbose_name = _("destruction list assignee")
