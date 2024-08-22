@@ -7,6 +7,8 @@ from requests_mock import Mocker
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from ..utils import get_procestype
@@ -439,4 +441,50 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         self.assertEqual(
             zaak._expand["zaaktype"]["selectielijst_procestype"],
             "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        )
+
+    @tag("gh-296")
+    def test_recaching_zaken_does_not_break_destruction_list(self, m):
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+        )
+
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://zaken-api.nl/zaken/api/v1",
+        )
+
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                        "_expand": {
+                            "zaaktype": {
+                                "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                                "selectielijstProcestype": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                            },
+                        },
+                    }
+                ]
+            },
+        )
+
+        retrieve_and_cache_zaken_from_openzaak()
+
+        item.refresh_from_db()
+
+        self.assertIsNotNone(item.zaak)
+        self.assertEqual(
+            item.zaak.url,
+            "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
         )
