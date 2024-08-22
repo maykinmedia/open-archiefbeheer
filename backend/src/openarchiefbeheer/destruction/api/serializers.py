@@ -33,7 +33,7 @@ from ..tasks import process_review_response
 
 class ReviewerAssigneeListSerializer(serializers.ListSerializer):
     def validate(
-            self, assignees: list[DestructionListAssignee]
+        self, assignees: list[DestructionListAssignee]
     ) -> list[DestructionListAssignee]:
         if self.parent.instance:
             return assignees
@@ -67,11 +67,13 @@ class DestructionListAssigneeSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         instance = super().save(**kwargs)
 
-        destruction_list = self.validated_data.get('destruction_list')
-        user = self.validated_data.get('user')
-        comment = self.validated_data.get('comment')
+        destruction_list = self.validated_data.get("destruction_list")
+        user = self.validated_data.get("user")
+        comment = self.validated_data.get("comment")
 
-        logevent.destruction_list_finalized(destruction_list=destruction_list, comment=comment, user=user)
+        logevent.destruction_list_finalized(
+            destruction_list=destruction_list, comment=comment, user=user
+        )
 
         return instance
 
@@ -92,9 +94,9 @@ class ReassignementSerializer(serializers.Serializer):
     def validate(self, attrs):
         destruction_list = self.context["destruction_list"]
         if (
-                attrs["role"] == ListRole.reviewer
-                and not destruction_list.has_short_review_process()
-                and len(attrs["assignees"]) < 2
+            attrs["role"] == ListRole.reviewer
+            and not destruction_list.has_short_review_process()
+            and len(attrs["assignees"]) < 2
         ):
             raise ValidationError(
                 _(
@@ -197,7 +199,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         config = ArchiveConfig.get_solo()
 
         if not all(
-                [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
+            [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
         ):
             raise ValidationError(
                 _(
@@ -229,7 +231,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         return destruction_list
 
     def update(
-            self, instance: DestructionList, validated_data: dict
+        self, instance: DestructionList, validated_data: dict
     ) -> DestructionList:
         user = self.context["request"].user
         validated_data.pop("assignees", None)
@@ -319,16 +321,16 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
         # User is not permitted based on role + status
         if (
-                (
-                        destruction_list.status == ListStatus.ready_to_review
-                        and not user.role.can_review_destruction
-                )
-                or (
+            (
+                destruction_list.status == ListStatus.ready_to_review
+                and not user.role.can_review_destruction
+            )
+            or (
                 destruction_list.status == ListStatus.ready_for_archivist
                 and not user.role.can_review_final_list
-        )
-                or destruction_list.status
-                not in [ListStatus.ready_to_review, ListStatus.ready_for_archivist]
+            )
+            or destruction_list.status
+            not in [ListStatus.ready_to_review, ListStatus.ready_for_archivist]
         ):
             raise ValidationError(
                 {
@@ -340,8 +342,8 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
         zaken_reviews = attrs.get("zaken_reviews", [])
         if (
-                attrs["decision"] == ReviewDecisionChoices.rejected
-                and len(zaken_reviews) == 0
+            attrs["decision"] == ReviewDecisionChoices.rejected
+            and len(zaken_reviews) == 0
         ):
             raise ValidationError(
                 {
@@ -352,8 +354,8 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             )
 
         if (
-                attrs["decision"] == ReviewDecisionChoices.accepted
-                and len(zaken_reviews) != 0
+            attrs["decision"] == ReviewDecisionChoices.accepted
+            and len(zaken_reviews) != 0
         ):
             raise ValidationError(
                 {
@@ -491,8 +493,8 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         request = self.context["request"]
 
         if not (
-                request.user == destruction_list.author
-                and destruction_list.status == ListStatus.changes_requested
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.changes_requested
         ):
             raise ValidationError(
                 _(
