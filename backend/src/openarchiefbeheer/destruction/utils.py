@@ -3,13 +3,15 @@ from typing import Protocol
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
+from django.db.models import OuterRef, Q, Subquery
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
+from openarchiefbeheer.zaken.models import Zaak
 
 from .constants import InternalStatus
-from .models import DestructionList, DestructionListAssignee
+from .models import DestructionList, DestructionListAssignee, DestructionListItem
 
 
 def notify(subject: str, body: str, context: dict, recipients: list[str]) -> None:
@@ -130,3 +132,11 @@ def process_new_assignees(
         )
 
     return new_assignees
+
+
+def resync_items_and_zaken() -> None:
+    DestructionListItem.objects.filter(~Q(_zaak_url=""), zaak__isnull=True).update(
+        zaak_id=Subquery(
+            Zaak.objects.filter(url=OuterRef("_zaak_url")).values("pk")[:1]
+        )
+    )
