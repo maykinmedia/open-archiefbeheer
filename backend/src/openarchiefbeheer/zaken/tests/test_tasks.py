@@ -10,7 +10,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 
 from ..models import Zaak
-from ..tasks import retrieve_and_cache_zaken_from_openzaak
+from ..tasks import resync_zaken, retrieve_and_cache_zaken_from_openzaak
 from ..utils import get_procestype
 from .factories import ZaakFactory
 
@@ -444,7 +444,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         )
 
     @tag("gh-296")
-    def test_recaching_zaken_does_not_break_destruction_list(self, m):
+    def test_resyncing_zaken_does_not_break_destruction_list(self, m):
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
@@ -479,7 +479,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        retrieve_and_cache_zaken_from_openzaak()
+        resync_zaken()
 
         item.refresh_from_db()
 

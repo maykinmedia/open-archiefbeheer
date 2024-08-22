@@ -228,6 +228,8 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.deleted)
         self.assertEqual(item1.processing_status, InternalStatus.succeeded)
         self.assertEqual(item2.processing_status, InternalStatus.succeeded)
+        self.assertEqual(item1._zaak_url, "")
+        self.assertEqual(item2._zaak_url, "")
 
         self.assertFalse(
             Zaak.objects.filter(
