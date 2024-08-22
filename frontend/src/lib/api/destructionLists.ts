@@ -54,6 +54,7 @@ export type DestructionListItemUpdate = {
 
 export type DestructionListMarkAsFinalData = {
   user: number;
+  comment?: string;
 };
 
 /**

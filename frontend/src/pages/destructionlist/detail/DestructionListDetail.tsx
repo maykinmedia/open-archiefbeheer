@@ -60,6 +60,11 @@ export function DestructionListDetailPage() {
       })),
       required: true,
     },
+    {
+      label: "Comment",
+      name: "comment",
+      required: true,
+    },
   ];
 
   // The destroy form for the record manager.

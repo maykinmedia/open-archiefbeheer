@@ -66,6 +66,7 @@ export async function destructionListMakeFinalAction({
   const { payload } = await request.json();
   await markDestructionListAsFinal(payload.uuid, {
     user: payload.user,
+    comment: payload.comment,
   });
   return redirect("/");
 }
