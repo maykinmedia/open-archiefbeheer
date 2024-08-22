@@ -89,3 +89,27 @@ def destruction_list_reviewed(
         user=user,
         extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
     )
+
+def destruction_list_finalized(destruction_list: DestructionList, comment: str, user: User) -> None:
+    """
+    Logs the finalization of a destruction list.
+
+    :param destruction_list: The DestructionList instance being finalized.
+    :param comment: The comment placed by the user
+    :param user: The User who finalized the list.
+    """
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_finalized",
+        user=user,
+        extra_data={
+            "pk": destruction_list.pk,
+            "name": destruction_list.name,
+            "comment": comment,
+            "archivaris": {
+                "pk": user.pk,
+                "email": user.email,
+                "username": user.username,
+            },
+        },
+    )
