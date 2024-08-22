@@ -141,3 +141,38 @@ class TestAddZaakBackwardsMigration(TestMigrations):
         self.assertEqual(items[0].zaak_url, "http://zaken.nl/api/v1/zaken/111-111-111")
         self.assertEqual(items[1].zaak_url, "http://zaken.nl/api/v1/zaken/222-222-222")
         self.assertEqual(items[2].zaak_url, "http://zaken.nl/api/v1/zaken/333-333-333")
+
+
+class TestAddZaakUrlMigration(TestMigrations):
+    app = "destruction"
+    migrate_from = "0019_destructionlistitem__zaak_url"
+    migrate_to = "0020_auto_20240822_1113"
+
+    def setUpBeforeMigration(self, apps):
+        Zaak = apps.get_model("zaken", "Zaak")
+        DestructionListItem = apps.get_model("destruction", "DestructionListItem")
+        DestructionList = apps.get_model("destruction", "DestructionList")
+        User = apps.get_model("accounts", "User")
+
+        zaak1 = Zaak.objects.create(
+            uuid=str(uuid4()),
+            url="http://zaken.nl/api/v1/zaken/111-111-111",
+            startdatum=date(2000, 1, 1),
+            zaaktype="http://catalogue-api.nl/zaaktypen/111-111-111",
+            bronorganisatie="000000000",
+            verantwoordelijke_organisatie="000000000",
+        )
+        destruction_list = DestructionList.objects.create(
+            name="Test migration",
+            author=User.objects.create(username="recordmanager"),
+        )
+        self.item = DestructionListItem.objects.create(
+            zaak=zaak1,
+            status=ListItemStatus.suggested,
+            destruction_list_id=destruction_list.pk,
+        )
+
+    def test_added_zaak_url(self):
+        self.item.refresh_from_db()
+
+        self.assertEqual(self.item.zaak.url, self.item._zaak_url)

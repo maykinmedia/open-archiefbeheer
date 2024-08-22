@@ -9,6 +9,7 @@ from freezegun import freeze_time
 
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import InternalStatus, ListItemStatus
 from .factories import (
@@ -67,6 +68,21 @@ class DestructionListItemTest(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             Zaak.objects.get(url="http://zaken.nl/api/v1/zaken/111-111-111")
+
+    def test_keeping_zaak_url_in_sync(self):
+        zaak = ZaakFactory.create(url="http://zaken.nl/1")
+        item = DestructionListItemFactory.create(
+            with_zaak=True, zaak__url="http://zaken.nl/2"
+        )
+
+        self.assertEqual(item._zaak_url, "http://zaken.nl/2")
+
+        item.zaak = zaak
+        item.save()
+
+        item.refresh_from_db()
+
+        self.assertEqual(item._zaak_url, "http://zaken.nl/1")
 
 
 class ReviewResponseTests(TestCase):
