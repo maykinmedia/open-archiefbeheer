@@ -274,6 +274,7 @@ class DestructionListItem(models.Model):
         self.processing_status = InternalStatus.succeeded
         self.save()
 
+
 class DestructionListAssignee(models.Model):
     destruction_list = models.ForeignKey(
         DestructionList,

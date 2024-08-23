@@ -90,7 +90,10 @@ def destruction_list_reviewed(
         extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
     )
 
-def destruction_list_finalized(destruction_list: DestructionList, comment: str, user: User) -> None:
+
+def destruction_list_finalized(
+    destruction_list: DestructionList, comment: str, user: User
+) -> None:
     """
     Logs the finalization of a destruction list.
 
