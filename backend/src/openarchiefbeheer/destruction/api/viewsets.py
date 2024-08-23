@@ -2,11 +2,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Prefetch
 from django.utils.translation import gettext_lazy as _
+
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
-from openarchiefbeheer.logging import logevent
-from openarchiefbeheer.utils.paginators import PageNumberPagination
-from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -14,6 +12,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from timeline_logger.models import TimelineLog
 
+from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.utils.paginators import PageNumberPagination
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
+
+from ..constants import InternalStatus, ListRole
+from ..models import (
+    DestructionList,
+    DestructionListAssignee,
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+    ReviewResponse,
+)
+from ..tasks import delete_destruction_list
+from ..utils import process_new_assignees
 from .backends import NestedFilterBackend
 from .filtersets import (
     DestructionListFilterset,
@@ -43,17 +56,6 @@ from .serializers import (
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
 )
-from ..constants import InternalStatus, ListRole
-from ..models import (
-    DestructionList,
-    DestructionListAssignee,
-    DestructionListItem,
-    DestructionListItemReview,
-    DestructionListReview,
-    ReviewResponse,
-)
-from ..tasks import delete_destruction_list
-from ..utils import process_new_assignees
 
 
 @extend_schema_view(
