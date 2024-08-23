@@ -1,16 +1,18 @@
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
+
 from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
+from timeline_logger.models import TimelineLog
+
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.relations import SlugRelatedField
-from timeline_logger.models import TimelineLog
 
 from ..constants import (
     InternalStatus,
