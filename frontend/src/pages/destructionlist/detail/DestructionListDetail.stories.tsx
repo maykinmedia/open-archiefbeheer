@@ -13,7 +13,10 @@ import {
 } from "../../../../.storybook/playFunctions";
 import { auditLogFactory } from "../../../fixtures/auditLog";
 import { destructionListFactory } from "../../../fixtures/destructionList";
-import { paginatedDestructionListItemsFactory } from "../../../fixtures/destructionListItem";
+import {
+  paginatedDestructionListItemsFactory,
+  paginatedDestructionListItemsFailedFactory,
+} from "../../../fixtures/destructionListItem";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
 import { reviewItemsFactory } from "../../../fixtures/reviewItem";
@@ -378,7 +381,10 @@ export const MarkDestructionListAsFinal: Story = {
 const FIXTURE_DELETE: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
 
-  destructionList: destructionListFactory({ status: "ready_to_delete" }),
+  destructionList: destructionListFactory({
+    status: "ready_to_delete",
+    processingStatus: "new",
+  }),
   destructionListItems: paginatedDestructionListItemsFactory(),
   logItems: auditLogFactory(),
 
@@ -424,5 +430,38 @@ export const DeleteDestructionList: Story = {
       },
     );
     await waitFor(async () => await expect(submit).not.toBeDisabled());
+  },
+};
+
+const FIXTURE_FAILED_DELETE: DestructionListDetailContext = {
+  storageKey: "storybook-storage-key",
+
+  destructionList: destructionListFactory({
+    status: "ready_to_delete",
+    processingStatus: "failed",
+  }),
+  destructionListItems: paginatedDestructionListItemsFailedFactory(),
+  logItems: auditLogFactory(),
+
+  zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
+  review: null,
+  reviewItems: null,
+
+  selectieLijstKlasseChoicesMap: null,
+};
+
+export const DeleteFailedDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE_FAILED_DELETE,
+      },
+    },
   },
 };
