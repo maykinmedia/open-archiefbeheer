@@ -4,6 +4,7 @@ from functools import lru_cache, partial
 from typing import TYPE_CHECKING, Callable, Generator, Literal
 
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
@@ -108,7 +109,7 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         .distinct()
     )
     zaaktypen_choices = [
-        {"label": key, "value": ",".join(value)}
+        {"label": key or _("(no identificatie)"), "value": ",".join(value)}
         for key, value in zaaktypen.items()
         if key in zaaktypes_to_include
     ]
