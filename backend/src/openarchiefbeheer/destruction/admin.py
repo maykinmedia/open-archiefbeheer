@@ -22,12 +22,16 @@ class DestructionListAdmin(admin.ModelAdmin):
 @admin.register(DestructionListItem)
 class DestructionListItemAdmin(admin.ModelAdmin):
     list_display = (
-        "zaak",
+        "item",
         "status",
+        "processing_status",
     )
-    list_filter = ("status",)
-    search_fields = ("zaak__url",)
-    raw_id_fields = ("destruction_list",)
+    list_filter = ("status", "processing_status")
+    search_fields = ("destruction_list__name",)
+    raw_id_fields = ("destruction_list", "zaak")
+
+    def item(self, obj):
+        return f"Item {obj.pk}"
 
 
 @admin.register(DestructionListAssignee)
