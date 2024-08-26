@@ -19,7 +19,9 @@ export const ProcessingStatusBadge: React.FC<ProcessingStatusBadgeProps> = ({
     <Badge level={PROCESSING_STATUS_LEVEL_MAPPING[processingStatus]}>
       {PROCESSING_STATUS_ICON_MAPPING[processingStatus]}
       &nbsp;
-      {field2Title(PROCESSING_STATUS_MAPPING[processingStatus])}
+      {field2Title(PROCESSING_STATUS_MAPPING[processingStatus], {
+        unHyphen: false,
+      })}
     </Badge>
   );
 };

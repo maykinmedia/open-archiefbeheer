@@ -1,6 +1,5 @@
 import {
   AttributeData,
-  Badge,
   Body,
   Button,
   CardBaseTemplate,
@@ -12,7 +11,6 @@ import {
   Solid,
   Toolbar,
   ToolbarItem,
-  field2Title,
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useState } from "react";
 import { useLoaderData, useNavigation } from "react-router-dom";
@@ -27,11 +25,7 @@ import {
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../lib/auth/permissions";
-import {
-  PROCESSING_STATUS_ICON_MAPPING,
-  PROCESSING_STATUS_LEVEL_MAPPING,
-  PROCESSING_STATUS_MAPPING,
-} from "../../constants";
+import { ProcessingStatusBadge } from "../../ProcessingStatusBadge";
 import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";
@@ -169,17 +163,10 @@ export function DestructionListDetailPage() {
         destructionList.processingStatus === "new" ? (
           <></>
         ) : (
-          <Badge
+          <ProcessingStatusBadge
             key={destructionList.pk}
-            level={
-              PROCESSING_STATUS_LEVEL_MAPPING[destructionList.processingStatus]
-            }
-          >
-            {PROCESSING_STATUS_ICON_MAPPING[destructionList.processingStatus]}
-            {field2Title(
-              PROCESSING_STATUS_MAPPING[destructionList.processingStatus],
-            )}
-          </Badge>
+            processingStatus={destructionList.processingStatus}
+          />
         ),
         "spacer",
         ["new", "failed"].includes(destructionList.processingStatus) ? (
