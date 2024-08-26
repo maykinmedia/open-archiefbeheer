@@ -311,6 +311,8 @@ export function DestructionListProcessReview() {
     },
     selectedUrls,
     processZaakReviewZaakActions,
+    undefined,
+    review?.pk,
   );
 
   // Update the selected zaken to session storage.

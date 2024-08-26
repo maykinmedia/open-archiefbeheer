@@ -1,7 +1,7 @@
 import traceback
 from collections import defaultdict
 from functools import lru_cache, partial
-from typing import Callable, Generator, Literal
+from typing import TYPE_CHECKING, Callable, Generator, Literal
 
 from django.conf import settings
 
@@ -18,10 +18,17 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import Zaak
 from .types import DropDownChoice
+
+if TYPE_CHECKING:
+    from openarchiefbeheer.destruction.models import (
+        DestructionList,
+        DestructionListReview,
+    )
 
 
 def pagination_helper(
@@ -106,6 +113,44 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         if key in zaaktypes_to_include
     ]
     return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
+
+
+def _get_zaaktype_choices(zaaktypen_to_include: dict[list]) -> list[DropDownChoice]:
+    """Return formatted zaaktype choices
+
+    Takes a dictionary where the key is the identificatie of a zaaktype and
+    the value is a list of all the URLs for the different versions of that zaaktype."""
+    zaaktypen = defaultdict(list)
+    for zaaktype_url, zaaktype_identificatie in zaaktypen_to_include:
+        zaaktypen[zaaktype_identificatie].append(zaaktype_url)
+
+    zaaktypen_choices = [
+        {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
+    ]
+    return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
+
+
+def get_zaaktypen_choices_from_list(
+    destruction_list: "DestructionList",
+) -> list[DropDownChoice]:
+    zaaktypen_to_include = (
+        destruction_list.items.filter(status=ListItemStatus.suggested)
+        .distinct("zaak__zaaktype")
+        .values_list("zaak__zaaktype", "zaak___expand__zaaktype__identificatie")
+    )
+    return _get_zaaktype_choices(zaaktypen_to_include)
+
+
+def get_zaaktypen_choices_from_review(
+    review: "DestructionListReview",
+) -> list[DropDownChoice]:
+    zaaktypen_to_include = review.item_reviews.distinct(
+        "destruction_list_item__zaak__zaaktype"
+    ).values_list(
+        "destruction_list_item__zaak__zaaktype",
+        "destruction_list_item__zaak___expand__zaaktype__identificatie",
+    )
+    return _get_zaaktype_choices(zaaktypen_to_include)
 
 
 def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:

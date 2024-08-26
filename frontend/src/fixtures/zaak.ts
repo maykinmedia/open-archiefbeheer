@@ -55,6 +55,27 @@ const FIXTURE_ZAAK: Zaak = {
   vertrouwelijkheidaanduiding: "geheim",
   uiterlijkeEinddatumAfdoening: null,
   verantwoordelijkeOrganisatie: "104567387",
+  _expand: {
+    zaaktype: {
+      url: "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+      selectielijst_procestype: {
+        nummer: 1,
+        url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+      },
+      omschrijving: "Aangifte behandelen",
+      identificatie: "ZAAKTYPE-01",
+    },
+    resultaat: {
+      resultaattype:
+        "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+      _expand: {
+        resultaattype: {
+          url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+          archiefactietermijn: "P1D",
+        },
+      },
+    },
+  },
 } as Zaak;
 
 const FIXTURE_ZAKEN: Zaak[] = [
@@ -112,6 +133,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-01",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "78b6dd10-261b-4a40-99e2-1eea3e38bc99",
@@ -166,6 +208,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "geheim",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-02",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "64bec25d-5752-48a9-b2f9-6c27085a469f",
@@ -220,6 +283,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-02",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "409a291a-9cf0-4c40-9f31-25e9452a8e79",
@@ -272,6 +356,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-03",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "1188687c-392b-439e-9d5f-4d17bac822bf",
@@ -326,6 +431,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "geheim",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/e4f2a6b0-9377-400a-b0ce-ed66c0a315da",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-04",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "5d816422-7f1c-42b4-9a4c-715d2e07aca3",
@@ -380,6 +506,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/e4f2a6b0-9377-400a-b0ce-ed66c0a315da",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-04",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "2e803c71-49c4-4dc0-bfd1-42f2a3da99f9",
@@ -434,6 +581,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "geheim",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/3206d651-d0f2-4690-933d-cc690444184f",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-05",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "bd6cdd85-d578-47fa-9ddb-846354088a47",
@@ -488,6 +656,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/3206d651-d0f2-4690-933d-cc690444184f",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-05",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
   {
     uuid: "2ca5f28c-397b-4cc6-ac76-4ef6cab19f59",
@@ -540,6 +729,27 @@ const FIXTURE_ZAKEN: Zaak[] = [
     vertrouwelijkheidaanduiding: "openbaar",
     uiterlijkeEinddatumAfdoening: null,
     verantwoordelijkeOrganisatie: "104567387",
+    _expand: {
+      zaaktype: {
+        url: "http://localhost:8000/catalogi/api/v1/zaaktypen/773b6b77-486a-4b6c-be3e-cf13f4387cf3",
+        selectielijst_procestype: {
+          nummer: 1,
+          url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+        },
+        omschrijving: "Aangifte behandelen",
+        identificatie: "ZAAKTYPE-05",
+      },
+      resultaat: {
+        resultaattype:
+          "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        _expand: {
+          resultaattype: {
+            url: "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+            archiefactietermijn: "P1D",
+          },
+        },
+      },
+    },
   },
 ] as Zaak[];
 

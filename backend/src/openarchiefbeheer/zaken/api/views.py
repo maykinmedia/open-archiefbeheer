@@ -15,11 +15,17 @@ from openarchiefbeheer.destruction.api.permissions import (
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
-from ..utils import retrieve_selectielijstklasse_choices, retrieve_zaaktypen_choices
+from ..utils import (
+    get_zaaktypen_choices_from_list,
+    get_zaaktypen_choices_from_review,
+    retrieve_selectielijstklasse_choices,
+    retrieve_zaaktypen_choices,
+)
 from .serializers import (
     SelectielijstklasseChoicesQueryParamSerializer,
     SelectielijstklasseChoicesSerializer,
     ZaaktypeChoiceSerializer,
+    ZaakTypeChoicesQueryParamSerializer,
 )
 
 
@@ -51,13 +57,25 @@ class ZaaktypenChoicesView(APIView):
             "The response is cached for 15 minutes."
         ),
         tags=["private"],
+        parameters=[ZaakTypeChoicesQueryParamSerializer],
         responses={
             200: ZaaktypeChoiceSerializer,
         },
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        zaaktypen_choices = retrieve_zaaktypen_choices()
+        param_serializer = ZaakTypeChoicesQueryParamSerializer(
+            data=request.query_params
+        )
+        param_serializer.is_valid(raise_exception=True)
+
+        if destruction_list := param_serializer.validated_data.get("destruction_list"):
+            zaaktypen_choices = get_zaaktypen_choices_from_list(destruction_list)
+        elif review := param_serializer.validated_data.get("review"):
+            zaaktypen_choices = get_zaaktypen_choices_from_review(review)
+        else:
+            zaaktypen_choices = retrieve_zaaktypen_choices()
+
         serializer = ZaaktypeChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
