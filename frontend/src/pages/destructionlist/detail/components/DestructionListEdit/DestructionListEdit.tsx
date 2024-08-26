@@ -88,6 +88,21 @@ export function DestructionListEdit() {
     handleClearSelection,
   );
 
+  if (dataGridProps.fields && destructionList.processingStatus !== "new") {
+    dataGridProps.fields.splice(1, 0, {
+      name: "processingStatus",
+      type: "string",
+      options: [
+        { label: "New", value: "new" },
+        { label: "Queued", value: "queued" },
+        { label: "Processing", value: "processing" },
+        { label: "Failed", value: "failed" },
+        { label: "Succeeded", value: "succeeded" },
+      ],
+      width: "180px",
+    });
+  }
+
   /**
    * Gets called when the user clicks the edit button (user intents to adds/remove zaken to/from the destruction list
    * or escape such flow).

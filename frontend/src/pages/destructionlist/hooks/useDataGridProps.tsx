@@ -122,23 +122,40 @@ export function useDataGridProps(
   /**
    * a (normalized) array of objects containing the row data to render.
    */
+  const formatZaak = (zaak: Zaak) => {
+    return {
+      ...zaak,
+      startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
+      einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
+      archiefactiedatum: zaak.archiefactiedatum,
+      einddatumGepland: zaak.einddatumGepland,
+      href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+      acties: <>{renderActionButtons(zaak, actions)}</>,
+    };
+  };
+
   const objectList = useMemo(
     () =>
       paginatedResults.results.map((itemOrZaak) => {
-        const zaak = Object.hasOwn(itemOrZaak, "zaak")
-          ? ((itemOrZaak as DestructionListItem).zaak as Zaak)
-          : (itemOrZaak as Zaak);
+        if (Object.hasOwn(itemOrZaak, "zaak")) {
+          const item = itemOrZaak as DestructionListItem;
 
-        return {
-          ...zaak,
-          // Transform the string dates to formatted string dates (dd-mm-yyyy)
-          startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
-          einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
-          archiefactiedatum: zaak.archiefactiedatum,
-          einddatumGepland: zaak.einddatumGepland,
-          href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-          acties: <>{renderActionButtons(zaak, actions)}</>,
-        };
+          //Case in which the zaak has been deleted already
+          if (item.zaak === null) {
+            return {
+              ...item.extraZaakData,
+              processingStatus: item.processingStatus,
+            };
+          } else {
+            return {
+              ...formatZaak(item.zaak),
+              processingStatus: item.processingStatus,
+            };
+          }
+        }
+
+        const zaak = itemOrZaak as Zaak;
+        return formatZaak(zaak);
       }),
     [paginatedResults],
   );
