@@ -84,6 +84,22 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
     return processed_zaken
 
 
+def _format_zaaktypen_choices(
+    zaaktypen: list, zaaktypen_to_include: list | None = None
+) -> list[DropDownChoice]:
+    formatted_choices = []
+    for key, value in zaaktypen.items():
+        item = {"label": key or _("(no identificatie)"), "value": ",".join(value)}
+        if zaaktypen_to_include is None:
+            formatted_choices.append(item)
+            continue
+
+        if key in zaaktypen_to_include:
+            formatted_choices.append(item)
+
+    return sorted(formatted_choices, key=lambda zaaktype: zaaktype["label"])
+
+
 def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
     ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
     if not ztc_service:
@@ -108,12 +124,7 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
         .values_list("_expand__zaaktype__identificatie", flat=True)
         .distinct()
     )
-    zaaktypen_choices = [
-        {"label": key or _("(no identificatie)"), "value": ",".join(value)}
-        for key, value in zaaktypen.items()
-        if key in zaaktypes_to_include
-    ]
-    return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
+    return _format_zaaktypen_choices(zaaktypen, zaaktypes_to_include)
 
 
 def _get_zaaktype_choices(zaaktypen_to_include: dict[list]) -> list[DropDownChoice]:
@@ -125,10 +136,7 @@ def _get_zaaktype_choices(zaaktypen_to_include: dict[list]) -> list[DropDownChoi
     for zaaktype_url, zaaktype_identificatie in zaaktypen_to_include:
         zaaktypen[zaaktype_identificatie].append(zaaktype_url)
 
-    zaaktypen_choices = [
-        {"label": key, "value": ",".join(value)} for key, value in zaaktypen.items()
-    ]
-    return sorted(zaaktypen_choices, key=lambda zaaktype: zaaktype["label"])
+    return _format_zaaktypen_choices(zaaktypen)
 
 
 def get_zaaktypen_choices_from_list(
