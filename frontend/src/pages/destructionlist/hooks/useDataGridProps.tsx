@@ -39,6 +39,7 @@ import {
   setAllZakenSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
+import { ProcessingStatusBadge } from "../../ProcessingStatusBadge";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
 
 /** The template used to format urls to an external application providing zaak details. */
@@ -119,9 +120,9 @@ export function useDataGridProps(
     );
   };
 
-  /**
-   * a (normalized) array of objects containing the row data to render.
-   */
+  //
+  // Get object list.
+  //
   const formatZaak = (zaak: Zaak) => {
     return {
       ...zaak,
@@ -134,6 +135,9 @@ export function useDataGridProps(
     };
   };
 
+  /**
+   * a (normalized) array of objects containing the row data to render.
+   */
   const objectList = useMemo(
     () =>
       paginatedResults.results.map((itemOrZaak) => {
@@ -144,19 +148,27 @@ export function useDataGridProps(
           if (item.zaak === null) {
             return {
               ...item.extraZaakData,
-              processingStatus: item.processingStatus,
+              processingStatus: (
+                <ProcessingStatusBadge
+                  processingStatus={item.processingStatus}
+                />
+              ),
             };
           } else {
             return {
               ...formatZaak(item.zaak),
-              processingStatus: item.processingStatus,
+              processingStatus: (
+                <ProcessingStatusBadge
+                  processingStatus={item.processingStatus}
+                />
+              ),
             };
           }
         }
 
         const zaak = itemOrZaak as Zaak;
         return formatZaak(zaak);
-      }),
+      }) as unknown as AttributeData[],
     [paginatedResults],
   );
 

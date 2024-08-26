@@ -8,7 +8,7 @@ export type DestructionListItem = {
   status?: DestructionListItemStatus;
   extraZaakData?: Record<string, unknown> | null;
   zaak: Zaak | null;
-  processingStatus?: ProcessingStatus;
+  processingStatus: ProcessingStatus;
 };
 
 export type DestructionListItemStatus = "removed" | "suggested";
