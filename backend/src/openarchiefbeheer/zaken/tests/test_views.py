@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.core.cache import cache
+from django.test import tag
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
@@ -264,6 +265,30 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         self.assertIn(items_in_list[1].zaak.zaaktype, values)
 
         self.assertEqual(choices[1]["value"], items_in_list[2].zaak.zaaktype)
+
+    @tag("gh-303")
+    def test_retrieve_zaaktypen_choices_for_destruction_list_if_zaaktype_id_empty(self):
+        user = UserFactory.create(role__can_start_destruction=True)
+
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__with_expand=True,
+            status=ListItemStatus.suggested,
+        )
+        item.zaak._expand["zaaktype"]["identificatie"] = ""
+        item.zaak.save()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
+        endpoint.args["destruction_list"] = item.destruction_list.uuid
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        choices = response.json()
+
+        self.assertEqual(choices[0]["label"], _("(no identificatie)"))
 
     @Mocker()
     def test_not_cached_if_query_param_chages(self, m):
