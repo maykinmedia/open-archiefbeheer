@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
 
 from furl import furl
 from requests_mock import Mocker
@@ -135,6 +136,39 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
                 },
             ],
         )
+
+    @Mocker()
+    def test_retrieve_zaaktypen_choices_empty_identificatie(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://catalogi-api.nl/catalogi/api/v1",
+        )
+        user = UserFactory.create(role__can_start_destruction=True)
+        ZaakFactory.create(
+            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            _expand={"zaaktype": {"identificatie": ""}},
+        )
+
+        m.get(
+            "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                        "identificatie": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:retrieve-zaaktypen-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()[0]["label"], _("(no identificatie)"))
 
     @Mocker()
     def test_response_cached(self, m):
