@@ -83,6 +83,8 @@ export function DestructionListEdit() {
       : {},
     undefined,
     undefined,
+    undefined,
+    undefined,
     handleClearSelection,
   );
 
