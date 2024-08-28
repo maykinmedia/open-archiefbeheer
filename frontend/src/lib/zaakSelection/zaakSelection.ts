@@ -45,10 +45,9 @@ export async function removeFromZaakSelection(
 }
 
 /**
- * Marks all zaken as selected.
+ * Check if all zaken are selected.
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
- * @param selected Indicating whether the selection should be added (`true) or removed (`false).
  */
 export async function getAllZakenSelected(key: string) {
   const computedKey = `${_getComputedKey(key)}.allSelected`;

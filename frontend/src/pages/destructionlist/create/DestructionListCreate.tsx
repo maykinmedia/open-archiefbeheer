@@ -6,7 +6,12 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useActionData, useLoaderData, useSubmit } from "react-router-dom";
+import {
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from "react-router-dom";
 
 import { User } from "../../../lib/api/auth";
 import { PaginatedZaken } from "../../../lib/api/zaken";
@@ -39,6 +44,7 @@ export function DestructionListCreatePage() {
   const submit = useSubmit();
 
   const [modalOpenState, setModalOpenState] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const onSubmitSelection = () => setModalOpenState(true);
 
@@ -57,6 +63,8 @@ export function DestructionListCreatePage() {
     (assigneeIds as string[]).forEach((id) =>
       formData.append("assigneeIds", String(id)),
     );
+    const filters = Object.fromEntries(searchParams);
+    formData.append("zaakFilters", JSON.stringify(filters));
 
     submit(formData, { method: "POST" });
     setModalOpenState(false);
