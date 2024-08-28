@@ -692,9 +692,7 @@ class DestructionListSerializerTests(TestCase):
             is_valid = serializer.is_valid()
 
             self.assertFalse(is_valid)
-            self.assertEqual(
-                serializer.errors["zaak_filters"][0], "Invalid filter(s)."
-            )
+            self.assertEqual(serializer.errors["zaak_filters"][0], "Invalid filter(s).")
 
         with self.subTest("Wrong type filter object"):
             data = {
