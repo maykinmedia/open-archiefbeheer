@@ -47,6 +47,10 @@ Once this is done, you can run the Playwright tests with:
 
    src/manage.py test openarchiefbeheer --tag=e2e
 
+.. note::
+
+   Some tests require redis to be running. Make sure you run ``redis-server`` locally!
+
 
 .. _Playwright docs: https://playwright.dev/python/docs/intro#installing-playwright-pytest
 
