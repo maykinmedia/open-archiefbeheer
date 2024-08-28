@@ -159,9 +159,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             return destruction_list
 
         async def list_item_exists(self, **kwargs):
-            zaken = await self.zaken_are_indexed(100)
+            if not (zaak := kwargs.pop("zaak", None)):
+                zaken = await self.zaken_are_indexed(1)
+                zaak = zaken[0]
+
             base_kwargs = {
-                "zaak": zaken[0] if "zaak" not in kwargs else None,
+                "zaak": zaak,
             }
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self._get_or_create(
@@ -349,6 +352,10 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             await locator.fill(value)
 
+        async def user_filters_zaken(self, page, name, value):
+            locator = page.get_by_role("textbox", name=name)
+            await locator.fill(value)
+
     class Then:
         """
         The "Then" steps specify the expected outcomes or results.
@@ -406,6 +413,16 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             await refresh_list()
             self.testcase.assertEqual(destruction_list.status, status)
+
+        async def list_should_have_number_of_items(
+            self, destruction_list, number_of_items
+        ):
+            @sync_to_async()
+            def get_number_of_items():
+                return destruction_list.items.count()
+
+            count = await get_number_of_items()
+            self.testcase.assertEqual(number_of_items, count)
 
         async def page_should_contain_text(self, page, text):
             locator = page.get_by_text(text)
