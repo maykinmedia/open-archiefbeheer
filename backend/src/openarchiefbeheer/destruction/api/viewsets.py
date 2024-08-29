@@ -45,13 +45,13 @@ from .permissions import (
     CanUpdateDestructionList,
 )
 from .serializers import (
+    ArchivistAssigneeSerializer,
     AuditTrailItemSerializer,
     DestructionListAPIResponseSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
-    ListFinalisationSerializer,
     ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
@@ -258,16 +258,20 @@ class DestructionListViewSet(
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
         destruction_list = self.get_object()
-        serialiser = ListFinalisationSerializer(
-            data={
-                "destruction_list": destruction_list.pk,
-                "role": ListRole.archivist,
-                **request.data,
-            }
+        serialiser = ArchivistAssigneeSerializer(
+            data=request.data
         )
         serialiser.is_valid(raise_exception=True)
+        
+        assignee = DestructionListAssignee(
+            user=serialiser.validated_data["user"],
+            destruction_list=destruction_list,
+            role=ListRole.archivist,
+        )
+        
+        assignee.save()
 
-        serialiser.save()
+        # serialiser.save()
         destruction_list.assign_next()
 
         logevent.destruction_list_finalized(
