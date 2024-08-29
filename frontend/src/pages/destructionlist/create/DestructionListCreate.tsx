@@ -6,12 +6,16 @@ import {
   SerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useActionData, useLoaderData, useSubmit } from "react-router-dom";
+import {
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from "react-router-dom";
 
 import { User } from "../../../lib/api/auth";
 import { PaginatedZaken } from "../../../lib/api/zaken";
-import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
+import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import "./DestructionListCreate.css";
 import { DestructionList } from "./components";
 
@@ -21,14 +25,15 @@ export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
 export type DestructionListCreateContext = {
   reviewers: User[];
   zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
+  zaakSelection: ZaakSelection;
+  allZakenSelected: boolean;
 };
 
 /**
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, zaken, selectedZaken } =
+  const { reviewers, zaken, zaakSelection, allZakenSelected } =
     useLoaderData() as DestructionListCreateContext;
 
   const { assignees: errors } = (useActionData() || {}) as Record<
@@ -39,6 +44,7 @@ export function DestructionListCreatePage() {
   const submit = useSubmit();
 
   const [modalOpenState, setModalOpenState] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const onSubmitSelection = () => setModalOpenState(true);
 
@@ -46,7 +52,6 @@ export function DestructionListCreatePage() {
    * Gets called when the form is submitted.
    */
   const onSubmitForm = async (event: FormEvent, data: SerializedFormData) => {
-    const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
@@ -58,6 +63,8 @@ export function DestructionListCreatePage() {
     (assigneeIds as string[]).forEach((id) =>
       formData.append("assigneeIds", String(id)),
     );
+    const filters = Object.fromEntries(searchParams);
+    formData.append("zaakFilters", JSON.stringify(filters));
 
     submit(formData, { method: "POST" });
     setModalOpenState(false);
@@ -111,7 +118,8 @@ export function DestructionListCreatePage() {
         errors={errors?.nonFieldErrors}
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
         zaken={zaken}
-        selectedZaken={selectedZaken}
+        zaakSelection={zaakSelection}
+        allZakenSelected={allZakenSelected}
         title="Vernietigingslijst opstellen"
         onSubmitSelection={onSubmitSelection}
       />

@@ -156,7 +156,10 @@ export const EditDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE_EDIT,
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
+          return { ...FIXTURE_EDIT, zaakSelection };
+        },
       },
     },
   },
@@ -174,8 +177,6 @@ export const EditDestructionList: Story = {
       name: "Annuleren",
     });
     userEvent.click(cancelButton, { delay: 10 });
-
-    await assertColumnSelection(context);
   },
 };
 

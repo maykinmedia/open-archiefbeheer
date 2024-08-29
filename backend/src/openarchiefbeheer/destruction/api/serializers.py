@@ -1,3 +1,5 @@
+from typing import Any, Iterable
+
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +13,7 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 
@@ -104,7 +107,6 @@ class DestructionListItemWriteSerializer(serializers.ModelSerializer):
         fields = (
             "pk",
             "status",
-            "extra_zaak_data",
             "zaak",
             "processing_status",
         )
@@ -146,8 +148,20 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
 
 class DestructionListSerializer(serializers.ModelSerializer):
     assignees = ReviewerAssigneeSerializer(many=True, required=False)
-    items = DestructionListItemWriteSerializer(many=True)
+    items = DestructionListItemWriteSerializer(many=True, required=False)
     author = UserSerializer(read_only=True)
+    select_all = serializers.BooleanField(
+        required=False,
+        help_text=_(
+            "Option to bulk select cases. Adds all the cases corresponding to the given filters to the list."
+        ),
+    )
+    zaak_filters = serializers.JSONField(
+        required=False,
+        help_text=_(
+            "If the option to bulk select cases is enabled, these filters are used to select the right cases."
+        ),
+    )
 
     class Meta:
         model = DestructionList
@@ -159,6 +173,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "assignees",
             "items",
             "status",
+            "select_all",
+            "zaak_filters",
         )
         extra_kwargs = {
             "uuid": {"read_only": True},
@@ -171,13 +187,13 @@ class DestructionListSerializer(serializers.ModelSerializer):
 
         self._context["destruction_list"] = self.instance
 
-    def validate(self, attrs: dict) -> dict:
+    def _validate_right_number_assignees(self, attrs: dict) -> None:
         assignees = attrs.get("assignees")
         if not assignees:
-            return attrs
+            return
 
         if len(assignees) > 1:
-            return attrs
+            return
 
         zaken_urls = [i["zaak"].url for i in attrs["items"]]
         zaaktypes_urls = (
@@ -196,18 +212,55 @@ class DestructionListSerializer(serializers.ModelSerializer):
                 )
             )
 
+    def validate_zaak_filters(self, value: Any) -> dict:
+        if not isinstance(value, dict):
+            raise ValidationError("Should be a JSON object.")
+
+        filterset = ZaakFilter(data=value)
+        if not filterset.is_valid():
+            raise ValidationError("Invalid filter(s).")
+
+        return value
+
+    def validate(self, attrs: dict) -> dict:
+        if not self.instance and not attrs.get("items") and not attrs.get("select_all"):
+            raise ValidationError(
+                "Neither the 'items' nor the 'select_all' field have been specified.",
+                code="invalid",
+            )
+
+        self._validate_right_number_assignees(attrs)
+
         return attrs
+
+    def _get_zaken(
+        self, zaak_filters: dict, items: list[dict], bulk_select: bool
+    ) -> Iterable[Zaak]:
+        if bulk_select:
+            zaak_filters.update({"not_in_destruction_list": True})
+            filterset = ZaakFilter(data=zaak_filters)
+            filterset.is_valid()
+
+            zaken = filterset.qs
+        else:
+            zaken = [item["zaak"] for item in items]
+
+        return zaken
 
     def create(self, validated_data: dict) -> DestructionList:
         assignees_data = validated_data.pop("assignees")
-        items_data = validated_data.pop("items")
+        items = validated_data.pop("items", None)
+        bulk_select = validated_data.pop("select_all", False)
+        zaak_filters = validated_data.pop("zaak_filters", {})
 
         author = self.context["request"].user
         validated_data["author"] = author
         validated_data["assignee"] = author
         validated_data["status"] = ListStatus.new
         destruction_list = DestructionList.objects.create(**validated_data)
-        destruction_list.bulk_create_items(items_data)
+
+        zaken = self._get_zaken(zaak_filters, items, bulk_select)
+        destruction_list.add_items(zaken)
 
         # Create an assignee also for the author
         DestructionListAssignee.objects.create(
@@ -228,11 +281,17 @@ class DestructionListSerializer(serializers.ModelSerializer):
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
         )
+        bulk_select = validated_data.pop("select_all", False)
+        zaak_filters = validated_data.pop("zaak_filters", {})
+
         instance.name = validated_data.pop("name", instance.name)
 
-        if items_data is not None:
+        if items_data is not None or bulk_select:
             instance.items.all().delete()
-            instance.bulk_create_items(items_data)
+
+            zaken = self._get_zaken(zaak_filters, items_data, bulk_select)
+
+            instance.add_items(zaken)
 
         instance.save()
 

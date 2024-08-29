@@ -1,5 +1,5 @@
 import { ButtonProps, DataGrid, Outline } from "@maykin-ui/admin-ui";
-import React from "react";
+import React, { useState } from "react";
 import {
   useLoaderData,
   useNavigation,
@@ -10,6 +10,7 @@ import { useAsync } from "react-use";
 import { useSubmitAction } from "../../../../../hooks";
 import { canUpdateDestructionList } from "../../../../../lib/auth/permissions";
 import {
+  ZaakSelection,
   addToZaakSelection,
   getZaakSelection,
 } from "../../../../../lib/zaakSelection/zaakSelection";
@@ -26,6 +27,7 @@ export function DestructionListEdit() {
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const submitAction = useSubmitAction();
+  const [selectionClearedState, setSelectionClearedState] = useState(false);
 
   const {
     storageKey,
@@ -37,25 +39,54 @@ export function DestructionListEdit() {
     review,
     reviewItems,
   } = useLoaderData() as DestructionListDetailContext;
+
   const zakenOnPage = destructionListItems.results
     .map((dt) => dt.zaak)
     .filter((v): v is Zaak => Boolean(v));
 
+  // Zaken on page as ZaakSelection.
+  const zakenOnPageSelection: ZaakSelection = zakenOnPage.reduce(
+    (acc, val) => ({
+      ...acc,
+      [val.url as string]: {
+        selected: true,
+      },
+    }),
+    {},
+  );
+
   // Whether the user is adding/removing items from the destruction list.
   const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
 
-  //
-  // SHARED VARS
-  //
+  const handleClearSelection = async () => {
+    setSelectionClearedState(true);
+  };
 
-  // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([, { selected }]) => selected)
-    .map(([url]) => ({ url }));
-
-  //
-  // EDITING MODE VARS
-  //
+  // Get the base props for the DataGrid component.
+  const { props: dataGridProps } = useDataGridProps(
+    storageKey,
+    reviewItems
+      ? // FIXME: Accept no/implement real pagination?
+        {
+          count: reviewItems.length,
+          next: null,
+          previous: null,
+          results: reviewItems.map((ri) => ri.zaak),
+        }
+      : isEditingState
+        ? selectableZaken
+        : destructionListItems,
+    isEditingState
+      ? !selectionClearedState
+        ? { ...zakenOnPageSelection, ...zaakSelection } // Current zaken + selection.
+        : zaakSelection // Selection explicitly cleared, don't show default zaken.
+      : {},
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    handleClearSelection,
+  );
 
   /**
    * Gets called when the user clicks the edit button (user intents to adds/remove zaken to/from the destruction list
@@ -66,6 +97,10 @@ export function DestructionListEdit() {
     urlSearchParams.set("page", "1");
     urlSearchParams.set("is_editing", "true");
     setUrlSearchParams(value ? urlSearchParams : {});
+
+    if (!value) {
+      setSelectionClearedState(false);
+    }
   };
 
   /**
@@ -93,8 +128,10 @@ export function DestructionListEdit() {
           children: "Vernietigingslijst aanpassen",
           disabled: ["loading", "submitting"].includes(state),
           onClick: handleEditUpdate,
+          variant: "primary",
           wrap: false,
         },
+        ...(dataGridProps.selectionActions || []),
         {
           children: "Annuleren",
           disabled: ["loading", "submitting"].includes(state),
@@ -116,24 +153,6 @@ export function DestructionListEdit() {
   //
   // RENDERING
   //
-
-  // Get the base props for the DataGrid component.
-  const { props: dataGridProps } = useDataGridProps(
-    storageKey,
-    reviewItems
-      ? // FIXME: Accept no/implement real pagination?
-        {
-          count: reviewItems.length,
-          next: null,
-          previous: null,
-          results: reviewItems.map((ri) => ri.zaak),
-        }
-      : isEditingState
-        ? selectableZaken
-        : destructionListItems,
-    isEditingState ? [...zakenOnPage, ...selectedUrls] : [],
-    undefined,
-  );
 
   // Update the selected zaken to session storage.
   useAsync(async () => {

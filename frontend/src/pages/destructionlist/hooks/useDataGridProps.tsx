@@ -7,8 +7,12 @@ import {
   TypedField,
   formatMessage,
 } from "@maykin-ui/admin-ui";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { useNavigation, useSearchParams } from "react-router-dom";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useNavigation,
+  useRevalidator,
+  useSearchParams,
+} from "react-router-dom";
 
 import { DestructionList } from "../../../lib/api/destructionLists";
 import {
@@ -26,9 +30,12 @@ import {
 } from "../../../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../../../lib/format/date";
 import {
+  ZaakSelection,
   addToZaakSelection,
+  clearZaakSelection,
   getZaakSelection,
   removeFromZaakSelection,
+  setAllZakenSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
@@ -49,14 +56,115 @@ export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
 export function useDataGridProps(
   storageKey: string,
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
-  selectedResults: (Zaak | { url: string })[],
+  zaakSelection: ZaakSelection,
+  allZakenSelected?: boolean,
   actions?: DataGridAction[],
   destructionListUuid?: DestructionList["uuid"],
   reviewPk?: Review["pk"],
+  onClearSelection?: () => void | Promise<void>,
 ): { props: DataGridProps; error: unknown } {
   const { state } = useNavigation();
+  const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorState, setErrorState] = useState<unknown>();
+
+  /**
+   * Renders a special set of action buttons as column data for `zaak`.
+   * @param zaak
+   * @param actions
+   */
+  const renderActionButtons = (zaak: Zaak, actions?: DataGridAction[]) => {
+    return actions?.map(
+      ({ onClick, onInteract, tooltip, ...action }, index) => {
+        const handleAction = async (
+          zaak: Zaak,
+          actionFn?: (zaak: Zaak, detail?: unknown) => void,
+        ) => {
+          const foundZaak = await getSpecificZaakSelection(zaak.url as string);
+          actionFn?.(zaak, foundZaak);
+        };
+
+        const ButtonComponent = (
+          <Button
+            pad={false}
+            variant={"transparent"}
+            key={index}
+            onClick={() => handleAction(zaak, onClick)}
+            onMouseEnter={() => {
+              return handleAction(zaak, onInteract);
+            }}
+            onFocusCapture={() => {
+              return handleAction(zaak, onInteract);
+            }}
+            {...action}
+          />
+        );
+
+        if (tooltip) {
+          return (
+            <Tooltip
+              key={index}
+              content={tooltip}
+              placement={"bottom-start"}
+              size="lg"
+            >
+              {ButtonComponent}
+            </Tooltip>
+          );
+        }
+
+        return ButtonComponent;
+      },
+    );
+  };
+
+  /**
+   * a (normalized) array of objects containing the row data to render.
+   */
+  const objectList = useMemo(
+    () =>
+      paginatedResults.results.map((itemOrZaak) => {
+        const zaak = Object.hasOwn(itemOrZaak, "zaak")
+          ? ((itemOrZaak as DestructionListItem).zaak as Zaak)
+          : (itemOrZaak as Zaak);
+
+        return {
+          ...zaak,
+          // Transform the string dates to formatted string dates (dd-mm-yyyy)
+          startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
+          einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
+          archiefactiedatum: zaak.archiefactiedatum,
+          einddatumGepland: zaak.einddatumGepland,
+          href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+          acties: <>{renderActionButtons(zaak, actions)}</>,
+        };
+      }),
+    [paginatedResults],
+  );
+
+  /**
+   * Returns the URL of selected zaken in `zaakSelection`.
+   */
+  const selectedUrls = useMemo(
+    () =>
+      Object.entries(zaakSelection)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([_, value]) => value.selected)
+        .map(([key]) => key),
+    [zaakSelection],
+  );
+
+  /**
+   * Returns the items on `paginatedResults.results` that are selected according to `zaakSelection`.
+   */
+  const selectedZakenOnPage = useMemo(() => {
+    return objectList.filter((zOrI: Zaak | DestructionListItem) => {
+      if ("zaak" in zOrI) {
+        return selectedUrls.includes(zOrI.zaak?.url || "");
+      }
+      return selectedUrls.includes(zOrI.url || "");
+    });
+  }, [objectList, selectedUrls]);
 
   const timeoutRef = useRef<NodeJS.Timeout>();
   const setParams = (params: Record<string, string>) => {
@@ -121,73 +229,20 @@ export function useDataGridProps(
     },
   );
 
-  //
-  // Render action buttons.
-  //
-  const renderActionButtons = (zaak: Zaak, actions?: DataGridAction[]) => {
-    return actions?.map(
-      ({ onClick, onInteract, tooltip, ...action }, index) => {
-        const handleAction = async (
-          zaak: Zaak,
-          actionFn?: (zaak: Zaak, detail?: unknown) => void,
-        ) => {
-          const foundZaak = await getSpecificZaakSelection(zaak.url!);
-          actionFn?.(zaak, foundZaak);
-        };
-
-        const ButtonComponent = (
-          <Button
-            pad={false}
-            variant={"transparent"}
-            key={index}
-            onClick={() => handleAction(zaak, onClick)}
-            onMouseEnter={() => {
-              return handleAction(zaak, onInteract);
-            }}
-            onFocusCapture={() => {
-              return handleAction(zaak, onInteract);
-            }}
-            {...action}
-          />
-        );
-
-        if (tooltip) {
-          return (
-            <Tooltip
-              key={index}
-              content={tooltip}
-              placement={"bottom-start"}
-              size="lg"
-            >
-              {ButtonComponent}
-            </Tooltip>
-          );
-        }
-
-        return ButtonComponent;
-      },
-    );
-  };
-
-  //
-  // Get object list.
-  //
-  const objectList = paginatedResults.results.map((itemOrZaak) => {
-    const zaak = Object.hasOwn(itemOrZaak, "zaak")
-      ? ((itemOrZaak as DestructionListItem).zaak as Zaak)
-      : (itemOrZaak as Zaak);
-
-    return {
-      ...zaak,
-      // Transform the string dates to formatted string dates (dd-mm-yyyy)
-      startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
-      einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
-      archiefactiedatum: zaak.archiefactiedatum,
-      einddatumGepland: zaak.einddatumGepland,
-      href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-      acties: <>{renderActionButtons(zaak, actions)}</>,
-    };
-  }) as unknown as AttributeData[];
+  const selectionActions: ButtonProps[] =
+    allZakenSelected || selectedUrls.length
+      ? [
+          {
+            children: `Huidige selectie wissen (${allZakenSelected ? paginatedResults.count : selectedUrls.length} geselecteerd)`,
+            variant: "warning",
+            onClick: async () => {
+              await clearZaakSelection(storageKey);
+              revalidator.revalidate();
+              await onClearSelection?.();
+            },
+          },
+        ]
+      : [];
 
   /**
    * Gets called when the fields selection is changed.
@@ -241,6 +296,17 @@ export function useDataGridProps(
           storageKey,
           attributeData.length ? (attributeData as unknown as Zaak[]) : zaken,
         );
+
+    revalidator.revalidate();
+  };
+
+  /**
+   * Gets called when the select all pages checkbox is toggled.
+   * @param selected
+   */
+  const onSelectAllPages = async (selected: boolean) => {
+    setAllZakenSelected(storageKey, selected);
+    revalidator.revalidate();
   };
 
   const onSort = (sort: string) => {
@@ -268,7 +334,10 @@ export function useDataGridProps(
     pageSize: 100,
     showPaginator: true,
     selectable: true,
-    selected: selectedResults as unknown as AttributeData[],
+    selected: selectedZakenOnPage,
+    selectionActions: selectionActions,
+    allPagesSelected: allZakenSelected,
+    allowSelectAllPages: typeof allZakenSelected === "boolean",
     filterable: true,
     filterTransform: (filterData: AttributeData) => {
       const {
@@ -302,6 +371,7 @@ export function useDataGridProps(
     onFilter,
     onSelect,
     onSort: onSort,
+    onSelectAllPages,
   };
 
   //

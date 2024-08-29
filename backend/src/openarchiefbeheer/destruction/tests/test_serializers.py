@@ -307,7 +307,6 @@ class DestructionListSerializerTests(TestCase):
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
-                    "extra_zaak_data": {"key": "value"},
                 },
             ],
         }
@@ -329,7 +328,6 @@ class DestructionListSerializerTests(TestCase):
         items = destruction_list.items.all()
 
         self.assertEqual(items.count(), 1)
-        self.assertEqual(items[0].extra_zaak_data["key"], "value")
 
         logs = TimelineLog.objects.filter(
             template="logging/destruction_list_updated.txt"
@@ -510,6 +508,271 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             serializer.errors["assignees"]["non_field_errors"][0],
             _("The author of a list cannot also be a reviewer."),
+        )
+
+    def test_create_list_with_bulk_select_cases(self):
+        reviewer1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        reviewer2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            omschrijving="AAAAA",
+        )
+        # This zaak SHOULD be selected because it was removed from a destruction list
+        DestructionListItemFactory.create(
+            status=ListItemStatus.removed,
+            with_zaak=True,
+            zaak__omschrijving="AAAAA",
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+        )
+        # This zaak should NOT be selected because its omschrijving does not match the filter
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/333-333-333",
+            omschrijving="BBBBB",
+        )
+        # This zaak should NOT be selected because it is already in a destruction list
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__omschrijving="AAAAA",
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/444-444-444",
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "assignees": [
+                {"user": reviewer1.pk},
+                {"user": reviewer2.pk},
+            ],
+            "select_all": True,
+            "zaak_filters": {"omschrijving": "AAAAA"},
+        }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+        is_valid = serializer.is_valid()
+
+        self.assertTrue(is_valid)
+
+        with (freeze_time("2024-05-02T16:00:00+02:00"),):
+            destruction_list = serializer.save()
+
+        self.assertEqual(destruction_list.items.count(), 2)
+        self.assertEqual(destruction_list.items.all()[0].zaak.omschrijving, "AAAAA")
+        self.assertEqual(destruction_list.items.all()[1].zaak.omschrijving, "AAAAA")
+        self.assertFalse(
+            destruction_list.items.filter(
+                zaak__url="http://localhost:8003/zaken/api/v1/zaken/444-444-444"
+            ).exists()
+        )
+
+    def test_create_list_with_bulk_select_cases_no_filters(self):
+        reviewer1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        reviewer2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            omschrijving="AAAAA",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+            omschrijving="AAAAA",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/333-333-333",
+            omschrijving="BBBBB",
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "assignees": [
+                {"user": reviewer1.pk},
+                {"user": reviewer2.pk},
+            ],
+            "select_all": True,
+        }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+        is_valid = serializer.is_valid()
+
+        self.assertTrue(is_valid)
+
+        with (freeze_time("2024-05-02T16:00:00+02:00"),):
+            destruction_list = serializer.save()
+
+        self.assertEqual(destruction_list.items.count(), 3)
+
+    def test_no_bulk_select_and_no_items(self):
+        reviewer1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        reviewer2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "assignees": [
+                {"user": reviewer1.pk},
+                {"user": reviewer2.pk},
+            ],
+        }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+        is_valid = serializer.is_valid()
+
+        self.assertFalse(is_valid)
+        self.assertEqual(
+            serializer.errors["non_field_errors"][0],
+            "Neither the 'items' nor the 'select_all' field have been specified.",
+        )
+
+    def test_zaak_filters_validation(self):
+        reviewer1 = UserFactory.create(
+            username="reviewer1",
+            email="reviewer1@oab.nl",
+            role__can_review_destruction=True,
+        )
+        reviewer2 = UserFactory.create(
+            username="reviewer2", role__can_review_destruction=True
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        with self.subTest("Invalid filter"):
+            data = {
+                "name": "A test list",
+                "contains_sensitive_info": True,
+                "assignees": [
+                    {"user": reviewer1.pk},
+                    {"user": reviewer2.pk},
+                ],
+                "select_all": True,
+                "zaak_filters": {"uuid": "AAAAA"},
+            }
+
+            serializer = DestructionListSerializer(
+                data=data, context={"request": request}
+            )
+            is_valid = serializer.is_valid()
+
+            self.assertFalse(is_valid)
+            self.assertEqual(serializer.errors["zaak_filters"][0], "Invalid filter(s).")
+
+        with self.subTest("Wrong type filter object"):
+            data = {
+                "name": "A test list",
+                "contains_sensitive_info": True,
+                "assignees": [
+                    {"user": reviewer1.pk},
+                    {"user": reviewer2.pk},
+                ],
+                "select_all": True,
+                "zaak_filters": "Tralala I should be an object.",
+            }
+
+        serializer = DestructionListSerializer(data=data, context={"request": request})
+        is_valid = serializer.is_valid()
+
+        self.assertFalse(is_valid)
+        self.assertEqual(
+            serializer.errors["zaak_filters"][0], "Should be a JSON object."
+        )
+
+    def test_update_with_bulk_select(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True, author=record_manager
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            omschrijving="AAAAA",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+            omschrijving="BBBBB",
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__omschrijving="AAAAA",
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/333-333-333",
+        )
+        DestructionListItemFactory.create(
+            destruction_list=destruction_list,
+            with_zaak=True,
+            zaak__omschrijving="AAAAA",
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/444-444-444",
+        )
+
+        data = {
+            "name": "An updated test list",
+            "contains_sensitive_info": False,
+            "select_all": True,
+            "zaak_filters": {"omschrijving": "AAAAA"},
+        }
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        serializer = DestructionListSerializer(
+            instance=destruction_list, data=data, context={"request": request}
+        )
+        self.assertTrue(serializer.is_valid())
+
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            serializer.save()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.items.count(), 3)
+
+        items = destruction_list.items.all()
+
+        self.assertEqual(items[0].zaak.omschrijving, "AAAAA")
+        self.assertEqual(items[1].zaak.omschrijving, "AAAAA")
+        self.assertEqual(items[1].zaak.omschrijving, "AAAAA")
+        self.assertFalse(
+            items.filter(
+                zaak__url="http://localhost:8003/zaken/api/v1/zaken/222-222-222"
+            ).exists()
         )
 
 

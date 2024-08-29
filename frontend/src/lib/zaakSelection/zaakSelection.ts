@@ -45,6 +45,33 @@ export async function removeFromZaakSelection(
 }
 
 /**
+ * Check if all zaken are selected.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ */
+export async function getAllZakenSelected(key: string) {
+  const computedKey = `${_getComputedKey(key)}.allSelected`;
+  const json = sessionStorage.getItem(computedKey) || "false";
+  return JSON.parse(json) as boolean;
+}
+
+/**
+ * Marks all zaken as selected.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ * @param selected Indicating whether the selection should be added (`true) or removed (`false).
+ */
+export async function setAllZakenSelected(key: string, selected: boolean) {
+  const computedKey = `${_getComputedKey(key)}.allSelected`;
+  const json = JSON.stringify(selected);
+  sessionStorage.setItem(computedKey, json);
+
+  if (!selected) {
+    await clearZaakSelection(key);
+  }
+}
+
+/**
  * Gets the zaak selection.
  * Note: only the `url` of selected `zaken` are stored.
  * Note: This function is async to accommodate possible future refactors.

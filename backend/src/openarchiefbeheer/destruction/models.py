@@ -1,6 +1,6 @@
 import logging
 import uuid as _uuid
-from typing import Optional
+from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
@@ -25,6 +25,9 @@ from .constants import (
     ReviewDecisionChoices,
 )
 from .exceptions import ZaakNotFound
+
+if TYPE_CHECKING:
+    from openarchiefbeheer.zaken.models import Zaak
 
 logger = logging.getLogger(__name__)
 
@@ -125,12 +128,9 @@ class DestructionList(models.Model):
             ]
         )
 
-    def bulk_create_items(self, items_data: dict) -> list["DestructionListItem"]:
+    def add_items(self, zaken: Iterable["Zaak"]) -> list["DestructionListItem"]:
         return DestructionListItem.objects.bulk_create(
-            [
-                DestructionListItem(**{**item, "destruction_list": self})
-                for item in items_data
-            ]
+            [DestructionListItem(destruction_list=self, zaak=zaak) for zaak in zaken]
         )
 
     def get_author(self) -> "DestructionListAssignee":

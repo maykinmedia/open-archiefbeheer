@@ -16,9 +16,10 @@ export async function destructionListCreateAction({
   const name = formData.get("name") as string;
   const zaakUrls = formData.getAll("zaakUrls") as string[];
   const assigneeIds = formData.getAll("assigneeIds") as string[];
+  const zaakFilters = formData.get("zaakFilters") as string;
 
   try {
-    await createDestructionList(name, zaakUrls, assigneeIds);
+    await createDestructionList(name, zaakUrls, assigneeIds, zaakFilters);
   } catch (e: unknown) {
     return await (e as Response).json();
   }

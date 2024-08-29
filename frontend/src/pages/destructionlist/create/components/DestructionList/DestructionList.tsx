@@ -2,7 +2,7 @@ import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
 import { useActionData, useLoaderData, useNavigation } from "react-router-dom";
 
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import { Zaak } from "../../../../../types";
+import { ZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
 import {
   DataGridAction,
   useDataGridProps,
@@ -13,7 +13,8 @@ export type DestructionList = React.PropsWithChildren<
   {
     errors?: string | string[];
     zaken: PaginatedZaken;
-    selectedZaken: Zaak[];
+    zaakSelection: ZaakSelection;
+    allZakenSelected?: boolean;
     onSubmitSelection: () => void;
     // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
     storageKey: string;
@@ -31,7 +32,8 @@ export function DestructionList({
   errors,
   storageKey,
   zaken,
-  selectedZaken,
+  zaakSelection,
+  allZakenSelected,
   title,
   labelAction = title,
   onSubmitSelection,
@@ -45,7 +47,8 @@ export function DestructionList({
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
     zaken,
-    selectedZaken,
+    zaakSelection,
+    allZakenSelected,
     actions,
     destructionListUuid,
   );
@@ -67,6 +70,7 @@ export function DestructionList({
             wrap: false,
             onClick: onSubmitSelection,
           },
+          ...(dataGridProps.selectionActions || []),
         ],
       }}
     >
