@@ -65,15 +65,12 @@ class ListFinalisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
         fields = ("user", "destruction_list", "role", "comment")
-        
+
     def validate(self, attrs: dict) -> dict:
         # we need to check if the user is a archivist
         if not self.context["request"].user.role.can_review_final_list:
-            raise ValidationError(
-                _("Only archivists can finalise a destruction list.")
-            )
+            raise ValidationError(_("Only archivists can finalise a destruction list."))
         return attrs
-    
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
