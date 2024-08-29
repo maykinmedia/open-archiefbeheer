@@ -61,15 +61,38 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         list_serializer_class = ReviewerAssigneeListSerializer
 
 
-class ListFinalisationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DestructionListAssignee
-        fields = ("user", "destruction_list", "role", "comment")
-
+class ListFinalisationSerializer(serializers.Serializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    destruction_list = SlugRelatedField(
+        slug_field="uuid", queryset=DestructionList.objects.all()
+    )
+    role = serializers.ChoiceField(choices=ListRole.choices)
+    comment = serializers.CharField(required=True, allow_blank=False)
+    
+    
     def validate(self, attrs: dict) -> dict:
-        # we need to check if the user is a archivist
-        if not self.context["request"].user.role.can_review_final_list:
-            raise ValidationError(_("Only archivists can finalise a destruction list."))
+        destruction_list = attrs["destruction_list"]
+        user = self.context["request"].user
+
+        if destruction_list.status != ListStatus.ready_for_archivist:
+            raise ValidationError(
+                {
+                    "destruction_list": _(
+                        "The status of this destruction list does not allow it to be finalised."
+                    )
+                }
+            )
+
+        if destruction_list.assignee != user:
+            raise ValidationError(
+                {
+                    "destruction_list": _(
+                        "This user is not currently assigned to the destruction list, "
+                        "so they cannot finalise it."
+                    )
+                }
+            )
+
         return attrs
 
 

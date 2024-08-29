@@ -267,15 +267,6 @@ class DestructionListViewSet(
         )
         serialiser.is_valid(raise_exception=True)
 
-        if not serialiser.validated_data["user"].role.can_review_final_list:
-            raise ValidationError(
-                {
-                    "user": _(
-                        "The chosen user does not have the permission to review a final list."
-                    )
-                }
-            )
-
         serialiser.save()
         destruction_list.assign_next()
 
