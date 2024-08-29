@@ -5,6 +5,7 @@ from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
+from openarchiefbeheer.accounts.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
@@ -64,39 +65,20 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         list_serializer_class = ReviewerAssigneeListSerializer
 
 
-class ListFinalisationSerializer(serializers.Serializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    destruction_list = SlugRelatedField(
-        slug_field="uuid", queryset=DestructionList.objects.all()
-    )
-    role = serializers.ChoiceField(choices=ListRole.choices)
-    comment = serializers.CharField(required=True, allow_blank=False)
+class ArchivistAssigneeSerializer(serializers.ModelSerializer):
     
-    
-    def validate(self, attrs: dict) -> dict:
-        destruction_list = attrs["destruction_list"]
-        user = self.context["request"].user
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user",)
 
-        if destruction_list.status != ListStatus.ready_for_archivist:
+    def validate_user(self, value: User) -> User:
+        if not value.role.can_review_final_list:
             raise ValidationError(
-                {
-                    "destruction_list": _(
-                        "The status of this destruction list does not allow it to be finalised."
-                    )
-                }
+                _("This user is not allowed to finalize a destruction list.")
             )
 
-        if destruction_list.assignee != user:
-            raise ValidationError(
-                {
-                    "destruction_list": _(
-                        "This user is not currently assigned to the destruction list, "
-                        "so they cannot finalise it."
-                    )
-                }
-            )
-
-        return attrs
+        return value
+        
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
