@@ -62,9 +62,11 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
 
 
 class ListFinalisationSerializer(serializers.ModelSerializer):
+    comment = serializers.CharField(required=True, allow_blank=False)
+
     class Meta:
         model = DestructionListAssignee
-        fields = ("user", "destruction_list", "role", "comment")
+        fields = ("user", "destruction_list", "role")
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):

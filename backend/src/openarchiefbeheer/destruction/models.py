@@ -295,7 +295,6 @@ class DestructionListAssignee(models.Model):
         choices=ListRole.choices,
         max_length=80,
     )
-    comment = models.TextField(_("comment"), blank=True, null=True)
 
     class Meta:
         verbose_name = _("destruction list assignee")
