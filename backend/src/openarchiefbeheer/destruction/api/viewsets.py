@@ -278,7 +278,7 @@ class DestructionListViewSet(
 
         serialiser.save()
         destruction_list.assign_next()
-        
+
         logevent.destruction_list_finalized(
             destruction_list,
             serialiser.validated_data["comment"],
