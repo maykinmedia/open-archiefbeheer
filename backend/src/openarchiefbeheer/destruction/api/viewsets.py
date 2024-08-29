@@ -47,11 +47,11 @@ from .permissions import (
 from .serializers import (
     AuditTrailItemSerializer,
     DestructionListAPIResponseSerializer,
-    DestructionListAssigneeSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    ListFinalisationSerializer,
     ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
@@ -258,8 +258,7 @@ class DestructionListViewSet(
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
         destruction_list = self.get_object()
-
-        serialiser = DestructionListAssigneeSerializer(
+        serialiser = ListFinalisationSerializer(
             data={
                 "destruction_list": destruction_list.pk,
                 "role": ListRole.archivist,
@@ -279,6 +278,12 @@ class DestructionListViewSet(
 
         serialiser.save()
         destruction_list.assign_next()
+        
+        logevent.destruction_list_finalized(
+            destruction_list,
+            serialiser.validated_data["comment"],
+            request.user,
+        )
 
         return Response(status=status.HTTP_201_CREATED)
 

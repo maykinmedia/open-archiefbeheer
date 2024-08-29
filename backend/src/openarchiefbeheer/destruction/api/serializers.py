@@ -64,23 +64,10 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         list_serializer_class = ReviewerAssigneeListSerializer
 
 
-class DestructionListAssigneeSerializer(serializers.ModelSerializer):
+class ListFinalisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
         fields = ("user", "destruction_list", "role", "comment")
-
-    def save(self, **kwargs):
-        instance = super().save(**kwargs)
-
-        destruction_list = self.validated_data.get("destruction_list")
-        user = self.validated_data.get("user")
-        comment = self.validated_data.get("comment")
-
-        logevent.destruction_list_finalized(
-            destruction_list=destruction_list, comment=comment, user=user
-        )
-
-        return instance
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):

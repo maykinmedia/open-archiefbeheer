@@ -109,7 +109,7 @@ def destruction_list_finalized(
             "pk": destruction_list.pk,
             "name": destruction_list.name,
             "comment": comment,
-            "archivaris": {
+            "record_manager": {
                 "pk": user.pk,
                 "email": user.email,
                 "username": user.username,
