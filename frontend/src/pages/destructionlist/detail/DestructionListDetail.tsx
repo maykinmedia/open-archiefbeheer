@@ -160,6 +160,7 @@ export function DestructionListDetailPage() {
       payload: {
         uuid: destructionList.uuid,
         user: Number(data.assigneeIds),
+        comment: data.comment as string,
       },
     });
   };
