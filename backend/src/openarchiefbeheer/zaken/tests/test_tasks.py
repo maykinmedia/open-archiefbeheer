@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.test import TestCase, TransactionTestCase, tag
 
 from freezegun import freeze_time
@@ -117,7 +119,10 @@ class RetrieveAndCacheZakenTest(TestCase):
         self.assertNotIn("einddatum__gt", zaak_request.qs)
 
     def test_zaken_in_database(self, m):
-        ZaakFactory.create_batch(10)
+        # The latest eindatum is taken
+        ZaakFactory.create(einddatum=date(2024, 8, 27))
+        ZaakFactory.create(einddatum=date(2024, 8, 26))
+        ZaakFactory.create(einddatum=date(2024, 8, 25))
 
         m.get(
             "http://zaken-api.nl/zaken/api/v1/zaken",
@@ -156,7 +161,7 @@ class RetrieveAndCacheZakenTest(TestCase):
         self.assertIn("einddatum__lt", zaak_request.qs)
         self.assertEqual(zaak_request.qs["einddatum__lt"][0], "2024-08-29")
         self.assertIn("einddatum__gt", zaak_request.qs)
-        self.assertEqual(zaak_request.qs["einddatum__gt"][0], "2024-08-28")
+        self.assertEqual(zaak_request.qs["einddatum__gt"][0], "2024-08-27")
 
     def test_zaak_already_in_db_is_retrieved_again(self, m):
         zaak = ZaakFactory.create(

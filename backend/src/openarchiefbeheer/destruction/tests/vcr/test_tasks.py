@@ -1,12 +1,13 @@
 from django.test import TestCase, tag
 
+from freezegun import freeze_time
 from vcr.unittest import VCRMixin
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixture
+from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
 
@@ -34,9 +35,10 @@ class ProcessResponseTest(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    @reload_openzaak_fixture("complex_relations.json")
+    @reload_openzaak_fixtures()
     def test_process_response(self):
-        retrieve_and_cache_zaken_from_openzaak()
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
 
         record_manager = UserFactory.create(role__can_start_destruction=True)
         reviewer = UserFactory.create(
