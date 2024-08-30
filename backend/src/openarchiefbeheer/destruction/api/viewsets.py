@@ -7,7 +7,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from timeline_logger.models import TimelineLog
@@ -45,13 +44,13 @@ from .permissions import (
     CanUpdateDestructionList,
 )
 from .serializers import (
-    ArchivistAssigneeSerializer,
     AuditTrailItemSerializer,
     DestructionListAPIResponseSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReviewSerializer,
     DestructionListSerializer,
+    MarkAsFinalSerializer,
     ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
@@ -258,26 +257,23 @@ class DestructionListViewSet(
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
         destruction_list = self.get_object()
-        serialiser = ArchivistAssigneeSerializer(
-            data=request.data
-        )
+        serialiser = MarkAsFinalSerializer(data=request.data)
         serialiser.is_valid(raise_exception=True)
-        
+
         assignee = DestructionListAssignee(
             user=serialiser.validated_data["user"],
             destruction_list=destruction_list,
             role=ListRole.archivist,
         )
-        
         assignee.save()
 
-        # serialiser.save()
         destruction_list.assign_next()
 
         logevent.destruction_list_finalized(
             destruction_list,
             serialiser.validated_data["comment"],
-            request.user,
+            archivist=assignee.user,
+            record_manager=request.user,
         )
 
         return Response(status=status.HTTP_201_CREATED)

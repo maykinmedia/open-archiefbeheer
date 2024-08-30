@@ -92,27 +92,23 @@ def destruction_list_reviewed(
 
 
 def destruction_list_finalized(
-    destruction_list: DestructionList, comment: str, user: User
+    destruction_list: DestructionList,
+    comment: str,
+    archivist: User,
+    record_manager: User,
 ) -> None:
-    """
-    Logs the finalization of a destruction list.
-
-    :param destruction_list: The DestructionList instance being finalized.
-    :param comment: The comment placed by the user
-    :param user: The User who finalized the list.
-    """
     _create_log(
         model=destruction_list,
         event="destruction_list_finalized",
-        user=user,
+        user=record_manager,
         extra_data={
             "pk": destruction_list.pk,
             "name": destruction_list.name,
             "comment": comment,
-            "record_manager": {
-                "pk": user.pk,
-                "email": user.email,
-                "username": user.username,
+            "archivist": {
+                "pk": archivist.pk,
+                "email": archivist.email,
+                "username": archivist.username,
             },
         },
     )

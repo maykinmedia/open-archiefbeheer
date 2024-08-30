@@ -3,13 +3,13 @@ from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
-from openarchiefbeheer.accounts.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
+from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
@@ -62,20 +62,21 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         list_serializer_class = ReviewerAssigneeListSerializer
 
 
-class ArchivistAssigneeSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = DestructionListAssignee
-        fields = ("user",)
+class MarkAsFinalSerializer(serializers.Serializer):
+    comment = serializers.CharField(allow_blank=True)
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all().select_related("role")
+    )
 
     def validate_user(self, value: User) -> User:
         if not value.role.can_review_final_list:
             raise ValidationError(
-                _("This user is not allowed to finalize a destruction list.")
+                _(
+                    "The chosen user does not have the permission to review a final list."
+                )
             )
 
         return value
-        
 
 
 class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
