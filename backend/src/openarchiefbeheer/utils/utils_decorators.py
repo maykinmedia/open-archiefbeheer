@@ -1,9 +1,10 @@
 from django.conf import settings
 
 import docker
+from docker.errors import DockerException
 
 
-def reload_openzaak_fixture(fixture_name: str):
+def reload_openzaak_fixtures():
     def decorator(func):
         """Use the docker API to reload a fixture
 
@@ -18,12 +19,15 @@ def reload_openzaak_fixture(fixture_name: str):
         sudo systemctl stop docker.service
         sudo dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375
         ```
-        and then replace `client = docker.from_env()` with `client = docker.DockerClient(base_url='tcp://127.0.0.1:2375')`
         """
         if settings.ENVIRONMENT == "CI":
             return func
 
-        client = docker.from_env()
+        try:
+            client = docker.from_env()
+        except DockerException:
+            client = docker.DockerClient(base_url="tcp://127.0.0.1:2375")
+
         containers = client.containers.list(filters={"name": "openzaak-web.local"})
 
         if not len(containers):
@@ -31,8 +35,9 @@ def reload_openzaak_fixture(fixture_name: str):
 
         web_container = containers[0]
         web_container.exec_run(
-            f"/app/src/manage.py loaddata /app/fixtures/{fixture_name}"
+            "/app/src/manage.py loaddata /app/fixtures/complex_relations.json"
         )
+        web_container.exec_run("/app/src/manage.py loaddata /app/fixtures/zaken.json")
         return func
 
     return decorator
