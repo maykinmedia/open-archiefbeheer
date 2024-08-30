@@ -1,7 +1,8 @@
+import datetime
 import logging
 
 from django.conf import settings
-from django.db import transaction
+from django.db.models import Max
 
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
@@ -21,14 +22,22 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
     zrc_service = Service.objects.get(api_type=APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
+    today = datetime.date.today()
+    query_params = {
+        "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
+        "archiefnominatie": "vernietigen",
+        "einddatum__isnull": False,
+        "einddatum__lt": today.isoformat(),
+    }
+    if zaken_in_db := Zaak.objects.exists():
+        result = Zaak.objects.aggregate(Max("einddatum"))
+        query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
+
     with zrc_client:
         response = zrc_client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
-            params={
-                "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
-                "archiefnominatie": "vernietigen",
-            },
+            params=query_params,
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
         response.raise_for_status()
@@ -40,14 +49,21 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
 
-    with transaction.atomic():
-        # Removing existing cached zaken
-        Zaak.objects.all().delete()
+    for index, data in enumerate(data_iterator):
+        logger.info("Retrieved page %s.", index + 1)
 
-        for index, data in enumerate(data_iterator):
-            logger.debug("Retrieved page %s.", index + 1)
+        zaken = process_expanded_data(data["results"])
 
-            zaken = process_expanded_data(data["results"])
-            serializer = ZaakSerializer(data=zaken, many=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+        # Since before we indexed also zaken without einddatum, prevent
+        # crash when retrieving zaken.
+        if zaken_in_db:
+            new_zaken = {zaak["url"]: zaak for zaak in zaken}
+            duplicates = Zaak.objects.filter(url__in=new_zaken.keys())
+            if duplicates.exists():
+                for duplicate in duplicates:
+                    del new_zaken[duplicate.url]
+            zaken = [zaak for zaak in new_zaken.values()]
+
+        serializer = ZaakSerializer(data=zaken, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
