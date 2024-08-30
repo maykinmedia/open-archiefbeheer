@@ -602,7 +602,9 @@ class DestructionListViewSetTest(APITestCase):
         )
 
     def test_mark_as_final(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
         archivist = UserFactory.create(
             username="archivist", role__can_review_final_list=True
         )
@@ -619,7 +621,10 @@ class DestructionListViewSetTest(APITestCase):
         )
         response = self.client.post(
             endpoint,
-            data={"user": archivist.pk},
+            data={
+                "user": archivist.pk,
+                "comment": "The list is ready for the archivist",
+            },
             format="json",
         )
 
@@ -632,6 +637,25 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(assignee_archivist.user, destruction_list.assignee)
         self.assertEqual(destruction_list.status, ListStatus.ready_for_archivist)
+
+        logs = TimelineLog.objects.filter(
+            template="logging/destruction_list_finalized.txt"
+        )
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertEqual(
+            message.strip("\n"),
+            _(
+                'Destruction list "A test list" was made final by the record manager '
+                "record_manager who assigned it to the archivist archivist."
+            ),
+        )
+        self.assertEqual(
+            logs[0].extra_data["comment"], "The list is ready for the archivist"
+        )
 
     def test_cannot_mark_as_final_if_not_authenticated(self):
         destruction_list = DestructionListFactory.create(
@@ -725,7 +749,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.json()["user"],
+            response.json()["user"][0],
             _("The chosen user does not have the permission to review a final list."),
         )
 
