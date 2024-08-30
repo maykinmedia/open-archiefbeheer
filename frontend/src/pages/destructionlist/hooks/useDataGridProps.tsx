@@ -20,6 +20,7 @@ import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   DestructionListItem,
   PaginatedDestructionListItems,
+  ZaakItem,
 } from "../../../lib/api/destructionListsItem";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
 import { Review } from "../../../lib/api/review";
@@ -153,7 +154,7 @@ export function useDataGridProps(
         }
         const zaak = itemOrZaak as Zaak;
         return formatZaak(zaak);
-      }) as unknown as AttributeData[],
+      }) as ZaakItem[],
     [paginatedResults],
   );
 
@@ -173,10 +174,7 @@ export function useDataGridProps(
    * Returns the items on `paginatedResults.results` that are selected according to `zaakSelection`.
    */
   const selectedZakenOnPage = useMemo(() => {
-    return objectList.filter((zOrI: Zaak | DestructionListItem) => {
-      if ("zaak" in zOrI) {
-        return selectedUrls.includes(zOrI.zaak?.url || "");
-      }
+    return objectList.filter((zOrI: ZaakItem) => {
       return selectedUrls.includes(zOrI.url || "");
     });
   }, [objectList, selectedUrls]);
@@ -355,12 +353,12 @@ export function useDataGridProps(
     fields: fields,
     fieldsSelectable: true,
     loading: state === "loading",
-    objectList: objectList,
+    objectList: objectList as unknown as AttributeData[],
     page: page,
     pageSize: 100,
     showPaginator: true,
     selectable: true,
-    selected: selectedZakenOnPage,
+    selected: selectedZakenOnPage as unknown as AttributeData[],
     selectionActions: selectionActions,
     allPagesSelected: allZakenSelected,
     allowSelectAllPages: typeof allZakenSelected === "boolean",

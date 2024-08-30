@@ -11,6 +11,10 @@ export type DestructionListItem = {
   processingStatus: ProcessingStatus;
 };
 
+export interface ZaakItem extends Zaak {
+  processingStatus?: ProcessingStatus;
+}
+
 export type DestructionListItemStatus = "removed" | "suggested";
 
 export type PaginatedDestructionListItems =
