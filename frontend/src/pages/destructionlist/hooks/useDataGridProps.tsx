@@ -15,6 +15,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import { ProcessingStatusBadge } from "../../../components/ProcessingStatusBadge";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   DestructionListItem,
@@ -39,7 +40,6 @@ import {
   setAllZakenSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { ExpandZaak, Zaak } from "../../../types";
-import { ProcessingStatusBadge } from "../../ProcessingStatusBadge";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
 
 /** The template used to format urls to an external application providing zaak details. */
@@ -144,28 +144,13 @@ export function useDataGridProps(
         if (Object.hasOwn(itemOrZaak, "zaak")) {
           const item = itemOrZaak as DestructionListItem;
 
-          //Case in which the zaak has been deleted already
-          if (item.zaak === null) {
-            return {
-              ...item.extraZaakData,
-              processingStatus: (
-                <ProcessingStatusBadge
-                  processingStatus={item.processingStatus}
-                />
-              ),
-            };
-          } else {
-            return {
-              ...formatZaak(item.zaak),
-              processingStatus: (
-                <ProcessingStatusBadge
-                  processingStatus={item.processingStatus}
-                />
-              ),
-            };
-          }
+          return {
+            ...(item.zaak ? formatZaak(item.zaak) : item.extraZaakData),
+            processingStatus: (
+              <ProcessingStatusBadge processingStatus={item.processingStatus} />
+            ),
+          };
         }
-
         const zaak = itemOrZaak as Zaak;
         return formatZaak(zaak);
       }) as unknown as AttributeData[],

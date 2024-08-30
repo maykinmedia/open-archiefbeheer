@@ -15,6 +15,7 @@ import {
 import React, { FormEvent, useState } from "react";
 import { useLoaderData, useNavigation } from "react-router-dom";
 
+import { ProcessingStatusBadge } from "../../../components/ProcessingStatusBadge";
 import { useSubmitAction } from "../../../hooks";
 import {
   ReviewItemResponse,
@@ -25,7 +26,6 @@ import {
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../lib/auth/permissions";
-import { ProcessingStatusBadge } from "../../ProcessingStatusBadge";
 import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";

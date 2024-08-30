@@ -1,12 +1,12 @@
 import { Badge, field2Title } from "@maykin-ui/admin-ui";
 import React from "react";
 
-import { ProcessingStatus } from "../lib/api/processingStatus";
+import { ProcessingStatus } from "../../lib/api/processingStatus";
 import {
   PROCESSING_STATUS_ICON_MAPPING,
   PROCESSING_STATUS_LEVEL_MAPPING,
   PROCESSING_STATUS_MAPPING,
-} from "./constants";
+} from "../../pages/constants";
 
 type ProcessingStatusBadgeProps = {
   processingStatus: ProcessingStatus;

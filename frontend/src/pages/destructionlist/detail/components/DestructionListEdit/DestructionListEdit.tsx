@@ -89,18 +89,21 @@ export function DestructionListEdit() {
   );
 
   if (dataGridProps.fields && destructionList.processingStatus !== "new") {
-    dataGridProps.fields.splice(1, 0, {
-      name: "processingStatus",
-      type: "string",
-      options: [
-        { label: "New", value: "new" },
-        { label: "Queued", value: "queued" },
-        { label: "Processing", value: "processing" },
-        { label: "Failed", value: "failed" },
-        { label: "Succeeded", value: "succeeded" },
-      ],
-      width: "180px",
-    });
+    dataGridProps.fields = [
+      ...dataGridProps.fields,
+      {
+        name: "processingStatus",
+        type: "string",
+        options: [
+          { label: "New", value: "new" },
+          { label: "Queued", value: "queued" },
+          { label: "Processing", value: "processing" },
+          { label: "Failed", value: "failed" },
+          { label: "Succeeded", value: "succeeded" },
+        ],
+        width: "180px",
+      },
+    ];
   }
 
   /**
