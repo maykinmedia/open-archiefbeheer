@@ -1,8 +1,6 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
 
-import { DESTRUCTION_LIST_CREATE_KEY } from "../../pages/destructionlist/create";
 import { Zaak } from "../../types";
-import { getAllZakenSelected } from "../zaakSelection/zaakSelection";
 import { User } from "./auth";
 import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
@@ -63,12 +61,15 @@ export type DestructionListMarkAsFinalData = {
  * @param name
  * @param zaken
  * @param assignees
+ * @param zaakFilters
+ * @param allZakenSelected
  */
 export async function createDestructionList(
   name: string,
   zaken: string[] | Zaak[],
   assignees: string[] | number[] | User[],
   zaakFilters: string,
+  allZakenSelected: boolean,
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
   const assigneeIds = assignees
@@ -76,10 +77,6 @@ export async function createDestructionList(
       isPrimitive(assignee) ? assignee.toString() : assignee.pk.toString(),
     )
     .filter((v) => v);
-
-  const allZakenSelected = await getAllZakenSelected(
-    DESTRUCTION_LIST_CREATE_KEY,
-  );
 
   const destructionList = {
     name,
