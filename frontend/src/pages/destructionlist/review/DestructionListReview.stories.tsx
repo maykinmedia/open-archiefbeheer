@@ -9,6 +9,7 @@ import {
 } from "../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { reviewFactory } from "../../../fixtures/review";
 import { usersFactory } from "../../../fixtures/user";
 import { DestructionListReviewPage } from "./DestructionListReview";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
@@ -40,6 +41,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListReviewContext = {
+  review: reviewFactory(),
   reviewers: usersFactory(),
   zaken: paginatedZakenFactory(),
   selectedZaken: [],
