@@ -1,4 +1,4 @@
-import { ButtonProps, DataGrid, Outline } from "@maykin-ui/admin-ui";
+import { ButtonProps, DataGrid, Solid } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
 import {
   useLoaderData,
@@ -125,7 +125,12 @@ export function DestructionListEdit() {
   const editSelectionActions: ButtonProps[] = isEditingState
     ? [
         {
-          children: "Vernietigingslijst aanpassen",
+          children: (
+            <>
+              <Solid.DocumentCheckIcon />
+              Vernietigingslijst aanpassen
+            </>
+          ),
           disabled: ["loading", "submitting"].includes(state),
           onClick: handleEditUpdate,
           variant: "primary",
@@ -133,7 +138,12 @@ export function DestructionListEdit() {
         },
         ...(dataGridProps.selectionActions || []),
         {
-          children: "Annuleren",
+          children: (
+            <>
+              <Solid.NoSymbolIcon />
+              Annuleren
+            </>
+          ),
           disabled: ["loading", "submitting"].includes(state),
           onClick: () => handleEditSetEditing(false),
           wrap: false,
@@ -142,8 +152,12 @@ export function DestructionListEdit() {
     : canUpdateDestructionList(user, destructionList)
       ? [
           {
-            "aria-label": "Bewerken",
-            children: <Outline.PencilIcon />,
+            children: (
+              <>
+                <Solid.PencilIcon />
+                Bewerken
+              </>
+            ),
             onClick: () => handleEditSetEditing(true),
             wrap: false,
           },

@@ -3,6 +3,7 @@ import {
   Button,
   ButtonProps,
   DataGridProps,
+  Solid,
   Tooltip,
   TypedField,
   formatMessage,
@@ -233,10 +234,21 @@ export function useDataGridProps(
     allZakenSelected || selectedUrls.length
       ? [
           {
-            children: `Huidige selectie wissen (${allZakenSelected ? paginatedResults.count : selectedUrls.length} geselecteerd)`,
+            children: (
+              <>
+                <Solid.ExclamationTriangleIcon />
+                Huidige selectie wissen (
+                {allZakenSelected
+                  ? paginatedResults.count
+                  : selectedUrls.length}
+                &nbsp;geselecteerd)
+              </>
+            ),
             variant: "warning",
+            wrap: false,
             onClick: async () => {
               await clearZaakSelection(storageKey);
+              await setAllZakenSelected(storageKey, false);
               revalidator.revalidate();
               await onClearSelection?.();
             },

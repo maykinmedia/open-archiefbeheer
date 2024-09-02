@@ -4,6 +4,7 @@ import {
   FormField,
   Modal,
   SerializedFormData,
+  Solid,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import {
@@ -101,7 +102,7 @@ export function DestructionListCreatePage() {
   return (
     <>
       <Modal
-        title="Vernietigingslijst starten"
+        title="Vernietigingslijst opstellen"
         open={modalOpenState}
         size="m"
         onClose={() => setModalOpenState(false)}
@@ -111,6 +112,7 @@ export function DestructionListCreatePage() {
             fields={modalFormFields}
             onSubmit={onSubmitForm}
             validateOnChange={true}
+            labelSubmit="Vernietigingslijst opstellen"
           />
         </Body>
       </Modal>
@@ -121,6 +123,16 @@ export function DestructionListCreatePage() {
         zaakSelection={zaakSelection}
         allZakenSelected={allZakenSelected}
         title="Vernietigingslijst opstellen"
+        labelAction={
+          <>
+            <Solid.DocumentPlusIcon />
+            Vernietigingslijst opstellen
+          </>
+        }
+        primaryActionDisabled={
+          !allZakenSelected &&
+          !Object.values(zaakSelection).filter((zs) => zs.selected).length
+        }
         onSubmitSelection={onSubmitSelection}
       />
     </>

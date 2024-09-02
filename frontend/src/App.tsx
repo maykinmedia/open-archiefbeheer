@@ -13,6 +13,7 @@ import {
   NavigationContext,
   Outline,
   P,
+  Solid,
   formatMessage,
 } from "@maykin-ui/admin-ui";
 import { useState } from "react";
@@ -62,13 +63,13 @@ function App() {
               variant="contrast"
             />,
             {
-              children: <Outline.HomeIcon />,
+              children: <Solid.HomeIcon />,
               title: "Home",
               // size: "xl",
               onClick: () => navigate("/destruction-lists/"),
             },
             {
-              children: <Outline.PlusCircleIcon />,
+              children: <Solid.DocumentPlusIcon />,
               title: "Vernietigingslijst opstellen",
               // size: "xl",
               onClick: () => navigate("/destruction-lists/create"),
@@ -77,7 +78,7 @@ function App() {
             <>
               {state === "loading" ? (
                 <P title="Bezig met laden...">
-                  <Outline.ArrowPathIcon
+                  <Solid.ArrowPathIcon
                     spin
                     stroke="var(--button-color-text-primary)"
                   />
@@ -108,7 +109,7 @@ function App() {
                   <H3>Account</H3>
                   <Hr />
                   <Grid>
-                    <Column span={2}>
+                    <Column containerType="normal" span={2}>
                       <IconInitials
                         name={
                           user
@@ -135,8 +136,12 @@ function App() {
                     <Hr />
                     <Column span={6} />
                     <Column span={6}>
-                      <ButtonLink href={"/logout"} variant="outline">
-                        <Outline.ArrowRightEndOnRectangleIcon />
+                      <ButtonLink
+                        href={"/logout"}
+                        variant="outline"
+                        wrap={false}
+                      >
+                        <Solid.ArrowRightEndOnRectangleIcon />
                         Uitloggen
                       </ButtonLink>
                     </Column>

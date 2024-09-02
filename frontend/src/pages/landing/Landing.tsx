@@ -3,7 +3,9 @@ import {
   Badge,
   FieldSet,
   KanbanTemplate,
+  Outline,
   P,
+  Solid,
   Tooltip,
   field2Title,
 } from "@maykin-ui/admin-ui";
@@ -160,11 +162,15 @@ export const Landing = () => {
 
       const footer = (
         <P muted size="xs">
-          {formatUser(currentAssignee, { showRole: true })}
+          <Outline.UserIcon />
+          &nbsp;
+          {formatUser(currentAssignee, {
+            showUsername: false,
+            showRole: false,
+          })}
           {otherAssignees.length && (
             <strong className="LandingPage__assignees-count">
-              {" "}
-              +{otherAssignees.length}
+              &nbsp; +{otherAssignees.length}
             </strong>
           )}
         </P>
@@ -198,18 +204,40 @@ export const Landing = () => {
         title: "Vernietigingslijsten",
         fieldsets: STATUSES,
         objectLists: objectLists,
+        toolbarProps: {
+          items: [
+            // TODO: SORT
+            "spacer",
+            {
+              // TODO: LINK
+              children: (
+                <>
+                  <Solid.DocumentPlusIcon />
+                  Vernietigingslijst opstellen
+                </>
+              ),
+              size: "xs",
+              variant: "primary",
+              onClick: () => navigate("/destruction-lists/create"),
+            },
+          ],
+        },
         renderPreview: (object: AttributeData) => {
           const entry = object as LandingKanbanEntry;
 
           if (entry.processingStatus === "new") {
-            return <Badge>{entry.timeAgo as string}</Badge>;
+            return (
+              <Badge aria-label="opgesteld">
+                <Outline.DocumentPlusIcon />
+                {entry.timeAgo as string}
+              </Badge>
+            );
           }
           return (
             <Badge
               level={PROCESSING_STATUS_LEVEL_MAPPING[entry.processingStatus]}
             >
               {PROCESSING_STATUS_ICON_MAPPING[entry.processingStatus]}
-              &nbsp;
               {field2Title(PROCESSING_STATUS_MAPPING[entry.processingStatus], {
                 unHyphen: false,
               })}

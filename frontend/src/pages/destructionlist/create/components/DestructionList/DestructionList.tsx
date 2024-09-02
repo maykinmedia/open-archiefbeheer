@@ -1,4 +1,5 @@
 import { DataGridProps, ListTemplate } from "@maykin-ui/admin-ui";
+import React from "react";
 import { useActionData, useLoaderData, useNavigation } from "react-router-dom";
 
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
@@ -19,8 +20,10 @@ export type DestructionList = React.PropsWithChildren<
     // TODO: Here we could implement a simple API to specifiy what fields to show in the list.
     storageKey: string;
     title: string;
-    labelAction?: string;
+    labelAction?: React.ReactNode;
+    primaryActionDisabled?: boolean;
     actions?: DataGridAction[];
+    onClearSelection?: () => void | Promise<void>;
   } & Omit<DataGridProps, "objectList">
 >;
 
@@ -37,7 +40,9 @@ export function DestructionList({
   title,
   labelAction = title,
   onSubmitSelection,
+  primaryActionDisabled,
   actions,
+  onClearSelection,
   ...props
 }: DestructionList) {
   const { state } = useNavigation();
@@ -51,6 +56,8 @@ export function DestructionList({
     allZakenSelected,
     actions,
     destructionListUuid,
+    undefined,
+    onClearSelection,
   );
   const _errors =
     errors || [...Object.values(actionErrors), error].filter((v) => v);
@@ -65,7 +72,9 @@ export function DestructionList({
         selectionActions: [
           {
             children: labelAction,
-            disabled: ["loading", "submitting"].includes(state),
+            disabled:
+              primaryActionDisabled ||
+              ["loading", "submitting"].includes(state),
             variant: "primary",
             wrap: false,
             onClick: onSubmitSelection,

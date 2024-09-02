@@ -9,6 +9,7 @@ import {
   Modal,
   P,
   SerializedFormData,
+  Solid,
   Toolbar,
   ToolbarItem,
   field2Title,
@@ -85,7 +86,12 @@ export function DestructionListDetailPage() {
     if (canMarkAsReadyToReview(user, destructionList)) {
       return [
         {
-          children: "Ter beoordeling indienen",
+          children: (
+            <>
+              <Solid.DocumentArrowUpIcon />
+              Ter beoordeling indienen
+            </>
+          ),
           onClick: () => setReadyToReviewModalOpenState(true),
           pad: "h",
         },
@@ -94,7 +100,12 @@ export function DestructionListDetailPage() {
     if (canMarkListAsFinal(user, destructionList)) {
       return [
         {
-          children: "Markeren als definitief",
+          children: (
+            <>
+              <Solid.KeyIcon />
+              Markeren als definitief
+            </>
+          ),
           onClick: () => setArchivistModalOpenState(true),
           pad: "h",
         },
@@ -112,7 +123,6 @@ export function DestructionListDetailPage() {
             }
           >
             {PROCESSING_STATUS_ICON_MAPPING[destructionList.processingStatus]}
-            &nbsp;
             {field2Title(
               PROCESSING_STATUS_MAPPING[destructionList.processingStatus],
             )}
@@ -122,10 +132,14 @@ export function DestructionListDetailPage() {
         ["new", "failed"].includes(destructionList.processingStatus) ? (
           {
             bold: true,
-            children:
-              destructionList.processingStatus === "new"
-                ? "Vernietigen starten"
-                : "Vernietigen herstarten  ",
+            children: (
+              <>
+                <Solid.TrashIcon />
+                {destructionList.processingStatus === "new"
+                  ? "Vernietigen starten"
+                  : "Vernietigen herstarten"}
+              </>
+            ),
             variant: "danger",
             onClick: () => setDestroyModalOpenState(true),
             pad: "h",
