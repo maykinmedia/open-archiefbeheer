@@ -6,6 +6,7 @@ import {
   getDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
+  Review,
   ReviewItem,
   getLatestReview,
   listReviewItems,
@@ -25,6 +26,7 @@ import { Zaak } from "../../../types";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewContext = {
+  review: Review;
   reviewers: User[];
   reviewItems?: ReviewItem[];
   reviewResponse?: ReviewResponse;
@@ -87,6 +89,7 @@ export const destructionListReviewLoader = loginRequired(
       );
 
       return {
+        review: latestReview,
         reviewers,
         reviewItems,
         reviewResponse,

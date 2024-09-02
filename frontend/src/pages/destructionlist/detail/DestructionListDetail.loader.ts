@@ -68,20 +68,18 @@ export const destructionListDetailLoader = loginRequired(
       // We need to fetch the destruction list first to get the status.
       const destructionList = await getDestructionList(uuid as string);
       const storageKey = `destruction-list-detail-${uuid}-${destructionList.status}`;
+      const isInReview = destructionList.status === "changes_requested";
 
       // If status indicates review: collect it.
-      const review =
-        destructionList.status === "changes_requested"
-          ? await getLatestReview({
-              destructionList__uuid: uuid,
-            })
-          : null;
+      const review = await getLatestReview({
+        destructionList__uuid: uuid,
+      });
 
       // If review collected: collect items.
-      const reviewItems = review
+      const reviewItems = isInReview
         ? await listReviewItems({
             ...searchParams,
-            "item-review-review": review.pk,
+            "item-review-review": review?.pk,
           })
         : null;
 

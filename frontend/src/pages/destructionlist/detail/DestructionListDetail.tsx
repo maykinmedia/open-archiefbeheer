@@ -38,7 +38,7 @@ import { DestructionListToolbar } from "./components/DestructionListToolbar/Dest
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { archivists, destructionList, review, user, destructionListItems } =
+  const { archivists, destructionList, user, destructionListItems } =
     useLoaderData() as DestructionListDetailContext;
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
 
@@ -46,6 +46,7 @@ export function DestructionListDetailPage() {
   const [readyToReviewModalOpenState, setReadyToReviewModalOpenState] =
     useState(false);
   const [destroyModalOpenState, setDestroyModalOpenState] = useState(false);
+  const isInReview = destructionList.status === "changes_requested";
 
   // TODO - Make a 404 page (or remove?)
   if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
@@ -203,7 +204,7 @@ export function DestructionListDetailPage() {
   return (
     <CardBaseTemplate secondaryNavigationItems={getSecondaryNavigationItems()}>
       <DestructionListToolbar />
-      {review ? <DestructionListProcessReview /> : <DestructionListEdit />}
+      {isInReview ? <DestructionListProcessReview /> : <DestructionListEdit />}
 
       {destructionList.status === "new" && (
         <Modal
