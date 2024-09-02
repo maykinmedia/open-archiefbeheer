@@ -8,6 +8,7 @@ import {
   Modal,
   Outline,
   SerializedFormData,
+  Solid,
 } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
 import { useLoaderData, useNavigation, useRevalidator } from "react-router-dom";
@@ -217,12 +218,15 @@ export function DestructionListProcessReview() {
       processZaakReviewModalState.zaak?.url || ""
     ]?.detail;
 
+  // FIXME: This actin should be move to to top bar (secondary navigation).
   const processZaakReviewSelectionActions: ButtonProps[] = [
     {
-      children:
-        selectedUrls.length !== destructionListItems.count
-          ? `Selecter ${destructionListItems.count - selectedUrls.length} zaken`
-          : "Opnieuw indienen",
+      children: (
+        <>
+          <Solid.DocumentArrowUpIcon />
+          Opnieuw indienen
+        </>
+      ),
       disabled:
         ["loading", "submitting"].includes(state) ||
         selectedUrls.length !== destructionListItems.count,

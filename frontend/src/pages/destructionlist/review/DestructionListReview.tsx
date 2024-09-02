@@ -9,8 +9,8 @@ import {
   H3,
   Hr,
   Modal,
-  Outline,
   P,
+  Solid,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import { useLoaderData, useRevalidator, useSubmit } from "react-router-dom";
@@ -70,7 +70,8 @@ export function DestructionListReviewPage() {
   /* Tooltip Motivation */
   const [tooltipMotivation, setTooltipMotivation] = useState<string>("");
 
-  /* State to manage the count of selected zaken */
+  // State to manage the count of selected zaken
+  // TODO: Refactor this to avoid using a state but rely on the existing tooling.
   const [zaakSelection, setZaakSelection] = useState<FormDataState[]>([]);
 
   /* State to manage the state of the zaak modal (when clicking a checkbox) */
@@ -269,7 +270,7 @@ export function DestructionListReviewPage() {
                   fields={zaakModalFormFields}
                   onSubmit={onSubmitZaakForm}
                   validateOnChange={true}
-                  labelSubmit={"Uitzonderen"}
+                  labelSubmit="Uitzonderen"
                 />
               </Column>
             </Grid>
@@ -302,14 +303,26 @@ export function DestructionListReviewPage() {
           }),
           {},
         )}
-        labelAction={zaakSelection.length > 0 ? "Beoordelen" : "Accorderen"}
+        labelAction={
+          zaakSelection.length > 0 ? (
+            <>
+              <Solid.HandThumbDownIcon />
+              Beoordelen
+            </>
+          ) : (
+            <>
+              <Solid.HandThumbUpIcon />
+              Accorderen
+            </>
+          )
+        }
         title="Zaakdossiers"
         onSubmitSelection={() => setListModalDataState({ open: true })}
         onSelect={onSelect}
         allowSelectAll={false}
         actions={[
           {
-            children: <Outline.ChatBubbleBottomCenterIcon />,
+            children: <Solid.ChatBubbleBottomCenterIcon />,
             title: "Uitzonderen",
             tooltip: tooltipMotivation && (
               <AttributeTable
@@ -337,6 +350,7 @@ export function DestructionListReviewPage() {
             },
           },
         ]}
+        onClearSelection={() => setZaakSelection([])}
       >
         <DestructionListToolbar />
       </DestructionListComponent>
