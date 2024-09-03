@@ -51,10 +51,11 @@ class DestructionListFilterset(FilterSet):
         field_name="assignee",
         help_text="The pk of the user currently assigned to the list.",
     )
+    ordering = OrderingFilter(fields=("created", "created"))
 
     class Meta:
         model = DestructionList
-        fields = ("assignee",)
+        fields = ("assignee", "ordering")
 
 
 class DestructionListReviewFilterset(FilterSet):
