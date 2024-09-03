@@ -120,7 +120,6 @@ export function DestructionListEdit() {
     };
     submitAction(action);
   };
-
   // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
   const editSelectionActions: ButtonProps[] = isEditingState
     ? [

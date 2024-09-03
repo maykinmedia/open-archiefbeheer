@@ -59,5 +59,5 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "muteren")
             await self.when.user_clicks_button(page, "Opnieuw indienen")
             await self.when.user_fills_form_field(page, "Opmerking", "Datum aangepast")
-            await self.when.user_clicks_button(page, "Opnieuw indienen")
+            await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
