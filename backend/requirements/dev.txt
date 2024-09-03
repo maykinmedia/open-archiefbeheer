@@ -751,7 +751,7 @@ webauthn==2.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-two-factor-auth
-webob==1.8.7
+webob==1.8.8
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
