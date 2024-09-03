@@ -7,10 +7,10 @@ import {
   P,
   Solid,
   Tooltip,
-  field2Title,
 } from "@maykin-ui/admin-ui";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
+import { ProcessingStatusBadge } from "../../components/ProcessingStatusBadge";
 import { usePoll } from "../../hooks/usePoll";
 import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
@@ -25,12 +25,7 @@ import {
 } from "../../lib/auth/permissions";
 import { timeAgo } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
-import {
-  PROCESSING_STATUS_ICON_MAPPING,
-  PROCESSING_STATUS_LEVEL_MAPPING,
-  PROCESSING_STATUS_MAPPING,
-  STATUS_MAPPING,
-} from "../constants";
+import { STATUS_MAPPING } from "../constants";
 import "./Landing.css";
 import { LandingContext, getStatusMap } from "./Landing.loader";
 
@@ -234,14 +229,7 @@ export const Landing = () => {
             );
           }
           return (
-            <Badge
-              level={PROCESSING_STATUS_LEVEL_MAPPING[entry.processingStatus]}
-            >
-              {PROCESSING_STATUS_ICON_MAPPING[entry.processingStatus]}
-              {field2Title(PROCESSING_STATUS_MAPPING[entry.processingStatus], {
-                unHyphen: false,
-              })}
-            </Badge>
+            <ProcessingStatusBadge processingStatus={entry.processingStatus} />
           );
         },
       }}

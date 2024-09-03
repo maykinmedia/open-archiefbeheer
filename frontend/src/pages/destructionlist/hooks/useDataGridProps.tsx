@@ -15,10 +15,12 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import { ProcessingStatusBadge } from "../../../components/ProcessingStatusBadge";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   DestructionListItem,
   PaginatedDestructionListItems,
+  ZaakItem,
 } from "../../../lib/api/destructionListsItem";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
 import { Review } from "../../../lib/api/review";
@@ -119,27 +121,40 @@ export function useDataGridProps(
     );
   };
 
+  //
+  // Get object list.
+  //
+  const formatZaak = (zaak: Zaak) => {
+    return {
+      ...zaak,
+      startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
+      einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
+      archiefactiedatum: zaak.archiefactiedatum,
+      einddatumGepland: zaak.einddatumGepland,
+      href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+      acties: <>{renderActionButtons(zaak, actions)}</>,
+    };
+  };
+
   /**
    * a (normalized) array of objects containing the row data to render.
    */
   const objectList = useMemo(
     () =>
       paginatedResults.results.map((itemOrZaak) => {
-        const zaak = Object.hasOwn(itemOrZaak, "zaak")
-          ? ((itemOrZaak as DestructionListItem).zaak as Zaak)
-          : (itemOrZaak as Zaak);
+        if (Object.hasOwn(itemOrZaak, "zaak")) {
+          const item = itemOrZaak as DestructionListItem;
 
-        return {
-          ...zaak,
-          // Transform the string dates to formatted string dates (dd-mm-yyyy)
-          startdatum: zaak.startdatum ? formatDate(zaak.startdatum) : "",
-          einddatum: zaak.einddatum ? formatDate(zaak.einddatum) : "",
-          archiefactiedatum: zaak.archiefactiedatum,
-          einddatumGepland: zaak.einddatumGepland,
-          href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-          acties: <>{renderActionButtons(zaak, actions)}</>,
-        };
-      }),
+          return {
+            ...(item.zaak ? formatZaak(item.zaak) : item.extraZaakData),
+            processingStatus: (
+              <ProcessingStatusBadge processingStatus={item.processingStatus} />
+            ),
+          };
+        }
+        const zaak = itemOrZaak as Zaak;
+        return formatZaak(zaak);
+      }) as ZaakItem[],
     [paginatedResults],
   );
 
@@ -159,10 +174,7 @@ export function useDataGridProps(
    * Returns the items on `paginatedResults.results` that are selected according to `zaakSelection`.
    */
   const selectedZakenOnPage = useMemo(() => {
-    return objectList.filter((zOrI: Zaak | DestructionListItem) => {
-      if ("zaak" in zOrI) {
-        return selectedUrls.includes(zOrI.zaak?.url || "");
-      }
+    return objectList.filter((zOrI: ZaakItem) => {
       return selectedUrls.includes(zOrI.url || "");
     });
   }, [objectList, selectedUrls]);
@@ -341,12 +353,12 @@ export function useDataGridProps(
     fields: fields,
     fieldsSelectable: true,
     loading: state === "loading",
-    objectList: objectList,
+    objectList: objectList as unknown as AttributeData[],
     page: page,
     pageSize: 100,
     showPaginator: true,
     selectable: true,
-    selected: selectedZakenOnPage,
+    selected: selectedZakenOnPage as unknown as AttributeData[],
     selectionActions: selectionActions,
     allPagesSelected: allZakenSelected,
     allowSelectAllPages: typeof allZakenSelected === "boolean",
