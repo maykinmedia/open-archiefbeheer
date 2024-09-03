@@ -1,5 +1,6 @@
 from datetime import date
 
+from freezegun import freeze_time
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -8,6 +9,7 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
 from .factories import (
+    DestructionListFactory,
     DestructionListItemFactory,
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
@@ -160,3 +162,34 @@ class DestructionListItemReviewEndpoint(APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["pk"], review_item1.pk)
+
+
+class DestructionListEndpoint(APITestCase):
+    def test_ordering_on_creation_date(self):
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            DestructionListFactory.create(name="Destruction list A")
+        with freeze_time("2024-08-01T16:30:00+02:00"):
+            DestructionListFactory.create(name="Destruction list B")
+        with freeze_time("2025-02-05T17:00:00+02:00"):
+            DestructionListFactory.create(name="Destruction list C")
+
+        record_manager = UserFactory.create(username="record_manager")
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["ordering"] = "-created"
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        names_in_order = [list["name"] for list in data]
+
+        self.assertEqual(
+            names_in_order,
+            ["Destruction list C", "Destruction list B", "Destruction list A"],
+        )
