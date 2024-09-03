@@ -110,8 +110,10 @@ export async function getDestructionList(uuid: string) {
 /**
  * List destruction lists.
  */
-export async function listDestructionLists() {
-  const response = await request("GET", "/destruction-lists/");
+export async function listDestructionLists(orderQuery: string) {
+  const response = await request("GET", "/destruction-lists/", {
+    ordering: orderQuery,
+  });
   const promise: Promise<DestructionList[]> = response.json();
   return promise;
 }

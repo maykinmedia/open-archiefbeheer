@@ -88,8 +88,12 @@ export const Landing = () => {
   const { statusMap, user } = useLoaderData() as LandingContext;
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+
   usePoll(async () => {
-    const _statusMap = await getStatusMap();
+    const orderQuery = new URLSearchParams(window.location.search).get(
+      "ordering",
+    );
+    const _statusMap = await getStatusMap(orderQuery);
     const equal = JSON.stringify(_statusMap) === JSON.stringify(statusMap);
     if (!equal) {
       revalidator.revalidate();
@@ -193,6 +197,25 @@ export const Landing = () => {
       };
     }),
   );
+
+  const sortOptions = [
+    { label: "Nieuwste eerst", value: "-created" },
+    { label: "Oudste eerst", value: "created" },
+  ];
+
+  const selectedSort =
+    new URLSearchParams(window.location.search).get("ordering") || "-created";
+
+  const sortedOptions = sortOptions.map((option) => ({
+    ...option,
+    selected: option.value === selectedSort,
+  }));
+
+  const onChangeSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    // update the query string
+    navigate(`?ordering=${event.target.value}`);
+  };
+
   return (
     <KanbanTemplate
       kanbanProps={{
@@ -201,10 +224,15 @@ export const Landing = () => {
         objectLists: objectLists,
         toolbarProps: {
           items: [
-            // TODO: SORT
+            {
+              direction: "horizontal",
+              label: "Sorteren",
+              required: true,
+              options: sortedOptions,
+              onChange: onChangeSort,
+            },
             "spacer",
             {
-              // TODO: LINK
               children: (
                 <>
                   <Solid.DocumentPlusIcon />
