@@ -210,7 +210,9 @@ export const Landing = () => {
             >
               {PROCESSING_STATUS_ICON_MAPPING[entry.processingStatus]}
               &nbsp;
-              {field2Title(PROCESSING_STATUS_MAPPING[entry.processingStatus])}
+              {field2Title(PROCESSING_STATUS_MAPPING[entry.processingStatus], {
+                unHyphen: false,
+              })}
             </Badge>
           );
         },

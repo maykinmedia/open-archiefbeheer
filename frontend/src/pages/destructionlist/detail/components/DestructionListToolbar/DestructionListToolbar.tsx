@@ -117,7 +117,7 @@ export function DestructionListToolbar() {
 
   return (
     <Body>
-      <H2>{field2Title(destructionList.name)}</H2>
+      <H2>{field2Title(destructionList.name, { unHyphen: false })}</H2>
       {logItems ? (
         <Tabs>
           <Tab id="gegevens" label="Gegevens">
