@@ -1,5 +1,8 @@
+from datetime import date
+
 from django.test import TestCase, TransactionTestCase, tag
 
+from freezegun import freeze_time
 from requests_mock import Mocker
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -64,7 +67,7 @@ PAGE_2 = {
 
 
 @Mocker()
-class RetrieveCachedZakenTest(TestCase):
+class RetrieveAndCacheZakenTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -74,20 +77,149 @@ class RetrieveCachedZakenTest(TestCase):
             api_root="http://zaken-api.nl/zaken/api/v1",
         )
 
+    def test_no_zaken_in_db(self, m):
+        Zaak.objects.all().delete()
+
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                    },
+                    {
+                        "identificatie": "ZAAK-02",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/79dbdbb6-b903-4655-84de-d0b9e106b781",
+                        "uuid": "79dbdbb6-b903-4655-84de-d0b9e106b781",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                    },
+                ],
+                "count": 2,
+                "previous": None,
+                "next": None,
+            },
+        )
+
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        zaak_request = m.request_history[0]
+        self.assertIn("einddatum__lt", zaak_request.qs)
+        self.assertEqual(zaak_request.qs["einddatum__lt"][0], "2024-08-29")
+        self.assertNotIn("einddatum__gt", zaak_request.qs)
+
+    def test_zaken_in_database(self, m):
+        # The latest eindatum is taken
+        ZaakFactory.create(einddatum=date(2024, 8, 27))
+        ZaakFactory.create(einddatum=date(2024, 8, 26))
+        ZaakFactory.create(einddatum=date(2024, 8, 25))
+
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/ffaa6410-0319-4a6b-b65a-fb209798e81c",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                    },
+                    {
+                        "identificatie": "ZAAK-02",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/79dbdbb6-b903-4655-84de-d0b9e106b781",
+                        "uuid": "79dbdbb6-b903-4655-84de-d0b9e106b781",
+                        "startdatum": "2020-02-01",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                    },
+                ],
+                "count": 2,
+                "previous": None,
+                "next": None,
+            },
+        )
+
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        zaak_request = m.request_history[0]
+        self.assertIn("einddatum__lt", zaak_request.qs)
+        self.assertEqual(zaak_request.qs["einddatum__lt"][0], "2024-08-29")
+        self.assertIn("einddatum__gt", zaak_request.qs)
+        self.assertEqual(zaak_request.qs["einddatum__gt"][0], "2024-08-27")
+
+    def test_zaak_already_in_db_is_retrieved_again(self, m):
+        zaak = ZaakFactory.create(
+            url="http://zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+            resultaat="http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
+        )
+
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            json={
+                "results": [
+                    {
+                        "identificatie": "ZAAK-01",
+                        "url": "http://zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                        "uuid": "75f4c682-1e16-45ea-8f78-99b4474986ac",
+                        "resultaat": "http://zaken-api.nl/zaken/api/v1/resultaten/222-222-222",
+                        "startdatum": "2020-02-01",
+                        "einddatum": "2024-08-29",
+                        "zaaktype": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "bronorganisatie": "000000000",
+                        "verantwoordelijkeOrganisatie": "000000000",
+                    },
+                ],
+                "count": 1,
+                "previous": None,
+                "next": None,
+            },
+        )
+
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        self.assertEqual(Zaak.objects.count(), 1)
+
+        zaak.refresh_from_db()
+
+        # We dont resync, since the zaken with einddatum should not change
+        self.assertEqual(
+            zaak.resultaat, "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"
+        )
+
     def test_retrieve_and_cache_zaken(self, m):
-        zaak = ZaakFactory.create()
-        zaak_uuid = zaak.uuid
+        ZaakFactory.create(url="http://zaken-api.nl/zaken/api/v1/zaken/111-111-111")
 
         m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_1)
         m.get("http://zaken-api.nl/zaken/api/v1/zaken/?page=2", json=PAGE_2)
 
         retrieve_and_cache_zaken_from_openzaak()
 
-        self.assertFalse(Zaak.objects.filter(uuid=zaak_uuid).exists())
+        self.assertTrue(
+            Zaak.objects.filter(
+                url="http://zaken-api.nl/zaken/api/v1/zaken/111-111-111"
+            ).exists()
+        )
 
         zaken = Zaak.objects.all()
 
-        self.assertEqual(zaken.count(), 4)
+        self.assertEqual(zaken.count(), 5)
 
     @tag("gh-34")
     def test_retrieve_zaken_with_archiefnominatie_null(self, m):

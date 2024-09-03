@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from uuid import uuid4
 
 import factory
@@ -11,12 +11,13 @@ class ZaakFactory(factory.django.DjangoModelFactory):
     uuid = FuzzyAttribute(uuid4)
     url = factory.LazyAttribute(lambda obj: f"http://zaken-api.nl/zaken/{obj.uuid}")
     identificatie = factory.Sequence(lambda number: f"ZAAK-{number}")
-    startdatum = FuzzyDate(date(2000, 1, 1))
+    startdatum = FuzzyDate(date(2000, 1, 1), date(2022, 1, 1))
     zaaktype = factory.Sequence(
         lambda number: f"http://catalogue-api.nl/zaaktypen/{number}"
     )
     bronorganisatie = "000000000"
     verantwoordelijke_organisatie = "000000000"
+    einddatum = factory.LazyAttribute(lambda obj: obj.startdatum + timedelta(days=365))
 
     class Meta:
         model = Zaak

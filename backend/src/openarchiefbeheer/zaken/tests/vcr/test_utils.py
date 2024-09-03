@@ -1,5 +1,6 @@
 from django.test import TestCase, tag
 
+from freezegun import freeze_time
 from vcr.unittest import VCRMixin
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
@@ -8,7 +9,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixture
+from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 
 from ...models import Zaak
 from ...tasks import retrieve_and_cache_zaken_from_openzaak
@@ -40,9 +41,12 @@ class DeletingZakenTests(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    @reload_openzaak_fixture("complex_relations.json")
+    @reload_openzaak_fixtures()
     def test_delete_zaak_related_to_besluit_related_to_document(self):
-        retrieve_and_cache_zaken_from_openzaak()
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        self.assertEqual(Zaak.objects.count(), 103)
 
         zaak = Zaak.objects.get(identificatie="ZAAK-00")
         destruction_list_item = DestructionListItemFactory.create(zaak=zaak)
@@ -59,8 +63,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
 
             data = response.json()
 
-            self.assertEqual(data["count"], 1)
-            self.assertEqual(data["results"][0]["identificatie"], "ZAAK-01")
+            self.assertEqual(data["count"], 102)
 
         drc_service = Service.objects.get(api_type=APITypes.drc)
         drc_client = build_client(drc_service)
