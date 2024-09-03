@@ -616,5 +616,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "openarchiefbeheer.zaken.tasks.retrieve_and_cache_zaken_from_openzaak",
         # run every 24 hours, executing the task at 00:00
         "schedule": crontab(hour="0", minute="0"),
-    }
+    },
+    "resync-zaken": {
+        "task": "openarchiefbeheer.zaken.tasks.resync_zaken",
+        # run every saturday, executing the task at 12:00 (midday)
+        "schedule": crontab(day_of_week="sat", hour="12", minute="0"),
+    },
 }
