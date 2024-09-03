@@ -13,6 +13,7 @@ import {
   recordManagerFactory,
   usersFactory,
 } from "../../../fixtures/user";
+import { zaakFactory } from "../../../fixtures/zaak";
 import {
   DestructionListCreateContext,
   DestructionListCreatePage,
@@ -47,7 +48,10 @@ type Story = StoryObj<typeof meta>;
 const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
   zaken: paginatedZakenFactory(),
-  zaakSelection: {},
+  zaakSelection: {
+    ["http://localhost:8000/zaken/api/v1/zaken/00000000-0000-0000-0000-000000000000"]:
+      { selected: true },
+  },
   allZakenSelected: false,
 };
 

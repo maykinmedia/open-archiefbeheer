@@ -135,7 +135,7 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
 const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
 
-  destructionList: destructionListFactory(),
+  destructionList: destructionListFactory({ status: "new" }),
   destructionListItems: paginatedDestructionListItemsFactory(),
   logItems: auditLogFactory(),
 
@@ -368,6 +368,7 @@ export const MarkDestructionListAsFinal: Story = {
         elementIndex: 0,
         formValues: {
           Archivaris: "Record Manager",
+          Comment: "Ready for destruction",
         },
       },
     });
