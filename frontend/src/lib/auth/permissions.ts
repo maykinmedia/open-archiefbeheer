@@ -25,7 +25,8 @@ export function canMarkAsReadyToReview(
   return (
     user.role.canStartDestruction &&
     destructionList.author.pk === user.pk &&
-    destructionList.status === "new"
+    (destructionList.status === "new" ||
+      destructionList.status === "changes_requested")
   );
 }
 
