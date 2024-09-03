@@ -1,24 +1,13 @@
 import {
   AttributeData,
   AttributeTable,
-  Body,
-  ButtonProps,
   DataGrid,
-  Form,
-  Modal,
   Outline,
-  SerializedFormData,
-  Solid,
 } from "@maykin-ui/admin-ui";
 import React, { useState } from "react";
 import { useLoaderData, useNavigation, useRevalidator } from "react-router-dom";
 import { useAsync } from "react-use";
 
-import { useSubmitAction } from "../../../../../hooks";
-import {
-  ReviewItemResponse,
-  ReviewResponse,
-} from "../../../../../lib/api/reviewResponse";
 import {
   ZaakSelection,
   addToZaakSelection,
@@ -26,7 +15,6 @@ import {
 } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { DataGridAction, useDataGridProps } from "../../../hooks";
-import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListProcessZaakReviewModal } from "../index";
 
@@ -60,11 +48,9 @@ export type ProcessReviewAction =
  */
 export function DestructionListProcessReview() {
   const { state } = useNavigation();
-  const submitAction = useSubmitAction();
 
   const {
     storageKey,
-    destructionList,
     destructionListItems,
     zaakSelection,
     review,
@@ -76,11 +62,6 @@ export function DestructionListProcessReview() {
     processZaakReviewSelectionDetailState,
     setProcessZaakReviewSelectionDetailState,
   ] = useState<ProcessZaakReviewSelectionDetail>();
-
-  // An object of {url: string} items used to indicate (additional) selected zaken.
-  const selectedUrls = Object.entries(zaakSelection)
-    .filter(([, { selected }]) => selected)
-    .map(([url]) => ({ url }));
 
   /**
    * Get called when the user selects a zaak when a review is received.
@@ -150,58 +131,6 @@ export function DestructionListProcessReview() {
     revalidator.revalidate();
   };
 
-  /**
-   * Gets called when the "Opnieuw indienen" button is clicked.
-   */
-  const handleProcessReviewClick = () => {
-    setProcessZaakReviewCommentModalOpenState(true);
-  };
-
-  /**
-   * Gets called when the destruction list feedback is submitted.
-   */
-  const handleProcessReviewSubmitList = (
-    _: React.FormEvent,
-    data: SerializedFormData,
-  ) => {
-    console.assert(
-      reviewItems?.length && reviewItems?.length === selectedUrls.length,
-      "The amount of review items does not match the amount of selected zaken!",
-    );
-
-    // Use JSON as `FormData` can't contain complex types.
-    const actionData: UpdateDestructionListAction<ReviewResponse> = {
-      type: "PROCESS_REVIEW",
-      payload: {
-        review: review?.pk as number,
-        comment: data.comment as string,
-        itemsResponses:
-          reviewItems?.map<ReviewItemResponse>((ri) => {
-            const detail = zaakSelection[ri.zaak.url || ""]
-              .detail as ProcessZaakReviewSelectionDetail;
-
-            return {
-              reviewItem: ri.pk,
-              actionItem: detail.action === "keep" ? "keep" : "remove",
-              actionZaak: {
-                selectielijstklasse: detail.selectielijstklasse,
-                archiefactiedatum: detail.archiefactiedatum,
-              },
-              comment: detail.comment,
-            };
-          }) || [],
-      },
-    };
-
-    submitAction(actionData);
-  };
-
-  // State to manage the state of the comment modal (when submitting review feedback).
-  const [
-    processZaakReviewCommentModalOpenState,
-    setProcessZaakReviewCommentModalOpenState,
-  ] = useState(false);
-
   // State to manage the state of the zaak modal (when clicking a checkbox)
   const [processZaakReviewModalState, setProcessZaakReviewModalState] =
     useState<ZaakModalDataState>({
@@ -217,23 +146,6 @@ export function DestructionListProcessReview() {
     processZaakReviewSelectionState?.[
       processZaakReviewModalState.zaak?.url || ""
     ]?.detail;
-
-  // FIXME: This actin should be move to to top bar (secondary navigation).
-  const processZaakReviewSelectionActions: ButtonProps[] = [
-    {
-      children: (
-        <>
-          <Solid.DocumentArrowUpIcon />
-          Opnieuw indienen
-        </>
-      ),
-      disabled:
-        ["loading", "submitting"].includes(state) ||
-        selectedUrls.length !== destructionListItems.count,
-      variant: "primary",
-      onClick: handleProcessReviewClick,
-    },
-  ];
 
   const processZaakReviewZaakActions: DataGridAction[] = [
     {
@@ -324,29 +236,6 @@ export function DestructionListProcessReview() {
 
   return (
     <>
-      {/* The "comment" modal */}
-      <Modal
-        allowClose={true}
-        open={processZaakReviewCommentModalOpenState}
-        size="m"
-        title={`${destructionList.name} opnieuw indienen`}
-        onClose={() => setProcessZaakReviewCommentModalOpenState(false)}
-      >
-        <Body>
-          <Form
-            fields={[
-              {
-                label: "Opmerking",
-                name: "comment",
-              },
-            ]}
-            onSubmit={handleProcessReviewSubmitList}
-            validateOnChange={true}
-            labelSubmit={"Opnieuw indienen"}
-          />
-        </Body>
-      </Modal>
-
       {/* The "feedback" modal */}
       <DestructionListProcessZaakReviewModal
         zaakModalDataState={processZaakReviewModalState}
@@ -384,12 +273,8 @@ export function DestructionListProcessReview() {
         loading={state === "loading"}
         selectable={true}
         allowSelectAll={!reviewItems}
-        selectionActions={[
-          ...processZaakReviewSelectionActions,
-          ...(dataGridProps?.selectionActions || []),
-        ]}
+        selectionActions={[...(dataGridProps?.selectionActions || [])]}
         showPaginator={false}
-        // sort={isEditingState}
         title="Zaakdossiers"
         onSelect={handleProcessReviewZaakSelect}
       />

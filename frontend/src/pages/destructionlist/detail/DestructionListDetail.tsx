@@ -14,10 +14,14 @@ import {
   ToolbarItem,
   field2Title,
 } from "@maykin-ui/admin-ui";
-import { FormEvent, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import React, { FormEvent, useState } from "react";
+import { useLoaderData, useNavigation } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
+import {
+  ReviewItemResponse,
+  ReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import {
   canMarkAsReadyToReview,
   canMarkListAsFinal,
@@ -31,25 +35,53 @@ import {
 import { UpdateDestructionListAction } from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";
-import { DestructionListProcessReview } from "./components/DestructionListProcessReview/DestructionListProcessReview";
+import {
+  DestructionListProcessReview,
+  ProcessReviewAction,
+} from "./components/DestructionListProcessReview/DestructionListProcessReview";
 import { DestructionListToolbar } from "./components/DestructionListToolbar/DestructionListToolbar";
+
+interface ProcessZaakReviewSelectionDetail {
+  comment: string;
+  action: ProcessReviewAction;
+  selectielijstklasse: string;
+  archiefactiedatum: string;
+}
 
 /**
  * Destruction list detail page
  */
 export function DestructionListDetailPage() {
-  const { archivists, destructionList, user, destructionListItems } =
-    useLoaderData() as DestructionListDetailContext;
+  const { state } = useNavigation();
+  const {
+    archivists,
+    destructionList,
+    destructionListItems,
+    review,
+    reviewItems,
+    user,
+    zaakSelection,
+  } = useLoaderData() as DestructionListDetailContext;
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
 
   const [archivistModalOpenState, setArchivistModalOpenState] = useState(false);
+
   const [readyToReviewModalOpenState, setReadyToReviewModalOpenState] =
     useState(false);
+
+  // State to manage the state of the comment modal (when submitting review feedback).
+  const [
+    processZaakReviewCommentModalOpenState,
+    setProcessZaakReviewCommentModalOpenState,
+  ] = useState(false);
+
   const [destroyModalOpenState, setDestroyModalOpenState] = useState(false);
   const isInReview = destructionList.status === "changes_requested";
 
-  // TODO - Make a 404 page (or remove?)
-  if (!destructionList) return <div>Deze vernietigingslijst bestaat niet.</div>;
+  // An object of {url: string} items used to indicate (additional) selected zaken.
+  const selectedUrls = Object.entries(zaakSelection)
+    .filter(([, { selected }]) => selected)
+    .map(([url]) => ({ url }));
 
   // The approval form for the archivist.
   const archivistModalFormFields: FormField[] = [
@@ -85,18 +117,38 @@ export function DestructionListDetailPage() {
    */
   const getSecondaryNavigationItems = (): ToolbarItem[] | undefined => {
     if (canMarkAsReadyToReview(user, destructionList)) {
-      return [
-        {
-          children: (
-            <>
-              <Solid.DocumentArrowUpIcon />
-              Ter beoordeling indienen
-            </>
-          ),
-          onClick: () => setReadyToReviewModalOpenState(true),
-          pad: "h",
-        },
-      ];
+      switch (destructionList.status) {
+        case "new":
+          return [
+            {
+              children: (
+                <>
+                  <Solid.DocumentArrowUpIcon />
+                  Ter beoordeling indienen
+                </>
+              ),
+              onClick: () => setReadyToReviewModalOpenState(true),
+              pad: "h",
+            },
+          ];
+        case "changes_requested":
+          return [
+            {
+              children: (
+                <>
+                  <Solid.DocumentArrowUpIcon />
+                  Opnieuw indienen
+                </>
+              ),
+              disabled:
+                ["loading", "submitting"].includes(state) ||
+                selectedUrls.length !== destructionListItems.count,
+              variant: "primary",
+              pad: "h",
+              onClick: handleProcessReviewClick,
+            },
+          ];
+      }
     }
     if (canMarkListAsFinal(user, destructionList)) {
       return [
@@ -165,6 +217,52 @@ export function DestructionListDetailPage() {
   };
 
   /**
+   * Gets called when the "Opnieuw indienen" button is clicked.
+   */
+  const handleProcessReviewClick = () => {
+    setProcessZaakReviewCommentModalOpenState(true);
+  };
+
+  /**
+   * Gets called when the destruction list feedback is submitted.
+   */
+  const handleProcessReviewSubmitList = (
+    _: React.FormEvent,
+    data: SerializedFormData,
+  ) => {
+    console.assert(
+      reviewItems?.length && reviewItems?.length === selectedUrls.length,
+      "The amount of review items does not match the amount of selected zaken!",
+    );
+
+    // Use JSON as `FormData` can't contain complex types.
+    const actionData: UpdateDestructionListAction<ReviewResponse> = {
+      type: "PROCESS_REVIEW",
+      payload: {
+        review: review?.pk as number,
+        comment: data.comment as string,
+        itemsResponses:
+          reviewItems?.map<ReviewItemResponse>((ri) => {
+            const detail = zaakSelection[ri.zaak.url || ""]
+              .detail as ProcessZaakReviewSelectionDetail;
+
+            return {
+              reviewItem: ri.pk,
+              actionItem: detail.action === "keep" ? "keep" : "remove",
+              actionZaak: {
+                selectielijstklasse: detail.selectielijstklasse,
+                archiefactiedatum: detail.archiefactiedatum,
+              },
+              comment: detail.comment,
+            };
+          }) || [],
+      },
+    };
+
+    submitAction(actionData);
+  };
+
+  /**
    * Dispatches action to mark the destruction list as final (archivist approves).
    * @param _
    * @param data
@@ -224,6 +322,30 @@ export function DestructionListDetailPage() {
                 Ter beoordeling indienen
               </Button>
             </Toolbar>
+          </Body>
+        </Modal>
+      )}
+
+      {destructionList.status === "changes_requested" && (
+        <Modal
+          allowClose={true}
+          open={processZaakReviewCommentModalOpenState}
+          size="m"
+          title={`${destructionList.name} opnieuw indienen`}
+          onClose={() => setProcessZaakReviewCommentModalOpenState(false)}
+        >
+          <Body>
+            <Form
+              fields={[
+                {
+                  label: "Opmerking",
+                  name: "comment",
+                },
+              ]}
+              onSubmit={handleProcessReviewSubmitList}
+              validateOnChange={true}
+              labelSubmit={"Opnieuw indienen"}
+            />
           </Body>
         </Modal>
       )}
