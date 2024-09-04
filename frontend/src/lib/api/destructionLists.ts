@@ -69,20 +69,15 @@ export type DestructionListMarkAsFinalData = {
 export async function createDestructionList(
   name: string,
   zaken: string[] | Zaak[],
-  assignees: string[] | number[] | User[],
+  assigneeId: string,
   zaakFilters: string,
   allZakenSelected: boolean,
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
-  const assigneeIds = assignees
-    .map((assignee) =>
-      isPrimitive(assignee) ? assignee.toString() : assignee.pk.toString(),
-    )
-    .filter((v) => v);
 
   const destructionList = {
     name,
-    assignees: assigneeIds.map((id) => ({ user: id })),
+    reviewer: { user: JSON.parse(assigneeId) },
     items: urls.map((url) => ({ zaak: url })),
     selectAll: allZakenSelected,
     zaakFilters: JSON.parse(zaakFilters),

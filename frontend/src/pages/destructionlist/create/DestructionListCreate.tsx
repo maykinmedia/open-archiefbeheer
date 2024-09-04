@@ -56,14 +56,13 @@ export function DestructionListCreatePage() {
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
       .map(([url]) => url);
-    const { name, assigneeIds } = data;
+    const { name, assigneeId } = data;
 
     const formData = new FormData();
     formData.append("name", name as string);
     zaakUrls.forEach((url) => formData.append("zaakUrls", url));
-    (assigneeIds as string[]).forEach((id) =>
-      formData.append("assigneeIds", String(id)),
-    );
+    formData.append("assigneeId", JSON.stringify(assigneeId));
+
     const filters = Object.fromEntries(searchParams);
     formData.append("zaakFilters", JSON.stringify(filters));
 
@@ -80,22 +79,13 @@ export function DestructionListCreatePage() {
       required: true,
     },
     {
-      label: "Eerste reviewer",
-      name: "assigneeIds",
+      label: "Reviewer",
+      name: "assigneeId",
       options: reviewers.map((user) => ({
         value: String(user.pk),
         label: user.username,
       })),
       required: true,
-    },
-    {
-      label: "Tweede reviewer",
-      name: "assigneeIds",
-      options: reviewers.map((user) => ({
-        value: String(user.pk),
-        label: user.username,
-      })),
-      required: false,
     },
   ];
 
