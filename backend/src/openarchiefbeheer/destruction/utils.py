@@ -10,7 +10,7 @@ from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 from openarchiefbeheer.zaken.models import Zaak
 
-from .constants import InternalStatus
+from .constants import InternalStatus, ListRole
 from .models import DestructionList, DestructionListAssignee, DestructionListItem
 
 
@@ -81,26 +81,6 @@ def notify_author_changes_requested(
     )
 
 
-def notify_author_last_review(
-    user: User,
-    destruction_list: DestructionList,
-) -> None:
-    config = EmailConfig.get_solo()
-
-    last_reviewer = destruction_list.reviews.order_by("created").last().author
-
-    notify(
-        subject=config.subject_last_review,
-        body=config.body_last_review,
-        context={
-            "user": user,
-            "list": destruction_list,
-            "last_reviewer": last_reviewer,
-        },
-        recipients=[user.email],
-    )
-
-
 def notify_assignees_successful_deletion(destruction_list: DestructionList) -> None:
     config = EmailConfig.get_solo()
     recipients = destruction_list.assignees.all().values_list("user__email", flat=True)
@@ -119,19 +99,20 @@ class ObjectWithStatus(Protocol):
     def set_processing_status(self, status: InternalStatus) -> None: ...
 
 
-def process_new_assignees(
+def process_new_reviewer(
     destruction_list: DestructionList,
-    assignees: list[dict],
-    role: str,
-) -> list[DestructionListAssignee]:
+    reviewer: User,
+) -> DestructionListAssignee:
     with transaction.atomic():
-        destruction_list.assignees.filter(role=role).delete()
-        new_assignees = destruction_list.bulk_create_assignees(
-            assignees,
-            role,
+        destruction_list.assignees.filter(role=ListRole.reviewer).delete()
+        new_reviewer = DestructionListAssignee(
+            user=reviewer,
+            destruction_list=destruction_list,
+            role=ListRole.reviewer,
         )
+        new_reviewer.save()
 
-    return new_assignees
+    return new_reviewer
 
 
 def resync_items_and_zaken() -> None:

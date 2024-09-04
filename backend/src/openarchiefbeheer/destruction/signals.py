@@ -9,7 +9,6 @@ from .models import DestructionList, DestructionListAssignee, DestructionListRev
 from .utils import (
     notify,
     notify_author_changes_requested,
-    notify_author_last_review,
     notify_author_positive_review,
     notify_reviewer,
 )
@@ -28,10 +27,6 @@ def notify_author_after_review(sender, instance, created, **kwargs):
 
     if review.decision == ReviewDecisionChoices.rejected:
         notify_author_changes_requested(destruction_list.author, destruction_list)
-        return
-
-    if destruction_list.all_reviewers_approved():
-        notify_author_last_review(destruction_list.author, destruction_list)
         return
 
     notify_author_positive_review(destruction_list.author, destruction_list)
