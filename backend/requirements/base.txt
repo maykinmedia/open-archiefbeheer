@@ -41,7 +41,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-cryptography==42.0.5
+cryptography==43.0.1
     # via
     #   django-simple-certmanager
     #   pyopenssl
@@ -158,7 +158,7 @@ pycparser==2.22
     # via cffi
 pyjwt==2.8.0
     # via zgw-consumers
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via webauthn
 pypng==0.20220715.0
     # via qrcode
