@@ -27,13 +27,11 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
         async with browser_page() as page:
             await self.given.selectielijstklasse_choices_are_available(page)
             record_manager = await self.given.record_manager_exists()
-            reviewer1 = await self.given.reviewer_exists(username="Beoordelaar 1")
-            reviewer2 = await self.given.reviewer_exists(username="Beoordelaar 2")
+            reviewer = await self.given.reviewer_exists(username="Beoordelaar")
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer1, role=ListRole.reviewer),
-                await self.given.assignee_exists(user=reviewer2, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
             ]
 
             destruction_list = await self.given.list_exists(
@@ -44,9 +42,8 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                 status=ListStatus.changes_requested,
             )
 
-            # Both reviewers provided a review.
-            await self.given.review_exists(author=reviewer1, destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted)
-            await self.given.review_exists(author=reviewer2, destruction_list=destruction_list, decision=ReviewDecisionChoices.rejected)
+            # Reviewer provided a review.
+            await self.given.review_exists(author=reviewer, destruction_list=destruction_list, decision=ReviewDecisionChoices.rejected)
 
             await self.when.record_manager_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")

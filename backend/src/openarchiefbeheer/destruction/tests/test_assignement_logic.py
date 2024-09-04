@@ -16,10 +16,10 @@ from .factories import (
 
 
 class AssignementLogicTest(TestCase):
-    def test_assign_first_reviewer(self):
+    def test_assign_reviewer(self):
         destruction_list = DestructionListFactory.create(status=ListStatus.new)
-        assignees = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        assignee = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
 
         destruction_list.assign_next()
@@ -27,27 +27,7 @@ class AssignementLogicTest(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
-        self.assertEqual(destruction_list.assignee, assignees[0].user)
-
-    def test_assign_second_reviewer(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review
-        )
-        assignees = DestructionListAssigneeFactory.create_batch(
-            3, role=ListRole.reviewer, destruction_list=destruction_list
-        )
-        DestructionListReviewFactory.create(
-            author=assignees[0].user,
-            destruction_list=destruction_list,
-            decision=ReviewDecisionChoices.accepted,
-        )
-
-        destruction_list.assign_next()
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
-        self.assertEqual(destruction_list.assignee, assignees[1].user)
+        self.assertEqual(destruction_list.assignee, assignee.user)
 
     def test_reviewer_rejected_list(self):
         destruction_list = DestructionListFactory.create(
@@ -58,16 +38,11 @@ class AssignementLogicTest(TestCase):
             destruction_list=destruction_list,
             user=destruction_list.author,
         )
-        reviewers = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        reviewer = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
-            author=reviewers[0].user,
-            destruction_list=destruction_list,
-            decision=ReviewDecisionChoices.accepted,
-        )
-        DestructionListReviewFactory.create(
-            author=reviewers[1].user,
+            author=reviewer.user,
             destruction_list=destruction_list,
             decision=ReviewDecisionChoices.rejected,
         )
@@ -79,7 +54,7 @@ class AssignementLogicTest(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.changes_requested)
         self.assertEqual(destruction_list.assignee, record_manager.user)
 
-    def test_all_reviewers_approved_long_process(self):
+    def test_reviewer_approved_long_process(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
@@ -91,16 +66,11 @@ class AssignementLogicTest(TestCase):
             destruction_list=destruction_list,
             user=destruction_list.author,
         )
-        reviewers = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        reviewer = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
-            author=reviewers[0].user,
-            destruction_list=destruction_list,
-            decision=ReviewDecisionChoices.accepted,
-        )
-        DestructionListReviewFactory.create(
-            author=reviewers[1].user,
+            author=reviewer.user,
             destruction_list=destruction_list,
             decision=ReviewDecisionChoices.accepted,
         )
@@ -112,7 +82,7 @@ class AssignementLogicTest(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
         self.assertEqual(destruction_list.assignee, record_manager.user)
 
-    def test_all_reviewers_approved_short_process(self):
+    def test_reviewer_approved_short_process(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
@@ -124,16 +94,11 @@ class AssignementLogicTest(TestCase):
             destruction_list=destruction_list,
             user=destruction_list.author,
         )
-        reviewers = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        reviewer = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
-            author=reviewers[0].user,
-            destruction_list=destruction_list,
-            decision=ReviewDecisionChoices.accepted,
-        )
-        DestructionListReviewFactory.create(
-            author=reviewers[1].user,
+            author=reviewer.user,
             destruction_list=destruction_list,
             decision=ReviewDecisionChoices.accepted,
         )
@@ -153,16 +118,11 @@ class AssignementLogicTest(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.changes_requested
         )
-        reviewers = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        reviewer = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
-            author=reviewers[0].user,
-            destruction_list=destruction_list,
-            decision=ReviewDecisionChoices.accepted,
-        )
-        DestructionListReviewFactory.create(
-            author=reviewers[1].user,
+            author=reviewer.user,
             destruction_list=destruction_list,
             decision=ReviewDecisionChoices.rejected,
         )
@@ -172,7 +132,7 @@ class AssignementLogicTest(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
-        self.assertEqual(destruction_list.assignee, reviewers[1].user)
+        self.assertEqual(destruction_list.assignee, reviewer.user)
 
     def test_assign_archivist(self):
         destruction_list = DestructionListFactory.create(
@@ -214,13 +174,13 @@ class AssignementLogicTest(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
         self.assertEqual(destruction_list.assignee, record_manager.user)
 
-    def test_reassign_reviewers_ready_to_review(self):
+    def test_reassign_reviewer_ready_to_review(self):
         reviewer_old = UserFactory.create(role__can_review_destruction=True)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, assignee=reviewer_old
         )
-        assignees = DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        assignee_new = DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
 
         destruction_list.reassign()
@@ -228,15 +188,15 @@ class AssignementLogicTest(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
-        self.assertEqual(destruction_list.assignee, assignees[0].user)
+        self.assertEqual(destruction_list.assignee, assignee_new.user)
 
-    def test_reassign_reviewers_noop(self):
+    def test_reassign_reviewer_noop(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.new, assignee=record_manager, author=record_manager
         )
-        DestructionListAssigneeFactory.create_batch(
-            2, role=ListRole.reviewer, destruction_list=destruction_list
+        DestructionListAssigneeFactory.create(
+            role=ListRole.reviewer, destruction_list=destruction_list
         )
 
         with self.subTest("New"):
