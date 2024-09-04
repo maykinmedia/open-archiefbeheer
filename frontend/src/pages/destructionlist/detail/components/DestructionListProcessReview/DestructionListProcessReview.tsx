@@ -217,7 +217,9 @@ export function DestructionListProcessReview() {
       previous: null,
       results: reviewItems?.map((ri) => ri.zaak) || [],
     },
-    zaakSelection,
+    Object.entries(zaakSelection)
+      .filter(([, { selected }]) => selected)
+      .map(([url]) => url),
     undefined,
     processZaakReviewZaakActions,
     undefined,

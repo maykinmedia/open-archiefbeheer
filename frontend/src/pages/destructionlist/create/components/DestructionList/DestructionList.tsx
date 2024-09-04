@@ -52,7 +52,9 @@ export function DestructionList({
   const { props: dataGridProps, error } = useDataGridProps(
     storageKey,
     zaken,
-    zaakSelection,
+    Object.entries(zaakSelection)
+      .filter(([, { selected }]) => selected)
+      .map(([url]) => url),
     allZakenSelected,
     actions,
     destructionListUuid,

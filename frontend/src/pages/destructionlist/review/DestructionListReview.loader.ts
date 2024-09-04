@@ -1,5 +1,6 @@
 import { ActionFunctionArgs } from "react-router-dom";
 
+import { AuditLogItem, listAuditLog } from "../../../lib/api/auditLog";
 import { User } from "../../../lib/api/auth";
 import {
   DestructionList,
@@ -21,19 +22,29 @@ import {
   canReviewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import { isZaakSelected } from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
+import {
+  ZaakSelection,
+  getFilteredZaakSelection,
+  getZaakSelection,
+  getZaakSelectionItem,
+  isZaakSelected,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewContext = {
-  review: Review;
-  reviewers: User[];
-  reviewItems?: ReviewItem[];
-  reviewResponse?: ReviewResponse;
-  zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
   uuid: string;
   destructionList: DestructionList;
+  logItems: AuditLogItem[];
+
+  review: Review;
+  reviewItems?: ReviewItem[];
+  reviewResponse?: ReviewResponse;
+
+  reviewers: User[];
+
+  zaken: PaginatedZaken;
+  approvedZaakUrlsOnPage: string[];
+  excludedZaakSelection: ZaakSelection<{ approved: false; comment?: string }>;
 };
 
 /**
@@ -49,18 +60,15 @@ export const destructionListReviewLoader = loginRequired(
     }: ActionFunctionArgs): Promise<DestructionListReviewContext> => {
       const searchParams = new URL(request.url).searchParams;
       const uuid = params.uuid as string;
+      const storageKey = getDestructionListReviewKey(uuid);
+
       searchParams.set("destruction_list", uuid);
       const objParams = Object.fromEntries(searchParams);
 
-      const zakenPromise = listZaken({
-        ...objParams,
-        in_destruction_list: uuid,
-      });
-      const listsPromise = getDestructionList(uuid);
-      const reviewersPromise = listReviewers();
       const latestReview = await getLatestReview({
         destructionList__uuid: uuid,
       });
+
       const reviewItemsPromise = latestReview
         ? listReviewItems({ "item-review-review": latestReview.pk })
         : undefined;
@@ -71,32 +79,60 @@ export const destructionListReviewLoader = loginRequired(
           })
         : undefined;
 
-      const [zaken, list, reviewers, reviewItems, reviewResponse] =
+      const [list, logItems, reviewItems, reviewResponse, reviewers, zaken] =
         await Promise.all([
-          zakenPromise,
-          listsPromise,
-          reviewersPromise,
+          getDestructionList(uuid),
+          listAuditLog(uuid),
           reviewItemsPromise,
           reviewResponsePromise,
+          listReviewers(),
+          listZaken({
+            ...objParams,
+            in_destruction_list: uuid,
+          }),
         ]);
 
-      const isZaakSelectedPromises = zaken.results.map((zaak) =>
-        isZaakSelected(getDestructionListReviewKey(uuid), zaak),
-      );
-      const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-      const selectedZaken = zaken.results.filter(
-        (_, index) => isZaakSelectedResults[index],
+      const zaakSelection = await getZaakSelection<{ approved: boolean }>(
+        storageKey,
       );
 
+      const zakenOnPage = reviewItems?.length
+        ? reviewItems.map((ri) => ri.zaak.url as string)
+        : zaken.results.map((z) => z.url as string);
+
+      const approvedZaakUrlsOnPagePromise = await Promise.all(
+        zakenOnPage.map(async (url) => {
+          const item = await getZaakSelectionItem<typeof zaakSelection>(
+            storageKey,
+            url,
+          );
+          console.log(1, { item });
+          return { url, approved: item?.detail?.approved };
+        }),
+      );
+
+      const approvedZaakUrlsOnPage = approvedZaakUrlsOnPagePromise
+        .filter((result) => result.approved)
+        .map((result) => result.url);
+
+      const excludedZaakSelection = await getFilteredZaakSelection<{
+        approved: false;
+      }>(storageKey, { approved: false });
+
       return {
-        review: latestReview,
-        reviewers,
-        reviewItems,
-        reviewResponse,
-        zaken,
-        selectedZaken,
         uuid,
         destructionList: list,
+        logItems,
+
+        review: latestReview,
+        reviewItems,
+        reviewResponse,
+
+        reviewers,
+
+        zaken,
+        approvedZaakUrlsOnPage,
+        excludedZaakSelection,
       } satisfies DestructionListReviewContext;
     },
   ),

@@ -45,15 +45,13 @@ export function DestructionListEdit() {
     .filter((v): v is Zaak => Boolean(v));
 
   // Zaken on page as ZaakSelection.
-  const zakenOnPageSelection: ZaakSelection = zakenOnPage.reduce(
-    (acc, val) => ({
-      ...acc,
-      [val.url as string]: {
-        selected: true,
-      },
-    }),
-    {},
+  const zakenOnPageSelection: string[] = zakenOnPage.map(
+    (z) => z.url as string,
   );
+
+  const selectedZaken = Object.entries(zaakSelection)
+    .filter(([, { selected }]) => selected)
+    .map(([url]) => url);
 
   // Whether the user is adding/removing items from the destruction list.
   const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
@@ -78,9 +76,9 @@ export function DestructionListEdit() {
         : destructionListItems,
     isEditingState
       ? !selectionClearedState
-        ? { ...zakenOnPageSelection, ...zaakSelection } // Current zaken + selection.
-        : zaakSelection // Selection explicitly cleared, don't show default zaken.
-      : {},
+        ? { ...zakenOnPageSelection, ...selectedZaken } // Current zaken + selection.
+        : selectedZaken // Selection explicitly cleared, don't show default zaken.
+      : [],
     undefined,
     undefined,
     undefined,

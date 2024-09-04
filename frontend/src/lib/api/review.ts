@@ -14,7 +14,7 @@ export type Review = {
 };
 
 export type ZaakReview = {
-  zaakUrl: Zaak["url"];
+  zaakUrl: string;
   feedback: string;
 };
 
