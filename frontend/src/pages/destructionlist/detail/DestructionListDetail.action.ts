@@ -15,6 +15,7 @@ import {
   ReviewResponse,
   createReviewResponse,
 } from "../../../lib/api/reviewResponse";
+import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "DESTROY"
@@ -82,6 +83,16 @@ export async function destructionListDestroyAction({
   return redirect("/");
 }
 
+export type UpdateDestructionListProcessReviewAction = TypedAction<
+  "PROCESS_REVIEW",
+  UpdateDestructionListProcessReviewActionPayload
+>;
+
+export type UpdateDestructionListProcessReviewActionPayload = {
+  storageKey: string;
+  reviewResponse: ReviewResponse;
+};
+
 /**
  * React Router action (user intents to adds/remove zaken to/from the destruction list).
  */
@@ -89,10 +100,12 @@ export async function destructionListProcessReviewAction({
   request,
 }: ActionFunctionArgs) {
   const data = await request.json();
-  const reviewResponse: ReviewResponse = data.payload;
+  const { storageKey, reviewResponse } =
+    data.payload as UpdateDestructionListProcessReviewActionPayload;
 
   try {
     await createReviewResponse(reviewResponse);
+    await clearZaakSelection(storageKey);
   } catch (e: unknown) {
     if (e instanceof Response) {
       return await (e as Response).json();

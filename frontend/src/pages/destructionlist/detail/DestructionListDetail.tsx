@@ -26,7 +26,10 @@ import {
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../lib/auth/permissions";
-import { UpdateDestructionListAction } from "./DestructionListDetail.action";
+import {
+  UpdateDestructionListAction,
+  UpdateDestructionListProcessReviewAction,
+} from "./DestructionListDetail.action";
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 import { DestructionListEdit } from "./components/DestructionListEdit/DestructionListEdit";
 import {
@@ -48,6 +51,7 @@ interface ProcessZaakReviewSelectionDetail {
 export function DestructionListDetailPage() {
   const { state } = useNavigation();
   const {
+    storageKey,
     archivists,
     destructionList,
     destructionListItems,
@@ -223,26 +227,29 @@ export function DestructionListDetailPage() {
     );
 
     // Use JSON as `FormData` can't contain complex types.
-    const actionData: UpdateDestructionListAction<ReviewResponse> = {
+    const actionData: UpdateDestructionListProcessReviewAction = {
       type: "PROCESS_REVIEW",
       payload: {
-        review: review?.pk as number,
-        comment: data.comment as string,
-        itemsResponses:
-          reviewItems?.map<ReviewItemResponse>((ri) => {
-            const detail = zaakSelection[ri.zaak.url || ""]
-              .detail as ProcessZaakReviewSelectionDetail;
+        storageKey: storageKey,
+        reviewResponse: {
+          review: review?.pk as number,
+          comment: data.comment as string,
+          itemsResponses:
+            reviewItems?.map<ReviewItemResponse>((ri) => {
+              const detail = zaakSelection[ri.zaak.url || ""]
+                .detail as ProcessZaakReviewSelectionDetail;
 
-            return {
-              reviewItem: ri.pk,
-              actionItem: detail.action === "keep" ? "keep" : "remove",
-              actionZaak: {
-                selectielijstklasse: detail.selectielijstklasse,
-                archiefactiedatum: detail.archiefactiedatum,
-              },
-              comment: detail.comment,
-            };
-          }) || [],
+              return {
+                reviewItem: ri.pk,
+                actionItem: detail.action === "keep" ? "keep" : "remove",
+                actionZaak: {
+                  selectielijstklasse: detail.selectielijstklasse,
+                  archiefactiedatum: detail.archiefactiedatum,
+                },
+                comment: detail.comment,
+              };
+            }) || [],
+        },
       },
     };
 

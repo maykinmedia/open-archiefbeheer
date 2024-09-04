@@ -10,6 +10,7 @@ import {
   Hr,
   IconInitials,
   Logo,
+  ModalService,
   NavigationContext,
   Outline,
   P,
@@ -152,7 +153,9 @@ function App() {
           ],
         }}
       >
-        <Outlet />
+        <ModalService>
+          <Outlet />
+        </ModalService>
       </NavigationContext.Provider>
     </div>
   );

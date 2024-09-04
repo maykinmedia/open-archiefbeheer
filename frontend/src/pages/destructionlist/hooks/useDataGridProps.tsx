@@ -59,7 +59,7 @@ export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
 export function useDataGridProps(
   storageKey: string,
   paginatedResults: PaginatedDestructionListItems | PaginatedZaken,
-  zaakSelection: ZaakSelection,
+  selectedUrls: string[],
   allZakenSelected?: boolean,
   actions?: DataGridAction[],
   destructionListUuid?: DestructionList["uuid"],
@@ -156,18 +156,6 @@ export function useDataGridProps(
         return formatZaak(zaak);
       }) as ZaakItem[],
     [paginatedResults],
-  );
-
-  /**
-   * Returns the URL of selected zaken in `zaakSelection`.
-   */
-  const selectedUrls = useMemo(
-    () =>
-      Object.entries(zaakSelection)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([_, value]) => value.selected)
-        .map(([key]) => key),
-    [zaakSelection],
   );
 
   /**

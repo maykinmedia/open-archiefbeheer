@@ -84,6 +84,47 @@ export async function getZaakSelection<DetailType = unknown>(key: string) {
 }
 
 /**
+ * Gets the zaak selection, applies a filter to the detail object.
+ * Note: only the `url` of selected `zaken` are stored.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ * @param exp
+ * @param selectedOnly
+ */
+export async function getFilteredZaakSelection<DetailType = unknown>(
+  key: string,
+  exp?: Partial<DetailType>,
+  selectedOnly = true,
+) {
+  const selection = await getZaakSelection<DetailType>(key);
+  return Object.fromEntries(
+    Object.entries(selection).filter(([url, { selected, detail }]) => {
+      const _detail: Record<string, unknown> = detail || {};
+      const selectionFilter = !selectedOnly || selected;
+      const expFilter =
+        !exp ||
+        (detail &&
+          Object.entries(exp).every(([key, value]) => _detail[key] === value));
+      return selectionFilter && expFilter;
+    }),
+  );
+}
+
+/**
+ * Returns a single zaak in the zaak selection.
+ * @param key A key identifying the selection
+ * @param zaak Either a `Zaak.url` or `Zaak` object.
+ */
+export async function getZaakSelectionItem<DetailType = unknown>(
+  key: string,
+  zaak: string | Zaak,
+) {
+  const zaakSelection = await getZaakSelection<DetailType>(key);
+  const url = _getZaakUrl(zaak);
+  return zaakSelection[url]?.selected ? zaakSelection[url] : undefined;
+}
+
+/**
  * Sets zaak selection cache.
  * Note: only the `url` of selected `zaken` are stored.
  * Note: This function is async to accommodate possible future refactors.
@@ -159,7 +200,7 @@ export async function _mutateZaakSelection<DetailType = unknown>(
     ...zaakSelectionOverrides,
   };
 
-  await setZaakSelection(key, combinedZaakSelection);
+  return setZaakSelection(key, combinedZaakSelection);
 }
 
 /**
