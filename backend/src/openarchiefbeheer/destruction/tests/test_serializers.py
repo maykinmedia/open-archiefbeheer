@@ -9,11 +9,13 @@ from rest_framework.test import APIRequestFactory
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 
 from ...zaken.tests.factories import ZaakFactory
-from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
+from ..api.serializers import (
+    DestructionListReviewSerializer,
+    DestructionListWriteSerializer,
+)
 from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
 from ..models import (
     DestructionListItem,
@@ -31,13 +33,10 @@ factory = APIRequestFactory()
 
 class DestructionListSerializerTests(TestCase):
     def test_create_destruction_list(self):
-        user1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=True,
-        )
-        user2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -55,10 +54,7 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
-            "assignees": [
-                {"user": user1.pk, "order": 0},
-                {"user": user2.pk, "order": 1},
-            ],
+            "reviewer": {"user": reviewer.pk},
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -71,7 +67,9 @@ class DestructionListSerializerTests(TestCase):
             ],
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -80,10 +78,9 @@ class DestructionListSerializerTests(TestCase):
 
         assignees = destruction_list.assignees.order_by("pk")
 
-        self.assertEqual(assignees.count(), 3)
+        self.assertEqual(assignees.count(), 2)
         self.assertEqual(assignees[0].user.username, "record_manager")
-        self.assertEqual(assignees[1].user.username, "reviewer1")
-        self.assertEqual(assignees[2].user.username, "reviewer2")
+        self.assertEqual(assignees[1].user.username, "reviewer")
 
         items = destruction_list.items.order_by("zaak__url")
 
@@ -115,82 +112,9 @@ class DestructionListSerializerTests(TestCase):
             % {"list_name": "A test list", "user": "record_manager"},
         )
 
-    def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
-        reviewer = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
-            role__can_review_destruction=True,
-        )
-        record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
-        )
-        zaak = ZaakFactory.create()
-        request = factory.get("/foo")
-        request.user = record_manager
-
-        with patch(
-            "openarchiefbeheer.config.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(zaaktypes_short_process=[zaak.zaaktype]),
-        ):
-            data = {
-                "name": "A test list",
-                "contains_sensitive_info": True,
-                "assignees": [
-                    {"user": reviewer.pk, "order": 0},
-                ],
-                "items": [
-                    {
-                        "zaak": zaak.url,
-                        "extra_zaak_data": {},
-                    },
-                ],
-            }
-            serializer = DestructionListSerializer(
-                data=data, context={"request": request}
-            )
-            self.assertTrue(serializer.is_valid())
-
-    def test_destruction_list_without_short_procedure_requires_multiple_reviewers(self):
-        reviewer = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
-            role__can_review_destruction=True,
-        )
-        record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
-        )
-        zaak = ZaakFactory.create()
-        request = factory.get("/foo")
-        request.user = record_manager
-
-        data = {
-            "name": "A test list",
-            "contains_sensitive_info": True,
-            "assignees": [
-                {"user": reviewer.pk, "order": 0},
-            ],
-            "items": [
-                {
-                    "zaak": zaak.url,
-                    "extra_zaak_data": {},
-                },
-            ],
-        }
-
-        serializer = DestructionListSerializer(data=data, context={"request": request})
-        self.assertFalse(serializer.is_valid())
-
-        self.assertIn(
-            "A destruction list without a short reviewing process must have more than 1 reviewer.",
-            serializer.errors["non_field_errors"],
-        )
-
     def test_zaak_already_included_in_other_list(self):
-        user1 = UserFactory.create(
-            username="reviewer1", role__can_review_destruction=True
-        )
-        user2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
+        reviewer = UserFactory.create(
+            username="reviewer", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -213,8 +137,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "assignees": [
-                {"user": user1.pk, "order": 0},
-                {"user": user2.pk, "order": 1},
+                {"user": reviewer.pk, "order": 0},
             ],
             "items": [
                 {
@@ -228,7 +151,9 @@ class DestructionListSerializerTests(TestCase):
             ],
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
@@ -241,11 +166,8 @@ class DestructionListSerializerTests(TestCase):
         )
 
     def test_zaak_already_included_in_other_list_but_exempt(self):
-        user1 = UserFactory.create(
-            username="reviewer1", role__can_review_destruction=True
-        )
-        user2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
+        reviewer = UserFactory.create(
+            username="reviewer", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -266,10 +188,7 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
-            "assignees": [
-                {"user": user1.pk, "order": 0},
-                {"user": user2.pk, "order": 1},
-            ],
+            "reviewer": {"user": reviewer.pk},
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -282,7 +201,9 @@ class DestructionListSerializerTests(TestCase):
             ],
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -314,7 +235,7 @@ class DestructionListSerializerTests(TestCase):
         request = factory.get("/foo")
         request.user = record_manager
 
-        serializer = DestructionListSerializer(
+        serializer = DestructionListWriteSerializer(
             instance=destruction_list, data=data, context={"request": request}
         )
         self.assertTrue(serializer.is_valid())
@@ -345,20 +266,17 @@ class DestructionListSerializerTests(TestCase):
         )
 
     def test_partial_list_update(self):
-        user1 = UserFactory.create(
-            username="reviewer1", role__can_review_destruction=True
-        )
-        user2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
+        reviewer = UserFactory.create(
+            username="reviewer", role__can_review_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
         )
-        destruction_list.bulk_create_assignees(
-            [{"user": user1}, {"user": user2}],
-            role=ListRole.reviewer,
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list, user=reviewer, role=ListRole.reviewer
         )
+
         DestructionListItemFactory.create_batch(
             2,
             destruction_list=destruction_list,
@@ -375,7 +293,7 @@ class DestructionListSerializerTests(TestCase):
         request = factory.get("/foo")
         request.user = record_manager
 
-        serializer = DestructionListSerializer(
+        serializer = DestructionListWriteSerializer(
             instance=destruction_list,
             data=data,
             partial=True,
@@ -390,7 +308,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(destruction_list.name, "An updated test list")
         self.assertEqual(destruction_list.items.all().count(), 2)
-        self.assertEqual(destruction_list.assignees.all().count(), 2)
+        self.assertEqual(destruction_list.assignees.all().count(), 1)
 
     def test_partial_update_with_zaken(self):
         destruction_list = DestructionListFactory.create(
@@ -412,7 +330,7 @@ class DestructionListSerializerTests(TestCase):
         request = factory.get("/foo")
         request.user = record_manager
 
-        serializer = DestructionListSerializer(
+        serializer = DestructionListWriteSerializer(
             instance=destruction_list,
             data=data,
             partial=True,
@@ -430,57 +348,15 @@ class DestructionListSerializerTests(TestCase):
         self.assertIn(data["items"][0]["zaak"], items_in_list)
         self.assertIn(data["items"][1]["zaak"], items_in_list)
 
-    @tag("gh-58")
-    def test_create_destruction_list_with_same_reviewer_twice(self):
-        user1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
-            role__can_review_destruction=True,
-        )
-        record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
-        )
-
-        request = factory.get("/foo")
-        request.user = record_manager
-
-        data = {
-            "name": "A test list",
-            "contains_sensitive_info": True,
-            "assignees": [
-                {"user": user1.pk, "order": 0},
-                {"user": user1.pk, "order": 1},
-            ],
-            "items": [
-                {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
-                    "extra_zaak_data": {},
-                },
-                {
-                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
-                    "extra_zaak_data": {},
-                },
-            ],
-        }
-
-        serializer = DestructionListSerializer(data=data, context={"request": request})
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors["assignees"]["non_field_errors"][0],
-            _("The same user should not be selected as a reviewer more than once."),
-        )
-
     @tag("gh-122")
     def test_assign_author_as_reviewer(self):
-        reviewer = UserFactory.create(
-            username="reviewer",
-            email="reviewer@oab.nl",
+        record_manager = UserFactory.create(
+            username="record_manager",
+            role__can_start_destruction=True,
             role__can_review_destruction=True,
         )
-        record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
-        )
+        ZaakFactory.create(url="http://localhost:8003/zaken/api/v1/zaken/111-111-111")
+        ZaakFactory.create(url="http://localhost:8003/zaken/api/v1/zaken/222-222-222")
 
         request = factory.get("/foo")
         request.user = record_manager
@@ -488,10 +364,7 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
-            "assignees": [
-                {"user": reviewer.pk, "order": 0},
-                {"user": record_manager.pk, "order": 1},
-            ],
+            "reviewer": {"user": record_manager.pk},
             "items": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -504,22 +377,21 @@ class DestructionListSerializerTests(TestCase):
             ],
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["assignees"]["non_field_errors"][0],
+            serializer.errors["reviewer"]["user"][0],
             _("The author of a list cannot also be a reviewer."),
         )
 
     def test_create_list_with_bulk_select_cases(self):
-        reviewer1 = UserFactory.create(
+        reviewer = UserFactory.create(
             username="reviewer1",
             email="reviewer1@oab.nl",
             role__can_review_destruction=True,
-        )
-        reviewer2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -553,15 +425,14 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
-            "assignees": [
-                {"user": reviewer1.pk},
-                {"user": reviewer2.pk},
-            ],
+            "reviewer": {"user": reviewer.pk},
             "select_all": True,
             "zaak_filters": {"omschrijving": "AAAAA"},
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
         is_valid = serializer.is_valid()
 
         self.assertTrue(is_valid)
@@ -579,13 +450,10 @@ class DestructionListSerializerTests(TestCase):
         )
 
     def test_create_list_with_bulk_select_cases_no_filters(self):
-        reviewer1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=True,
-        )
-        reviewer2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -609,14 +477,13 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
-            "assignees": [
-                {"user": reviewer1.pk},
-                {"user": reviewer2.pk},
-            ],
+            "reviewer": {"user": reviewer.pk},
             "select_all": True,
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
         is_valid = serializer.is_valid()
 
         self.assertTrue(is_valid)
@@ -627,13 +494,10 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(destruction_list.items.count(), 3)
 
     def test_no_bulk_select_and_no_items(self):
-        reviewer1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=True,
-        )
-        reviewer2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -646,12 +510,13 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "assignees": [
-                {"user": reviewer1.pk},
-                {"user": reviewer2.pk},
+                {"user": reviewer.pk},
             ],
         }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
         is_valid = serializer.is_valid()
 
         self.assertFalse(is_valid)
@@ -661,13 +526,10 @@ class DestructionListSerializerTests(TestCase):
         )
 
     def test_zaak_filters_validation(self):
-        reviewer1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=True,
-        )
-        reviewer2 = UserFactory.create(
-            username="reviewer2", role__can_review_destruction=True
         )
         record_manager = UserFactory.create(
             username="record_manager", role__can_start_destruction=True
@@ -681,14 +543,13 @@ class DestructionListSerializerTests(TestCase):
                 "name": "A test list",
                 "contains_sensitive_info": True,
                 "assignees": [
-                    {"user": reviewer1.pk},
-                    {"user": reviewer2.pk},
+                    {"user": reviewer.pk},
                 ],
                 "select_all": True,
                 "zaak_filters": {"uuid": "AAAAA"},
             }
 
-            serializer = DestructionListSerializer(
+            serializer = DestructionListWriteSerializer(
                 data=data, context={"request": request}
             )
             is_valid = serializer.is_valid()
@@ -701,14 +562,15 @@ class DestructionListSerializerTests(TestCase):
                 "name": "A test list",
                 "contains_sensitive_info": True,
                 "assignees": [
-                    {"user": reviewer1.pk},
-                    {"user": reviewer2.pk},
+                    {"user": reviewer.pk},
                 ],
                 "select_all": True,
                 "zaak_filters": "Tralala I should be an object.",
             }
 
-        serializer = DestructionListSerializer(data=data, context={"request": request})
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
         is_valid = serializer.is_valid()
 
         self.assertFalse(is_valid)
@@ -754,7 +616,7 @@ class DestructionListSerializerTests(TestCase):
         request = factory.get("/foo")
         request.user = record_manager
 
-        serializer = DestructionListSerializer(
+        serializer = DestructionListWriteSerializer(
             instance=destruction_list, data=data, context={"request": request}
         )
         self.assertTrue(serializer.is_valid())
@@ -814,14 +676,14 @@ class DestructionListReviewSerializerTests(TestCase):
 
     @override_settings(LANGUAGE_CODE="en")
     def test_if_list_in_wrong_status_cannot_be_reviewed(self):
-        user = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=True,
             role__can_review_final_list=True,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=user, status=ListStatus.changes_requested
+            assignee=reviewer, status=ListStatus.changes_requested
         )
 
         data = {
@@ -829,7 +691,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "decision": ReviewDecisionChoices.accepted,
         }
         request = factory.get("/foo")
-        request.user = user
+        request.user = reviewer
 
         serializer = DestructionListReviewSerializer(
             data=data, context={"request": request}
@@ -845,13 +707,13 @@ class DestructionListReviewSerializerTests(TestCase):
 
     @override_settings(LANGUAGE_CODE="en")
     def test_if_user_not_a_reviewer_cannot_create_review(self):
-        user = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_destruction=False,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=user, status=ListStatus.ready_to_review
+            assignee=reviewer, status=ListStatus.ready_to_review
         )
 
         data = {
@@ -859,7 +721,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "decision": ReviewDecisionChoices.accepted,
         }
         request = factory.get("/foo")
-        request.user = user
+        request.user = reviewer
 
         serializer = DestructionListReviewSerializer(
             data=data, context={"request": request}
@@ -875,13 +737,13 @@ class DestructionListReviewSerializerTests(TestCase):
 
     @override_settings(LANGUAGE_CODE="en")
     def test_if_user_not_an_archivist_cannot_create_review(self):
-        user = UserFactory.create(
-            username="reviewer1",
-            email="reviewer1@oab.nl",
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
             role__can_review_final_list=False,
         )
         destruction_list = DestructionListFactory.create(
-            assignee=user, status=ListStatus.ready_for_archivist
+            assignee=reviewer, status=ListStatus.ready_for_archivist
         )
 
         data = {
@@ -889,7 +751,7 @@ class DestructionListReviewSerializerTests(TestCase):
             "decision": ReviewDecisionChoices.accepted,
         }
         request = factory.get("/foo")
-        request.user = user
+        request.user = reviewer
 
         serializer = DestructionListReviewSerializer(
             data=data, context={"request": request}
@@ -903,88 +765,7 @@ class DestructionListReviewSerializerTests(TestCase):
             ),
         )
 
-    @override_settings(LANGUAGE_CODE="en")
-    def test_create_review_accepted_first_reviewer(self):
-        reviewer1 = UserFactory.create(
-            username="reviewer1",
-            email="reviewer@oab.nl",
-            role__can_review_destruction=True,
-        )
-        reviewer2 = UserFactory.create(
-            username="reviewer2",
-            email="reviewer2@oab.nl",
-            role__can_review_destruction=True,
-        )
-        destruction_list = DestructionListFactory.create(
-            name="Test list",
-            assignee=reviewer1,
-            status=ListStatus.ready_to_review,
-            author__email="record_manager@oab.nl",
-        )
-        DestructionListAssigneeFactory.create(
-            user=destruction_list.author,
-            role=ListRole.author,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=reviewer1,
-            role=ListRole.reviewer,
-            destruction_list=destruction_list,
-        )
-        DestructionListAssigneeFactory.create(
-            user=reviewer2,
-            role=ListRole.reviewer,
-            destruction_list=destruction_list,
-        )
-
-        data = {
-            "destruction_list": destruction_list.uuid,
-            "decision": ReviewDecisionChoices.accepted,
-        }
-        request = factory.get("/foo")
-        request.user = reviewer1
-
-        serializer = DestructionListReviewSerializer(
-            data=data, context={"request": request}
-        )
-
-        self.assertTrue(serializer.is_valid())
-
-        with (
-            freeze_time("2024-05-02T16:00:00+02:00"),
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
-                    subject_positive_review="A reviewer approved!",
-                    body_positive_review="A reviewer approved!",
-                ),
-            ),
-        ):
-            serializer.save()
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.assignee, reviewer2)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_review)
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(mail.outbox[0].subject, "A reviewer approved!")
-        self.assertEqual(mail.outbox[0].recipients(), ["record_manager@oab.nl"])
-        self.assertEqual(mail.outbox[1].subject, "Destruction list review request")
-        self.assertEqual(mail.outbox[1].recipients(), ["reviewer2@oab.nl"])
-
-        logs = destruction_list.logs.all()
-
-        self.assertEqual(logs.count(), 1)
-        self.assertEqual(logs[0].user, reviewer1)
-        self.assertTrue(logs[0].extra_data["approved"])
-        self.assertEqual(
-            logs[0].get_message(),
-            'User "reviewer1" has reviewed the list "Test list". They approved the list.',
-        )
-
-    def test_create_review_accepted_last_reviewer(self):
+    def test_create_review_accepted(self):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
@@ -1023,8 +804,8 @@ class DestructionListReviewSerializerTests(TestCase):
             patch(
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
-                    subject_last_review="Last review accepted",
-                    body_last_review="Yuppiii last reviewer accepted!",
+                    subject_positive_review="Review accepted",
+                    body_positive_review="Yuppiii reviewer accepted!",
                 ),
             ),
         ):
@@ -1034,7 +815,7 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(destruction_list.assignee, destruction_list.author)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, "Last review accepted")
+        self.assertEqual(mail.outbox[0].subject, "Review accepted")
         self.assertEqual(mail.outbox[0].recipients(), ["record_manager@oab.nl"])
 
         logs = destruction_list.logs.all()

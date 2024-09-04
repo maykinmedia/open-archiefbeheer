@@ -4,7 +4,7 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import ListRole
-from ..utils import process_new_assignees, resync_items_and_zaken
+from ..utils import process_new_reviewer, resync_items_and_zaken
 from .factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -19,21 +19,13 @@ class UtilsTest(TestCase):
             3, role=ListRole.reviewer, destruction_list=destruction_list
         )
 
-        users = UserFactory.create_batch(2, role__can_review_destruction=True)
-        new_assignee1 = {"user": users[0]}
-        new_assignee2 = {"user": users[1]}
+        new_reviewer = UserFactory.create(role__can_review_destruction=True)
 
-        process_new_assignees(
-            destruction_list, [new_assignee1, new_assignee2], ListRole.reviewer
-        )
+        process_new_reviewer(destruction_list, new_reviewer)
 
-        new_assignees = destruction_list.assignees.filter(
-            role=ListRole.reviewer
-        ).order_by("user__pk")
+        reviewer = destruction_list.assignees.get(role=ListRole.reviewer)
 
-        self.assertEqual(2, new_assignees.count())
-        self.assertEqual(users[0].pk, new_assignees[0].user.pk)
-        self.assertEqual(users[1].pk, new_assignees[1].user.pk)
+        self.assertEqual(new_reviewer.pk, reviewer.user.pk)
 
     def test_resync_zaken(self):
         ZaakFactory.create(url="http://zaken.nl/1")

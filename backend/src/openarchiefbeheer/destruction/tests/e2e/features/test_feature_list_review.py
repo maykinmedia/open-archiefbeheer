@@ -4,11 +4,7 @@ from django.test import tag
 from asgiref.sync import sync_to_async
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.constants import (
-    ListRole,
-    ListStatus,
-    ReviewDecisionChoices,
-)
+from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -21,27 +17,22 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_approves_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
-            reviewer1 = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
-            reviewer2 = await self.given.reviewer_exists()
+            reviewer = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
             archivist = await self.given.archivist_exists()
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer1, role=ListRole.reviewer),
-                await self.given.assignee_exists(user=reviewer2, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
             list = await self.given.list_exists(
-                assignee=reviewer2,
+                assignee=reviewer,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
                 name="Destruction list to review",
                 status=ListStatus.ready_to_review,
             )
-
-            # Reviewer 1 already provided a review.
-            await self.given.review_exists(author=reviewer1, destruction_list=list, decision=ReviewDecisionChoices.accepted)
 
             await self.when.reviewer_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -60,27 +51,22 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_rejects_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
-            reviewer1 = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
-            reviewer2 = await self.given.reviewer_exists()
+            reviewer = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
             archivist = await self.given.archivist_exists()
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer1, role=ListRole.reviewer),
-                await self.given.assignee_exists(user=reviewer2, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
             list = await self.given.list_exists(
-                assignee=reviewer2,
+                assignee=reviewer,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
                 name="Destruction list to review",
                 status=ListStatus.ready_to_review,
             )
-
-            # Reviewer 1 already provided a review.
-            await self.given.review_exists(author=reviewer1, destruction_list=list, decision=ReviewDecisionChoices.accepted)
 
             await self.when.reviewer_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")

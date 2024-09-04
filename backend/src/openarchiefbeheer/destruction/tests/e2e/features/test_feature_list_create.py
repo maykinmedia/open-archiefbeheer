@@ -17,8 +17,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_creates_list(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()
-            await self.given.reviewer_exists(username="Beoordelaar 1")
-            await self.given.reviewer_exists(username="Beoordelaar 2")
+            await self.given.reviewer_exists(username="Beoordelaar")
             await self.given.zaken_are_indexed(100)
 
             await self.when.record_manager_logs_in(page)
@@ -30,8 +29,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_clicks_checkbox(page, "(de)selecteer rij", index=0)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list to create")
-            await self.when.user_fills_form_field(page, "Eerste reviewer", "Beoordelaar 1")
-            await self.when.user_fills_form_field(page, "Tweede reviewer", "Beoordelaar 2")
+            await self.when.user_fills_form_field(page, "Reviewer", "Beoordelaar")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
 
             await self.then.path_should_be(page, "/destruction-lists")
