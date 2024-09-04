@@ -118,7 +118,7 @@ coverage==7.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-cryptography==42.0.5
+cryptography==43.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -503,7 +503,7 @@ pylint==3.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
