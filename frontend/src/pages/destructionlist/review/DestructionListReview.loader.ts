@@ -21,7 +21,11 @@ import {
   canReviewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import { isZaakSelected } from "../../../lib/zaakSelection/zaakSelection";
+import {
+  ZaakSelection,
+  getZaakSelection,
+  isZaakSelected,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
@@ -31,7 +35,7 @@ export type DestructionListReviewContext = {
   reviewItems?: ReviewItem[];
   reviewResponse?: ReviewResponse;
   zaken: PaginatedZaken;
-  selectedZaken: Zaak[];
+  zaakSelection: ZaakSelection;
   uuid: string;
   destructionList: DestructionList;
 };
@@ -80,12 +84,8 @@ export const destructionListReviewLoader = loginRequired(
           reviewResponsePromise,
         ]);
 
-      const isZaakSelectedPromises = zaken.results.map((zaak) =>
-        isZaakSelected(getDestructionListReviewKey(uuid), zaak),
-      );
-      const isZaakSelectedResults = await Promise.all(isZaakSelectedPromises);
-      const selectedZaken = zaken.results.filter(
-        (_, index) => isZaakSelectedResults[index],
+      const zaakSelection = await getZaakSelection(
+        getDestructionListReviewKey(uuid),
       );
 
       return {
@@ -94,7 +94,7 @@ export const destructionListReviewLoader = loginRequired(
         reviewItems,
         reviewResponse,
         zaken,
-        selectedZaken,
+        zaakSelection,
         uuid,
         destructionList: list,
       } satisfies DestructionListReviewContext;

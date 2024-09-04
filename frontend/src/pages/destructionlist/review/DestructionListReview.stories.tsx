@@ -44,7 +44,7 @@ const FIXTURE: DestructionListReviewContext = {
   review: reviewFactory(),
   reviewers: usersFactory(),
   zaken: paginatedZakenFactory(),
-  selectedZaken: [],
+  zaakSelection: {},
   uuid: "00000000-0000-0000-0000-000000000000",
   destructionList: destructionListFactory(),
 };
