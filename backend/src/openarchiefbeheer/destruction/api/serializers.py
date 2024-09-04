@@ -12,7 +12,6 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
-from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
@@ -37,32 +36,31 @@ from ..models import (
 from ..tasks import process_review_response
 
 
-class ReviewerAssigneeListSerializer(serializers.ListSerializer):
-    def validate(
-        self, assignees: list[DestructionListAssignee]
-    ) -> list[DestructionListAssignee]:
-        if self.parent.instance:
-            return assignees
-
-        assignees_pks = [assignee["user"].pk for assignee in assignees]
-
-        if len(assignees) != len(set(assignees_pks)):
-            raise ValidationError(
-                _("The same user should not be selected as a reviewer more than once.")
-            )
-
-        author = self.parent.context["request"].user
-        if author.pk in assignees_pks:
-            raise ValidationError(_("The author of a list cannot also be a reviewer."))
-
-        return assignees
-
-
 class ReviewerAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
         fields = ("user",)
-        list_serializer_class = ReviewerAssigneeListSerializer
+
+    def validate_user(self, user: User) -> User:
+        if not user.role.can_review_destruction:
+            raise ValidationError(
+                _(
+                    "The chosen user does not have the permission of reviewing a destruction list."
+                )
+            )
+        return user
+
+    def validate(self, attrs: dict) -> dict:
+        if self.parent.instance:
+            return attrs
+
+        author = self.parent.context["request"].user
+        if author.pk == attrs["user"].pk:
+            raise ValidationError(
+                {"user": _("The author of a list cannot also be a reviewer.")}
+            )
+
+        return attrs
 
 
 class MarkAsFinalSerializer(serializers.Serializer):
@@ -82,33 +80,17 @@ class MarkAsFinalSerializer(serializers.Serializer):
         return value
 
 
-class DestructionListAssigneeResponseSerializer(serializers.ModelSerializer):
+class DestructionListAssigneeReadSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
     class Meta:
         model = DestructionListAssignee
-        fields = ("user",)
+        fields = ("user", "role")
 
 
 class ReassignementSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
-    role = serializers.ChoiceField(choices=ListRole.choices)
-    assignees = ReviewerAssigneeSerializer(many=True)
-
-    def validate(self, attrs):
-        destruction_list = self.context["destruction_list"]
-        if (
-            attrs["role"] == ListRole.reviewer
-            and not destruction_list.has_short_review_process()
-            and len(attrs["assignees"]) < 2
-        ):
-            raise ValidationError(
-                _(
-                    "A destruction list without a short reviewing process must have more than 1 reviewer."
-                )
-            )
-
-        return attrs
+    assignee = ReviewerAssigneeSerializer()
 
 
 class DestructionListItemWriteSerializer(serializers.ModelSerializer):
@@ -158,8 +140,8 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         )
 
 
-class DestructionListSerializer(serializers.ModelSerializer):
-    assignees = ReviewerAssigneeSerializer(many=True, required=False)
+class DestructionListWriteSerializer(serializers.ModelSerializer):
+    reviewer = ReviewerAssigneeSerializer(required=False)
     items = DestructionListItemWriteSerializer(many=True, required=False)
     author = UserSerializer(read_only=True)
     select_all = serializers.BooleanField(
@@ -182,7 +164,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
             "name",
             "author",
             "contains_sensitive_info",
-            "assignees",
+            "reviewer",
             "items",
             "status",
             "select_all",
@@ -198,31 +180,6 @@ class DestructionListSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         self._context["destruction_list"] = self.instance
-
-    def _validate_right_number_assignees(self, attrs: dict) -> None:
-        assignees = attrs.get("assignees")
-        if not assignees:
-            return
-
-        if len(assignees) > 1:
-            return
-
-        zaken_urls = [i["zaak"].url for i in attrs["items"]]
-        zaaktypes_urls = (
-            Zaak.objects.filter(url__in=zaken_urls)
-            .values_list("zaaktype", flat=True)
-            .distinct()
-        )
-        config = ArchiveConfig.get_solo()
-
-        if not all(
-            [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
-        ):
-            raise ValidationError(
-                _(
-                    "A destruction list without a short reviewing process must have more than 1 reviewer."
-                )
-            )
 
     def validate_zaak_filters(self, value: Any) -> dict:
         if not isinstance(value, dict):
@@ -241,7 +198,11 @@ class DestructionListSerializer(serializers.ModelSerializer):
                 code="invalid",
             )
 
-        self._validate_right_number_assignees(attrs)
+        if not self.instance and not attrs.get("reviewer"):
+            raise ValidationError(
+                "Selecting a reviewer is required for creating a list.",
+                code="invalid",
+            )
 
         return attrs
 
@@ -260,7 +221,7 @@ class DestructionListSerializer(serializers.ModelSerializer):
         return zaken
 
     def create(self, validated_data: dict) -> DestructionList:
-        assignees_data = validated_data.pop("assignees")
+        reviewer_data = validated_data.pop("reviewer")
         items = validated_data.pop("items", None)
         bulk_select = validated_data.pop("select_all", False)
         zaak_filters = validated_data.pop("zaak_filters", {})
@@ -278,17 +239,22 @@ class DestructionListSerializer(serializers.ModelSerializer):
         DestructionListAssignee.objects.create(
             user=author, destruction_list=destruction_list, role=ListRole.author
         )
-        destruction_list.bulk_create_assignees(assignees_data, role=ListRole.reviewer)
+        DestructionListAssignee.objects.create(
+            user=reviewer_data["user"],
+            destruction_list=destruction_list,
+            role=ListRole.reviewer,
+        )
 
-        logevent.destruction_list_created(destruction_list, author)
-
+        logevent.destruction_list_created(
+            destruction_list, author, reviewer_data["user"]
+        )
         return destruction_list
 
     def update(
         self, instance: DestructionList, validated_data: dict
     ) -> DestructionList:
         user = self.context["request"].user
-        validated_data.pop("assignees", None)
+        validated_data.pop("reviewer", None)
         items_data = validated_data.pop("items", None)
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
@@ -311,8 +277,8 @@ class DestructionListSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DestructionListAPIResponseSerializer(serializers.ModelSerializer):
-    assignees = DestructionListAssigneeResponseSerializer(many=True)
+class DestructionListReadSerializer(serializers.ModelSerializer):
+    assignees = DestructionListAssigneeReadSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
 

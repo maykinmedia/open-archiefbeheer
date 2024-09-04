@@ -67,23 +67,6 @@ class EmailConfig(SingletonModel):
         ),
         blank=True,
     )
-    subject_last_review = models.CharField(
-        max_length=250,
-        verbose_name=_("subject last review"),
-        help_text=_(
-            "Subject of the email that will be sent to the record manager "
-            "when the last reviewer has approved a destruction list."
-        ),
-        blank=True,
-    )
-    body_last_review = models.TextField(
-        verbose_name=_("body last review"),
-        help_text=_(
-            "Body of the email that will be sent to the record manager "
-            "when the last reviewer has approved a destruction list."
-        ),
-        blank=True,
-    )
     subject_error_during_deletion = models.CharField(
         max_length=250,
         verbose_name=_("subject error during deletion"),

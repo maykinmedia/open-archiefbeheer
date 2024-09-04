@@ -26,7 +26,7 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
-from ..utils import process_new_assignees
+from ..utils import process_new_reviewer
 from .backends import NestedFilterBackend
 from .filtersets import (
     DestructionListFilterset,
@@ -46,11 +46,11 @@ from .permissions import (
 )
 from .serializers import (
     AuditTrailItemSerializer,
-    DestructionListAPIResponseSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
+    DestructionListReadSerializer,
     DestructionListReviewSerializer,
-    DestructionListSerializer,
+    DestructionListWriteSerializer,
     MarkAsFinalSerializer,
     ReassignementSerializer,
     ReviewerAssigneeSerializer,
@@ -63,7 +63,7 @@ from .serializers import (
         tags=["Destruction list"],
         summary=_("List destruction lists"),
         description=_("List all destruction lists."),
-        responses={200: DestructionListAPIResponseSerializer(many=True)},
+        responses={200: DestructionListReadSerializer(many=True)},
     ),
     create=extend_schema(
         tags=["Destruction list"],
@@ -149,7 +149,7 @@ from .serializers import (
         tags=["Destruction list"],
         summary=_("Retrieve destruction list"),
         description=_("Retrieve details about a destruction list."),
-        responses={200: DestructionListAPIResponseSerializer},
+        responses={200: DestructionListReadSerializer},
     ),
     destroy=extend_schema(
         tags=["Destruction list"],
@@ -200,7 +200,7 @@ class DestructionListViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = DestructionListSerializer
+    serializer_class = DestructionListWriteSerializer
     queryset = (
         DestructionList.objects.all()
         .select_related("author", "author__role", "assignee", "assignee__role")
@@ -238,7 +238,7 @@ class DestructionListViewSet(
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
-            return DestructionListAPIResponseSerializer
+            return DestructionListReadSerializer
         return self.serializer_class
 
     @transaction.atomic
@@ -293,16 +293,15 @@ class DestructionListViewSet(
         )
         serialiser.is_valid(raise_exception=True)
 
-        new_assignees = process_new_assignees(
+        new_assignee = process_new_reviewer(
             destruction_list,
-            serialiser.validated_data["assignees"],
-            serialiser.validated_data["role"],
+            serialiser.validated_data["assignee"]["user"],
         )
         destruction_list.reassign()
 
         logevent.destruction_list_reassigned(
             destruction_list,
-            new_assignees,
+            new_assignee,
             serialiser.validated_data["comment"],
             request.user,
         )

@@ -117,18 +117,6 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         self.save()
 
-    def bulk_create_assignees(
-        self, assignees_data: dict, role: str
-    ) -> list["DestructionListAssignee"]:
-        return DestructionListAssignee.objects.bulk_create(
-            [
-                DestructionListAssignee(
-                    **{**assignee, "role": role, "destruction_list": self}
-                )
-                for assignee in assignees_data
-            ]
-        )
-
     def add_items(self, zaken: Iterable["Zaak"]) -> list["DestructionListItem"]:
         return DestructionListItem.objects.bulk_create(
             [DestructionListItem(destruction_list=self, zaak=zaak) for zaak in zaken]
@@ -148,24 +136,6 @@ class DestructionList(models.Model):
 
     def reassign(self) -> None:
         STATE_MANAGER[self.status].reassign(self)
-
-    def all_reviewers_approved(self) -> bool:
-        number_of_reviewers = self.assignees.filter(role=ListRole.reviewer).count()
-        latest_reviews = self.reviews.order_by("created")
-        number_of_reviews = len(latest_reviews)
-
-        if number_of_reviews < number_of_reviewers:
-            return False
-
-        if number_of_reviews >= number_of_reviewers:
-            latest_reviews = latest_reviews[number_of_reviews - number_of_reviewers :]
-
-        return all(
-            [
-                review.decision == ReviewDecisionChoices.accepted
-                for review in latest_reviews
-            ]
-        )
 
     def has_short_review_process(self) -> bool:
         zaaktypes_urls = (
