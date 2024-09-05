@@ -1,4 +1,4 @@
 {% load i18n %}
 {% blocktranslate trimmed with list_name=log.content_object.name record_manager=log.user.username archivist=log.extra_data.archivist.username%}
-   Destruction list "{{ list_name }}" was made final by the record manager {{ record_manager }} who assigned it to the archivist {{ archivist }}.
+   Vernietigingslijst "{{ list_name }}" is definitief gemaakt door de archiefbeheerder {{ record_manager }} die het heeft toegewezen aan de archivaris {{ archivist }}.
 {% endblocktranslate %}

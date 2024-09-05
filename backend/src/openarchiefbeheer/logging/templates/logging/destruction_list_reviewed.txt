@@ -1,2 +1,2 @@
 {% load i18n %}{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name user=log.user %}
-   User "{{ user }}" has reviewed the list "{{ list_name }}". {% endblocktranslate %}{% if log.extra_data.approved %}{% translate " They approved the list." %}{% else %}{% translate " They requested changes to the list." %}{% endif %}
+   Gebruiker "{{ user }}" heeft de lijst "{{ list_name }}" beoordeeld. {% endblocktranslate %}{% if log.extra_data.approved %}{% translate " Ze hebben de lijst goedgekeurd." %}{% else %}{% translate " Ze hebben wijzigingen in de lijst aangevraagd." %}{% endif %}
