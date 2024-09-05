@@ -17,7 +17,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_approves_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
-            reviewer = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
+            reviewer = await self.given.reviewer_exists()
             archivist = await self.given.archivist_exists()
 
             assignees = [
@@ -51,7 +51,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_rejects_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
-            reviewer = await self.given.reviewer_exists(username="peer_reviewer", first_name="Peer", last_name="Reviewer")
+            reviewer = await self.given.reviewer_exists()
             archivist = await self.given.archivist_exists()
 
             assignees = [
