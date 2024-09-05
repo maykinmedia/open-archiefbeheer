@@ -29,7 +29,9 @@ export const landingLoader = loginRequired(
 );
 
 export const getStatusMap = async (orderQuery: string | null) => {
-  const lists = await listDestructionLists(orderQuery ?? "");
+  const lists = await listDestructionLists({
+    ordering: orderQuery ?? "",
+  });
   return STATUSES.reduce((acc, val) => {
     const status = val[0] || "";
     const destructionLists = lists.filter(

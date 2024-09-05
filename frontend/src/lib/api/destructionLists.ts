@@ -112,7 +112,7 @@ export async function getDestructionList(uuid: string) {
  * List destruction lists.
  */
 export async function listDestructionLists(
-  params?: URLSearchParams | (URLSearchParams & { ordering?: string }),
+  params?: URLSearchParams | { ordering?: string },
 ) {
   const response = await request("GET", "/destruction-lists/", params);
   const promise: Promise<DestructionList[]> = response.json();
