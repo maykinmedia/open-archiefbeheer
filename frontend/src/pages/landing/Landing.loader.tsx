@@ -18,7 +18,7 @@ export const landingLoader = loginRequired(
     const url = new URL(request.url);
     const queryParams = url.searchParams;
     const orderQuery = queryParams.get("ordering");
-    const statusMap = await getStatusMap(orderQuery);
+    const statusMap = await getStatusMap(orderQuery ?? "-created");
     const user = await whoAmI();
 
     return {
