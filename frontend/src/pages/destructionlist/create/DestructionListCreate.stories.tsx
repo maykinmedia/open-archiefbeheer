@@ -96,32 +96,13 @@ export const DestructionListCreatePageStory: Story = {
       { delay: 10 },
     );
 
-    const selectFirstReviewer =
-      await within(modal).findByLabelText("Eerste reviewer");
+    const selectFirstReviewer = await within(modal).findByLabelText("Reviewer");
     await userEvent.click(selectFirstReviewer, { delay: 10 });
 
-    const selectFirstReviewerBeoordelaarOption = await within(
-      modal,
-    ).findAllByText(
+    const selectReviewerBeoordelaarOption = await within(modal).findAllByText(
       [beoordelaarFactory().firstName, beoordelaarFactory().lastName].join(" "),
     );
-    await userEvent.click(selectFirstReviewerBeoordelaarOption[0], {
-      delay: 10,
-    });
-
-    const selectSecondReviewer =
-      await within(modal).findByLabelText("Tweede reviewer");
-    await userEvent.click(selectSecondReviewer, { delay: 10 });
-
-    const selectSecondReviewerBeoordelaarOption = await within(
-      modal,
-    ).findAllByText(
-      [
-        procesEigenaarFactory().firstName,
-        procesEigenaarFactory().lastName,
-      ].join(" "),
-    );
-    await userEvent.click(selectSecondReviewerBeoordelaarOption[0], {
+    await userEvent.click(selectReviewerBeoordelaarOption[0], {
       delay: 10,
     });
   },

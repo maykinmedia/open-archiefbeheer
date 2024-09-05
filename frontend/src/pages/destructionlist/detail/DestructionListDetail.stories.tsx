@@ -83,7 +83,7 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
   await clickButton({
     ...context,
     parameters: {
-      name: 'Edit "Beoordelaar"',
+      name: "Bewerken",
     },
   });
 
@@ -100,19 +100,9 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
     parameters: {
       form,
       formValues: {
-        Beoordelaar: "Beoor del Laar (Beoor del Laar)",
-      },
-      submitForm: false,
-    },
-  });
-
-  await fillButtonConfirmationForm({
-    ...context,
-    parameters: {
-      formValues: {
+        Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
         Reden: "omdat het kan",
       },
-      name: "Toewijzen",
       submitForm: false,
     },
   });
@@ -161,8 +151,10 @@ export const EditDestructionList: Story = {
   play: async (context) => {
     await assertReassignDestructionList(context);
     const canvas = within(context.canvasElement);
-    const editButton = await canvas.findByRole("button", { name: "Bewerken" });
-    await userEvent.click(editButton, { delay: 10 });
+    const editButton = await canvas.findAllByRole("button", {
+      name: "Bewerken",
+    });
+    userEvent.click(editButton[1], { delay: 10 });
 
     await assertColumnSelection(context);
     const cancelButton = await canvas.findByRole("button", {
