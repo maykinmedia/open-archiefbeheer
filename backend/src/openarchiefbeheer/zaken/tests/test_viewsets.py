@@ -1,8 +1,13 @@
+from django.test import tag
+
+from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.constants import InternalStatus, ListItemStatus
+from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 
 from .factories import ZaakFactory
 
@@ -49,3 +54,25 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 4)
+
+    @tag("gh-328")
+    def test_retrieve_all_zaken_with_removed_zaken(self):
+        ZaakFactory.create_batch(5)
+        # A deleted item
+        DestructionListItemFactory.create(
+            zaak=None,
+            status=ListItemStatus.suggested,
+            processing_status=InternalStatus.succeeded,
+        )
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        self.client.force_authenticate(user)
+
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["not_in_destruction_list"] = True
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 5)
