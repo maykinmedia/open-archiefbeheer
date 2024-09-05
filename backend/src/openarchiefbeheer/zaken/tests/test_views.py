@@ -514,6 +514,87 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         )
 
     @Mocker()
+    def test_retrieve_choices_without_zaak(self, m):
+        # Create a mock service
+        ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="http://selectielijst.nl/api/v1",
+        )
+
+        # Create a user with the appropriate role
+        user = UserFactory.create(role__can_start_destruction=True)
+
+        # Mock the response from the external API
+        m.get(
+            "http://selectielijst.nl/api/v1/resultaten",
+            json={
+                "count": 3,
+                "results": [
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "nummer": 1,
+                        "volledigNummer": "11.1",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P1Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "nummer": 1,
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P2Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "nummer": 2,
+                        "volledigNummer": "11.1.2",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+
+        # Authenticate the user
+        self.client.force_authenticate(user=user)
+
+        # Build the endpoint without adding the "zaak" parameter
+        endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
+
+        # Send the GET request
+        response = self.client.get(endpoint.url)
+
+        # Validate the response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                    "label": "11.1 - Verleend - vernietigen - P1Y",
+                    "detail": {
+                        "bewaartermijn": "P1Y",
+                    },
+                },
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "detail": {
+                        "bewaartermijn": "P2Y",
+                    },
+                },
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                    "label": "11.1.2 - Verleend - vernietigen",
+                    "detail": {
+                        "bewaartermijn": None,
+                    },
+                },
+            ],
+        )
+
+    @Mocker()
     def test_response_cached(self, m):
         ServiceFactory.create(
             api_type=APITypes.orc,

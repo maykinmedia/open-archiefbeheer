@@ -1,7 +1,7 @@
 import traceback
 from collections import defaultdict
 from functools import lru_cache, partial
-from typing import TYPE_CHECKING, Callable, Generator, Literal
+from typing import TYPE_CHECKING, Callable, Generator, Literal, Optional
 
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -186,14 +186,20 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
 
 
 @lru_cache
-def retrieve_selectielijstklasse_choices(process_type_url: str) -> list:
+def retrieve_selectielijstklasse_choices(
+    process_type_url: Optional[str] = None,
+) -> list:
     selectielijst_service = Service.objects.filter(api_type=APITypes.orc).first()
     if not selectielijst_service:
         return []
 
     client = build_client(selectielijst_service)
     with client:
-        response = client.get("resultaten", params={"procesType": process_type_url})
+        params = {}
+        if process_type_url:
+            params["procesType"] = process_type_url
+
+        response = client.get("resultaten", params=params)
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
 

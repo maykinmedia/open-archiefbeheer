@@ -97,17 +97,26 @@ class SelectielijstklasseChoicesView(APIView):
         parameters=[SelectielijstklasseChoicesQueryParamSerializer],
     )
     def get(self, request, *args, **kwargs):
-        seralizer = SelectielijstklasseChoicesQueryParamSerializer(
+        serializer = SelectielijstklasseChoicesQueryParamSerializer(
             data=request.query_params
         )
-        seralizer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=True)
 
-        zaak = Zaak.objects.get(url=seralizer.validated_data["zaak"])
+        zaak = None
+        processtype = None
 
-        processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
+        if "zaak" in serializer.validated_data:
+            try:
+                zaak = Zaak.objects.get(url=serializer.validated_data["zaak"])
+                processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
+            except Zaak.DoesNotExist:
+                return Response(
+                    data={"detail": "Zaak not found"}, status=status.HTTP_404_NOT_FOUND
+                )
 
         if not processtype:
-            return Response(data=[])
+            choices = retrieve_selectielijstklasse_choices()
+        else:
+            choices = retrieve_selectielijstklasse_choices(processtype["url"])
 
-        choices = retrieve_selectielijstklasse_choices(processtype["url"])
         return Response(data=choices)

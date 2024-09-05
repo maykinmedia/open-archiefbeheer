@@ -1,8 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/router/utils";
 
-import { User } from "../../../lib/api/auth";
 import { listReviewers } from "../../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import { listZaken } from "../../../lib/api/zaken";
 import {
   canStartDestructionListRequired,
   loginRequired,
@@ -30,24 +29,27 @@ export const destructionListCreateLoader = loginRequired(
         not_in_destruction_list: "true",
       };
       const searchParams = new URL(request.url).searchParams;
-      Object.keys(searchParamsZakenEndpoint).forEach((key) =>
-        searchParams.set(key, searchParamsZakenEndpoint[key]),
+
+      // Update search params efficiently
+      Object.entries(searchParamsZakenEndpoint).forEach(([key, value]) =>
+        searchParams.set(key, value),
       );
 
-      // Get reviewers, zaken and zaaktypen.
-      const promises = [listReviewers(), listZaken(searchParams)];
-      const [reviewers, zaken] = (await Promise.all(promises)) as [
-        User[],
-        PaginatedZaken,
-      ];
+      // Fetch reviewers, zaken, and choices concurrently
+      const [reviewers, zaken, zaakSelection, allZakenSelected] =
+        await Promise.all([
+          listReviewers(),
+          listZaken(searchParams),
+          getZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
+          getAllZakenSelected(DESTRUCTION_LIST_CREATE_KEY),
+        ]);
 
-      // Get zaak selection.
-      const zaakSelection = await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
-      const allZakenSelected = await getAllZakenSelected(
-        DESTRUCTION_LIST_CREATE_KEY,
-      );
-
-      return { reviewers, zaken, zaakSelection, allZakenSelected };
+      return {
+        reviewers,
+        zaken,
+        zaakSelection,
+        allZakenSelected,
+      };
     },
   ),
 );

@@ -3,6 +3,7 @@ import {
   Button,
   ButtonProps,
   DataGridProps,
+  Option,
   Solid,
   Tooltip,
   TypedField,
@@ -22,7 +23,11 @@ import {
   PaginatedDestructionListItems,
   ZaakItem,
 } from "../../../lib/api/destructionListsItem";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+import {
+  ZaaktypeChoice,
+  listSelectieLijstKlasseChoices,
+  listZaaktypeChoices,
+} from "../../../lib/api/private";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import {
@@ -71,6 +76,35 @@ export function useDataGridProps(
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
   const [errorState, setErrorState] = useState<unknown>();
+
+  //
+  // List available zaaktype choices.
+  //
+  const [zaaktypeChoicesState, setZaaktypeChoicesState] = useState<
+    ZaaktypeChoice[]
+  >([]);
+  const [selectieLijstKlasseChoicesState, setSelectieLijstKlasseChoicesState] =
+    useState<Option[]>([]);
+
+  useEffect(() => {
+    const fetchChoices = async () => {
+      try {
+        const [selectieLijstKlasseChoices, zaaktypeChoices] = await Promise.all(
+          [
+            // TODO (possibly): This curreently isn't performant. It's returning 600+ results, of which we most likely only need a few per page
+            listSelectieLijstKlasseChoices(),
+            listZaaktypeChoices(destructionListUuid, reviewPk),
+          ],
+        );
+
+        setSelectieLijstKlasseChoicesState(selectieLijstKlasseChoices);
+        setZaaktypeChoicesState(zaaktypeChoices);
+      } catch (error) {
+        setErrorState(error);
+      }
+    };
+    fetchChoices();
+  }, []);
 
   /**
    * Renders a special set of action buttons as column data for `zaak`.
@@ -134,6 +168,9 @@ export function useDataGridProps(
       einddatumGepland: zaak.einddatumGepland,
       href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
       acties: <>{renderActionButtons(zaak, actions)}</>,
+      selectielijstklasse: selectieLijstKlasseChoicesState.find(
+        (choice) => choice.value === zaak.selectielijstklasse,
+      )?.label,
     };
   };
 
@@ -186,18 +223,6 @@ export function useDataGridProps(
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(handle, 100);
   };
-
-  //
-  // List available zaaktype choices.
-  //
-  const [zaaktypeChoicesState, setZaaktypeChoicesState] = useState<
-    ZaaktypeChoice[]
-  >([]);
-  useEffect(() => {
-    listZaaktypeChoices(destructionListUuid, reviewPk)
-      .then((z) => setZaaktypeChoicesState(z))
-      .catch((e) => setErrorState(e));
-  }, []);
 
   //
   // Update (selected) fields.
