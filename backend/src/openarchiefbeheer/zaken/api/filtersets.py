@@ -169,7 +169,7 @@ class ZaakFilter(FilterSet):
             return queryset
 
         zaken_to_exclude = DestructionListItem.objects.filter(
-            ~Q(status=ListItemStatus.removed)
+            ~Q(status=ListItemStatus.removed), zaak__isnull=False
         ).values_list("zaak__url", flat=True)
 
         return queryset.exclude(url__in=Subquery(zaken_to_exclude))
