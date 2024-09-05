@@ -22,7 +22,7 @@ export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
   | "READY_TO_REVIEW"
-  | "UPDATE_ASSIGNEES"
+  | "UPDATE_REVIEWER"
   | "UPDATE_ZAKEN",
   P
 >;
@@ -49,8 +49,8 @@ export async function destructionListUpdateAction({
         request,
         params,
       });
-    case "UPDATE_ASSIGNEES":
-      return await destructionListUpdateAssigneesAction({ request, params });
+    case "UPDATE_REVIEWER":
+      return await destructionListUpdateReviewerAction({ request, params });
     case "UPDATE_ZAKEN":
       return await destructionListUpdateZakenAction({ request, params });
     default:
@@ -126,30 +126,26 @@ export async function destructionListProcessReadyToReviewAction({
   return redirect("/");
 }
 
-export type DestructionListUpdateAssigneesActionPayload =
+export type DestructionListUpdateReviewerActionPayload =
   UpdateDestructionListAction<{
-    assignees: { user: User["pk"] }[];
+    assignee: { user: User["pk"] };
     comment: string;
   }>;
 
 /**
  * React Router action (user intents to reassign the destruction list).
  */
-export async function destructionListUpdateAssigneesAction({
+export async function destructionListUpdateReviewerAction({
   request,
   params,
 }: ActionFunctionArgs) {
-  const data: DestructionListUpdateAssigneesActionPayload =
-    await request.json();
-  const { assignees, comment } = data.payload;
-
-  const _assignees = assignees.filter((assignee) => Boolean(assignee?.user)); // Case in which a reviewer is removed
+  const data: DestructionListUpdateReviewerActionPayload = await request.json();
+  const { assignee, comment } = data.payload;
 
   try {
     await reassignDestructionList(params.uuid as string, {
-      assignees: _assignees,
+      assignee: assignee,
       comment: comment,
-      role: "reviewer",
     });
   } catch (e: unknown) {
     if (e instanceof Response) {

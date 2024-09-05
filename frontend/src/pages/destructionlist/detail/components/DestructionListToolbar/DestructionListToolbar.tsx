@@ -13,7 +13,7 @@ import { useLoaderData } from "react-router-dom";
 
 import { AuditLogItem } from "../../../../../lib/api/auditLog";
 import { User } from "../../../../../lib/api/auth";
-import { DestructionList } from "../../../../../lib/api/destructionLists";
+import { DestructionListRead } from "../../../../../lib/api/destructionLists";
 import { Review } from "../../../../../lib/api/review";
 import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
 import { formatDate } from "../../../../../lib/format/date";
@@ -25,7 +25,7 @@ import {
   STATUS_MAPPING,
 } from "../../../../constants";
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
-import { DestructionListAssignees } from "../index";
+import { DestructionListReviewer } from "../index";
 
 /**
  * Toolbar on top of destruction list page providing meta information.
@@ -34,7 +34,7 @@ import { DestructionListAssignees } from "../index";
 export function DestructionListToolbar() {
   const { destructionList, logItems, review, reviewers, reviewResponse } =
     useLoaderData() as {
-      destructionList: DestructionList;
+      destructionList: DestructionListRead;
       logItems: AuditLogItem[];
       review: Review;
       reviewers: User[];
@@ -76,8 +76,8 @@ export function DestructionListToolbar() {
 
       {reviewers && (
         <Column span={3}>
-          <DestructionListAssignees
-            assignees={destructionList.assignees}
+          <DestructionListReviewer
+            destructionList={destructionList}
             reviewers={reviewers}
           />
         </Column>

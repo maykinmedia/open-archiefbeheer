@@ -83,14 +83,7 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
   await clickButton({
     ...context,
     parameters: {
-      name: 'Edit "Beoordelaar 1"',
-    },
-  });
-
-  await clickButton({
-    ...context,
-    parameters: {
-      name: 'Edit "Beoordelaar 2"',
+      name: 'Edit "Beoordelaar"',
     },
   });
 
@@ -107,8 +100,7 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
     parameters: {
       form,
       formValues: {
-        "Beoordelaar 1": "Proces ei Genaar (Proces ei Genaar)",
-        "Beoordelaar 2": "Beoor del Laar (Beoor del Laar)",
+        Beoordelaar: "Beoor del Laar (Beoor del Laar)",
       },
       submitForm: false,
     },

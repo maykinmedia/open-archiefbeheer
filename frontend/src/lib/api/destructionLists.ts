@@ -24,6 +24,15 @@ export type DestructionListAssignee = {
   user: User;
 };
 
+export type DestructionListAssigneeRead = {
+  user: User;
+  role: "reviewer" | "author" | "archivist";
+};
+
+export interface DestructionListRead extends DestructionList {
+  assignees: DestructionListAssigneeRead[];
+}
+
 // An array to be used in various parts of the application.
 export const DESTRUCTION_LIST_STATUSES = [
   "new",
@@ -197,8 +206,7 @@ export async function destroyDestructionList(uuid: string) {
 
 export type DestructionListReassignData = {
   comment: string;
-  role: "reviewer" | "author" | "archivist";
-  assignees: DestructionListAssigneeUpdate[];
+  assignee: DestructionListAssigneeUpdate;
 };
 
 /**
