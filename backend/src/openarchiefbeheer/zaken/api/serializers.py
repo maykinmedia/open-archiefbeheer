@@ -84,9 +84,10 @@ class SelectielijstklasseChoicesSerializer(serializers.Serializer):
 
 class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
     zaak = serializers.URLField(
+        required=False,
         help_text=_(
             "The URL of the zaak for which the selectielijstklasse choices are needed."
-        )
+        ),
     )
 
 
