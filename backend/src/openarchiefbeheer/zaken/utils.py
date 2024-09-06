@@ -187,7 +187,7 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
 
 
 @lru_cache
-def retrieve_selectielijstklasse_choices(query_params: HashableDict) -> list:
+def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> list:
     selectielijst_service = Service.objects.filter(api_type=APITypes.orc).first()
     if not selectielijst_service:
         return []
