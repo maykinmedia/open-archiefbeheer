@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
@@ -12,6 +13,7 @@ from openarchiefbeheer.destruction.api.permissions import (
     CanReviewPermission,
     CanStartDestructionPermission,
 )
+from openarchiefbeheer.utils.datastructure import HashableDict
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
@@ -87,8 +89,8 @@ class SelectielijstklasseChoicesView(APIView):
     @extend_schema(
         summary=_("Retrieve selectielijstklasse choices"),
         description=_(
-            "This takes the 'selectielijstprocestype' from the 'zaaktype', "
-            "then retrieves all the 'resultaten' possible for this 'procestype' from the selectielijst API."
+            "If provided, this retrieves all the 'resultaten' possible for the given 'selectielijstprocestype' "
+            "from the 'zaaktype'. If no 'procestype' is provided, it retrieves all 'resultaten' for any 'zaak'."
         ),
         tags=["private"],
         responses={
@@ -102,21 +104,11 @@ class SelectielijstklasseChoicesView(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        zaak = None
-        processtype = None
+        query_params = {}
+        if zaak_url := serializer.validated_data.get("zaak"):
+            zaak = get_object_or_404(Zaak, url=zaak_url)
+            processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
+            query_params.update({"procesType": processtype["url"]})
 
-        if "zaak" in serializer.validated_data:
-            try:
-                zaak = Zaak.objects.get(url=serializer.validated_data["zaak"])
-                processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
-            except Zaak.DoesNotExist:
-                return Response(
-                    data={"detail": "Zaak not found"}, status=status.HTTP_404_NOT_FOUND
-                )
-
-        if not processtype:
-            choices = retrieve_selectielijstklasse_choices()
-        else:
-            choices = retrieve_selectielijstklasse_choices(processtype["url"])
-
+        choices = retrieve_selectielijstklasse_choices(HashableDict(query_params))
         return Response(data=choices)

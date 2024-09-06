@@ -1,7 +1,7 @@
 import traceback
 from collections import defaultdict
 from functools import lru_cache, partial
-from typing import TYPE_CHECKING, Callable, Generator, Literal, Optional
+from typing import TYPE_CHECKING, Callable, Generator, Literal
 
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -20,6 +20,7 @@ from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
 from openarchiefbeheer.destruction.constants import ListItemStatus
+from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import Zaak
@@ -186,20 +187,14 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
 
 
 @lru_cache
-def retrieve_selectielijstklasse_choices(
-    process_type_url: Optional[str] = None,
-) -> list:
+def retrieve_selectielijstklasse_choices(query_params: HashableDict) -> list:
     selectielijst_service = Service.objects.filter(api_type=APITypes.orc).first()
     if not selectielijst_service:
         return []
 
     client = build_client(selectielijst_service)
     with client:
-        params = {}
-        if process_type_url:
-            params["procesType"] = process_type_url
-
-        response = client.get("resultaten", params=params)
+        response = client.get("resultaten", params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
 
