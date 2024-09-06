@@ -89,8 +89,7 @@ class SelectielijstklasseChoicesView(APIView):
     @extend_schema(
         summary=_("Retrieve selectielijstklasse choices"),
         description=_(
-            "If provided, this retrieves all the 'resultaten' possible for the given 'selectielijstprocestype' "
-            "from the 'zaaktype'. If no 'procestype' is provided, it retrieves all 'resultaten' for any 'zaak'."
+            "Returns all the resultaten from the configured selectielijst API with a formatted label. If the parameter 'zaak' is provided, then it returns all the 'resultaten' possible for the given 'selectielijstprocestype' from the 'zaaktype' of the zaak."
         ),
         tags=["private"],
         responses={
@@ -104,11 +103,11 @@ class SelectielijstklasseChoicesView(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        query_params = {}
+        query_params = HashableDict()
         if zaak_url := serializer.validated_data.get("zaak"):
             zaak = get_object_or_404(Zaak, url=zaak_url)
             processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
             query_params.update({"procesType": processtype["url"]})
 
-        choices = retrieve_selectielijstklasse_choices(HashableDict(query_params))
+        choices = retrieve_selectielijstklasse_choices(query_params)
         return Response(data=choices)
