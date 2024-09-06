@@ -392,16 +392,18 @@ export function DestructionListReviewPage() {
    * Gets called when the user approves the destruction list.
    */
   function handleApproveList() {
-    confirm(
+    prompt(
       `${destructionList.name} goedkeuren`,
       `U staat op het punt om vernietigingslijst ${destructionList.name} goed te keuren, wilt u doorgaan?`,
+      "Opmerking",
       "Vernietigingslijst goedkeuren",
       "Annuleren",
-      () =>
+      (comment) => {
         submitAction({
           type: "APPROVE_LIST",
-          payload: { destructionList: uuid },
-        }),
+          payload: { comment, destructionList: uuid },
+        });
+      },
     );
   }
 
