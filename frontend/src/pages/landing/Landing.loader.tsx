@@ -18,7 +18,7 @@ export const landingLoader = loginRequired(
     const url = new URL(request.url);
     const queryParams = url.searchParams;
     const orderQuery = queryParams.get("ordering");
-    const statusMap = await getStatusMap(orderQuery ?? "-created");
+    const statusMap = await getStatusMap(orderQuery);
     const user = await whoAmI();
 
     return {
@@ -30,7 +30,7 @@ export const landingLoader = loginRequired(
 
 export const getStatusMap = async (orderQuery: string | null) => {
   const lists = await listDestructionLists({
-    ordering: orderQuery ?? "",
+    ordering: orderQuery ?? "-created",
   });
   return STATUSES.reduce((acc, val) => {
     const status = val[0] || "";
