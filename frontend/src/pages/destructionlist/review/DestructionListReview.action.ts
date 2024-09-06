@@ -98,7 +98,6 @@ export async function destructionListApproveItemsAction({
   const { payload } = await request.json();
   const { destructionList, zaken } =
     payload as ReviewDestructionListZakenActionPayLoad;
-  // console.log("destructionListApproveItemsAction", payload);
   await addToZaakSelection(
     getDestructionListReviewKey(destructionList),
     zaken,
