@@ -1,4 +1,5 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
+import { URLSearchParams } from "url";
 
 import { Zaak } from "../../types";
 import { User } from "./auth";
@@ -110,8 +111,10 @@ export async function getDestructionList(uuid: string) {
 /**
  * List destruction lists.
  */
-export async function listDestructionLists() {
-  const response = await request("GET", "/destruction-lists/");
+export async function listDestructionLists(
+  params?: URLSearchParams | { ordering?: string },
+) {
+  const response = await request("GET", "/destruction-lists/", params);
   const promise: Promise<DestructionList[]> = response.json();
   return promise;
 }
