@@ -122,9 +122,9 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Destruction list to review")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
 
-            await self.when.user_clicks_button(page, "Accorderen")
+            await self.when.user_clicks_button(page, "Goedkeuren")
             await self.when.user_fills_form_field(page, "Opmerking", "Looks good to me👍🏻")
-            await self.when.user_clicks_button(page, "Accorderen")
+            await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
@@ -153,12 +153,12 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Destruction list to review")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
-            await self.when.user_clicks_checkbox(page, "(de)selecteer rij")
-            await self.when.user_fills_form_field(page, "Reden van uitzondering", "Please reconsider this zaak")
             await self.when.user_clicks_button(page, "Uitzonderen")
-            await self.when.user_clicks_button(page, "Beoordelen")
-            await self.when.user_fills_form_field(page, "Opmerking", "Please reconsider the zaak on this list")
-            await self.when.user_clicks_button(page, "Beoordelen")
+            await self.when.user_fills_form_field(page, "Reden", "Please reconsider this zaak")
+            await self.when.user_clicks_button(page, "Zaak uitzonderen")
+            await self.when.user_clicks_button(page, "Afwijzen")
+            await self.when.user_fills_form_field(page, "Reden", "Please reconsider the zaak on this list")
+            await self.when.user_clicks_button(page, "Vernietigingslijst afwijzen")
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
