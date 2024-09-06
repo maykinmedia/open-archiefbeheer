@@ -11,6 +11,7 @@ from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListReviewFactory,
+    ReviewResponseFactory,
 )
 
 
@@ -267,3 +268,49 @@ class AssignementLogicTest(TestCase):
 
             self.assertEqual(destruction_list.status, ListStatus.internally_reviewed)
             self.assertEqual(destruction_list.assignee, record_manager)
+
+    def test_archivist_requested_changes(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_for_archivist
+        )
+        record_manager = DestructionListAssigneeFactory.create(
+            role=ListRole.author,
+            destruction_list=destruction_list,
+            user=destruction_list.author,
+        )
+        archivist = DestructionListAssigneeFactory.create(
+            role=ListRole.archivist, destruction_list=destruction_list
+        )
+        DestructionListReviewFactory.create(
+            author=archivist.user,
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.rejected,
+        )
+
+        destruction_list.assign_next()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.changes_requested)
+        self.assertEqual(destruction_list.assignee, record_manager.user)
+
+    def test_record_manager_processed_changes_after_archivist(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.changes_requested
+        )
+        archivist = DestructionListAssigneeFactory.create(
+            role=ListRole.archivist, destruction_list=destruction_list
+        )
+        review = DestructionListReviewFactory.create(
+            author=archivist.user,
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.rejected,
+        )
+        ReviewResponseFactory.create(review=review)
+
+        destruction_list.assign_next()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.ready_for_archivist)
+        self.assertEqual(destruction_list.assignee, archivist.user)
