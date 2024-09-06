@@ -3,28 +3,22 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase, override_settings, tag
 from django.utils.translation import gettext_lazy as _
-
 from freezegun import freeze_time
-from rest_framework.test import APIRequestFactory
-from timeline_logger.models import TimelineLog
-
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
+from rest_framework.test import APIRequestFactory
+from timeline_logger.models import TimelineLog
 
 from ...zaken.tests.factories import ZaakFactory
-from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
-from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
-from ..models import (
-    DestructionListItem,
-    DestructionListItemReview,
-    DestructionListReview,
-)
-from .factories import (
-    DestructionListAssigneeFactory,
-    DestructionListFactory,
-    DestructionListItemFactory,
-)
+from ..api.serializers import (DestructionListReviewSerializer,
+                               DestructionListSerializer)
+from ..constants import (ListItemStatus, ListRole, ListStatus,
+                         ReviewDecisionChoices)
+from ..models import (DestructionListItem, DestructionListItemReview,
+                      DestructionListReview)
+from .factories import (DestructionListAssigneeFactory, DestructionListFactory,
+                        DestructionListItemFactory)
 
 factory = APIRequestFactory()
 
@@ -111,7 +105,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            'Destruction list "A test list" created by user record_manager.',
+            'Vernietigingslijst "A test list" aangemaakt door gebruiker record_manager.',
         )
 
     def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
@@ -337,10 +331,7 @@ class DestructionListSerializerTests(TestCase):
 
         message = logs[0].get_message()
 
-        self.assertEqual(
-            message,
-            'Destruction list "An updated test list" was updated.',
-        )
+        self.assertEqual(message, 'Vernietigingslijst "An updated test list" is bijgewerkt.')
 
     def test_partial_list_update(self):
         user1 = UserFactory.create(
@@ -979,7 +970,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertTrue(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "reviewer1" has reviewed the list "Test list". They approved the list.',
+            'Gebruiker "reviewer1" heeft de lijst "Test list" beoordeeld. Ze hebben de lijst goedgekeurd.\n',
         )
 
     def test_create_review_accepted_last_reviewer(self):
@@ -1166,7 +1157,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
+            'Gebruiker "reviewer" heeft de lijst "Test list" beoordeeld. Ze hebben wijzigingen in de lijst aangevraagd.\n',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):
