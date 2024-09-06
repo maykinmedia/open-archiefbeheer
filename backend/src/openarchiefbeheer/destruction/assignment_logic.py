@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Protocol
 from django.db.models import Count, Min
 
 from .constants import ListRole, ListStatus, ReviewDecisionChoices
+from .exceptions import NoReviewFoundError
 
 if TYPE_CHECKING:
     from .models import DestructionList, DestructionListAssignee
@@ -73,11 +74,15 @@ class ReadyToReview:
 
 class ChangesRequested:
     def assign_next(self, destruction_list: "DestructionList") -> None:
-        destruction_list.set_status(ListStatus.ready_to_review)
-
-        # The reviewer who rejected the list reviews first
         last_review = destruction_list.reviews.order_by("created").last()
-        destruction_list.assign(destruction_list.get_assignee(last_review.author))
+        last_reviewer = destruction_list.get_assignee(last_review.author)
+
+        if last_reviewer.role == ListRole.archivist:
+            destruction_list.set_status(ListStatus.ready_for_archivist)
+        else:
+            destruction_list.set_status(ListStatus.ready_to_review)
+
+        destruction_list.assign(last_reviewer)
 
     def reassign(self, destruction_list: "DestructionList") -> None:
         # When a list has requested changes, it is assigned to the author. No action needed.
@@ -103,11 +108,15 @@ class InternallyReviewed:
 class ReadyForArchivist:
     def assign_next(self, destruction_list: "DestructionList") -> None:
         last_review = destruction_list.reviews.order_by("created").last()
-        if last_review and last_review.decision == ReviewDecisionChoices.accepted:
-            destruction_list.set_status(ListStatus.ready_to_delete)
-            destruction_list.assign(destruction_list.get_author())
+        if not last_review:
+            raise NoReviewFoundError()
 
-        # TODO in the case where the archivist rejects it is not clear yet what should happen!
+        if last_review.decision == ReviewDecisionChoices.accepted:
+            destruction_list.set_status(ListStatus.ready_to_delete)
+        else:
+            destruction_list.set_status(ListStatus.changes_requested)
+
+        destruction_list.assign(destruction_list.get_author())
 
     def reassign(self, destruction_list: "DestructionList") -> None:
         # TODO
