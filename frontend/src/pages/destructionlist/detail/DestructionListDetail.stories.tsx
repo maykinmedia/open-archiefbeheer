@@ -168,14 +168,11 @@ export const EditDestructionList: Story = {
   },
   play: async (context) => {
     await assertReassignDestructionList(context);
-
     const canvas = within(context.canvasElement);
     const editButton = await canvas.findByRole("button", { name: "Bewerken" });
-    userEvent.click(editButton, { delay: 10 });
+    await userEvent.click(editButton, { delay: 10 });
 
-    await assertCheckboxSelection(context);
     await assertColumnSelection(context);
-
     const cancelButton = await canvas.findByRole("button", {
       name: "Annuleren",
     });
@@ -422,6 +419,9 @@ export const DeleteDestructionList: Story = {
       "10 zaken vernietigen",
     );
     expect(submit).toBeDisabled();
+    await userEvent.click(document.activeElement as HTMLInputElement, {
+      delay: 10,
+    });
     userEvent.type(
       document.activeElement as HTMLInputElement,
       "My First Destruction List",

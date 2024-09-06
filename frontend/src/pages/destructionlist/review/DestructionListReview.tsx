@@ -12,7 +12,7 @@ import {
   usePrompt,
 } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useLocation, useMatch } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";

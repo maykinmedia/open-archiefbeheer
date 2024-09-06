@@ -1,6 +1,10 @@
 import { StoryContext, StoryFn } from "@storybook/react";
 import * as React from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  redirect,
+} from "react-router-dom";
 
 import App from "../src/App";
 
@@ -14,11 +18,15 @@ export const ReactRouterDecorator = (
 ) => {
   const router = createBrowserRouter([
     {
-      path: "/",
+      path: "",
       element: <App />,
+      action: async (...args) => {
+        await parameters.reactRouterDecorator?.route?.action?.(...args);
+        return redirect("/iframe.html");
+      },
       children: [
         {
-          path: "*",
+          path: "/iframe.html",
           element: <Story />,
           ...parameters.reactRouterDecorator?.route,
         },

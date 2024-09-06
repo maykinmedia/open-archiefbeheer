@@ -76,7 +76,7 @@ export function DestructionListEdit() {
         : destructionListItems,
     isEditingState
       ? !selectionClearedState
-        ? { ...zakenOnPageSelection, ...selectedZaken } // Current zaken + selection.
+        ? [...zakenOnPageSelection, ...selectedZaken] // Current zaken + selection.
         : selectedZaken // Selection explicitly cleared, don't show default zaken.
       : [],
     undefined,
