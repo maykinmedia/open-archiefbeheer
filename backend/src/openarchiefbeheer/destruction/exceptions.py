@@ -4,3 +4,7 @@ class DeletionProcessingError(Exception):
 
 class ZaakNotFound(Exception):
     pass
+
+
+class NoReviewFoundError(Exception):
+    pass

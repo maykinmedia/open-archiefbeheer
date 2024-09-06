@@ -91,3 +91,69 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
+
+    async def test_scenario_archivist_approves_list(self):
+        async with browser_page() as page:
+            record_manager = await self.given.record_manager_exists()
+            archivist = await self.given.archivist_exists()
+
+            assignees = [
+                await self.given.assignee_exists(user=record_manager, role=ListRole.author),
+                await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
+            ]
+
+            list = await self.given.list_exists(
+                assignee=archivist,
+                assignees=assignees,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to review",
+                status=ListStatus.ready_for_archivist,
+            )
+
+            await self.when.archivist_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Destruction list to review")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
+
+            await self.when.user_clicks_button(page, "Accorderen")
+            await self.when.user_fills_form_field(page, "Opmerking", "Looks good to me👍🏻")
+            await self.when.user_clicks_button(page, "Accorderen")
+
+            await self.then.path_should_be(page, "/destruction-lists")
+            await self.then.page_should_contain_text(page, "Destruction list to review")
+            await self.then.list_should_have_status(page, list, ListStatus.ready_to_delete)
+
+    async def test_scenario_archivist_rejects_list(self):
+        async with browser_page() as page:
+            record_manager = await self.given.record_manager_exists()
+            archivist = await self.given.archivist_exists()
+
+            assignees = [
+                await self.given.assignee_exists(user=record_manager, role=ListRole.author),
+                await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
+            ]
+
+            list = await self.given.list_exists(
+                assignee=archivist,
+                assignees=assignees,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to review",
+                status=ListStatus.ready_for_archivist,
+            )
+
+            await self.when.archivist_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Destruction list to review")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
+            await self.when.user_clicks_checkbox(page, "(de)selecteer rij")
+            await self.when.user_fills_form_field(page, "Reden van uitzondering", "Please reconsider this zaak")
+            await self.when.user_clicks_button(page, "Uitzonderen")
+            await self.when.user_clicks_button(page, "Beoordelen")
+            await self.when.user_fills_form_field(page, "Opmerking", "Please reconsider the zaak on this list")
+            await self.when.user_clicks_button(page, "Beoordelen")
+
+            await self.then.path_should_be(page, "/destruction-lists")
+            await self.then.page_should_contain_text(page, "Destruction list to review")
+            await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
