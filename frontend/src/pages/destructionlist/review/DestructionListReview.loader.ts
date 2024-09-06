@@ -27,7 +27,6 @@ import {
   getFilteredZaakSelection,
   getZaakSelection,
   getZaakSelectionItem,
-  isZaakSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
@@ -106,7 +105,6 @@ export const destructionListReviewLoader = loginRequired(
             storageKey,
             url,
           );
-          console.log(1, { item });
           return { url, approved: item?.detail?.approved };
         }),
       );

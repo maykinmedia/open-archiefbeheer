@@ -1,17 +1,22 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
-import {
-  assertColumnSelection,
-  clickButton,
-  clickCheckbox,
-} from "../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
-import { usersFactory } from "../../../fixtures/user";
-import { DestructionListReviewPage } from "./DestructionListReview";
+import { userFactory, usersFactory } from "../../../fixtures/user";
+import {
+  clearZaakSelection,
+  getFilteredZaakSelection,
+  getZaakSelection,
+  getZaakSelectionItem,
+} from "../../../lib/zaakSelection/zaakSelection";
+import {
+  DestructionListReviewPage,
+  getDestructionListReviewKey,
+} from "./DestructionListReview";
+import { destructionListReviewAction } from "./DestructionListReview.action";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
 const meta: Meta<typeof DestructionListReviewPage> = {
@@ -32,6 +37,25 @@ const meta: Meta<typeof DestructionListReviewPage> = {
             extra: "MKK",
           },
         ],
+      },
+      {
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
+        method: "GET",
+        status: 200,
+        response: [
+          {
+            label: "Melding klein kansspel",
+            value:
+              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
+            extra: "MKK",
+          },
+        ],
+      },
+      {
+        url: "http://localhost:8000/api/v1/whoami",
+        method: "GET",
+        status: 200,
+        response: userFactory(),
       },
     ],
   },
@@ -55,34 +79,72 @@ export const ReviewDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE,
+        loader: async () => {
+          const storageKey = getDestructionListReviewKey(FIXTURE.uuid);
+          const zaakSelection = await getZaakSelection(storageKey);
+          const zakenOnPage = FIXTURE.zaken.results.map((z) => z.url as string);
+
+          const approvedZaakUrlsOnPagePromise = await Promise.all(
+            zakenOnPage.map(async (url) => {
+              const item = await getZaakSelectionItem<typeof zaakSelection>(
+                storageKey,
+                url,
+              );
+              return { url, approved: item?.detail?.approved };
+            }),
+          );
+
+          const approvedZaakUrlsOnPage = approvedZaakUrlsOnPagePromise
+            .filter((result) => result.approved)
+            .map((result) => result.url);
+
+          const excludedZaakSelection = await getFilteredZaakSelection<{
+            approved: false;
+          }>(storageKey, { approved: false });
+
+          return {
+            ...FIXTURE,
+            approvedZaakUrlsOnPage,
+            excludedZaakSelection,
+          };
+        },
+        action: destructionListReviewAction,
       },
     },
   },
   play: async (context) => {
     const { canvasElement } = context;
-    await assertColumnSelection(context);
-    await clickCheckbox(context);
-
     const canvas = within(canvasElement);
 
-    // Get "Identificatie" checkbox in modal.
-    const motivationInput = canvas.getByLabelText<HTMLInputElement>(
-      "Reden van uitzondering",
+    const storageKey = getDestructionListReviewKey(FIXTURE.uuid);
+    await clearZaakSelection(storageKey);
+
+    const acceptButtons = await canvas.findAllByText("Accorderen");
+    const excludeButtons = await canvas.findAllByText("Uitzonderen");
+
+    // userEvent.click() does not seem to work here?
+    await acceptButtons[0].click();
+    await acceptButtons[1].click();
+    await excludeButtons[2].click();
+
+    const prompt = await canvas.findByLabelText("Reden");
+    await userEvent.click(prompt, { delay: 10 });
+    await userEvent.type(prompt, "Test", { delay: 100 });
+    const submit = await canvas.findByText("Zaak uitzonderen");
+    await userEvent.click(submit, { delay: 10 });
+    await waitFor(async () => expect(submit).not.toBeInTheDocument());
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const markAll = await canvas.findByLabelText(
+      "Alles als (on)gezien markeren",
+    );
+    await userEvent.click(markAll, { delay: 100 });
+
+    const markAllAgain = await canvas.findByLabelText(
+      "Alles als (on)gezien markeren",
     );
 
-    // Type in the input field.
-    await userEvent.type(motivationInput, "Uitzonderen", { delay: 10 });
-
-    // Type in the input field.
-    await clickButton({
-      ...context,
-      parameters: {
-        name: "Uitzonderen",
-      },
-    });
-
-    // Expect the motivationInput to be "Uitzonderen".
-    expect(motivationInput.value).toBe("Uitzonderen");
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await userEvent.click(markAllAgain, { delay: 100 });
   },
 };

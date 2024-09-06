@@ -10,7 +10,6 @@ import {
 import {
   getAllZakenSelected,
   getZaakSelection,
-  isZaakSelected,
 } from "../../../lib/zaakSelection/zaakSelection";
 import {
   DESTRUCTION_LIST_CREATE_KEY,

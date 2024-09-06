@@ -13,11 +13,13 @@ import {
   recordManagerFactory,
   usersFactory,
 } from "../../../fixtures/user";
-import { zaakFactory } from "../../../fixtures/zaak";
+import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import {
+  DESTRUCTION_LIST_CREATE_KEY,
   DestructionListCreateContext,
   DestructionListCreatePage,
 } from "./DestructionListCreate";
+import { destructionListCreateAction } from "./DestructionListCreate.action";
 
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
@@ -59,7 +61,11 @@ export const DestructionListCreatePageStory: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE,
+        loader: async () => ({
+          ...FIXTURE,
+          zaakSelection: await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
+        }),
+        action: destructionListCreateAction,
       },
     },
   },
