@@ -49,6 +49,7 @@ export type ReviewDestructionListListAction =
 
 export type ReviewDestructionListListApproveActionPayLoad = {
   destructionList: string;
+  comment: string;
 };
 
 export type ReviewDestructionListListRejectActionPayLoad = {
@@ -171,13 +172,13 @@ export async function destructionListApproveListAction({
   request,
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
-  const { destructionList } =
+  const { destructionList, comment } =
     payload as ReviewDestructionListListApproveActionPayLoad;
 
   const data: Review = {
     destructionList: destructionList,
     decision: "accepted",
-    listFeedback: "",
+    listFeedback: comment,
   };
 
   await createDestructionListReview(data);
