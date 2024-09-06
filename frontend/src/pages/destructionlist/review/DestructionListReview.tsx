@@ -141,7 +141,7 @@ export function DestructionListReviewPage() {
               </>
             ),
             pad: "h",
-            variant: "success",
+            variant: "primary",
             wrap: false,
             onClick: () => handleApproveClick(zaak),
           },
@@ -207,7 +207,7 @@ export function DestructionListReviewPage() {
           </>
         ),
         pad: "h",
-        variant: "success",
+        variant: "primary",
         onClick: () => handleApproveList(),
       };
     }
