@@ -3,22 +3,28 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase, override_settings, tag
 from django.utils.translation import gettext_lazy as _
+
 from freezegun import freeze_time
-from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.emails.models import EmailConfig
 from rest_framework.test import APIRequestFactory
 from timeline_logger.models import TimelineLog
 
+from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.emails.models import EmailConfig
+
 from ...zaken.tests.factories import ZaakFactory
-from ..api.serializers import (DestructionListReviewSerializer,
-                               DestructionListSerializer)
-from ..constants import (ListItemStatus, ListRole, ListStatus,
-                         ReviewDecisionChoices)
-from ..models import (DestructionListItem, DestructionListItemReview,
-                      DestructionListReview)
-from .factories import (DestructionListAssigneeFactory, DestructionListFactory,
-                        DestructionListItemFactory)
+from ..api.serializers import DestructionListReviewSerializer, DestructionListSerializer
+from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
+from ..models import (
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+)
+from .factories import (
+    DestructionListAssigneeFactory,
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 
 factory = APIRequestFactory()
 
@@ -331,7 +337,9 @@ class DestructionListSerializerTests(TestCase):
 
         message = logs[0].get_message()
 
-        self.assertEqual(message, 'Vernietigingslijst "An updated test list" is bijgewerkt.')
+        self.assertEqual(
+            message, 'Vernietigingslijst "An updated test list" is bijgewerkt.'
+        )
 
     def test_partial_list_update(self):
         user1 = UserFactory.create(
