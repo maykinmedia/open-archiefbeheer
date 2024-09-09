@@ -1,6 +1,9 @@
 # fmt: off
 from django.test import tag
 
+from asgiref.sync import sync_to_async
+
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import (
     ListRole,
     ListStatus,
@@ -8,10 +11,18 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+
+from ...factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
+)
 
 
 @tag("e2e")
-class FeatureListCreateTests(GherkinLikeTestCase):
+class FeatureProcessReviewTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_process_review(self):
         async with browser_page() as page:
             await self.given.selectielijstklasse_choices_are_available(page)
@@ -61,3 +72,79 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_fills_form_field(page, "Opmerking", "Datum aangepast")
             await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
+
+    async def test_zaaktype_filters_on_process_review_page(self):
+        @sync_to_async
+        def create_data():
+            record_manager = UserFactory.create(
+                password="ANic3Password", role__can_start_destruction=True
+            )
+            destruction_list = DestructionListFactory.create(
+                assignee=record_manager,
+                author=record_manager,
+                uuid="00000000-0000-0000-0000-000000000000",
+                status=ListStatus.changes_requested
+            )
+            zaak1 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-01",
+                        "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/111-111-111",
+            )
+            item1 = DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
+            zaak2 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-02",
+                        "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/222-222-222",
+            )
+            DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
+
+            ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-03",
+                        "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/333-333-333",
+            )
+            zaak5 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-05",
+                        "url": "http://catalogue-api.nl/zaaktypen/555-555-555",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/555-555-555",
+            )
+            DestructionListItemFactory.create(zaak=zaak5)  # Different destruction list
+
+            # Negative review item only for zaak 1
+            review = DestructionListReviewFactory.create(
+                destruction_list=destruction_list,
+                decision=ReviewDecisionChoices.rejected,
+            )
+            DestructionListItemReviewFactory.create(
+                destruction_list=destruction_list,
+                destruction_list_item=item1, 
+                review=review
+            )
+
+            self.destruction_list = destruction_list
+
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.when.user_logs_in(page, self.destruction_list.assignee)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, self.destruction_list.name)
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
+            
+            await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01"])

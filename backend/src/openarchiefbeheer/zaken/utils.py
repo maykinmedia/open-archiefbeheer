@@ -100,7 +100,6 @@ def _format_zaaktypen_choices(
     return sorted(formatted_choices, key=lambda zaaktype: zaaktype["label"])
 
 
-@lru_cache
 def _get_zaaktypen_per_version() -> dict[str, list]:
     ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
     if not ztc_service:
