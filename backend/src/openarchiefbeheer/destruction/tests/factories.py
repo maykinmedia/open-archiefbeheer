@@ -12,6 +12,7 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "destruction.DestructionList"
+        django_get_or_create = ("name",)
 
 
 class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
