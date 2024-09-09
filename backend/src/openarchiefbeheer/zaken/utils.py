@@ -85,7 +85,7 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
 
 
 def _format_zaaktypen_choices(
-    zaaktypen: list, zaaktypen_to_include: list | None = None
+    zaaktypen: dict[str, list], zaaktypen_to_include: list | None = None
 ) -> list[DropDownChoice]:
     formatted_choices = []
     for key, value in zaaktypen.items():
@@ -100,10 +100,11 @@ def _format_zaaktypen_choices(
     return sorted(formatted_choices, key=lambda zaaktype: zaaktype["label"])
 
 
-def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
+@lru_cache
+def _get_zaaktypen_per_version() -> dict[str, list]:
     ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
     if not ztc_service:
-        return []
+        return {}
 
     ztc_client = build_client(ztc_service)
     with ztc_client:
@@ -118,6 +119,11 @@ def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
     for page in data_iterator:
         for result in page["results"]:
             zaaktypen[result["identificatie"]].append(result["url"])
+    return zaaktypen
+
+
+def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
+    zaaktypen = _get_zaaktypen_per_version()
 
     zaaktypes_to_include = (
         Zaak.objects.all()
