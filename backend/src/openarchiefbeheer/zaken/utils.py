@@ -122,13 +122,17 @@ def _get_zaaktypen_per_version() -> dict[str, list]:
 
 
 def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
+    from .api.filtersets import ZaakFilter
+
     zaaktypen = _get_zaaktypen_per_version()
 
-    zaaktypes_to_include = (
-        Zaak.objects.all()
-        .values_list("_expand__zaaktype__identificatie", flat=True)
-        .distinct()
-    )
+    filterset = ZaakFilter(data={"not_in_destruction_list": True})
+    filterset.is_valid()
+    zaken = filterset.qs
+
+    zaaktypes_to_include = zaken.values_list(
+        "_expand__zaaktype__identificatie", flat=True
+    ).distinct()
     return _format_zaaktypen_choices(zaaktypen, zaaktypes_to_include)
 
 
