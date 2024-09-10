@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import patch
 
 from django.core import mail
@@ -824,6 +825,74 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         m_task.assert_not_called()
+
+    def test_cannot_start_destruction_if_archiefactiedatum_in_the_future(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2025, 1, 1),
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2023, 1, 1),
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
+            response = self.client.delete(
+                reverse(
+                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                ),
+            )
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+        self.assertEqual(
+            response.json()[0],
+            _("This list contains cases with archiving date in the future."),
+        )
+
+    def test_can_start_destruction_if_archiefactiedatum_in_the_future_but_removed(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2025, 1, 1),
+            destruction_list=destruction_list,
+            status=ListItemStatus.removed,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2023, 1, 1),
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
+            response = self.client.delete(
+                reverse(
+                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                ),
+            )
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def test_reassign_swaps_reviewers(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)

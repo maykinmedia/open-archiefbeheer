@@ -1,14 +1,17 @@
 import logging
+from datetime import date
 from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings
 
+from freezegun import freeze_time
 from requests_mock import Mocker
 from testfixtures import log_capture
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -365,3 +368,45 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertFalse(
             Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/222-222-222").exists()
         )
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_deleting_list_with_zaken_archiefactiedatum_in_the_future(self):
+        record_manager = UserFactory.create(
+            username="record_manager", role__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2025, 1, 1),
+            zaak__url="http://zaak-test.nl/zaken/111-111-111",
+            destruction_list=destruction_list,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2023, 1, 1),
+            destruction_list=destruction_list,
+        )
+
+        with (
+            freeze_time("2024-01-01T21:36:00+02:00"),
+            patch(
+                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+            ),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.processing_status, InternalStatus.failed)
+        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
+
+        items = destruction_list.items.all().order_by("pk")
+
+        self.assertEqual(items[0].processing_status, InternalStatus.failed)
+        self.assertEqual(items[1].processing_status, InternalStatus.succeeded)
+        self.assertEqual(items[0]._zaak_url, "http://zaak-test.nl/zaken/111-111-111")
+        self.assertEqual(items[1]._zaak_url, "")
