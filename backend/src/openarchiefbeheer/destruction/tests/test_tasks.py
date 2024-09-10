@@ -28,6 +28,7 @@ from ..tasks import (
     delete_destruction_list,
     delete_destruction_list_item,
     process_review_response,
+    queue_destruction_lists_for_deletion,
 )
 from .factories import (
     DestructionListAssigneeFactory,
@@ -410,3 +411,38 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(items[1].processing_status, InternalStatus.succeeded)
         self.assertEqual(items[0]._zaak_url, "http://zaak-test.nl/zaken/111-111-111")
         self.assertEqual(items[1]._zaak_url, "")
+
+    def test_queuing_lists_to_delete(self):
+        list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.new,
+            planned_destruction_date=date(2023, 1, 1),
+        )
+        DestructionListFactory.create(
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.failed,  # Not new
+            planned_destruction_date=date(2023, 1, 1),
+        )
+        DestructionListFactory.create(
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.queued,  # Not new
+            planned_destruction_date=date(2023, 1, 1),
+        )
+        DestructionListFactory.create(
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.new,
+            planned_destruction_date=date(2025, 1, 1),  # In the future
+        )
+        DestructionListFactory.create(
+            status=ListStatus.ready_to_review,  # Not ready to delete
+            processing_status=InternalStatus.new,
+            planned_destruction_date=date(2023, 1, 1),
+        )
+
+        with (
+            freeze_time("2024-01-01T12:00:00+01:00"),
+            patch("openarchiefbeheer.destruction.tasks.delete_destruction_list") as m,
+        ):
+            queue_destruction_lists_for_deletion()
+
+        m.assert_called_once_with(list)
