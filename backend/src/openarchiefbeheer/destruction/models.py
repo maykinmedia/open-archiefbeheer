@@ -25,7 +25,7 @@ from .constants import (
     ListStatus,
     ReviewDecisionChoices,
 )
-from .exceptions import ZaakNotFound
+from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
 
 if TYPE_CHECKING:
     from openarchiefbeheer.zaken.models import Zaak
@@ -271,6 +271,12 @@ class DestructionListItem(models.Model):
         if not self.zaak:
             logger.error("Could not find the zaak. Aborting deletion.")
             raise ZaakNotFound()
+
+        if self.zaak.archiefactiedatum > date.today():
+            logger.error(
+                "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
+            )
+            raise ZaakArchiefactiedatumInFuture()
 
         store = ResultStore(store=self)
         store.clear_traceback()
