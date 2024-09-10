@@ -1,5 +1,6 @@
 import logging
 import uuid as _uuid
+from datetime import date
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
@@ -187,6 +188,11 @@ class DestructionList(models.Model):
                 for status in self.items.values_list("processing_status", flat=True)
             ]
         )
+
+    def all_items_can_be_deleted(self) -> bool:
+        return not self.items.filter(
+            zaak__archiefactiedatum__gt=date.today(), status=ListItemStatus.suggested
+        ).exists()
 
 
 class DestructionListItem(models.Model):
