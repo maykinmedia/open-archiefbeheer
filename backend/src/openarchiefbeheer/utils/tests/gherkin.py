@@ -456,6 +456,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await select.click()
 
             dropdown = await select.get_by_role("listbox").all_inner_texts()
-            labels = dropdown[0].split("\n")
+            labels = dropdown[0].rstrip("\n").split("\n")
 
             self.testcase.assertEqual(labels, expected_filters)
