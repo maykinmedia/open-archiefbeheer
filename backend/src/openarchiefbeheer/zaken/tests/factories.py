@@ -20,6 +20,9 @@ class ZaakFactory(factory.django.DjangoModelFactory):
     bronorganisatie = "000000000"
     verantwoordelijke_organisatie = "000000000"
     einddatum = factory.LazyAttribute(lambda obj: obj.startdatum + timedelta(days=365))
+    archiefactiedatum = factory.LazyAttribute(
+        lambda obj: obj.einddatum + timedelta(days=365)
+    )
 
     class Meta:
         model = Zaak
