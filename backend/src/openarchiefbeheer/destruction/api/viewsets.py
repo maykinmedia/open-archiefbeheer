@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from timeline_logger.models import TimelineLog
@@ -249,6 +250,11 @@ class DestructionListViewSet(
         return super().update(request, *args, **kwargs)
 
     def perform_destroy(self, instance: DestructionList) -> None:
+        if not instance.all_items_can_be_deleted():
+            raise ValidationError(
+                _("This list contains cases with archiving date in the future.")
+            )
+
         instance.processing_status = InternalStatus.queued
         instance.save()
 
