@@ -98,6 +98,12 @@ class DestructionList(models.Model):
         ),
         default=InternalStatus.new,
     )
+    planned_destruction_date = models.DateField(
+        _("planned destruction date"),
+        help_text=_("Date from which this destruction list can be deleted."),
+        blank=True,
+        null=True,
+    )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
 
