@@ -38,6 +38,7 @@ from .filtersets import (
     ReviewResponseFilterset,
 )
 from .permissions import (
+    CanAbortDestruction,
     CanMarkAsReadyToReview,
     CanMarkListAsFinal,
     CanReassignDestructionList,
@@ -47,6 +48,7 @@ from .permissions import (
     CanUpdateDestructionList,
 )
 from .serializers import (
+    AbortDestructionSerializer,
     AuditTrailItemSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
@@ -193,6 +195,15 @@ from .serializers import (
         ),
         responses={201: None},
     ),
+    abort_destruction=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Abort planned destruction"),
+        description=_(
+            "This endpoint can be used to abort the destruction of a list when the date to process it has been set."
+            " The status of the list is then set back to 'new' and the record manager is re-assigned to it."
+        ),
+        responses={200: None},
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
@@ -234,6 +245,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated]
         elif self.action == "mark_ready_review":
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
+        elif self.action == "abort_destruction":
+            permission_classes = [IsAuthenticated & CanAbortDestruction]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -346,6 +359,17 @@ class DestructionListViewSet(
         destruction_list.assign_next()
 
         return Response(status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], name="abort-destruction")
+    def abort_destruction(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+
+        serializer = AbortDestructionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        destruction_list.abort_destruction()
+
+        return Response()
 
 
 @extend_schema_view(

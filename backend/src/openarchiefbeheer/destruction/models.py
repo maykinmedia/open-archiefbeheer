@@ -171,6 +171,12 @@ class DestructionList(models.Model):
             status=ListItemStatus.suggested,
         ).exists()
 
+    def abort_destruction(self) -> None:
+        self.set_status(ListStatus.new)
+        self.planned_destruction_date = None
+        self.processing_status = InternalStatus.new
+        self.save()
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
