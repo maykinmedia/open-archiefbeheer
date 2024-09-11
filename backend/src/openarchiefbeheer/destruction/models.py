@@ -165,9 +165,10 @@ class DestructionList(models.Model):
             ]
         )
 
-    def all_items_can_be_deleted(self) -> bool:
+    def all_items_can_be_deleted_by_date(self, destruction_date: date) -> bool:
         return not self.items.filter(
-            zaak__archiefactiedatum__gt=date.today(), status=ListItemStatus.suggested
+            zaak__archiefactiedatum__gt=destruction_date,
+            status=ListItemStatus.suggested,
         ).exists()
 
 

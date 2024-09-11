@@ -622,4 +622,9 @@ CELERY_BEAT_SCHEDULE = {
         # run every saturday, executing the task at 12:00 (midday)
         "schedule": crontab(day_of_week="sat", hour="12", minute="0"),
     },
+    "process-destruction-lists": {
+        "task": "openarchiefbeheer.destruction.tasks.queue_destruction_lists_for_deletion",
+        # run every 24 hours, executing the task at 12:00
+        "schedule": crontab(hour="12", minute="0"),
+    },
 }

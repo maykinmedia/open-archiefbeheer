@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Prefetch
@@ -16,7 +18,7 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 
-from ..constants import InternalStatus, ListRole
+from ..constants import WAITING_PERIOD, InternalStatus, ListRole
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -250,14 +252,34 @@ class DestructionListViewSet(
         return super().update(request, *args, **kwargs)
 
     def perform_destroy(self, instance: DestructionList) -> None:
-        if not instance.all_items_can_be_deleted():
+        today = date.today()
+        destruction_date = today + timedelta(days=WAITING_PERIOD)
+        if not instance.all_items_can_be_deleted_by_date(destruction_date):
             raise ValidationError(
-                _("This list contains cases with archiving date in the future.")
+                _(
+                    "This list contains cases with archiving date later than %(destruction_date)s, "
+                    "so the destruction cannot be planned yet."
+                )
+                % {"destruction_date": destruction_date.strftime("%d/%m/%y")}
             )
 
-        instance.processing_status = InternalStatus.queued
-        instance.save()
+        if (
+            instance.planned_destruction_date
+            and instance.planned_destruction_date > today
+        ):
+            raise ValidationError(
+                _(
+                    "This list is already planned to be destroyed on %(destruction_date)s."
+                )
+                % {"destruction_date": destruction_date.strftime("%d/%m/%y")}
+            )
 
+        if instance.processing_status == InternalStatus.new:
+            instance.planned_destruction_date = today + timedelta(days=WAITING_PERIOD)
+            instance.save()
+            return
+
+        # If it is a retry, process immediately
         delete_destruction_list(instance)
 
     @action(detail=True, methods=["post"], name="make-final")
