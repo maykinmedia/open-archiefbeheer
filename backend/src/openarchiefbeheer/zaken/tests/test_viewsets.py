@@ -7,7 +7,10 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import InternalStatus, ListItemStatus
-from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.destruction.tests.factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 
 from .factories import ZaakFactory
 
@@ -76,3 +79,28 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 5)
+
+    @tag("gh-339")
+    def test_filter_zaken_with_removed_zaken(self):
+        zaken_in_list = ZaakFactory.create_batch(5)
+        ZaakFactory.create_batch(5)
+        # A deleted item
+        DestructionListItemFactory.create(
+            zaak=None,
+            status=ListItemStatus.suggested,
+            processing_status=InternalStatus.succeeded,
+        )
+        list = DestructionListFactory.create()
+        for zaak in zaken_in_list:
+            DestructionListItemFactory.create(destruction_list=list, zaak=zaak)
+
+        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+
+        self.client.force_authenticate(user)
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["not_in_destruction_list_except"] = str(list.uuid)
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 10)
