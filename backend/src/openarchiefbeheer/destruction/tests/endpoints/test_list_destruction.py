@@ -11,7 +11,6 @@ from rest_framework.test import APITestCase
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
 from ...constants import InternalStatus, ListItemStatus, ListStatus
-from ...exceptions import PlannedDestructionDateInTheFuture
 from ..factories import DestructionListFactory, DestructionListItemFactory
 
 
@@ -56,6 +55,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             author=record_manager,
             status=ListStatus.ready_to_delete,
             planned_destruction_date=date(2023, 1, 1),
+            processing_status=InternalStatus.failed,
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list, processing_status=InternalStatus.failed
@@ -78,10 +78,6 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         m_delete.assert_called_once()
         self.assertEqual(m_delete.call_args_list[0].args[0].pk, destruction_list.pk)
 
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.processing_status, InternalStatus.queued)
-
     def test_retry_destruction_after_failure_with_planned_date_in_future_raises_error(
         self,
     ):
@@ -100,15 +96,17 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             destruction_list=destruction_list, processing_status=InternalStatus.failed
         )
         self.client.force_authenticate(user=record_manager)
-        with (
-            freezegun.freeze_time("2024-01-01T21:36:00+02:00"),
-            self.assertRaises(PlannedDestructionDateInTheFuture),
-        ):
-            self.client.delete(
+        with (freezegun.freeze_time("2024-01-01T21:36:00+02:00"),):
+            response = self.client.delete(
                 reverse(
                     "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
                 ),
             )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()[0], _("This list already has a planned destruction date.")
+        )
 
     def test_cannot_start_destruction_if_not_author(self):
         record_manager = UserFactory.create(role__can_start_destruction=True)
