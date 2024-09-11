@@ -186,7 +186,8 @@ class ZaakFilter(FilterSet):
         self, queryset: QuerySet[Zaak], name: str, value: str
     ) -> QuerySet[Zaak]:
         zaken_to_exclude = DestructionListItem.objects.filter(
-            ~Q(status=ListItemStatus.removed) & ~Q(destruction_list__uuid=value)
+            ~Q(status=ListItemStatus.removed) & ~Q(destruction_list__uuid=value),
+            zaak__isnull=False,
         ).values_list("zaak__url", flat=True)
 
         exception_list = DestructionListItem.objects.filter(
