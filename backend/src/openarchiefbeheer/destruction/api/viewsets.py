@@ -273,7 +273,7 @@ class DestructionListViewSet(
                     "This list contains cases with archiving date later than %(destruction_date)s, "
                     "so the destruction cannot be planned yet."
                 )
-                % {"destruction_date": destruction_date.strftime("%d/%m/%y")}
+                % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
         if (
@@ -284,7 +284,7 @@ class DestructionListViewSet(
                 _(
                     "This list is already planned to be destroyed on %(destruction_date)s."
                 )
-                % {"destruction_date": destruction_date.strftime("%d/%m/%y")}
+                % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
         if instance.processing_status == InternalStatus.new:
