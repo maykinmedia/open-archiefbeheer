@@ -55,6 +55,7 @@ export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
 
 /**
  * Hook that returns base props for most Zaak related DataGrid components.
+ * TODO: Optimize and organize (args).
  */
 export function useDataGridProps(
   storageKey: string,

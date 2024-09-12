@@ -74,6 +74,9 @@ export function DestructionListReviewPage() {
     destructionListReviewKey,
     paginatedObjectList,
     getSelectedUrlsOnPage(),
+    undefined,
+    undefined,
+    destructionList.uuid,
   );
   const dataGridProps: DataGridProps = {
     ...baseDataGridProps,
