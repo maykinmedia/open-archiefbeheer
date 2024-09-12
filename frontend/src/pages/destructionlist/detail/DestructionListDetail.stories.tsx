@@ -155,11 +155,13 @@ export const EditDestructionList: Story = {
       name: "Bewerken",
     });
     userEvent.click(editButton[1], { delay: 10 });
-
-    await assertColumnSelection(context);
+    // When the 'Annuleren' button is visible, then the "edit mode" is active
     const cancelButton = await canvas.findByRole("button", {
       name: "Annuleren",
     });
+
+    await assertColumnSelection(context);
+
     userEvent.click(cancelButton, { delay: 10 });
   },
 };
