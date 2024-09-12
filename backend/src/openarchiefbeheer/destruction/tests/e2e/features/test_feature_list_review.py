@@ -1,6 +1,9 @@
 # fmt: off
 from django.test import tag
 
+from asgiref.sync import sync_to_async
+
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import (
     ListRole,
     ListStatus,
@@ -8,10 +11,13 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+
+from ...factories import DestructionListFactory, DestructionListItemFactory
 
 
 @tag("e2e")
-class FeatureListCreateTests(GherkinLikeTestCase):
+class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_approves_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
@@ -157,3 +163,67 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
+
+    async def test_zaaktype_filters(self):
+        @sync_to_async
+        def create_data():
+            reviewer = UserFactory.create(
+                password="ANic3Password", role__can_review_destruction=True
+            )
+            destruction_list = DestructionListFactory.create(
+                assignee=reviewer,
+                uuid="00000000-0000-0000-0000-000000000000",
+                status=ListStatus.ready_to_review
+            )
+            zaak1 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-01",
+                        "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/111-111-111",
+            )
+            DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
+            zaak2 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-02",
+                        "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/222-222-222",
+            )
+            DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
+
+            ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-03",
+                        "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/333-333-333",
+            )
+            zaak5 = ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-05",
+                        "url": "http://catalogue-api.nl/zaaktypen/555-555-555",
+                    }
+                },
+                url="http://catalogue-api.nl/zaaktypen/555-555-555",
+            )
+            DestructionListItemFactory.create(zaak=zaak5)  # Different destruction list
+
+            self.destruction_list = destruction_list
+
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.when.user_logs_in(page, self.destruction_list.assignee)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, self.destruction_list.name)
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
+            
+            await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01", "ZAAKTYPE-02"])

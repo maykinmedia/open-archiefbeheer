@@ -91,11 +91,11 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         user = UserFactory.create(role__can_start_destruction=True)
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            _expand={"zaaktype": {"identificatie": "ZAAK-01"}},
+            post___expand={"zaaktype": {"identificatie": "ZAAK-01"}},
         )
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-            _expand={"zaaktype": {"identificatie": "ZAAK-02"}},
+            post___expand={"zaaktype": {"identificatie": "ZAAK-02"}},
         )
 
         m.get(
@@ -154,7 +154,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         user = UserFactory.create(role__can_start_destruction=True)
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            _expand={"zaaktype": {"identificatie": ""}},
+            post___expand={"zaaktype": {"identificatie": ""}},
         )
 
         m.get(
@@ -223,7 +223,6 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         items_in_list = DestructionListItemFactory.create_batch(
             3,
             with_zaak=True,
-            zaak__with_expand=True,
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
         )
@@ -272,7 +271,6 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         item = DestructionListItemFactory.create(
             with_zaak=True,
-            zaak__with_expand=True,
             status=ListItemStatus.suggested,
         )
         item.zaak._expand["zaaktype"]["identificatie"] = ""
@@ -299,7 +297,6 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         items_in_list = DestructionListItemFactory.create_batch(
             2,
             with_zaak=True,
-            zaak__with_expand=True,
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
         )
@@ -314,15 +311,15 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         )
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            _expand={"zaaktype": {"identificatie": "ZAAKTYPE-3"}},
+            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-3"}},
         )
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-            _expand={"zaaktype": {"identificatie": "ZAAKTYPE-4"}},
+            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-4"}},
         )
         ZaakFactory.create(
             zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-            _expand={"zaaktype": {"identificatie": "ZAAKTYPE-5"}},
+            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-5"}},
         )
 
         m.get(
@@ -370,7 +367,6 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         review_items = DestructionListItemReviewFactory.create_batch(
             3,
             destruction_list_item__with_zaak=True,
-            destruction_list_item__zaak__with_expand=True,
             destruction_list=review.destruction_list,
             review=review,
         )
@@ -392,7 +388,6 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         DestructionListItemReviewFactory.create_batch(
             3,
             destruction_list_item__with_zaak=True,
-            destruction_list_item__zaak__with_expand=True,
         )
 
         self.client.force_authenticate(user=user)
@@ -450,7 +445,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
             api_root="http://selectielijst.nl/api/v1",
         )
         user = UserFactory.create(role__can_start_destruction=True)
-        zaak = ZaakFactory.create(with_expand=True)
+        zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 
         m.get(
@@ -525,7 +520,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
             api_root="http://selectielijst.nl/api/v1",
         )
         user = UserFactory.create(role__can_start_destruction=True)
-        zaak = ZaakFactory.create(with_expand=True)
+        zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 
         m.get(

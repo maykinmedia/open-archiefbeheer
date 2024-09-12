@@ -1,7 +1,9 @@
+import copy
 from datetime import date, timedelta
 from uuid import uuid4
 
 import factory
+from factory import post_generation
 from factory.fuzzy import FuzzyAttribute, FuzzyDate
 
 from ..models import Zaak
@@ -23,8 +25,17 @@ class ZaakFactory(factory.django.DjangoModelFactory):
         model = Zaak
 
     class Params:
-        with_expand = factory.Trait(
-            _expand={
+        with_related_zaken = factory.Trait(
+            relevante_andere_zaken=[
+                "http://zaken-api.nl/zaken/api/v1/zaken/111-111-111",
+                "http://zaken-api.nl/zaken/api/v1/zaken/222-222-222",
+            ]
+        )
+
+    @post_generation
+    def post(obj, create, extracted, **kwargs):
+        expand = copy.deepcopy(
+            {
                 "zaaktype": {
                     "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
                     "selectielijst_procestype": {
@@ -45,9 +56,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                 },
             }
         )
-        with_related_zaken = factory.Trait(
-            relevante_andere_zaken=[
-                "http://zaken-api.nl/zaken/api/v1/zaken/111-111-111",
-                "http://zaken-api.nl/zaken/api/v1/zaken/222-222-222",
-            ]
-        )
+        expand.update(kwargs.get("_expand", {}))
+
+        obj._expand = expand
+        obj.save()

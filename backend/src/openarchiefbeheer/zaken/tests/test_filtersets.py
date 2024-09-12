@@ -65,7 +65,7 @@ class FilterZakenTests(APITestCase):
 
     def test_filter_resultaattype(self):
         zaak_1 = ZaakFactory.create(
-            _expand={
+            post___expand={
                 "resultaat": {
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
                     "_expand": {
@@ -76,12 +76,9 @@ class FilterZakenTests(APITestCase):
                 }
             }
         )
-        ZaakFactory.create(
-            resultaat="http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"
-        )  # Not expanded
         ZaakFactory.create_batch(
             2,
-            _expand={
+            post___expand={
                 "resultaat": {
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/222-222-222",
                     "_expand": {
@@ -110,18 +107,15 @@ class FilterZakenTests(APITestCase):
 
     def test_filter_bewaartermijn(self):
         zaak_1 = ZaakFactory.create(
-            _expand={
+            post___expand={
                 "resultaat": {
                     "_expand": {"resultaattype": {"archiefactietermijn": "P1D"}}
                 }
             }
         )
-        ZaakFactory.create(
-            resultaat="http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"
-        )  # Not expanded
         ZaakFactory.create_batch(
             2,
-            _expand={
+            post___expand={
                 "resultaat": {
                     "_expand": {"resultaattype": {"archiefactietermijn": "P2D"}}
                 }
@@ -142,13 +136,10 @@ class FilterZakenTests(APITestCase):
 
     def test_filter_vcs(self):
         zaak_1 = ZaakFactory.create(
-            _expand={"zaaktype": {"selectielijst_procestype": {"nummer": 1}}}
+            post___expand={"zaaktype": {"selectielijst_procestype": {"nummer": 1}}}
         )
-        ZaakFactory.create(
-            zaaktype="http://catalogue-api.nl/zaaktypen/111-111-111",
-        )  # Not expanded
         ZaakFactory.create_batch(
-            2, _expand={"zaaktype": {"selectielijst_procestype": {"nummer": 2}}}
+            2, post___expand={"zaaktype": {"selectielijst_procestype": {"nummer": 2}}}
         )
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
@@ -208,9 +199,18 @@ class FilterZakenTests(APITestCase):
         self.assertIn(str(no_relations_zaken[1].uuid), uuids)
 
     def test_partial_filter(self):
-        ZaakFactory.create(identificatie="ZAAK-ABCDEF-01")
-        ZaakFactory.create(identificatie="ZAAK-ABC-02", with_expand=True)
-        ZaakFactory.create(identificatie="ZAAK-BCDEF-02")
+        ZaakFactory.create(
+            identificatie="ZAAK-ABCDEF-01",
+            post___expand={"zaaktype": {"omschrijving": "Some other omschrijving"}},
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-ABC-02",
+            post___expand={"zaaktype": {"omschrijving": "Aangifte behandelen"}},
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-BCDEF-02",
+            post___expand={"zaaktype": {"omschrijving": "Aangifte behandelen"}},
+        )
 
         user = UserFactory(username="record_manager", role__can_start_destruction=True)
 
@@ -260,7 +260,7 @@ class FilterZakenTests(APITestCase):
     def test_filter_behandelend_afdeling(self):
         # Should NOT be returned: natuurlijk_persoon != organisatorische_eenheid
         ZaakFactory.create(
-            _expand={
+            post___expand={
                 "rollen": [
                     {
                         "betrokkene_type": "natuurlijk_persoon",
@@ -271,7 +271,7 @@ class FilterZakenTests(APITestCase):
         )
         # Should be returned
         ZaakFactory.create(
-            _expand={
+            post___expand={
                 "rollen": [
                     {
                         "betrokkene_type": "organisatorische_eenheid",
@@ -282,7 +282,7 @@ class FilterZakenTests(APITestCase):
         )
         # Should NOT be returned: identificatie does not contain BLA
         ZaakFactory.create(
-            _expand={
+            post___expand={
                 "rollen": [
                     {
                         "betrokkene_type": "organisatorische_eenheid",
@@ -297,7 +297,7 @@ class FilterZakenTests(APITestCase):
 
         # Should be returned
         ZaakFactory.create(
-            _expand={
+            post___expand={
                 "rollen": [
                     {
                         "betrokkene_type": "organisatorische_eenheid",

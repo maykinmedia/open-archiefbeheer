@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.cache import cache
 
 from playwright.async_api import async_playwright
 
@@ -45,3 +46,8 @@ async def browser_page_with_tracing():
 
 class PlaywrightTestCase(StaticLiveServerTestCase):
     port = settings.E2E_PORT
+
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)

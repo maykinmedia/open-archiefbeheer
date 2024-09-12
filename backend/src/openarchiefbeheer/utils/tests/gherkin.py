@@ -1,4 +1,5 @@
 import re
+from typing import Callable
 
 from asgiref.sync import sync_to_async
 from playwright.async_api import expect
@@ -82,6 +83,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         def __init__(self, testcase):
             self.testcase = testcase
+
+        async def data_exists(self, create_data_fn: Callable):
+            await create_data_fn()
 
         async def assignee_exists(self, **kwargs):
             base_kwargs = {"user": await self.record_manager_exists()}
@@ -227,9 +231,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await page.route("**/*/api/v1/_selectielijstklasse-choices/?zaak=*", handle)
 
         async def zaken_are_indexed(self, amount, **kwargs):
-            return await self._get_or_create_batch(
-                ZaakFactory, amount, with_expand=True, **kwargs
-            )
+            return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
 
         @sync_to_async
         def _orm_get(self, model, **kwargs):
@@ -284,6 +286,16 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         def __init__(self, testcase):
             self.testcase = testcase
+
+        async def user_logs_in(self, page, user):
+            await page.goto(self.testcase.live_server_url)
+            await page.wait_for_url(
+                f"{self.testcase.live_server_url}/login?next=/destruction-lists"
+            )
+
+            await page.get_by_label("Gebruikersnaam").fill(user.username)
+            await page.get_by_label("Wachtwoord").fill("ANic3Password")
+            await page.get_by_role("button", name="Inloggen").click()
 
         async def record_manager_logs_in(self, page):
             await page.goto(self.testcase.live_server_url)
@@ -437,3 +449,13 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def url_should_contain_text(self, page, text):
             await expect(page).to_have_url(re.compile(text))
+
+        async def zaaktype_filters_are(self, page, expected_filters):
+            select = page.get_by_label('filter veld "zaaktype"')
+
+            await select.click()
+
+            dropdown = await select.get_by_role("listbox").all_inner_texts()
+            labels = dropdown[0].rstrip("\n").split("\n")
+
+            self.testcase.assertEqual(labels, expected_filters)
