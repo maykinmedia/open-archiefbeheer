@@ -111,7 +111,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            'Vernietigingslijst "A test list" aangemaakt door gebruiker record_manager.',
+            'Destruction list "A test list" created by user record_manager.',
         )
 
     def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
@@ -338,7 +338,8 @@ class DestructionListSerializerTests(TestCase):
         message = logs[0].get_message()
 
         self.assertEqual(
-            message, 'Vernietigingslijst "An updated test list" is bijgewerkt.'
+            message,
+            'Destruction list "An updated test list" was updated.',
         )
 
     def test_partial_list_update(self):
@@ -978,7 +979,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertTrue(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'Gebruiker "reviewer1" heeft de lijst "Test list" beoordeeld. Ze hebben de lijst goedgekeurd.\n',
+            'User "reviewer1" has reviewed the list "Test list". They approved the list.',
         )
 
     def test_create_review_accepted_last_reviewer(self):
@@ -1165,7 +1166,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'Gebruiker "reviewer" heeft de lijst "Test list" beoordeeld. Ze hebben wijzigingen in de lijst aangevraagd.\n',
+            'User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):

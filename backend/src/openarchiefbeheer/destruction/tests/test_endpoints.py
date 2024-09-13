@@ -650,8 +650,8 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             message.strip("\n"),
             _(
-                'Vernietigingslijst "A test list" is definitief gemaakt door de archiefbeheerder '
-                "record_manager die het heeft toegewezen aan de archivaris archivist."
+                'Destruction list "A test list" was made final by the record manager '
+                "record_manager who assigned it to the archivist archivist."
             ),
         )
         self.assertEqual(
@@ -1818,7 +1818,7 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
         self.assertEqual(
             data[0]["message"],
-            'Vernietigingslijst "Test audittrail" is opnieuw toegewezen.',
+            'Destruction list "Test audittrail" was reassigned.',
         )
         self.assertEqual(
             data[0]["extra_data"]["assignees"][0]["user"],
