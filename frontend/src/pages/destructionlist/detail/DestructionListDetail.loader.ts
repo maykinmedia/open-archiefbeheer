@@ -136,6 +136,7 @@ export const destructionListDetailLoader = loginRequired(
                     }),
                   ),
                 ),
+              // @ts-expect-error - Params not used in function but in case key only.
               reviewItems.map((ri) => ri.pk),
             )
           : null;

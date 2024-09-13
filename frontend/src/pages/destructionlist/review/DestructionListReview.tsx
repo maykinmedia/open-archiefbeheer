@@ -1,24 +1,20 @@
 import {
-  AttributeData,
   Badge,
   BadgeProps,
   ButtonProps,
-  DataGridProps,
-  ListTemplate,
   P,
   Solid,
   Toolbar,
-  useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
-import { useLoaderData, useLocation, useMatch } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
+import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
-import { DestructionListToolbar } from "../detail/components/DestructionListToolbar/DestructionListToolbar";
-import { useDataGridProps } from "../hooks";
+import { BaseListView } from "../abstract";
 import { ReviewDestructionListAction } from "./DestructionListReview.action";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
@@ -30,7 +26,6 @@ export const getDestructionListReviewKey = (id: string) =>
  * Review-destruction-list page
  */
 export function DestructionListReviewPage() {
-  const confirm = useConfirm();
   const prompt = usePrompt();
 
   // rows: AttributeData[], selected: boolean
@@ -68,27 +63,6 @@ export function DestructionListReviewPage() {
     { ...zaken },
     { results: objectList },
   );
-
-  // DataGrid props.
-  const { props: baseDataGridProps } = useDataGridProps(
-    destructionListReviewKey,
-    paginatedObjectList,
-    getSelectedUrlsOnPage(),
-    undefined,
-    undefined,
-    destructionList.uuid,
-  );
-  const dataGridProps: DataGridProps = {
-    ...baseDataGridProps,
-    fields: [
-      ...(baseDataGridProps.fields || []),
-      { filterable: false, name: "Beoordeling", type: "text" },
-      { filterable: false, name: "Acties", type: "text" },
-    ],
-    labelSelect: "Markeren als (on)gezien",
-    labelSelectAll: "Alles als (on)gezien markeren",
-    onSelect: handleSelect,
-  };
 
   /**
    * Returns a Badge indicating the review status of the `zaak`.
@@ -217,117 +191,15 @@ export function DestructionListReviewPage() {
   }
 
   /**
-   * Returns the urls of the selected zaken.
-   */
-  function getSelectedUrlsOnPage() {
-    return [...approvedZaakUrlsOnPage, ...Object.keys(excludedZaakSelection)];
-  }
-
-  /**
    * Returns `ZaakReview[]` of excluded zaken.
    * `approved`.
    */
   function getExcludedZaakReviews(): ZaakReview[] {
-    return Object.entries(excludedZaakSelection).map(
-      ([zaakUrl, selection]) => ({
-        zaakUrl,
-        feedback: selection.detail?.comment as string,
-      }),
-    );
-  }
-
-  /**
-   * Gets called when a checkbox is clicked, this can either be a single row or
-   * the "select all" checkbox.
-   *
-   * Select single zaak:
-   *
-   * - Checking selects and approves zaak.
-   * - Unchecking unselects zaak.
-   *
-   * Select all:
-   *
-   * - Checking selects and approves all unselected zaken on page.
-   * - Unchecking unselects all approved zaken on page.
-   *
-   *
-   * @param rows
-   * @param selected
-   */
-  function handleSelect(rows: AttributeData[], selected: boolean) {
-    let zaken = rows;
-
-    if (rows.length === 0) {
-      zaken = objectList as AttributeData[];
-    }
-
-    /**
-     * Returns batches of zaak urls to select (`shouldSelect=true`) or
-     * unselect (`shouldSelect=false`).
-     * @param shouldSelect
-     */
-    const filterZaken = (shouldSelect: boolean): string[] =>
-      zaken
-        .filter((zaak) => {
-          const isSelectAll = rows.length === 0;
-          const url = zaak.url as string;
-
-          const approved = approvedZaakUrlsOnPage.includes(url)
-            ? true
-            : Object.keys(excludedZaakSelection).includes(url)
-              ? false
-              : undefined;
-
-          // Get items to select.
-          if (shouldSelect) {
-            // Checking selects and approves zaak (or all zaken on page if select all is checked).
-            return selected && approved !== false;
-          }
-          // Get items to unselect.
-          else {
-            if (isSelectAll) {
-              // Unchecking unselects all approved zaken on page.
-              return !selected && approved !== false;
-            } else {
-              // Unchecking unselects zaak.
-              return !selected;
-            }
-          }
-        })
-        .map((z) => z.url as string);
-
-    const zakenToApprove = filterZaken(true);
-    const zakenToUnselect = filterZaken(false);
-    const zakenToUnselectIncludesExcludedZaak = zakenToUnselect.some((url) => {
-      Object.keys(excludedZaakSelection).includes(url);
-    });
-
-    submitAction({
-      type: "APPROVE_ITEMS",
-      payload: { destructionList: uuid, zaken: zakenToApprove },
-    });
-
-    const handleUnselectItems = (zakenToUnselect: string[]) => {
-      // Fix race condition on Safari (17.1.2) with sessionStorage being used.
-      setTimeout(() => {
-        submitAction({
-          type: "UNSELECT_ITEMS",
-          payload: { destructionList: uuid, zaken: zakenToUnselect },
-        });
-      });
-    };
-
-    if (zakenToUnselectIncludesExcludedZaak) {
-      confirm(
-        "Weet u het zeker?",
-        "U staat op het punt om de uitzondering ongedaan te maken. Wilt u doorgaan?",
-        "Uitzondering ongedaan maken",
-        "Annuleren",
-        () => handleUnselectItems(zakenToUnselect),
-      );
-    } else {
-      handleUnselectItems(zakenToUnselect);
-    }
+    const entries = Object.entries(excludedZaakSelection);
+    return entries.map(([zaakUrl, selection]) => ({
+      zaakUrl,
+      feedback: selection.detail?.comment as string,
+    }));
   }
 
   /**
@@ -410,12 +282,74 @@ export function DestructionListReviewPage() {
     );
   }
 
+  /**
+   * Gets called when adding item to selection, filtering the selection.
+   */
+  const filterSelectionZaken = async (
+    zaken: Zaak[],
+    selected: boolean,
+    pageSpecificZaakSelection: ZaakSelection<{ approved: boolean }>,
+  ) => {
+    const excludedZaakSelection = Object.fromEntries(
+      Object.entries(pageSpecificZaakSelection).filter(
+        ([, item]) => item.detail?.approved === false,
+      ),
+    );
+
+    // Zaken selected, allow all zaken except already excluded.
+    // NOTE: approval status is retrieved via `getSelectionDetail()`.
+    if (selected) {
+      return zaken.filter((z) => {
+        const url = z.url as string;
+        return !(url in excludedZaakSelection);
+      });
+    }
+
+    // 1 Zaak deselected, allow deselecting excluded zaak.
+    // Multiple zaken deselected, prevent deselecting excluded zaak.
+    return zaken.length <= 1
+      ? zaken
+      : zaken.filter((z) => {
+          const url = z.url as string;
+          return !(url in excludedZaakSelection);
+        });
+  };
+
+  /**
+   * Gets called when adding item to selection, manipulating the detail value.
+   */
+  const getSelectionDetail = async (
+    zaak: Zaak,
+    pageSpecificZaakSelection: ZaakSelection<{ approved: boolean }>,
+  ) => {
+    const excludedZaakUrlsOnPage = Object.fromEntries(
+      Object.entries(pageSpecificZaakSelection).filter(
+        ([, item]) => item.detail?.approved === false,
+      ),
+    );
+
+    const approved = !((zaak.url as string) in excludedZaakUrlsOnPage);
+    return { approved };
+  };
+
   return (
-    <ListTemplate
-      dataGridProps={dataGridProps}
+    <BaseListView
+      storageKey={destructionListReviewKey}
+      destructionList={destructionList}
+      paginatedResults={paginatedObjectList}
       secondaryNavigationItems={[getSubmitDestructionListButton()]}
-    >
-      <DestructionListToolbar />
-    </ListTemplate>
+      extraFields={[
+        { filterable: false, name: "Beoordeling", type: "text" },
+        { filterable: false, name: "Acties", type: "text" },
+      ]}
+      // @ts-expect-error - Generic type of zaakSelection
+      filterSelectionZaken={filterSelectionZaken}
+      // @ts-expect-error - Generic type of zaakSelection
+      getSelectionDetail={getSelectionDetail}
+      dataGridProps={{
+        labelSelect: "Markeren als (on)gezien",
+        labelSelectAll: "Alles als (on)gezien markeren",
+      }}
+    ></BaseListView>
   );
 }

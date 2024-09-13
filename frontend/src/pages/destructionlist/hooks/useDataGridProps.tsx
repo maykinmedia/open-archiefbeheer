@@ -54,8 +54,7 @@ export interface DataGridAction extends Omit<ButtonProps, "onClick"> {
 }
 
 /**
- * Hook that returns base props for most Zaak related DataGrid components.
- * TODO: Optimize and organize (args).
+ * @deprecated use <BaseListView/> and or various other hooks.
  */
 export function useDataGridProps(
   storageKey: string,
@@ -67,6 +66,12 @@ export function useDataGridProps(
   reviewPk?: Review["pk"],
   onClearSelection?: () => void | Promise<void>,
 ): { props: DataGridProps; error: unknown } {
+  if (process.env.NODE_ENV === "development") {
+    console.warn(
+      "useDataGridProps is deprecated, use <BaseListView/> and or various other hooks.",
+    );
+  }
+
   const { state } = useNavigation();
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -337,21 +342,23 @@ export function useDataGridProps(
     boolProps: {
       explicit: true,
     },
-    count: paginatedResults.count,
-    equalityChecker: (a, b) => a.uuid === b.uuid || a.url === b.url,
-    fields: fields,
     fieldsSelectable: true,
-    loading: state === "loading",
-    objectList: objectList as unknown as AttributeData[],
-    page: page,
     pageSize: 100,
     showPaginator: true,
     selectable: true,
+    filterable: true,
+    tableLayout: "fixed",
+
+    count: paginatedResults.count,
+    equalityChecker: (a, b) => a.uuid === b.uuid || a.url === b.url,
+    fields: fields,
+    loading: state === "loading",
+    objectList: objectList as unknown as AttributeData[],
+    page: page,
     selected: selectedZakenOnPage as unknown as AttributeData[],
     selectionActions: selectionActions,
     allPagesSelected: allZakenSelected,
     allowSelectAllPages: typeof allZakenSelected === "boolean",
-    filterable: true,
     filterTransform: (filterData: AttributeData) => {
       const {
         startdatum = "",
@@ -378,7 +385,6 @@ export function useDataGridProps(
       };
     },
     sort: searchParams.get("ordering") || true, // fixme
-    tableLayout: "fixed",
     onPageChange,
     onFieldsChange,
     onFilter,

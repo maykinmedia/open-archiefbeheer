@@ -2,6 +2,7 @@ import { isPrimitive } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 
+// FIXME: Limit to object type without breaking (or with fixing) other code.
 export type ZaakSelection<DetailType = unknown> = {
   /**
    * A `Zaak.url` mapped to a `boolean`.
@@ -97,17 +98,21 @@ export async function getFilteredZaakSelection<DetailType = unknown>(
   selectedOnly = true,
 ) {
   const selection = await getZaakSelection<DetailType>(key);
-  return Object.fromEntries(
-    Object.entries(selection).filter(([url, { selected, detail }]) => {
-      const _detail: Record<string, unknown> = detail || {};
-      const selectionFilter = !selectedOnly || selected;
-      const expFilter =
-        !exp ||
-        (detail &&
-          Object.entries(exp).every(([key, value]) => _detail[key] === value));
-      return selectionFilter && expFilter;
-    }),
-  );
+  const entries = Object.entries(selection);
+
+  const filteredEntries = entries.filter(([url, { selected, detail }]) => {
+    const _detail: Record<string, unknown> = detail || {};
+    const selectionFilter = !selectedOnly || selected;
+
+    const expFilter =
+      !exp ||
+      (detail &&
+        Object.entries(exp).every(([key, value]) => _detail[key] === value));
+
+    return selectionFilter && expFilter;
+  });
+
+  return Object.fromEntries(filteredEntries);
 }
 
 /**
@@ -179,17 +184,25 @@ export async function _mutateZaakSelection<DetailType = unknown>(
   key: string,
   zaken: string[] | Zaak[],
   selected: boolean,
-  detail?: DetailType,
+  detail?: DetailType | DetailType[],
 ) {
+  if (Array.isArray(detail)) {
+    if (detail.length !== (zaken as Zaak[]).length) {
+      throw new Error(
+        "Can't mutate Zaak selection, length of `zaken` is not equal to length of given `detail`!",
+      );
+    }
+  }
+
   const currentZaakSelection = await getZaakSelection<DetailType>(key);
   const urls = _getZaakUrls(zaken);
 
   const zaakSelectionOverrides = urls.reduce<ZaakSelection<DetailType>>(
-    (partialZaakSelection, url) => ({
+    (partialZaakSelection, url, i) => ({
       ...partialZaakSelection,
       [url]: {
         selected,
-        detail,
+        detail: Array.isArray(detail) ? detail[i] : detail,
       },
     }),
     {},
