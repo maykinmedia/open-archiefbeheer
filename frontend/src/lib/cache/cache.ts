@@ -90,7 +90,7 @@ function _getComputedKey(key: string): string {
  * @param params Can only contain `boolean`, `number`, or `string` values.
  */
 function _getCompiledKey(key: string, params?: Array<unknown>): string {
-  if (!params) {
+  if (!params || !params.length) {
     return key;
   }
   return `${key}#${params.join(":")}`;
