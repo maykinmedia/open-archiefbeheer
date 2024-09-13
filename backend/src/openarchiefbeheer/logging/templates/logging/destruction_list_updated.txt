@@ -1,3 +1,3 @@
 {% load i18n %}{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name %}
-   Vernietigingslijst "{{ list_name }}" is bijgewerkt.
+   Destruction list "{{ list_name }}" was updated.
 {% endblocktranslate %}
