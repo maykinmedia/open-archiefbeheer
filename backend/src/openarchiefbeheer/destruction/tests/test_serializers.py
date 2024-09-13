@@ -111,7 +111,8 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            'Destruction list "A test list" created by user record_manager.',
+            _('Destruction list "%(list_name)s" created by user %(user)s.')
+            % {"list_name": "A test list", "user": "record_manager"},
         )
 
     def test_destruction_list_with_short_procedure_requires_multiple_reviewers(self):
@@ -339,7 +340,8 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            'Destruction list "An updated test list" was updated.',
+            _('Destruction list "%(list_name)s" was updated.')
+            % {"list_name": "An updated test list"},
         )
 
     def test_partial_list_update(self):
