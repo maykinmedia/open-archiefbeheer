@@ -42,7 +42,7 @@ export async function logout() {
  * API call to get the current logged-in user.
  */
 export async function whoAmI() {
-  return cacheMemo<User>("whoAmI", async () => {
+  return cacheMemo("whoAmI", async () => {
     const response = await request("GET", "/whoami/");
     const promise: Promise<User> = response.json();
     return promise;
