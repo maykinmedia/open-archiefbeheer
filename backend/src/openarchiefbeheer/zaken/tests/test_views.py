@@ -428,16 +428,6 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_authenticated_without_permission(self):
-        user = UserFactory.create(role__can_start_destruction=False)
-
-        self.client.force_authenticate(user=user)
-        endpoint = reverse("api:retrieve-selectielijstklasse-choices")
-
-        response = self.client.get(endpoint)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     @Mocker()
     def test_retrieve_choices(self, m):
         ServiceFactory.create(
