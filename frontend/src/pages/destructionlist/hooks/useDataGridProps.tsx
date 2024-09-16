@@ -193,7 +193,7 @@ export function useDataGridProps(
         const zaak = itemOrZaak as Zaak;
         return formatZaak(zaak);
       }) as ZaakItem[],
-    [paginatedResults],
+    [paginatedResults, selectieLijstKlasseChoicesState],
   );
 
   /**
