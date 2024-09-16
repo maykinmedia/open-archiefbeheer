@@ -84,7 +84,7 @@ class ZaaktypenChoicesView(APIView):
 
 
 class SelectielijstklasseChoicesView(APIView):
-    permission_classes = [IsAuthenticated & CanStartDestructionPermission]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         summary=_("Retrieve selectielijstklasse choices"),
