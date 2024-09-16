@@ -58,4 +58,8 @@ const selectieLijstKlasseFactory = createArrayFactory<Option>(
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
 );
 
-export { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP, selectieLijstKlasseFactory };
+export {
+  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+  FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
+  selectieLijstKlasseFactory,
+};

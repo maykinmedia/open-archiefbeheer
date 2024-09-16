@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
+import { expect, userEvent, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
@@ -7,9 +7,9 @@ import {
   assertColumnSelection,
 } from "../../../../.storybook/playFunctions";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../../../fixtures/selectieLijstKlasseChoices";
 import {
   beoordelaarFactory,
-  procesEigenaarFactory,
   recordManagerFactory,
   usersFactory,
 } from "../../../fixtures/user";
@@ -39,6 +39,31 @@ const meta: Meta<typeof DestructionListCreatePage> = {
             extra: "MKK",
           },
         ],
+      },
+      {
+        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+        method: "GET",
+        status: 200,
+        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+      },
+      {
+        url: "http://localhost:8000/api/v1/whoami/?",
+        method: "GET",
+        status: 200,
+        response: {
+          pk: 1,
+          username: "johnDoe",
+          firstName: "John",
+          lastName: "Doe",
+          email: "aaa@aaa.aaa",
+          role: {
+            name: "Admin",
+            canStartDestruction: true,
+            canReviewDestruction: true,
+            canReviewFinalList: false,
+            canViewCaseDetails: true,
+          },
+        },
       },
     ],
   },
@@ -105,5 +130,68 @@ export const DestructionListCreatePageStory: Story = {
     await userEvent.click(selectReviewerBeoordelaarOption[0], {
       delay: 10,
     });
+  },
+};
+
+export const DestructionListSelectielijstklasseStory: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => ({
+          ...FIXTURE,
+          zaakSelection: await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
+        }),
+        action: destructionListCreateAction,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+
+    // Get "Select columns" button.
+    const selectColumnsButton = await canvas.findByRole<HTMLButtonElement>(
+      "button",
+      {
+        name: "Select columns",
+      },
+    );
+
+    await userEvent.click(selectColumnsButton, { delay: 100 });
+    const modal = await canvas.findByRole("dialog");
+
+    // Get "Selectielijstklasse" checkbox in modal.
+    const selectielijstklasseCheckbox = within(
+      modal,
+    ).getByLabelText<HTMLInputElement>("Selectielijstklasse");
+    const saveColumnSelection = await within(
+      modal,
+    ).findByRole<HTMLButtonElement>("button", {
+      name: "Save column selection",
+    });
+
+    // Normalize state.
+    if (!selectielijstklasseCheckbox.checked) {
+      await userEvent.click(selectielijstklasseCheckbox);
+      await userEvent.click(saveColumnSelection);
+      await userEvent.click(selectColumnsButton);
+    }
+
+    await userEvent.click(saveColumnSelection, { delay: 100 });
+
+    // Assert that selectielijstklas is visible
+    const zaken1 = await canvas.findAllByText(
+      "1.1.3 - Ingericht - vernietigen - P10Y",
+    );
+    await expect(zaken1.length).toEqual(3);
+
+    const zaken2 = await canvas.findAllByText(
+      "1.1 - Ingericht - vernietigen - P10Y",
+    );
+    await expect(zaken2.length).toEqual(2);
+
+    const zaken3 = await canvas.findAllByText(
+      "1.5 - Afgebroken - vernietigen - P1Y",
+    );
+    await expect(zaken3.length).toEqual(4);
   },
 };

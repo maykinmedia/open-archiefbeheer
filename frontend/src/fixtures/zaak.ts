@@ -44,7 +44,8 @@ const FIXTURE_ZAAK: Zaak = {
   communicatiekanaal: "",
   laatsteBetaaldatum: null,
   productenOfDiensten: [],
-  selectielijstklasse: "",
+  selectielijstklasse:
+    "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
   relevanteAndereZaken: [],
   zaakinformatieobjecten: [
     "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/8582e4bf-2b81-4425-b403-149d12d90c54",
@@ -122,7 +123,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/4086fe50-c79c-4d9b-90fc-71783f01c198",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/9feb00c0-1c79-40e3-aa59-96d8999de624",
@@ -197,7 +199,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/4086fe50-c79c-4d9b-90fc-71783f01c198",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/d2217461-6b9d-414c-b7ce-ba306f38fc2d",
@@ -272,7 +275,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/4086fe50-c79c-4d9b-90fc-71783f01c198",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/7c263c14-e3ae-4f2b-bc5f-a5a5052ee016",
@@ -347,7 +351,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [],
     startdatumBewaartermijn: null,
@@ -420,7 +425,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/a9158b2a-304f-4a6e-bc3d-9f73c83e26b1",
@@ -495,7 +501,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/914f4198-3e73-497f-807f-1d17ee0af21f",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/9e3ff7a9-90db-45e2-ab0a-1129ec026243",
@@ -570,7 +577,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/914f4198-3e73-497f-807f-1d17ee0af21f",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/26a87623-aa50-48fd-861d-61d8f3456d36",
@@ -645,7 +653,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/914f4198-3e73-497f-807f-1d17ee0af21f",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [
       "http://localhost:8000/zaken/api/v1/zaakinformatieobjecten/99fa414b-7fc5-4eef-bf8f-3920333df7b4",
@@ -720,7 +729,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
     communicatiekanaal: "",
     laatsteBetaaldatum: null,
     productenOfDiensten: [],
-    selectielijstklasse: "",
+    selectielijstklasse:
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/914f4198-3e73-497f-807f-1d17ee0af21f",
     relevanteAndereZaken: [],
     zaakinformatieobjecten: [],
     startdatumBewaartermijn: null,
