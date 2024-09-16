@@ -4,7 +4,6 @@ import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
-  assertCheckboxSelection,
   assertColumnSelection,
   clickButton,
   fillButtonConfirmationForm,

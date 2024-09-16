@@ -17,10 +17,7 @@ import { useLoaderData, useNavigation } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../components/ProcessingStatusBadge";
 import { useSubmitAction } from "../../../hooks";
-import {
-  ReviewItemResponse,
-  ReviewResponse,
-} from "../../../lib/api/reviewResponse";
+import { ReviewItemResponse } from "../../../lib/api/reviewResponse";
 import {
   canMarkAsReadyToReview,
   canMarkListAsFinal,

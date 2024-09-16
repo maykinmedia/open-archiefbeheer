@@ -1,6 +1,5 @@
 import { AttributeData } from "@maykin-ui/admin-ui";
 
-import { User } from "../../lib/api/auth";
 import {
   addToZaakSelection,
   removeFromZaakSelection,
