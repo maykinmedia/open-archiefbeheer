@@ -12,3 +12,7 @@ class ZaakArchiefactiedatumInFuture(Exception):
 
 class NoReviewFoundError(Exception):
     pass
+
+
+class PlannedDestructionDateInTheFuture(Exception):
+    pass

@@ -94,3 +94,17 @@ class CanMarkAsReadyToReview(permissions.BasePermission):
             request.user == destruction_list.author
             and destruction_list.status == ListStatus.new
         )
+
+
+class CanAbortDestruction(permissions.BasePermission):
+    message = _("You are not allowed to stop the planned destruction of the list.")
+
+    def has_permission(self, request, view):
+        return request.user.role and request.user.role.can_start_destruction
+
+    def has_object_permission(self, request, view, destruction_list):
+        return (
+            request.user == destruction_list.author
+            and destruction_list.status == ListStatus.ready_to_delete
+            and destruction_list.planned_destruction_date
+        )

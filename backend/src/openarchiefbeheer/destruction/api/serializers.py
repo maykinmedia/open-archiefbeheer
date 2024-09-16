@@ -560,3 +560,7 @@ class AuditTrailItemSerializer(serializers.ModelSerializer):
             "message",
             "extra_data",
         )
+
+
+class AbortDestructionSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=True, allow_blank=False)

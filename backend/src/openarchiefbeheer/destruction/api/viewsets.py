@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Prefetch
@@ -16,7 +18,7 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 
-from ..constants import InternalStatus, ListRole
+from ..constants import WAITING_PERIOD, InternalStatus, ListRole
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -36,6 +38,7 @@ from .filtersets import (
     ReviewResponseFilterset,
 )
 from .permissions import (
+    CanAbortDestruction,
     CanMarkAsReadyToReview,
     CanMarkListAsFinal,
     CanReassignDestructionList,
@@ -45,6 +48,7 @@ from .permissions import (
     CanUpdateDestructionList,
 )
 from .serializers import (
+    AbortDestructionSerializer,
     AuditTrailItemSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
@@ -191,6 +195,15 @@ from .serializers import (
         ),
         responses={201: None},
     ),
+    abort_destruction=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Abort planned destruction"),
+        description=_(
+            "This endpoint can be used to abort the destruction of a list when the date to process it has been set."
+            " The status of the list is then set back to 'new' and the record manager is re-assigned to it."
+        ),
+        responses={200: None},
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
@@ -232,6 +245,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated]
         elif self.action == "mark_ready_review":
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
+        elif self.action == "abort_destruction":
+            permission_classes = [IsAuthenticated & CanAbortDestruction]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -250,14 +265,34 @@ class DestructionListViewSet(
         return super().update(request, *args, **kwargs)
 
     def perform_destroy(self, instance: DestructionList) -> None:
-        if not instance.all_items_can_be_deleted():
+        today = date.today()
+        destruction_date = today + timedelta(days=WAITING_PERIOD)
+        if not instance.all_items_can_be_deleted_by_date(destruction_date):
             raise ValidationError(
-                _("This list contains cases with archiving date in the future.")
+                _(
+                    "This list contains cases with archiving date later than %(destruction_date)s, "
+                    "so the destruction cannot be planned yet."
+                )
+                % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
-        instance.processing_status = InternalStatus.queued
-        instance.save()
+        if (
+            instance.planned_destruction_date
+            and instance.planned_destruction_date > today
+        ):
+            raise ValidationError(
+                _(
+                    "This list is already planned to be destroyed on %(destruction_date)s."
+                )
+                % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
+            )
 
+        if instance.processing_status == InternalStatus.new:
+            instance.planned_destruction_date = today + timedelta(days=WAITING_PERIOD)
+            instance.save()
+            return
+
+        # If it is a retry, process immediately
         delete_destruction_list(instance)
 
     @action(detail=True, methods=["post"], name="make-final")
@@ -324,6 +359,17 @@ class DestructionListViewSet(
         destruction_list.assign_next()
 
         return Response(status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], name="abort-destruction")
+    def abort_destruction(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+
+        serializer = AbortDestructionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        destruction_list.abort_destruction()
+
+        return Response()
 
 
 @extend_schema_view(

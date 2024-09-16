@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from django.conf import settings
 
@@ -75,6 +76,21 @@ def delete_destruction_list(destruction_list: DestructionList) -> None:
         link_error=handle_processing_error.si(destruction_list.pk),
     )
     task_chain.delay()
+
+
+@app.task
+def queue_destruction_lists_for_deletion():
+    today = date.today()
+    destruction_lists_to_process = DestructionList.objects.filter(
+        processing_status=InternalStatus.new,
+        status=ListStatus.ready_to_delete,
+        planned_destruction_date__lt=today,
+    )
+
+    for destruction_list in destruction_lists_to_process:
+        delete_destruction_list(destruction_list)
+
+        logger.info("Queued the destruction of list %s", str(destruction_list.pk))
 
 
 @app.task
