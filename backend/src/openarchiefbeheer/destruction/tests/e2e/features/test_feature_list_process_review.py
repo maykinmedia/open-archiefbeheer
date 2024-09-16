@@ -87,9 +87,11 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-01",
                         "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }
                     }
                 },
-                url="http://catalogue-api.nl/zaaktypen/111-111-111",
             )
             item1 = DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
             zaak2 = ZaakFactory.create(
@@ -97,9 +99,11 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-02",
                         "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }
                     }
                 },
-                url="http://catalogue-api.nl/zaaktypen/222-222-222",
             )
             DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
 
@@ -108,18 +112,22 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-03",
                         "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }
                     }
                 },
-                url="http://catalogue-api.nl/zaaktypen/333-333-333",
             )
             zaak5 = ZaakFactory.create(
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-05",
                         "url": "http://catalogue-api.nl/zaaktypen/555-555-555",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }
                     }
                 },
-                url="http://catalogue-api.nl/zaaktypen/555-555-555",
             )
             DestructionListItemFactory.create(zaak=zaak5)  # Different destruction list
 
