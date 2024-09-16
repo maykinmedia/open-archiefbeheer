@@ -1,4 +1,4 @@
 {% load i18n %}
-{% blocktranslate trimmed with list_name=log.content_object.name record_manager=log.user.username archivist=log.extra_data.archivist.username%}
+{% blocktranslate trimmed with list_name=log.content_object.name record_manager=log.user.username archivist=log.extra_data.archivist.username %}
    Destruction list "{{ list_name }}" was made final by the record manager {{ record_manager }} who assigned it to the archivist {{ archivist }}.
 {% endblocktranslate %}
