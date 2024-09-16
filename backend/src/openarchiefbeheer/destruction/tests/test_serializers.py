@@ -108,8 +108,8 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            _('Destruction list "%(list_name)s" created by user %(user)s.')
-            % {"list_name": "A test list", "user": "record_manager"},
+            _('Destruction list "%(list_name)s" created by user %(author)s.')
+            % {"list_name": "A test list", "author": "record_manager"},
         )
 
     def test_zaak_already_included_in_other_list(self):
