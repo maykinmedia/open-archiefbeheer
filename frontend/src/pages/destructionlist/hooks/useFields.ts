@@ -12,7 +12,6 @@ import {
 } from "../../../lib/fieldSelection/fieldSelection";
 import { ExpandZaak, Zaak } from "../../../types";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
-import { getFields } from "./useDataGridProps";
 import { useZaaktypeChoices } from "./useZaaktypeChoices";
 
 /**
