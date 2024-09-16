@@ -25,7 +25,7 @@ export type ZaakSelection<DetailType = unknown> = {
  */
 export async function addToZaakSelection<DetailType = unknown>(
   key: string,
-  zaken: string[] | Zaak[],
+  zaken: (string | Zaak)[],
   detail?: DetailType,
 ) {
   await _mutateZaakSelection(key, zaken, true, detail);
@@ -40,7 +40,7 @@ export async function addToZaakSelection<DetailType = unknown>(
  */
 export async function removeFromZaakSelection(
   key: string,
-  zaken: string[] | Zaak[],
+  zaken: (string | Zaak)[],
 ) {
   await _mutateZaakSelection(key, zaken, false);
 }
@@ -182,7 +182,7 @@ export async function isZaakSelected<DetailType = unknown>(
  */
 export async function _mutateZaakSelection<DetailType = unknown>(
   key: string,
-  zaken: string[] | Zaak[],
+  zaken: (string | Zaak)[],
   selected: boolean,
   detail?: DetailType | DetailType[],
 ) {
