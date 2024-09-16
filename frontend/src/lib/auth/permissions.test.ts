@@ -109,14 +109,13 @@ describe("canReviewDestructionList()", () => {
 
 DESTRUCTION_LIST_STATUSES.forEach((status) => {
   describe(`canStartDestructionList() with destruction list status: ${status}`, () => {
-    let destructionList: DestructionList;
     let user: User;
 
     beforeEach(() => {
       user = userFactory({
         role: { canStartDestruction: true, canReviewDestruction: true },
       });
-      destructionList = destructionListFactory({
+      destructionListFactory({
         status,
         assignee: user,
         author: user,

@@ -21,7 +21,7 @@ const FIXTURE = {
   ],
 };
 
-export const settingsPage: Story = {
+export const SettingsPageStory: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {

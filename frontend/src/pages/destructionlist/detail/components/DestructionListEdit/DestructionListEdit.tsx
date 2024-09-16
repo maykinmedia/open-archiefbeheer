@@ -1,5 +1,5 @@
 import { ButtonProps, DataGrid, Solid } from "@maykin-ui/admin-ui";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   useLoaderData,
   useNavigation,
@@ -10,7 +10,6 @@ import { useAsync } from "react-use";
 import { useSubmitAction } from "../../../../../hooks";
 import { canUpdateDestructionList } from "../../../../../lib/auth/permissions";
 import {
-  ZaakSelection,
   addToZaakSelection,
   getZaakSelection,
 } from "../../../../../lib/zaakSelection/zaakSelection";

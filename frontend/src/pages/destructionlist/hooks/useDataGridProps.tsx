@@ -38,7 +38,6 @@ import {
 } from "../../../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../../../lib/format/date";
 import {
-  ZaakSelection,
   addToZaakSelection,
   clearZaakSelection,
   getZaakSelection,
