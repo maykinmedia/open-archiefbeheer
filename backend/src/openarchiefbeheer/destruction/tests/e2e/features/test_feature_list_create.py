@@ -1,6 +1,4 @@
 # fmt: off
-from unittest.mock import patch
-
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -62,32 +60,46 @@ class FeatureListCreateTests(GherkinLikeTestCase):
         @sync_to_async
         def create_data():
             ZaakFactory.create(
-                post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-01", "url": "http://catalogue-api.nl/zaaktypen/111-111-111"}}, 
-                url="http://catalogue-api.nl/zaaktypen/111-111-111"
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-01", 
+                        "omschrijving": "ZAAKTYPE-01", 
+                        "versiedatum": "2024-01-01", 
+                        "url": "http://catalogue-api.nl/zaaktypen/111-111-111"
+                    }
+                }, 
             )
             ZaakFactory.create(
-                post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-02", "url": "http://catalogue-api.nl/zaaktypen/222-222-222"}}, 
-                url="http://catalogue-api.nl/zaaktypen/222-222-222"
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-02", 
+                        "omschrijving": "ZAAKTYPE-02", 
+                        "versiedatum": "2024-01-01", 
+                        "url": "http://catalogue-api.nl/zaaktypen/222-222-222"
+                    }
+                }, 
             )
             ZaakFactory.create(
-                post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-03", "url": "http://catalogue-api.nl/zaaktypen/333-333-333"}}, 
-                url="http://catalogue-api.nl/zaaktypen/333-333-333"
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-03", 
+                        "omschrijving": "ZAAKTYPE-03", 
+                        "versiedatum": "2024-01-01", 
+                        "url": "http://catalogue-api.nl/zaaktypen/333-333-333"
+                    }
+                }, 
             )
             zaak = ZaakFactory.create(
-                post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-05", "url": "http://catalogue-api.nl/zaaktypen/555-555-555"}}, 
-                url="http://catalogue-api.nl/zaaktypen/555-555-555"
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-05", 
+                        "omschrijving": "ZAAKTYPE-05", 
+                        "versiedatum": "2024-01-01", 
+                        "url": "http://catalogue-api.nl/zaaktypen/555-555-555"
+                    }
+                }, 
             )
             DestructionListItemFactory.create(zaak=zaak)
-
-        patcher = patch("openarchiefbeheer.zaken.utils._get_zaaktypen_per_version", return_value={
-            "ZAAKTYPE-01": ["http://catalogue-api.nl/zaaktypen/111-111-111"],
-            "ZAAKTYPE-02": ["http://catalogue-api.nl/zaaktypen/222-222-222"],
-            "ZAAKTYPE-03": ["http://catalogue-api.nl/zaaktypen/333-333-333"],
-            "ZAAKTYPE-04": ["http://catalogue-api.nl/zaaktypen/444-444-444"], # No zaak with this zaaktype is returned
-            "ZAAKTYPE-05": ["http://catalogue-api.nl/zaaktypen/555-555-555"], # The zaak with this zaaktype is in a destruction list
-        })
-        patcher.start()
-        self.addCleanup(patcher.stop)
         
         async with browser_page() as page:
             await self.given.data_exists(create_data)
@@ -97,4 +109,8 @@ class FeatureListCreateTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
             await self.then.path_should_be(page, "/destruction-lists/create")
-            await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01", "ZAAKTYPE-02", "ZAAKTYPE-03"])
+            await self.then.zaaktype_filters_are(page, [
+                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
+                "ZAAKTYPE-02 (ZAAKTYPE-02)", 
+                "ZAAKTYPE-03 (ZAAKTYPE-03)"
+            ])

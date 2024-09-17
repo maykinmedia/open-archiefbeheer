@@ -47,6 +47,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                     },
                     "omschrijving": "Aangifte behandelen",
                     "identificatie": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
                 },
                 "resultaat": {
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
