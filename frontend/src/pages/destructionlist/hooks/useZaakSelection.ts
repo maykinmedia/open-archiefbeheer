@@ -61,6 +61,11 @@ export function useZaakSelection<T = unknown>(
 
   // All pages selected.
   const [allPagesSelectedState, setAllPagesSelectedState] = useState<boolean>();
+  useEffect(() => {
+    getAllZakenSelected(storageKey).then((selected) =>
+      setAllPagesSelectedState(selected),
+    );
+  });
 
   // Has selection items.
   const [hasSelectionState, setHasSelectionState] = useState<boolean>();
@@ -218,7 +223,7 @@ export function useZaakSelection<T = unknown>(
     selectedZakenOnPage,
     onSelect,
     {
-      hasSelection: Boolean(hasSelectionState),
+      hasSelection: Boolean(hasSelectionState || allPagesSelectedState),
       allPagesSelected: Boolean(allPagesSelectedState),
       handleSelectAllPages: onSelectAllPages,
       clearZaakSelection: clearZaakSelection,

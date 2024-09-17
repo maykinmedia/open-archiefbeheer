@@ -27,11 +27,15 @@ import {
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../index";
 
+export type DestructionListToolbarProps = {
+  title?: string;
+};
+
 /**
  * Toolbar on top of destruction list page providing meta information.
  * @constructor
  */
-export function DestructionListToolbar() {
+export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
   const { destructionList, logItems, review, reviewers, reviewResponse } =
     useLoaderData() as {
       destructionList: DestructionListRead;
@@ -43,38 +47,40 @@ export function DestructionListToolbar() {
 
   const properties = (
     <Grid>
-      <Column span={3}>
-        <AttributeTable
-          labeledObject={{
-            auteur: {
-              label: "Auteur",
-              value: formatUser(destructionList.author),
-            },
-            toegewezen: {
-              label: "Toegewezen aan",
-              value: formatUser(destructionList.assignee),
-            },
-            bevatGevoeligeInformatie: {
-              label: "Bevat gevoelige informatie",
-              value: destructionList.containsSensitiveInfo,
-            },
-            status: {
-              label: "Status",
-              value: (
-                <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
-                  {STATUS_MAPPING[destructionList.status]}
-                </Badge>
-              ),
-            },
-            aangemaakt: {
-              label: "Aangemaakt",
-              value: formatDate(new Date(destructionList.created)),
-            },
-          }}
-        />
-      </Column>
+      {destructionList && (
+        <Column span={3}>
+          <AttributeTable
+            labeledObject={{
+              auteur: {
+                label: "Auteur",
+                value: formatUser(destructionList.author),
+              },
+              toegewezen: {
+                label: "Toegewezen aan",
+                value: formatUser(destructionList.assignee),
+              },
+              bevatGevoeligeInformatie: {
+                label: "Bevat gevoelige informatie",
+                value: destructionList.containsSensitiveInfo,
+              },
+              status: {
+                label: "Status",
+                value: (
+                  <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
+                    {STATUS_MAPPING[destructionList.status]}
+                  </Badge>
+                ),
+              },
+              aangemaakt: {
+                label: "Aangemaakt",
+                value: formatDate(new Date(destructionList.created)),
+              },
+            }}
+          />
+        </Column>
+      )}
 
-      {reviewers && (
+      {destructionList && reviewers && (
         <Column span={3}>
           <DestructionListReviewer
             destructionList={destructionList}
@@ -117,7 +123,13 @@ export function DestructionListToolbar() {
 
   return (
     <Body>
-      <H2>{field2Title(destructionList.name, { unHyphen: false })}</H2>
+      {title ? (
+        <H2>{title}</H2>
+      ) : (
+        destructionList && (
+          <H2>{field2Title(destructionList.name, { unHyphen: false })}</H2>
+        )
+      )}
       {logItems ? (
         <Tabs>
           <Tab id="gegevens" label="Gegevens">

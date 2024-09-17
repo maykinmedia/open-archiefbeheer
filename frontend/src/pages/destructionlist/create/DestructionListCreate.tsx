@@ -11,12 +11,18 @@ import {
   useActionData,
   useLoaderData,
   useSearchParams,
-  useSubmit,
 } from "react-router-dom";
 
+import { useSubmitAction } from "../../../hooks";
+import { getFilteredZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import { BaseListView } from "../abstract";
+import { useZaakSelection } from "../hooks/useZaakSelection";
+import {
+  DestructionListCreateAction,
+  DestructionListCreateActionResponseData,
+} from "./DestructionListCreate.action";
 import "./DestructionListCreate.css";
 import { DestructionListCreateContext } from "./DestructionListCreate.loader";
-import { DestructionList } from "./components";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
@@ -25,39 +31,51 @@ export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, paginatedZaken, zaakSelection, allZakenSelected } =
+  // Loader.
+  const { reviewers, paginatedZaken } =
     useLoaderData() as DestructionListCreateContext;
 
-  const { assignees: errors } = (useActionData() || {}) as Record<
-    string,
-    Record<string, string | string[]>
-  >;
-
-  const submit = useSubmit();
+  // Action.
+  const { errors } = (useActionData() ||
+    {}) as DestructionListCreateActionResponseData;
 
   const [modalOpenState, setModalOpenState] = useState(false);
   const [searchParams] = useSearchParams();
+  const submitAction = useSubmitAction<DestructionListCreateAction>();
 
-  const onSubmitSelection = () => setModalOpenState(true);
+  // Returned zaak selection is page specific, don't use it as we need all selected zaken.
+  const [, , { allPagesSelected, hasSelection }] = useZaakSelection(
+    DESTRUCTION_LIST_CREATE_KEY,
+    paginatedZaken.results,
+  );
+
+  /**
+   * Gets called when the "Vernietigingslijst opstellen" is clicked
+   */
+  const handleClick = () => setModalOpenState(true);
 
   /**
    * Gets called when the form is submitted.
    */
-  const onSubmitForm = async (event: FormEvent, data: SerializedFormData) => {
-    const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selection]) => selection.selected)
-      .map(([url]) => url);
-    const { name, assigneeId } = data;
+  const handleSubmit = async (event: FormEvent, data: SerializedFormData) => {
+    const { name, assigneeId } = data as Record<string, string>;
+    const zaakFilters = JSON.stringify(Object.fromEntries(searchParams));
 
-    const formData = new FormData();
-    formData.append("name", name as string);
-    zaakUrls.forEach((url) => formData.append("zaakUrls", url));
-    formData.append("assigneeId", JSON.stringify(assigneeId));
+    const zaakUrls = Object.keys(
+      await getFilteredZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
+    );
 
-    const filters = Object.fromEntries(searchParams);
-    formData.append("zaakFilters", JSON.stringify(filters));
+    submitAction({
+      type: "CREATE_LIST",
+      payload: {
+        name: name,
+        zaakUrls: zaakUrls,
+        assigneeId: assigneeId,
+        zaakFilters: zaakFilters,
+        allPagesSelected: allPagesSelected,
+      },
+    });
 
-    submit(formData, { method: "POST" });
     setModalOpenState(false);
   };
 
@@ -81,7 +99,28 @@ export function DestructionListCreatePage() {
   ];
 
   return (
-    <>
+    <BaseListView
+      storageKey={DESTRUCTION_LIST_CREATE_KEY}
+      title="Vernietigingslijst opstellen"
+      errors={errors}
+      paginatedZaken={paginatedZaken}
+      allowSelectAllPages={true}
+      selectionActions={[
+        {
+          children: (
+            <>
+              <Solid.DocumentPlusIcon />
+              Vernietigingslijst opstellen
+            </>
+          ),
+          disabled: !allPagesSelected && !hasSelection,
+
+          variant: "primary",
+          wrap: false,
+          onClick: handleClick,
+        },
+      ]}
+    >
       <Modal
         title="Vernietigingslijst opstellen"
         open={modalOpenState}
@@ -91,31 +130,12 @@ export function DestructionListCreatePage() {
         <Body>
           <Form
             fields={modalFormFields}
-            onSubmit={onSubmitForm}
+            onSubmit={handleSubmit}
             validateOnChange={true}
             labelSubmit="Vernietigingslijst opstellen"
           />
         </Body>
       </Modal>
-      <DestructionList
-        errors={errors?.nonFieldErrors}
-        storageKey={DESTRUCTION_LIST_CREATE_KEY}
-        zaken={paginatedZaken}
-        zaakSelection={zaakSelection}
-        allZakenSelected={allZakenSelected}
-        title="Vernietigingslijst opstellen"
-        labelAction={
-          <>
-            <Solid.DocumentPlusIcon />
-            Vernietigingslijst opstellen
-          </>
-        }
-        primaryActionDisabled={
-          !allZakenSelected &&
-          !Object.values(zaakSelection).filter((zs) => zs.selected).length
-        }
-        onSubmitSelection={onSubmitSelection}
-      />
-    </>
+    </BaseListView>
   );
 }
