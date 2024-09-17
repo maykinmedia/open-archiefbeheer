@@ -1,7 +1,8 @@
 import traceback
 from collections import defaultdict
+from datetime import date
 from functools import lru_cache, partial
-from typing import TYPE_CHECKING, Callable, Generator, Literal
+from typing import Callable, Generator, Iterable, Literal
 
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -19,18 +20,11 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
-from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import Zaak
 from .types import DropDownChoice
-
-if TYPE_CHECKING:
-    from openarchiefbeheer.destruction.models import (
-        DestructionList,
-        DestructionListReview,
-    )
 
 
 def pagination_helper(
@@ -85,91 +79,36 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
     return processed_zaken
 
 
-def _format_zaaktypen_choices(
-    zaaktypen: dict[str, list], zaaktypen_to_include: list | None = None
-) -> list[DropDownChoice]:
-    formatted_choices = []
-    for key, value in zaaktypen.items():
-        item = {"label": key or _("(no identificatie)"), "value": ",".join(value)}
-        if zaaktypen_to_include is None:
-            formatted_choices.append(item)
+def format_zaaktype_choices(zaaktypen: Iterable[dict]) -> list[DropDownChoice]:
+    zaaktypen_per_version = defaultdict(list)
+    id_to_omschrijving_map = {}
+    for zaaktype in zaaktypen:
+        zaaktypen_per_version[zaaktype["identificatie"]].append(zaaktype["url"])
+        version_date = date.fromisoformat(zaaktype["versiedatum"])
+
+        if zaaktype["identificatie"] not in id_to_omschrijving_map:
+            id_to_omschrijving_map[zaaktype["identificatie"]] = {
+                "omschrijving": zaaktype["omschrijving"],
+                "versiedatum": version_date,
+            }
             continue
 
-        if key in zaaktypen_to_include:
-            formatted_choices.append(item)
+        latest_version_date = id_to_omschrijving_map[zaaktype["identificatie"]][
+            "versiedatum"
+        ]
+        if version_date > latest_version_date:
+            id_to_omschrijving_map[zaaktype["identificatie"]] = {
+                "omschrijving": zaaktype["omschrijving"],
+                "versiedatum": version_date,
+            }
 
-    return sorted(formatted_choices, key=lambda zaaktype: zaaktype["label"])
-
-
-def _get_zaaktypen_per_version() -> dict[str, list]:
-    ztc_service = Service.objects.filter(api_type=APITypes.ztc).first()
-    if not ztc_service:
-        return {}
-
-    ztc_client = build_client(ztc_service)
-    with ztc_client:
-        response = ztc_client.get(
-            "zaaktypen",
-            headers={"Accept-Crs": "EPSG:4326"},
-        )
-        response.raise_for_status()
-        data_iterator = pagination_helper(ztc_client, response.json())
-
-    zaaktypen = defaultdict(list)
-    for page in data_iterator:
-        for result in page["results"]:
-            zaaktypen[result["identificatie"]].append(result["url"])
-    return zaaktypen
-
-
-def retrieve_zaaktypen_choices() -> list[DropDownChoice]:
-    from .api.filtersets import ZaakFilter
-
-    zaaktypen = _get_zaaktypen_per_version()
-
-    filterset = ZaakFilter(data={"not_in_destruction_list": True})
-    filterset.is_valid()
-    zaken = filterset.qs
-
-    zaaktypes_to_include = zaken.values_list(
-        "_expand__zaaktype__identificatie", flat=True
-    ).distinct()
-    return _format_zaaktypen_choices(zaaktypen, zaaktypes_to_include)
-
-
-def _get_zaaktype_choices(zaaktypen_to_include: dict[list]) -> list[DropDownChoice]:
-    """Return formatted zaaktype choices
-
-    Takes a dictionary where the key is the identificatie of a zaaktype and
-    the value is a list of all the URLs for the different versions of that zaaktype."""
-    zaaktypen = defaultdict(list)
-    for zaaktype_url, zaaktype_identificatie in zaaktypen_to_include:
-        zaaktypen[zaaktype_identificatie].append(zaaktype_url)
-
-    return _format_zaaktypen_choices(zaaktypen)
-
-
-def get_zaaktypen_choices_from_list(
-    destruction_list: "DestructionList",
-) -> list[DropDownChoice]:
-    zaaktypen_to_include = (
-        destruction_list.items.filter(status=ListItemStatus.suggested)
-        .distinct("zaak__zaaktype")
-        .values_list("zaak__zaaktype", "zaak___expand__zaaktype__identificatie")
-    )
-    return _get_zaaktype_choices(zaaktypen_to_include)
-
-
-def get_zaaktypen_choices_from_review(
-    review: "DestructionListReview",
-) -> list[DropDownChoice]:
-    zaaktypen_to_include = review.item_reviews.distinct(
-        "destruction_list_item__zaak__zaaktype"
-    ).values_list(
-        "destruction_list_item__zaak__zaaktype",
-        "destruction_list_item__zaak___expand__zaaktype__identificatie",
-    )
-    return _get_zaaktype_choices(zaaktypen_to_include)
+    formatted_zaaktypen = []
+    for identificatie, urls in zaaktypen_per_version.items():
+        omschrijving = id_to_omschrijving_map[identificatie]["omschrijving"]
+        label = f"{omschrijving} ({identificatie or _("no identificatie")})"
+        value = ",".join(urls)
+        formatted_zaaktypen.append({"label": label, "value": value})
+    return formatted_zaaktypen
 
 
 def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
