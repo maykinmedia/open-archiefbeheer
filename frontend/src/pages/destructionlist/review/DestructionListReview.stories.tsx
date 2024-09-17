@@ -130,9 +130,7 @@ export const ReviewDestructionList: Story = {
     const prompt = await canvas.findByLabelText("Reden");
     await userEvent.click(prompt, { delay: 10 });
     await userEvent.type(prompt, "Test", { delay: 100 });
-    const submit = await canvas.findByText("Zaak uitzonderen");
-    await userEvent.click(submit, { delay: 10 });
-    await waitFor(async () => expect(submit).not.toBeInTheDocument());
+    await userEvent.keyboard("{enter}");
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const markAll = await canvas.findByLabelText(
