@@ -70,7 +70,7 @@ const FIXTURE: DestructionListReviewContext = {
   logItems: [],
   review: reviewFactory(),
   reviewers: usersFactory(),
-  zaken: paginatedZakenFactory(),
+  paginatedZaken: paginatedZakenFactory(),
   approvedZaakUrlsOnPage: [],
   excludedZaakSelection: {},
 };
@@ -82,7 +82,9 @@ export const ReviewDestructionList: Story = {
         loader: async () => {
           const storageKey = getDestructionListReviewKey(FIXTURE.uuid);
           const zaakSelection = await getZaakSelection(storageKey);
-          const zakenOnPage = FIXTURE.zaken.results.map((z) => z.url as string);
+          const zakenOnPage = FIXTURE.paginatedZaken.results.map(
+            (z) => z.url as string,
+          );
 
           const approvedZaakUrlsOnPagePromise = await Promise.all(
             zakenOnPage.map(async (url) => {

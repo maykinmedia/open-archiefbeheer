@@ -35,13 +35,12 @@ export type DestructionListReviewContext = {
   destructionList: DestructionList;
   logItems: AuditLogItem[];
 
+  paginatedZaken: PaginatedZaken;
   review: Review;
   reviewItems?: ReviewItem[];
   reviewResponse?: ReviewResponse;
-
   reviewers: User[];
 
-  zaken: PaginatedZaken;
   approvedZaakUrlsOnPage: string[];
   excludedZaakSelection: ZaakSelection<{ approved: false; comment?: string }>;
 };
@@ -122,13 +121,12 @@ export const destructionListReviewLoader = loginRequired(
         destructionList: list,
         logItems,
 
+        paginatedZaken: zaken,
         review: latestReview,
         reviewItems,
         reviewResponse,
-
         reviewers,
 
-        zaken,
         approvedZaakUrlsOnPage,
         excludedZaakSelection,
       } satisfies DestructionListReviewContext;

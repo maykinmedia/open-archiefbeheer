@@ -30,13 +30,13 @@ export function DestructionListReviewPage() {
 
   // rows: AttributeData[], selected: boolean
   const {
+    uuid,
     destructionList,
+    paginatedZaken,
     reviewItems,
     reviewResponse,
-    zaken,
     approvedZaakUrlsOnPage,
     excludedZaakSelection,
-    uuid,
   } = useLoaderData() as DestructionListReviewContext;
 
   const submitAction = useSubmitAction<ReviewDestructionListAction>();
@@ -45,7 +45,7 @@ export function DestructionListReviewPage() {
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
     const zakenOrReviewItems =
-      reviewItems && reviewItems.length ? reviewItems : zaken.results;
+      reviewItems && reviewItems.length ? reviewItems : paginatedZaken.results;
 
     const objects: Zaak[] = zakenOrReviewItems.map((zori) =>
       "zaak" in zori ? zori.zaak : zori,
@@ -56,11 +56,11 @@ export function DestructionListReviewPage() {
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
     });
-  }, [reviewItems, zaken, excludedZaakSelection]);
+  }, [reviewItems, paginatedZaken, excludedZaakSelection]);
 
   // The paginated object list of the current page with review actions appended.
   const paginatedObjectList = Object.assign(
-    { ...zaken },
+    { ...paginatedZaken },
     { results: objectList },
   );
 
