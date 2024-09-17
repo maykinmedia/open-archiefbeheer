@@ -24,7 +24,10 @@ from django_filters import (
 )
 
 from openarchiefbeheer.destruction.constants import ListItemStatus
-from openarchiefbeheer.destruction.models import DestructionListItem
+from openarchiefbeheer.destruction.models import (
+    DestructionListItem,
+    DestructionListReview,
+)
 
 from ..models import Zaak
 
@@ -85,6 +88,15 @@ class ZaakFilter(FilterSet):
         help_text=_(
             "Filter all zaaktype that have a URL contained in the provided list."
         ),
+    )
+
+    in_review = NumberFilter(
+        field_name="vcs",
+        method="filter_in_review",
+        help_text=_(
+            "Filter on zaken that have received negative feedback in a review."
+        ),
+        decimal_places=0,
     )
 
     # Expand lookups
@@ -203,6 +215,17 @@ class ZaakFilter(FilterSet):
             )
             .order_by("in_exception_list")
         )
+
+    def filter_in_review(
+        self, queryset: QuerySet[Zaak], name: str, value: Decimal
+    ) -> QuerySet[Zaak]:
+        review = DestructionListReview.objects.prefetch_related(
+            "item_reviews__destruction_list_item__zaak"
+        ).get(pk=value)
+        zaken_urls = review.item_reviews.all().values_list(
+            "destruction_list_item__zaak__url", flat=True
+        )
+        return queryset.filter(url__in=zaken_urls)
 
     def filter_bewaartermijn(
         self, queryset: QuerySet[Zaak], name: str, value: str

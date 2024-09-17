@@ -9,20 +9,12 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from openarchiefbeheer.destruction.api.permissions import (
-    CanReviewPermission,
-    CanStartDestructionPermission,
-)
 from openarchiefbeheer.utils.datastructure import HashableDict
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
-from ..utils import (
-    get_zaaktypen_choices_from_list,
-    get_zaaktypen_choices_from_review,
-    retrieve_selectielijstklasse_choices,
-    retrieve_zaaktypen_choices,
-)
+from ..utils import format_zaaktype_choices, retrieve_selectielijstklasse_choices
+from .filtersets import ZaakFilter
 from .serializers import (
     SelectielijstklasseChoicesQueryParamSerializer,
     SelectielijstklasseChoicesSerializer,
@@ -45,9 +37,7 @@ class CacheZakenView(APIView):
 
 
 class ZaaktypenChoicesView(APIView):
-    permission_classes = [
-        IsAuthenticated & (CanStartDestructionPermission | CanReviewPermission)
-    ]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         summary=_("Retrieve zaaktypen choices"),
@@ -71,12 +61,19 @@ class ZaaktypenChoicesView(APIView):
         )
         param_serializer.is_valid(raise_exception=True)
 
-        if destruction_list := param_serializer.validated_data.get("destruction_list"):
-            zaaktypen_choices = get_zaaktypen_choices_from_list(destruction_list)
-        elif review := param_serializer.validated_data.get("review"):
-            zaaktypen_choices = get_zaaktypen_choices_from_review(review)
-        else:
-            zaaktypen_choices = retrieve_zaaktypen_choices()
+        filters = (
+            {"not_in_destruction_list": True}
+            if not len(param_serializer.data.keys())
+            else param_serializer.data
+        )
+
+        filterset = ZaakFilter(data=filters)
+        filterset.is_valid()
+
+        zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
+            "_expand__zaaktype", flat=True
+        )
+        zaaktypen_choices = format_zaaktype_choices(zaaktypen)
 
         serializer = ZaaktypeChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
