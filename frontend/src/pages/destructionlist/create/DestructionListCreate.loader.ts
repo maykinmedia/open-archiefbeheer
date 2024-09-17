@@ -17,7 +17,7 @@ import "./DestructionListCreate.css";
 
 export type DestructionListCreateContext = {
   reviewers: User[];
-  zaken: PaginatedZaken;
+  paginatedZaken: PaginatedZaken;
   zaakSelection: ZaakSelection;
   allZakenSelected: boolean;
 };
@@ -52,7 +52,7 @@ export const destructionListCreateLoader = loginRequired(
 
       return {
         reviewers,
-        zaken,
+        paginatedZaken: zaken,
         zaakSelection,
         allZakenSelected,
       };

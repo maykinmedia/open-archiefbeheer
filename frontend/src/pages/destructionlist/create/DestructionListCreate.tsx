@@ -25,7 +25,7 @@ export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
  * Destruction list creation page
  */
 export function DestructionListCreatePage() {
-  const { reviewers, zaken, zaakSelection, allZakenSelected } =
+  const { reviewers, paginatedZaken, zaakSelection, allZakenSelected } =
     useLoaderData() as DestructionListCreateContext;
 
   const { assignees: errors } = (useActionData() || {}) as Record<
@@ -100,7 +100,7 @@ export function DestructionListCreatePage() {
       <DestructionList
         errors={errors?.nonFieldErrors}
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
-        zaken={zaken}
+        zaken={paginatedZaken}
         zaakSelection={zaakSelection}
         allZakenSelected={allZakenSelected}
         title="Vernietigingslijst opstellen"
