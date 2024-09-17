@@ -3,8 +3,10 @@ import {
   Body,
   Button,
   CardBaseTemplate,
+  Column,
   Form,
   FormField,
+  Grid,
   Modal,
   P,
   SerializedFormData,
@@ -170,26 +172,46 @@ export function DestructionListDetailPage() {
           />
         ),
         "spacer",
-        ["new", "failed"].includes(destructionList.processingStatus) ? (
-          {
-            bold: true,
-            children: (
-              <>
-                <Solid.TrashIcon />
-                {destructionList.processingStatus === "new"
-                  ? "Vernietigen starten"
-                  : "Vernietigen herstarten"}
-              </>
-            ),
-            variant: "danger",
-            onClick: () => setDestroyModalOpenState(true),
-            pad: "h",
-          }
-        ) : (
-          <></>
-        ),
+        <>
+          {["new", "failed"].includes(destructionList.processingStatus) ? (
+            <Grid gutter={false}>
+              <Column containerType="normal" span={12}>
+                <Button
+                  variant="danger"
+                  onClick={() => setDestroyModalOpenState(true)}
+                  disabled={hasDestructionListItemsDateInFuture()}
+                  pad="h"
+                  bold={true}
+                >
+                  <Solid.TrashIcon />
+                  {destructionList.processingStatus === "new"
+                    ? "Vernietigen starten"
+                    : "Vernietigen herstarten"}
+                </Button>
+              </Column>
+              <Column containerType="normal" span={12}>
+                {hasDestructionListItemsDateInFuture() && (
+                  <P bold>
+                    Er zijn zaken met een archiefactiedatum in de toekomst
+                  </P>
+                )}
+              </Column>
+            </Grid>
+          ) : (
+            <></>
+          )}
+        </>,
       ];
     }
+  };
+
+  const hasDestructionListItemsDateInFuture = () => {
+    return destructionListItems.results.some((item) => {
+      if (item.zaak && item.zaak.archiefactiedatum) {
+        return item.zaak.archiefactiedatum > new Date().toISOString();
+      }
+      return false;
+    });
   };
 
   /**
