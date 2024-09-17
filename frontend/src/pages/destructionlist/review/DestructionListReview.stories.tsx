@@ -64,6 +64,12 @@ const meta: Meta<typeof DestructionListReviewPage> = {
         status: 200,
         response: userFactory(),
       },
+      {
+        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+        method: "GET",
+        status: 200,
+        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+      },
     ],
   },
 };
