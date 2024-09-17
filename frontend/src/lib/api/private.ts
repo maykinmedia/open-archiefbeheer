@@ -2,7 +2,6 @@ import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 import { cacheMemo } from "../cache/cache";
-import { User } from "./auth";
 import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
@@ -50,16 +49,25 @@ export async function listZaaktypeChoices(
   destructionListUuid?: DestructionList["uuid"],
   reviewPk?: Review["pk"],
 ) {
-  let params;
-  if (reviewPk) {
-    params = { review: reviewPk };
-  } else if (destructionListUuid) {
-    params = { destructionList: destructionListUuid };
-  } else {
-    params = undefined;
-  }
+  return cacheMemo(
+    "listZaaktypeChoices",
+    async () => {
+      let params;
 
-  const response = await request("GET", "/_zaaktypen-choices/", params);
-  const promise: Promise<ZaaktypeChoice[]> = response.json();
-  return promise;
+      if (reviewPk) {
+        params = { review: reviewPk };
+      } else if (destructionListUuid) {
+        params = { destructionList: destructionListUuid };
+      } else {
+        params = undefined;
+      }
+      const response = await request("GET", "/_zaaktypen-choices/", params);
+      const promise: Promise<ZaaktypeChoice[]> = response.json();
+
+      return promise;
+    },
+    destructionListUuid || reviewPk
+      ? [destructionListUuid || String(reviewPk)]
+      : undefined,
+  );
 }
