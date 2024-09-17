@@ -16,10 +16,10 @@ import { DESTRUCTION_LIST_CREATE_KEY } from "./DestructionListCreate";
 import "./DestructionListCreate.css";
 
 export type DestructionListCreateContext = {
-  reviewers: User[];
   paginatedZaken: PaginatedZaken;
-  zaakSelection: ZaakSelection;
-  allZakenSelected: boolean;
+  reviewers: User[];
+  zaakSelection: ZaakSelection; // FIXME
+  allZakenSelected: boolean; // FIXME
 };
 
 /**
@@ -51,10 +51,10 @@ export const destructionListCreateLoader = loginRequired(
         ]);
 
       return {
-        reviewers,
         paginatedZaken: zaken,
-        zaakSelection,
-        allZakenSelected,
+        reviewers,
+        zaakSelection, // FIXME
+        allZakenSelected, // FIXME
       };
     },
   ),

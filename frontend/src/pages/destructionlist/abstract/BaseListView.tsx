@@ -24,8 +24,11 @@ import {
   useZaakSelection,
 } from "../hooks/useZaakSelection";
 
-export type BaseListViewProps = {
+export type BaseListViewProps = React.PropsWithChildren<{
   storageKey: string;
+  title?: string;
+  errors?: string | string[];
+
   destructionList?: DestructionList;
   review?: Review;
   paginatedZaken: PaginatedZaken;
@@ -39,10 +42,13 @@ export type BaseListViewProps = {
   getSelectionDetail?: ZaakSelectionDetailGetter;
 
   dataGridProps?: Partial<DataGridProps>;
-};
+}>;
 
 export function BaseListView({
   storageKey,
+  title,
+  errors,
+
   destructionList,
   review,
   paginatedZaken,
@@ -56,6 +62,8 @@ export function BaseListView({
   getSelectionDetail,
 
   dataGridProps,
+
+  children,
 }: BaseListViewProps) {
   const { state } = useNavigation();
   const [page, setPage] = usePage();
@@ -103,11 +111,13 @@ export function BaseListView({
           },
         ] as ButtonProps[])
       : [];
-    return [...fixedItems, ...(selectionActions || [])];
+    return [...(selectionActions || []), ...fixedItems];
   }, [hasSelection, selectedZakenOnPage, selectionActions]);
 
   return (
     <ListTemplate
+      errors={errors}
+      secondaryNavigationItems={secondaryNavigationItems}
       dataGridProps={{
         aProps: {
           target: "_blank",
@@ -144,9 +154,9 @@ export function BaseListView({
 
         ...dataGridProps,
       }}
-      secondaryNavigationItems={secondaryNavigationItems}
     >
-      <DestructionListToolbar />
+      <DestructionListToolbar title={title} />
+      {children}
     </ListTemplate>
   );
 }
