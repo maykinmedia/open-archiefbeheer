@@ -25,7 +25,7 @@ import {
 } from "../../../lib/api/destructionListsItem";
 import {
   ZaaktypeChoice,
-  listSelectieLijstKlasseChoices,
+  listSelectielijstKlasseChoices,
   listZaaktypeChoices,
 } from "../../../lib/api/private";
 import { Review } from "../../../lib/api/review";
@@ -96,7 +96,7 @@ export function useDataGridProps(
         const [selectieLijstKlasseChoices, zaaktypeChoices] = await Promise.all(
           [
             // TODO (possibly): This curreently isn't performant. It's returning 600+ results, of which we most likely only need a few per page
-            listSelectieLijstKlasseChoices(),
+            listSelectielijstKlasseChoices(),
             listZaaktypeChoices(destructionListUuid, reviewPk),
           ],
         );

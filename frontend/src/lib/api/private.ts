@@ -1,6 +1,8 @@
 import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
+import { cacheMemo } from "../cache/cache";
+import { User } from "./auth";
 import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
@@ -14,20 +16,30 @@ export type ZaaktypeChoice = Option & {
  * This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves all the 'resultaten' possible for this
  * 'procestype' from the selectielijst API.
  */
-export async function listSelectieLijstKlasseChoices(
+export async function listSelectielijstKlasseChoices(
   params?:
     | URLSearchParams
     | {
         zaak?: Zaak["url"];
       },
 ) {
-  const response = await request(
-    "GET",
-    "/_selectielijstklasse-choices/",
-    params,
+  // @ts-expect-error - check
+  const zaak = params?.zaak as string | undefined;
+
+  return cacheMemo(
+    "listSelectielijstKlasseChoices",
+    async () => {
+      const response = await request(
+        "GET",
+        "/_selectielijstklasse-choices/",
+        params,
+      );
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    zaak ? [zaak] : undefined,
   );
-  const promise: Promise<Option[]> = response.json();
-  return promise;
 }
 
 /**

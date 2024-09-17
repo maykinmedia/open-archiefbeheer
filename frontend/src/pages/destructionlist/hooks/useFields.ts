@@ -12,6 +12,7 @@ import {
 } from "../../../lib/fieldSelection/fieldSelection";
 import { ExpandZaak, Zaak } from "../../../types";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
+import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
 import { useZaaktypeChoices } from "./useZaaktypeChoices";
 
 /**
@@ -34,6 +35,7 @@ export function useFields(
     );
   }, []);
   const [searchParams] = useSearchParams();
+  const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
   const zaaktypeChoices = useZaaktypeChoices(destructionList, review);
 
   // The raw, unfiltered configuration of the available base fields.
@@ -142,6 +144,7 @@ export function useFields(
       name: "selectielijstklasse",
       type: "string",
       // filterLookup: // TODO: Expand?
+      options: selectielijstKlasseChoices,
       width: "180px",
     },
     {

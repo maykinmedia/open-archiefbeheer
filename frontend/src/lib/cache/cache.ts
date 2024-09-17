@@ -64,14 +64,14 @@ export async function cacheDelete(key: string) {
 export async function cacheMemo<F extends (...args: never[]) => unknown>(
   key: string,
   factory: F,
-  params: Parameters<F> = [] as Parameters<F>,
+  params: Parameters<F> | string[] = [],
 ): Promise<Awaited<ReturnType<F>>> {
   const _key = _getCompiledKey(key, params);
   const cached = await cacheGet<Awaited<ReturnType<F>>>(_key);
   if (cached !== null) {
     return cached;
   }
-  const value = await factory(...params);
+  const value = await factory(...(params as Parameters<F>));
   await cacheSet(_key, value);
   return value as Awaited<ReturnType<F>>;
 }

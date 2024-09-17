@@ -12,7 +12,7 @@ import {
   PaginatedDestructionListItems,
   listDestructionListItems,
 } from "../../../lib/api/destructionListsItem";
-import { listSelectieLijstKlasseChoices } from "../../../lib/api/private";
+import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
 import {
   Review,
   ReviewItem,
@@ -129,7 +129,7 @@ export const destructionListDetailLoader = loginRequired(
                 Object.fromEntries(
                   await Promise.all(
                     reviewItems.map(async (ri) => {
-                      const choices = await listSelectieLijstKlasseChoices({
+                      const choices = await listSelectielijstKlasseChoices({
                         zaak: ri.zaak.url,
                       });
                       return [ri.zaak.url, choices];
