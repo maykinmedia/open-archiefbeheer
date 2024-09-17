@@ -90,6 +90,7 @@ export const DestructionListCreatePageStory: Story = {
     },
   },
   play: async (context) => {
+    sessionStorage.clear();
     await assertCheckboxSelection(context);
     await assertColumnSelection(context);
     await assertCheckboxSelection({
@@ -141,6 +142,7 @@ export const DestructionListSelectielijstklasseStory: Story = {
     },
   },
   play: async (context) => {
+    sessionStorage.clear();
     const canvas = within(context.canvasElement);
 
     // Get "Select columns" button.

@@ -30,7 +30,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list to create")
             await self.when.user_fills_form_field(page, "Reviewer", "Beoordelaar")
-            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
+            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to create")
