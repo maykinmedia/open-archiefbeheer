@@ -51,7 +51,7 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         ],
       },
       {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?review=1",
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inReview=1",
         method: "GET",
         status: 200,
         response: [

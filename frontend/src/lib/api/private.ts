@@ -55,9 +55,9 @@ export async function listZaaktypeChoices(
       let params;
 
       if (reviewPk) {
-        params = { review: reviewPk };
+        params = { inReview: reviewPk };
       } else if (destructionListUuid) {
-        params = { destructionList: destructionListUuid };
+        params = { inDestructionList: destructionListUuid };
       } else {
         params = undefined;
       }
