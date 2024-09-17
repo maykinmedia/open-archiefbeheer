@@ -1,20 +1,26 @@
 import { LoaderFunctionArgs } from "@remix-run/router/utils";
 
+import { User } from "../../../lib/api/auth";
 import { listReviewers } from "../../../lib/api/reviewers";
-import { listZaken } from "../../../lib/api/zaken";
+import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canStartDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
 import {
+  ZaakSelection,
   getAllZakenSelected,
   getZaakSelection,
 } from "../../../lib/zaakSelection/zaakSelection";
-import {
-  DESTRUCTION_LIST_CREATE_KEY,
-  DestructionListCreateContext,
-} from "./DestructionListCreate";
+import { DESTRUCTION_LIST_CREATE_KEY } from "./DestructionListCreate";
 import "./DestructionListCreate.css";
+
+export type DestructionListCreateContext = {
+  reviewers: User[];
+  zaken: PaginatedZaken;
+  zaakSelection: ZaakSelection;
+  allZakenSelected: boolean;
+};
 
 /**
  * React Router loader.

@@ -14,21 +14,12 @@ import {
   useSubmit,
 } from "react-router-dom";
 
-import { User } from "../../../lib/api/auth";
-import { PaginatedZaken } from "../../../lib/api/zaken";
-import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import "./DestructionListCreate.css";
+import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 import { DestructionList } from "./components";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
-
-export type DestructionListCreateContext = {
-  reviewers: User[];
-  zaken: PaginatedZaken;
-  zaakSelection: ZaakSelection;
-  allZakenSelected: boolean;
-};
 
 /**
  * Destruction list creation page
