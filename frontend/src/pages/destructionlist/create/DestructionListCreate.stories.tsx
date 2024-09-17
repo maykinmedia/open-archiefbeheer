@@ -16,10 +16,10 @@ import {
 import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import {
   DESTRUCTION_LIST_CREATE_KEY,
-  DestructionListCreateContext,
   DestructionListCreatePage,
 } from "./DestructionListCreate";
 import { destructionListCreateAction } from "./DestructionListCreate.action";
+import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
