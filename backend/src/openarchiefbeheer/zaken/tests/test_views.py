@@ -72,56 +72,36 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_authenticated_without_permission(self):
-        user = UserFactory.create(role__can_start_destruction=False)
-
-        self.client.force_authenticate(user=user)
-        endpoint = reverse("api:retrieve-zaaktypen-choices")
-
-        response = self.client.get(endpoint)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    @Mocker()
-    def test_retrieve_zaaktypen_choices(self, m):
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="http://catalogi-api.nl/catalogi/api/v1",
-        )
-        user = UserFactory.create(role__can_start_destruction=True)
+    def test_retrieve_zaaktypen_choices(self):
+        user = UserFactory.create()
         ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            post___expand={"zaaktype": {"identificatie": "ZAAK-01"}},
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.0",
+                    "versiedatum": "2024-01-01",
+                }
+            },
         )
         ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-            post___expand={"zaaktype": {"identificatie": "ZAAK-02"}},
+            post___expand={
+                "zaaktype": {  # Different version of the zaaktype above
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.1",
+                    "versiedatum": "2024-01-02",
+                }
+            },
         )
-
-        m.get(
-            "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
-            json={
-                "count": 2,
-                "results": [
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-                        "identificatie": "ZAAK-01",
-                    },
-                    # Different version of the zaaktype above
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-                        "identificatie": "ZAAK-01",
-                    },
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-                        "identificatie": "ZAAK-02",
-                    },
-                    # No zaken with this zaaktype in the DB
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/444-444-444",
-                        "identificatie": "ZAAK-03",
-                    },
-                ],
+        ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE 2.0",
+                    "versiedatum": "2024-01-01",
+                }
             },
         )
 
@@ -136,37 +116,25 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             [
                 {
                     "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111,http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-                    "label": "ZAAK-01",
+                    "label": "ZAAKTYPE 1.1 (ZAAKTYPE-01)",
                 },
                 {
                     "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-                    "label": "ZAAK-02",
+                    "label": "ZAAKTYPE 2.0 (ZAAKTYPE-02)",
                 },
             ],
         )
 
-    @Mocker()
-    def test_retrieve_zaaktypen_choices_empty_identificatie(self, m):
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="http://catalogi-api.nl/catalogi/api/v1",
-        )
-        user = UserFactory.create(role__can_start_destruction=True)
+    def test_retrieve_zaaktypen_choices_empty_identificatie(self):
+        user = UserFactory.create()
         ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            post___expand={"zaaktype": {"identificatie": ""}},
-        )
-
-        m.get(
-            "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
-            json={
-                "count": 1,
-                "results": [
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-                        "identificatie": "",
-                    },
-                ],
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                    "identificatie": "",
+                    "omschrijving": "ZAAKTYPE 1.0",
+                    "versiedatum": "2024-01-01",
+                }
             },
         )
 
@@ -176,46 +144,26 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()[0]["label"], _("(no identificatie)"))
-
-    @Mocker()
-    def test_response_cached(self, m):
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="http://catalogi-api.nl/catalogi/api/v1",
+        self.assertEqual(
+            response.json()[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)")
         )
-        user = UserFactory.create(role__can_start_destruction=True)
 
-        m.get(
-            "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
-            json={
-                "count": 2,
-                "results": [
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-                        "omschrijving": "Zaaktype 1",
-                        "identificatie": "ZAAK-01",
-                    },
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-                        "omschrijving": "Zaaktype 2",
-                        "identificatie": "ZAAK-02",
-                    },
-                ],
-            },
-        )
+    def test_response_cached(self):
+        user = UserFactory.create()
 
         self.client.force_authenticate(user=user)
         endpoint = reverse("api:retrieve-zaaktypen-choices")
 
-        self.client.get(endpoint)
-        self.client.get(endpoint)
+        with patch(
+            "openarchiefbeheer.zaken.api.views.format_zaaktype_choices", return_value=[]
+        ) as m:
+            self.client.get(endpoint)
+            self.client.get(endpoint)
 
-        history = m.request_history
-        self.assertEqual(len(history), 1)
+        m.assert_called_once()
 
     def test_retrieve_zaaktypen_choices_for_destruction_list(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create()
 
         destruction_list = DestructionListFactory.create()
         # The zaaktypen of these items should be returned,
@@ -227,11 +175,26 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             status=ListItemStatus.suggested,
         )
         # We simulate 2 items having different versions of the same zaaktype
-        items_in_list[0].zaak._expand["zaaktype"]["identificatie"] = "ZAAKTYPE-1"
+        items_in_list[0].zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            "identificatie": "ZAAKTYPE-1",
+            "omschrijving": "ZAAKTYPE 1.0",
+            "versiedatum": "2024-01-01",
+        }
         items_in_list[0].zaak.save()
-        items_in_list[1].zaak._expand["zaaktype"]["identificatie"] = "ZAAKTYPE-1"
+        items_in_list[1].zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-222",
+            "identificatie": "ZAAKTYPE-1",
+            "omschrijving": "ZAAKTYPE 1.1",
+            "versiedatum": "2024-01-02",
+        }
         items_in_list[1].zaak.save()
-        items_in_list[2].zaak._expand["zaaktype"]["identificatie"] = "ZAAKTYPE-2"
+        items_in_list[2].zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+            "identificatie": "ZAAKTYPE-2",
+            "omschrijving": "ZAAKTYPE 2.0",
+            "versiedatum": "2024-01-01",
+        }
         items_in_list[2].zaak.save()
 
         # This zaaktype should NOT be returned because it has status 'removed'
@@ -245,7 +208,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         self.client.force_authenticate(user=user)
         endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
-        endpoint.args["destruction_list"] = destruction_list.uuid
+        endpoint.args["in_destruction_list"] = destruction_list.uuid
 
         response = self.client.get(endpoint.url)
 
@@ -254,31 +217,38 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         choices = sorted(response.json(), key=lambda choice: choice["label"])
 
         self.assertEqual(len(choices), 2)
-        self.assertEqual(choices[0]["label"], "ZAAKTYPE-1")
-        self.assertEqual(choices[1]["label"], "ZAAKTYPE-2")
+        self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
+        self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
 
         values = choices[0]["value"].split(",")
 
         self.assertEqual(len(values), 2)
-        self.assertIn(items_in_list[0].zaak.zaaktype, values)
-        self.assertIn(items_in_list[1].zaak.zaaktype, values)
+        self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
+        self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
 
-        self.assertEqual(choices[1]["value"], items_in_list[2].zaak.zaaktype)
+        self.assertEqual(
+            choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
+        )
 
     @tag("gh-303")
     def test_retrieve_zaaktypen_choices_for_destruction_list_if_zaaktype_id_empty(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create()
 
         item = DestructionListItemFactory.create(
             with_zaak=True,
             status=ListItemStatus.suggested,
         )
-        item.zaak._expand["zaaktype"]["identificatie"] = ""
+        item.zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            "identificatie": "",
+            "omschrijving": "ZAAKTYPE 1.0",
+            "versiedatum": "2024-01-01",
+        }
         item.zaak.save()
 
         self.client.force_authenticate(user=user)
         endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
-        endpoint.args["destruction_list"] = item.destruction_list.uuid
+        endpoint.args["in_destruction_list"] = item.destruction_list.uuid
 
         response = self.client.get(endpoint.url)
 
@@ -286,11 +256,10 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         choices = response.json()
 
-        self.assertEqual(choices[0]["label"], _("(no identificatie)"))
+        self.assertEqual(choices[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)"))
 
-    @Mocker()
-    def test_not_cached_if_query_param_chages(self, m):
-        user = UserFactory.create(role__can_start_destruction=True)
+    def test_not_cached_if_query_param_chages(self):
+        user = UserFactory.create()
 
         destruction_list = DestructionListFactory.create()
 
@@ -300,66 +269,69 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             destruction_list=destruction_list,
             status=ListItemStatus.suggested,
         )
-        items_in_list[0].zaak._expand["zaaktype"]["identificatie"] = "ZAAKTYPE-1"
+        items_in_list[0].zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            "identificatie": "ZAAKTYPE-1",
+            "omschrijving": "ZAAKTYPE 1.0",
+            "versiedatum": "2024-01-01",
+        }
         items_in_list[0].zaak.save()
-        items_in_list[1].zaak._expand["zaaktype"]["identificatie"] = "ZAAKTYPE-2"
+        items_in_list[1].zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+            "identificatie": "ZAAKTYPE-2",
+            "omschrijving": "ZAAKTYPE 2.0",
+            "versiedatum": "2024-01-02",
+        }
         items_in_list[1].zaak.save()
 
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="http://catalogi-api.nl/catalogi/api/v1",
+        ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "identificatie": "ZAAKTYPE-3",
+                    "omschrijving": "ZAAKTYPE 3.0",
+                    "versiedatum": "2024-01-02",
+                }
+            },
         )
         ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-3"}},
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/444-444-444",
+                    "identificatie": "ZAAKTYPE-4",
+                    "omschrijving": "ZAAKTYPE 4.0",
+                    "versiedatum": "2024-01-02",
+                }
+            },
         )
         ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-4"}},
-        )
-        ZaakFactory.create(
-            zaaktype="http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-            post___expand={"zaaktype": {"identificatie": "ZAAKTYPE-5"}},
-        )
-
-        m.get(
-            "http://catalogi-api.nl/catalogi/api/v1/zaaktypen",
-            json={
-                "count": 2,
-                "results": [
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
-                        "identificatie": "ZAAKTYPE-3",
-                    },
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
-                        "identificatie": "ZAAKTYPE-4",
-                    },
-                    {
-                        "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
-                        "identificatie": "ZAAKTYPE-5",
-                    },
-                ],
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/555-555-555",
+                    "identificatie": "ZAAKTYPE-5",
+                    "omschrijving": "ZAAKTYPE 5.0",
+                    "versiedatum": "2024-01-02",
+                }
             },
         )
 
         self.client.force_authenticate(user=user)
         endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
-        endpoint.args["destruction_list"] = destruction_list.uuid
+        endpoint.args["in_destruction_list"] = destruction_list.uuid
 
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
 
-        del endpoint.args["destruction_list"]
+        del endpoint.args["in_destruction_list"]
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 3)
 
     def test_retrieve_zaaktypen_choices_for_review(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create()
 
         review = DestructionListReviewFactory.create()
         # The zaaktypen of these items should be returned,
@@ -371,17 +343,26 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             review=review,
         )
         # We simulate 2 items having different versions of the same zaaktype
-        review_items[0].destruction_list_item.zaak._expand["zaaktype"][
-            "identificatie"
-        ] = "ZAAKTYPE-1"
+        review_items[0].destruction_list_item.zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+            "identificatie": "ZAAKTYPE-1",
+            "omschrijving": "ZAAKTYPE 1.0",
+            "versiedatum": "2024-01-01",
+        }
         review_items[0].destruction_list_item.zaak.save()
-        review_items[1].destruction_list_item.zaak._expand["zaaktype"][
-            "identificatie"
-        ] = "ZAAKTYPE-1"
+        review_items[1].destruction_list_item.zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-222",
+            "identificatie": "ZAAKTYPE-1",
+            "omschrijving": "ZAAKTYPE 1.1",
+            "versiedatum": "2024-01-02",
+        }
         review_items[1].destruction_list_item.zaak.save()
-        review_items[2].destruction_list_item.zaak._expand["zaaktype"][
-            "identificatie"
-        ] = "ZAAKTYPE-2"
+        review_items[2].destruction_list_item.zaak._expand["zaaktype"] = {
+            "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+            "identificatie": "ZAAKTYPE-2",
+            "omschrijving": "ZAAKTYPE 2.0",
+            "versiedatum": "2024-01-01",
+        }
         review_items[2].destruction_list_item.zaak.save()
 
         # These zaaktypen should NOT be returned because they are not in the review
@@ -392,7 +373,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         self.client.force_authenticate(user=user)
         endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
-        endpoint.args["review"] = review.pk
+        endpoint.args["in_review"] = review.pk
 
         response = self.client.get(endpoint.url)
 
@@ -401,17 +382,24 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         choices = sorted(response.json(), key=lambda choice: choice["label"])
 
         self.assertEqual(len(choices), 2)
-        self.assertEqual(choices[0]["label"], "ZAAKTYPE-1")
-        self.assertEqual(choices[1]["label"], "ZAAKTYPE-2")
+        self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
+        self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
 
         values = choices[0]["value"].split(",")
 
         self.assertEqual(len(values), 2)
-        self.assertIn(review_items[0].destruction_list_item.zaak.zaaktype, values)
-        self.assertIn(review_items[1].destruction_list_item.zaak.zaaktype, values)
+        self.assertIn(
+            review_items[0].destruction_list_item.zaak._expand["zaaktype"]["url"],
+            values,
+        )
+        self.assertIn(
+            review_items[1].destruction_list_item.zaak._expand["zaaktype"]["url"],
+            values,
+        )
 
         self.assertEqual(
-            choices[1]["value"], review_items[2].destruction_list_item.zaak.zaaktype
+            choices[1]["value"],
+            review_items[2].destruction_list_item.zaak._expand["zaaktype"]["url"],
         )
 
 
