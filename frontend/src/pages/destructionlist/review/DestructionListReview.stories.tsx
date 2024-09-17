@@ -5,6 +5,7 @@ import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
+import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../../../fixtures/selectieLijstKlasseChoices";
 import { userFactory, usersFactory } from "../../../fixtures/user";
 import {
   clearZaakSelection,
@@ -56,6 +57,12 @@ const meta: Meta<typeof DestructionListReviewPage> = {
         method: "GET",
         status: 200,
         response: userFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+        method: "GET",
+        status: 200,
+        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
       },
     ],
   },
