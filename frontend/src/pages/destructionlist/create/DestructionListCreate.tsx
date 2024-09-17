@@ -98,28 +98,30 @@ export function DestructionListCreatePage() {
   ];
 
   return (
-    <BaseListView
-      storageKey={DESTRUCTION_LIST_CREATE_KEY}
-      title="Vernietigingslijst opstellen"
-      errors={errors}
-      paginatedZaken={paginatedZaken}
-      allowSelectAllPages={true}
-      selectionActions={[
-        {
-          children: (
-            <>
-              <Solid.DocumentPlusIcon />
-              Vernietigingslijst opstellen
-            </>
-          ),
-          disabled: !allPagesSelected && !hasSelection,
+    <>
+      <BaseListView
+        storageKey={DESTRUCTION_LIST_CREATE_KEY}
+        title="Vernietigingslijst opstellen"
+        errors={errors}
+        paginatedZaken={paginatedZaken}
+        allowSelectAllPages={true}
+        selectionActions={[
+          {
+            children: (
+              <>
+                <Solid.DocumentPlusIcon />
+                Vernietigingslijst opstellen
+              </>
+            ),
+            disabled: !allPagesSelected && !hasSelection,
 
-          variant: "primary",
-          wrap: false,
-          onClick: handleClick,
-        },
-      ]}
-    >
+            variant: "primary",
+            wrap: false,
+            onClick: handleClick,
+          },
+        ]}
+      />
+
       <Modal
         title="Vernietigingslijst opstellen"
         open={modalOpenState}
@@ -135,6 +137,6 @@ export function DestructionListCreatePage() {
           />
         </Body>
       </Modal>
-    </BaseListView>
+    </>
   );
 }
