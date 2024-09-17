@@ -75,11 +75,6 @@ type Story = StoryObj<typeof meta>;
 const FIXTURE: DestructionListCreateContext = {
   reviewers: usersFactory(),
   paginatedZaken: paginatedZakenFactory(),
-  zaakSelection: {
-    ["http://localhost:8000/zaken/api/v1/zaken/00000000-0000-0000-0000-000000000000"]:
-      { selected: true },
-  },
-  allZakenSelected: false,
 };
 
 export const DestructionListCreatePageStory: Story = {

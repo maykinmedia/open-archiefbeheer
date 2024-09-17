@@ -7,19 +7,10 @@ import {
   canStartDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import {
-  ZaakSelection,
-  getAllZakenSelected,
-  getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
-import { DESTRUCTION_LIST_CREATE_KEY } from "./DestructionListCreate";
-import "./DestructionListCreate.css";
 
 export type DestructionListCreateContext = {
   paginatedZaken: PaginatedZaken;
   reviewers: User[];
-  zaakSelection: ZaakSelection; // FIXME
-  allZakenSelected: boolean; // FIXME
 };
 
 /**
@@ -42,19 +33,14 @@ export const destructionListCreateLoader = loginRequired(
       );
 
       // Fetch reviewers, zaken, and choices concurrently
-      const [reviewers, zaken, zaakSelection, allZakenSelected] =
-        await Promise.all([
-          listReviewers(),
-          listZaken(searchParams),
-          getZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
-          getAllZakenSelected(DESTRUCTION_LIST_CREATE_KEY),
-        ]);
+      const [zaken, reviewers] = await Promise.all([
+        listZaken(searchParams),
+        listReviewers(),
+      ]);
 
       return {
         paginatedZaken: zaken,
         reviewers,
-        zaakSelection, // FIXME
-        allZakenSelected, // FIXME
       };
     },
   ),

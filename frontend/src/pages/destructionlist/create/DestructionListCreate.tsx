@@ -21,7 +21,6 @@ import {
   DestructionListCreateAction,
   DestructionListCreateActionResponseData,
 } from "./DestructionListCreate.action";
-import "./DestructionListCreate.css";
 import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
