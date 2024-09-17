@@ -336,7 +336,7 @@ export function DestructionListReviewPage() {
     <BaseListView
       storageKey={destructionListReviewKey}
       destructionList={destructionList}
-      paginatedResults={paginatedObjectList}
+      paginatedZaken={paginatedObjectList}
       secondaryNavigationItems={[getSubmitDestructionListButton()]}
       extraFields={[
         { filterable: false, name: "Beoordeling", type: "text" },

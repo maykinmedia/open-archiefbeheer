@@ -28,7 +28,7 @@ export type BaseListViewProps = {
   storageKey: string;
   destructionList?: DestructionList;
   review?: Review;
-  paginatedResults: PaginatedZaken;
+  paginatedZaken: PaginatedZaken;
   secondaryNavigationItems?: ListTemplateProps["secondaryNavigationItems"];
 
   allowSelectAllPages?: boolean;
@@ -45,7 +45,7 @@ export function BaseListView({
   storageKey,
   destructionList,
   review,
-  paginatedResults,
+  paginatedZaken,
   secondaryNavigationItems,
 
   allowSelectAllPages,
@@ -81,7 +81,7 @@ export function BaseListView({
     },
   ] = useZaakSelection(
     storageKey,
-    paginatedResults.results,
+    paginatedZaken.results,
     filterSelectionZaken,
     getSelectionDetail,
   );
@@ -124,12 +124,12 @@ export function BaseListView({
 
         allowSelectAllPages,
         allPagesSelected,
-        count: paginatedResults.count,
+        count: paginatedZaken.count,
         equalityChecker: (a, b) => a.uuid === b.uuid || a.url === b.url,
         fields,
         filterTransform,
         loading: state === "loading",
-        objectList: paginatedResults.results as unknown as AttributeData[],
+        objectList: paginatedZaken.results as unknown as AttributeData[],
         page,
         sort: sort,
         selected: selectedZakenOnPage as unknown as AttributeData[],
