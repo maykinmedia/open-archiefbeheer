@@ -23,17 +23,16 @@ export function useZaaktypeChoices(
   useEffect(() => {
     listZaaktypeChoices(destructionList?.uuid, review?.pk)
       .then((z) => setZaaktypeChoicesState(z))
-      .catch((e) => setErrorState(e));
+      .catch((e) => {
+        console.error(errorState);
+        alert(
+          "Foutmelding",
+          "Er is een fout opgetreden bij het ophalen van zaaktypen!",
+          "Ok",
+        );
+        setErrorState(e);
+      });
   }, [destructionList?.uuid, review?.pk]);
-
-  if (errorState) {
-    console.error(errorState);
-    alert(
-      "Foutmelding",
-      "Er is een fout opgetreden bij het ophalen van zaaktypen!",
-      "Ok",
-    );
-  }
 
   return zaaktypeChoicesState;
 }

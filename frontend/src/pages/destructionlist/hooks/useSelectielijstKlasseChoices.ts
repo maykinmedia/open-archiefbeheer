@@ -16,17 +16,16 @@ export function useSelectielijstKlasseChoices(): Option[] {
   useEffect(() => {
     listSelectielijstKlasseChoices()
       .then((s) => setSelectielijstChoicesState(s))
-      .catch((e) => setErrorState(e));
+      .catch((e) => {
+        console.error(errorState);
+        alert(
+          "Foutmelding",
+          "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+          "Ok",
+        );
+        setErrorState(e);
+      });
   }, []);
-
-  if (errorState) {
-    console.error(errorState);
-    alert(
-      "Foutmelding",
-      "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
-      "Ok",
-    );
-  }
 
   return selectielijstChoicesState;
 }
