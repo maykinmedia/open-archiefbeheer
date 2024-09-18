@@ -601,8 +601,8 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
-# Add a 10 minutes timeout to all Celery tasks.
-CELERY_TASK_SOFT_TIME_LIMIT = 600
+# Add a 2 hours timeout to all Celery tasks.
+CELERY_TASK_SOFT_TIME_LIMIT = config("CELERY_TASK_SOFT_TIME_LIMIT", 7200)
 
 CELERY_BEAT_SCHEDULE = {
     "retrieve-and-cache-zaken": {
