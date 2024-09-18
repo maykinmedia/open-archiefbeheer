@@ -1,9 +1,13 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
+import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../../../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../../../lib/fieldSelection/fieldSelection";
 import { useFields } from "./useFields";
 
+jest.mock("./useSelectielijstKlasseChoices", () => ({
+  useSelectielijstKlasseChoices: () => mockSelectieLijstKlasseFactory(),
+}));
 jest.mock("./useZaaktypeChoices", () => ({
   useZaaktypeChoices: () => [[], () => undefined],
 }));
@@ -102,5 +106,15 @@ describe("useFields Hook", () => {
       expect(transformedData.einddatum__gte).toBe("2023-02-01");
       expect(transformedData.einddatum__lte).toBe("2023-02-28");
     });
+  });
+
+  it("should provide selectielijst klasse options to selectielijst klasse field", async () => {
+    const { result } = renderHook(() => useFields());
+    const [fields] = result.current;
+    const selectielijstKlasse = fields.find(
+      (f) => f.name === "selectielijstklasse",
+    );
+    expect(selectielijstKlasse?.options?.length).toBeTruthy();
+    expect(selectielijstKlasse?.options?.[0].value).toContain("https://");
   });
 });
