@@ -12,6 +12,7 @@ __pycache__
 *~
 *.mo
 .python-version
+dump.rdb
 
 # Javascript libraries
 backend/node_modules/
