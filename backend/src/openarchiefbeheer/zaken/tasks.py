@@ -11,8 +11,10 @@ from zgw_consumers.models import Service
 
 from openarchiefbeheer.celery import app
 from openarchiefbeheer.destruction.utils import resync_items_and_zaken
+from openarchiefbeheer.logging import logevent
 
 from .api.serializers import ZaakSerializer
+from .decorators import log_errors
 from .models import Zaak
 from .utils import pagination_helper, process_expanded_data
 
@@ -72,7 +74,7 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
 
 
 @app.task
-@transaction.atomic()
+@log_errors(logevent.resync_failed)
 def resync_zaken():
     zrc_service = Service.objects.get(api_type=APITypes.zrc)
     zrc_client = build_client(zrc_service)
@@ -85,9 +87,10 @@ def resync_zaken():
         "einddatum__lt": today.isoformat(),
     }
 
-    Zaak.objects.all().delete()
+    logevent.resync_started()
+    with transaction.atomic(), zrc_client:
+        Zaak.objects.all().delete()
 
-    with zrc_client:
         response = zrc_client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
@@ -114,3 +117,5 @@ def resync_zaken():
 
         # Resync the destruction list items with the zaken
         resync_items_and_zaken()
+
+    logevent.resync_successful()
