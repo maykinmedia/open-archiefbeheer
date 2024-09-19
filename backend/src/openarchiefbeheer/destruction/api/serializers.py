@@ -295,6 +295,7 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "processing_status",
             "created",
             "status_changed",
+            "planned_destruction_date",
         )
 
 
