@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     "timeline_logger",
     "django_filters",
     "solo",
+    "ordered_model",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
