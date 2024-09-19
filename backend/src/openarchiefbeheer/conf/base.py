@@ -157,17 +157,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "openarchiefbeheer.urls"
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-)
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [DJANGO_PROJECT_DIR / "templates"],
-        "APP_DIRS": False,  # conflicts with explicity specifying the loaders
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -176,7 +170,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "openarchiefbeheer.utils.context_processors.settings",
             ],
-            "loaders": TEMPLATE_LOADERS,
         },
     },
 ]
@@ -608,8 +601,8 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
-# Add a 10 minutes timeout to all Celery tasks.
-CELERY_TASK_SOFT_TIME_LIMIT = 600
+# Add a 2 hours timeout to all Celery tasks.
+CELERY_TASK_SOFT_TIME_LIMIT = config("CELERY_TASK_SOFT_TIME_LIMIT", 7200)
 
 CELERY_BEAT_SCHEDULE = {
     "retrieve-and-cache-zaken": {

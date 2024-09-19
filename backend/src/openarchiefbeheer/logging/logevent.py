@@ -1,3 +1,5 @@
+import traceback
+
 from django.db.models import Model
 
 from timeline_logger.models import TimelineLog
@@ -99,4 +101,24 @@ def destruction_list_finalized(
                 "username": archivist.username,
             },
         },
+    )
+
+
+def resync_started() -> None:
+    return TimelineLog.objects.create(
+        template="logging/resync_started.txt",
+    )
+
+
+def resync_successful() -> None:
+    return TimelineLog.objects.create(
+        template="logging/resync_successful.txt",
+    )
+
+
+def resync_failed(exc: Exception) -> None:
+    error = traceback.format_exception_only(exc)[0]
+
+    return TimelineLog.objects.create(
+        template="logging/resync_failed.txt", extra_data={"error": error}
     )

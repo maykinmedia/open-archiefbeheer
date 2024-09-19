@@ -1,0 +1,11 @@
+{% extends "admin/change_list_object_tools.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    <li>
+        <form action="{% url 'admin:resync-zaken' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="{% translate "Resync cases" %}" class="btn btn-high btn-success">
+        </form>
+    </li>
+{% endblock %}

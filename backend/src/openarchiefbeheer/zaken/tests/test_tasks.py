@@ -1,9 +1,12 @@
 from datetime import date
 
 from django.test import TestCase, TransactionTestCase, tag
+from django.utils.translation import gettext_lazy as _
 
+import requests
 from freezegun import freeze_time
 from requests_mock import Mocker
+from timeline_logger.models import TimelineLog
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -487,4 +490,41 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         self.assertEqual(
             item.zaak.url,
             "http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
+        )
+
+        logs = TimelineLog.objects.all().order_by("pk")
+
+        self.assertEqual(logs.count(), 2)
+        self.assertEqual(
+            logs[0].get_message(), _("Resyncing of the cases has started.")
+        )
+        self.assertEqual(
+            logs[1].get_message(),
+            _("Resyncing of the cases has completed successfully."),
+        )
+
+    def test_resync_zaken_raises_error(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://zaken-api.nl/zaken/api/v1",
+        )
+
+        m.get(
+            "http://zaken-api.nl/zaken/api/v1/zaken",
+            exc=requests.exceptions.ConnectTimeout("Oh noes!"),
+        )
+
+        with self.assertRaises(requests.exceptions.ConnectTimeout):
+            resync_zaken()
+
+        logs = TimelineLog.objects.all()
+
+        self.assertEqual(logs.count(), 2)
+        self.assertEqual(
+            logs[0].get_message(), _("Resyncing of the cases has started.")
+        )
+        self.assertEqual(
+            logs[1].get_message(),
+            _("Resyncing of the cases has failed with the following error: %(error)s")
+            % {"error": "requests.exceptions.ConnectTimeout: Oh noes!\n"},
         )
