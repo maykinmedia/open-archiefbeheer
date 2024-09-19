@@ -285,7 +285,9 @@ export const ProcessReview: Story = {
     await userEvent.keyboard("{Escape}");
 
     const dialog = await canvas.findByRole("dialog");
-    const close = await within(dialog).findByRole("button", { name: "Close" });
+    const close = await within(dialog).findByRole("button", {
+      name: "Annuleren",
+    });
     await userEvent.click(close, { delay: 300 });
 
     await waitFor(
@@ -471,15 +473,20 @@ export const DeleteDestructionList: Story = {
       ...context,
       parameters: {
         ...context.parameters,
-        name: "Vernietigen starten",
+        name: /Vernietigen/,
+        exact: false,
       },
     });
     const canvas = within(context.canvasElement);
     const submit = await canvas.findByText<HTMLButtonElement>(
-      "10 zaken vernietigen",
+      "zaken vernietigen",
+      { exact: false },
+    );
+    const input = await canvas.getByLabelText(
+      "Type naam van de lijst ter bevestiging",
     );
     expect(submit).toBeDisabled();
-    await userEvent.click(document.activeElement as HTMLInputElement, {
+    await userEvent.click(input, {
       delay: 10,
     });
     userEvent.type(
@@ -527,6 +534,7 @@ export const DeleteFailedDestructionList: Story = {
       },
     },
   },
+  play: DeleteDestructionList.play,
 };
 
 const FIXTURE_CANCEL_PLANNED_DESTRUCTION: DestructionListDetailContext = {

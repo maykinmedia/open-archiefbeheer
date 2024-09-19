@@ -116,6 +116,23 @@ export async function getFilteredZaakSelection<DetailType = unknown>(
 }
 
 /**
+ * Gets the number of selected zaken.
+ * Note: only the `url` of selected `zaken` are stored.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ * @param exp
+ * @param selectedOnly
+ */
+export async function getZaakSelectionSize<DetailType = unknown>(
+  key: string,
+  exp?: Partial<DetailType>,
+  selectedOnly = true,
+) {
+  const selection = await getFilteredZaakSelection(key, exp, selectedOnly);
+  return Object.keys(selection).length;
+}
+
+/**
  * Returns a single zaak in the zaak selection.
  * @param key A key identifying the selection
  * @param zaak Either a `Zaak.url` or `Zaak` object.

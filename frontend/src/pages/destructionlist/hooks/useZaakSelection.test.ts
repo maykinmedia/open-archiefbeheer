@@ -4,6 +4,7 @@ import { Zaak } from "../../../types";
 import { useZaakSelection } from "./useZaakSelection";
 
 jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
   useRevalidator: () => ({ revalidate: () => undefined }),
 }));
 
@@ -38,6 +39,7 @@ describe("useZaakSelection hook", () => {
 
     await waitFor(() => {
       expect(result.current[0]).toEqual([{ url: "zaak-1" }]); // zaak-1 should now be selected
+      expect(result.current[2].selectionSize).toEqual(1); // 1 zaak should now be selected
     });
   });
 
@@ -67,7 +69,7 @@ describe("useZaakSelection hook", () => {
     });
   });
 
-  it.only("should clear selection", async () => {
+  it("should clear selection", async () => {
     const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
 
     // Clear selection

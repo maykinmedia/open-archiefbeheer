@@ -256,6 +256,12 @@ export const DestructionListProcessZaakReviewModal: React.FC<
 
   // The `open &&` is here to ensure that when closing an item and opening another, they don't interfere with each other.
   // Otherwise, the radio button remains checked with the submitted value of the previous item.
+  // Prevent issues with unmanaged form by re-rendering after toggle.
+  // Without this, a different zaak can inherit the previous state.
+  if (!open) {
+    return null;
+  }
+
   return (
     <>
       {open && (
