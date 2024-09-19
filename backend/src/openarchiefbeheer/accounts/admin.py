@@ -47,4 +47,5 @@ class RoleAdmin(admin.ModelAdmin):
         "can_start_destruction",
         "can_review_destruction",
         "can_view_case_details",
+        "can_review_final_list",
     )
