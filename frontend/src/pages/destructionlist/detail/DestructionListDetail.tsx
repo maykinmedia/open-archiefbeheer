@@ -170,6 +170,7 @@ export function DestructionListDetailPage() {
           <ProcessingStatusBadge
             key={destructionList.pk}
             processingStatus={destructionList.processingStatus}
+            plannedDestructionDate={destructionList.plannedDestructionDate}
           />
         ),
         "spacer",
