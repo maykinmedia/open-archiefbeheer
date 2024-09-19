@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-16 10:37+0200\n"
+"POT-Creation-Date: 2024-09-19 15:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -102,12 +102,12 @@ msgstr "datum toegetreden"
 
 #: openarchiefbeheer/accounts/models.py:51
 #: openarchiefbeheer/accounts/models.py:111
-#: openarchiefbeheer/destruction/models.py:289
+#: openarchiefbeheer/destruction/models.py:302
 msgid "role"
 msgstr ""
 
 #: openarchiefbeheer/accounts/models.py:60
-#: openarchiefbeheer/destruction/models.py:284
+#: openarchiefbeheer/destruction/models.py:297
 msgid "user"
 msgstr "gebruiker"
 
@@ -239,24 +239,28 @@ msgstr ""
 msgid "You are not allowed to mark this destruction list as ready to review."
 msgstr ""
 
+#: openarchiefbeheer/destruction/api/permissions.py:100
+msgid "You are not allowed to stop the planned destruction of the list."
+msgstr ""
+
 #: openarchiefbeheer/destruction/api/serializers.py:48
 msgid ""
 "The chosen user does not have the permission of reviewing a destruction list."
 msgstr ""
 
 #: openarchiefbeheer/destruction/api/serializers.py:60
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:418
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:417
 #: openarchiefbeheer/destruction/tests/test_serializers.py:387
 msgid "The author of a list cannot also be a reviewer."
 msgstr ""
 
 #: openarchiefbeheer/destruction/api/serializers.py:76
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:679
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:678
 msgid "The chosen user does not have the permission to review a final list."
 msgstr ""
 
 #: openarchiefbeheer/destruction/api/serializers.py:120
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:190
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:189
 #: openarchiefbeheer/destruction/tests/test_serializers.py:163
 msgid ""
 "This case was already included in another destruction list and was not "
@@ -275,14 +279,14 @@ msgid ""
 "select the right cases."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:342
+#: openarchiefbeheer/destruction/api/serializers.py:343
 #: openarchiefbeheer/destruction/tests/test_serializers.py:672
 msgid ""
 "This user is not currently assigned to the destruction list, so they cannot "
 "create a review at this stage."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:364
+#: openarchiefbeheer/destruction/api/serializers.py:365
 #: openarchiefbeheer/destruction/tests/test_serializers.py:704
 #: openarchiefbeheer/destruction/tests/test_serializers.py:734
 #: openarchiefbeheer/destruction/tests/test_serializers.py:764
@@ -291,17 +295,17 @@ msgid ""
 "this stage."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:377
+#: openarchiefbeheer/destruction/api/serializers.py:378
 #: openarchiefbeheer/destruction/tests/test_serializers.py:888
 msgid "This field cannot be empty if changes are requested on the list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:389
+#: openarchiefbeheer/destruction/api/serializers.py:390
 #: openarchiefbeheer/destruction/tests/test_serializers.py:861
 msgid "There cannot be feedback on the cases if the list is approved."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:407
+#: openarchiefbeheer/destruction/api/serializers.py:408
 #: openarchiefbeheer/destruction/tests/test_serializers.py:991
 #: openarchiefbeheer/destruction/tests/test_serializers.py:1032
 msgid ""
@@ -309,23 +313,23 @@ msgid ""
 "list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:458
+#: openarchiefbeheer/destruction/api/serializers.py:459
 msgid ""
 "In the case that the zaak has already been deleted, only the URL field will "
 "be returned."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:481
+#: openarchiefbeheer/destruction/api/serializers.py:482
 msgid "The URL of to a 'resultaat' resource from the selectielijst API."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:484
+#: openarchiefbeheer/destruction/api/serializers.py:485
 msgid "A new date for when this case should be archived."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:527
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:1613
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:1644
+#: openarchiefbeheer/destruction/api/serializers.py:528
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:1472
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:1503
 msgid ""
 "This user is either not allowed to update the destruction list or the "
 "destruction list cannot currently be updated."
@@ -339,149 +343,167 @@ msgstr ""
 msgid "List the possible statuses that a destruction lists can have."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:64
+#: openarchiefbeheer/destruction/api/viewsets.py:68
 msgid "List destruction lists"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:65
+#: openarchiefbeheer/destruction/api/viewsets.py:69
 msgid "List all destruction lists."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:70
+#: openarchiefbeheer/destruction/api/viewsets.py:74
 msgid "Create destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:71
+#: openarchiefbeheer/destruction/api/viewsets.py:75
 msgid "Create a new destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:103
+#: openarchiefbeheer/destruction/api/viewsets.py:107
 msgid "Update destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:105
+#: openarchiefbeheer/destruction/api/viewsets.py:109
 msgid ""
 "Update a destruction list. The cases are updated in bulk. The assignees can "
 "only be changed through the 'reassign' endpoint."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:132
+#: openarchiefbeheer/destruction/api/viewsets.py:136
 msgid "Partially update a destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:134
+#: openarchiefbeheer/destruction/api/viewsets.py:138
 msgid ""
 "Partially update a destruction list. The cases are updated in bulk. The "
 "assignees can only be changed through the 'reassign' endpoint."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:150
+#: openarchiefbeheer/destruction/api/viewsets.py:154
 msgid "Retrieve destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:151
+#: openarchiefbeheer/destruction/api/viewsets.py:155
 msgid "Retrieve details about a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:156
+#: openarchiefbeheer/destruction/api/viewsets.py:160
 msgid "Destroy destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:158
+#: openarchiefbeheer/destruction/api/viewsets.py:162
 msgid ""
 "Calling this endpoint will start a background process that will delete the "
 "cases in the list from the case system."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:164
+#: openarchiefbeheer/destruction/api/viewsets.py:168
 msgid "Make destruction list final"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:166
+#: openarchiefbeheer/destruction/api/viewsets.py:170
 msgid ""
 "Change the status of a destruction list to 'final' and assign an archivist "
 "to it."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:173
+#: openarchiefbeheer/destruction/api/viewsets.py:177
 msgid "Reassign the destruction list to new assignees."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:175
+#: openarchiefbeheer/destruction/api/viewsets.py:179
 msgid ""
 "This endpoint can be used to change the users that are assigned to a list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:182
+#: openarchiefbeheer/destruction/api/viewsets.py:186
 msgid "Retrieve audit log."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:183
+#: openarchiefbeheer/destruction/api/viewsets.py:187
 msgid "Retrieve the audit log for this destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:188
+#: openarchiefbeheer/destruction/api/viewsets.py:192
 msgid "Mark as ready to review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:190
+#: openarchiefbeheer/destruction/api/viewsets.py:194
 msgid ""
 "This endpoint can be used to mark a new list as 'ready to review' and assign "
 "the first reviewer to it."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:255
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:787
-msgid "This list contains cases with archiving date in the future."
+#: openarchiefbeheer/destruction/api/viewsets.py:200
+msgid "Abort planned destruction"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:332
+#: openarchiefbeheer/destruction/api/viewsets.py:202
+msgid ""
+"This endpoint can be used to abort the destruction of a list when the date "
+"to process it has been set. The status of the list is then set back to 'new' "
+"and the record manager is re-assigned to it."
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/viewsets.py:273
+#, python-format
+msgid ""
+"This list contains cases with archiving date later than "
+"%(destruction_date)s, so the destruction cannot be planned yet."
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/viewsets.py:285
+#, python-format
+msgid "This list is already planned to be destroyed on %(destruction_date)s."
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/viewsets.py:378
 msgid "List destruction list items"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:334
+#: openarchiefbeheer/destruction/api/viewsets.py:380
 msgid "List all the items (cases) that are related to a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:355
+#: openarchiefbeheer/destruction/api/viewsets.py:401
 msgid "List reviews"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:357
+#: openarchiefbeheer/destruction/api/viewsets.py:403
 msgid "List all the reviews that have been made for a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:362
+#: openarchiefbeheer/destruction/api/viewsets.py:408
 msgid "Create review"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:364
+#: openarchiefbeheer/destruction/api/viewsets.py:410
 msgid ""
 "Create a review for a destruction list. Only the user currently assigned to "
 "the destruction list can create a review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:390
+#: openarchiefbeheer/destruction/api/viewsets.py:436
 msgid "List review items"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:392
+#: openarchiefbeheer/destruction/api/viewsets.py:438
 msgid "List all the feedback to specific cases within a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:411
+#: openarchiefbeheer/destruction/api/viewsets.py:457
 msgid "List review responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:412
+#: openarchiefbeheer/destruction/api/viewsets.py:458
 msgid "List all the responses to the reviews of a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:416
+#: openarchiefbeheer/destruction/api/viewsets.py:462
 msgid "Create a review response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:418
+#: openarchiefbeheer/destruction/api/viewsets.py:464
 msgid ""
 "Create a response to a review. You need to be the author of a destruction "
 "list for this and you need to be assigned to it. The status of the "
@@ -539,7 +561,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/constants.py:27
 #: openarchiefbeheer/destruction/models.py:43
-#: openarchiefbeheer/destruction/models.py:327
+#: openarchiefbeheer/destruction/models.py:340
 msgid "author"
 msgstr ""
 
@@ -607,7 +629,7 @@ msgid "Currently assigned user."
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:74
-#: openarchiefbeheer/destruction/models.py:192
+#: openarchiefbeheer/destruction/models.py:205
 #, fuzzy
 #| msgid "staff status"
 msgid "status"
@@ -632,8 +654,8 @@ msgid ""
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:93
-#: openarchiefbeheer/destruction/models.py:204
-#: openarchiefbeheer/destruction/models.py:475
+#: openarchiefbeheer/destruction/models.py:217
+#: openarchiefbeheer/destruction/models.py:488
 msgid "processing status"
 msgstr ""
 
@@ -641,186 +663,205 @@ msgstr ""
 msgid "Field used to track the status of the deletion of a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:105
-#: openarchiefbeheer/destruction/models.py:173
-#: openarchiefbeheer/destruction/models.py:279
-#: openarchiefbeheer/destruction/models.py:321
-#: openarchiefbeheer/destruction/models.py:356
+#: openarchiefbeheer/destruction/models.py:102
+msgid "planned destruction date"
+msgstr ""
+
+#: openarchiefbeheer/destruction/models.py:103
+msgid "Date from which this destruction list can be deleted."
+msgstr ""
+
+#: openarchiefbeheer/destruction/models.py:111
+#: openarchiefbeheer/destruction/models.py:186
+#: openarchiefbeheer/destruction/models.py:292
+#: openarchiefbeheer/destruction/models.py:334
+#: openarchiefbeheer/destruction/models.py:369
 msgid "destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:106
+#: openarchiefbeheer/destruction/models.py:112
 msgid "destruction lists"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:179
+#: openarchiefbeheer/destruction/models.py:192
 msgid "zaak"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:184
+#: openarchiefbeheer/destruction/models.py:197
 msgid "zaak url"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:187
+#: openarchiefbeheer/destruction/models.py:200
 msgid ""
 "Keep a relation to the zaak for when the zaken cached are being re-synced."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:198
+#: openarchiefbeheer/destruction/models.py:211
 msgid "extra zaak data"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:199
+#: openarchiefbeheer/destruction/models.py:212
 msgid "Additional information of the zaak"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:208
+#: openarchiefbeheer/destruction/models.py:221
 msgid ""
 "Field used to track the status of the deletion of a destruction list item."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:213
+#: openarchiefbeheer/destruction/models.py:226
 msgid "internal result"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:215
+#: openarchiefbeheer/destruction/models.py:228
 msgid ""
 "When this item gets processed, the URL of the resources deleted from Open "
 "Zaak get stored here."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:222
-#: openarchiefbeheer/destruction/models.py:362
+#: openarchiefbeheer/destruction/models.py:235
+#: openarchiefbeheer/destruction/models.py:375
 msgid "destruction list item"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:223
+#: openarchiefbeheer/destruction/models.py:236
 msgid "destruction list items"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:285
+#: openarchiefbeheer/destruction/models.py:298
 msgid "The user assigned to the destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:287
+#: openarchiefbeheer/destruction/models.py:300
 msgid "assigned on"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:296
+#: openarchiefbeheer/destruction/models.py:309
 msgid "destruction list assignee"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:297
+#: openarchiefbeheer/destruction/models.py:310
 msgid "destruction list assignees"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:328
+#: openarchiefbeheer/destruction/models.py:341
 msgid "User who created the review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:331
+#: openarchiefbeheer/destruction/models.py:344
 msgid "decision"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:337
+#: openarchiefbeheer/destruction/models.py:350
 msgid "list feedback"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:340
+#: openarchiefbeheer/destruction/models.py:353
 msgid "Feedback about the destruction list as a whole."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:344
+#: openarchiefbeheer/destruction/models.py:357
 msgid "destruction list review"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:345
+#: openarchiefbeheer/destruction/models.py:358
 msgid "destruction list reviews"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:368
-#: openarchiefbeheer/destruction/models.py:390
+#: openarchiefbeheer/destruction/models.py:381
+#: openarchiefbeheer/destruction/models.py:403
 msgid "review"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:371
+#: openarchiefbeheer/destruction/models.py:384
 msgid "feedback"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:374
+#: openarchiefbeheer/destruction/models.py:387
 msgid "What needs to be changed about the case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:378
+#: openarchiefbeheer/destruction/models.py:391
 msgid "destruction list item review"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:379
+#: openarchiefbeheer/destruction/models.py:392
 msgid "destruction list item reviews"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:393
-#: openarchiefbeheer/destruction/models.py:466
+#: openarchiefbeheer/destruction/models.py:406
+#: openarchiefbeheer/destruction/models.py:479
 msgid "comment"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:396
+#: openarchiefbeheer/destruction/models.py:409
 msgid "The response of the author of the destruction list to a review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:401
+#: openarchiefbeheer/destruction/models.py:414
 msgid "review response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:402
+#: openarchiefbeheer/destruction/models.py:415
 msgid "review responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:451
+#: openarchiefbeheer/destruction/models.py:464
 msgid "review item"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:454
+#: openarchiefbeheer/destruction/models.py:467
 msgid "action item"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:459
+#: openarchiefbeheer/destruction/models.py:472
 msgid "action case"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:461
+#: openarchiefbeheer/destruction/models.py:474
 msgid "Fields that should be changed on the case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:470
+#: openarchiefbeheer/destruction/models.py:483
 msgid ""
 "The response of the author of the destruction list to feedback of the "
 "reviewer on a specific case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:479
+#: openarchiefbeheer/destruction/models.py:492
 msgid ""
 "Field used to track the status of the changes that should be made to a "
 "destruction list item and the corresponding case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:485
+#: openarchiefbeheer/destruction/models.py:498
 msgid "review item response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:486
+#: openarchiefbeheer/destruction/models.py:499
 msgid "review item responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:355
+#: openarchiefbeheer/destruction/tests/endpoints/test_abort_destruction.py:87
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:354
 msgid "This field is required."
 msgstr ""
 
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:386
+#: openarchiefbeheer/destruction/tests/endpoints/test_list_destruction.py:109
+msgid "This list is already planned to be destroyed on 08/01/2024."
+msgstr ""
+
+#: openarchiefbeheer/destruction/tests/endpoints/test_list_destruction.py:189
+msgid ""
+"This list contains cases with archiving date later than 08/01/2024, so the "
+"destruction cannot be planned yet."
+msgstr ""
+
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:385
 msgid "This field may not be blank."
 msgstr ""
 
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:573
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:572
 #: openarchiefbeheer/logging/templates/logging/destruction_list_finalized.txt:2
 #, python-format
 msgid ""
@@ -831,17 +872,17 @@ msgstr ""
 "archiefbeheerder %(record_manager)s die het heeft toegewezen aan de "
 "archivaris %(archivist)s."
 
-#: openarchiefbeheer/destruction/tests/test_endpoints.py:1691
+#: openarchiefbeheer/destruction/tests/test_endpoints.py:1550
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reassigned.txt:1
 #, python-format
 msgid "Destruction list \"%(list_name)s\" was reassigned."
 msgstr "Vernietigingslijst \"%(list_name)s\" is opnieuw toegewezen."
 
 #: openarchiefbeheer/destruction/tests/test_serializers.py:111
-#, python-format
-msgid "Destruction list \"%(list_name)s\" created by user %(user)s."
+#: openarchiefbeheer/logging/templates/logging/destruction_list_created.txt:1
+msgid "Destruction list \"%(list_name)s\" created by user %(author)s."
 msgstr ""
-"Vernietigingslijst \"%(list_name)s\" aangemaakt door gebruiker %(user)s."
+"Vernietigingslijst \"%(list_name)s\" aangemaakt door gebruiker %(author)s."
 
 #: openarchiefbeheer/destruction/tests/test_serializers.py:264
 #: openarchiefbeheer/logging/templates/logging/destruction_list_updated.txt:1
@@ -1003,25 +1044,35 @@ msgstr "Beheer"
 msgid "email configurations"
 msgstr ""
 
-#: openarchiefbeheer/logging/templates/logging/destruction_list_created.txt:1
-#, fuzzy, python-format
-#| msgid "Destruction list \"%(list_name)s\" created by user %(author)s."
-msgid "Destruction list \"%(list_name)s\" created by user %(author)s."
-msgstr ""
-"Vernietigingslijst \"%(list_name)s\" aangemaakt door gebruiker %(user)s."
-
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reviewed.txt:1
 #, python-format
 msgid "User \"%(user)s\" has reviewed the list \"%(list_name)s\"."
 msgstr "Gebruiker \"%(user)s\" heeft de lijst \"%(list_name)s\" beoordeeld."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reviewed.txt:2
-msgid " They approved the list."
-msgstr " Ze hebben de lijst goedgekeurd."
+msgid " The destruction list was approved."
+msgstr " De vernietiginslijst is goedgekeurd."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reviewed.txt:2
-msgid " They requested changes to the list."
-msgstr " Ze hebben wijzigingen in de lijst aangevraagd."
+msgid " The destruction list was rejected."
+msgstr " De vernietiginslijst is afgewezen."
+
+#: openarchiefbeheer/logging/templates/logging/resync_failed.txt:1
+#: openarchiefbeheer/zaken/tests/test_tasks.py:528
+#, python-format
+msgid "Resyncing of the cases has failed with the following error: %(error)s"
+msgstr ""
+
+#: openarchiefbeheer/logging/templates/logging/resync_started.txt:1
+#: openarchiefbeheer/zaken/tests/test_tasks.py:499
+#: openarchiefbeheer/zaken/tests/test_tasks.py:524
+msgid "Resyncing of the cases has started."
+msgstr ""
+
+#: openarchiefbeheer/logging/templates/logging/resync_successful.txt:1
+#: openarchiefbeheer/zaken/tests/test_tasks.py:503
+msgid "Resyncing of the cases has completed successfully."
+msgstr ""
 
 #: openarchiefbeheer/templates/admin/base_site.html:5
 #: openarchiefbeheer/templates/admin/base_site.html:22
@@ -1097,91 +1148,110 @@ msgstr "Ongeldige postcode."
 msgid "Invalid mobile phonenumber."
 msgstr "Ongeldig mobiel telefoonnumer."
 
-#: openarchiefbeheer/zaken/api/filtersets.py:37
+#: openarchiefbeheer/zaken/admin.py:29
+#: openarchiefbeheer/zaken/tests/test_admin.py:68
+msgid "Only POST request supported."
+msgstr ""
+
+#: openarchiefbeheer/zaken/admin.py:38
+#: openarchiefbeheer/zaken/tests/test_admin.py:45
+msgid ""
+"Syncing of the zaken will happen in the background. It may take a while."
+msgstr ""
+
+#: openarchiefbeheer/zaken/api/filtersets.py:40
 msgid ""
 "If True, only cases not already included in a destruction list are returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:43
+#: openarchiefbeheer/zaken/api/filtersets.py:46
 msgid "All cases included in a destruction list are returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:49
+#: openarchiefbeheer/zaken/api/filtersets.py:52
 msgid ""
 "Only cases not already included in a destruction list except the one "
 "specified are returned. The cases that are included in the 'exception' list "
 "are returned first."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:54
+#: openarchiefbeheer/zaken/api/filtersets.py:57
 msgid "Filter on the exact URL of resultaattype."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:60
+#: openarchiefbeheer/zaken/api/filtersets.py:63
 msgid ""
 "Filter on bewaartermijn. This corresponds to the property 'resultaat."
 "resultaattype.archiefactietermijn'. This field is expressed in Open Zaak as "
 "a ISO8601 duration."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:69
+#: openarchiefbeheer/zaken/api/filtersets.py:72
 msgid ""
 "Filter on VCS. This stands for 'Vernietigings-Categorie Selectielijst'. It "
 "is obtained through 'zaaktype.procestype.nummer'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:78
+#: openarchiefbeheer/zaken/api/filtersets.py:81
 msgid ""
 "Filter on whether this case has other related cases. This is done by looking "
 "at the property 'relevanteAndereZaken'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/filtersets.py:86
+#: openarchiefbeheer/zaken/api/filtersets.py:89
 msgid "Filter all zaaktype that have a URL contained in the provided list."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:63
-msgid "The description field of the zaaktype."
+#: openarchiefbeheer/zaken/api/filtersets.py:97
+msgid "Filter on zaken that have received negative feedback in a review."
 msgstr ""
 
 #: openarchiefbeheer/zaken/api/serializers.py:64
+msgid "The description field of the zaaktype."
+msgstr ""
+
+#: openarchiefbeheer/zaken/api/serializers.py:65
 msgid "The URL field of the zaaktype."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:67
+#: openarchiefbeheer/zaken/api/serializers.py:68
 msgid ""
 "A combination of the identification and the date on which the zaaktype will "
 "no longer be valid (if present)."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:77
+#: openarchiefbeheer/zaken/api/serializers.py:78
 msgid "The description field of the resultaat from the selectielijst API."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:81
+#: openarchiefbeheer/zaken/api/serializers.py:82
 msgid "The URL field of the resultaat from the selectielijst API."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:88
+#: openarchiefbeheer/zaken/api/serializers.py:90
 msgid ""
 "The URL of the zaak for which the selectielijstklasse choices are needed."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:36
+#: openarchiefbeheer/zaken/api/serializers.py:111
+msgid "Multiple query parameters at the same time are not supported."
+msgstr ""
+
+#: openarchiefbeheer/zaken/api/views.py:30
 #, fuzzy
 #| msgid "Clear given cache only"
 msgid "Retrieve and cache zaken"
 msgstr "Leeg alleen de opgegeven cache"
 
-#: openarchiefbeheer/zaken/api/views.py:37
+#: openarchiefbeheer/zaken/api/views.py:31
 msgid "Retrieve and cache zaken from OpenZaak in the background."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:51
+#: openarchiefbeheer/zaken/api/views.py:43
 msgid "Retrieve zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:53
+#: openarchiefbeheer/zaken/api/views.py:45
 msgid ""
 "Retrieve zaaktypen from Open Zaak and return a value and a label per "
 "zaaktype. The label is the 'identificatie' field an the value is a string of "
@@ -1191,15 +1261,16 @@ msgid ""
 "is cached for 15 minutes."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:88
+#: openarchiefbeheer/zaken/api/views.py:87
 msgid "Retrieve selectielijstklasse choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:90
+#: openarchiefbeheer/zaken/api/views.py:89
 msgid ""
-"This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves "
-"all the 'resultaten' possible for this 'procestype' from the selectielijst "
-"API."
+"Returns all the resultaten from the configured selectielijst API with a "
+"formatted label. If the parameter 'zaak' is provided, then it returns all "
+"the 'resultaten' possible for the given 'selectielijstprocestype' from the "
+"'zaaktype' of the zaak."
 msgstr ""
 
 #: openarchiefbeheer/zaken/api/viewsets.py:22
@@ -1210,10 +1281,13 @@ msgstr ""
 msgid "List cases retrieved and cached from Open Zaak."
 msgstr ""
 
-#: openarchiefbeheer/zaken/tests/test_views.py:179
-#: openarchiefbeheer/zaken/tests/test_views.py:289
-#: openarchiefbeheer/zaken/utils.py:92
-msgid "(no identificatie)"
+#: openarchiefbeheer/zaken/templates/admin/zaken/change_list_object_tools.html:8
+msgid "Resync cases"
+msgstr ""
+
+#: openarchiefbeheer/zaken/tests/test_views.py:148
+#: openarchiefbeheer/zaken/tests/test_views.py:259
+msgid "ZAAKTYPE 1.0 (no identificatie)"
 msgstr ""
 
 #: openarchiefbeheer/config/api/views.py:23
@@ -1255,6 +1329,11 @@ msgstr ""
 #: openarchiefbeheer/config/models.py:23
 msgid "archive configurations"
 msgstr ""
+
+#, python-format
+#~ msgid "Destruction list \"%(list_name)s\" created by user %(user)s."
+#~ msgstr ""
+#~ "Vernietigingslijst \"%(list_name)s\" aangemaakt door gebruiker %(user)s."
 
 #~ msgid "View 2fa profile"
 #~ msgstr "Tweestapsauthenticatie beheren"
