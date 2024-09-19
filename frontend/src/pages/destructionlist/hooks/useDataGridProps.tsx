@@ -478,7 +478,6 @@ export function getFields(
       name: "zaaktype",
       filterLookup: "zaaktype__in",
       filterValue: searchParams.get("zaaktype__in") || "",
-      valueLookup: "_expand.zaaktype.identificatie",
       options: zaaktypeChoices,
       type: "string",
       width: "300px",
