@@ -20,6 +20,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
 
@@ -127,7 +128,8 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
 
 @lru_cache
 def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> list:
-    selectielijst_service = Service.objects.filter(api_type=APITypes.orc).first()
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
     if not selectielijst_service:
         return []
 
