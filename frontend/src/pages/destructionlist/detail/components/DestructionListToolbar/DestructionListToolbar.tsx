@@ -11,6 +11,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
+import { ProcessingStatusBadge } from "../../../../../components";
 import { AuditLogItem } from "../../../../../lib/api/auditLog";
 import { User } from "../../../../../lib/api/auth";
 import { DestructionListRead } from "../../../../../lib/api/destructionLists";
@@ -21,8 +22,6 @@ import { formatUser } from "../../../../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
-  STATUS_LEVEL_MAPPING,
-  STATUS_MAPPING,
 } from "../../../../constants";
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../index";
@@ -66,9 +65,12 @@ export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
               status: {
                 label: "Status",
                 value: (
-                  <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
-                    {STATUS_MAPPING[destructionList.status]}
-                  </Badge>
+                  <ProcessingStatusBadge
+                    processingStatus={destructionList.processingStatus}
+                    plannedDestructionDate={
+                      destructionList.plannedDestructionDate
+                    }
+                  />
                 ),
               },
               aangemaakt: {

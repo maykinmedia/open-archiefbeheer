@@ -12,6 +12,7 @@ export type DestructionList = {
   assignees: DestructionListAssignee[];
   author: User;
   containsSensitiveInfo: boolean;
+  plannedDestructionDate: string | null;
   created: string;
   name: string;
   status: DestructionListStatus;

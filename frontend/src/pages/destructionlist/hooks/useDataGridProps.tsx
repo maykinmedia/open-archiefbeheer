@@ -190,7 +190,10 @@ export function useDataGridProps(
           return {
             ...(item.zaak ? formatZaak(item.zaak) : item.extraZaakData),
             processingStatus: (
-              <ProcessingStatusBadge processingStatus={item.processingStatus} />
+              <ProcessingStatusBadge
+                processingStatus={item.processingStatus}
+                plannedDestructionDate={item.plannedDestructionDate}
+              />
             ),
           };
         }

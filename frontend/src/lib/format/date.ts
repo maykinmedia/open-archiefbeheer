@@ -23,7 +23,8 @@ interface TimeAgoOptions {
 }
 
 /**
- * Calculate how long ago a given date was and return a human-readable string.
+ * Calculate how long ago or how long until a given date and return a human-readable string in Dutch.
+ * The date can be provided as a Date object or an ISO 8601 string.
  * TODO: Consider using a specialized library.
  *
  * @param dateInput - The date to calculate the time difference from. It can be a Date object or an ISO 8601 string.
@@ -39,7 +40,7 @@ export function timeAgo(
 
   // Check for invalid date input
   if (isNaN(date.getTime())) {
-    throw new Error("Invalid date input");
+    throw new Error("Ongeldige datum input");
   }
 
   const now = new Date();
@@ -47,17 +48,25 @@ export function timeAgo(
   let seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   const { shortFormat = false } = options;
 
-  // Define the intervals in seconds for various time units
   const intervals = [
     { label: "jaar", plural: "jaren", shortFormat: "j", seconds: 31536000 },
-    { label: "maand", plural: "maanden", shortFormat: "ma", seconds: 2592000 },
+    { label: "maand", plural: "maanden", shortFormat: "mnd", seconds: 2592000 },
     { label: "week", plural: "weken", shortFormat: "w", seconds: 604800 },
     { label: "dag", plural: "dagen", shortFormat: "d", seconds: 86400 },
-    { label: "uur", plural: "uur", shortFormat: "u", seconds: 3600 },
+    { label: "uur", plural: "uren", shortFormat: "u", seconds: 3600 },
     { label: "minuut", plural: "minuten", shortFormat: "m", seconds: 60 },
+    { label: "seconde", plural: "seconden", shortFormat: "s", seconds: 1 },
   ];
 
   let result = "";
+  let isFuture = false;
+
+  // If the time difference is positive, the date is in the past
+  // If the time difference is negative, the date is in the future
+  if (seconds < 0) {
+    isFuture = true;
+    seconds = Math.abs(seconds); // Work with positive time difference for calculation
+  }
 
   // Iterate over the intervals to determine the appropriate time unit
   for (const interval of intervals) {
@@ -70,15 +79,19 @@ export function timeAgo(
           ? interval.label
           : interval.plural;
 
-      result += `${intervalCount}${shortFormat ? "" : " "}${label}${shortFormat ? "" : " geleden"}`;
-      // Update seconds to the remainder for the next interval
-      seconds %= interval.seconds;
+      if (isFuture) {
+        result = `over ${intervalCount}${shortFormat ? "" : " "}${label}`;
+      } else {
+        result = `${intervalCount}${shortFormat ? "" : " "}${label} geleden`;
+      }
       break;
     }
   }
 
   // Return the result or default to "just now" or "0m" for short format
-  return result.trim() || (shortFormat ? "0m" : "Nu");
+  return (
+    result.trim() || (shortFormat ? "0m" : isFuture ? "zo meteen" : "zojuist")
+  );
 }
 
 /**

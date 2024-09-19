@@ -11,6 +11,7 @@ const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   containsSensitiveInfo: false,
   status: "changes_requested",
   processingStatus: "new",
+  plannedDestructionDate: null,
   assignees: defaultAssignees,
   assignee: defaultAssignees[0].user,
   created: "2024-07-11T16:57",
