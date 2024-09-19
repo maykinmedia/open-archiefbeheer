@@ -8,6 +8,7 @@ import {
   getAllZakenSelected,
   getFilteredZaakSelection,
   getZaakSelectionItem,
+  getZaakSelectionSize,
   clearZaakSelection as libClearZaakSelection,
   removeFromZaakSelection,
   setAllZakenSelected,
@@ -52,6 +53,7 @@ export function useZaakSelection<T = unknown>(
   handleSelect: ZaakSelectionSelectHandler,
   extra: {
     hasSelection: boolean;
+    selectionSize: number;
     allPagesSelected: boolean;
     handleSelectAllPages: ZaakSelectionSelectAllPagesHandler;
     clearZaakSelection: ZaakSelectionClearer;
@@ -75,15 +77,43 @@ export function useZaakSelection<T = unknown>(
     );
   });
 
+  // Selection count
+  const [selectionSizeState, setSelectionSizeState] = useState<number>(0);
+  useEffect(() => {
+    getZaakSelectionSize(storageKey).then((size) => {
+      setSelectionSizeState(size);
+    });
+  });
+
   // Selected zaken (on page).
   const [zaakSelectionState, setZaakSelectionState] = useState<
     ZaakSelection<T>
   >({});
-  useEffect(() => _updatePageSpecificZaakSelectionState(), [storageKey, zaken]);
+  useEffect(() => {
+    _updatePageSpecificZaakSelectionState();
+  }, [storageKey, zaken.map((z) => z.url as string).join()]);
   const selectedZakenOnPage = useMemo(
     () => zaken.filter((z) => zaakSelectionState[z.url as string]?.selected),
     [zaken, zaakSelectionState],
   );
+
+  /**
+   * @param selected
+   * @private
+   */
+  const _optimisticallyUpdateAllPagesSelectedState = (selected: boolean) => {
+    setAllPagesSelectedState(selected);
+  };
+
+  /**
+   * @param selected
+   * @private
+   */
+  const _updateAllPagesSelectedState = async (selected: boolean) => {
+    await setAllZakenSelected(storageKey, selected);
+    const _selected = await getAllZakenSelected(storageKey);
+    setAllPagesSelectedState(_selected);
+  };
 
   /**
    * @param zaken
@@ -130,22 +160,20 @@ export function useZaakSelection<T = unknown>(
   };
 
   /**
-   * @param selected
+   * @param size
    * @private
    */
-  const _optimisticallyUpdateAllPagesSelectedState = (selected: boolean) => {
-    setAllPagesSelectedState(selected);
+  const _optimisticallyUpdateSelectionSizeState = (size: number) => {
+    setSelectionSizeState(size);
   };
 
   /**
    * @param selected
    * @private
    */
-  const _updateAllPagesSelectedState = async (selected: boolean) => {
-    await setAllZakenSelected(storageKey, selected);
-    const _selected = await getAllZakenSelected(storageKey);
-    setAllPagesSelectedState(_selected);
-    revalidator.revalidate();
+  const _updateSelectionSizeState = async () => {
+    const size = await getZaakSelectionSize(storageKey);
+    setSelectionSizeState(size);
   };
 
   /**
@@ -159,6 +187,9 @@ export function useZaakSelection<T = unknown>(
   ) => {
     const _zaken = attributeData as unknown as Zaak[];
     _optimisticallyUpdatePageSpecificZaakSelectionState(_zaken, selected);
+    _optimisticallyUpdateSelectionSizeState(
+      selected ? selectionSizeState + 1 : selectionSizeState - 1,
+    );
 
     const filter = filterSelectionZaken
       ? filterSelectionZaken
@@ -191,7 +222,8 @@ export function useZaakSelection<T = unknown>(
       ? await addToZaakSelection(storageKey, filteredZaken, detailArray)
       : await removeFromZaakSelection(storageKey, filteredZaken);
 
-    _updatePageSpecificZaakSelectionState();
+    await _updatePageSpecificZaakSelectionState();
+    await _updateSelectionSizeState();
     revalidator.revalidate();
   };
 
@@ -206,7 +238,8 @@ export function useZaakSelection<T = unknown>(
     await setAllZakenSelected(storageKey, selected);
 
     _updatePageSpecificZaakSelectionState();
-    _updateAllPagesSelectedState(selected);
+    await _updateAllPagesSelectedState(selected);
+    revalidator.revalidate();
   };
 
   /**
@@ -224,6 +257,7 @@ export function useZaakSelection<T = unknown>(
     onSelect,
     {
       hasSelection: Boolean(hasSelectionState || allPagesSelectedState),
+      selectionSize: selectionSizeState,
       allPagesSelected: Boolean(allPagesSelectedState),
       handleSelectAllPages: onSelectAllPages,
       clearZaakSelection: clearZaakSelection,
