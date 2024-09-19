@@ -26,6 +26,10 @@ done
 >&2 echo "Apply database migrations"
 python src/manage.py migrate
 
+# Load fixtures
+>&2 echo "Loading fixtures"
+python src/manage.py loaddata default_admin_index
+
 # Populate the environment variables for the frontend
 >&2 echo "Replace frontend env vars"
 /replace-envvars.sh
