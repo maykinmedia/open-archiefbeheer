@@ -949,7 +949,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "reviewer" has reviewed the list "Test list". They requested changes to the list.',
+            'User "reviewer" has reviewed the list "Test list". The destruction list was rejected.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):
