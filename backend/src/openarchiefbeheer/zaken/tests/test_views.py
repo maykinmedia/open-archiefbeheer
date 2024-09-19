@@ -13,6 +13,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
@@ -418,7 +419,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
 
     @Mocker()
     def test_retrieve_choices(self, m):
-        ServiceFactory.create(
+        selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
             api_root="http://selectielijst.nl/api/v1",
         )
@@ -461,7 +462,11 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
         endpoint.args["zaak"] = zaak.url
 
-        response = self.client.get(endpoint.url)
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -494,7 +499,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
     @Mocker()
     def test_retrieve_choices_without_zaak(self, m):
         # Create a mock service
-        ServiceFactory.create(
+        selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
             api_root="http://selectielijst.nl/api/v1",
         )
@@ -541,7 +546,11 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
 
         # Send the GET request
-        response = self.client.get(endpoint.url)
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            response = self.client.get(endpoint.url)
 
         # Validate the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -574,7 +583,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
 
     @Mocker()
     def test_response_cached(self, m):
-        ServiceFactory.create(
+        selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
             api_root="http://selectielijst.nl/api/v1",
         )
@@ -617,7 +626,11 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
         endpoint.args["zaak"] = zaak.url
 
-        self.client.get(endpoint.url)
-        self.client.get(endpoint.url)
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            self.client.get(endpoint.url)
+            self.client.get(endpoint.url)
 
         self.assertEqual(len(m.request_history), 1)

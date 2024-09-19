@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 
 from django.test import TestCase, TransactionTestCase, tag
 from django.utils.translation import gettext_lazy as _
@@ -10,6 +11,7 @@ from timeline_logger.models import TimelineLog
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 
 from ..models import Zaak
@@ -355,7 +357,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
         )
-        ServiceFactory.create(
+        selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
             api_root="https://selectielijst.openzaak.nl/api/v1/",
         )
@@ -369,7 +371,11 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        retrieve_and_cache_zaken_from_openzaak()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            retrieve_and_cache_zaken_from_openzaak()
 
         zaak_with_resultaat = Zaak.objects.get(identificatie="ZAAK-01")
 
