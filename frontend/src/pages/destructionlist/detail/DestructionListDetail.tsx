@@ -4,6 +4,7 @@ import {
   Button,
   CardBaseTemplate,
   Column,
+  ErrorMessage,
   Form,
   FormField,
   Grid,
@@ -172,35 +173,33 @@ export function DestructionListDetailPage() {
           />
         ),
         "spacer",
-        <>
-          {["new", "failed"].includes(destructionList.processingStatus) ? (
-            <Grid gutter={false}>
-              <Column containerType="normal" span={12}>
-                <Button
-                  variant="danger"
-                  onClick={() => setDestroyModalOpenState(true)}
-                  disabled={hasDestructionListItemsDateInFuture()}
-                  pad="h"
-                  bold={true}
-                >
-                  <Solid.TrashIcon />
-                  {destructionList.processingStatus === "new"
-                    ? "Vernietigen starten"
-                    : "Vernietigen herstarten"}
-                </Button>
-              </Column>
-              <Column containerType="normal" span={12}>
-                {hasDestructionListItemsDateInFuture() && (
-                  <P bold>
-                    Er zijn zaken met een archiefactiedatum in de toekomst
-                  </P>
-                )}
-              </Column>
-            </Grid>
-          ) : (
-            <></>
-          )}
-        </>,
+
+        hasDestructionListItemsDateInFuture() ? (
+          <ErrorMessage>
+            Eén of meer zaken hebben een toekomstige archiefdatum.
+          </ErrorMessage>
+        ) : (
+          <></>
+        ),
+        ["new", "failed"].includes(destructionList.processingStatus) ? (
+          {
+            bold: true,
+            children: (
+              <>
+                <Solid.TrashIcon />
+                {destructionList.processingStatus === "new"
+                  ? "Vernietigen starten"
+                  : "Vernietigen herstarten"}
+              </>
+            ),
+            disabled: hasDestructionListItemsDateInFuture(),
+            pad: "h",
+            variant: "danger",
+            onClick: () => setDestroyModalOpenState(true),
+          }
+        ) : (
+          <></>
+        ),
       ];
     }
   };
