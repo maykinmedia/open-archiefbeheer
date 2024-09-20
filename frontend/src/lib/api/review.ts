@@ -20,6 +20,12 @@ export type ZaakReview = {
 
 export type ReviewItem = {
   pk: number;
+  zaak: Zaak | null;
+  feedback: string;
+};
+
+export type ReviewItemWithZaak = {
+  pk: number;
   zaak: Zaak;
   feedback: string;
 };
