@@ -4,12 +4,21 @@ from django.test import tag
 from asgiref.sync import sync_to_async
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.constants import ListRole, ListStatus
+from openarchiefbeheer.destruction.constants import (
+    ListRole,
+    ListStatus,
+    ReviewDecisionChoices,
+)
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ...factories import DestructionListFactory, DestructionListItemFactory
+from ...factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
+)
 
 
 @tag("e2e")
@@ -83,6 +92,38 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
+
+    @tag("gh-372")
+    async def test_scenario_reviewer_reviews_second_time(self):
+        @sync_to_async
+        def create_data():
+            record_manager = UserFactory.create(role__can_start_destruction=True)
+            reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", role__can_review_destruction=True)
+
+            zaken = ZaakFactory.create_batch(2)
+            
+            list = DestructionListFactory.create(
+                author=record_manager,
+                assignee=reviewer,
+                status=ListStatus.ready_to_review,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to review",
+            )
+            item = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[0])
+            DestructionListItemFactory.create(destruction_list=list, zaak=zaken[1])
+
+            review = DestructionListReviewFactory.create(destruction_list=list, author=reviewer, decision=ReviewDecisionChoices.rejected)
+            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item, review=review)
+            
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.when.reviewer_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Destruction list to review")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
+            await self.then.page_should_contain_text(page, "Accorderen")
+            await self.then.this_number_of_zaken_should_be_visible(page, 2)
 
     async def test_scenario_archivist_approves_list(self):
         async with browser_page() as page:
