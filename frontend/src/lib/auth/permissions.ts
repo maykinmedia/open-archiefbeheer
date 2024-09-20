@@ -100,13 +100,6 @@ export function canTriggerDestruction(
   user: User,
   destructionList: DestructionList,
 ) {
-  if (
-    destructionList.status === "ready_to_delete" &&
-    destructionList.plannedDestructionDate &&
-    destructionList.processingStatus === "new"
-  ) {
-    return false;
-  }
   return (
     user.pk === destructionList.author.pk &&
     destructionList.status === "ready_to_delete" &&

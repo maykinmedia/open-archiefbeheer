@@ -3,10 +3,8 @@ import {
   Body,
   Button,
   CardBaseTemplate,
-  Column,
   Form,
   FormField,
-  Grid,
   Modal,
   P,
   SerializedFormData,
@@ -73,6 +71,8 @@ export function DestructionListDetailPage() {
   ] = useState(false);
 
   const [destroyModalOpenState, setDestroyModalOpenState] = useState(false);
+  const [cancelDestroyModalOpenState, setCancelDestroyModalOpenState] =
+    useState(false);
   const isInReview = destructionList.status === "changes_requested";
 
   // An object of {url: string} items used to indicate (additional) selected zaken.
@@ -105,6 +105,14 @@ export function DestructionListDetailPage() {
       label: "Type naam van de lijst ter bevestiging",
       name: "name",
       placeholder: "Naam van de vernietigingslijst",
+      required: true,
+    },
+  ];
+
+  const cancelModalFormFields: FormField[] = [
+    {
+      label: "Opmerking",
+      name: "comment",
       required: true,
     },
   ];
@@ -175,29 +183,39 @@ export function DestructionListDetailPage() {
         "spacer",
         <>
           {["new", "failed"].includes(destructionList.processingStatus) ? (
-            <Grid gutter={false}>
-              <Column containerType="normal" span={12}>
+            <Toolbar align="end" variant="transparent">
+              <Button
+                variant="danger"
+                onClick={() => setDestroyModalOpenState(true)}
+                disabled={
+                  hasDestructionListItemsDateInFuture() ||
+                  isPlannedForDestruction()
+                }
+                pad="h"
+                bold={true}
+              >
+                <Solid.TrashIcon />
+                {destructionList.processingStatus === "new"
+                  ? "Vernietigen starten"
+                  : "Vernietigen herstarten"}
+              </Button>
+              {isPlannedForDestruction() && (
                 <Button
-                  variant="danger"
-                  onClick={() => setDestroyModalOpenState(true)}
-                  disabled={hasDestructionListItemsDateInFuture()}
+                  variant="secondary"
+                  onClick={() => setCancelDestroyModalOpenState(true)}
                   pad="h"
                   bold={true}
                 >
-                  <Solid.TrashIcon />
-                  {destructionList.processingStatus === "new"
-                    ? "Vernietigen starten"
-                    : "Vernietigen herstarten"}
+                  <Solid.XMarkIcon />
+                  Vernietigen annuleren
                 </Button>
-              </Column>
-              <Column containerType="normal" span={12}>
-                {hasDestructionListItemsDateInFuture() && (
-                  <P bold>
-                    Er zijn zaken met een archiefactiedatum in de toekomst
-                  </P>
-                )}
-              </Column>
-            </Grid>
+              )}
+              {hasDestructionListItemsDateInFuture() && (
+                <P bold>
+                  Er zijn zaken met een archiefactiedatum in de toekomst
+                </P>
+              )}
+            </Toolbar>
           ) : (
             <></>
           )}
@@ -213,6 +231,17 @@ export function DestructionListDetailPage() {
       }
       return false;
     });
+  };
+
+  const isPlannedForDestruction = () => {
+    if (
+      destructionList.status === "ready_to_delete" &&
+      destructionList.plannedDestructionDate &&
+      destructionList.processingStatus === "new"
+    ) {
+      return true;
+    }
+    return false;
   };
 
   /**
@@ -313,6 +342,22 @@ export function DestructionListDetailPage() {
     });
   };
 
+  /**
+   * Dispatches action to cancel the destruction of all zaken on the destruction list.
+   */
+  const handleCancelDestroy = async (
+    _: FormEvent,
+    data: SerializedFormData,
+  ) => {
+    submitAction({
+      type: "CANCEL_DESTROY",
+      payload: {
+        uuid: destructionList.uuid,
+        comment: data.comment as string,
+      },
+    });
+  };
+
   return (
     <CardBaseTemplate secondaryNavigationItems={getSecondaryNavigationItems()}>
       <DestructionListToolbar />
@@ -383,34 +428,64 @@ export function DestructionListDetailPage() {
         </Modal>
       )}
 
-      {destructionList.status === "ready_to_delete" && (
-        <Modal
-          title="Zaken definitief vernietigen"
-          open={destroyModalOpenState}
-          size="m"
-          onClose={() => setDestroyModalOpenState(false)}
-        >
-          <Body>
-            <P>
-              U staat op het punt om {destructionListItems.count} zaken
-              definitief te vernietigen.
-            </P>
-          </Body>
-          <Body>
-            <Form
-              buttonProps={{
-                variant: "danger",
-              }}
-              fields={destroyModalFormFields}
-              labelSubmit={`${destructionListItems.count} zaken vernietigen`}
-              validate={validateDestroy}
-              validateOnChange={true}
-              role="form"
-              onSubmit={handleDestroy}
-            />
-          </Body>
-        </Modal>
-      )}
+      {destructionList.status === "ready_to_delete" &&
+        !destructionList.plannedDestructionDate && (
+          <Modal
+            title="Zaken definitief vernietigen"
+            open={destroyModalOpenState}
+            size="m"
+            onClose={() => setDestroyModalOpenState(false)}
+          >
+            <Body>
+              <P>
+                U staat op het punt om {destructionListItems.count} zaken
+                definitief te vernietigen.
+              </P>
+            </Body>
+            <Body>
+              <Form
+                buttonProps={{
+                  variant: "danger",
+                }}
+                fields={destroyModalFormFields}
+                labelSubmit={`${destructionListItems.count} zaken vernietigen`}
+                validate={validateDestroy}
+                validateOnChange={true}
+                role="form"
+                onSubmit={handleDestroy}
+              />
+            </Body>
+          </Modal>
+        )}
+      {destructionList.status === "ready_to_delete" &&
+        destructionList.plannedDestructionDate &&
+        destructionList.processingStatus === "new" && (
+          <Modal
+            title="Vernietigen annuleren"
+            open={cancelDestroyModalOpenState}
+            size="m"
+            onClose={() => setCancelDestroyModalOpenState(false)}
+          >
+            <Body>
+              <P>
+                U staat op het punt om de vernietiging van{" "}
+                {destructionListItems.count} zaken te annuleren.
+              </P>
+            </Body>
+            <Body>
+              <Form
+                buttonProps={{
+                  variant: "danger",
+                }}
+                fields={cancelModalFormFields}
+                labelSubmit={`Vernietiging annuleren`}
+                validateOnChange={true}
+                role="form"
+                onSubmit={handleCancelDestroy}
+              />
+            </Body>
+          </Modal>
+        )}
     </CardBaseTemplate>
   );
 }
