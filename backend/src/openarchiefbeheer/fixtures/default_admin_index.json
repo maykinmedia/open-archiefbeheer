@@ -1,0 +1,75 @@
+[
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 0,
+            "name": "External APIs",
+            "slug": "externalapis",
+            "models": [
+                ["zgw_consumers", "service"],
+                ["config", "apiconfig"]
+            ]
+        }
+    }, 
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 1,
+            "name": "Users",
+            "slug": "users",
+            "models": [
+                ["accounts", "user"],
+                ["accounts", "role"]
+            ]
+        }
+    },
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 2,
+            "name": "Logs",
+            "slug": "logs",
+            "models": [
+                ["timeline_logger", "timelinelog"]
+            ]
+        }
+    },
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 3,
+            "name": "Destruction Lists",
+            "slug": "destructionlists",
+            "models": [
+                ["destruction", "destructionlist"],
+                ["destruction", "destructionlistitem"],
+                ["destruction", "destructionlistassignee"]
+            ]
+        }
+    },
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 4,
+            "name": "Reviews",
+            "slug": "reviews",
+            "models": [
+                ["destruction", "destructionlistreview"],
+                ["destruction", "destructionlistitemreview"],
+                ["destruction", "reviewresponse"],
+                ["destruction", "reviewitemresponse"]
+            ]
+        }
+    },
+    {
+        "model": "admin_index.appgroup",
+        "fields": {
+            "order": 5,
+            "name": "Cases",
+            "slug": "cases",
+            "models": [
+                ["zaken", "zaak"]
+            ]
+        }
+    }
+]

@@ -24,3 +24,21 @@ class ArchiveConfig(SingletonModel):
 
     def __str__(self):
         return "Archive configuration"
+
+
+class APIConfig(SingletonModel):
+    selectielijst_api_service = models.ForeignKey(
+        to="zgw_consumers.Service",
+        verbose_name=_("selectielijst API service"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text=_("Which service to use to query the Selectielijst API."),
+    )
+
+    class Meta:
+        verbose_name = _("API configuration")
+        verbose_name_plural = _("API configurations")
+
+    def __str__(self):
+        return "API configuration"
