@@ -44,14 +44,7 @@ export function DestructionListReviewPage() {
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
-    const zakenOrReviewItems =
-      reviewItems && reviewItems.length ? reviewItems : paginatedZaken.results;
-
-    const objects: Zaak[] = zakenOrReviewItems.map((zori) =>
-      "zaak" in zori ? zori.zaak : zori,
-    );
-
-    return objects.map((zaak) => {
+    return paginatedZaken.results.map((zaak) => {
       const badge = getReviewBadgeForZaak(zaak);
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
