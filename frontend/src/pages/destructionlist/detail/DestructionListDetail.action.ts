@@ -5,6 +5,7 @@ import { JsonValue, TypedAction } from "../../../hooks";
 import { User } from "../../../lib/api/auth";
 import {
   DestructionListItemUpdate,
+  abortPlannedDestruction,
   destroyDestructionList,
   markDestructionListAsFinal,
   markDestructionListAsReadyToReview,
@@ -19,6 +20,7 @@ import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "DESTROY"
+  | "CANCEL_DESTROY"
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
   | "READY_TO_REVIEW"
@@ -53,6 +55,8 @@ export async function destructionListUpdateAction({
       return await destructionListUpdateReviewerAction({ request, params });
     case "UPDATE_ZAKEN":
       return await destructionListUpdateZakenAction({ request, params });
+    case "CANCEL_DESTROY":
+      return await destructionListCancelDestroyAction({ request, params });
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
@@ -180,4 +184,17 @@ export async function destructionListUpdateZakenAction({
   }
 
   return redirect(`/destruction-lists/${params.uuid}/`);
+}
+
+export async function destructionListCancelDestroyAction({
+  request,
+}: ActionFunctionArgs) {
+  const data = await request.json();
+  const { payload } = data as UpdateDestructionListAction<{
+    uuid: string;
+    comment: string;
+  }>;
+  const { comment, uuid } = payload;
+  await abortPlannedDestruction(uuid, { comment });
+  return redirect(`/destruction-lists/${uuid}/`);
 }
