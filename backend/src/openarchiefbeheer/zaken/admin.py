@@ -9,6 +9,7 @@ from .tasks import resync_zaken
 
 @admin.register(Zaak)
 class ZaakAdmin(admin.ModelAdmin):
+    search_fields = ("identificatie", "uuid")
 
     def get_urls(self):
         urls = super().get_urls()
