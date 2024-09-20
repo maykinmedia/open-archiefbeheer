@@ -161,3 +161,38 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
             
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
+        
+    @tag("gh-378")
+    async def test_zaak_removed_outside_process(self):
+        @sync_to_async
+        def create_data():
+            record_manager = UserFactory.create(username="Record Manager", password="ANic3Password", role__can_start_destruction=True)
+
+            zaken = ZaakFactory.create_batch(2)
+            list = DestructionListFactory.create(
+                author=record_manager,
+                assignee=record_manager,
+                status=ListStatus.changes_requested,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to process",
+            )
+            item1 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[0])
+            item2 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[1])
+
+            review = DestructionListReviewFactory.create(destruction_list=list, decision=ReviewDecisionChoices.rejected)
+            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item1, review=review)
+            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item2, review=review)
+
+            # Simulate the zaak being deleted by *something else*
+            item1.zaak.delete()
+
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.when.record_manager_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Destruction list to process")
+            
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
+            await self.then.page_should_contain_text(page, "Opnieuw indienen")
+            # await self.then.this_number_of_zaken_should_be_visible(page, 2)
