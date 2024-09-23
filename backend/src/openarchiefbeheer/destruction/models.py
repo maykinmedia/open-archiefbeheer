@@ -24,6 +24,7 @@ from .constants import (
     ListRole,
     ListStatus,
     ReviewDecisionChoices,
+    ZaakActionType,
 )
 from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
 
@@ -467,6 +468,13 @@ class ReviewItemResponse(models.Model):
         _("action item"),
         choices=DestructionListItemAction.choices,
         max_length=80,
+    )
+    action_zaak_type = models.CharField(
+        _("action zaak type"),
+        choices=ZaakActionType.choices,
+        max_length=80,
+        help_text=_("What type of change to do on the case. "),
+        blank=True,
     )
     action_zaak = models.JSONField(
         _("action case"),
