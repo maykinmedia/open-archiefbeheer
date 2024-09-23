@@ -22,6 +22,7 @@ from ..constants import (
     ListItemStatus,
     ListRole,
     ListStatus,
+    ZaakActionType,
 )
 from ..tasks import (
     complete_and_notify,
@@ -64,7 +65,10 @@ class ProcessReviewResponseTests(TestCase):
             review_item__destruction_list_item__zaak=zaak,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
-            action_zaak={"archiefactiedatum": "2026-01-01"},
+            action_zaak_type=ZaakActionType.bewaartermijn,
+            action_zaak={
+                "archiefactiedatum": "2026-01-01",
+            },
         )
 
         m.patch(zaak.url, status_code=400)
@@ -92,7 +96,10 @@ class ProcessReviewResponseTests(TestCase):
             review_item__destruction_list_item__zaak=zaak,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.remove,
-            action_zaak={"archiefactiedatum": "2026-01-01"},
+            action_zaak_type=ZaakActionType.bewaartermijn,
+            action_zaak={
+                "archiefactiedatum": "2026-01-01",
+            },
         )
         review_response.review.destruction_list.assignees.all().delete()
         first_reviwer = DestructionListAssigneeFactory.create(
@@ -140,6 +147,55 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, "Destruction list review request")
         self.assertEqual(mail.outbox[0].recipients(), ["reviewer1@oab.nl"])
+
+    def test_reject_suggestion_does_not_change_zaak(self, m):
+        review_response = ReviewResponseFactory.create(
+            review__destruction_list__status=ListStatus.changes_requested,
+            review__author__email="reviewer1@oab.nl",
+        )
+        zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
+        review_item_response = ReviewItemResponseFactory.create(
+            review_item__destruction_list_item__zaak=zaak,
+            review_item__review=review_response.review,
+            action_item=DestructionListItemAction.keep,
+            action_zaak_type=ZaakActionType.bewaartermijn,
+            action_zaak={
+                "archiefactiedatum": "2026-01-01",
+            },
+        )
+        review_response.review.destruction_list.assignees.all().delete()
+        DestructionListAssigneeFactory.create(
+            user=review_response.review.author,
+            destruction_list=review_response.review.destruction_list,
+            role=ListRole.reviewer,
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_review_required="Destruction list review request",
+                    body_review_required="Please review the list",
+                ),
+            ),
+        ):
+            process_review_response(review_response.pk)
+
+        review_response.refresh_from_db()
+        review_item_response.refresh_from_db()
+        zaak.refresh_from_db()
+
+        self.assertEqual(review_response.processing_status, InternalStatus.succeeded)
+        self.assertEqual(
+            review_item_response.processing_status, InternalStatus.succeeded
+        )
+        self.assertEqual(
+            review_item_response.review_item.destruction_list_item.status,
+            ListItemStatus.suggested,
+        )
+        self.assertEqual(
+            zaak.archiefactiedatum.isoformat(), "2025-01-01"
+        )  # NOT changed!!
 
 
 class ProcessDeletingZakenTests(TestCase):
