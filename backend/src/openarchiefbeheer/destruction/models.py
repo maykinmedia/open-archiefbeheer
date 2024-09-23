@@ -509,7 +509,7 @@ class ReviewItemResponse(models.Model):
     def __str__(self):
         return f"Response to {self.review_item}"
 
-    def process(self):
+    def process(self) -> None:
         if self.processing_status == InternalStatus.succeeded:
             return
 
@@ -522,7 +522,6 @@ class ReviewItemResponse(models.Model):
             destruction_list_item.status = ListItemStatus.removed
             destruction_list_item.save()
 
-        if self.action_zaak:
             destruction_list_item.zaak.update_data(self.action_zaak)
 
         self.processing_status = InternalStatus.succeeded
