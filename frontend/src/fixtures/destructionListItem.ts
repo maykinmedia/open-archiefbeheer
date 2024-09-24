@@ -19,7 +19,7 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   extraZaakData: null,
   zaak: null,
   processingStatus: "succeeded",
-  plannedDestructionDate: null,
+  plannedDestructionDate: "2026-01-01T00:00:00Z",
 };
 export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   pk: 3,
@@ -27,7 +27,7 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   extraZaakData: null,
   zaak: zaakFactory(),
   processingStatus: "failed",
-  plannedDestructionDate: null,
+  plannedDestructionDate: "2026-01-01T00:00:00Z",
 };
 
 export const destructionListItemFactory = createObjectFactory(

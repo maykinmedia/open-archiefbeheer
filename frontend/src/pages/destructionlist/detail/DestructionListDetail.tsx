@@ -195,6 +195,7 @@ export function DestructionListDetailPage() {
             <Toolbar align="end" variant="transparent">
               <Button
                 variant="danger"
+                type="submit"
                 onClick={() => setDestroyModalOpenState(true)}
                 disabled={
                   hasDestructionListItemsDateInFuture() ||
@@ -238,14 +239,11 @@ export function DestructionListDetailPage() {
   };
 
   const isPlannedForDestruction = () => {
-    if (
+    return (
       destructionList.status === "ready_to_delete" &&
-      destructionList.plannedDestructionDate &&
+      !!destructionList.plannedDestructionDate &&
       destructionList.processingStatus === "new"
-    ) {
-      return true;
-    }
-    return false;
+    );
   };
 
   /**
@@ -326,7 +324,11 @@ export function DestructionListDetailPage() {
   };
 
   const validateDestroy = ({ name }: AttributeData) => {
-    if (name === destructionList.name) {
+    // Name can be undefined at a certain point and will crash the entire page
+    if (
+      (name as string | undefined)?.toLowerCase() ===
+      destructionList.name.toLowerCase()
+    ) {
       return;
     }
     return {
@@ -442,8 +444,9 @@ export function DestructionListDetailPage() {
           >
             <Body>
               <P>
-                U staat op het punt om {destructionListItems.count} zaken
-                definitief te vernietigen.
+                U staat op het punt om {destructionListItems.count} zaken in het
+                vernietigingsproces te plaatsen. Deze zullen over 7 dagen
+                definitief worden vernietigd.
               </P>
             </Body>
             <Body>
@@ -461,35 +464,33 @@ export function DestructionListDetailPage() {
             </Body>
           </Modal>
         )}
-      {destructionList.status === "ready_to_delete" &&
-        destructionList.plannedDestructionDate &&
-        destructionList.processingStatus === "new" && (
-          <Modal
-            title="Vernietigen annuleren"
-            open={cancelDestroyModalOpenState}
-            size="m"
-            onClose={() => setCancelDestroyModalOpenState(false)}
-          >
-            <Body>
-              <P>
-                U staat op het punt om de vernietiging van{" "}
-                {destructionListItems.count} zaken te annuleren.
-              </P>
-            </Body>
-            <Body>
-              <Form
-                buttonProps={{
-                  variant: "danger",
-                }}
-                fields={cancelModalFormFields}
-                labelSubmit={`Vernietiging annuleren`}
-                validateOnChange={true}
-                role="form"
-                onSubmit={handleCancelDestroy}
-              />
-            </Body>
-          </Modal>
-        )}
+      {isPlannedForDestruction() && (
+        <Modal
+          title="Vernietiging annuleren"
+          open={cancelDestroyModalOpenState}
+          size="m"
+          onClose={() => setCancelDestroyModalOpenState(false)}
+        >
+          <Body>
+            <P>
+              U staat op het punt om de vernietiging van{" "}
+              {destructionListItems.count} zaken te annuleren.
+            </P>
+          </Body>
+          <Body>
+            <Form
+              buttonProps={{
+                variant: "danger",
+              }}
+              fields={cancelModalFormFields}
+              labelSubmit={`Vernietiging annuleren`}
+              validateOnChange={true}
+              role="form"
+              onSubmit={handleCancelDestroy}
+            />
+          </Body>
+        </Modal>
+      )}
     </CardBaseTemplate>
   );
 }
