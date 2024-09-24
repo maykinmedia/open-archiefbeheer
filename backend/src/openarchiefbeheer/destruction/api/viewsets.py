@@ -202,6 +202,7 @@ from .serializers import (
             "This endpoint can be used to abort the destruction of a list when the date to process it has been set."
             " The status of the list is then set back to 'new' and the record manager is re-assigned to it."
         ),
+        request=AbortDestructionSerializer,
         responses={200: None},
     ),
 )
