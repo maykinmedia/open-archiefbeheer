@@ -15,3 +15,4 @@ Content
     e2e-tests
     gherkin-like-tests
     vcr-tests
+    logic
