@@ -82,7 +82,7 @@ export function timeAgo(
       if (isFuture) {
         result = `over ${intervalCount}${shortFormat ? "" : " "}${label}`;
       } else {
-        result = `${intervalCount}${shortFormat ? "" : " "}${label} geleden`;
+        result = `${intervalCount}${shortFormat ? "" : " "}${label}`;
       }
       break;
     }
