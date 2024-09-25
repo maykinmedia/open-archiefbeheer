@@ -47,6 +47,14 @@ export type DestructionListProcessZaakReviewModalProps = {
   ) => void;
 };
 
+type ProcessZaakFormState = {
+  zaakUrl: string;
+  action: ProcessReviewAction | "";
+  selectielijstklasse: string;
+  archiefactiedatum: string;
+  comment: string;
+};
+
 /**
  * A modal allowing the user to process (review) feedback of a zaak.
  * @param open
@@ -67,15 +75,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   onClose,
   onSubmit,
 }) => {
-  type ProcessZaakFormState = {
-    zaakUrl: string;
-    action: ProcessReviewAction | "";
-    selectielijstklasse: string;
-    archiefactiedatum: string;
-    comment: string;
-  };
-
-  // Initial form state.
   const initialFormState: ProcessZaakFormState = {
     zaakUrl: zaak?.url || "",
     action: "",
@@ -88,13 +87,30 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const [formState, setFormState] =
     useState<ProcessZaakFormState>(initialFormState);
 
+  const getSelectielijstklasseValue = (
+    selectielijstklasseChoice: string,
+  ): string => {
+    // The first time a zaak is selected, the label of the choice is passed.
+    // When the user interacts with the dropdown, the value is passed.
+    const selectedChoice = selectieLijstKlasseChoices.find((choice) =>
+      [choice.label, choice.value].includes(selectielijstklasseChoice),
+    ) as
+      | (Option & { value: string; detail: { bewaartermijn: string } })
+      | undefined;
+
+    if (!selectedChoice) return "";
+
+    return selectedChoice.value || "";
+  };
+
   // Update the form state based on props.
   useEffect(() => {
     const newFormState: ProcessZaakFormState = {
       ...initialFormState,
       action: action || initialFormState.action,
       selectielijstklasse:
-        selectielijstklasse || initialFormState.selectielijstklasse,
+        getSelectielijstklasseValue(selectielijstklasse) ||
+        initialFormState.selectielijstklasse,
       archiefactiedatum:
         archiefactiedatum || initialFormState.archiefactiedatum,
       comment: comment || initialFormState.comment,
@@ -238,45 +254,52 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     );
   };
 
+  // The `open &&` is here to ensure that when closing an item and opening another, they don't interfere with each other.
+  // Otherwise, the radio button remains checked with the submitted value of the previous item.
   return (
-    <Modal
-      open={open}
-      size="m"
-      title={`${zaak?.identificatie} muteren`}
-      onClose={onClose}
-    >
-      <Body>
-        <Grid>
-          <Column span={3}>
-            <H3>Beoordeling</H3>
-          </Column>
+    <>
+      {open && (
+        <Modal
+          open={open}
+          size="m"
+          title={`${zaak?.identificatie} muteren`}
+          onClose={onClose}
+        >
+          <Body>
+            <Grid>
+              <Column span={3}>
+                <H3>Beoordeling</H3>
+              </Column>
 
-          <Column span={9}>
-            <P bold>Opmerkingen</P>
-            <P muted>{reviewItem?.feedback}</P>
-          </Column>
-        </Grid>
+              <Column span={9}>
+                <P bold>Opmerkingen</P>
+                <P muted>{reviewItem?.feedback}</P>
+              </Column>
+            </Grid>
 
-        <Hr />
+            <Hr />
 
-        <Grid>
-          <Column span={3}>
-            <H3>Wijzigingen</H3>
-          </Column>
+            <Grid>
+              <Column span={3}>
+                <H3>Wijzigingen</H3>
+              </Column>
 
-          <Column span={9}>
-            <Form
-              autoComplete="off"
-              noValidate
-              fields={getFields()}
-              labelSubmit={`${zaak?.identificatie} muteren`}
-              validateOnChange={true}
-              validate={validate}
-              onSubmit={handleSubmit}
-            />
-          </Column>
-        </Grid>
-      </Body>
-    </Modal>
+              <Column span={9}>
+                <Form
+                  autoComplete="off"
+                  noValidate
+                  fields={getFields()}
+                  labelSubmit={`${zaak?.identificatie} muteren`}
+                  validateOnChange={true}
+                  validate={validate}
+                  onSubmit={handleSubmit}
+                  initialValues={initialFormState}
+                />
+              </Column>
+            </Grid>
+          </Body>
+        </Modal>
+      )}
+    </>
   );
 };
