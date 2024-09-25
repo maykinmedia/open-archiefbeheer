@@ -42,7 +42,7 @@ const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
   {
     label: "1.5 - Afgebroken - vernietigen - P1Y",
     value:
-      "https://selectielijst.openzaak.nl/api/v1/resultaten/914f4198-3e73-497f-807f-1d17ee0af21f",
+      "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
   },
 ];
 
