@@ -275,7 +275,7 @@ export function DestructionListDetailPage() {
                         archiefactiedatum: detail.archiefactiedatum,
                       }
                     : undefined,
-              } as ReviewItemResponse;
+              };
             }) || [],
         },
       },

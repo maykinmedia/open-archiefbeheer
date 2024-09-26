@@ -12,7 +12,7 @@ export type ReviewResponse = {
 export type ReviewItemResponse = {
   reviewItem: ReviewItem["pk"];
   actionItem: "keep" | "remove";
-  actionZaakType: "selectielijstklasse_and_bewaartermijn" | "bewaartermijn";
+  actionZaakType?: "selectielijstklasse_and_bewaartermijn" | "bewaartermijn";
   actionZaak?: ActionZaak;
   comment: string;
   pk?: number;
