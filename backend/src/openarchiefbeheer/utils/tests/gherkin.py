@@ -459,3 +459,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             labels = dropdown[0].rstrip("\n").split("\n")
 
             self.testcase.assertEqual(labels, expected_filters)
+
+        async def this_number_of_zaken_should_be_visible(self, page, number):
+            locator = page.get_by_role("grid")
+            rows = await locator.locator("tbody").locator("tr").all()
+
+            self.testcase.assertEqual(len(rows), number)
