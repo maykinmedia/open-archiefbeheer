@@ -33,6 +33,13 @@ class DestructionListItemAction(models.TextChoices):
     remove = "remove", _("remove")
 
 
+class ZaakActionType(models.TextChoices):
+    selectielijstklasse_and_bewaartermijn = "selectielijstklasse_and_bewaartermijn", _(
+        "selectielijstklasse and bewaartermijn"
+    )
+    bewaartermijn = "bewaartermijn", _("bewaartermijn")
+
+
 class InternalStatus(models.TextChoices):
     new = "new", _("new")
     queued = "queued", _("queued")

@@ -12,15 +12,16 @@ export type ReviewResponse = {
 export type ReviewItemResponse = {
   reviewItem: ReviewItem["pk"];
   actionItem: "keep" | "remove";
-  actionZaak: ActionZaak;
+  actionZaakType?: "selectielijstklasse_and_bewaartermijn" | "bewaartermijn";
+  actionZaak?: ActionZaak;
   comment: string;
   pk?: number;
   created?: string;
 };
 
 export type ActionZaak = {
-  selectielijstklasse: string;
-  archiefactiedatum: string;
+  selectielijstklasse?: string;
+  archiefactiedatum?: string;
 };
 
 /**

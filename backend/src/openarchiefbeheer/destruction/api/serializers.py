@@ -18,11 +18,13 @@ from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 
 from ..constants import (
+    DestructionListItemAction,
     InternalStatus,
     ListItemStatus,
     ListRole,
     ListStatus,
     ReviewDecisionChoices,
+    ZaakActionType,
 )
 from ..models import (
     DestructionList,
@@ -502,10 +504,52 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
             "pk",
             "review_item",
             "action_item",
+            "action_zaak_type",
             "action_zaak",
             "created",
             "comment",
         )
+
+    def validate(self, attrs: dict) -> dict:
+        action_zaak = attrs.get("action_zaak", {})
+        if attrs["action_item"] == DestructionListItemAction.keep and action_zaak:
+            raise ValidationError(
+                {
+                    "action_zaak": _(
+                        "The case cannot be changed if it is kept in the destruction list."
+                    )
+                }
+            )
+
+        zaak_action_type = attrs.get("action_zaak_type")
+        selectielijstklasse = action_zaak.get("selectielijstklasse")
+        if (
+            attrs["action_item"] == DestructionListItemAction.remove
+            and zaak_action_type == ZaakActionType.bewaartermijn
+            and selectielijstklasse
+        ):
+            raise ValidationError(
+                {
+                    "action_zaak_type": _(
+                        "The selectielijstklasse cannot be changed if the case action type is 'bewaartermijn'."
+                    )
+                }
+            )
+
+        if (
+            attrs["action_item"] == DestructionListItemAction.remove
+            and zaak_action_type == ZaakActionType.selectielijstklasse_and_bewaartermijn
+            and not selectielijstklasse
+        ):
+            raise ValidationError(
+                {
+                    "selectielijstklasse": _(
+                        "The selectielijstklasse is required for action type is 'selectielijstklasse_and_bewaartermijn'."
+                    )
+                }
+            )
+
+        return attrs
 
 
 class ReviewResponseSerializer(serializers.ModelSerializer):

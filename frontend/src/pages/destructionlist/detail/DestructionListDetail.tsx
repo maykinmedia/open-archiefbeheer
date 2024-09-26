@@ -258,11 +258,23 @@ export function DestructionListDetailPage() {
               return {
                 reviewItem: ri.pk,
                 actionItem: detail.action === "keep" ? "keep" : "remove",
-                actionZaak: {
-                  selectielijstklasse: detail.selectielijstklasse,
-                  archiefactiedatum: detail.archiefactiedatum,
-                },
                 comment: detail.comment,
+                actionZaakType:
+                  detail.action === "keep"
+                    ? undefined
+                    : detail.action === "change_selectielijstklasse"
+                      ? "selectielijstklasse_and_bewaartermijn"
+                      : "bewaartermijn",
+                actionZaak:
+                  detail.action !== "keep"
+                    ? {
+                        selectielijstklasse:
+                          detail.action === "change_selectielijstklasse"
+                            ? detail.selectielijstklasse
+                            : undefined,
+                        archiefactiedatum: detail.archiefactiedatum,
+                      }
+                    : undefined,
               };
             }) || [],
         },

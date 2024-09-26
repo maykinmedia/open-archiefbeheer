@@ -24,6 +24,7 @@ from .constants import (
     ListRole,
     ListStatus,
     ReviewDecisionChoices,
+    ZaakActionType,
 )
 from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
 
@@ -468,6 +469,13 @@ class ReviewItemResponse(models.Model):
         choices=DestructionListItemAction.choices,
         max_length=80,
     )
+    action_zaak_type = models.CharField(
+        _("action zaak type"),
+        choices=ZaakActionType.choices,
+        max_length=80,
+        help_text=_("What type of change to do on the case. "),
+        blank=True,
+    )
     action_zaak = models.JSONField(
         _("action case"),
         blank=True,
@@ -501,7 +509,7 @@ class ReviewItemResponse(models.Model):
     def __str__(self):
         return f"Response to {self.review_item}"
 
-    def process(self):
+    def process(self) -> None:
         if self.processing_status == InternalStatus.succeeded:
             return
 
@@ -514,7 +522,6 @@ class ReviewItemResponse(models.Model):
             destruction_list_item.status = ListItemStatus.removed
             destruction_list_item.save()
 
-        if self.action_zaak:
             destruction_list_item.zaak.update_data(self.action_zaak)
 
         self.processing_status = InternalStatus.succeeded
