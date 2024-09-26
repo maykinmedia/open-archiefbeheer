@@ -15,7 +15,7 @@ import {
 import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
 import {
   Review,
-  ReviewItem,
+  ReviewItemWithZaak,
   getLatestReview,
   listReviewItems,
 } from "../../../lib/api/review";
@@ -46,7 +46,7 @@ export interface DestructionListDetailContext {
   user: User;
 
   review: Review | null;
-  reviewItems: ReviewItem[] | null;
+  reviewItems: ReviewItemWithZaak[] | null;
 
   selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }
@@ -83,15 +83,21 @@ export const destructionListDetailLoader = loginRequired(
           })
         : null;
 
+      // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
+      // item.zaak can be null
+      const reviewItemsWithZaak = reviewItems
+        ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
+        : reviewItems;
+
       /**
        * Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
        * FIXME: Accept no/implement real pagination?
        */
       const getDestructionListItems =
         async (): Promise<PaginatedDestructionListItems> =>
-          reviewItems
+          reviewItemsWithZaak
             ? {
-                count: reviewItems.length,
+                count: reviewItemsWithZaak.length,
                 next: null,
                 previous: null,
                 results: [],
@@ -122,13 +128,13 @@ export const destructionListDetailLoader = loginRequired(
        * reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
        */
       const getReviewItems = () =>
-        reviewItems
+        reviewItemsWithZaak
           ? cacheMemo(
               "selectieLijstKlasseChoicesMap",
               async () =>
                 Object.fromEntries(
                   await Promise.all(
-                    reviewItems.map(async (ri) => {
+                    reviewItemsWithZaak.map(async (ri) => {
                       const choices = await listSelectielijstKlasseChoices({
                         zaak: ri.zaak.url,
                       });
@@ -137,12 +143,12 @@ export const destructionListDetailLoader = loginRequired(
                   ),
                 ),
               // @ts-expect-error - Params not used in function but in case key only.
-              reviewItems.map((ri) => ri.pk),
+              reviewItemsWithZaak.map((ri) => ri.pk),
             )
           : null;
 
       const getSelectableZaken = () =>
-        reviewItems || destructionList.status === "ready_to_delete"
+        reviewItemsWithZaak || destructionList.status === "ready_to_delete"
           ? ({
               count: 0,
               next: null,
@@ -196,7 +202,7 @@ export const destructionListDetailLoader = loginRequired(
         user,
 
         review: review,
-        reviewItems: reviewItems,
+        reviewItems: reviewItemsWithZaak,
 
         selectieLijstKlasseChoicesMap,
       };

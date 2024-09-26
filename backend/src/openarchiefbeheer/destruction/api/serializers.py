@@ -458,8 +458,9 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 class DestructionListItemReviewSerializer(serializers.ModelSerializer):
     zaak = serializers.SerializerMethodField(
         help_text=_(
-            "In the case that the zaak has already been deleted, only the URL field will be returned."
-        )
+            "In the case that the zaak has already been deleted, this field will be null."
+        ),
+        allow_null=True,
     )
 
     class Meta:

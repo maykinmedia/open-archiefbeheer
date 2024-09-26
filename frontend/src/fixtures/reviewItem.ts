@@ -1,14 +1,14 @@
-import { ReviewItem } from "../lib/api/review";
+import { ReviewItemWithZaak } from "../lib/api/review";
 import { createArrayFactory, createObjectFactory } from "./factory";
 import { zaakFactory, zakenFactory } from "./zaak";
 
-const FIXTURE_REVIEW_ITEM: ReviewItem = {
+const FIXTURE_REVIEW_ITEM: ReviewItemWithZaak = {
   pk: 1,
   zaak: zaakFactory(),
   feedback: "Deze niet",
 };
 
-const FIXTURE_REVIEW_ITEMS: ReviewItem[] = [
+const FIXTURE_REVIEW_ITEMS: ReviewItemWithZaak[] = [
   FIXTURE_REVIEW_ITEM,
   {
     pk: 2,
@@ -22,7 +22,9 @@ const FIXTURE_REVIEW_ITEMS: ReviewItem[] = [
   },
 ];
 
-const reviewItemFactory = createObjectFactory<ReviewItem>(FIXTURE_REVIEW_ITEM);
-const reviewItemsFactory = createArrayFactory<ReviewItem>(FIXTURE_REVIEW_ITEMS);
+const reviewItemFactory =
+  createObjectFactory<ReviewItemWithZaak>(FIXTURE_REVIEW_ITEM);
+const reviewItemsFactory =
+  createArrayFactory<ReviewItemWithZaak>(FIXTURE_REVIEW_ITEMS);
 
 export { reviewItemFactory, reviewItemsFactory };

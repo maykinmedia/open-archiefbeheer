@@ -8,7 +8,7 @@ import {
 } from "../../../lib/api/destructionLists";
 import {
   Review,
-  ReviewItem,
+  ReviewItemWithZaak,
   getLatestReview,
   listReviewItems,
 } from "../../../lib/api/review";
@@ -37,7 +37,7 @@ export type DestructionListReviewContext = {
 
   paginatedZaken: PaginatedZaken;
   review: Review;
-  reviewItems?: ReviewItem[];
+  reviewItems?: ReviewItemWithZaak[];
   reviewResponse?: ReviewResponse;
   reviewers: User[];
 
@@ -94,8 +94,15 @@ export const destructionListReviewLoader = loginRequired(
         storageKey,
       );
 
-      const zakenOnPage = reviewItems?.length
-        ? reviewItems.map((ri) => ri.zaak.url as string)
+      // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
+      // item.zaak can be null
+      // TODO refactor: This code is the same as for the DestructionListDetail loader.
+      const reviewItemsWithZaak = reviewItems
+        ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
+        : reviewItems;
+
+      const zakenOnPage = reviewItemsWithZaak?.length
+        ? reviewItemsWithZaak.map((ri) => ri.zaak.url as string)
         : zaken.results.map((z) => z.url as string);
 
       const approvedZaakUrlsOnPagePromise = await Promise.all(
@@ -123,7 +130,7 @@ export const destructionListReviewLoader = loginRequired(
 
         paginatedZaken: zaken,
         review: latestReview,
-        reviewItems,
+        reviewItems: reviewItemsWithZaak,
         reviewResponse,
         reviewers,
 
