@@ -126,7 +126,12 @@ class DestructionList(models.Model):
 
     def add_items(self, zaken: Iterable["Zaak"]) -> list["DestructionListItem"]:
         return DestructionListItem.objects.bulk_create(
-            [DestructionListItem(destruction_list=self, zaak=zaak) for zaak in zaken]
+            [
+                DestructionListItem(
+                    destruction_list=self, zaak=zaak, _zaak_url=zaak.url
+                )
+                for zaak in zaken
+            ]
         )
 
     def get_author(self) -> "DestructionListAssignee":

@@ -114,6 +114,12 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             items[1].zaak.url, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
         )
+        self.assertEqual(
+            items[0]._zaak_url, "http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+        )
+        self.assertEqual(
+            items[1]._zaak_url, "http://localhost:8003/zaken/api/v1/zaken/222-222-222"
+        )
 
         self.assertEqual(destruction_list.author, record_manager)
 
