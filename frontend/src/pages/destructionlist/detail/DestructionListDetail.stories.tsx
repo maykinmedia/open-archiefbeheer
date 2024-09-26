@@ -6,6 +6,7 @@ import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
   assertColumnSelection,
   clickButton,
+  clickElement,
   fillButtonConfirmationForm,
   fillCheckboxConfirmationForm,
   fillForm,
@@ -20,6 +21,7 @@ import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
 import { reviewItemsFactory } from "../../../fixtures/reviewItem";
 import {
+  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
   selectieLijstKlasseFactory,
 } from "../../../fixtures/selectieLijstKlasseChoices";
@@ -68,6 +70,12 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         method: "POST",
         status: 200,
         response: [],
+      },
+      {
+        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+        method: "GET",
+        status: 200,
+        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
       },
     ],
   },
@@ -190,7 +198,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 };
 
-export const ProcessReview: Story = {
+export const UpdateReviewer: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
@@ -207,7 +215,25 @@ export const ProcessReview: Story = {
   },
   play: async (context) => {
     await assertReassignDestructionList(context);
+  },
+};
 
+export const ProcessReview: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        action: async () => true,
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
+          );
+
+          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
+        },
+      },
+    },
+  },
+  play: async (context) => {
     await fillCheckboxConfirmationForm({
       ...context,
       parameters: {
@@ -275,6 +301,55 @@ export const ProcessReview: Story = {
 
     // Clean up.
     await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
+  },
+};
+
+export const CheckSelectielijstklasseSelection: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        action: async () => true,
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
+          );
+
+          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
+        },
+      },
+    },
+  },
+  play: async (context) => {
+    await clickElement({
+      ...context,
+      parameters: {
+        elementIndex: 0,
+        role: "checkbox",
+        checked: true,
+      },
+    });
+
+    const canvas = within(context.canvasElement);
+
+    const modal = await canvas.findByRole("dialog");
+    const option = await within(modal).findByLabelText(
+      "Aanpassen van selectielijstklasse",
+    );
+
+    await userEvent.click(option, { delay: 10 });
+
+    const dropdownSelectielijstklasse = await canvas.findByRole("combobox", {
+      name: "Selectielijstklasse",
+    });
+
+    // The dropdown shows the selectielijst klasse
+    await waitFor(async () =>
+      expect(dropdownSelectielijstklasse.childNodes[0].textContent).toEqual(
+        "1.5 - Afgebroken - vernietigen - P1Y",
+      ),
+    );
+
+    await userEvent.keyboard("{Escape}");
   },
 };
 

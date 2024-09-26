@@ -157,13 +157,9 @@ export function DestructionListProcessReview() {
           <AttributeTable
             object={{
               Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
-              Selectielijst: Object.values(selectieLijstKlasseChoicesMap || {})
-                .flatMap((v) => v)
-                .find(
-                  (o) =>
-                    o.value ===
-                    processZaakReviewSelectionDetailState.selectielijstklasse,
-                )?.label,
+              Selectielijst:
+                processZaakReviewSelectionDetailState?.selectielijstklasse ||
+                "",
               Reden: processZaakReviewSelectionDetailState.comment,
             }}
             valign="start"
