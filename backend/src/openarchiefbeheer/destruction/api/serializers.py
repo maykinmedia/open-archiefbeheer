@@ -5,6 +5,7 @@ from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
+from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
@@ -16,6 +17,7 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
 
 from ..constants import (
     DestructionListItemAction,
@@ -497,6 +499,11 @@ class ActionZaakSerializer(serializers.Serializer):
 
 
 class ReviewItemResponseSerializer(serializers.ModelSerializer):
+    review_item = serializers.PrimaryKeyRelatedField(
+        queryset=DestructionListItemReview.objects.all().select_related(
+            "destruction_list_item__zaak"
+        ),
+    )
     action_zaak = ActionZaakSerializer(required=False)
 
     class Meta:
@@ -511,8 +518,79 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
             "comment",
         )
 
+    def _get_selectielijst_resultaat(self, resultaat_url: str) -> dict:
+        try:
+            resultaat = retrieve_selectielijstklasse_resultaat(resultaat_url)
+        except HTTPError:
+            raise ValidationError(
+                _(
+                    "Could not validate the selectielijstklasse waardering "
+                    "due to an unexpected response from the Selectielijst API."
+                )
+            )
+
+        return resultaat
+
+    def _validate_action_zaak_with_type(
+        self,
+        action_zaak: dict,
+        action_zaak_type: str,
+        review_item: DestructionListItemReview,
+    ) -> None:
+        # TODO this could be refactored using a polymorphic serializer
+        selectielijstklasse = action_zaak.get("selectielijstklasse")
+        archiefactiedatum = action_zaak.get("archiefactiedatum")
+
+        match action_zaak_type:
+            case ZaakActionType.selectielijstklasse_and_bewaartermijn:
+                if not selectielijstklasse:
+                    raise ValidationError(
+                        {
+                            "selectielijstklasse": _(
+                                "The selectielijstklasse is required for action type "
+                                "is 'selectielijstklasse_and_bewaartermijn'."
+                            )
+                        }
+                    )
+
+                resultaat = self._get_selectielijst_resultaat(selectielijstklasse)
+                if resultaat["waardering"] == "blijvend_bewaren" and archiefactiedatum:
+                    raise ValidationError(
+                        {
+                            "selectielijstklasse": _(
+                                "The selectielijstklasse has waardering 'blijvend_bewaren', "
+                                "so the archiefactiedatum should be null."
+                            )
+                        }
+                    )
+
+            case ZaakActionType.bewaartermijn:
+                if selectielijstklasse:
+                    raise ValidationError(
+                        {
+                            "action_zaak_type": _(
+                                "The selectielijstklasse cannot be changed if the case action type is 'bewaartermijn'."
+                            )
+                        }
+                    )
+
+                resultaat = self._get_selectielijst_resultaat(
+                    review_item.destruction_list_item.zaak.selectielijstklasse
+                )
+                if resultaat["waardering"] == "blijvend_bewaren":
+                    raise ValidationError(
+                        {
+                            "archiefactiedatum": _(
+                                "The selectielijstklasse has waardering 'blijvend_bewaren', "
+                                "so an archiefactiedatum cannot be set."
+                            )
+                        }
+                    )
+
     def validate(self, attrs: dict) -> dict:
         action_zaak = attrs.get("action_zaak", {})
+        action_zaak_type = attrs.get("action_zaak_type", {})
+
         if attrs["action_item"] == DestructionListItemAction.keep and action_zaak:
             raise ValidationError(
                 {
@@ -522,32 +600,17 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
                 }
             )
 
-        zaak_action_type = attrs.get("action_zaak_type")
-        selectielijstklasse = action_zaak.get("selectielijstklasse")
-        if (
-            attrs["action_item"] == DestructionListItemAction.remove
-            and zaak_action_type == ZaakActionType.bewaartermijn
-            and selectielijstklasse
-        ):
-            raise ValidationError(
-                {
-                    "action_zaak_type": _(
-                        "The selectielijstklasse cannot be changed if the case action type is 'bewaartermijn'."
+        if attrs["action_item"] == DestructionListItemAction.remove:
+            if not action_zaak_type or not action_zaak:
+                raise ValidationError(
+                    _(
+                        "When removing an item from a destruction list, "
+                        "the fields action_zaak_type and action_zaak are required."
                     )
-                }
-            )
+                )
 
-        if (
-            attrs["action_item"] == DestructionListItemAction.remove
-            and zaak_action_type == ZaakActionType.selectielijstklasse_and_bewaartermijn
-            and not selectielijstklasse
-        ):
-            raise ValidationError(
-                {
-                    "selectielijstklasse": _(
-                        "The selectielijstklasse is required for action type is 'selectielijstklasse_and_bewaartermijn'."
-                    )
-                }
+            self._validate_action_zaak_with_type(
+                action_zaak, action_zaak_type, attrs["review_item"]
             )
 
         return attrs

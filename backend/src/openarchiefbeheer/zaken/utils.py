@@ -20,6 +20,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.config.exceptions import ServiceNotConfigured
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
@@ -146,6 +147,21 @@ def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> l
         ]
 
     return results
+
+
+@lru_cache
+def retrieve_selectielijstklasse_resultaat(resultaat_url: str) -> dict:
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
+    if not selectielijst_service:
+        raise ServiceNotConfigured(msg="No selectielijst API service configured.")
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get(resultaat_url)
+        response.raise_for_status()
+
+    return response.json()
 
 
 def delete_object_and_store_result(
