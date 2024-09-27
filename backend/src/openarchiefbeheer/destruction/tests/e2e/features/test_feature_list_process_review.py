@@ -1,4 +1,6 @@
 # fmt: off
+from unittest.mock import patch
+
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -24,6 +26,13 @@ from ...factories import (
 @tag("e2e")
 class FeatureProcessReviewTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_process_review(self):
+        patcher = patch(
+            "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat", 
+            return_value={"waardering": "vernietigen"}
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
         async with browser_page() as page:
             await self.given.selectielijstklasse_choices_are_available(page)
             record_manager = await self.given.record_manager_exists()
