@@ -63,6 +63,14 @@ export function canUpdateDestructionList(
     return false;
   }
 
+  if (
+    destructionList.status === "ready_to_delete" &&
+    destructionList.plannedDestructionDate &&
+    destructionList.processingStatus === "new"
+  ) {
+    return false;
+  }
+
   if (!STATUSES_ELIGIBLE_FOR_EDIT.includes(destructionList.status)) {
     return false;
   }

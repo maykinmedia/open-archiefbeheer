@@ -489,7 +489,10 @@ export const DeleteDestructionList: Story = {
         delay: 10,
       },
     );
-    await waitFor(async () => await expect(submit).not.toBeDisabled());
+    await waitFor(async () => {
+      const isDisabled = submit.getAttribute("disabled");
+      expect(isDisabled).toBe("");
+    });
   },
 };
 
@@ -523,5 +526,63 @@ export const DeleteFailedDestructionList: Story = {
         loader: async () => FIXTURE_FAILED_DELETE,
       },
     },
+  },
+};
+
+const FIXTURE_CANCEL_PLANNED_DESTRUCTION: DestructionListDetailContext = {
+  storageKey: "storybook-storage-key",
+
+  destructionList: destructionListFactory({
+    status: "ready_to_delete",
+    processingStatus: "new",
+    plannedDestructionDate: "2026-01-01T00:00:00Z",
+  }),
+  destructionListItems: paginatedDestructionListItemsFactory(),
+  logItems: auditLogFactory(),
+
+  zaakSelection: {},
+  selectableZaken: paginatedZakenFactory(),
+
+  archivists: usersFactory(),
+  reviewers: usersFactory(),
+  user: usersFactory()[0],
+
+  review: null,
+  reviewItems: null,
+
+  selectieLijstKlasseChoicesMap: null,
+};
+
+export const CancelPlannedDestruction: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE_CANCEL_PLANNED_DESTRUCTION,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const vernietigingStarten = await canvas.findByText<HTMLButtonElement>(
+      "Vernietigen starten",
+    );
+    expect(vernietigingStarten).toBeDisabled();
+    await clickButton({
+      ...context,
+      parameters: {
+        ...context.parameters,
+        name: "Vernietigen annuleren",
+      },
+    });
+    await userEvent.click(document.activeElement as HTMLInputElement, {
+      delay: 10,
+    });
+    userEvent.type(document.activeElement as HTMLInputElement, "Test Comment", {
+      delay: 10,
+    });
+    const submit = await canvas.findByText<HTMLButtonElement>(
+      "Vernietigen annuleren",
+    );
+    expect(submit).not.toBeDisabled();
   },
 };

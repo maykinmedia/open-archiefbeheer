@@ -9,6 +9,7 @@ export type DestructionListItem = {
   extraZaakData?: Record<string, unknown> | null;
   zaak: Zaak | null;
   processingStatus: ProcessingStatus;
+  plannedDestructionDate: string | null;
 };
 
 export interface ZaakItem extends Zaak {

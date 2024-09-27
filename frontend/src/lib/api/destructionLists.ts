@@ -12,6 +12,7 @@ export type DestructionList = {
   assignees: DestructionListAssignee[];
   author: User;
   containsSensitiveInfo: boolean;
+  plannedDestructionDate: string | null;
   created: string;
   name: string;
   status: DestructionListStatus;
@@ -219,4 +220,20 @@ export async function reassignDestructionList(
   data: DestructionListReassignData,
 ) {
   return request("POST", `/destruction-lists/${uuid}/reassign/`, {}, data);
+}
+
+/**
+ * Abort the destruction of a destruction list.
+ * @param uuid
+ */
+export async function abortPlannedDestruction(
+  uuid: string,
+  data: { comment: string },
+) {
+  return request(
+    "POST",
+    `/destruction-lists/${uuid}/abort_destruction/`,
+    {},
+    data,
+  );
 }

@@ -33,6 +33,7 @@ export type LandingKanbanEntry = {
   key: string;
   onClick: () => void;
   disabled: boolean;
+  plannedDestructionDate: string | null;
   processingStatus: ProcessingStatus;
   title: string;
   timeAgo: string;
@@ -180,6 +181,7 @@ export const Landing = () => {
         onClick: () => navigate(href),
         disabled: !href,
         processingStatus: list.processingStatus,
+        plannedDestructionDate: list.plannedDestructionDate,
         title: list.name,
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
@@ -248,7 +250,10 @@ export const Landing = () => {
         renderPreview: (object: AttributeData) => {
           const entry = object as LandingKanbanEntry;
 
-          if (entry.processingStatus === "new") {
+          if (
+            entry.processingStatus === "new" &&
+            !entry.plannedDestructionDate
+          ) {
             return (
               <Badge aria-label="opgesteld">
                 <Outline.DocumentPlusIcon />
@@ -257,7 +262,10 @@ export const Landing = () => {
             );
           }
           return (
-            <ProcessingStatusBadge processingStatus={entry.processingStatus} />
+            <ProcessingStatusBadge
+              processingStatus={entry.processingStatus}
+              plannedDestructionDate={entry.plannedDestructionDate}
+            />
           );
         },
       }}
