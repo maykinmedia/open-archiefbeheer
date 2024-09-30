@@ -50,7 +50,7 @@ export async function getLatestReviewResponse(
     | {
         review?: Review["pk"];
       },
-) {
+): Promise<ReviewResponse | undefined> {
   const reviews = await listReviewResponses({
     ...params,
   });

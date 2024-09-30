@@ -5,7 +5,7 @@ import { listArchivists } from "../../../lib/api/archivist";
 import { AuditLogItem, listAuditLog } from "../../../lib/api/auditLog";
 import { User, whoAmI } from "../../../lib/api/auth";
 import {
-  DestructionList,
+  DestructionListRead,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
@@ -19,6 +19,10 @@ import {
   getLatestReview,
   listReviewItems,
 } from "../../../lib/api/review";
+import {
+  ReviewResponse,
+  getLatestReviewResponse,
+} from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
@@ -34,7 +38,7 @@ import {
 export interface DestructionListDetailContext {
   storageKey: string;
 
-  destructionList: DestructionList;
+  destructionList: DestructionListRead;
   destructionListItems: PaginatedDestructionListItems;
   logItems: AuditLogItem[];
 
@@ -47,6 +51,7 @@ export interface DestructionListDetailContext {
 
   review: Review | null;
   reviewItems: ReviewItemWithZaak[] | null;
+  reviewResponse?: ReviewResponse;
 
   selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }
@@ -162,6 +167,7 @@ export const destructionListDetailLoader = loginRequired(
 
       const [
         destructionListItems,
+        reviewResponse,
         logItems,
         zaakSelection,
         allZaken,
@@ -171,6 +177,10 @@ export const destructionListDetailLoader = loginRequired(
         selectieLijstKlasseChoicesMap,
       ] = await Promise.all([
         getDestructionListItems(),
+        review &&
+          getLatestReviewResponse({
+            review: review.pk,
+          }),
         listAuditLog(destructionList.uuid),
         getZaakSelection(storageKey),
         getSelectableZaken(),
@@ -203,6 +213,7 @@ export const destructionListDetailLoader = loginRequired(
 
         review: review,
         reviewItems: reviewItemsWithZaak,
+        reviewResponse,
 
         selectieLijstKlasseChoicesMap,
       };
