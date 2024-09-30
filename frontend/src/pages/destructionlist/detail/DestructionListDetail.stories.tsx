@@ -571,10 +571,6 @@ export const CancelPlannedDestruction: Story = {
   },
   play: async (context) => {
     const canvas = within(context.canvasElement);
-    const vernietigingStarten = await canvas.findByText<HTMLButtonElement>(
-      "Vernietigen starten",
-    );
-    expect(vernietigingStarten).toBeDisabled();
     await clickButton({
       ...context,
       parameters: {
@@ -582,15 +578,9 @@ export const CancelPlannedDestruction: Story = {
         name: "Vernietigen annuleren",
       },
     });
-    await userEvent.click(document.activeElement as HTMLInputElement, {
+    const input = await canvas.findByLabelText("Opmerking");
+    userEvent.type(input, "Test Comment", {
       delay: 10,
     });
-    userEvent.type(document.activeElement as HTMLInputElement, "Test Comment", {
-      delay: 10,
-    });
-    const submit = await canvas.findByText<HTMLButtonElement>(
-      "Vernietigen annuleren",
-    );
-    expect(submit).not.toBeDisabled();
   },
 };

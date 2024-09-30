@@ -178,9 +178,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
 
   /**
    * Returns whether `destructionList` is bound to be destroyed in the near future.
-   * @param destructionList
    */
-  const isPlannedForDestruction = (destructionList: DestructionList) => {
+  const isPlannedForDestruction = () => {
     return (
       destructionList.status === "ready_to_delete" &&
       !!destructionList.plannedDestructionDate &&
@@ -288,63 +287,65 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     }
 
     if (canTriggerDestruction(user, destructionList)) {
-      return [
-        destructionList.processingStatus === "new" ? (
-          <></>
-        ) : (
-          <ProcessingStatusBadge
-            key={destructionList.pk}
-            processingStatus={destructionList.processingStatus}
-          />
-        ),
-        "spacer",
-        ["new", "failed"].includes(destructionList.processingStatus) ? (
-          {
-            bold: true,
-            children: (
-              <>
-                <Solid.TrashIcon />
-                {destructionList.processingStatus === "new"
-                  ? "Vernietigen starten"
-                  : "Vernietigen herstarten"}
-              </>
-            ),
-            variant: "danger",
-            pad: "h",
-            onClick: () =>
-              formDialog(
-                "Zaken definitief vernietigen",
-                `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
-                [
-                  {
-                    label: "Type naam van de lijst ter bevestiging",
-                    name: "name",
-                    placeholder: "Naam van de vernietigingslijst",
-                    required: true,
-                  },
-                ],
-                `${destructionListItems.count} zaken vernietigen`,
-                "Annuleren",
-                handleDestroy,
-                undefined,
-                undefined,
-                {
-                  buttonProps: {
-                    variant: "danger",
-                  },
-                  validate: validateDestroy,
-                  validateOnChange: true,
-                  role: "form",
-                },
+      if (!isPlannedForDestruction()) {
+        return [
+          destructionList.processingStatus === "new" ? (
+            <></>
+          ) : (
+            <ProcessingStatusBadge
+              key={destructionList.pk}
+              processingStatus={destructionList.processingStatus}
+            />
+          ),
+          "spacer",
+          ["new", "failed"].includes(destructionList.processingStatus) ? (
+            {
+              bold: true,
+              children: (
+                <>
+                  <Solid.TrashIcon />
+                  {destructionList.processingStatus === "new"
+                    ? "Vernietigen starten"
+                    : "Vernietigen herstarten"}
+                </>
               ),
-          }
-        ) : (
-          <></>
-        ),
-      ];
+              variant: "danger",
+              pad: "h",
+              onClick: () =>
+                formDialog(
+                  "Zaken definitief vernietigen",
+                  `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
+                  [
+                    {
+                      label: "Type naam van de lijst ter bevestiging",
+                      name: "name",
+                      placeholder: "Naam van de vernietigingslijst",
+                      required: true,
+                    },
+                  ],
+                  `${destructionListItems.count} zaken vernietigen`,
+                  "Annuleren",
+                  handleDestroy,
+                  undefined,
+                  undefined,
+                  {
+                    buttonProps: {
+                      variant: "danger",
+                    },
+                    validate: validateDestroy,
+                    validateOnChange: true,
+                    role: "form",
+                  },
+                ),
+            }
+          ) : (
+            <></>
+          ),
+        ];
+      }
     }
 
-    if (isPlannedForDestruction(destructionList)) {
+    if (isPlannedForDestruction()) {
       return [
         {
           bold: true,
