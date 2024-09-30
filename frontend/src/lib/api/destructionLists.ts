@@ -109,7 +109,7 @@ export async function createDestructionList(
  */
 export async function getDestructionList(uuid: string) {
   const response = await request("GET", `/destruction-lists/${uuid}/`);
-  const promise: Promise<DestructionList> = response.json();
+  const promise: Promise<DestructionListRead> = response.json();
   return promise;
 }
 

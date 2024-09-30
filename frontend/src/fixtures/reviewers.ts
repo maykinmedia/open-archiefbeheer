@@ -1,9 +1,10 @@
+import { DestructionListAssigneeRead } from "../lib/api/destructionLists";
 import { beoordelaarFactory, recordManagerFactory } from "./user";
 
-const defaultAssignees = [
+const defaultAssignees: DestructionListAssigneeRead[] = [
   {
     user: recordManagerFactory(),
-    role: "record_manager",
+    role: "author",
   },
   {
     user: beoordelaarFactory(),

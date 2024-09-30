@@ -48,7 +48,6 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     archivists,
     review,
     reviewItems,
-    zaakSelection, // FIXME Remove the use of full selection.
   } = useLoaderData() as DestructionListDetailContext;
 
   const confirm = useConfirm();
