@@ -12,13 +12,17 @@ import {
 import { useLoaderData } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../../../components";
+import { AuditLogItem } from "../../../../../lib/api/auditLog";
+import { User } from "../../../../../lib/api/auth";
+import { DestructionListRead } from "../../../../../lib/api/destructionLists";
+import { Review } from "../../../../../lib/api/review";
+import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
 import { formatDate } from "../../../../../lib/format/date";
 import { formatUser } from "../../../../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
 } from "../../../../constants";
-import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../index";
 
@@ -32,7 +36,13 @@ export type DestructionListToolbarProps = {
  */
 export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
   const { destructionList, logItems, review, reviewers, reviewResponse } =
-    useLoaderData() as DestructionListDetailContext;
+    useLoaderData() as {
+      destructionList: DestructionListRead;
+      logItems: AuditLogItem[];
+      review: Review;
+      reviewers: User[];
+      reviewResponse: ReviewResponse;
+    };
 
   const properties = (
     <Grid>
