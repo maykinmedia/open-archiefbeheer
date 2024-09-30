@@ -14,13 +14,18 @@ import { useSecondaryNavigation } from "./hooks/useSecondaryNavigation";
 export function DestructionListDetailPage() {
   const { destructionList } = useLoaderData() as DestructionListDetailContext;
   const isInReview = destructionList.status === "changes_requested";
-
   const secondaryNavigationItems = useSecondaryNavigation();
 
+  // TODO: SEPARATE ROUTE?
+  if (!isInReview) {
+    return <DestructionListEdit />;
+  }
+
+  // FIXME: MIGRATE TO NEW APPROACH (NEW URL?)
   return (
     <CardBaseTemplate secondaryNavigationItems={secondaryNavigationItems}>
       <DestructionListToolbar />
-      {isInReview ? <DestructionListProcessReview /> : <DestructionListEdit />}
+      <DestructionListProcessReview />
     </CardBaseTemplate>
   );
 }

@@ -52,6 +52,7 @@ export function useZaakSelection<T = unknown>(
   selectedZakenOnPage: Zaak[],
   handleSelect: ZaakSelectionSelectHandler,
   extra: {
+    deSelectedZakenOnPage: Zaak[];
     hasSelection: boolean;
     selectionSize: number;
     allPagesSelected: boolean;
@@ -63,37 +64,53 @@ export function useZaakSelection<T = unknown>(
 
   // All pages selected.
   const [allPagesSelectedState, setAllPagesSelectedState] = useState<boolean>();
-  useEffect(() => {
-    getAllZakenSelected(storageKey).then((selected) =>
-      setAllPagesSelectedState(selected),
-    );
-  });
 
   // Has selection items.
   const [hasSelectionState, setHasSelectionState] = useState<boolean>();
-  useEffect(() => {
-    getFilteredZaakSelection(storageKey).then((zs) =>
-      setHasSelectionState(Object.keys(zs).length > 0),
-    );
-  });
 
   // Selection count
   const [selectionSizeState, setSelectionSizeState] = useState<number>(0);
-  useEffect(() => {
-    getZaakSelectionSize(storageKey).then((size) => {
-      setSelectionSizeState(size);
-    });
-  });
 
   // Selected zaken (on page).
   const [zaakSelectionState, setZaakSelectionState] = useState<
     ZaakSelection<T>
   >({});
+
+  // TODO: ABORT CONTROLLERS IF MIGRATING TO REST API?
+  useEffect(() => {
+    getAllZakenSelected(storageKey).then((selected) => {
+      if (selected !== allPagesSelectedState) {
+        setAllPagesSelectedState(selected);
+      }
+    });
+
+    getFilteredZaakSelection(storageKey).then((zs) => {
+      const hasSelection = Object.keys(zs).length > 0;
+      if (hasSelection !== hasSelectionState) {
+        setHasSelectionState(hasSelection);
+      }
+    });
+
+    getZaakSelectionSize(storageKey).then((size) => {
+      if (size !== selectionSizeState) {
+        setSelectionSizeState(size);
+      }
+    });
+  }); // TODO: DEPENDENCIES?
+
   useEffect(() => {
     _updatePageSpecificZaakSelectionState();
   }, [storageKey, zaken.map((z) => z.url as string).join()]);
+
   const selectedZakenOnPage = useMemo(
     () => zaken.filter((z) => zaakSelectionState[z.url as string]?.selected),
+    [zaken, zaakSelectionState],
+  );
+  const deSelectedZakenOnPage = useMemo(
+    () =>
+      zaken.filter(
+        (z) => zaakSelectionState[z.url as string]?.selected === false, // Explicitly checking for false.
+      ),
     [zaken, zaakSelectionState],
   );
 
@@ -138,18 +155,17 @@ export function useZaakSelection<T = unknown>(
     // Get selection item for every zaak on page.
     const zaakUrls = zaken.map((z) => z.url as string);
     const promises = zaakUrls.map((url) =>
-      getZaakSelectionItem(storageKey, url),
+      getZaakSelectionItem(storageKey, url, false),
     );
 
     Promise.all(promises).then((selectionItems) => {
       const selectedItems = selectionItems
         // Reconstruct tuple with `[url, selectionItem]`.
         .map((selectionItem, i) => {
-          const url = zaakUrls[i];
+          const url: string = zaakUrls[i];
           return [url, selectionItem] as [string, typeof selectionItem];
         })
-        // Only keep selected items.
-        .filter(([, value]) => value?.selected);
+        .filter(([, value]) => typeof value?.selected === "boolean");
 
       // Create ZaakSelection from entries.
       const newState = Object.fromEntries(selectedItems) as ZaakSelection<T>;
@@ -168,7 +184,6 @@ export function useZaakSelection<T = unknown>(
   };
 
   /**
-   * @param selected
    * @private
    */
   const _updateSelectionSizeState = async () => {
@@ -256,6 +271,7 @@ export function useZaakSelection<T = unknown>(
     selectedZakenOnPage,
     onSelect,
     {
+      deSelectedZakenOnPage,
       hasSelection: Boolean(hasSelectionState || allPagesSelectedState),
       selectionSize: selectionSizeState,
       allPagesSelected: Boolean(allPagesSelectedState),

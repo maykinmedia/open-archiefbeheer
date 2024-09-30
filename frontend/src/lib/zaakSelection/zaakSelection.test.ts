@@ -1,4 +1,3 @@
-// Replace with the correct path
 import { Zaak } from "../../types";
 import {
   addToZaakSelection,
@@ -72,6 +71,23 @@ describe("Zaak Selection Functions", () => {
 
     expect(filteredSelection[mockZaak1.url as string].detail).toEqual(detail);
     expect(filteredSelection[mockZaak2]).toBeUndefined();
+  });
+
+  it("should return explicitly unselected items when calling `getFilteredZaakSelection` with `selectedOnly=false`", async () => {
+    const detail = { status: "open" };
+    await addToZaakSelection(mockKey, [mockZaak1], detail);
+    await addToZaakSelection(mockKey, [mockZaak2], { status: "closed" });
+    await removeFromZaakSelection(mockKey, [mockZaak2]);
+
+    const filteredSelection = await getFilteredZaakSelection(
+      mockKey,
+      undefined,
+      false,
+    );
+
+    expect(Object.keys(filteredSelection)).toHaveLength(2);
+    expect(filteredSelection[mockZaak1.url as string].selected).toBeTruthy();
+    expect(filteredSelection[mockZaak2].selected).toBeFalsy();
   });
 
   it("should return a single selected Zaak", async () => {

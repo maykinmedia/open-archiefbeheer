@@ -136,14 +136,18 @@ export async function getZaakSelectionSize<DetailType = unknown>(
  * Returns a single zaak in the zaak selection.
  * @param key A key identifying the selection
  * @param zaak Either a `Zaak.url` or `Zaak` object.
+ * @param selectedOnly
  */
 export async function getZaakSelectionItem<DetailType = unknown>(
   key: string,
   zaak: string | Zaak,
+  selectedOnly = true,
 ) {
   const zaakSelection = await getZaakSelection<DetailType>(key);
   const url = _getZaakUrl(zaak);
-  return zaakSelection[url]?.selected ? zaakSelection[url] : undefined;
+  return zaakSelection[url]?.selected || !selectedOnly
+    ? zaakSelection[url]
+    : undefined;
 }
 
 /**

@@ -77,6 +77,12 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         status: 200,
         response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
       },
+      {
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inDestructionList=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+      },
     ],
   },
 };

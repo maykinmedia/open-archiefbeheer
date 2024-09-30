@@ -1,114 +1,142 @@
-import { ButtonProps, DataGrid, Solid } from "@maykin-ui/admin-ui";
-import { useState } from "react";
+import { ButtonProps, Solid, TypedField } from "@maykin-ui/admin-ui";
+import React, { useMemo, useState } from "react";
 import {
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "react-router-dom";
-import { useAsync } from "react-use";
 
+import { ProcessingStatusBadge } from "../../../../../components";
 import { useSubmitAction } from "../../../../../hooks";
-import { canUpdateDestructionList } from "../../../../../lib/auth/permissions";
-import {
-  addToZaakSelection,
-  getZaakSelection,
-} from "../../../../../lib/zaakSelection/zaakSelection";
+import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
+import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
+import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
-import { useDataGridProps } from "../../../hooks";
+import { BaseListView } from "../../../abstract";
 import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
+import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 
 /**
  * Show items of a destruction list.
  * Allows viewing, adding and removing destruction list items.
  */
 export function DestructionListEdit() {
+  const {
+    destructionList,
+    destructionListItems,
+    review,
+    selectableZaken,
+    storageKey,
+  } = useLoaderData() as DestructionListDetailContext;
+
+  const [selectionClearedState, setSelectionClearedState] = useState(false);
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const submitAction = useSubmitAction();
-  const [selectionClearedState, setSelectionClearedState] = useState(false);
+  const secondaryNavigationItems = useSecondaryNavigation();
 
-  const {
-    storageKey,
-    destructionList,
-    destructionListItems,
-    user,
-    selectableZaken,
-    zaakSelection,
-    review,
-    reviewItems,
-  } = useLoaderData() as DestructionListDetailContext;
-
-  const zakenOnPage = destructionListItems.results
-    .map((dt) => dt.zaak)
-    .filter((v): v is Zaak => Boolean(v));
-
-  // Zaken on page as ZaakSelection.
-  const zakenOnPageSelection: string[] = zakenOnPage.map(
-    (z) => z.url as string,
+  // Whether the list is in edit mode.
+  const editingState = useMemo(
+    () => !review && Boolean(urlSearchParams.get("is_editing")),
+    [review, urlSearchParams],
   );
 
-  const selectedZaken = Object.entries(zaakSelection)
-    .filter(([, { selected }]) => selected)
-    .map(([url]) => url);
-
-  // Whether the user is adding/removing items from the destruction list.
-  const isEditingState = !review && Boolean(urlSearchParams.get("is_editing"));
-
-  const handleClearSelection = async () => {
-    setSelectionClearedState(true);
-  };
-
-  // Get the base props for the DataGrid component.
-  const { props: dataGridProps } = useDataGridProps(
-    storageKey,
-    reviewItems
-      ? // FIXME: Accept no/implement real pagination?
-        {
-          count: reviewItems.length,
-          next: null,
-          previous: null,
-          results: reviewItems.map((ri) => ri.zaak),
-        }
-      : isEditingState
-        ? selectableZaken
-        : destructionListItems,
-    isEditingState
-      ? !selectionClearedState
-        ? [...zakenOnPageSelection, ...selectedZaken] // Current zaken + selection.
-        : selectedZaken // Selection explicitly cleared, don't show default zaken.
-      : [],
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    handleClearSelection,
+  // The initially select items.
+  const initiallySelectedZakenOnPage = useMemo(
+    () =>
+      selectionClearedState
+        ? []
+        : paginatedDestructionListItems2paginatedZaken(destructionListItems)
+            .results,
+    [selectionClearedState, destructionListItems],
   );
 
-  if (dataGridProps.fields && destructionList.processingStatus !== "new") {
-    dataGridProps.fields = [
-      ...dataGridProps.fields,
-      {
-        name: "processingStatus",
-        type: "string",
-        options: [
-          { label: "New", value: "new" },
-          { label: "Queued", value: "queued" },
-          { label: "Processing", value: "processing" },
-          { label: "Failed", value: "failed" },
-          { label: "Succeeded", value: "succeeded" },
-        ],
-        width: "180px",
-      },
-    ];
-  }
+  // Whether extra fields should be rendered.
+  const extraFields: TypedField[] = useMemo(
+    () =>
+      !editingState && destructionList.processingStatus !== "new"
+        ? [
+            {
+              name: "processingStatus",
+              type: "string",
+              options: [
+                { label: "New", value: "new" },
+                { label: "Queued", value: "queued" },
+                { label: "Processing", value: "processing" },
+                { label: "Failed", value: "failed" },
+                { label: "Succeeded", value: "succeeded" },
+              ],
+              width: "180px",
+              valueTransform: (data) => (
+                <ProcessingStatusBadge
+                  processingStatus={data.processingStatus as ProcessingStatus}
+                />
+              ),
+            },
+          ]
+        : [],
+    [editingState, destructionList],
+  );
+
+  // DataGrid (paginated) results based on `editingState`.
+  const paginatedZaken = useMemo<PaginatedZaken>(() => {
+    if (editingState) {
+      return selectableZaken;
+    }
+    return paginatedDestructionListItems2paginatedZaken(destructionListItems);
+  }, [destructionListItems, selectableZaken, editingState]);
+
+  // Selection actions based on `editingState`.
+  const selectionActions: ButtonProps[] = useMemo(
+    () =>
+      editingState
+        ? [
+            {
+              children: (
+                <>
+                  <Solid.PencilIcon />
+                  Vernietigingslijst aanpassen
+                </>
+              ),
+              disabled: ["loading", "submitting"].includes(state),
+              variant: "primary",
+              wrap: false,
+              onClick: () => handleUpdate(),
+            },
+            {
+              children: (
+                <>
+                  <Solid.NoSymbolIcon />
+                  Annuleren
+                </>
+              ),
+              wrap: false,
+              onClick: () => handleSetEditing(false),
+            },
+          ]
+        : [
+            {
+              children: (
+                <>
+                  <Solid.PencilIcon />
+                  Bewerken
+                </>
+              ),
+              wrap: false,
+              onClick: () => handleSetEditing(true),
+            },
+          ],
+    [editingState, state],
+  );
 
   /**
    * Gets called when the user clicks the edit button (user intents to adds/remove zaken to/from the destruction list
    * or escape such flow).
    * @param value
    */
-  const handleEditSetEditing = (value: boolean) => {
+  const handleSetEditing = (value: boolean) => {
     urlSearchParams.set("page", "1");
     urlSearchParams.set("is_editing", "true");
     setUrlSearchParams(value ? urlSearchParams : {});
@@ -119,9 +147,16 @@ export function DestructionListEdit() {
   };
 
   /**
+   * Gets called when te selection is cleared.
+   */
+  const handleClearSelection = async () => {
+    setSelectionClearedState(true);
+  };
+
+  /**
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
-  const handleEditUpdate = async () => {
+  const handleUpdate = async () => {
     const zaakSelection = await getZaakSelection(storageKey);
     const zaakUrls = Object.entries(zaakSelection)
       .filter(([, selection]) => selection.selected)
@@ -135,73 +170,33 @@ export function DestructionListEdit() {
     };
     submitAction(action);
   };
-  // Selection actions allowing the user to add/remove zaken to/from the destruction list or escape such flow.
-  const editSelectionActions: ButtonProps[] = isEditingState
-    ? [
-        {
-          children: (
-            <>
-              <Solid.DocumentCheckIcon />
-              Vernietigingslijst aanpassen
-            </>
-          ),
-          disabled: ["loading", "submitting"].includes(state),
-          onClick: handleEditUpdate,
-          variant: "primary",
-          wrap: false,
-        },
-        ...(dataGridProps.selectionActions || []),
-        {
-          children: (
-            <>
-              <Solid.NoSymbolIcon />
-              Annuleren
-            </>
-          ),
-          disabled: ["loading", "submitting"].includes(state),
-          onClick: () => handleEditSetEditing(false),
-          wrap: false,
-        },
-      ]
-    : canUpdateDestructionList(user, destructionList)
-      ? [
-          {
-            children: (
-              <>
-                <Solid.PencilIcon />
-                Bewerken
-              </>
-            ),
-            onClick: () => handleEditSetEditing(true),
-            wrap: false,
-          },
-        ]
-      : [];
-
-  //
-  // RENDERING
-  //
-
-  // Update the selected zaken to session storage.
-  useAsync(async () => {
-    await addToZaakSelection(storageKey, zakenOnPage);
-  }, []);
 
   return (
-    <DataGrid
-      {...dataGridProps}
-      boolProps={{ explicit: true }}
-      count={
-        isEditingState ? selectableZaken.count : destructionListItems.count
-      }
-      filterable={isEditingState}
-      loading={state === "loading"}
-      selectable={Boolean(isEditingState)}
-      allowSelectAll={!reviewItems}
-      selectionActions={editSelectionActions}
-      showPaginator={true}
-      sort={isEditingState}
-      title="Zaakdossiers"
-    />
+    <BaseListView
+      destructionList={destructionList}
+      extraFields={extraFields}
+      initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
+      paginatedZaken={paginatedZaken}
+      secondaryNavigationItems={secondaryNavigationItems}
+      selectable={editingState}
+      selectionActions={selectionActions}
+      storageKey={storageKey}
+      onClearZaakSelection={handleClearSelection}
+    ></BaseListView>
   );
+}
+
+/**
+ * Converts `PaginatedDestructionListItems` to `PaginatedZaken`.
+ */
+function paginatedDestructionListItems2paginatedZaken(
+  paginatedDestructionListItems: PaginatedDestructionListItems,
+): PaginatedZaken {
+  return {
+    ...paginatedDestructionListItems,
+    results: paginatedDestructionListItems.results
+      .map((dli) => ({ ...dli.zaak, processingStatus: dli.processingStatus }))
+      // @ts-expect-error - FIXME: Adding "processingStatus" to zaak.
+      .filter((v): v is Zaak => Boolean(v)) as Zaak[],
+  };
 }
