@@ -166,7 +166,6 @@ export const Landing = () => {
           &nbsp;
           {formatUser(currentAssignee, {
             showUsername: false,
-            showRole: false,
           })}
           {otherAssignees.length && (
             <strong className="LandingPage__assignees-count">
@@ -186,9 +185,7 @@ export const Landing = () => {
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
           <Tooltip
-            content={otherAssignees
-              .map((a) => formatUser(a.user, { showRole: true }))
-              .join(", ")}
+            content={otherAssignees.map((a) => formatUser(a.user)).join(", ")}
             placement="bottom"
           >
             <span>{footer}</span>

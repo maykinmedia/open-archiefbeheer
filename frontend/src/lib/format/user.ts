@@ -6,10 +6,7 @@ import { User } from "../api/auth";
  * @param showUsername
  * @param showRole
  */
-export function formatUser(
-  user: User,
-  { showUsername = true, showRole = false } = {},
-) {
+export function formatUser(user: User, { showUsername = true } = {}) {
   if (!user) {
     return "";
   }
