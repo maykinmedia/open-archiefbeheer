@@ -30,7 +30,7 @@ class ReviewResponseSerializerTest(VCRMixin, TestCase):
         )
 
     def test_new_selectielijst_blijvend_bewaren(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
@@ -74,7 +74,7 @@ class ReviewResponseSerializerTest(VCRMixin, TestCase):
         )
 
     def test_selectielijst_blijvend_bewaren_update_archiefactiedatum(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,

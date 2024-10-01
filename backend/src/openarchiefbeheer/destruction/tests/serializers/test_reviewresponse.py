@@ -130,7 +130,7 @@ class ReviewResponseSerializerTests(TestCase):
         )
 
     def test_update_archiefactiedatum_selectielijst_api_error(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
