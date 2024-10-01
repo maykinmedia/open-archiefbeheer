@@ -60,8 +60,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Destruction list to process")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
 
-            # TODO
-            await self.when.user_clicks_checkbox(page, "(de)selecteer rij")
+            await self.when.user_clicks_button(page, "Muteren")
 
             # Fill selectielijstklasse as it's probably missing.
             await self.when.user_clicks_radio(page, "Aanpassen van selectielijstklasse")
@@ -75,7 +74,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_fills_form_field(page, "Reden", "Andere datum")
             await self.when.user_clicks_button(page, "muteren")
             await self.when.user_clicks_button(page, "Opnieuw indienen")
-            await self.when.user_fills_form_field(page, "Opmerking", "Datum aangepast")
+            await self.when.user_fills_form_field(page, "Opmerking", "Datum aangepast", None, 1)
             await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
 

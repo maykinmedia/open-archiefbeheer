@@ -19,7 +19,6 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { ReviewItem } from "../../../../../lib/api/review";
 import { addDuration, formatDate } from "../../../../../lib/format/date";
 import { Zaak } from "../../../../../types";
-import { ProcessReviewAction } from "../DestructionListProcessReview/DestructionListProcessReview";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Aanpassen van selectielijstklasse";
@@ -46,6 +45,11 @@ export type DestructionListProcessZaakReviewModalProps = {
     comment: string,
   ) => void;
 };
+
+export type ProcessReviewAction =
+  | "change_selectielijstklasse"
+  | "change_archiefactiedatum"
+  | "keep";
 
 type ProcessZaakFormState = {
   zaakUrl: string;

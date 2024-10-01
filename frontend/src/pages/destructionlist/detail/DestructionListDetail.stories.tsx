@@ -6,9 +6,7 @@ import { ReactRouterDecorator } from "../../../../.storybook/decorators";
 import {
   assertColumnSelection,
   clickButton,
-  clickElement,
   fillButtonConfirmationForm,
-  fillCheckboxConfirmationForm,
   fillForm,
 } from "../../../../.storybook/playFunctions";
 import { auditLogFactory } from "../../../fixtures/auditLog";
@@ -25,7 +23,7 @@ import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
   selectieLijstKlasseFactory,
 } from "../../../fixtures/selectieLijstKlasseChoices";
-import { usersFactory } from "../../../fixtures/user";
+import { userFactory, usersFactory } from "../../../fixtures/user";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -82,6 +80,12 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         method: "GET",
         status: 200,
         response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+      },
+      {
+        url: "http://localhost:8000/api/v1/whoami/?",
+        method: "GET",
+        status: 200,
+        response: userFactory(),
       },
     ],
   },
@@ -240,10 +244,11 @@ export const ProcessReview: Story = {
     },
   },
   play: async (context) => {
-    await fillCheckboxConfirmationForm({
+    await fillButtonConfirmationForm({
       ...context,
       parameters: {
         elementIndex: 0,
+        name: "Muteren",
         formValues: {
           "Aanpassen van selectielijstklasse": true,
           Selectielijstklasse: selectieLijstKlasseFactory()[0].label,
@@ -252,10 +257,11 @@ export const ProcessReview: Story = {
       },
     });
 
-    await fillCheckboxConfirmationForm({
+    await fillButtonConfirmationForm({
       ...context,
       parameters: {
         elementIndex: 1,
+        name: "Muteren",
         formValues: {
           "Aanpassen van selectielijstklasse": true,
           Selectielijstklasse: selectieLijstKlasseFactory()[1].label,
@@ -264,10 +270,11 @@ export const ProcessReview: Story = {
       },
     });
 
-    await fillCheckboxConfirmationForm({
+    await fillButtonConfirmationForm({
       ...context,
       parameters: {
         elementIndex: 2,
+        name: "Muteren",
         formValues: {
           "Aanpassen van selectielijstklasse": true,
           Selectielijstklasse: selectieLijstKlasseFactory()[2].label,
@@ -328,12 +335,10 @@ export const CheckSelectielijstklasseSelection: Story = {
     },
   },
   play: async (context) => {
-    await clickElement({
+    await clickButton({
       ...context,
       parameters: {
-        elementIndex: 0,
-        role: "checkbox",
-        checked: true,
+        name: "Muteren",
       },
     });
 

@@ -35,7 +35,8 @@ export type BaseListViewProps = React.PropsWithChildren<{
   paginatedZaken: PaginatedZaken;
   secondaryNavigationItems?: ListTemplateProps["secondaryNavigationItems"];
 
-  selectable?: boolean;
+  // Visible means that no checkboxes appear, but the zaken are marked if selected (via another route).
+  selectable?: boolean | "visible";
   allowSelectAllPages?: boolean;
   selectionActions?: ButtonProps[];
   initiallySelectedZakenOnPage?: Zaak[];
@@ -164,7 +165,7 @@ export function BaseListView({
         fieldsSelectable: true,
         pageSize: 100,
         showPaginator: true,
-        selectable: selectable,
+        selectable: selectable === true,
         filterable: true,
         tableLayout: "fixed",
 

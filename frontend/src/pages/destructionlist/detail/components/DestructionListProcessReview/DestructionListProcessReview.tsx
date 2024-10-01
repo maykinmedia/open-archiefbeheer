@@ -1,77 +1,164 @@
-import {
-  AttributeData,
-  AttributeTable,
-  DataGrid,
-  Outline,
-} from "@maykin-ui/admin-ui";
-import React, { useState } from "react";
-import { useLoaderData, useNavigation, useRevalidator } from "react-router-dom";
-import { useAsync } from "react-use";
+import { ButtonProps, Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
+import React, { useMemo, useState } from "react";
+import { useLoaderData, useRevalidator } from "react-router-dom";
 
+import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
+import { PaginatedZaken } from "../../../../../lib/api/zaken";
 import {
   ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
 } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
-import { DataGridAction, useDataGridProps } from "../../../hooks";
+import { BaseListView } from "../../../abstract";
+import { useZaakReviewStatuses } from "../../../hooks";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
-import { DestructionListProcessZaakReviewModal } from "../index";
+import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
+import {
+  DestructionListProcessZaakReviewModal,
+  ProcessReviewAction,
+} from "../DestructionListProcessZaakReviewModal";
 
-/**
- * The interface for the zaken modal state
- */
-interface ZaakModalDataState {
+type ZaakModalDataState = {
   open: boolean;
   zaak?: Zaak;
-}
+};
 
-const LABEL_CHANGE_SELECTION_LIST_CLASS = "Aanpassen van selectielijstklasse";
-const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
-const LABEL_KEEP = "Afwijzen van het voorstel";
-
-interface ProcessZaakReviewSelectionDetail {
+type ProcessZaakReviewSelectionDetail = {
   comment: string;
   action: ProcessReviewAction;
   selectielijstklasse: string;
   archiefactiedatum: string;
-}
-
-export type ProcessReviewAction =
-  | "change_selectielijstklasse"
-  | "change_archiefactiedatum"
-  | "keep";
+};
 
 /**
  * Show items of a destruction list review.
  * Allows processing feedback of the destruction list.
  */
 export function DestructionListProcessReview() {
-  const { state } = useNavigation();
-
   const {
     storageKey,
+    destructionList,
     destructionListItems,
     zaakSelection,
     review,
     reviewItems = [],
     selectieLijstKlasseChoicesMap,
   } = useLoaderData() as DestructionListDetailContext;
+  const zakenOnPage = reviewItems?.map((ri) => ri.zaak) || [];
+
+  const [selectionClearedState, setSelectionClearedState] = useState(false);
   const revalidator = useRevalidator();
-  const [
-    processZaakReviewSelectionDetailState,
-    setProcessZaakReviewSelectionDetailState,
-  ] = useState<ProcessZaakReviewSelectionDetail>();
+  const secondaryNavigationItems = useSecondaryNavigation();
+  const zaakReviewStatuses = useZaakReviewStatuses(storageKey, zakenOnPage);
+
+  // State to manage the state of the zaak modal (when clicking a checkbox)
+  const [processZaakReviewModalState, setProcessZaakReviewModalState] =
+    useState<ZaakModalDataState>({
+      open: false,
+    });
+
+  // The zaak selection typed correctly for use when providing feedback on a review.
+  const processZaakReviewSelectionState =
+    zaakSelection as ZaakSelection<ProcessZaakReviewSelectionDetail>;
+
+  // The details possibly provided by the user after processing a review for a zaak.
+  const processZaakReviewDetail =
+    processZaakReviewSelectionState?.[
+      processZaakReviewModalState.zaak?.url || ""
+    ]?.detail;
+
+  // The initially select items.
+  const initiallySelectedZakenOnPage = useMemo(
+    () =>
+      selectionClearedState
+        ? []
+        : paginatedDestructionListItems2paginatedZaken(destructionListItems)
+            .results,
+    [selectionClearedState, destructionListItems],
+  );
+
+  /**
+   * Converts `PaginatedDestructionListItems` to `PaginatedZaken`.
+   */
+  function paginatedDestructionListItems2paginatedZaken(
+    paginatedDestructionListItems: PaginatedDestructionListItems,
+  ): PaginatedZaken {
+    return {
+      ...paginatedDestructionListItems,
+      results: paginatedDestructionListItems.results
+        .map((dli) => ({ ...dli.zaak, processingStatus: dli.processingStatus }))
+        // @ts-expect-error - FIXME: Adding "processingStatus" to zaak.
+        .filter((v): v is Zaak => Boolean(v)) as Zaak[],
+    };
+  }
+
+  // Whether extra fields should be rendered.
+  const extraFields: TypedField[] = [
+    { filterable: false, name: "Opmerking", type: "text" },
+    { filterable: false, name: "Acties", type: "text" },
+  ];
+
+  // The object list of the current page with review actions appended.
+  const objectList = useMemo(() => {
+    return zakenOnPage.map((z, i) => ({
+      ...z,
+      Opmerking: reviewItems?.[i]?.feedback,
+      Acties: (
+        <Toolbar
+          align="end"
+          pad={false}
+          variant="transparent"
+          items={[
+            {
+              children: (
+                <>
+                  <Outline.ChatBubbleLeftRightIcon />
+                  Muteren
+                </>
+              ),
+              pad: "h",
+              variant: "primary",
+              wrap: false,
+              onClick: () =>
+                handleProcessReviewZaakSelect(
+                  z,
+                  (z.url as string) in zaakReviewStatuses,
+                ),
+            },
+          ]}
+        />
+      ),
+    }));
+  }, [reviewItems, zaakReviewStatuses]);
+
+  // DataGrid (paginated) results.
+  const paginatedZaken = useMemo<PaginatedZaken>(() => {
+    return {
+      count: reviewItems?.length || 0,
+      next: null,
+      previous: null,
+      results: objectList,
+    };
+  }, [reviewItems, objectList]);
+
+  // Selection actions based on `editingState`.
+  const selectionActions: ButtonProps[] = useMemo(() => [], []);
+
+  /**
+   * Gets called when te selection is cleared.
+   */
+  const handleClearSelection = async () => {
+    setSelectionClearedState(true);
+  };
 
   /**
    * Get called when the user selects a zaak when a review is received.
    */
   const handleProcessReviewZaakSelect = async (
-    data: AttributeData[],
+    zaak: Zaak,
     selected: boolean,
   ) => {
-    const zaak = data[0] as unknown as Zaak;
-
     // Remove from selection.
     //
     // Remove the zaak from the selection in the background.
@@ -131,109 +218,19 @@ export function DestructionListProcessReview() {
     revalidator.revalidate();
   };
 
-  // State to manage the state of the zaak modal (when clicking a checkbox)
-  const [processZaakReviewModalState, setProcessZaakReviewModalState] =
-    useState<ZaakModalDataState>({
-      open: false,
-    });
-
-  // The zaak selection typed correctly for use when providing feedback on a review.
-  const processZaakReviewSelectionState =
-    zaakSelection as ZaakSelection<ProcessZaakReviewSelectionDetail>;
-
-  // The details possibly provided by the user after processing a review for a zaak.
-  const processZaakReviewDetail =
-    processZaakReviewSelectionState?.[
-      processZaakReviewModalState.zaak?.url || ""
-    ]?.detail;
-
-  const processZaakReviewZaakActions: DataGridAction[] = [
-    {
-      children: <Outline.ChatBubbleLeftRightIcon />,
-      title: "Muteren",
-      tooltip:
-        (processZaakReviewSelectionDetailState?.action ===
-          "change_selectielijstklasse" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_CHANGE_SELECTION_LIST_CLASS,
-              Selectielijst:
-                processZaakReviewSelectionDetailState?.selectielijstklasse ||
-                "",
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.action ===
-          "change_archiefactiedatum" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_POSTPONE_DESTRUCTION,
-              archiefactiedatum:
-                processZaakReviewSelectionDetailState.archiefactiedatum,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )) ||
-        (processZaakReviewSelectionDetailState?.action === "keep" && (
-          <AttributeTable
-            object={{
-              Actie: LABEL_KEEP,
-              Reden: processZaakReviewSelectionDetailState.comment,
-            }}
-            valign="start"
-          />
-        )),
-      onInteract: (_, detail) => {
-        setProcessZaakReviewSelectionDetailState(
-          detail as ProcessZaakReviewSelectionDetail,
-        );
-      },
-      onClick: (zaak) => {
-        handleProcessReviewZaakSelect(
-          [zaak] as unknown as AttributeData[],
-          true,
-        );
-      },
-    },
-  ];
-
-  //
-  // RENDERING
-  //
-
-  // Get the base props for the DataGrid component.
-  const { props: dataGridProps } = useDataGridProps(
-    storageKey,
-    {
-      count: reviewItems?.length || 0,
-      next: null,
-      previous: null,
-      results: reviewItems?.map((ri) => ri.zaak) || [],
-    },
-    Object.entries(zaakSelection)
-      .filter(([, { selected }]) => selected)
-      .map(([url]) => url),
-    undefined,
-    processZaakReviewZaakActions,
-    undefined,
-    review?.pk,
-  );
-
-  // Update the selected zaken to session storage.
-  useAsync(async () => {
-    await addToZaakSelection(
-      storageKey,
-      destructionListItems.results
-        .map((di) => di.zaak)
-        .filter((v): v is Zaak => Boolean(v)),
-    );
-  }, []);
-
   return (
-    <>
+    <BaseListView
+      destructionList={destructionList}
+      review={review || undefined}
+      extraFields={extraFields}
+      initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
+      paginatedZaken={paginatedZaken}
+      secondaryNavigationItems={secondaryNavigationItems}
+      selectable="visible"
+      selectionActions={selectionActions}
+      storageKey={storageKey}
+      onClearZaakSelection={handleClearSelection}
+    >
       {/* The "feedback" modal */}
       <DestructionListProcessZaakReviewModal
         zaakModalDataState={processZaakReviewModalState}
@@ -262,20 +259,6 @@ export function DestructionListProcessReview() {
         onClose={handleProcessReviewClose}
         onSubmit={handleProcessReviewSubmitZaak}
       />
-
-      {/* DataGrid */}
-      <DataGrid
-        {...dataGridProps}
-        boolProps={{ explicit: true }}
-        count={destructionListItems.count}
-        loading={state === "loading"}
-        selectable={true}
-        allowSelectAll={!reviewItems}
-        selectionActions={[...(dataGridProps?.selectionActions || [])]}
-        showPaginator={false}
-        title="Zaakdossiers"
-        onSelect={handleProcessReviewZaakSelect}
-      />
-    </>
+    </BaseListView>
   );
 }

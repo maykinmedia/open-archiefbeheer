@@ -344,25 +344,31 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await element.wait_for()
             await element.click()
 
-        async def user_fills_form_field(self, page, label, value, role=None):
-            select = await page.query_selector(f'.mykn-select[title="{label}"]')
-            if select:  # has content so select?
-                await select.click()
-                options = await select.query_selector_all(".mykn-option")
+        async def user_fills_form_field(self, page, label, value, role=None, index=0):
+            selects = await page.query_selector_all(f'.mykn-select[title="{label}"]')
+            try:
+                select = selects[index]
 
-                for option in options:
-                    text_content = await option.text_content()
-                    if text_content == value:
-                        return await option.click()
+                if select:  # has content so select?
+                    await select.click()
+                    options = await select.query_selector_all(".mykn-option")
 
-                return
+                    for option in options:
+                        text_content = await option.text_content()
+                        if text_content == value:
+                            return await option.click()
+
+                    return
+            except IndexError:
+                pass
 
             if role:
                 locator = page.get_by_label(label).and_(page.get_by_role("textbox"))
             else:
                 locator = page.get_by_label(label)
 
-            await locator.fill(value)
+            elements = await locator.all()
+            await elements[index].fill(value)
 
         async def user_filters_zaken(self, page, name, value):
             locator = page.get_by_role("textbox", name=name)
