@@ -23,13 +23,8 @@ import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
  * Allows viewing, adding and removing destruction list items.
  */
 export function DestructionListEdit() {
-  const {
-    destructionList,
-    destructionListItems,
-    review,
-    selectableZaken,
-    storageKey,
-  } = useLoaderData() as DestructionListDetailContext;
+  const { destructionList, destructionListItems, selectableZaken, storageKey } =
+    useLoaderData() as DestructionListDetailContext;
 
   const [selectionClearedState, setSelectionClearedState] = useState(false);
   const { state } = useNavigation();
@@ -39,8 +34,10 @@ export function DestructionListEdit() {
 
   // Whether the list is in edit mode.
   const editingState = useMemo(
-    () => !review && Boolean(urlSearchParams.get("is_editing")),
-    [review, urlSearchParams],
+    () =>
+      destructionList.status === "new" &&
+      Boolean(urlSearchParams.get("is_editing")),
+    [destructionList.status, urlSearchParams],
   );
 
   // The initially select items.
@@ -116,18 +113,20 @@ export function DestructionListEdit() {
               onClick: () => handleSetEditing(false),
             },
           ]
-        : [
-            {
-              children: (
-                <>
-                  <Solid.PencilIcon />
-                  Bewerken
-                </>
-              ),
-              wrap: false,
-              onClick: () => handleSetEditing(true),
-            },
-          ],
+        : destructionList.status === "new"
+          ? [
+              {
+                children: (
+                  <>
+                    <Solid.PencilIcon />
+                    Bewerken
+                  </>
+                ),
+                wrap: false,
+                onClick: () => handleSetEditing(true),
+              },
+            ]
+          : [],
     [editingState, state],
   );
 
