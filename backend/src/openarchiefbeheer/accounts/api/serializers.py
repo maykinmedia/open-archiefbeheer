@@ -1,11 +1,10 @@
 from rest_framework import serializers
 
-from ..models import Role, User
+from ..models import User
 
 
-class RoleSerializer(serializers.ModelSerializer):
+class RoleSerializer(serializers.Serializer):
     class Meta:
-        model = Role
         fields = (
             "name",
             "can_start_destruction",
