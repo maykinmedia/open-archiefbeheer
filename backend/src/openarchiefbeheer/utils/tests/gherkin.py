@@ -99,7 +99,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "username": "Record Manager",
                 "first_name": "Record",
                 "last_name": "Manager",
-                "role__can_start_destruction": True,
+                "post__can_start_destruction": True,
             }
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self.user_exists(**merged_kwargs)
@@ -109,7 +109,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "username": "Beoordelaar",
                 "first_name": "Beoor",
                 "last_name": "del Laar",
-                "role__can_review_destruction": True,
+                "post__can_review_destruction": True,
             }
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self.user_exists(**merged_kwargs)
@@ -119,7 +119,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "username": "Achivaris",
                 "first_name": "Archi",
                 "last_name": "Varis",
-                "role__can_review_final_list": True,
+                "post__can_review_final_list": True,
             }
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self.user_exists(**merged_kwargs)
@@ -256,7 +256,15 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 get_kwargs = kwargs.copy()
                 if "password" in get_kwargs:
                     get_kwargs.pop("password")
-                return await self._orm_get(factory._meta.model, **get_kwargs)
+
+                # Remove any traits/postgeneration attributes of the factory
+                orm_params = {
+                    key: value
+                    for key, value in get_kwargs.items()
+                    if key not in factory._meta.parameters
+                    and not key.startswith("post__")
+                }
+                return await self._orm_get(factory._meta.model, **orm_params)
             except factory._meta.model.DoesNotExist:
                 return await self._factory_create(factory, **kwargs)
 

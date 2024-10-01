@@ -423,7 +423,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
             api_type=APITypes.orc,
             api_root="http://selectielijst.nl/api/v1",
         )
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 
@@ -505,7 +505,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         )
 
         # Create a user with the appropriate role
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
 
         # Mock the response from the external API
         m.get(
@@ -587,7 +587,7 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
             api_type=APITypes.orc,
             api_root="http://selectielijst.nl/api/v1",
         )
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 

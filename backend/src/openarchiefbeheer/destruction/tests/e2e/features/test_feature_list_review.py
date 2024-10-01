@@ -97,8 +97,8 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_scenario_reviewer_reviews_second_time(self):
         @sync_to_async
         def create_data():
-            record_manager = UserFactory.create(role__can_start_destruction=True)
-            reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", role__can_review_destruction=True)
+            record_manager = UserFactory.create(post__can_start_destruction=True)
+            reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", post__can_review_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
             
@@ -195,7 +195,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
         @sync_to_async
         def create_data():
             reviewer = UserFactory.create(
-                password="ANic3Password", role__can_review_destruction=True
+                password="ANic3Password", post__can_review_destruction=True
             )
             destruction_list = DestructionListFactory.create(
                 assignee=reviewer,
@@ -275,8 +275,8 @@ class FeatureListReviewTests(GherkinLikeTestCase):
     async def test_zaak_removed_outside_process(self):
         @sync_to_async
         def create_data():
-            record_manager = UserFactory.create(role__can_start_destruction=True)
-            reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", role__can_review_destruction=True)
+            record_manager = UserFactory.create(post__can_start_destruction=True)
+            reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", post__can_review_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
             list = DestructionListFactory.create(

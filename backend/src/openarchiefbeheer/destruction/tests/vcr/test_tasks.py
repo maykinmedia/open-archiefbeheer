@@ -40,9 +40,9 @@ class ProcessResponseTest(VCRMixin, TestCase):
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         reviewer = UserFactory.create(
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         zaak = Zaak.objects.get(identificatie="ZAAK-01")
 

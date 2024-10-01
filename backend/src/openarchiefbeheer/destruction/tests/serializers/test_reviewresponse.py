@@ -17,7 +17,7 @@ factory = APIRequestFactory()
 
 class ReviewResponseSerializerTests(TestCase):
     def test_rejecting_suggestion_cannot_have_zaak_action(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
@@ -53,7 +53,7 @@ class ReviewResponseSerializerTests(TestCase):
         )
 
     def test_bewaartermijn_zaak_action_cannot_change_selectielijst(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
@@ -92,7 +92,7 @@ class ReviewResponseSerializerTests(TestCase):
         )
 
     def test_selectielijst_zaak_action_requires_selectielijst(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,

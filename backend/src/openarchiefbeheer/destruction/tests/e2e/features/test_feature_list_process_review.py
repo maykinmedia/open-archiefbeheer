@@ -83,7 +83,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(
-                password="ANic3Password", role__can_start_destruction=True
+                password="ANic3Password", post__can_start_destruction=True
             )
             destruction_list = DestructionListFactory.create(
                 assignee=record_manager,
@@ -175,7 +175,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
     async def test_zaak_removed_outside_process(self):
         @sync_to_async
         def create_data():
-            record_manager = UserFactory.create(username="Record Manager", password="ANic3Password", role__can_start_destruction=True)
+            record_manager = UserFactory.create(username="Record Manager", password="ANic3Password", post__can_start_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
             list = DestructionListFactory.create(

@@ -429,7 +429,7 @@ class ProcessDeletingZakenTests(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_deleting_list_with_zaken_archiefactiedatum_in_the_future(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",

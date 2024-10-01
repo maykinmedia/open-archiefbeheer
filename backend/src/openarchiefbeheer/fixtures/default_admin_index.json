@@ -19,7 +19,7 @@
             "slug": "users",
             "models": [
                 ["accounts", "user"],
-                ["accounts", "role"]
+                ["auth", "group"]
             ]
         }
     },

@@ -12,9 +12,9 @@ class RoleEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_retrieve_reviewers(self):
-        admin = UserFactory.create(is_superuser=True, role=None)
-        UserFactory.create_batch(2, role__can_review_destruction=True)
-        UserFactory.create_batch(2, role__can_review_destruction=False)
+        admin = UserFactory.create(is_superuser=True)
+        UserFactory.create_batch(2, post__can_review_destruction=True)
+        UserFactory.create_batch(2, post__can_review_destruction=False)
 
         self.client.force_authenticate(user=admin)
         response = self.client.get(reverse("api:reviewers"))

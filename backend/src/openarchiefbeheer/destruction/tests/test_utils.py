@@ -19,7 +19,7 @@ class UtilsTest(TestCase):
             3, role=ListRole.reviewer, destruction_list=destruction_list
         )
 
-        new_reviewer = UserFactory.create(role__can_review_destruction=True)
+        new_reviewer = UserFactory.create(post__can_review_destruction=True)
 
         process_new_reviewer(destruction_list, new_reviewer)
 

@@ -25,7 +25,7 @@ class ZakenViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authenticated_without_permission(self):
-        user = UserFactory.create(role__can_start_destruction=False)
+        user = UserFactory.create(post__can_start_destruction=False)
 
         self.client.force_authenticate(user=user)
         endpoint = reverse("api:zaken-list")
@@ -37,7 +37,7 @@ class ZakenViewSetTest(APITestCase):
     def test_retrieve_all_zaken_as_record_manager(self):
         ZaakFactory.create_batch(4)
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
         response = self.client.get(reverse("api:zaken-list"))
@@ -49,7 +49,7 @@ class ZakenViewSetTest(APITestCase):
     def test_retrieve_all_zaken_as_reviewer(self):
         ZaakFactory.create_batch(4)
 
-        user = UserFactory(username="reviewer", role__can_review_destruction=True)
+        user = UserFactory(username="reviewer", post__can_review_destruction=True)
 
         self.client.force_authenticate(user)
         response = self.client.get(reverse("api:zaken-list"))
@@ -68,7 +68,7 @@ class ZakenViewSetTest(APITestCase):
             processing_status=InternalStatus.succeeded,
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
 
@@ -94,7 +94,7 @@ class ZakenViewSetTest(APITestCase):
         for zaak in zaken_in_list:
             DestructionListItemFactory.create(destruction_list=list, zaak=zaak)
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
         endpoint = furl(reverse("api:zaken-list"))

@@ -54,7 +54,7 @@ class ReviewResponsesViewSetTests(APITestCase):
         self.assertEqual(len(data[0]["itemsResponses"]), 2)
 
     def test_create_review_response(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
@@ -133,8 +133,8 @@ class ReviewResponsesViewSetTests(APITestCase):
         self.assertEqual(item_response3.action_zaak["archiefactiedatum"], "2030-01-01")
 
     def test_cannot_create_response_if_not_author(self):
-        record_manager1 = UserFactory.create(role__can_start_destruction=True)
-        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+        record_manager1 = UserFactory.create(post__can_start_destruction=True)
+        record_manager2 = UserFactory.create(post__can_start_destruction=True)
 
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager1,
@@ -165,7 +165,7 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
 
     def test_cannot_create_response_if_not_changes_requested(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
 
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
@@ -198,14 +198,14 @@ class ReviewResponsesViewSetTests(APITestCase):
     @freezegun.freeze_time("2023-09-15T21:36:00+02:00")
     def test_audit_log(self):
         # Reassign
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             name="Test audittrail",
             status=ListStatus.ready_to_review,
             author=record_manager,
         )
         DestructionListAssigneeFactory.create(destruction_list=destruction_list)
-        other_reviewer = UserFactory.create(role__can_review_destruction=True)
+        other_reviewer = UserFactory.create(post__can_review_destruction=True)
 
         self.client.force_authenticate(user=record_manager)
         endpoint_reassign = reverse(

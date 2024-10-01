@@ -347,6 +347,10 @@ PAGE_WITH_EXPAND = {
 
 @Mocker()
 class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
+    # Needed, because the test teardown calls the management command "flush", which
+    # removes the permissions created with the data migration from the db.
+    fixtures = ["permissions.json"]
+
     def setUp(self):
         super().setUp()
 
