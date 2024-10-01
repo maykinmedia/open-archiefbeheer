@@ -10,6 +10,7 @@ import {
   getFieldSelection,
   removeFromFieldSelection,
 } from "../../../lib/fieldSelection/fieldSelection";
+import { formatDate } from "../../../lib/format/date";
 import { ExpandZaak, Zaak } from "../../../types";
 import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
 import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
@@ -71,11 +72,15 @@ export function useFields(
     {
       name: "startdatum",
       type: "daterange",
+      valueTransform: (rowData) =>
+        rowData.startdatum ? formatDate(rowData.startdatum as string) : "",
       width: "150px",
     },
     {
       name: "einddatum",
       type: "daterange",
+      valueTransform: (rowData) =>
+        rowData.einddatum ? formatDate(rowData.einddatum as string) : "",
       width: "150px",
     },
     {
@@ -130,13 +135,10 @@ export function useFields(
       name: "archiefactiedatum",
       type: "daterange",
       width: "130px",
-      valueTransform: (rowData) => {
-        if (!rowData.archiefactiedatum) {
-          return null;
-        }
-        // FIXME?
-        return;
-      },
+      valueTransform: (rowData) =>
+        rowData.archiefactiedatum
+          ? formatDate(rowData.archiefactiedatum as string)
+          : "",
     },
     {
       active: false,
