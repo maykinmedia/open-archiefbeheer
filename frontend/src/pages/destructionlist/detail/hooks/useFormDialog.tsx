@@ -52,6 +52,7 @@ export const useFormDialog = () => {
           secondaryActions={[
             {
               children: labelCancel,
+              type: "button",
               variant: "secondary",
               onClick: () => {
                 setModalProps({ open: false });
