@@ -78,13 +78,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE: DestructionListReviewContext = {
+  storageKey: "storybook-storage-key",
   uuid: "00000000-0000-0000-0000-000000000000",
   destructionList: destructionListFactory(),
   logItems: [],
   review: reviewFactory(),
   reviewers: usersFactory(),
   paginatedZaken: paginatedZakenFactory(),
-  approvedZaakUrlsOnPage: [],
   excludedZaakSelection: {},
 };
 

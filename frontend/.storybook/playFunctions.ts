@@ -284,20 +284,6 @@ export const fillButtonConfirmationForm: PlayFunction<ReactRenderer> = async (
  * Then fills in dialog form, submits if `submitForm` is truthy.
  * @param context
  */
-export const fillCheckboxConfirmationForm: PlayFunction<ReactRenderer> = async (
-  context,
-) => {
-  await fillConfirmationForm({
-    ...context,
-    parameters: { ...context.parameters, checked: true, role: "checkbox" },
-  });
-};
-
-/**
- * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
- * Then fills in dialog form, submits if `submitForm` is truthy.
- * @param context
- */
 export const fillConfirmationForm: PlayFunction<ReactRenderer> = async (
   context,
 ) => {

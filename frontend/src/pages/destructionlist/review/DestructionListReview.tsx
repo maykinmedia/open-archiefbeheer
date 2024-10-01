@@ -15,6 +15,7 @@ import { ZaakReview } from "../../../lib/api/review";
 import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { BaseListView } from "../abstract";
+import { useZaakReviewStatusBadges } from "../hooks";
 import { ReviewDestructionListAction } from "./DestructionListReview.action";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
@@ -30,66 +31,41 @@ export function DestructionListReviewPage() {
 
   // rows: AttributeData[], selected: boolean
   const {
+    storageKey,
     uuid,
     destructionList,
     paginatedZaken,
     reviewItems,
     reviewResponse,
-    approvedZaakUrlsOnPage,
     excludedZaakSelection,
   } = useLoaderData() as DestructionListReviewContext;
-
   const submitAction = useSubmitAction<ReviewDestructionListAction>();
   const destructionListReviewKey = getDestructionListReviewKey(uuid);
+  const zaakReviewStatusBadges = useZaakReviewStatusBadges(
+    storageKey,
+    paginatedZaken.results,
+  );
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
+    // console.log("objectList");
     return paginatedZaken.results.map((zaak) => {
-      const badge = getReviewBadgeForZaak(zaak);
+      const badge = zaakReviewStatusBadges[zaak.url as string].badge;
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
     });
-  }, [reviewItems, paginatedZaken, excludedZaakSelection]);
+  }, [
+    paginatedZaken,
+    zaakReviewStatusBadges,
+    reviewItems,
+    excludedZaakSelection,
+  ]);
 
   // The paginated object list of the current page with review actions appended.
   const paginatedObjectList = Object.assign(
     { ...paginatedZaken },
     { results: objectList },
   );
-
-  /**
-   * Returns a Badge indicating the review status of the `zaak`.
-   * @param zaak
-   */
-  function getReviewBadgeForZaak(zaak: Zaak): React.ReactNode {
-    const approved = getApprovalStatusForZaak(zaak);
-    let icon: React.ReactNode = null;
-    let label = "";
-    let level: BadgeProps["level"];
-
-    if (typeof approved === "boolean") {
-      if (approved) {
-        icon = <Solid.HandThumbUpIcon />;
-        label = "Geaccordeerd";
-        level = "success";
-      } else {
-        icon = <Solid.HandThumbDownIcon />;
-        label = "Uitgezonderd";
-        level = "danger";
-      }
-    } else {
-      icon = <Solid.QuestionMarkCircleIcon />;
-      label = "Niet beoordeeld";
-      level = undefined;
-    }
-    return (
-      // @ts-expect-error - style props not supported (yet?)
-      <Badge level={level} style={{ display: "block" }}>
-        {icon}
-        {label}
-      </Badge>
-    );
-  }
 
   /**
    * Returns a Toolbar providing the action for the `zaak`.
@@ -103,7 +79,7 @@ export function DestructionListReviewPage() {
         variant="transparent"
         items={[
           {
-            active: getApprovalStatusForZaak(zaak) === true,
+            active: zaakReviewStatusBadges[zaak.url as string].status === true,
             children: (
               <>
                 <Solid.HandThumbUpIcon />
@@ -116,7 +92,7 @@ export function DestructionListReviewPage() {
             onClick: () => handleApproveClick(zaak),
           },
           {
-            active: getApprovalStatusForZaak(zaak) === false,
+            active: zaakReviewStatusBadges[zaak.url as string].status === false,
             children: (
               <>
                 <Solid.HandThumbDownIcon />
@@ -131,25 +107,6 @@ export function DestructionListReviewPage() {
         ]}
       />
     );
-  }
-
-  /**
-   * Returns whether a zaak is approved (`boolean`) or not reviewed (`null`).
-   * @param zaak
-   */
-  function getApprovalStatusForZaak(zaak: Zaak): boolean | null {
-    // Approved.
-    if (approvedZaakUrlsOnPage.includes(zaak.url as string)) {
-      return true;
-    }
-
-    // Excluded
-    if (Object.keys(excludedZaakSelection).includes(zaak.url as string)) {
-      return false;
-    }
-
-    // Not selected.
-    return null;
   }
 
   /**

@@ -45,17 +45,18 @@ export type ZaakSelectionDetailGetter<T = unknown> = (
  */
 export function useZaakSelection<T = unknown>(
   storageKey: string,
-  zaken: Zaak[],
+  zakenOnPage: Zaak[],
   filterSelectionZaken?: ZaakSelectionZaakFilter,
   getSelectionDetail?: ZaakSelectionDetailGetter<T>,
 ): [
   selectedZakenOnPage: Zaak[],
   handleSelect: ZaakSelectionSelectHandler,
   extra: {
-    deSelectedZakenOnPage: Zaak[];
     hasSelection: boolean;
-    selectionSize: number;
     allPagesSelected: boolean;
+    selectionSize: number;
+    deSelectedZakenOnPage: Zaak[];
+    zaakSelectionOnPage: ZaakSelection<T>;
     handleSelectAllPages: ZaakSelectionSelectAllPagesHandler;
     clearZaakSelection: ZaakSelectionClearer;
   },
@@ -96,22 +97,23 @@ export function useZaakSelection<T = unknown>(
         setSelectionSizeState(size);
       }
     });
-  }); // TODO: DEPENDENCIES?
+  });
 
   useEffect(() => {
     _updatePageSpecificZaakSelectionState();
-  }, [storageKey, zaken.map((z) => z.url as string).join()]);
+  }); // Deps removed to allow responding to changes (from actions?)
 
   const selectedZakenOnPage = useMemo(
-    () => zaken.filter((z) => zaakSelectionState[z.url as string]?.selected),
-    [zaken, zaakSelectionState],
+    () =>
+      zakenOnPage.filter((z) => zaakSelectionState[z.url as string]?.selected),
+    [zakenOnPage, zaakSelectionState],
   );
   const deSelectedZakenOnPage = useMemo(
     () =>
-      zaken.filter(
+      zakenOnPage.filter(
         (z) => zaakSelectionState[z.url as string]?.selected === false, // Explicitly checking for false.
       ),
-    [zaken, zaakSelectionState],
+    [zakenOnPage, zaakSelectionState],
   );
 
   /**
@@ -153,7 +155,7 @@ export function useZaakSelection<T = unknown>(
    */
   const _updatePageSpecificZaakSelectionState = () => {
     // Get selection item for every zaak on page.
-    const zaakUrls = zaken.map((z) => z.url as string);
+    const zaakUrls = zakenOnPage.map((z) => z.url as string);
     const promises = zaakUrls.map((url) =>
       getZaakSelectionItem(storageKey, url, false),
     );
@@ -171,8 +173,22 @@ export function useZaakSelection<T = unknown>(
       const newState = Object.fromEntries(selectedItems) as ZaakSelection<T>;
 
       // Update state.
-      setZaakSelectionState(newState);
+      const oldUrls = _serializeSelection(zaakSelectionState);
+      const newUrls = _serializeSelection(newState);
+
+      if (oldUrls !== newUrls) {
+        setZaakSelectionState(newState);
+      }
     });
+  };
+
+  const _serializeSelection = (selection: ZaakSelection): string => {
+    return Object.entries(selection)
+      .map(([url, { selected, detail }]) => {
+        const json = detail ? JSON.stringify(detail) : "";
+        return `${url}${selected}${json}`;
+      })
+      .join();
   };
 
   /**
@@ -224,7 +240,7 @@ export function useZaakSelection<T = unknown>(
             selected,
             zaakSelectionState,
           )
-        : await filter(zaken, selected, zaakSelectionState);
+        : await filter(zakenOnPage, selected, zaakSelectionState);
 
     const detailPromises = getSelectionDetail
       ? filteredZaken.map((z) => getSelectionDetail(z, zaakSelectionState))
@@ -247,7 +263,7 @@ export function useZaakSelection<T = unknown>(
    * @param selected
    */
   const onSelectAllPages = async (selected: boolean) => {
-    _optimisticallyUpdatePageSpecificZaakSelectionState(zaken, selected);
+    _optimisticallyUpdatePageSpecificZaakSelectionState(zakenOnPage, selected);
     _optimisticallyUpdateAllPagesSelectedState(selected);
 
     await setAllZakenSelected(storageKey, selected);
@@ -271,10 +287,11 @@ export function useZaakSelection<T = unknown>(
     selectedZakenOnPage,
     onSelect,
     {
-      deSelectedZakenOnPage,
       hasSelection: Boolean(hasSelectionState || allPagesSelectedState),
-      selectionSize: selectionSizeState,
       allPagesSelected: Boolean(allPagesSelectedState),
+      selectionSize: selectionSizeState,
+      deSelectedZakenOnPage,
+      zaakSelectionOnPage: zaakSelectionState,
       handleSelectAllPages: onSelectAllPages,
       clearZaakSelection: clearZaakSelection,
     },

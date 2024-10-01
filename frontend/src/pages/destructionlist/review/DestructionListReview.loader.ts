@@ -25,12 +25,12 @@ import {
 import {
   ZaakSelection,
   getFilteredZaakSelection,
-  getZaakSelection,
-  getZaakSelectionItem,
 } from "../../../lib/zaakSelection/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewContext = {
+  storageKey: string;
+
   uuid: string;
   destructionList: DestructionList;
   logItems: AuditLogItem[];
@@ -41,7 +41,6 @@ export type DestructionListReviewContext = {
   reviewResponse?: ReviewResponse;
   reviewers: User[];
 
-  approvedZaakUrlsOnPage: string[];
   excludedZaakSelection: ZaakSelection<{ approved: false; comment?: string }>;
 };
 
@@ -90,10 +89,6 @@ export const destructionListReviewLoader = loginRequired(
           }),
         ]);
 
-      const zaakSelection = await getZaakSelection<{ approved: boolean }>(
-        storageKey,
-      );
-
       // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
       // item.zaak can be null
       // TODO refactor: This code is the same as for the DestructionListDetail loader.
@@ -101,29 +96,13 @@ export const destructionListReviewLoader = loginRequired(
         ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
         : reviewItems;
 
-      const zakenOnPage = reviewItemsWithZaak?.length
-        ? reviewItemsWithZaak.map((ri) => ri.zaak.url as string)
-        : zaken.results.map((z) => z.url as string);
-
-      const approvedZaakUrlsOnPagePromise = await Promise.all(
-        zakenOnPage.map(async (url) => {
-          const item = await getZaakSelectionItem<typeof zaakSelection>(
-            storageKey,
-            url,
-          );
-          return { url, approved: item?.detail?.approved };
-        }),
-      );
-
-      const approvedZaakUrlsOnPage = approvedZaakUrlsOnPagePromise
-        .filter((result) => result.approved)
-        .map((result) => result.url);
-
       const excludedZaakSelection = await getFilteredZaakSelection<{
         approved: false;
       }>(storageKey, { approved: false });
 
       return {
+        storageKey,
+
         uuid,
         destructionList: list,
         logItems,
@@ -134,7 +113,6 @@ export const destructionListReviewLoader = loginRequired(
         reviewResponse,
         reviewers,
 
-        approvedZaakUrlsOnPage,
         excludedZaakSelection,
       } satisfies DestructionListReviewContext;
     },
