@@ -6,6 +6,7 @@ import {
   ListTemplateProps,
   Solid,
   TypedField,
+  formatMessage,
 } from "@maykin-ui/admin-ui";
 import React, { useCallback, useMemo } from "react";
 import { useNavigation } from "react-router-dom";
@@ -24,6 +25,9 @@ import {
   ZaakSelectionZaakFilter,
   useZaakSelection,
 } from "../hooks/useZaakSelection";
+
+/** The template used to format urls to an external application providing zaak details. */
+const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 
 export type BaseListViewProps = React.PropsWithChildren<{
   storageKey: string;
@@ -79,6 +83,12 @@ export function BaseListView({
   const [page, setPage] = usePage();
   const [, setFilterField] = useFilter();
   const [sort, setSort] = useSort();
+
+  // Object list.
+  const objectList = paginatedZaken.results.map((zaak) => ({
+    ...zaak,
+    href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+  }));
 
   // Fields.
   const [fields, setFields, filterTransform] = useFields(
@@ -176,7 +186,7 @@ export function BaseListView({
         fields,
         filterTransform,
         loading: state === "loading",
-        objectList: paginatedZaken.results as unknown as AttributeData[],
+        objectList: objectList,
         page,
         sort: sort,
         selected: selectable
