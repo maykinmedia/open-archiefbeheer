@@ -73,18 +73,6 @@ export async function setAllZakenSelected(key: string, selected: boolean) {
 }
 
 /**
- * Gets the zaak selection.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
- * @param key A key identifying the selection
- */
-export async function getZaakSelection<DetailType = unknown>(key: string) {
-  const computedKey = _getComputedKey(key);
-  const json = sessionStorage.getItem(computedKey) || "{}";
-  return JSON.parse(json) as ZaakSelection<DetailType>;
-}
-
-/**
  * Gets the zaak selection, applies a filter to the detail object.
  * Note: only the `url` of selected `zaken` are stored.
  * Note: This function is async to accommodate possible future refactors.
@@ -97,7 +85,7 @@ export async function getFilteredZaakSelection<DetailType = unknown>(
   exp?: Partial<DetailType>,
   selectedOnly = true,
 ) {
-  const selection = await getZaakSelection<DetailType>(key);
+  const selection = await _getZaakSelection<DetailType>(key);
   const entries = Object.entries(selection);
 
   const filteredEntries = entries.filter(([url, { selected, detail }]) => {
@@ -143,7 +131,7 @@ export async function getZaakSelectionItem<DetailType = unknown>(
   zaak: string | Zaak,
   selectedOnly = true,
 ) {
-  const zaakSelection = await getZaakSelection<DetailType>(key);
+  const zaakSelection = await _getZaakSelection<DetailType>(key);
   const url = _getZaakUrl(zaak);
   return zaakSelection[url]?.selected || !selectedOnly
     ? zaakSelection[url]
@@ -187,7 +175,7 @@ export async function isZaakSelected<DetailType = unknown>(
   key: string,
   zaak: string | Zaak,
 ) {
-  const zaakSelection = await getZaakSelection<DetailType>(key);
+  const zaakSelection = await _getZaakSelection<DetailType>(key);
   const url = _getZaakUrl(zaak);
   return zaakSelection[url]?.selected;
 }
@@ -215,7 +203,7 @@ export async function _mutateZaakSelection<DetailType = unknown>(
     }
   }
 
-  const currentZaakSelection = await getZaakSelection<DetailType>(key);
+  const currentZaakSelection = await _getZaakSelection<DetailType>(key);
   const urls = _getZaakUrls(zaken);
 
   const zaakSelectionOverrides = urls.reduce<ZaakSelection<DetailType>>(
@@ -238,8 +226,33 @@ export async function _mutateZaakSelection<DetailType = unknown>(
 }
 
 /**
+ * Gets the zaak selection.
+ * Note: only the `url` of selected `zaken` are stored.
+ * Note: This function is async to accommodate possible future refactors.
+ * @param key A key identifying the selection
+ * @private
+ */
+async function _getZaakSelection<DetailType = unknown>(key: string) {
+  const computedKey = _getComputedKey(key);
+  const json = sessionStorage.getItem(computedKey) || "{}";
+  return JSON.parse(json) as ZaakSelection<DetailType>;
+}
+
+/**
+ * @deprecated public use outside  `zaakSelection.ts` is deprecated due to performance concerns.
+ */
+export async function getZaakSelection<DetailType = unknown>(key: string) {
+  if (process.env.NODE_ENV === "development") {
+    console.warn("public use of _getZaakSelection is deprecated.");
+  }
+
+  return _getZaakSelection<DetailType>(key);
+}
+
+/**
  * Computes the prefixed cache key.
  * @param key A key identifying the selection
+ * @private
  */
 function _getComputedKey(key: string): string {
   return `oab.lib.zaakSelection.${key}`;
@@ -248,6 +261,7 @@ function _getComputedKey(key: string): string {
 /**
  * Returns the urls based on an `Array` of `string`s or `Zaak` objects.
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
+ * @private
  */
 function _getZaakUrls(zaken: Array<string | Zaak>) {
   return zaken.map(_getZaakUrl);
@@ -256,6 +270,7 @@ function _getZaakUrls(zaken: Array<string | Zaak>) {
 /**
  * Returns the url based on a `string` or `Zaak` object.
  * @param zaak Either a `Zaak.url` or `Zaak` object.
+ * @private
  */
 function _getZaakUrl(zaak: string | Zaak) {
   return isPrimitive(zaak) ? zaak : (zaak.url as string);
