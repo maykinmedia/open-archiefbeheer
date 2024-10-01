@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.utils.translation import gettext_lazy as _
 
 import freezegun
@@ -61,46 +63,52 @@ class ReviewResponsesViewSetTests(APITestCase):
         items_reviews = DestructionListItemReviewFactory.create_batch(
             3,
             destruction_list_item__destruction_list=review.destruction_list,
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__zaak__selectielijstklasse="http://some-url.nl",
             review=review,
         )
 
         endpoint = reverse("api:review-responses-list")
         self.client.force_authenticate(user=record_manager)
 
-        response = self.client.post(
-            endpoint,
-            data={
-                "review": review.pk,
-                "comment": "A comment about the review.",
-                "itemsResponses": [
-                    {
-                        "reviewItem": items_reviews[0].pk,
-                        "actionItem": DestructionListItemAction.keep,
-                        "comment": "This zaak needs to stay in the list.",
-                    },
-                    {
-                        "reviewItem": items_reviews[1].pk,
-                        "actionItem": DestructionListItemAction.remove,
-                        "actionZaak": {
-                            "action_type": ZaakActionType.selectielijstklasse_and_bewaartermijn,
-                            "selectielijstklasse": "http://some-url.nl",
-                            "archiefactiedatum": "2030-01-01",
+        with patch(
+            "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
+            return_value={"waardering": "vernietigen"},
+        ):
+            response = self.client.post(
+                endpoint,
+                data={
+                    "review": review.pk,
+                    "comment": "A comment about the review.",
+                    "itemsResponses": [
+                        {
+                            "reviewItem": items_reviews[0].pk,
+                            "actionItem": DestructionListItemAction.keep,
+                            "comment": "This zaak needs to stay in the list.",
                         },
-                        "comment": "Changed the selectielijstklasse and removed from the list.",
-                    },
-                    {
-                        "reviewItem": items_reviews[2].pk,
-                        "actionItem": DestructionListItemAction.remove,
-                        "actionZaak": {
-                            "action_type": ZaakActionType.bewaartermijn,
-                            "archiefactiedatum": "2030-01-01",
+                        {
+                            "reviewItem": items_reviews[1].pk,
+                            "actionItem": DestructionListItemAction.remove,
+                            "actionZaakType": ZaakActionType.selectielijstklasse_and_bewaartermijn,
+                            "actionZaak": {
+                                "selectielijstklasse": "http://some-url.nl",
+                                "archiefactiedatum": "2030-01-01",
+                            },
+                            "comment": "Changed the selectielijstklasse and removed from the list.",
                         },
-                        "comment": "Changed the archiefactiedatum and removed from the list.",
-                    },
-                ],
-            },
-            format="json",
-        )
+                        {
+                            "reviewItem": items_reviews[2].pk,
+                            "actionItem": DestructionListItemAction.remove,
+                            "actionZaakType": ZaakActionType.bewaartermijn,
+                            "actionZaak": {
+                                "archiefactiedatum": "2030-01-01",
+                            },
+                            "comment": "Changed the archiefactiedatum and removed from the list.",
+                        },
+                    ],
+                },
+                format="json",
+            )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(ReviewResponse.objects.filter(review=review).count(), 1)
