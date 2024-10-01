@@ -1,4 +1,10 @@
-from django.contrib.auth.models import BaseUserManager
+from typing import TYPE_CHECKING
+
+from django.contrib.auth.models import BaseUserManager, Permission
+from django.db.models import Q, QuerySet
+
+if TYPE_CHECKING:
+    from .models import User
 
 
 class UserManager(BaseUserManager):
@@ -32,3 +38,16 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(username, email, password, **extra_fields)
+
+    def _users_with_permission(self, permission: Permission) -> QuerySet["User"]:
+        return self.filter(
+            Q(groups__permissions=permission) | Q(user_permissions=permission)
+        ).distinct()
+
+    def reviewers(self) -> QuerySet["User"]:
+        permission = Permission.objects.get(codename="can_review_destruction")
+        return self._users_with_permission(permission)
+
+    def archivists(self) -> QuerySet["User"]:
+        permission = Permission.objects.get(codename="can_review_final_list")
+        return self._users_with_permission(permission)

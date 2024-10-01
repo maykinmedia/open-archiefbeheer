@@ -20,8 +20,5 @@ export function formatUser(
       ? `${user.firstName} ${user.lastName}${userNameSuffix}`
       : user.username;
 
-  if (showRole && user.role.name) {
-    return `${displayName} (${user.role.name})`;
-  }
   return displayName;
 }

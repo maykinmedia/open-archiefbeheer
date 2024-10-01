@@ -9,17 +9,16 @@ class CanStartDestructionPermission(permissions.BasePermission):
     message = _("You are not allowed to create a destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
 
 class CanReviewPermission(permissions.BasePermission):
     message = _("You are not allowed to review a destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.role and (
-            request.user.role.can_review_destruction
-            or request.user.role.can_review_final_list
-        )
+        return request.user.has_perm(
+            "accounts.can_review_destruction"
+        ) or request.user.has_perm("accounts.can_review_final_list")
 
 
 class CanUpdateDestructionList(permissions.BasePermission):
@@ -29,7 +28,7 @@ class CanUpdateDestructionList(permissions.BasePermission):
     )
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return (
@@ -45,7 +44,7 @@ class CanMarkListAsFinal(permissions.BasePermission):
     )
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return (
@@ -61,7 +60,7 @@ class CanTriggerDeletion(permissions.BasePermission):
     )
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return (
@@ -74,7 +73,7 @@ class CanReassignDestructionList(permissions.BasePermission):
     message = _("You are not allowed to reassign the destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return request.user == destruction_list.author and destruction_list.status in [
@@ -87,7 +86,7 @@ class CanMarkAsReadyToReview(permissions.BasePermission):
     message = _("You are not allowed to mark this destruction list as ready to review.")
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return (
@@ -100,7 +99,7 @@ class CanAbortDestruction(permissions.BasePermission):
     message = _("You are not allowed to stop the planned destruction of the list.")
 
     def has_permission(self, request, view):
-        return request.user.role and request.user.role.can_start_destruction
+        return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return (
