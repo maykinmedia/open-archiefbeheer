@@ -128,6 +128,9 @@ INSTALLED_APPS = [
     "django_filters",
     "solo",
     "ordered_model",
+    "django_jsonform",
+    "mozilla_django_oidc",
+    "mozilla_django_oidc_db",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -151,6 +154,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
+    "mozilla_django_oidc_db.middleware.SessionRefresh",
     # should be last according to docs
     "axes.middleware.AxesMiddleware",
     "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
@@ -322,6 +326,7 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     "openarchiefbeheer.accounts.backends.UserModelEmailBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
 SESSION_COOKIE_NAME = "openarchiefbeheer_sessionid"
@@ -458,7 +463,7 @@ TWO_FACTOR_WEBAUTHN_AUTHENTICATOR_ATTACHMENT = "cross-platform"
 # add entries from AUTHENTICATION_BACKENDS that already enforce their own two-factor
 # auth, avoiding having some set up MFA again in the project.
 MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = [
-    # "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
+    "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
 #
@@ -622,3 +627,9 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour="12", minute="0"),
     },
 }
+
+#
+# Django OIDC
+#
+OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationRequestView"
+OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"

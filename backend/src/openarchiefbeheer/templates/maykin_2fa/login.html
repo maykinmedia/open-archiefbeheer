@@ -1,6 +1,5 @@
 {% extends "maykin_2fa/login.html" %}
-{% load i18n %}
-
+{% load i18n solo_tags %}
 
 {% block footer %}
     <div id="footer"></div>
@@ -8,7 +7,13 @@
 
 
 {% block extra_login_options %}
-{#Include additional (OIDC) authentication options here #}
+{% get_solo 'mozilla_django_oidc_db.OpenIDConnectConfig' as oidc_config %}
+
+{% if oidc_config.enabled %}
+<div class="submit-row">
+    <a href="{% url 'oidc_authentication_init' %}">{% trans "Login with OIDC" %}</a>
+</div>
+{% endif %}
 {% endblock %}
 
 
