@@ -35,6 +35,7 @@ attrs==23.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   glom
     #   jsonschema
     #   referencing
 babel==2.14.0
@@ -57,6 +58,12 @@ black==24.4.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/dev.in
+boltons==24.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   face
+    #   glom
 build==1.2.1
     # via pip-tools
 bump2version==1.0.1
@@ -123,6 +130,8 @@ cryptography==43.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-simple-certmanager
+    #   josepy
+    #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
 cssselect==1.2.0
@@ -149,6 +158,7 @@ django==4.2.16
     #   django-formtools
     #   django-hijack
     #   django-jenkins
+    #   django-jsonform
     #   django-otp
     #   django-phonenumber-field
     #   django-privates
@@ -163,6 +173,8 @@ django==4.2.16
     #   djangorestframework
     #   drf-spectacular
     #   maykin-2fa
+    #   mozilla-django-oidc
+    #   mozilla-django-oidc-db
     #   zgw-consumers
 django-admin-index==3.1.1
     # via
@@ -202,6 +214,11 @@ django-jenkins==0.110.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+django-jsonform==2.23.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
 django-ordered-model==3.7.4
     # via
     #   -c requirements/ci.txt
@@ -249,6 +266,7 @@ django-solo==2.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
     #   zgw-consumers
 django-timeline-logger==4.0.0
     # via
@@ -300,6 +318,11 @@ elastic-apm==6.22.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+face==20.1.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   glom
 factory-boy==3.3.0
     # via
     #   -c requirements/ci.txt
@@ -326,6 +349,11 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
     # via -r requirements/dev.in
+glom==23.5.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
 greenlet==3.0.3
     # via
     #   -c requirements/ci.txt
@@ -363,6 +391,11 @@ jinja2==3.1.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
+josepy==1.14.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   mozilla-django-oidc
 jsonschema==4.21.1
     # via
     #   -c requirements/ci.txt
@@ -398,6 +431,15 @@ mccabe==0.7.0
     #   -r requirements/ci.txt
     #   flake8
     #   pylint
+mozilla-django-oidc==4.0.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
+mozilla-django-oidc-db==0.19.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 multidict==6.0.5
     # via
     #   -c requirements/ci.txt
@@ -507,6 +549,7 @@ pyopenssl==24.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   josepy
     #   webauthn
 pypng==0.20220715.0
     # via
@@ -586,6 +629,7 @@ requests==2.32.3
     #   ape-pie
     #   django-rosetta
     #   docker
+    #   mozilla-django-oidc
     #   pytest-base-url
     #   requests-mock
     #   sphinx
@@ -700,6 +744,7 @@ typing-extensions==4.11.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
     #   pyee
     #   qrcode
     #   zgw-consumers
