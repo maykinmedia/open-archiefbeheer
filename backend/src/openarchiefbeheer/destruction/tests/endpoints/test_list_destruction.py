@@ -17,7 +17,7 @@ from ..factories import DestructionListFactory, DestructionListItemFactory
 class DestructionListStartDestructionEndpointTest(APITestCase):
     def test_plan_destruction(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -47,7 +47,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self,
     ):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -83,7 +83,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
     ):
         """This scenario should never happen unless someone manually changes the planned destruction date."""
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -110,7 +110,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         )
 
     def test_cannot_start_destruction_if_not_author(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             name="A test list",
             contains_sensitive_info=True,
@@ -131,7 +131,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         m_task.assert_not_called()
 
     def test_cannot_start_destruction_if_not_ready_to_delete(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             name="A test list",
             contains_sensitive_info=True,
@@ -154,7 +154,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
     def test_cannot_start_destruction_if_archiefactiedatum_in_the_future(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -193,7 +193,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
     def test_can_start_destruction_if_archiefactiedatum_in_the_future_but_removed(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",

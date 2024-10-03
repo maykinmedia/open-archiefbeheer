@@ -45,7 +45,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authenticated_without_permission(self):
-        user = UserFactory.create(role__can_start_destruction=False)
+        user = UserFactory.create(post__can_start_destruction=False)
 
         self.client.force_authenticate(user=user)
         endpoint = reverse("api:destructionlist-list")
@@ -56,10 +56,10 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_create_destruction_list(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -136,9 +136,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(len(response.json()), 3)
 
     def test_zaak_already_in_another_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
         DestructionListItemFactory.create(
             with_zaak=True,
@@ -199,9 +199,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertFalse(DestructionList.objects.filter(name="A test list").exists())
 
     def test_update_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -254,7 +254,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(destruction_list.items.all().count(), 1)
 
     def test_cannot_update_destruction_list_if_not_new(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
 
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -278,8 +278,8 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_update_destruction_list_if_not_author(self):
-        record_manager1 = UserFactory.create(role__can_start_destruction=True)
-        record_manager2 = UserFactory.create(role__can_start_destruction=True)
+        record_manager1 = UserFactory.create(post__can_start_destruction=True)
+        record_manager2 = UserFactory.create(post__can_start_destruction=True)
 
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -303,14 +303,14 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_reassign_destruction_list_if_not_record_manager(self):
-        not_record_manager = UserFactory.create(role__can_start_destruction=False)
+        not_record_manager = UserFactory.create(post__can_start_destruction=False)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review,
         )
         DestructionListAssigneeFactory.create_batch(
             2, destruction_list=destruction_list
         )
-        other_reviewers = UserFactory.create_batch(2, role__can_review_destruction=True)
+        other_reviewers = UserFactory.create_batch(2, post__can_review_destruction=True)
 
         self.client.force_authenticate(user=not_record_manager)
         endpoint = reverse(
@@ -326,8 +326,8 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cannot_reassign_destruction_list_without_comment(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
-        reviewer = UserFactory.create(role__can_review_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
         destruction_list = DestructionListFactory.create(
             author=record_manager,
             status=ListStatus.new,
@@ -354,9 +354,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.json()["comment"][0], _("This field is required."))
 
     def test_cannot_reassign_destruction_list_with_empty_comment(self):
-        record_manager1 = UserFactory.create(role__can_start_destruction=True)
+        record_manager1 = UserFactory.create(post__can_start_destruction=True)
         reviewer = DestructionListAssigneeFactory.create(
-            user__role__can_review_destruction=True
+            user__post__can_review_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
@@ -387,7 +387,7 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_cannot_reassign_destruction_list_with_author_as_reviewer(self):
         record_manager = UserFactory.create(
-            role__can_start_destruction=True, role__can_review_destruction=True
+            post__can_start_destruction=True, post__can_review_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -418,12 +418,12 @@ class DestructionListViewSetTest(APITestCase):
         )
 
     def test_reassign_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, author=record_manager
         )
         DestructionListAssigneeFactory.create(destruction_list=destruction_list)
-        other_reviewer = UserFactory.create(role__can_review_destruction=True)
+        other_reviewer = UserFactory.create(post__can_review_destruction=True)
 
         self.client.force_authenticate(user=record_manager)
         endpoint = reverse(
@@ -457,9 +457,9 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(log_entry.extra_data["comment"], "Lorem ipsum...")
 
     def test_partially_update_destruction_list(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
@@ -523,10 +523,10 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_mark_as_final(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         archivist = UserFactory.create(
-            username="archivist", role__can_review_final_list=True
+            username="archivist", post__can_review_final_list=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -599,10 +599,10 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_cannot_mark_as_final_if_not_author(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         archivist = UserFactory.create(
-            username="archivist", role__can_review_final_list=True
+            username="archivist", post__can_review_final_list=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -624,10 +624,10 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_cannot_mark_as_finally_if_not_internally_reviewed(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         archivist = UserFactory.create(
-            username="archivist", role__can_review_final_list=True
+            username="archivist", post__can_review_final_list=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -650,10 +650,10 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_cannot_mark_as_final_if_posted_user_is_not_archivist(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         internal_reviewer = UserFactory.create(
-            username="archivist", role__can_review_final_list=False
+            username="archivist", post__can_review_final_list=False
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -679,7 +679,7 @@ class DestructionListViewSetTest(APITestCase):
         )
 
     def test_mark_as_ready_to_review(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
 
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -692,7 +692,7 @@ class DestructionListViewSetTest(APITestCase):
         reviewer = DestructionListAssigneeFactory.create(
             destruction_list=destruction_list,
             role=ListRole.reviewer,
-            user__role__can_review_destruction=True,
+            user__post__can_review_destruction=True,
         )
 
         self.client.force_authenticate(user=record_manager)
@@ -741,7 +741,7 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_cannot_mark_as_ready_to_review_if_not_author(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -952,7 +952,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -989,7 +989,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -1041,7 +1041,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         archivist = UserFactory.create(
             username="archivaris",
             email="archivaris@oab.nl",
-            role__can_review_final_list=True,
+            post__can_review_final_list=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=archivist, status=ListStatus.ready_for_archivist
@@ -1078,7 +1078,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_final_list=True,
+            post__can_review_final_list=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_for_archivist
@@ -1176,7 +1176,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -1235,7 +1235,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review

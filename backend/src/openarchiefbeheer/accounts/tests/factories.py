@@ -1,18 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 
 import factory
+from factory import post_generation
 from factory.django import DjangoModelFactory
 
-from ..models import Role
-
 User = get_user_model()
-
-
-class RoleFactory(DjangoModelFactory):
-    name = factory.Sequence(lambda n: f"Role {n}")
-
-    class Meta:
-        model = Role
 
 
 class UserFactory(DjangoModelFactory):
@@ -20,7 +13,6 @@ class UserFactory(DjangoModelFactory):
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
     password = factory.PostGenerationMethodCall("set_password", "password")
-    role = factory.SubFactory(RoleFactory)
     email = factory.Faker("email")
 
     class Meta:
@@ -31,3 +23,15 @@ class UserFactory(DjangoModelFactory):
             is_staff=True,
             is_superuser=True,
         )
+
+    @post_generation
+    def post(user, create, extracted, **kwargs):
+        if not create:
+            return
+
+        for item, value in kwargs.items():
+            if not value:
+                continue
+
+            permission = Permission.objects.filter(codename=item).first()
+            user.user_permissions.add(permission)

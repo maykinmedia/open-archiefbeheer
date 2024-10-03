@@ -16,7 +16,7 @@ from ..factories import DestructionListFactory
 class DestructionListAbortDestructionEndpointTest(APITestCase):
     def test_only_author_can_abort(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -39,7 +39,7 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
 
     def test_only_ready_to_delete_with_planned_date_can_be_aborted(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -63,7 +63,7 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
 
     def test_cannot_abort_without_comment(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -88,7 +88,7 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
 
     def test_abort_list_destruction(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",

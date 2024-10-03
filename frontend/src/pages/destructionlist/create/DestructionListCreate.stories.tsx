@@ -57,11 +57,9 @@ const meta: Meta<typeof DestructionListCreatePage> = {
           lastName: "Doe",
           email: "aaa@aaa.aaa",
           role: {
-            name: "Admin",
             canStartDestruction: true,
             canReviewDestruction: true,
             canReviewFinalList: false,
-            canViewCaseDetails: true,
           },
         },
       },

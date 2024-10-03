@@ -1,0 +1,35 @@
+[
+    {
+      "model": "auth.permission",
+      "fields": {
+        "name": "Can start destruction",
+        "content_type": [
+          "accounts",
+          "user"
+        ],
+        "codename": "can_start_destruction"
+      }
+    },
+    {
+      "model": "auth.permission",
+      "fields": {
+        "name": "Can review destruction",
+        "content_type": [
+          "accounts",
+          "user"
+        ],
+        "codename": "can_review_destruction"
+      }
+    },
+    {
+      "model": "auth.permission",
+      "fields": {
+        "name": "Can review final list",
+        "content_type": [
+          "accounts",
+          "user"
+        ],
+        "codename": "can_review_final_list"
+      }
+    }
+]

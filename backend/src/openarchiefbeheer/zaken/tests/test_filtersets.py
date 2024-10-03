@@ -26,7 +26,7 @@ class FilterZakenTests(APITestCase):
         # This zaak SHOULD be returned by the endpoint (it was included in a destruction list, but was then excluded)
         DestructionListItemFactory.create(status=ListItemStatus.removed, with_zaak=True)
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["not_in_destruction_list"] = "True"
@@ -46,7 +46,7 @@ class FilterZakenTests(APITestCase):
         ZaakFactory.create_batch(2, startdatum=date(2020, 1, 1))
         recent_zaken = ZaakFactory.create_batch(3, startdatum=date(2022, 1, 1))
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["startdatum__gt"] = "2021-01-01"
@@ -90,7 +90,7 @@ class FilterZakenTests(APITestCase):
             },
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["_expand__resultaat__resultaattype"] = (
@@ -122,7 +122,7 @@ class FilterZakenTests(APITestCase):
             },
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["bewaartermijn"] = "P1D"
@@ -142,7 +142,7 @@ class FilterZakenTests(APITestCase):
             2, post___expand={"zaaktype": {"selectielijst_procestype": {"nummer": 2}}}
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["vcs"] = 1
@@ -168,7 +168,7 @@ class FilterZakenTests(APITestCase):
         )
         no_relations_zaken = ZaakFactory.create_batch(2, relevante_andere_zaken=[])
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["heeft_relaties"] = True
@@ -212,7 +212,7 @@ class FilterZakenTests(APITestCase):
             post___expand={"zaaktype": {"omschrijving": "Aangifte behandelen"}},
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["identificatie__icontains"] = "ABC"
@@ -240,7 +240,7 @@ class FilterZakenTests(APITestCase):
             status=ListItemStatus.suggested, with_zaak=True
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["not_in_destruction_list_except"] = item.destruction_list.uuid
@@ -311,7 +311,7 @@ class FilterZakenTests(APITestCase):
             }
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["behandelend_afdeling__icontains"] = "BLA"
@@ -328,7 +328,7 @@ class FilterZakenTests(APITestCase):
         zaak_1 = ZaakFactory.create(identificatie="ZAAK-0000-0000000001")
         zaak_3 = ZaakFactory.create(identificatie="ZAAK-0000-0000000003")
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
 
@@ -375,7 +375,7 @@ class FilterZakenTests(APITestCase):
             destruction_list=destruction_list,
         )
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["in_destruction_list"] = destruction_list.uuid
@@ -392,7 +392,7 @@ class FilterZakenTests(APITestCase):
         ZaakFactory.create_batch(3, identificatie="ZAAK-01")
         zaken_2 = ZaakFactory.create_batch(2, identificatie="ZAAK-02")
 
-        user = UserFactory(username="record_manager", role__can_start_destruction=True)
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
         endpoint.args["zaaktype__in"] = ",".join(

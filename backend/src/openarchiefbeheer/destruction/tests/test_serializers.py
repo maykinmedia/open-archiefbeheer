@@ -36,10 +36,10 @@ class DestructionListSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -114,10 +114,10 @@ class DestructionListSerializerTests(TestCase):
 
     def test_zaak_already_included_in_other_list(self):
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         ZaakFactory.create(
@@ -167,10 +167,10 @@ class DestructionListSerializerTests(TestCase):
 
     def test_zaak_already_included_in_other_list_but_exempt(self):
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         ZaakFactory.create(
@@ -209,7 +209,7 @@ class DestructionListSerializerTests(TestCase):
 
     def test_full_list_update(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
@@ -267,7 +267,7 @@ class DestructionListSerializerTests(TestCase):
 
     def test_partial_list_update(self):
         reviewer = UserFactory.create(
-            username="reviewer", role__can_review_destruction=True
+            username="reviewer", post__can_review_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
@@ -288,7 +288,7 @@ class DestructionListSerializerTests(TestCase):
         }
 
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         request = factory.get("/foo")
         request.user = record_manager
@@ -326,7 +326,7 @@ class DestructionListSerializerTests(TestCase):
             "items": [{"zaak": items[0].zaak.url}, {"zaak": items[1].zaak.url}],
         }
 
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         request = factory.get("/foo")
         request.user = record_manager
 
@@ -352,8 +352,8 @@ class DestructionListSerializerTests(TestCase):
     def test_assign_author_as_reviewer(self):
         record_manager = UserFactory.create(
             username="record_manager",
-            role__can_start_destruction=True,
-            role__can_review_destruction=True,
+            post__can_start_destruction=True,
+            post__can_review_destruction=True,
         )
         ZaakFactory.create(url="http://localhost:8003/zaken/api/v1/zaken/111-111-111")
         ZaakFactory.create(url="http://localhost:8003/zaken/api/v1/zaken/222-222-222")
@@ -391,10 +391,10 @@ class DestructionListSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer1",
             email="reviewer1@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -453,10 +453,10 @@ class DestructionListSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -497,10 +497,10 @@ class DestructionListSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         request = factory.get("/foo")
@@ -529,10 +529,10 @@ class DestructionListSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         request = factory.get("/foo")
@@ -580,7 +580,7 @@ class DestructionListSerializerTests(TestCase):
 
     def test_update_with_bulk_select(self):
         record_manager = UserFactory.create(
-            username="record_manager", role__can_start_destruction=True
+            username="record_manager", post__can_start_destruction=True
         )
 
         destruction_list = DestructionListFactory.create(
@@ -645,12 +645,12 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer1 = UserFactory.create(
             username="reviewer1",
             email="reviewer1@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         reviewer2 = UserFactory.create(
             username="reviewer2",
             email="reviewer2@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(assignee=reviewer1)
 
@@ -679,8 +679,8 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
-            role__can_review_final_list=True,
+            post__can_review_destruction=True,
+            post__can_review_final_list=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.changes_requested
@@ -710,7 +710,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=False,
+            post__can_review_destruction=False,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -740,7 +740,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_final_list=False,
+            post__can_review_final_list=False,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_for_archivist
@@ -769,7 +769,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer,
@@ -828,7 +828,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -865,7 +865,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -893,7 +893,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, name="Test list", status=ListStatus.ready_to_review
@@ -956,7 +956,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review
@@ -996,7 +996,7 @@ class DestructionListReviewSerializerTests(TestCase):
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
-            role__can_review_destruction=True,
+            post__can_review_destruction=True,
         )
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, status=ListStatus.ready_to_review

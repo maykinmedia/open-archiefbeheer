@@ -127,9 +127,6 @@ function App() {
                           </P>
                         </Column>
                         <Column span={12}>
-                          <P>{user?.role.name}</P>
-                        </Column>
-                        <Column span={12}>
                           <P muted>{user?.email}</P>
                         </Column>
                       </Grid>

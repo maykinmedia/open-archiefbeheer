@@ -175,7 +175,7 @@ class AssignementLogicTest(TestCase):
         self.assertEqual(destruction_list.assignee, record_manager.user)
 
     def test_reassign_reviewer_ready_to_review(self):
-        reviewer_old = UserFactory.create(role__can_review_destruction=True)
+        reviewer_old = UserFactory.create(post__can_review_destruction=True)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, assignee=reviewer_old
         )
@@ -191,7 +191,7 @@ class AssignementLogicTest(TestCase):
         self.assertEqual(destruction_list.assignee, assignee_new.user)
 
     def test_reassign_reviewer_noop(self):
-        record_manager = UserFactory.create(role__can_start_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             status=ListStatus.new, assignee=record_manager, author=record_manager
         )

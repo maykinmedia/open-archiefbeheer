@@ -25,7 +25,7 @@ class ArchiveConfigViews(APITestCase):
         self.assertIn("zaaktypesShortProcess", response.json())
 
     def test_not_record_manager_update(self):
-        user = UserFactory.create(role__can_start_destruction=False)
+        user = UserFactory.create(post__can_start_destruction=False)
 
         self.client.force_login(user)
         response = self.client.put(
@@ -36,7 +36,7 @@ class ArchiveConfigViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_record_manager_update(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
 
         self.client.force_login(user)
         response = self.client.put(
@@ -51,7 +51,7 @@ class ArchiveConfigViews(APITestCase):
         self.assertEqual(config.zaaktypes_short_process, ["http://tralala.nl"])
 
     def test_record_manager_partial_update(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
 
         self.client.force_login(user)
         response = self.client.patch(
@@ -68,7 +68,7 @@ class ArchiveConfigViews(APITestCase):
     @tag("gh-227")
     @override_settings(SOLO_CACHE=None)
     def test_can_send_empty_list(self):
-        user = UserFactory.create(role__can_start_destruction=True)
+        user = UserFactory.create(post__can_start_destruction=True)
 
         config = ArchiveConfig.get_solo()
         config.zaaktypes_short_process = ["http://tralala.nl"]

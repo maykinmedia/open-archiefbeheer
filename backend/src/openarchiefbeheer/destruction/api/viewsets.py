@@ -217,12 +217,12 @@ class DestructionListViewSet(
     serializer_class = DestructionListWriteSerializer
     queryset = (
         DestructionList.objects.all()
-        .select_related("author", "author__role", "assignee", "assignee__role")
+        .select_related("author", "assignee")
         .prefetch_related(
             Prefetch(
                 "assignees",
-                queryset=DestructionListAssignee.objects.select_related(
-                    "user", "user__role"
+                queryset=DestructionListAssignee.objects.prefetch_related(
+                    "user__user_permissions"
                 ).order_by("pk"),
             )
         )

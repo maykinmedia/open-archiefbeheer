@@ -14,7 +14,7 @@ class DestructionListViewsTests(PlaywrightTestCase):
         @sync_to_async
         def _create_record_manager():
             record_manager = UserFactory.create(
-                role__can_start_destruction=True,
+                post__can_start_destruction=True,
                 password="ANic3Password",
             )
             return record_manager

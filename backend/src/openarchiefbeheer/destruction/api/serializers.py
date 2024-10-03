@@ -46,7 +46,7 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         fields = ("user",)
 
     def validate_user(self, user: User) -> User:
-        if not user.role.can_review_destruction:
+        if not user.has_perm("accounts.can_review_destruction"):
             raise ValidationError(
                 _(
                     "The chosen user does not have the permission of reviewing a destruction list."
@@ -70,18 +70,18 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
 class MarkAsFinalSerializer(serializers.Serializer):
     comment = serializers.CharField(allow_blank=True)
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all().select_related("role")
+        queryset=User.objects.all().prefetch_related("user_permissions")
     )
 
-    def validate_user(self, value: User) -> User:
-        if not value.role.can_review_final_list:
+    def validate_user(self, user: User) -> User:
+        if not user.has_perm("accounts.can_review_final_list"):
             raise ValidationError(
                 _(
                     "The chosen user does not have the permission to review a final list."
                 )
             )
 
-        return value
+        return user
 
 
 class DestructionListAssigneeReadSerializer(serializers.ModelSerializer):
@@ -354,11 +354,11 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
         if (
             (
                 destruction_list.status == ListStatus.ready_to_review
-                and not user.role.can_review_destruction
+                and not user.has_perm("accounts.can_review_destruction")
             )
             or (
                 destruction_list.status == ListStatus.ready_for_archivist
-                and not user.role.can_review_final_list
+                and not user.has_perm("accounts.can_review_final_list")
             )
             or destruction_list.status
             not in [ListStatus.ready_to_review, ListStatus.ready_for_archivist]

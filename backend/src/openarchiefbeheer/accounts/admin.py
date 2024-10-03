@@ -3,10 +3,9 @@ from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
 
 from .forms import PreventPrivilegeEscalationMixin, UserChangeForm
-from .models import Role, User
+from .models import User
 from .utils import validate_max_user_permissions
 
 
@@ -14,7 +13,6 @@ from .utils import validate_max_user_permissions
 class UserAdmin(_UserAdmin):
     hijack_success_url = reverse_lazy("root")
     form = UserChangeForm
-    list_display = _UserAdmin.list_display + ("role",)
 
     def get_form(self, request, obj=None, **kwargs):
         ModelForm = super().get_form(request, obj, **kwargs)
@@ -34,18 +32,3 @@ class UserAdmin(_UserAdmin):
             raise PermissionDenied from exc
 
         return super().user_change_password(request, id, form_url)
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super().get_fieldsets(request, obj)
-        return tuple(fieldsets) + ((_("Role"), {"fields": ("role",)}),)
-
-
-@admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "can_start_destruction",
-        "can_review_destruction",
-        "can_view_case_details",
-        "can_review_final_list",
-    )

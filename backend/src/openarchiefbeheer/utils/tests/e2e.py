@@ -46,6 +46,7 @@ async def browser_page_with_tracing():
 
 class PlaywrightTestCase(StaticLiveServerTestCase):
     port = settings.E2E_PORT
+    fixtures = ["permissions.json"]
 
     def setUp(self):
         super().setUp()
