@@ -27,7 +27,10 @@ import {
 import { useAsync } from "react-use";
 
 import "./App.css";
-import { User, whoAmI } from "./lib/api/auth";
+import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
+import ExtraConfigContext, {
+  OidcInfo,
+} from "./lib/contexts/ExtraConfigContext";
 import { formatUser } from "./lib/format/user";
 
 function App() {
@@ -38,10 +41,19 @@ function App() {
   const handle = match?.handle as Record<string, unknown>;
 
   const [user, setUser] = useState<User | null>(null);
+  const [oidcInfo, setOidcInfo] = useState<OidcInfo>({
+    enabled: false,
+    loginUrl: "",
+  });
 
   useAsync(async () => {
     const user = await whoAmI();
     setUser(user);
+  }, [state]);
+
+  useAsync(async () => {
+    const info = await getOIDCInfo();
+    setOidcInfo(info);
   }, [state]);
 
   const breadcrumbItems = (
@@ -150,9 +162,11 @@ function App() {
           ],
         }}
       >
-        <ModalService>
-          <Outlet />
-        </ModalService>
+        <ExtraConfigContext.Provider value={{ oidc: oidcInfo }}>
+          <ModalService>
+            <Outlet />
+          </ModalService>
+        </ExtraConfigContext.Provider>
       </NavigationContext.Provider>
     </div>
   );
