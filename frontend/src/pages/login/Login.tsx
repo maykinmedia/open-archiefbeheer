@@ -14,6 +14,18 @@ export type LoginProps = React.ComponentProps<"main"> & {
   // Props here.
 };
 
+/*
+ * Add the redirect URL to the callback URL
+ */
+const makeRedirectUrl = (oidcLoginUrl: string) => {
+  const currentUrl = new URL(window.location.href);
+  const redirectUrl = new URL("/", currentUrl);
+  const loginUrl = new URL(oidcLoginUrl);
+  loginUrl.searchParams.set("next", redirectUrl.href);
+
+  return loginUrl.href;
+};
+
 /**
  * Login page
  */
@@ -49,11 +61,9 @@ export function LoginPage({ ...props }: LoginProps) {
 
   const oidcProps: Partial<LoginTemplateProps> = {};
   if (oidc?.enabled) {
-    oidcProps.urlOidcLogin = oidc.loginUrl;
+    oidcProps.urlOidcLogin = makeRedirectUrl(oidc.loginUrl);
     oidcProps.labelOidcLogin = "Organisatie login";
   }
-
-  console.log(oidc, oidcProps, props);
 
   return (
     <LoginTemplate

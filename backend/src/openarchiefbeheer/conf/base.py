@@ -633,3 +633,6 @@ CELERY_BEAT_SCHEDULE = {
 #
 OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationRequestView"
 OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
+OIDC_REDIRECT_ALLOWED_HOSTS = config(
+    "OIDC_REDIRECT_ALLOWED_HOSTS", default="", split=True
+)
