@@ -75,3 +75,17 @@ To do this, replace the context manager ``browser_page`` in the test that is fai
 In the ``.github/workflows/ci.yaml``, go to the e2e-tests and uncomment the last step. This will upload the recorded 
 trace so that you can download it and look at it.
 
+Keycloak tests
+==============
+
+To run the E2E tests that check the OIDC login, Keycloak needs to be running locally.
+
+There is a ``docker-compose.yaml`` file to run Keycloak locally. It is located in the ``backend/docker-services/keycloak`` folder.
+Inside this folder, there is also a fixture which loads an ``openarchiefbeheer-dev`` realm, with the roles/groups already configured.
+The fixture is automatically loaded into Keycloak when the container is started.
+There are also two users:
+
+   * John Doe (``john_doe`` / ``aNic3Passw0rd``) who is a superuser.
+   * Alice Doe (``alice_doe`` / ``aNic3Passw0rd``) who is a record manager.
+
+There is also a Keycloak admin user (``admin`` / ``admin``) that can be used to log into the Keycloak admin.
