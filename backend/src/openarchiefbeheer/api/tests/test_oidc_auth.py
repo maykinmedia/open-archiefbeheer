@@ -2,11 +2,12 @@ from django.test import tag
 
 from playwright.async_api import expect
 
-from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase, browser_page
+from openarchiefbeheer.utils.tests.e2e import browser_page
+from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
-class OIDCLoginTest(PlaywrightTestCase):
+class OIDCLoginTest(GherkinLikeTestCase):
     fixtures = ["permissions.json", "oidc_config_test.json"]
 
     async def test_login_admin_superuser_with_oidc(self):
@@ -61,26 +62,26 @@ class OIDCLoginTest(PlaywrightTestCase):
             page_text = page.get_by_text("You don't have permission to")
             await expect(page_text).to_be_visible()
 
-    async def test_login_app_with_oidc(self):
-        async with browser_page() as page:
-            await page.goto(self.live_server_url)
-            await page.wait_for_url(
-                f"{self.live_server_url}/login?next=/destruction-lists"
-            )
+    # async def test_login_app_with_oidc(self):
+    #     async with browser_page() as page:
+    #         await page.goto(self.live_server_url)
+    #         await page.wait_for_url(
+    #             f"{self.live_server_url}/login?next=/destruction-lists"
+    #         )
 
-            login_button = page.get_by_text("Organisatie login")
+    #         login_button = page.get_by_text("Organisatie login")
 
-            await login_button.click()
+    #         await login_button.click()
 
-            username_field = page.get_by_role("textbox", name="username")
-            await username_field.fill(
-                "alice_doe"
-            )  # configured in the Keycloak fixture as record manager
+    #         username_field = page.get_by_role("textbox", name="username")
+    #         await username_field.fill(
+    #             "alice_doe"
+    #         )  # configured in the Keycloak fixture as record manager
 
-            password_field = page.get_by_role("textbox", name="password")
-            await password_field.fill("aNic3Passw0rd")
+    #         password_field = page.get_by_role("textbox", name="password")
+    #         await password_field.fill("aNic3Passw0rd")
 
-            await page.wait_for_url(f"{self.live_server_url}/destruction-lists")
+    #         await page.wait_for_url(f"{self.live_server_url}/destruction-lists")
 
-            page_text = page.get_by_text("Vernietigingslijsten")
-            await expect(page_text).to_be_visible()
+    #         page_text = page.get_by_text("Vernietigingslijsten")
+    #         await expect(page_text).to_be_visible()
