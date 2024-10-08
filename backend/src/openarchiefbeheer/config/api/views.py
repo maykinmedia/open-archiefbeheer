@@ -45,6 +45,8 @@ class ArchiveConfigView(APIView):
         tags=["Configuration"],
         summary=_("Update archive configuration"),
         description=_("Update archive configuration."),
+        request=ArchiveConfigSerializer,
+        responses={200: ArchiveConfigSerializer},
     )
     def put(self, request, *args, **kwargs) -> Response:
         return self.update()
@@ -53,6 +55,8 @@ class ArchiveConfigView(APIView):
         tags=["Configuration"],
         summary=_("Update archive configuration"),
         description=_("Partially update archive configuration."),
+        request=ArchiveConfigSerializer,
+        responses={200: ArchiveConfigSerializer},
     )
     def patch(self, request, *args, **kwargs) -> Response:
         return self.update(partial=True)
