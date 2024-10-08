@@ -195,7 +195,10 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         label: isArchiefactiedatumActive ? "archiefactiedatum" : undefined,
         name: "archiefactiedatum",
         required: true,
-        type: isArchiefactiedatumActive ? "date" : "hidden",
+        type:
+          isArchiefactiedatumActive && selectielijstklasse !== "blijven_bewaren"
+            ? "date"
+            : "hidden",
         value: _formState.archiefactiedatum,
       },
     ];
