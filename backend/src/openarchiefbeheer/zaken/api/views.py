@@ -13,9 +13,14 @@ from openarchiefbeheer.utils.datastructure import HashableDict
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
-from ..utils import format_zaaktype_choices, retrieve_selectielijstklasse_choices
+from ..utils import (
+    format_zaaktype_choices,
+    retrieve_paginated_type,
+    retrieve_selectielijstklasse_choices,
+)
 from .filtersets import ZaakFilter
 from .serializers import (
+    ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
     SelectielijstklasseChoicesSerializer,
     ZaaktypeChoiceSerializer,
@@ -108,3 +113,75 @@ class SelectielijstklasseChoicesView(APIView):
 
         choices = retrieve_selectielijstklasse_choices(query_params)
         return Response(data=choices)
+
+
+class StatustypeChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve statustypen choices"),
+        description=_(
+            "Retrieve statustypen from Open Zaak and return a "
+            "value and a label per statustype. The label is the field 'omschrijving'."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        results = retrieve_paginated_type("statustypen")
+
+        serializer = ChoiceSerializer(data=results, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class InformatieobjecttypeChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve informatieobjecttypen choices"),
+        description=_(
+            "Retrieve informatieobjecttypen from Open Zaak and return a "
+            "value and a label per informatieobjecttype. The label is the field 'omschrijving'."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        results = retrieve_paginated_type("informatieobjecttypen")
+
+        serializer = ChoiceSerializer(data=results, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ResultaattypeChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve resultaattypen choices"),
+        description=_(
+            "Retrieve resultaattypen from Open Zaak and return a "
+            "value and a label per resultaattype. The label is the field 'omschrijving'."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        results = retrieve_paginated_type("resultaattypen")
+
+        serializer = ChoiceSerializer(data=results, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
