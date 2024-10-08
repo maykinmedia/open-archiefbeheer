@@ -336,3 +336,23 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     delete_relation_object(zrc_client, "zaak", zaak.url, result_store)
     delete_documents(result_store)
     delete_zaak(zaak, zrc_client, result_store)
+
+
+@lru_cache
+def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
+    def format_choice(item: dict) -> DropDownChoice:
+        return {"label": item["omschrijving"] or item["url"], "value": item["url"]}
+
+    ztc_service = Service.objects.get(api_type=APITypes.ztc)
+    ztc_client = build_client(ztc_service)
+
+    with ztc_client:
+        response = ztc_client.get(resource_path)
+        response.raise_for_status()
+        data_iterator = pagination_helper(ztc_client, response.json())
+
+    results = []
+    for page in data_iterator:
+        results += [format_choice(result) for result in page["results"]]
+
+    return results
