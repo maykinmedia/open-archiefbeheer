@@ -21,6 +21,7 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
 )
+from openarchiefbeheer.zaken.utils import retrieve_paginated_type
 
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from .factories import ZaakFactory
@@ -633,4 +634,292 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
             self.client.get(endpoint.url)
             self.client.get(endpoint.url)
 
+        self.assertEqual(len(m.request_history), 1)
+
+
+class ResultaattypenChoicesViewTests(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+        self.addCleanup(retrieve_paginated_type.cache_clear)
+
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-resultaattype-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @Mocker()
+    def test_retrieve_choices(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/resultaattypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/resultaattypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/resultaattypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://oz.nl/api/v1/resultaattypen/111-111-111",
+                    "label": "Blabla 1",
+                },
+                {
+                    "value": "http://oz.nl/api/v1/resultaattypen/222-222-222",
+                    "label": "http://oz.nl/api/v1/resultaattypen/222-222-222",
+                },
+            ],
+        )
+
+    @Mocker()
+    def test_retrieve_choices_caches_request(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/resultaattypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/resultaattypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/resultaattypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Repeat request
+        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Only one call to openzaak
+        self.assertEqual(len(m.request_history), 1)
+
+
+class InformatieobjecttypenChoicesViewTests(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+        self.addCleanup(retrieve_paginated_type.cache_clear)
+
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-informatieobjecttype-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @Mocker()
+    def test_retrieve_choices(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/informatieobjecttypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/informatieobjecttypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/informatieobjecttypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-informatieobjecttype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://oz.nl/api/v1/informatieobjecttypen/111-111-111",
+                    "label": "Blabla 1",
+                },
+                {
+                    "value": "http://oz.nl/api/v1/informatieobjecttypen/222-222-222",
+                    "label": "http://oz.nl/api/v1/informatieobjecttypen/222-222-222",
+                },
+            ],
+        )
+
+    @Mocker()
+    def test_retrieve_choices_caches_request(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/informatieobjecttypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/informatieobjecttypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/informatieobjecttypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-informatieobjecttype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Repeat request
+        response = self.client.get(reverse("api:retrieve-informatieobjecttype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Only one call to openzaak
+        self.assertEqual(len(m.request_history), 1)
+
+
+class StatustypenChoicesViewTests(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+        self.addCleanup(retrieve_paginated_type.cache_clear)
+
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-statustype-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @Mocker()
+    def test_retrieve_choices(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/statustypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/statustypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/statustypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-statustype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://oz.nl/api/v1/statustypen/111-111-111",
+                    "label": "Blabla 1",
+                },
+                {
+                    "value": "http://oz.nl/api/v1/statustypen/222-222-222",
+                    "label": "http://oz.nl/api/v1/statustypen/222-222-222",
+                },
+            ],
+        )
+
+    @Mocker()
+    def test_retrieve_choices_caches_request(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://oz.nl/api/v1",
+        )
+        user = UserFactory.create()
+
+        m.get(
+            "http://oz.nl/api/v1/statustypen",
+            json={
+                "count": 2,
+                "results": [
+                    {
+                        "url": "http://oz.nl/api/v1/statustypen/111-111-111",
+                        "omschrijving": "Blabla 1",
+                    },
+                    {
+                        "url": "http://oz.nl/api/v1/statustypen/222-222-222",
+                        "omschrijving": "",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-statustype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Repeat request
+        response = self.client.get(reverse("api:retrieve-statustype-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Only one call to openzaak
         self.assertEqual(len(m.request_history), 1)
