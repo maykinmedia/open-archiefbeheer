@@ -18,6 +18,45 @@ class ArchiveConfig(SingletonModel):
         blank=True,
     )
 
+    bronorganisatie = models.CharField(
+        "bronorganisatie",
+        max_length=9,
+        blank=True,
+        help_text=_("Source organisation RSIN"),
+    )
+    zaaktype = models.URLField(
+        "zaaktype",
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "The case type URL to use when creating the case for the destruction list deletion."
+        ),
+    )
+    statustype = models.URLField(
+        "statustype",
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "The status type URL to use when creating the case for the destruction list deletion."
+        ),
+    )
+    resultaattype = models.URLField(
+        "resultaattype",
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "The result type URL to use when creating the case for the destruction list deletion."
+        ),
+    )
+    informatieobjecttype = models.URLField(
+        "informatieobjecttype",
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "The document type URL to use when creating the case for the destruction list deletion."
+        ),
+    )
+
     class Meta:
         verbose_name = _("archive configuration")
         verbose_name_plural = _("archive configurations")
