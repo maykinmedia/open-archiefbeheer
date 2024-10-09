@@ -1,14 +1,19 @@
+import csv
 import logging
 import uuid as _uuid
 from datetime import date
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.files import File
 from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from privates.fields import PrivateMediaFileField
+from slugify import slugify
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.models import User
@@ -108,6 +113,12 @@ class DestructionList(models.Model):
         blank=True,
         null=True,
     )
+    destruction_report = PrivateMediaFileField(
+        _("destruction report"),
+        upload_to="destruction_reports/%Y/%m/%d/",
+        blank=True,
+        null=True,
+    )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
 
@@ -184,6 +195,53 @@ class DestructionList(models.Model):
         self.set_status(ListStatus.new)
         self.planned_destruction_date = None
         self.processing_status = InternalStatus.new
+        self.save()
+
+    def generate_destruction_report(self) -> None:
+        if not self.status == ListStatus.deleted:
+            logger.warning("The destruction list has not been deleted yet.")
+            return
+
+        fieldnames = [
+            "url",
+            "einddatum",
+            "resultaat",
+            "startdatum",
+            "omschrijving",
+            "identificatie",
+            "zaaktype url",
+            "zaaktype omschrijving",
+            "selectielijst procestype nummer",
+        ]
+        with NamedTemporaryFile(mode="w", newline="", delete_on_close=False) as f_tmp:
+            writer = csv.DictWriter(f_tmp, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in self.items.filter(
+                processing_status=InternalStatus.succeeded
+            ).iterator(chunk_size=1000):
+                data = {
+                    **item.extra_zaak_data,
+                    **{
+                        "zaaktype url": item.extra_zaak_data["zaaktype"]["url"],
+                        "zaaktype omschrijving": item.extra_zaak_data["zaaktype"][
+                            "omschrijving"
+                        ],
+                        "selectielijst procestype nummer": item.extra_zaak_data[
+                            "zaaktype"
+                        ]["selectielijst_procestype"]["nummer"],
+                    },
+                }
+                del data["zaaktype"]
+
+                writer.writerow(data)
+
+            f_tmp.close()
+            with open(f_tmp.name, mode="r") as f:
+                django_file = File(f)
+                self.destruction_report.save(
+                    f"report_{slugify(self.name)}.csv", django_file
+                )
+
         self.save()
 
 

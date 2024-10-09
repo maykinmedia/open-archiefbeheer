@@ -123,5 +123,6 @@ def complete_and_notify(pk: int) -> None:
     destruction_list.save()
 
     destruction_list.set_status(ListStatus.deleted)
+    destruction_list.generate_destruction_report()
 
     notify_assignees_successful_deletion(destruction_list)
