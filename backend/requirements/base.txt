@@ -46,7 +46,7 @@ cryptography==43.0.1
     #   django-simple-certmanager
     #   pyopenssl
     #   webauthn
-django==4.2.15
+django==4.2.16
     # via
     #   -r requirements/base.in
     #   django-admin-index
