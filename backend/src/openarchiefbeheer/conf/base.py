@@ -128,6 +128,7 @@ INSTALLED_APPS = [
     "django_filters",
     "solo",
     "ordered_model",
+    "privates",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -622,3 +623,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour="12", minute="0"),
     },
 }
+
+#
+# Django privates
+#
+PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private_media")
+
+PRIVATE_MEDIA_URL = "/private-media/"
