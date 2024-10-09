@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from privates.admin import PrivateMediaMixin
+
 from .models import (
     DestructionList,
     DestructionListAssignee,
@@ -12,7 +14,7 @@ from .models import (
 
 
 @admin.register(DestructionList)
-class DestructionListAdmin(admin.ModelAdmin):
+class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
     list_display = ("name", "status", "created", "end")
     list_filter = ("status", "assignee")
     search_fields = ("name",)
