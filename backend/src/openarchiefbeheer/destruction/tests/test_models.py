@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from unittest.mock import patch
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -83,6 +83,46 @@ class DestructionListItemTest(TestCase):
         item.refresh_from_db()
 
         self.assertEqual(item._zaak_url, "http://zaken.nl/1")
+
+    def test_zaak_data_present_after_deletion(self):
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak__omschrijving="Test description",
+            zaak__zaaktype="http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+            zaak__identificatie="ZAAK-01",
+            zaak__startdatum=date(2020, 1, 1),
+            zaak__einddatum=date(2022, 1, 1),
+            zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-111",
+        )
+
+        with patch(
+            "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects"
+        ):
+            item.process_deletion()
+
+        item.refresh_from_db()
+
+        self.assertEqual(item.processing_status, InternalStatus.succeeded)
+        self.assertEqual(
+            item.extra_zaak_data["url"], "http://zaken.nl/api/v1/zaken/111-111-111"
+        )
+        self.assertEqual(item.extra_zaak_data["omschrijving"], "Test description")
+        self.assertEqual(item.extra_zaak_data["identificatie"], "ZAAK-01")
+        self.assertEqual(item.extra_zaak_data["startdatum"], "2020-01-01")
+        self.assertEqual(item.extra_zaak_data["einddatum"], "2022-01-01")
+        self.assertEqual(
+            item.extra_zaak_data["zaaktype"],
+            {
+                "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                "omschrijving": "Aangifte behandelen",
+                "selectielijst_procestype": {"nummer": 1},
+            },
+        )
+        self.assertEqual(
+            item.extra_zaak_data["resultaat"],
+            "http://zaken.nl/api/v1/resultaten/111-111-111",
+        )
 
 
 class ReviewResponseTests(TestCase):
