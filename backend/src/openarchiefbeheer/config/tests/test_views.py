@@ -41,7 +41,14 @@ class ArchiveConfigViews(APITestCase):
         self.client.force_login(user)
         response = self.client.put(
             reverse("api:archive-config"),
-            data={"zaaktypesShortProcess": ["http://tralala.nl"]},
+            data={
+                "zaaktypesShortProcess": ["http://tralala.nl"],
+                "bronorganisatie": "000000000",
+                "zaaktype": "http://bla.nl",
+                "statustype": "http://bla.nl",
+                "resultaattype": "http://bla.nl",
+                "informatieobjecttype": "http://bla.nl",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
