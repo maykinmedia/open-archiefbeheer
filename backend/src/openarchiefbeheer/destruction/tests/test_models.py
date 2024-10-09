@@ -6,12 +6,13 @@ from django.test import TestCase
 from django.utils import timezone
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
-from ..constants import InternalStatus, ListItemStatus
+from ..constants import InternalStatus, ListItemStatus, ListStatus
 from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
@@ -199,6 +200,7 @@ class ReviewResponseTests(TestCase):
         )
 
 
+@temp_private_root()
 class DestructionListTest(TestCase):
     def test_has_long_review_process(self):
         destruction_list = DestructionListFactory.create()
@@ -260,3 +262,88 @@ class DestructionListTest(TestCase):
             has_short_review_process = destruction_list.has_short_review_process()
 
         self.assertTrue(has_short_review_process)
+
+    def test_generate_destruction_report(self):
+        destruction_list = DestructionListFactory.create(status=ListStatus.deleted)
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-111",
+                "omschrijving": "Test description 1",
+                "identificatie": "ZAAK-01",
+                "startdatum": "2020-01-01",
+                "einddatum": "2022-01-01",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                    },
+                },
+            },
+        )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-222",
+                "omschrijving": "Test description 2",
+                "identificatie": "ZAAK-02",
+                "startdatum": "2020-01-02",
+                "einddatum": "2022-01-02",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-222",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                    },
+                },
+            },
+        )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-333",
+                "omschrijving": "Test description 3",
+                "identificatie": "ZAAK-03",
+                "startdatum": "2020-01-03",
+                "einddatum": "2022-01-03",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-333",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 2,
+                    },
+                },
+            },
+        )
+
+        destruction_list.generate_destruction_report()
+
+        destruction_list.refresh_from_db()
+
+        destruction_list.destruction_report
+        lines = [line for line in destruction_list.destruction_report.readlines()]
+
+        self.assertEqual(len(lines), 4)
+        self.assertEqual(
+            lines[0],
+            b"url,einddatum,resultaat,startdatum,omschrijving,identificatie,zaaktype url,zaaktype omschrijving,selectielijst procestype nummer\n",
+        )
+        self.assertEqual(
+            lines[1],
+            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
+        )
+        self.assertEqual(
+            lines[2],
+            b"http://zaken.nl/api/v1/zaken/111-111-222,2022-01-02,http://zaken.nl/api/v1/resultaten/111-111-222,2020-01-02,Test description 2,ZAAK-02,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
+        )
+        self.assertEqual(
+            lines[3],
+            b"http://zaken.nl/api/v1/zaken/111-111-333,2022-01-03,http://zaken.nl/api/v1/resultaten/111-111-333,2020-01-03,Test description 3,ZAAK-03,http://catalogi.nl/api/v1/zaaktypen/111-111-222,Tralala zaaktype,2\n",
+        )

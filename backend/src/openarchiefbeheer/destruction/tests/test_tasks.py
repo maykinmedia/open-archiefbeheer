@@ -6,6 +6,7 @@ from django.core import mail
 from django.test import TestCase, override_settings
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from requests_mock import Mocker
 from testfixtures import log_capture
 from zgw_consumers.constants import APITypes
@@ -198,6 +199,7 @@ class ProcessReviewResponseTests(TestCase):
         )  # NOT changed!!
 
 
+@temp_private_root()
 class ProcessDeletingZakenTests(TestCase):
     @log_capture(level=logging.INFO)
     def test_skips_if_already_succeeded(self, logs):
@@ -243,11 +245,21 @@ class ProcessDeletingZakenTests(TestCase):
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
+            zaak__omschrijving="Test description 1",
+            zaak__identificatie="ZAAK-01",
+            zaak__startdatum=date(2020, 1, 1),
+            zaak__einddatum=date(2022, 1, 1),
+            zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-111",
             destruction_list=destruction_list,
         )
         item2 = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken.nl/api/v1/zaken/222-222-222",
+            zaak__omschrijving="Test description 2",
+            zaak__identificatie="ZAAK-02",
+            zaak__startdatum=date(2020, 1, 2),
+            zaak__einddatum=date(2022, 1, 2),
+            zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-222",
             destruction_list=destruction_list,
         )
 
@@ -298,6 +310,18 @@ class ProcessDeletingZakenTests(TestCase):
                     "http://zaken.nl/api/v1/zaken/222-222-222",
                 ]
             ).exists()
+        )
+
+        lines = [line for line in destruction_list.destruction_report.readlines()]
+
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(
+            lines[1],
+            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogue-api.nl/zaaktypen/111-111-111,Aangifte behandelen,1\n",
+        )
+        self.assertEqual(
+            lines[2],
+            b"http://zaken.nl/api/v1/zaken/222-222-222,2022-01-02,http://zaken.nl/api/v1/resultaten/111-111-222,2020-01-02,Test description 2,ZAAK-02,http://catalogue-api.nl/zaaktypen/111-111-111,Aangifte behandelen,1\n",
         )
 
     @log_capture(level=logging.INFO)
@@ -351,13 +375,16 @@ class ProcessDeletingZakenTests(TestCase):
         )
 
     def test_complete_and_notify(self):
-        list = DestructionListFactory.create(
+        destruction_list = DestructionListFactory.create(
+            name="Some destruction list",
             processing_status=InternalStatus.processing,
             status=ListStatus.ready_to_delete,
         )
         assignees = DestructionListAssigneeFactory.create_batch(
-            3, destruction_list=list
+            3, destruction_list=destruction_list
         )
+
+        self.assertIsNone(destruction_list.destruction_report.name)
 
         with (
             patch(
@@ -367,8 +394,9 @@ class ProcessDeletingZakenTests(TestCase):
                     body_successful_deletion="Wohoo deleted list",
                 ),
             ),
+            freeze_time("2024-10-09"),
         ):
-            complete_and_notify(list.pk)
+            complete_and_notify(destruction_list.pk)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
@@ -377,10 +405,22 @@ class ProcessDeletingZakenTests(TestCase):
         )
         self.assertEqual(mail.outbox[0].subject, "DELETED!")
 
-        list.refresh_from_db()
+        destruction_list.refresh_from_db()
 
-        self.assertEqual(list.status, ListStatus.deleted)
-        self.assertEqual(list.processing_status, InternalStatus.succeeded)
+        self.assertEqual(destruction_list.status, ListStatus.deleted)
+        self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
+        self.assertEqual(
+            destruction_list.destruction_report.name,
+            "destruction_reports/2024/10/09/report_some-destruction-list.csv",
+        )
+
+        lines = [line for line in destruction_list.destruction_report.readlines()]
+
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(
+            lines[0],
+            b"url,einddatum,resultaat,startdatum,omschrijving,identificatie,zaaktype url,zaaktype omschrijving,selectielijst procestype nummer\n",
+        )
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_other_items_processed_if_one_fails(self):
@@ -469,7 +509,7 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(items[1]._zaak_url, "")
 
     def test_queuing_lists_to_delete(self):
-        list = DestructionListFactory.create(
+        destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete,
             processing_status=InternalStatus.new,
             planned_destruction_date=date(2023, 1, 1),
@@ -501,4 +541,4 @@ class ProcessDeletingZakenTests(TestCase):
         ):
             queue_destruction_lists_for_deletion()
 
-        m.assert_called_once_with(list)
+        m.assert_called_once_with(destruction_list)
