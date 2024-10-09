@@ -131,6 +131,7 @@ INSTALLED_APPS = [
     "django_jsonform",
     "mozilla_django_oidc",
     "mozilla_django_oidc_db",
+    "privates",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -636,3 +637,9 @@ OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
 OIDC_REDIRECT_ALLOWED_HOSTS = config(
     "OIDC_REDIRECT_ALLOWED_HOSTS", default="", split=True
 )
+
+# Django privates
+#
+PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private_media")
+
+PRIVATE_MEDIA_URL = "/private-media/"
