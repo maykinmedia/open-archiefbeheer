@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@maykin-ui/admin-ui": "^0.0.32",
+    "@maykin-ui/admin-ui": "^0.0.33",
     "@storybook/test-runner": "^0.18.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/user-event": "^13.5.0",
