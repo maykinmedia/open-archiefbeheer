@@ -336,3 +336,10 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     delete_relation_object(zrc_client, "zaak", zaak.url, result_store)
     delete_documents(result_store)
     delete_zaak(zaak, zrc_client, result_store)
+
+
+def get_zaak_metadata(zaak: Zaak) -> dict:
+    from .api.serializers import ZaakMetadataSerializer
+
+    serializer = ZaakMetadataSerializer(instance=zaak)
+    return serializer.data
