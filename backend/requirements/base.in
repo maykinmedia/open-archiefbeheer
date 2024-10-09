@@ -15,6 +15,7 @@ maykin-2fa
 django-timeline-logger
 django-solo
 mozilla-django-oidc-db
+django-privates
 
 # API libraries
 djangorestframework
@@ -35,3 +36,4 @@ celery
 # Additional libraries
 zgw-consumers
 furl
+python-slugify
