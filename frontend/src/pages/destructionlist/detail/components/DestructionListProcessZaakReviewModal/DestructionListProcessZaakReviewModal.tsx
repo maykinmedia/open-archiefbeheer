@@ -192,7 +192,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label: isArchiefactiedatumActive ? "Archief datum" : undefined,
+        label: isArchiefactiedatumActive ? "archiefactiedatum" : undefined,
         name: "archiefactiedatum",
         required: true,
         type: isArchiefactiedatumActive ? "date" : "hidden",
