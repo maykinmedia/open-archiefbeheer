@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../.storybook/decorators";
-import ExtraConfigContext from "../../lib/contexts/ExtraConfigContext";
+import OidcConfigContext from "../../lib/contexts/OidcConfigContext";
 import { LoginPage } from "./Login";
 
 const meta: Meta<typeof LoginPage> = {
@@ -23,16 +23,14 @@ export const LoginPageStory: Story = {
 
 export const LoginPageWithOIDC: Story = {
   render: (args) => (
-    <ExtraConfigContext.Provider
+    <OidcConfigContext.Provider
       value={{
-        oidc: {
-          enabled: true,
-          loginUrl: "http://backend.nl/oidc/authenticate",
-        },
+        enabled: true,
+        loginUrl: "http://backend.nl/oidc/authenticate",
       }}
     >
       <LoginPage />
-    </ExtraConfigContext.Provider>
+    </OidcConfigContext.Provider>
   ),
   play: async (context) => {
     const canvas = within(context.canvasElement);

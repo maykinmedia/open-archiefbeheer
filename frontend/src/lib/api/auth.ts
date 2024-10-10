@@ -1,5 +1,5 @@
 import { cacheDelete, cacheMemo } from "../cache/cache";
-import { OidcInfo } from "../contexts/ExtraConfigContext";
+import { OidcConfigContextType } from "../contexts/OidcConfigContext";
 import { request } from "./request";
 
 export type User = {
@@ -54,7 +54,7 @@ export async function whoAmI() {
 export async function getOIDCInfo() {
   return cacheMemo("getOIDCInfo", async () => {
     const response = await request("GET", "/oidc-info");
-    const promise: Promise<OidcInfo> = response.json();
+    const promise: Promise<OidcConfigContextType> = response.json();
     return promise;
   });
 }

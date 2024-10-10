@@ -7,7 +7,7 @@ import {
 import { useContext } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 
-import ExtraConfigContext from "../../lib/contexts/ExtraConfigContext";
+import OidcConfigContext from "../../lib/contexts/OidcConfigContext";
 import "./Login.css";
 
 export type LoginProps = React.ComponentProps<"main"> & {
@@ -30,7 +30,8 @@ const makeRedirectUrl = (oidcLoginUrl: string) => {
  * Login page
  */
 export function LoginPage({ ...props }: LoginProps) {
-  const { oidc } = useContext(ExtraConfigContext);
+  const { enabled: oidcEnabled, loginUrl: oidcLoginUrl } =
+    useContext(OidcConfigContext);
 
   const fields = [
     {
@@ -60,8 +61,8 @@ export function LoginPage({ ...props }: LoginProps) {
   const { detail, nonFieldErrors, ...errors } = formErrors;
 
   const oidcProps: Partial<LoginTemplateProps> = {};
-  if (oidc?.enabled) {
-    oidcProps.urlOidcLogin = makeRedirectUrl(oidc.loginUrl);
+  if (oidcEnabled) {
+    oidcProps.urlOidcLogin = makeRedirectUrl(oidcLoginUrl);
     oidcProps.labelOidcLogin = "Organisatie login";
   }
 
