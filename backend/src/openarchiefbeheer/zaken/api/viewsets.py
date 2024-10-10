@@ -24,7 +24,7 @@ from .serializers import ZaakSerializer
     ),
 )
 class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Zaak.objects.all()
+    queryset = Zaak.objects.all().order_by("pk")
     serializer_class = ZaakSerializer
     permission_classes = [
         IsAuthenticated & (CanStartDestructionPermission | CanReviewPermission)
