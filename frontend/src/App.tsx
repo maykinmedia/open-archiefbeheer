@@ -28,9 +28,9 @@ import { useAsync } from "react-use";
 
 import "./App.css";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
-import ExtraConfigContext, {
-  OidcInfo,
-} from "./lib/contexts/ExtraConfigContext";
+import OidcConfigContext, {
+  OidcConfigContextType,
+} from "./lib/contexts/OidcConfigContext";
 import { formatUser } from "./lib/format/user";
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
   const handle = match?.handle as Record<string, unknown>;
 
   const [user, setUser] = useState<User | null>(null);
-  const [oidcInfo, setOidcInfo] = useState<OidcInfo>({
+  const [oidcInfo, setOidcInfo] = useState<OidcConfigContextType>({
     enabled: false,
     loginUrl: "",
   });
@@ -162,11 +162,11 @@ function App() {
           ],
         }}
       >
-        <ExtraConfigContext.Provider value={{ oidc: oidcInfo }}>
+        <OidcConfigContext.Provider value={oidcInfo}>
           <ModalService>
             <Outlet />
           </ModalService>
-        </ExtraConfigContext.Provider>
+        </OidcConfigContext.Provider>
       </NavigationContext.Provider>
     </div>
   );
