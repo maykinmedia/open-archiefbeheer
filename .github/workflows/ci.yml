@@ -15,6 +15,7 @@ env:
   IMAGE_NAME: maykinmedia/open-archiefbeheer
   DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
   DOCKER_BUILDKIT: '1'
+  KEYCLOAK_BASE_URL: http://localhost:28080
 
 jobs:
   frontend-build:
@@ -191,6 +192,24 @@ jobs:
           npm-ci-flags: '--legacy-peer-deps'
           working-directory: backend
           nvmrc-custom-dir: backend
+      
+      - name: Start CI docker services
+        run: |
+          docker compose up -d
+        working-directory: backend/docker-services/keycloak
+
+      - name: Wait for Keycloak to be up
+        run: |
+          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
+          realm=""
+
+          until [ $realm ]; do
+            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
+            realm=$(curl "$endpoint" -s | jq -r ".realm")
+            sleep 2
+          done
+
+          echo "Running Keycloak with realm $realm"
 
       # See https://playwright.dev/python/docs/ci#caching-browsers
       - name: Cache Playwright browser

@@ -9,6 +9,7 @@ from django.views.generic.base import TemplateView
 
 from maykin_2fa import monkeypatch_admin
 from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
+from mozilla_django_oidc_db.views import AdminLoginFailure
 
 from openarchiefbeheer.accounts.views.password_reset import PasswordResetView
 
@@ -39,6 +40,7 @@ urlpatterns = [
     path("admin/", include((webauthn_urlpatterns, "two_factor"))),
     path("admin/hijack/", include("hijack.urls")),
     path("admin/", admin.site.urls),
+    path("admin/login/failure/", AdminLoginFailure.as_view(), name="admin-oidc-error"),
     path(
         "reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(),
@@ -49,6 +51,7 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    path("oidc/", include("mozilla_django_oidc.urls")),
     path("api/", include("openarchiefbeheer.api.urls", namespace="api")),
     # Simply show the master template.
     path("", TemplateView.as_view(template_name="master.html"), name="root"),

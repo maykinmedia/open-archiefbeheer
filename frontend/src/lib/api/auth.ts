@@ -1,4 +1,5 @@
 import { cacheDelete, cacheMemo } from "../cache/cache";
+import { OidcConfigContextType } from "../contexts/OidcConfigContext";
 import { request } from "./request";
 
 export type User = {
@@ -43,6 +44,17 @@ export async function whoAmI() {
   return cacheMemo("whoAmI", async () => {
     const response = await request("GET", "/whoami/");
     const promise: Promise<User> = response.json();
+    return promise;
+  });
+}
+
+/**
+ * API call to get info about OIDC.
+ */
+export async function getOIDCInfo() {
+  return cacheMemo("getOIDCInfo", async () => {
+    const response = await request("GET", "/oidc-info");
+    const promise: Promise<OidcConfigContextType> = response.json();
     return promise;
   });
 }
