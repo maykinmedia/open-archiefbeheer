@@ -72,6 +72,7 @@ export function useFields(
     {
       name: "startdatum",
       type: "daterange",
+      filterValue: `${searchParams.get("startdatum__gte")}/${searchParams.get("startdatum__lte")}`,
       valueTransform: (rowData) =>
         rowData.startdatum ? formatDate(rowData.startdatum as string) : "",
       width: "150px",
@@ -79,6 +80,7 @@ export function useFields(
     {
       name: "einddatum",
       type: "daterange",
+      filterValue: `${searchParams.get("einddatum__gte")}/${searchParams.get("einddatum__lte")}`,
       valueTransform: (rowData) =>
         rowData.einddatum ? formatDate(rowData.einddatum as string) : "",
       width: "150px",
@@ -135,6 +137,7 @@ export function useFields(
       name: "archiefactiedatum",
       type: "daterange",
       width: "130px",
+      filterValue: `${searchParams.get("archiefactiedatum__gte")}/${searchParams.get("archiefactiedatum__lte")}`,
       valueTransform: (rowData) =>
         rowData.archiefactiedatum
           ? formatDate(rowData.archiefactiedatum as string)
