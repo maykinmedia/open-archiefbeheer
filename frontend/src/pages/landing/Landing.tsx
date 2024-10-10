@@ -241,7 +241,7 @@ export const Landing = () => {
               ),
               size: "xs",
               variant: "primary",
-              disabled: !canStartDestructionList(user),
+              hidden: !canStartDestructionList(user),
               onClick: () => navigate("/destruction-lists/create"),
             },
           ],
