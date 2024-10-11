@@ -12,7 +12,7 @@ from openarchiefbeheer.accounts.api.views import (
     ReviewersView,
     WhoAmIView,
 )
-from openarchiefbeheer.config.api.views import ArchiveConfigView
+from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListItemReviewViewSet,
@@ -101,6 +101,7 @@ urlpatterns = [
                 path(
                     "archive-config", ArchiveConfigView.as_view(), name="archive-config"
                 ),
+                path("oidc-info", OIDCInfoView.as_view(), name="oidc-info"),
                 path(
                     "_retrieve_zaken/", CacheZakenView.as_view(), name="retrieve-zaken"
                 ),

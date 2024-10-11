@@ -1,13 +1,15 @@
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema
+from mozilla_django_oidc_db.models import OpenIDConnectConfig
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
 
 from ..models import ArchiveConfig
-from .serializers import ArchiveConfigSerializer
+from .serializers import ArchiveConfigSerializer, OIDCInfoSerializer
 
 
 class ArchiveConfigView(APIView):
@@ -60,3 +62,21 @@ class ArchiveConfigView(APIView):
     )
     def patch(self, request, *args, **kwargs) -> Response:
         return self.update(partial=True)
+
+
+class OIDCInfoView(APIView):
+    authentication_classes = ()
+    permission_classes = ()
+
+    @extend_schema(
+        summary=_("Retrieve OIDC info"),
+        description=_("Returns info about OIDC that is needed by the frontend. "),
+        tags=["Configuration"],
+        responses={
+            200: OIDCInfoSerializer,
+        },
+    )
+    def get(self, request: Request, *args, **kwargs):
+        config = OpenIDConnectConfig.get_solo()
+        serializer = OIDCInfoSerializer(instance=config, context={"request": request})
+        return Response(serializer.data)
