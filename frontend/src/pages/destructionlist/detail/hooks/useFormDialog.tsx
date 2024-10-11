@@ -48,22 +48,27 @@ export const useFormDialog = () => {
         {typeof message === "string" ? <P>{message}</P> : message}
         <Form
           fields={fields}
+          justify="stretch"
           labelSubmit={labelConfirm}
           secondaryActions={[
             {
               children: labelCancel,
               type: "button",
               variant: "secondary",
-              onClick: () => {
-                setModalProps({ open: false });
+              onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                e.stopPropagation();
                 onCancel?.();
+                setModalProps({ open: false });
               },
             },
           ]}
           validateOnChange={true}
-          onSubmit={(_, data) => {
-            setModalProps({ open: false });
+          onSubmit={(e, data) => {
+            e.preventDefault();
+            e.stopPropagation();
             onConfirm(data);
+            setModalProps({ open: false });
           }}
           {...formProps}
         />

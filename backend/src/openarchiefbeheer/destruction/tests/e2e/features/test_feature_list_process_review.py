@@ -68,7 +68,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
 
             # Fill archive date
             await self.when.user_clicks_radio(page, "Verlengen bewaartermijn")
-            await self.when.user_fills_form_field(page, "Archief datum", "09/15/2023")
+            await self.when.user_fills_form_field(page, "Dag van de maand", "09/15/2023")
             await page.keyboard.press("Enter")
 
             await self.when.user_fills_form_field(page, "Reden", "Andere datum")
