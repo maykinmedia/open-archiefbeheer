@@ -36,9 +36,9 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list select all")
 
-            list = await get_list("Destruction list select all")
+            destruction_list = await get_list("Destruction list select all")
 
-            await self.then.list_should_have_number_of_items(list, 200)
+            await self.then.list_should_have_number_of_items(destruction_list, 200)
 
     async def test_scenario_record_manager_creates_list_with_select_all_and_filters(self):
         async with browser_page() as page:
@@ -67,6 +67,6 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list select all with filters")
 
-            list = await get_list("Destruction list select all with filters")
+            destruction_list = await get_list("Destruction list select all with filters")
 
-            await self.then.list_should_have_number_of_items(list, 5)
+            await self.then.list_should_have_number_of_items(destruction_list, 5)

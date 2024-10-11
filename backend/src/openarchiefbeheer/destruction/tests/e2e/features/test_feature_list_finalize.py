@@ -23,7 +23,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
             ]
 
-            list = await self.given.list_exists(
+            destruction_list = await self.given.list_exists(
                 assignee=record_manager,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
@@ -32,7 +32,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             )
 
             # Reviewer provided a review.
-            await self.given.review_exists(author=reviewer, destruction_list=list, decision=ReviewDecisionChoices.accepted)
+            await self.given.review_exists(author=reviewer, destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted)
 
             await self.when.record_manager_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -47,4 +47,4 @@ class FeatureListCreateTests(GherkinLikeTestCase):
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to finalize")
-            await self.then.list_should_have_status(page, list, ListStatus.ready_for_archivist)
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.ready_for_archivist)

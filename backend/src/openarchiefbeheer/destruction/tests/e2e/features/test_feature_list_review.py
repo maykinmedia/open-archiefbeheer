@@ -35,7 +35,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
-            list = await self.given.list_exists(
+            destruction_list = await self.given.list_exists(
                 assignee=reviewer,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
@@ -55,7 +55,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
-            await self.then.list_should_have_status(page, list, ListStatus.internally_reviewed)
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.internally_reviewed)
 
     async def test_scenario_reviewer_rejects_list(self):
         async with browser_page() as page:
@@ -69,7 +69,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
-            list = await self.given.list_exists(
+            destruction_list = await self.given.list_exists(
                 assignee=reviewer,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
@@ -91,7 +91,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
-            await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.changes_requested)
 
     @tag("gh-372")
     async def test_scenario_reviewer_reviews_second_time(self):
@@ -102,18 +102,18 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             zaken = ZaakFactory.create_batch(2)
             
-            list = DestructionListFactory.create(
+            destruction_list = DestructionListFactory.create(
                 author=record_manager,
                 assignee=reviewer,
                 status=ListStatus.ready_to_review,
                 uuid="00000000-0000-0000-0000-000000000000",
                 name="Destruction list to review",
             )
-            item = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[0])
-            DestructionListItemFactory.create(destruction_list=list, zaak=zaken[1])
+            item = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[0])
+            DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[1])
 
-            review = DestructionListReviewFactory.create(destruction_list=list, author=reviewer, decision=ReviewDecisionChoices.rejected)
-            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item, review=review)
+            review = DestructionListReviewFactory.create(destruction_list=destruction_list, author=reviewer, decision=ReviewDecisionChoices.rejected)
+            DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item, review=review)
             
         async with browser_page() as page:
             await self.given.data_exists(create_data)
@@ -135,7 +135,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
-            list = await self.given.list_exists(
+            destruction_list = await self.given.list_exists(
                 assignee=archivist,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
@@ -155,7 +155,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
-            await self.then.list_should_have_status(page, list, ListStatus.ready_to_delete)
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.ready_to_delete)
 
     async def test_scenario_archivist_rejects_list(self):
         async with browser_page() as page:
@@ -167,7 +167,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
-            list = await self.given.list_exists(
+            destruction_list = await self.given.list_exists(
                 assignee=archivist,
                 assignees=assignees,
                 uuid="00000000-0000-0000-0000-000000000000",
@@ -189,7 +189,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to review")
-            await self.then.list_should_have_status(page, list, ListStatus.changes_requested)
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.changes_requested)
 
     async def test_zaaktype_filters(self):
         @sync_to_async
@@ -279,19 +279,19 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", post__can_review_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
-            list = DestructionListFactory.create(
+            destruction_list = DestructionListFactory.create(
                 author=record_manager,
                 assignee=reviewer,
                 status=ListStatus.ready_to_review,
                 uuid="00000000-0000-0000-0000-000000000000",
                 name="Destruction list to review",
             )
-            item1 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[0])
-            item2 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[1])
+            item1 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[0])
+            item2 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[1])
 
-            review = DestructionListReviewFactory.create(destruction_list=list, decision=ReviewDecisionChoices.rejected)
-            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item1, review=review)
-            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item2, review=review)
+            review = DestructionListReviewFactory.create(destruction_list=destruction_list, decision=ReviewDecisionChoices.rejected)
+            DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item1, review=review)
+            DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item2, review=review)
 
             # Simulate the zaak being deleted by *something else*
             item1.zaak.delete()

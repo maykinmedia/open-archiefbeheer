@@ -90,15 +90,17 @@ class ZakenViewSetTest(APITestCase):
             status=ListItemStatus.suggested,
             processing_status=InternalStatus.succeeded,
         )
-        list = DestructionListFactory.create()
+        destruction_list = DestructionListFactory.create()
         for zaak in zaken_in_list:
-            DestructionListItemFactory.create(destruction_list=list, zaak=zaak)
+            DestructionListItemFactory.create(
+                destruction_list=destruction_list, zaak=zaak
+            )
 
         user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["not_in_destruction_list_except"] = str(list.uuid)
+        endpoint.args["not_in_destruction_list_except"] = str(destruction_list.uuid)
         response = self.client.get(endpoint.url)
         data = response.json()
 
