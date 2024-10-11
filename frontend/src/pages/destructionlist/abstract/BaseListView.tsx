@@ -51,7 +51,8 @@ export type BaseListViewProps = React.PropsWithChildren<{
 
   dataGridProps?: Partial<DataGridProps>;
 
-  onClearZaakSelection?: () => void; // FIXME: REMOVE?
+  onClearZaakSelection?: () => void;
+  onSelectionChange?: (rows: AttributeData[]) => void;
 }>;
 
 export function BaseListView({
@@ -78,6 +79,7 @@ export function BaseListView({
   children,
 
   onClearZaakSelection,
+  onSelectionChange,
 }: BaseListViewProps) {
   const { state } = useNavigation();
   const [page, setPage] = usePage();
@@ -182,7 +184,8 @@ export function BaseListView({
         allowSelectAllPages,
         allPagesSelected,
         count: paginatedZaken.count,
-        equalityChecker: (a, b) => a.uuid === b.uuid || a.url === b.url,
+        equalityChecker: (a, b) =>
+          a && b && (a.uuid === b.uuid || a.url === b.url),
         fields,
         filterTransform,
         loading: state === "loading",
@@ -199,6 +202,7 @@ export function BaseListView({
         onPageChange: setPage,
         onSelect: handleSelect,
         onSelectAllPages: handleSelectAllPages,
+        onSelectionChange: onSelectionChange,
         onSort: setSort,
 
         ...dataGridProps,

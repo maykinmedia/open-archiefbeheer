@@ -1,6 +1,5 @@
 import { AttributeData } from "@maykin-ui/admin-ui";
 import { useEffect, useMemo, useState } from "react";
-import { useRevalidator } from "react-router-dom";
 
 import {
   ZaakSelection,
@@ -61,8 +60,6 @@ export function useZaakSelection<T = unknown>(
     clearZaakSelection: ZaakSelectionClearer;
   },
 ] {
-  const revalidator = useRevalidator();
-
   // All pages selected.
   const [allPagesSelectedState, setAllPagesSelectedState] = useState<boolean>();
 
@@ -255,7 +252,6 @@ export function useZaakSelection<T = unknown>(
 
     await _updatePageSpecificZaakSelectionState();
     await _updateSelectionSizeState();
-    revalidator.revalidate();
   };
 
   /**
@@ -270,7 +266,6 @@ export function useZaakSelection<T = unknown>(
 
     _updatePageSpecificZaakSelectionState();
     await _updateAllPagesSelectedState(selected);
-    revalidator.revalidate();
   };
 
   /**
@@ -280,7 +275,6 @@ export function useZaakSelection<T = unknown>(
     await libClearZaakSelection(storageKey);
     await _updateAllPagesSelectedState(false);
     setZaakSelectionState({});
-    revalidator.revalidate();
   };
 
   return [
