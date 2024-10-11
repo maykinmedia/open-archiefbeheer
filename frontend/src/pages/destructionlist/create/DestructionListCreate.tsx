@@ -113,8 +113,6 @@ export function DestructionListCreatePage() {
                 Vernietigingslijst opstellen
               </>
             ),
-            disabled: !allPagesSelected && !hasSelection,
-
             variant: "primary",
             wrap: false,
             onClick: handleClick,
@@ -131,6 +129,7 @@ export function DestructionListCreatePage() {
         <Body>
           <Form
             fields={modalFormFields}
+            justify="stretch"
             onSubmit={handleSubmit}
             validateOnChange={true}
             labelSubmit="Vernietigingslijst opstellen"

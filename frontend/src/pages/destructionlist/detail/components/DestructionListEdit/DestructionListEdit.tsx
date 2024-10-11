@@ -109,6 +109,7 @@ export function DestructionListEdit() {
                   Annuleren
                 </>
               ),
+              disabled: false, // Set explicitly to prevent automatic value based on selection presence.
               wrap: false,
               onClick: () => handleSetEditing(false),
             },

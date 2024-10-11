@@ -1,12 +1,10 @@
 import { AttributeData } from "@maykin-ui/admin-ui";
 import { useEffect, useMemo, useState } from "react";
-import { useRevalidator } from "react-router-dom";
 
 import {
   ZaakSelection,
   addToZaakSelection,
   getAllZakenSelected,
-  getFilteredZaakSelection,
   getZaakSelectionItem,
   getZaakSelectionSize,
   clearZaakSelection as libClearZaakSelection,
@@ -61,13 +59,8 @@ export function useZaakSelection<T = unknown>(
     clearZaakSelection: ZaakSelectionClearer;
   },
 ] {
-  const revalidator = useRevalidator();
-
   // All pages selected.
   const [allPagesSelectedState, setAllPagesSelectedState] = useState<boolean>();
-
-  // Has selection items.
-  const [hasSelectionState, setHasSelectionState] = useState<boolean>();
 
   // Selection count
   const [selectionSizeState, setSelectionSizeState] = useState<number>(0);
@@ -82,13 +75,6 @@ export function useZaakSelection<T = unknown>(
     getAllZakenSelected(storageKey).then((selected) => {
       if (selected !== allPagesSelectedState) {
         setAllPagesSelectedState(selected);
-      }
-    });
-
-    getFilteredZaakSelection(storageKey).then((zs) => {
-      const hasSelection = Object.keys(zs).length > 0;
-      if (hasSelection !== hasSelectionState) {
-        setHasSelectionState(hasSelection);
       }
     });
 
@@ -255,7 +241,6 @@ export function useZaakSelection<T = unknown>(
 
     await _updatePageSpecificZaakSelectionState();
     await _updateSelectionSizeState();
-    revalidator.revalidate();
   };
 
   /**
@@ -270,7 +255,6 @@ export function useZaakSelection<T = unknown>(
 
     _updatePageSpecificZaakSelectionState();
     await _updateAllPagesSelectedState(selected);
-    revalidator.revalidate();
   };
 
   /**
@@ -280,14 +264,13 @@ export function useZaakSelection<T = unknown>(
     await libClearZaakSelection(storageKey);
     await _updateAllPagesSelectedState(false);
     setZaakSelectionState({});
-    revalidator.revalidate();
   };
 
   return [
     selectedZakenOnPage,
     onSelect,
     {
-      hasSelection: Boolean(hasSelectionState || allPagesSelectedState),
+      hasSelection: Boolean(selectionSizeState || allPagesSelectedState),
       allPagesSelected: Boolean(allPagesSelectedState),
       selectionSize: selectionSizeState,
       deSelectedZakenOnPage,

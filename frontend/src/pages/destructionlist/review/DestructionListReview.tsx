@@ -8,7 +8,7 @@ import {
   usePrompt,
 } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useRevalidator } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
@@ -28,6 +28,7 @@ export const getDestructionListReviewKey = (id: string) =>
  */
 export function DestructionListReviewPage() {
   const prompt = usePrompt();
+  const revalidator = useRevalidator();
 
   // rows: AttributeData[], selected: boolean
   const {
@@ -48,7 +49,6 @@ export function DestructionListReviewPage() {
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
-    // console.log("objectList");
     return paginatedZaken.results.map((zaak) => {
       const badge = zaakReviewStatusBadges[zaak.url as string].badge;
       const actions = getActionsToolbarForZaak(zaak);
@@ -282,6 +282,14 @@ export function DestructionListReviewPage() {
     return { approved };
   };
 
+  /**
+   * Gets called when the selection changes outside of the per-zaak toolbar.
+   * Revalidates the loader so the selection is up2date.
+   */
+  const handleSelectionChange = () => {
+    revalidator.revalidate();
+  };
+
   return (
     <BaseListView
       storageKey={destructionListReviewKey}
@@ -300,6 +308,8 @@ export function DestructionListReviewPage() {
         labelSelect: "Markeren als (on)gezien",
         labelSelectAll: "Alles als (on)gezien markeren",
       }}
+      onSelectionChange={handleSelectionChange}
+      onClearZaakSelection={handleSelectionChange}
     ></BaseListView>
   );
 }

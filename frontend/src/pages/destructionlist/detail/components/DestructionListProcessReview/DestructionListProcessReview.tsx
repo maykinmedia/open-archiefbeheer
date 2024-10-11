@@ -142,9 +142,6 @@ export function DestructionListProcessReview() {
     };
   }, [reviewItems, objectList]);
 
-  // Selection actions based on `editingState`.
-  const selectionActions: ButtonProps[] = useMemo(() => [], []);
-
   /**
    * Gets called when te selection is cleared.
    */
@@ -227,7 +224,6 @@ export function DestructionListProcessReview() {
       paginatedZaken={paginatedZaken}
       secondaryNavigationItems={secondaryNavigationItems}
       selectable="visible"
-      selectionActions={selectionActions}
       storageKey={storageKey}
       onClearZaakSelection={handleClearSelection}
     >
