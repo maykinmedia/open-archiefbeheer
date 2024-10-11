@@ -131,6 +131,7 @@ export function DestructionListCreatePage() {
         <Body>
           <Form
             fields={modalFormFields}
+            justify="stretch"
             onSubmit={handleSubmit}
             validateOnChange={true}
             labelSubmit="Vernietigingslijst opstellen"
