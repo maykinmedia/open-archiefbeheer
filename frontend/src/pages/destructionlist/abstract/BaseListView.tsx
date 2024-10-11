@@ -144,23 +144,28 @@ export function BaseListView({
 
   // Selection actions.
   const getSelectionActions = useCallback(() => {
-    const fixedItems =
-      selectable && hasSelection
-        ? ([
-            {
-              children: (
-                <>
-                  <Solid.ExclamationTriangleIcon />
-                  Huidige selectie wissen
-                </>
-              ),
-              variant: "warning",
-              wrap: false,
-              onClick: handleClearZaakSelection,
-            },
-          ] as ButtonProps[])
-        : [];
-    return [...(selectionActions || []), ...fixedItems];
+    const disabled = selectable && hasSelection;
+    const dynamicItems = (selectionActions || []).map((props) =>
+      Object.hasOwn(props, "disabled")
+        ? props
+        : { ...props, disabled: selectable && !hasSelection },
+    );
+    const fixedItems = disabled
+      ? ([
+          {
+            children: (
+              <>
+                <Solid.ExclamationTriangleIcon />
+                Huidige selectie wissen
+              </>
+            ),
+            variant: "warning",
+            wrap: false,
+            onClick: handleClearZaakSelection,
+          },
+        ] as ButtonProps[])
+      : [];
+    return [...dynamicItems, ...fixedItems];
   }, [selectable, hasSelection, selectedZakenOnPage, selectionActions]);
 
   return (
