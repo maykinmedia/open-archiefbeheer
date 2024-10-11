@@ -297,6 +297,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
               <Column span={9}>
                 <Form
                   autoComplete="off"
+                  justify="stretch"
                   noValidate
                   fields={getFields()}
                   labelSubmit={`${zaak?.identificatie} muteren`}
