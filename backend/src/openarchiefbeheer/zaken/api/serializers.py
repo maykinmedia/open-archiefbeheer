@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_gis.fields import GeometryField
@@ -120,3 +121,30 @@ class ZaakTypeChoicesQueryParamSerializer(serializers.Serializer):
                 _("Multiple query parameters at the same time are not supported.")
             )
         return attrs
+
+
+class ZaakMetadataSerializer(serializers.ModelSerializer):
+    zaaktype = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Zaak
+        fields = (
+            "url",
+            "einddatum",
+            "resultaat",
+            "startdatum",
+            "omschrijving",
+            "identificatie",
+            "zaaktype",
+        )
+
+    @extend_schema_field(serializers.JSONField)
+    def get_zaaktype(self, zaak: Zaak) -> dict | None:
+        zaaktype = zaak._expand["zaaktype"]
+        return {
+            "url": zaaktype["url"],
+            "omschrijving": zaaktype["omschrijving"],
+            "selectielijst_procestype": {
+                "nummer": zaaktype["selectielijst_procestype"]["nummer"]
+            },
+        }

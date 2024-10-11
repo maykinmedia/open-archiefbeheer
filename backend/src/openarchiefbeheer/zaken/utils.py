@@ -356,3 +356,10 @@ def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
         results += [format_choice(result) for result in page["results"]]
 
     return results
+
+
+def get_zaak_metadata(zaak: Zaak) -> dict:
+    from .api.serializers import ZaakMetadataSerializer
+
+    serializer = ZaakMetadataSerializer(instance=zaak)
+    return serializer.data
