@@ -177,19 +177,19 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             record_manager = UserFactory.create(username="Record Manager", password="ANic3Password", post__can_start_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
-            list = DestructionListFactory.create(
+            destruction_list = DestructionListFactory.create(
                 author=record_manager,
                 assignee=record_manager,
                 status=ListStatus.changes_requested,
                 uuid="00000000-0000-0000-0000-000000000000",
                 name="Destruction list to process",
             )
-            item1 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[0])
-            item2 = DestructionListItemFactory.create(destruction_list=list, zaak=zaken[1])
+            item1 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[0])
+            item2 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[1])
 
-            review = DestructionListReviewFactory.create(destruction_list=list, decision=ReviewDecisionChoices.rejected)
-            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item1, review=review)
-            DestructionListItemReviewFactory.create(destruction_list=list, destruction_list_item=item2, review=review)
+            review = DestructionListReviewFactory.create(destruction_list=destruction_list, decision=ReviewDecisionChoices.rejected)
+            DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item1, review=review)
+            DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item2, review=review)
 
             # Simulate the zaak being deleted by *something else*
             item1.zaak.delete()
