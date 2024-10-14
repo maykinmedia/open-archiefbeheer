@@ -1,13 +1,22 @@
+from base64 import b64encode
 from typing import Protocol
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import OuterRef, Q, Subquery
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+from zgw_consumers.client import build_client
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
+from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 
 from .constants import InternalStatus, ListRole
@@ -121,3 +130,117 @@ def resync_items_and_zaken() -> None:
             Zaak.objects.filter(url=OuterRef("_zaak_url")).values("pk")[:1]
         )
     )
+
+
+def create_zaak_for_report(
+    destruction_list: DestructionList, store: ResultStore
+) -> None:
+    config = ArchiveConfig.get_solo()
+
+    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_client = build_client(zrc_service)
+
+    with zrc_client:
+        if not destruction_list.zaak_destruction_report_url:
+            response = zrc_client.post(
+                "zaken",
+                headers={
+                    "Accept-Crs": "EPSG:4326",
+                    "Content-Crs": "EPSG:4326",
+                },
+                json={
+                    "bronorganisatie": config.bronorganisatie,
+                    "omschrijving": _("Destruction report of list: %(list_name)s")
+                    % {"list_name": destruction_list.name},
+                    "zaaktype": config.zaaktype,
+                    "vertrouwelijkheidaanduiding": "openbaar",
+                    "startdatum": timezone.now().date().isoformat(),
+                    "verantwoordelijkeOrganisatie": config.bronorganisatie,
+                    "archiefnominatie": "blijvend_bewaren",
+                },
+                timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
+            )
+            response.raise_for_status()
+            new_zaak = response.json()
+
+            destruction_list.zaak_destruction_report_url = new_zaak["url"]
+            destruction_list.save()
+
+        if not store.has_created_resource("resultaten"):
+            response = zrc_client.post(
+                "resultaten",
+                json={
+                    "zaak": destruction_list.zaak_destruction_report_url,
+                    "resultaattype": config.resultaattype,
+                },
+            )
+            response.raise_for_status()
+            store.add_created_resource("resultaten", response.json()["url"])
+
+        if not store.has_created_resource("statussen"):
+            response = zrc_client.post(
+                "statussen",
+                json={
+                    "zaak": destruction_list.zaak_destruction_report_url,
+                    "statustype": config.statustype,
+                    "datum_status_gezet": timezone.now().date().isoformat(),
+                },
+            )
+            response.raise_for_status()
+            store.add_created_resource("statussen", response.json()["url"])
+
+
+def create_eio_destruction_report(
+    destruction_list: DestructionList, store: ResultStore
+) -> None:
+    if store.has_created_resource("enkelvoudiginformatieobjecten"):
+        return
+
+    config = ArchiveConfig.get_solo()
+
+    drc_service = Service.objects.get(api_type=APITypes.drc)
+    drc_client = build_client(drc_service)
+
+    with drc_client, destruction_list.destruction_report.open("rb") as f_report:
+        response = drc_client.post(
+            "enkelvoudiginformatieobjecten",
+            json={
+                "bronorganisatie": config.bronorganisatie,
+                "creatiedatum": timezone.now().date().isoformat(),
+                "titel": _("Destruction report of list: %(list_name)s")
+                % {"list_name": destruction_list.name},
+                "auteur": "Open Archiefbeheer",
+                "taal": "nld",
+                "formaat": "text/csv",
+                "inhoud": b64encode(f_report.read()).decode("utf-8"),
+                "informatieobjecttype": config.informatieobjecttype,
+                "indicatie_gebruiksrecht": False,
+            },
+        )
+        response.raise_for_status()
+        new_document = response.json()
+
+        store.add_created_resource("enkelvoudiginformatieobjecten", new_document["url"])
+
+
+def attach_report_to_zaak(
+    destruction_list: DestructionList, store: ResultStore
+) -> None:
+    if store.has_created_resource("zaakinformatieobjecten"):
+        return
+
+    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_client = build_client(zrc_service)
+
+    with zrc_client:
+        response = zrc_client.post(
+            "zaakinformatieobjecten",
+            json={
+                "zaak": destruction_list.zaak_destruction_report_url,
+                "informatieobject": store.get_created_resources(
+                    "enkelvoudiginformatieobjecten"
+                )[0],
+            },
+        )
+        response.raise_for_status()
+        store.add_created_resource("zaakinformatieobjecten", response.json()["url"])

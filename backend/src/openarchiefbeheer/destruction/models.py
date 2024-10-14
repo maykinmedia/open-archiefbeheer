@@ -97,6 +97,7 @@ class DestructionList(models.Model):
             "The URL of the case containing the destruction report for this destruction list."
         ),
         blank=True,
+        max_length=1000,
     )
     processing_status = models.CharField(
         _("processing status"),
@@ -118,6 +119,14 @@ class DestructionList(models.Model):
         upload_to="destruction_reports/%Y/%m/%d/",
         blank=True,
         null=True,
+    )
+    internal_results = models.JSONField(
+        verbose_name=_("internal result"),
+        help_text=_(
+            "After this list is processed, the URL of the resources created in Open Zaak "
+            "to store the destruction report are stored here."
+        ),
+        default=dict,
     )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
@@ -243,6 +252,24 @@ class DestructionList(models.Model):
                 )
 
         self.save()
+
+    def create_report_zaak(self) -> None:
+        from .utils import (
+            attach_report_to_zaak,
+            create_eio_destruction_report,
+            create_zaak_for_report,
+        )
+
+        if self.processing_status == InternalStatus.succeeded:
+            return
+
+        destruction_list = self
+        store = ResultStore(store=destruction_list)
+
+        create_zaak_for_report(destruction_list, store)
+        create_eio_destruction_report(destruction_list, store)
+
+        attach_report_to_zaak(destruction_list, store)
 
 
 class DestructionListItem(models.Model):
