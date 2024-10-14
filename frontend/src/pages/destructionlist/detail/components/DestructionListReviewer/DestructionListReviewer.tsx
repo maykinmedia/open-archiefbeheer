@@ -67,22 +67,27 @@ export function DestructionListReviewer({
             labeledObject={{
               reviewer: {
                 label: "Beoordelaar",
-                value: formatUser(reviewer.user),
+                value: (
+                  <>
+                    {formatUser(reviewer.user)}
+                    &nbsp;
+                    <Button
+                      aria-label="Beoordelaar bewerken"
+                      disabled={state === "loading" || state === "submitting"}
+                      size="xs"
+                      variant="secondary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setModalState(true);
+                      }}
+                    >
+                      <Solid.PencilIcon />
+                    </Button>
+                  </>
+                ),
               },
             }}
           />
-
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              setModalState(true);
-            }}
-            disabled={state === "loading" || state === "submitting"}
-            size="xs"
-          >
-            <Solid.PencilIcon />
-            Bewerken
-          </Button>
         </>
       )}
 

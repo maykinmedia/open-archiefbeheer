@@ -100,7 +100,7 @@ const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
   await clickButton({
     ...context,
     parameters: {
-      name: "Bewerken",
+      name: "Beoordelaar bewerken",
     },
   });
 
@@ -166,12 +166,11 @@ export const EditDestructionList: Story = {
     },
   },
   play: async (context) => {
-    await assertReassignDestructionList(context);
     const canvas = within(context.canvasElement);
-    const editButton = await canvas.findAllByRole("button", {
+    const editButton = await canvas.findByRole("button", {
       name: "Bewerken",
     });
-    userEvent.click(editButton[1], { delay: 10 });
+    userEvent.click(editButton, { delay: 10 });
     // When the 'Annuleren' button is visible, then the "edit mode" is active
     const cancelButton = await canvas.findByRole("button", {
       name: "Annuleren",
