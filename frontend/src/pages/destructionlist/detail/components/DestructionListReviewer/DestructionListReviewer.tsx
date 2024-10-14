@@ -96,6 +96,7 @@ export function DestructionListReviewer({
           <Body>
             <Form
               autoComplete="off"
+              justify="stretch"
               fields={[
                 {
                   label: "Beoordelaar",
