@@ -5,6 +5,7 @@ from typing import Protocol, TypedDict
 
 class InternalResults(TypedDict):
     deleted_resources: dict[str, list]
+    created_resources: dict[str, list]
     resources_to_delete: dict[str, list]
     traceback: str = ""
 
@@ -27,6 +28,10 @@ class ResultStore:
 
         if not results.get("resources_to_delete"):
             results["resources_to_delete"] = defaultdict(list)
+
+        if not results.get("created_resources"):
+            results["created_resources"] = defaultdict(list)
+
         return results
 
     def refresh_from_db(self) -> None:
@@ -48,15 +53,33 @@ class ResultStore:
             and len(results["resources_to_delete"][resource_type]) > 0
         )
 
+    def has_created_resource(self, resource_type: str) -> bool:
+        results = self.get_internal_results()
+
+        return (
+            resource_type in results["created_resources"]
+            and len(results["created_resources"][resource_type]) > 0
+        )
+
     def add_resource_to_delete(self, resource_type: str, value: str) -> None:
         results = self.get_internal_results()
 
         results["resources_to_delete"][resource_type].append(value)
         self.save()
 
+    def add_created_resource(self, resource_type: str, value) -> None:
+        results = self.get_internal_results()
+
+        results["created_resources"][resource_type].append(value)
+        self.save()
+
     def get_resources_to_delete(self, resource_type: str) -> list[str]:
         results = self.get_internal_results()
         return results["resources_to_delete"][resource_type]
+
+    def get_created_resources(self, resource_type: str) -> list[str]:
+        results = self.get_internal_results()
+        return results["created_resources"][resource_type]
 
     def clear_resources_to_delete(self, resource_type: str) -> None:
         results = self.get_internal_results()
