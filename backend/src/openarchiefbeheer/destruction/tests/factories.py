@@ -18,6 +18,13 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
         model = "destruction.DestructionList"
         django_get_or_create = ("name",)
 
+    class Params:
+        with_report = factory.Trait(
+            destruction_report=factory.django.FileField(
+                data=b"some data", filename="report.csv"
+            ),
+        )
+
     @post_generation
     def post(destruction_list, create, extracted, **kwargs):
         if not create:
