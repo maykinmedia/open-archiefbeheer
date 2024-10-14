@@ -263,9 +263,18 @@ class ProcessDeletingZakenTests(TestCase):
             destruction_list=destruction_list,
         )
 
-        with patch(
-            "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects"
-        ) as m_delete:
+        with (
+            patch(
+                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects"
+            ) as m_delete,
+            patch(
+                "openarchiefbeheer.destruction.utils.create_zaak_for_report"
+            ) as m_zaak,
+            patch(
+                "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
+            ) as m_eio,
+            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
+        ):
             delete_destruction_list(destruction_list)
 
         destruction_list.refresh_from_db()
@@ -324,6 +333,10 @@ class ProcessDeletingZakenTests(TestCase):
             b"http://zaken.nl/api/v1/zaken/222-222-222,2022-01-02,http://zaken.nl/api/v1/resultaten/111-111-222,2020-01-02,Test description 2,ZAAK-02,http://catalogue-api.nl/zaaktypen/111-111-111,Aangifte behandelen,1\n",
         )
 
+        m_zaak.assert_called()
+        m_eio.assert_called()
+        m_zio.assert_called()
+
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
         item = DestructionListItemFactory.create(
@@ -358,6 +371,13 @@ class ProcessDeletingZakenTests(TestCase):
             patch(
                 "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
             ),
+            patch(
+                "openarchiefbeheer.destruction.utils.create_zaak_for_report"
+            ) as m_zaak,
+            patch(
+                "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
+            ) as m_eio,
+            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
         ):
             delete_destruction_list(destruction_list)
 
@@ -371,8 +391,17 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(item.processing_status, InternalStatus.succeeded)
         self.assertEqual(
             item.internal_results,
-            {"deleted_resources": {}, "resources_to_delete": {}, "traceback": ""},
+            {
+                "deleted_resources": {},
+                "resources_to_delete": {},
+                "traceback": "",
+                "created_resources": {},
+            },
         )
+
+        m_zaak.assert_called()
+        m_eio.assert_called()
+        m_zio.assert_called()
 
     def test_complete_and_notify(self):
         destruction_list = DestructionListFactory.create(
