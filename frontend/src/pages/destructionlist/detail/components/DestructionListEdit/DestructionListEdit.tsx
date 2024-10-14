@@ -180,6 +180,7 @@ export function DestructionListEdit() {
       secondaryNavigationItems={secondaryNavigationItems}
       selectable={editingState}
       selectionActions={selectionActions}
+      sortable={false}
       storageKey={storageKey}
       onClearZaakSelection={handleClearSelection}
     ></BaseListView>

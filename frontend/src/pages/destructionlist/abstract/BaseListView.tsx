@@ -44,6 +44,7 @@ export type BaseListViewProps = React.PropsWithChildren<{
   allowSelectAllPages?: boolean;
   selectionActions?: ButtonProps[];
   initiallySelectedZakenOnPage?: Zaak[];
+  sortable?: boolean;
 
   extraFields?: TypedField[];
   filterSelectionZaken?: ZaakSelectionZaakFilter;
@@ -69,6 +70,7 @@ export function BaseListView({
   allowSelectAllPages,
   selectionActions,
   initiallySelectedZakenOnPage = [],
+  sortable = true,
 
   extraFields,
   filterSelectionZaken,
@@ -196,7 +198,7 @@ export function BaseListView({
         loading: state === "loading",
         objectList: objectList,
         page,
-        sort: sort,
+        sort: sortable && sort,
         selected: selectable
           ? (selectedZakenOnPage as unknown as AttributeData[])
           : [],

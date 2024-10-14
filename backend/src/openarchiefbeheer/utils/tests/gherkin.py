@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async
 from playwright.async_api import expect
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -268,7 +269,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             except factory._meta.model.DoesNotExist:
                 return await self._factory_create(factory, **kwargs)
 
-        async def _get_or_create_batch(self, factory, amount, **kwargs):
+        async def _get_or_create_batch(self, factory, amount, recreate=False, **kwargs):
             # Remove any traits of the factory
             orm_params = {
                 key: value
@@ -276,9 +277,15 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 if key not in factory._meta.parameters
             }
 
-            queryset = await self._orm_filter(factory._meta.model, **orm_params)
-            if queryset:
-                return queryset
+            if recreate:
+                await factory._meta.model.objects.all().adelete()
+                factory.reset_sequence()
+
+            else:
+                queryset = await self._orm_filter(factory._meta.model, **orm_params)
+                if queryset:
+                    return queryset
+
             return await self._factory_create_batch(factory, amount, **kwargs)
 
     class When:
@@ -343,6 +350,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def user_clicks_radio(self, page, name, index=0):
             await self._user_clicks("radio", page, name, index=index)
+
+        async def user_selects_zaak(self, page, identificatie):
+            locator = page.get_by_role(
+                "row", name=f"(de)selecteer rij {identificatie}"
+            ).get_by_label("(de)selecteer rij")
+            await locator.click()
 
         async def _user_clicks(self, role, page, name, index=0):
             locator = page.get_by_role(role, name=name)
@@ -419,6 +432,13 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             return InvertedThen(self)
 
+        async def list_should_exist(self, page, name):
+            @sync_to_async()
+            def get_list():
+                return DestructionList.objects.get(name=name)
+
+            return await get_list()
+
         async def list_should_have_assignee(self, page, destruction_list, assignee):
             @sync_to_async()
             def refresh_list():
@@ -451,9 +471,8 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             self.testcase.assertEqual(number_of_items, count)
 
         async def page_should_contain_text(self, page, text):
-            locator = page.get_by_text(text)
-            count = await locator.count()
-            self.testcase.assertTrue(bool(count), f"{text} not found in {page}")
+            locator = page.get_by_text(text).nth(0)
+            await expect(locator).to_be_attached()
 
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
@@ -463,6 +482,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def url_should_contain_text(self, page, text):
             await expect(page).to_have_url(re.compile(text))
+
+        async def zaak_should_be_selected(self, page, identificatie):
+            locator = page.get_by_role(
+                "row", name=f"(de)selecteer rij {identificatie}"
+            ).get_by_label("(de)selecteer rij")
+            await expect(locator).to_be_checked()
 
         async def zaaktype_filters_are(self, page, expected_filters):
             select = page.get_by_label('filter veld "zaaktype"')
