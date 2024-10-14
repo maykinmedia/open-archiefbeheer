@@ -206,15 +206,19 @@ class ZaakFilter(FilterSet):
             destruction_list__uuid=value
         ).values_list("zaak__url", flat=True)
 
-        return (
-            queryset.exclude(url__in=Subquery(zaken_to_exclude))
-            .annotate(
-                in_exception_list=Case(
-                    When(url__in=Subquery(exception_list), then=Value(True))
-                )
+        qs = queryset.exclude(url__in=Subquery(zaken_to_exclude)).annotate(
+            in_exception_list=Case(
+                When(url__in=Subquery(exception_list), then=Value(True))
             )
-            .order_by("in_exception_list")
         )
+
+        # Allow edit view to check for selected zaken (destruction list items) based on index.
+        # This requires the zaken (with filter_not_in_destruction_list_except) and destruction list items endpoint (with
+        # filter_in_destruction_list) to start with exactly the same zaken (zaken endpoint starts with zaken on
+        # destruction list).
+        #
+        # FIXME: This won't work if the ordering is overridden with a custom value.
+        return qs.order_by("in_exception_list", "pk")
 
     def filter_in_review(
         self, queryset: QuerySet[Zaak], name: str, value: Decimal
