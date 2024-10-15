@@ -409,6 +409,25 @@ class ProcessDeletingZakenTests(TestCase):
             processing_status=InternalStatus.processing,
             status=ListStatus.ready_to_delete,
         )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-111",
+                "omschrijving": "Test description 1",
+                "identificatie": "ZAAK-01",
+                "startdatum": "2020-01-01",
+                "einddatum": "2022-01-01",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                    },
+                },
+            },
+        )
         assignees = DestructionListAssigneeFactory.create_batch(
             3, destruction_list=destruction_list
         )
@@ -423,6 +442,9 @@ class ProcessDeletingZakenTests(TestCase):
                     body_successful_deletion="Wohoo deleted list",
                 ),
             ),
+            patch("openarchiefbeheer.destruction.utils.create_zaak_for_report"),
+            patch("openarchiefbeheer.destruction.utils.create_eio_destruction_report"),
+            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak"),
             freeze_time("2024-10-09"),
         ):
             complete_and_notify(destruction_list.pk)
@@ -445,10 +467,14 @@ class ProcessDeletingZakenTests(TestCase):
 
         lines = [line for line in destruction_list.destruction_report.readlines()]
 
-        self.assertEqual(len(lines), 1)
+        self.assertEqual(len(lines), 2)
         self.assertEqual(
             lines[0],
             b"url,einddatum,resultaat,startdatum,omschrijving,identificatie,zaaktype url,zaaktype omschrijving,selectielijst procestype nummer\n",
+        )
+        self.assertEqual(
+            lines[1],
+            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
         )
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
