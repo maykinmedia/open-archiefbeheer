@@ -11,7 +11,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
-class FeatureListCreateTests(GherkinLikeTestCase):
+class FeatureListFinalizeTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_finalizes_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()
