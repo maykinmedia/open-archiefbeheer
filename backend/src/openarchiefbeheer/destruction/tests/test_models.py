@@ -7,8 +7,13 @@ from django.utils import timezone
 
 from freezegun import freeze_time
 from privates.test import temp_private_root
+from requests import HTTPError
+from requests_mock import Mocker
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -200,6 +205,15 @@ class ReviewResponseTests(TestCase):
         )
 
 
+TEST_DATA_ARCHIVE_CONFIG = {
+    "bronorganisatie": "000000000",
+    "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+    "statustype": "http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
+    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+    "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
+}
+
+
 @temp_private_root()
 class DestructionListTest(TestCase):
     def test_has_long_review_process(self):
@@ -346,4 +360,276 @@ class DestructionListTest(TestCase):
         self.assertEqual(
             lines[3],
             b"http://zaken.nl/api/v1/zaken/111-111-333,2022-01-03,http://zaken.nl/api/v1/resultaten/111-111-333,2020-01-03,Test description 3,ZAAK-03,http://catalogi.nl/api/v1/zaaktypen/111-111-222,Tralala zaaktype,2\n",
+        )
+
+    def test_zaak_creation_skipped_if_internal_status_succeeded(self):
+        destruction_list = DestructionListFactory.create(
+            processing_status=InternalStatus.succeeded
+        )
+
+        with patch(
+            "openarchiefbeheer.destruction.utils.create_zaak_for_report"
+        ) as m_zaak:
+            destruction_list.create_report_zaak()
+
+        m_zaak.assert_not_called()
+
+    @Mocker()
+    def test_failure_during_zaak_creation(self, m):
+        destruction_list = DestructionListFactory.create()
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+
+        m.post("http://localhost:8003/zaken/api/v1/zaken", status_code=500)
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+            ),
+            self.assertRaises(HTTPError),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.zaak_destruction_report_url, "")
+
+    @Mocker()
+    def test_failure_result_creation(self, m):
+        destruction_list = DestructionListFactory.create()
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaken",
+            json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
+        )
+        m.post("http://localhost:8003/zaken/api/v1/resultaten", status_code=500)
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+            ),
+            self.assertRaises(HTTPError),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.zaak_destruction_report_url,
+            "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+
+    @Mocker()
+    def test_failure_status_creation(self, m):
+        destruction_list = DestructionListFactory.create()
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaken",
+            json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/resultaten",
+            json={"url": "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"},
+        )
+        m.post("http://localhost:8003/zaken/api/v1/statussen", status_code=500)
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+            ),
+            self.assertRaises(HTTPError),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.zaak_destruction_report_url,
+            "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"]["resultaten"],
+            ["http://localhost:8003/zaken/api/v1/resultaten/111-111-111"],
+        )
+
+    @Mocker()
+    def test_failure_document_creation(self, m):
+        destruction_list = DestructionListFactory.create(with_report=True)
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+        ServiceFactory.create(
+            api_type=APITypes.drc,
+            api_root="http://localhost:8003/documenten/api/v1",
+        )
+
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaken",
+            json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/resultaten",
+            json={"url": "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/statussen",
+            json={"url": "http://localhost:8003/zaken/api/v1/statussen/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten",
+            status_code=500,
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+            ),
+            self.assertRaises(HTTPError),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.zaak_destruction_report_url,
+            "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"]["resultaten"],
+            ["http://localhost:8003/zaken/api/v1/resultaten/111-111-111"],
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"]["statussen"],
+            ["http://localhost:8003/zaken/api/v1/statussen/111-111-111"],
+        )
+
+    @Mocker()
+    def test_failure_zio_creation(self, m):
+        destruction_list = DestructionListFactory.create(with_report=True)
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+        ServiceFactory.create(
+            api_type=APITypes.drc,
+            api_root="http://localhost:8003/documenten/api/v1",
+        )
+
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaken",
+            json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/resultaten",
+            json={"url": "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/statussen",
+            json={"url": "http://localhost:8003/zaken/api/v1/statussen/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten",
+            json={
+                "url": "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111"
+            },
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten", status_code=500
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+            ),
+            self.assertRaises(HTTPError),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.zaak_destruction_report_url,
+            "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"]["resultaten"],
+            ["http://localhost:8003/zaken/api/v1/resultaten/111-111-111"],
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"]["statussen"],
+            ["http://localhost:8003/zaken/api/v1/statussen/111-111-111"],
+        )
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"][
+                "enkelvoudiginformatieobjecten"
+            ],
+            [
+                "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111"
+            ],
+        )
+
+    @Mocker()
+    def test_resume_after_failure(self, m):
+        destruction_list = DestructionListFactory.create(
+            zaak_destruction_report_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+        )
+        result_store = ResultStore(destruction_list)
+        internal_results = result_store.get_internal_results()
+        # Fake intermediate results that are created during failures
+        internal_results["created_resources"].update(
+            {
+                "resultaten": [
+                    "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"
+                ],
+                "statussen": [
+                    "http://localhost:8003/zaken/api/v1/statussen/111-111-111"
+                ],
+                "enkelvoudiginformatieobjecten": [
+                    "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111"
+                ],
+            }
+        )
+        result_store.save()
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+
+        m.post(
+            "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten",
+            json={
+                "url": "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/111-111-111"
+            },
+        )
+
+        # Calling create_report_zaak resumes from where there is no stored intermediate result (i.e. creating the ZIO)
+        with patch(
+            "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+            return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"][
+                "zaakinformatieobjecten"
+            ],
+            ["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/111-111-111"],
         )
