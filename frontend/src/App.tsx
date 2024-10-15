@@ -28,6 +28,7 @@ import { useAsync } from "react-use";
 
 import "./App.css";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
+import { canStartDestructionList } from "./lib/auth/permissions";
 import OidcConfigContext, {
   OidcConfigContextType,
 } from "./lib/contexts/OidcConfigContext";
@@ -84,6 +85,7 @@ function App() {
             {
               children: <Solid.DocumentPlusIcon />,
               title: "Vernietigingslijst opstellen",
+              hidden: user ? !canStartDestructionList(user) : true,
               // size: "xl",
               onClick: () => navigate("/destruction-lists/create"),
             },
