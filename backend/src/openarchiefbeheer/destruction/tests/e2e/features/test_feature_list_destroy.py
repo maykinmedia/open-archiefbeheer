@@ -8,7 +8,7 @@ from ....constants import ListStatus
 
 
 @tag("e2e")
-class FeatureListCreateTests(GherkinLikeTestCase):
+class FeatureListDestroyTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_destroys_list(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()
