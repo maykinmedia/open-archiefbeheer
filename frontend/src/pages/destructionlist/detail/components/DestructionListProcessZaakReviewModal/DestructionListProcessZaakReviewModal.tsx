@@ -86,7 +86,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     archiefactiedatum: "",
     comment: "",
   };
-
   // Form state, kept outside <Form/> to implement conditional fields (see `getFields()`).
   const [formState, setFormState] =
     useState<ProcessZaakFormState>(initialFormState);
@@ -135,6 +134,14 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       </Modal>
     );
   }
+
+  const getBewaartermijn = (selectielijstklasse: string) => {
+    const selectedChoice = selectieLijstKlasseChoices.find(
+      (choice) => choice.value === selectielijstklasse,
+    ) as (Option & { detail?: { bewaartermijn: string | null } }) | undefined;
+
+    return selectedChoice?.detail?.bewaartermijn;
+  };
 
   /**
    * Returns the `FormField[]` to show in the modal after selecting a Zaak (when processing review).
@@ -196,7 +203,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         name: "archiefactiedatum",
         required: true,
         type:
-          isArchiefactiedatumActive && selectielijstklasse !== "blijven_bewaren"
+          isArchiefactiedatumActive &&
+          !getBewaartermijn(_formState.selectielijstklasse)
             ? "date"
             : "hidden",
         value: _formState.archiefactiedatum,
@@ -223,12 +231,9 @@ export const DestructionListProcessZaakReviewModal: React.FC<
      * @param values
      */
     const archiefactiedatum = zaak?.archiefactiedatum as string;
-    const selectedSelectieLijstKlasseChoice = selectieLijstKlasseChoices.find(
-      (s) => s.value === values.selectielijstklasse,
-    ) as (Option & { detail: { bewaartermijn: string } }) | undefined;
-    const detail = selectedSelectieLijstKlasseChoice?.detail;
-
-    const bewaartermijn = detail?.bewaartermijn;
+    const bewaartermijn = getBewaartermijn(
+      values.selectielijstklasse as string,
+    );
     if (
       action === "change_selectielijstklasse" &&
       archiefactiedatum &&
