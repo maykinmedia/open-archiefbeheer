@@ -362,7 +362,7 @@ class DestructionListSerializerTests(TestCase):
             with_zaak=True,
         )
 
-        zaak = ZaakFactory.create()
+        ZaakFactory.create()
 
         # We are removing 2 zaken from the destruction list
         data = {

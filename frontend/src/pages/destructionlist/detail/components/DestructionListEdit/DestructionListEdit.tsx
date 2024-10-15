@@ -11,10 +11,7 @@ import { useSubmitAction } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import {
-  getFilteredZaakSelection,
-  getZaakSelection,
-} from "../../../../../lib/zaakSelection/zaakSelection";
+import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import {
