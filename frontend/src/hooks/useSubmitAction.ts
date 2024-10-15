@@ -1,4 +1,6 @@
-import { SubmitOptions, useSubmit } from "react-router-dom";
+import { useAlert } from "@maykin-ui/admin-ui";
+import { useEffect } from "react";
+import { SubmitOptions, useActionData, useSubmit } from "react-router-dom";
 
 // From React Router
 export type JsonObject = {
@@ -57,6 +59,20 @@ export type TypedAction<T = string, P = JsonValue> = {
  */
 export function useSubmitAction<T extends TypedAction = TypedAction>() {
   const submit = useSubmit();
+  const actionData = useActionData() as object;
+  const alert = useAlert();
+
+  // Show error(s) if present.
+  useEffect(() => {
+    if (actionData) {
+      const errors = collectErrors(actionData);
+      const messages = errors.join("\n");
+      alert("Foutmelding", messages, "Ok");
+      // 2024-10-15 SV: Log failed action in an attempt to debug flaky E2E tests.
+      // FIXME: Remove debug if no longer an issue.
+      console.debug(messages);
+    }
+  }, [actionData]);
 
   return (typedAction: T, options: SubmitOptions = {}) => {
     const targetOptions: SubmitOptions = {
@@ -66,4 +82,16 @@ export function useSubmitAction<T extends TypedAction = TypedAction>() {
     Object.assign(targetOptions, options);
     return submit(typedAction, targetOptions);
   };
+}
+
+/**
+ * Takes an errors object and returns a `string[]` with correct messages.
+ * @param errors
+ */
+function collectErrors(errors: string | object): string[] {
+  if (typeof errors === "string") {
+    return [errors];
+  }
+  const flatten = Object.values(errors).flat();
+  return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
 }
