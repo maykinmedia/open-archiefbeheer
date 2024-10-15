@@ -137,6 +137,9 @@ class DestructionList(models.Model):
             ]
         )
 
+    def remove_items(self, zaken: Iterable["Zaak"]) -> tuple[int, dict[str, int]]:
+        return self.items.filter(zaak__in=zaken).delete()
+
     def get_author(self) -> "DestructionListAssignee":
         return self.assignees.get(role=ListRole.author)
 
