@@ -140,6 +140,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       (choice) => choice.value === selectielijstklasse,
     ) as (Option & { detail?: { bewaartermijn: string | null } }) | undefined;
 
+    console.log(selectedChoice);
     return selectedChoice?.detail?.bewaartermijn;
   };
 
@@ -199,7 +200,11 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label: isArchiefactiedatumActive ? "archiefactiedatum" : undefined,
+        label:
+          isArchiefactiedatumActive &&
+          !getBewaartermijn(_formState.selectielijstklasse)
+            ? "archiefactiedatum"
+            : undefined,
         name: "archiefactiedatum",
         required: true,
         type:
