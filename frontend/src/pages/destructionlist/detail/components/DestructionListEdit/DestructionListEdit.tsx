@@ -11,10 +11,16 @@ import { useSubmitAction } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
+import {
+  getFilteredZaakSelection,
+  getZaakSelection,
+} from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
-import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
+import {
+  DestructionListUpdateZakenActionPayload,
+  UpdateDestructionListAction,
+} from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 
@@ -157,17 +163,26 @@ export function DestructionListEdit() {
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
   const handleUpdate = async () => {
-    const zaakSelection = await getZaakSelection(storageKey);
-    const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selection]) => selection.selected)
+    const zaakSelection = await getFilteredZaakSelection(
+      storageKey,
+      false,
+      false,
+    );
+    const add = Object.entries(zaakSelection)
+      .filter(([, { selected }]) => selected)
+      .map(([url]) => url);
+    const remove = Object.entries(zaakSelection)
+      .filter(([, { selected }]) => !selected)
       .map(([url]) => url);
 
-    const action: UpdateDestructionListAction<Record<string, string[]>> = {
-      type: "UPDATE_ZAKEN",
-      payload: {
-        zaakUrls,
-      },
-    };
+    const action: UpdateDestructionListAction<DestructionListUpdateZakenActionPayload> =
+      {
+        type: "UPDATE_ZAKEN",
+        payload: {
+          add,
+          remove,
+        },
+      };
     submitAction(action);
   };
 

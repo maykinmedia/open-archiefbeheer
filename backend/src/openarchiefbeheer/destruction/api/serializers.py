@@ -149,8 +149,10 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
 
 
 class DestructionListWriteSerializer(serializers.ModelSerializer):
-    reviewer = ReviewerAssigneeSerializer(required=False)
+    add = DestructionListItemWriteSerializer(many=True, required=False)
+    remove = DestructionListItemWriteSerializer(many=True, required=False)
     items = DestructionListItemWriteSerializer(many=True, required=False)
+    reviewer = ReviewerAssigneeSerializer(required=False)
     author = UserSerializer(read_only=True)
     select_all = serializers.BooleanField(
         required=False,
@@ -168,12 +170,14 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionList
         fields = (
+            "add",
+            "remove",
+            "items",
             "uuid",
             "name",
             "author",
             "contains_sensitive_info",
             "reviewer",
-            "items",
             "status",
             "select_all",
             "zaak_filters",
@@ -263,6 +267,8 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     ) -> DestructionList:
         user = self.context["request"].user
         validated_data.pop("reviewer", None)
+        add_data = validated_data.pop("add", None)
+        remove_data = validated_data.pop("remove", None)
         items_data = validated_data.pop("items", None)
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
@@ -279,7 +285,13 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
             instance.add_items(zaken)
 
-        instance.save()
+        if add_data:
+            zaken = self._get_zaken(zaak_filters, add_data or [], bulk_select)
+            self.instance.add_items(zaken)
+
+        if remove_data:
+            zaken = self._get_zaken(zaak_filters, remove_data or [], bulk_select)
+            self.instance.remove_items(zaken)
 
         logevent.destruction_list_updated(instance, user)
         return instance
