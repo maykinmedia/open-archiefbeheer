@@ -46,23 +46,12 @@ export const destructionListCreateAction = async ({
       allPagesSelected,
     );
   } catch (e: unknown) {
-    return {
-      errors: collectErrors(await (e as Response).json()),
-    };
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
   }
 
   await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
   return redirect("/");
 };
-
-/**
- * Takes an errors object and returns a `string[]` with correct messages.
- * @param errors
- */
-function collectErrors(errors: string | object): string[] {
-  if (typeof errors === "string") {
-    return [errors];
-  }
-  const flatten = Object.values(errors).flat();
-  return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
-}

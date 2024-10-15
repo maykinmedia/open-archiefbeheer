@@ -283,8 +283,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             else:
                 queryset = await self._orm_filter(factory._meta.model, **orm_params)
-                if queryset:
-                    return queryset
+                count = queryset.count() if queryset else 0
+                if count >= amount:
+                    return queryset[:amount]
+                return await self._factory_create_batch(
+                    factory, amount - count, **kwargs
+                )
 
             return await self._factory_create_batch(factory, amount, **kwargs)
 
