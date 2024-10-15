@@ -4,7 +4,6 @@ import { redirect } from "react-router-dom";
 import { JsonValue, TypedAction } from "../../../hooks";
 import { User } from "../../../lib/api/auth";
 import {
-  DestructionListItemUpdate,
   abortPlannedDestruction,
   destroyDestructionList,
   markDestructionListAsFinal,
@@ -164,8 +163,13 @@ export async function destructionListUpdateReviewerAction({
     }
     throw e;
   }
-  return redirect(`/destruction-lists/${params.uuid}/`);
+  return redirect(`/destruction-lists/${params.uuid}`);
 }
+
+export type DestructionListUpdateZakenActionPayload = {
+  add: string[];
+  remove: string[];
+};
 
 /**
  * React Router action (user intents to adds/remove zaken to/from the destruction list).
@@ -174,23 +178,21 @@ export async function destructionListUpdateZakenAction({
   request,
   params,
 }: ActionFunctionArgs) {
-  const data: UpdateDestructionListAction<Record<string, string[]>> =
+  const data: UpdateDestructionListAction<DestructionListUpdateZakenActionPayload> =
     await request.json();
-  const { zaakUrls } = data.payload;
-
-  const items = zaakUrls.map((zaakUrl) => ({
-    zaak: zaakUrl,
-  })) as DestructionListItemUpdate[];
+  const { add: _add, remove: _remove } = data.payload;
+  const add = _add.map((url) => ({ zaak: url }));
+  const remove = _remove.map((url) => ({ zaak: url }));
 
   try {
-    await updateDestructionList(params.uuid as string, { items });
+    await updateDestructionList(params.uuid as string, { add, remove });
   } catch (e: unknown) {
     if (e instanceof Response) return await (e as Response).json();
 
     throw e;
   }
 
-  return redirect(`/destruction-lists/${params.uuid}/`);
+  return redirect(`/destruction-lists/${params.uuid}`);
 }
 
 export async function destructionListCancelDestroyAction({
@@ -203,5 +205,5 @@ export async function destructionListCancelDestroyAction({
   }>;
   const { comment, uuid } = payload;
   await abortPlannedDestruction(uuid, { comment });
-  return redirect(`/destruction-lists/${uuid}/`);
+  return redirect(`/destruction-lists/${uuid}`);
 }

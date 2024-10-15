@@ -310,6 +310,87 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(destruction_list.items.all().count(), 2)
         self.assertEqual(destruction_list.assignees.all().count(), 1)
 
+    def test_partial_update_add_zaken(self):
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True
+        )
+        default_items = DestructionListItemFactory.create_batch(
+            2,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+            with_zaak=True,
+        )
+
+        zaak = ZaakFactory.create()
+
+        # We are removing 2 zaken from the destruction list
+        data = {
+            "add": [{"zaak": zaak.url}],
+        }
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        serializer = DestructionListWriteSerializer(
+            instance=destruction_list,
+            data=data,
+            partial=True,
+            context={"request": request},
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+
+        items = DestructionListItem.objects.filter(destruction_list=destruction_list)
+        items_in_list = items.values_list("zaak__url", flat=True)
+
+        self.assertEqual(items_in_list.count(), 3)
+        self.assertIn(default_items[0].zaak.url, items_in_list)
+        self.assertIn(default_items[1].zaak.url, items_in_list)
+        self.assertIn(zaak.url, items_in_list)
+
+    def test_partial_update_remove_zaken(self):
+        destruction_list = DestructionListFactory.create(
+            name="A test list", contains_sensitive_info=True
+        )
+        default_items = DestructionListItemFactory.create_batch(
+            2,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+            with_zaak=True,
+        )
+
+        zaak = ZaakFactory.create()
+
+        # We are removing 2 zaken from the destruction list
+        data = {
+            "remove": [{"zaak": default_items[0].zaak.url}],
+        }
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        serializer = DestructionListWriteSerializer(
+            instance=destruction_list,
+            data=data,
+            partial=True,
+            context={"request": request},
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+
+        items = DestructionListItem.objects.filter(destruction_list=destruction_list)
+        items_in_list = items.values_list("zaak__url", flat=True)
+
+        self.assertEqual(items_in_list.count(), 1)
+        self.assertNotIn(default_items[0].zaak.url, items_in_list)
+        self.assertIn(default_items[1].zaak.url, items_in_list)
+
     def test_partial_update_with_zaken(self):
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True
