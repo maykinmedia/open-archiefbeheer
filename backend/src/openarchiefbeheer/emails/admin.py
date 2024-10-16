@@ -33,8 +33,6 @@ class EmailConfigAdmin(SingletonModelAdmin):
                 "fields": [
                     "subject_positive_review",
                     "body_positive_review",
-                    "subject_last_review",
-                    "body_last_review",
                 ]
             },
         ),
