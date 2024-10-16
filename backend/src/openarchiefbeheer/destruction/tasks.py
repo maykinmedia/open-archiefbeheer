@@ -123,6 +123,7 @@ def complete_and_notify(pk: int) -> None:
 
     destruction_list.generate_destruction_report()
     destruction_list.create_report_zaak()
+    destruction_list.clear_local_metadata()
 
     destruction_list.processing_status = InternalStatus.succeeded
     destruction_list.save()
