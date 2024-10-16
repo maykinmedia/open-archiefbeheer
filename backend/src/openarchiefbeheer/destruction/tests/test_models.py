@@ -634,3 +634,55 @@ class DestructionListTest(TestCase):
             ],
             ["http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/111-111-111"],
         )
+
+    def test_clean_local_metadata(self):
+        destruction_list = DestructionListFactory.create(
+            processing_status=InternalStatus.succeeded,
+            status=ListStatus.deleted,
+        )
+        item1 = DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-111",
+                "omschrijving": "Test description 1",
+                "identificatie": "ZAAK-01",
+                "startdatum": "2020-01-01",
+                "einddatum": "2022-01-01",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                    },
+                },
+            },
+        )
+        item2 = DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/222-222-222",
+                "omschrijving": "Test description 2",
+                "identificatie": "ZAAK-02",
+                "startdatum": "2020-01-01",
+                "einddatum": "2022-01-01",
+                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "nummer": 1,
+                    },
+                },
+            },
+        )
+
+        destruction_list.clear_local_metadata()
+
+        item1.refresh_from_db()
+        item2.refresh_from_db()
+
+        self.assertEqual(item1.extra_zaak_data, {})
+        self.assertEqual(item2.extra_zaak_data, {})
