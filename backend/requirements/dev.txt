@@ -575,7 +575,7 @@ pytest-base-url==2.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest-playwright
-pytest-playwright==0.5.1
+pytest-playwright==0.5.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
