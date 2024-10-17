@@ -361,6 +361,10 @@ export const CheckSelectielijstklasseSelection: Story = {
       ),
     );
 
+    // We expect archiefactiedatum to be visible now
+    const archiefactiedatum = await canvas.findByLabelText("Archiefactiedatum");
+    expect(archiefactiedatum).toBeVisible();
+
     await userEvent.keyboard("{Escape}");
   },
 };
