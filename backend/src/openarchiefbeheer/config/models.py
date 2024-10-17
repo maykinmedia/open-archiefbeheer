@@ -56,6 +56,14 @@ class ArchiveConfig(SingletonModel):
             "The document type URL to use when creating the case for the destruction list deletion."
         ),
     )
+    selectielijstklasse = models.URLField(
+        "selectielijstklasse",
+        blank=True,
+        max_length=1000,
+        help_text=_(
+            "The selectielijstklasse URL to use when creating the case for the destruction list deletion."
+        ),
+    )
 
     class Meta:
         verbose_name = _("archive configuration")
