@@ -86,7 +86,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     archiefactiedatum: "",
     comment: "",
   };
-
   // Form state, kept outside <Form/> to implement conditional fields (see `getFields()`).
   const [formState, setFormState] =
     useState<ProcessZaakFormState>(initialFormState);
@@ -136,6 +135,14 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     );
   }
 
+  const getBewaartermijn = (selectielijstklasse: string) => {
+    const selectedChoice = selectieLijstKlasseChoices.find(
+      (choice) => choice.value === selectielijstklasse,
+    ) as (Option & { detail?: { bewaartermijn: string | null } }) | undefined;
+
+    return selectedChoice?.detail?.bewaartermijn;
+  };
+
   /**
    * Returns the `FormField[]` to show in the modal after selecting a Zaak (when processing review).
    */
@@ -145,9 +152,10 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       !formState.selectielijstklasse;
 
     const isArchiefactiedatumActive =
-      formState.action === "change_selectielijstklasse" ||
-      formState.action === "change_archiefactiedatum" ||
-      !formState.archiefactiedatum;
+      getBewaartermijn(_formState.selectielijstklasse) &&
+      (formState.action === "change_selectielijstklasse" ||
+        formState.action === "change_archiefactiedatum" ||
+        !formState.archiefactiedatum);
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -192,7 +200,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label: isArchiefactiedatumActive ? "archiefactiedatum" : undefined,
+        label: isArchiefactiedatumActive ? "Archiefactiedatum" : undefined,
         name: "archiefactiedatum",
         required: true,
         type: isArchiefactiedatumActive ? "date" : "hidden",
@@ -220,12 +228,9 @@ export const DestructionListProcessZaakReviewModal: React.FC<
      * @param values
      */
     const archiefactiedatum = zaak?.archiefactiedatum as string;
-    const selectedSelectieLijstKlasseChoice = selectieLijstKlasseChoices.find(
-      (s) => s.value === values.selectielijstklasse,
-    ) as (Option & { detail: { bewaartermijn: string } }) | undefined;
-    const detail = selectedSelectieLijstKlasseChoice?.detail;
-
-    const bewaartermijn = detail?.bewaartermijn;
+    const bewaartermijn = getBewaartermijn(
+      values.selectielijstklasse as string,
+    );
     if (
       action === "change_selectielijstklasse" &&
       archiefactiedatum &&
