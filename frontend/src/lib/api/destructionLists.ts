@@ -50,6 +50,8 @@ export type DestructionListStatus = (typeof DESTRUCTION_LIST_STATUSES)[number];
 
 export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];
+  add?: DestructionListItemUpdate[];
+  remove?: DestructionListItemUpdate[];
   items?: DestructionListItemUpdate[];
   comment?: string;
 };
