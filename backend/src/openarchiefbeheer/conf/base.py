@@ -343,6 +343,7 @@ LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", "Lax")
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", IS_HTTPS)
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", 1209600)  # 2 weeks in seconds
 
 CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", "Lax")
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", IS_HTTPS)
@@ -636,6 +637,10 @@ OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationReques
 OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
 OIDC_REDIRECT_ALLOWED_HOSTS = config(
     "OIDC_REDIRECT_ALLOWED_HOSTS", default="", split=True
+)
+# See issue #422 and https://mozilla-django-oidc.readthedocs.io/en/2.0.0/installation.html#validate-id-tokens-by-renewing-them
+OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = config(
+    "OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS", default=60 * 15
 )
 
 # Django privates
