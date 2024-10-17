@@ -157,6 +157,7 @@ def create_zaak_for_report(
                     "startdatum": timezone.now().date().isoformat(),
                     "verantwoordelijkeOrganisatie": config.bronorganisatie,
                     "archiefnominatie": "blijvend_bewaren",
+                    "selectielijstklasse": config.selectielijstklasse,
                 },
                 timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
             )
