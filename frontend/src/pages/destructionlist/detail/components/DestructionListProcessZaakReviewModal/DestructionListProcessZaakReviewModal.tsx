@@ -140,7 +140,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       (choice) => choice.value === selectielijstklasse,
     ) as (Option & { detail?: { bewaartermijn: string | null } }) | undefined;
 
-    console.log(selectedChoice);
     return selectedChoice?.detail?.bewaartermijn;
   };
 
@@ -153,9 +152,10 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       !formState.selectielijstklasse;
 
     const isArchiefactiedatumActive =
-      formState.action === "change_selectielijstklasse" ||
-      formState.action === "change_archiefactiedatum" ||
-      !formState.archiefactiedatum;
+      getBewaartermijn(_formState.selectielijstklasse) &&
+      (formState.action === "change_selectielijstklasse" ||
+        formState.action === "change_archiefactiedatum" ||
+        !formState.archiefactiedatum);
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -200,18 +200,10 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label:
-          isArchiefactiedatumActive &&
-          !getBewaartermijn(_formState.selectielijstklasse)
-            ? "archiefactiedatum"
-            : undefined,
+        label: isArchiefactiedatumActive ? "Archiefactiedatum" : undefined,
         name: "archiefactiedatum",
         required: true,
-        type:
-          isArchiefactiedatumActive &&
-          !getBewaartermijn(_formState.selectielijstklasse)
-            ? "date"
-            : "hidden",
+        type: isArchiefactiedatumActive ? "date" : "hidden",
         value: _formState.archiefactiedatum,
       },
     ];
