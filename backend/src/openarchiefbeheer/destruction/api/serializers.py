@@ -267,9 +267,9 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     ) -> DestructionList:
         user = self.context["request"].user
         validated_data.pop("reviewer", None)
-        add_data = validated_data.pop("add", None)
-        remove_data = validated_data.pop("remove", None)
-        items_data = validated_data.pop("items", None)
+        add_data = validated_data.pop("add", [])
+        remove_data = validated_data.pop("remove", [])
+        items_data = validated_data.pop("items", [])
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
         )
@@ -278,7 +278,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
         instance.name = validated_data.pop("name", instance.name)
 
-        if items_data is not None or bulk_select:
+        if items_data or bulk_select:
             instance.items.all().delete()
 
             zaken = self._get_zaken(zaak_filters, items_data, bulk_select)
@@ -286,7 +286,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
             instance.add_items(zaken)
 
         if add_data:
-            zaken = self._get_zaken(zaak_filters, add_data or [], bulk_select)
+            zaken = self._get_zaken(zaak_filters, add_data, bulk_select)
             self.instance.add_items(zaken)
 
         if remove_data:
