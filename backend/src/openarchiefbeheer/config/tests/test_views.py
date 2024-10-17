@@ -51,6 +51,7 @@ class ArchiveConfigViews(APITestCase):
                 "statustype": "http://bla.nl",
                 "resultaattype": "http://bla.nl",
                 "informatieobjecttype": "http://bla.nl",
+                "selectielijstklasse": "http://bla.nl",
             },
         )
 
