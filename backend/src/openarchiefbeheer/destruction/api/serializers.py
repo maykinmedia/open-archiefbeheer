@@ -151,7 +151,6 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
 class DestructionListWriteSerializer(serializers.ModelSerializer):
     add = DestructionListItemWriteSerializer(many=True, required=False)
     remove = DestructionListItemWriteSerializer(many=True, required=False)
-    items = DestructionListItemWriteSerializer(many=True, required=False)
     reviewer = ReviewerAssigneeSerializer(required=False)
     author = UserSerializer(read_only=True)
     select_all = serializers.BooleanField(
@@ -172,7 +171,6 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         fields = (
             "add",
             "remove",
-            "items",
             "uuid",
             "name",
             "author",
@@ -204,9 +202,15 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs: dict) -> dict:
-        if not self.instance and not attrs.get("items") and not attrs.get("select_all"):
+        if (attrs.get("add") or attrs.get("remove")) and attrs.get("select_all"):
             raise ValidationError(
-                "Neither the 'items' nor the 'select_all' field have been specified.",
+                "'add' or 'remove' cannot be combined with 'select_all'",
+                code="invalid",
+            )
+
+        if not self.instance and not attrs.get("add") and not attrs.get("select_all"):
+            raise ValidationError(
+                "Neither the 'add' nor the 'select_all' field have been specified.",
                 code="invalid",
             )
 
@@ -234,7 +238,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> DestructionList:
         reviewer_data = validated_data.pop("reviewer")
-        items = validated_data.pop("items", None)
+        add = validated_data.pop("add", [])
         bulk_select = validated_data.pop("select_all", False)
         zaak_filters = validated_data.pop("zaak_filters", {})
 
@@ -244,7 +248,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         validated_data["status"] = ListStatus.new
         destruction_list = DestructionList.objects.create(**validated_data)
 
-        zaken = self._get_zaken(zaak_filters, items, bulk_select)
+        zaken = self._get_zaken(zaak_filters, add, bulk_select)
         destruction_list.add_items(zaken)
 
         # Create an assignee also for the author
@@ -269,7 +273,6 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         validated_data.pop("reviewer", None)
         add_data = validated_data.pop("add", [])
         remove_data = validated_data.pop("remove", [])
-        items_data = validated_data.pop("items", [])
         instance.contains_sensitive_info = validated_data.pop(
             "contains_sensitive_info", instance.contains_sensitive_info
         )
@@ -278,19 +281,12 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
         instance.name = validated_data.pop("name", instance.name)
 
-        if items_data or bulk_select:
-            instance.items.all().delete()
-
-            zaken = self._get_zaken(zaak_filters, items_data, bulk_select)
-
-            instance.add_items(zaken)
-
-        if add_data:
+        if add_data or bulk_select:
             zaken = self._get_zaken(zaak_filters, add_data, bulk_select)
-            self.instance.add_items(zaken)
+            self.instance.add_items(zaken, True)
 
         if remove_data:
-            zaken = self._get_zaken(zaak_filters, remove_data or [], bulk_select)
+            zaken = [item["zaak"] for item in remove_data]
             self.instance.remove_items(zaken)
 
         instance.save()

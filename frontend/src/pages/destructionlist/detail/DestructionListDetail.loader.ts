@@ -73,8 +73,8 @@ export const destructionListDetailLoader = loginRequired(
       // We need to fetch the destruction list first to get the status.
       const destructionList = await getDestructionList(uuid as string);
       const storageKey = `destruction-list-detail-${uuid}-${destructionList.status}`;
+      const isEditing = searchParams.is_editing;
       const isInReview = destructionList.status === "changes_requested";
-
       // If status indicates review: collect it.
       const review = await getLatestReview({
         destructionList__uuid: uuid,
@@ -99,8 +99,12 @@ export const destructionListDetailLoader = loginRequired(
        * FIXME: Accept no/implement real pagination?
        */
       const getDestructionListItems =
-        async (): Promise<PaginatedDestructionListItems> =>
-          reviewItemsWithZaak
+        async (): Promise<PaginatedDestructionListItems> => {
+          const params = searchParams;
+          if (isEditing) {
+            params["item-order_match_zaken"] = "true"; // Must be in sync with `listZaken()` ordering.
+          }
+          return reviewItemsWithZaak
             ? {
                 count: reviewItemsWithZaak.length,
                 next: null,
@@ -109,7 +113,7 @@ export const destructionListDetailLoader = loginRequired(
               }
             : await listDestructionListItems(
                 uuid,
-                searchParams as unknown as URLSearchParams,
+                params as unknown as URLSearchParams,
               ).catch((e) => {
                 // This happens when the user is browsing selectable zaken and exceeds
                 // the last page of the destruction list items.
@@ -127,6 +131,7 @@ export const destructionListDetailLoader = loginRequired(
                 }
                 throw e;
               });
+        };
 
       /**
        * Fetch selectielijst choices if review collected.

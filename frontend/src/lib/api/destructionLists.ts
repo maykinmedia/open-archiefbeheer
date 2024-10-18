@@ -52,7 +52,6 @@ export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];
   add?: DestructionListItemUpdate[];
   remove?: DestructionListItemUpdate[];
-  items?: DestructionListItemUpdate[];
   comment?: string;
 };
 
@@ -74,7 +73,7 @@ export type DestructionListMarkAsFinalData = {
  * Create a new destruction list.
  * @param name
  * @param zaken
- * @param assignees
+ * @param assigneeId
  * @param zaakFilters
  * @param allZakenSelected
  */
@@ -90,7 +89,7 @@ export async function createDestructionList(
   const destructionList = {
     name,
     reviewer: { user: JSON.parse(assigneeId) },
-    items: urls.map((url) => ({ zaak: url })),
+    add: urls.map((url) => ({ zaak: url })),
     selectAll: allZakenSelected,
     zaakFilters: JSON.parse(zaakFilters),
   };

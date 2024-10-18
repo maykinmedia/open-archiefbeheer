@@ -29,7 +29,6 @@ export function DestructionListEdit() {
   const { destructionList, destructionListItems, selectableZaken, storageKey } =
     useLoaderData() as DestructionListDetailContext;
 
-  const [selectionClearedState, setSelectionClearedState] = useState(false);
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const submitAction = useSubmitAction();
@@ -46,11 +45,9 @@ export function DestructionListEdit() {
   // The initially select items.
   const initiallySelectedZakenOnPage = useMemo(
     () =>
-      selectionClearedState
-        ? []
-        : paginatedDestructionListItems2paginatedZaken(destructionListItems)
-            .results,
-    [selectionClearedState, destructionListItems],
+      paginatedDestructionListItems2paginatedZaken(destructionListItems)
+        .results,
+    [destructionListItems],
   );
 
   // Whether extra fields should be rendered.
@@ -143,17 +140,6 @@ export function DestructionListEdit() {
     urlSearchParams.set("page", "1");
     urlSearchParams.set("is_editing", "true");
     setUrlSearchParams(value ? urlSearchParams : {});
-
-    if (!value) {
-      setSelectionClearedState(false);
-    }
-  };
-
-  /**
-   * Gets called when te selection is cleared.
-   */
-  const handleClearSelection = async () => {
-    setSelectionClearedState(true);
   };
 
   /**
@@ -176,6 +162,7 @@ export function DestructionListEdit() {
       {
         type: "UPDATE_ZAKEN",
         payload: {
+          storageKey,
           add,
           remove,
         },
@@ -194,7 +181,6 @@ export function DestructionListEdit() {
       selectionActions={selectionActions}
       sortable={false}
       storageKey={storageKey}
-      onClearZaakSelection={handleClearSelection}
     ></BaseListView>
   );
 }
