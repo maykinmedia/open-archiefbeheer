@@ -89,7 +89,7 @@ function App() {
             },
             "spacer",
             <>
-              {state === "loading" ? (
+              {state !== "idle" ? (
                 <P title="Bezig met laden...">
                   <Solid.ArrowPathIcon
                     spin
