@@ -55,7 +55,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "reviewer": {"user": reviewer.pk},
-            "items": [
+            "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
@@ -139,7 +139,7 @@ class DestructionListSerializerTests(TestCase):
             "assignees": [
                 {"user": reviewer.pk, "order": 0},
             ],
-            "items": [
+            "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
@@ -157,7 +157,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors["items"][0]["zaak"],
+            serializer.errors["add"][0]["zaak"],
             [
                 _(
                     "This case was already included in another destruction list and was not exempt during the review process."
@@ -189,7 +189,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "reviewer": {"user": reviewer.pk},
-            "items": [
+            "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {},
@@ -226,7 +226,7 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "An updated test list",
             "contains_sensitive_info": False,
-            "items": [
+            "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                 },
@@ -249,7 +249,7 @@ class DestructionListSerializerTests(TestCase):
 
         items = destruction_list.items.all()
 
-        self.assertEqual(items.count(), 1)
+        self.assertEqual(items.count(), 3)
 
         logs = TimelineLog.objects.filter(
             template="logging/destruction_list_updated.txt"
@@ -401,10 +401,12 @@ class DestructionListSerializerTests(TestCase):
             status=ListItemStatus.suggested,
             with_zaak=True,
         )
+        zaak = ZaakFactory.create()
 
         # We are removing 2 zaken from the destruction list
         data = {
-            "items": [{"zaak": items[0].zaak.url}, {"zaak": items[1].zaak.url}],
+            "add": [{"zaak": zaak.url}],
+            "remove": [{"zaak": items[0].zaak.url}, {"zaak": items[1].zaak.url}],
         }
 
         record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -417,17 +419,22 @@ class DestructionListSerializerTests(TestCase):
             partial=True,
             context={"request": request},
         )
-
         self.assertTrue(serializer.is_valid())
 
         serializer.save()
 
-        items = DestructionListItem.objects.filter(destruction_list=destruction_list)
-        items_in_list = items.values_list("zaak__url", flat=True)
+        destruction_list_items = DestructionListItem.objects.filter(
+            destruction_list=destruction_list
+        )
+        items_in_list = destruction_list_items.values_list("zaak__url", flat=True)
 
-        self.assertEqual(items_in_list.count(), 2)
-        self.assertIn(data["items"][0]["zaak"], items_in_list)
-        self.assertIn(data["items"][1]["zaak"], items_in_list)
+        self.assertEqual(items_in_list.count(), 3)
+        self.assertNotIn(items, items_in_list)
+        self.assertIn(items[2].zaak.url, items_in_list)
+        self.assertIn(items[3].zaak.url, items_in_list)
+        self.assertIn(data["add"][0]["zaak"], items_in_list)
+        self.assertNotIn(data["remove"][0]["zaak"], items_in_list)
+        self.assertNotIn(data["remove"][1]["zaak"], items_in_list)
 
     @tag("gh-122")
     def test_assign_author_as_reviewer(self):
@@ -603,7 +610,7 @@ class DestructionListSerializerTests(TestCase):
         self.assertFalse(is_valid)
         self.assertEqual(
             serializer.errors["non_field_errors"][0],
-            "Neither the 'items' nor the 'select_all' field have been specified.",
+            "Neither the 'add' nor the 'select_all' field have been specified.",
         )
 
     def test_zaak_filters_validation(self):

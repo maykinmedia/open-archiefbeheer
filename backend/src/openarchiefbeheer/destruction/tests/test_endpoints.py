@@ -79,7 +79,7 @@ class DestructionListViewSetTest(APITestCase):
                 "name": "A test list",
                 "contains_sensitive_info": True,
                 "reviewer": {"user": reviewer.pk},
-                "items": [
+                "add": [
                     {
                         "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                         "extra_zaak_data": {},
@@ -161,7 +161,7 @@ class DestructionListViewSetTest(APITestCase):
                 "assignees": [
                     {"user": reviewer.pk},
                 ],
-                "items": [
+                "add": [
                     {
                         "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                         "extra_zaak_data": {},
@@ -182,7 +182,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             data,
             {
-                "items": [
+                "add": [
                     {
                         "zaak": [
                             _(
@@ -228,7 +228,7 @@ class DestructionListViewSetTest(APITestCase):
         data = {
             "name": "An updated test list",
             "contains_sensitive_info": False,
-            "items": [
+            "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
                     "extra_zaak_data": {"key": "value"},
@@ -251,7 +251,7 @@ class DestructionListViewSetTest(APITestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.name, "An updated test list")
-        self.assertEqual(destruction_list.items.all().count(), 1)
+        self.assertEqual(destruction_list.items.all().count(), 3)
 
     def test_cannot_update_destruction_list_if_not_new(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
