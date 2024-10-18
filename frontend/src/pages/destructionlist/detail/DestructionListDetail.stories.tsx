@@ -354,6 +354,15 @@ export const CheckSelectielijstklasseSelection: Story = {
       name: "Selectielijstklasse",
     });
 
+    const archiefactiedatum =
+      await canvas.findAllByLabelText("Archiefactiedatum");
+    const input = archiefactiedatum.find((input) => {
+      return (
+        input instanceof HTMLInputElement &&
+        input.type === "text" &&
+        input.offsetParent !== null
+      );
+    });
     // The dropdown shows the selectielijst klasse
     await waitFor(async () =>
       expect(dropdownSelectielijstklasse.childNodes[0].textContent).toEqual(
@@ -361,10 +370,21 @@ export const CheckSelectielijstklasseSelection: Story = {
       ),
     );
 
-    // We expect archiefactiedatum to be visible now, find by name
-    const archiefactiedatum =
-      await canvas.findAllByLabelText("Archiefactiedatum");
-    expect(archiefactiedatum.length).not.toBe(0);
+    // We expect the input to be visible
+    expect(input).toBeInTheDocument();
+
+    // we select a different selectielijstklasse
+    await userEvent.click(dropdownSelectielijstklasse);
+    await userEvent.click(
+      canvas.getByText("1.1 - Ingericht - vernietigen - P10Y"),
+    );
+
+    // We expect archiefactiedatum to be hidden now
+    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
+
+    // If we click on "verlengen bewaartermijn", we do not expect the archiefactiedatum to be visible
+    await userEvent.click(canvas.getByText("Verlengen bewaartermijn"));
+    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
 
     await userEvent.keyboard("{Escape}");
   },
