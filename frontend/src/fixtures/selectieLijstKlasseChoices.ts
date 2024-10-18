@@ -3,7 +3,15 @@ import { Option } from "@maykin-ui/admin-ui";
 import { createArrayFactory } from "./factory";
 import { zakenFactory } from "./zaak";
 
-const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
+interface SelectieLijstKlasseChoice {
+  label: string;
+  value: string;
+  detail?: {
+    bewaartermijn: string;
+  };
+}
+
+const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: SelectieLijstKlasseChoice[] = [
   {
     label: "1.1 - Ingericht - vernietigen - P10Y",
     value:
@@ -43,6 +51,9 @@ const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: Option[] = [
     label: "1.5 - Afgebroken - vernietigen - P1Y",
     value:
       "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+    detail: {
+      bewaartermijn: "P1Y",
+    },
   },
 ];
 
