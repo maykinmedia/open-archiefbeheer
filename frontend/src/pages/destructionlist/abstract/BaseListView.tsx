@@ -194,7 +194,7 @@ export function BaseListView({
           a && b && (a.uuid === b.uuid || a.url === b.url),
         fields,
         filterTransform,
-        loading: state === "loading",
+        loading: state !== "idle",
         objectList: objectList,
         page,
         sort: sortable && sort,
