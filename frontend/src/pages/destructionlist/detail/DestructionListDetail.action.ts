@@ -167,6 +167,7 @@ export async function destructionListUpdateReviewerAction({
 }
 
 export type DestructionListUpdateZakenActionPayload = {
+  storageKey: string;
   add: string[];
   remove: string[];
 };
@@ -180,7 +181,7 @@ export async function destructionListUpdateZakenAction({
 }: ActionFunctionArgs) {
   const data: UpdateDestructionListAction<DestructionListUpdateZakenActionPayload> =
     await request.json();
-  const { add: _add, remove: _remove } = data.payload;
+  const { storageKey, add: _add, remove: _remove } = data.payload;
   const add = _add.map((url) => ({ zaak: url }));
   const remove = _remove.map((url) => ({ zaak: url }));
 
@@ -191,7 +192,7 @@ export async function destructionListUpdateZakenAction({
 
     throw e;
   }
-
+  await clearZaakSelection(storageKey);
   return redirect(`/destruction-lists/${params.uuid}`);
 }
 

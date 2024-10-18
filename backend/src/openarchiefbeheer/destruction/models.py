@@ -147,14 +147,17 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         self.save()
 
-    def add_items(self, zaken: Iterable["Zaak"]) -> list["DestructionListItem"]:
+    def add_items(
+        self, zaken: Iterable["Zaak"], ignore_conflicts: bool = False
+    ) -> list["DestructionListItem"]:
         return DestructionListItem.objects.bulk_create(
             [
                 DestructionListItem(
                     destruction_list=self, zaak=zaak, _zaak_url=zaak.url
                 )
                 for zaak in zaken
-            ]
+            ],
+            ignore_conflicts=ignore_conflicts,
         )
 
     def remove_items(self, zaken: Iterable["Zaak"]) -> tuple[int, dict[str, int]]:
