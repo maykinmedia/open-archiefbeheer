@@ -83,7 +83,14 @@ export async function destructionListDestroyAction({
   request,
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
-  await destroyDestructionList(payload.uuid);
+  try {
+    await destroyDestructionList(payload.uuid);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return redirect("/");
 }
 
