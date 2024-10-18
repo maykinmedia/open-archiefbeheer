@@ -119,7 +119,6 @@ export function BaseListView({
     getSelectionDetail,
   );
 
-  // Merge `selectedZakenOnPage`.
   const selectedZakenOnPage = useMemo(() => {
     const deselectedZaakUrls = deSelectedZakenOnPage.map(
       (z) => z.url as string,
@@ -195,12 +194,16 @@ export function BaseListView({
           a && b && (a.uuid === b.uuid || a.url === b.url),
         fields,
         filterTransform,
-        loading: state === "loading",
+        loading: state !== "idle",
         objectList: objectList,
         page,
         sort: sortable && sort,
         selected: selectable
-          ? (selectedZakenOnPage as unknown as AttributeData[])
+          ? ([
+              ...new Map(
+                selectedZakenOnPage.map((zaak) => [zaak["uuid"], zaak]),
+              ).values(),
+            ] as unknown as AttributeData[])
           : [],
         selectionActions: getSelectionActions(),
 

@@ -88,7 +88,7 @@ from .serializers import (
                             "user": 2,
                         },
                     ],
-                    "items": [
+                    "add": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
                             "extraZaakData": {},
@@ -112,23 +112,25 @@ from .serializers import (
         ),
         examples=[
             OpenApiExample(
-                name="Example list update",
+                name="Add/remove items",
                 request_only=True,
                 value={
                     "name": "An example updated list",
                     "containsSensitiveInfo": False,
-                    "items": [
+                    "add": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
                             "extraZaakData": {},
                         },
+                    ],
+                    "remove": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
                             "extraZaakData": {},
                         },
                     ],
                 },
-            )
+            ),
         ],
     ),
     partial_update=extend_schema(

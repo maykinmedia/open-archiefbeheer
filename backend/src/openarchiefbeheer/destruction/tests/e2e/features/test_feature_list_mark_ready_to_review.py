@@ -7,7 +7,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
-class FeatureListCreateTests(GherkinLikeTestCase):
+class FeatureListMarkReadyForReviewTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_marks_list_as_ready_to_review(self):
         async with browser_page() as page:
             await self.given.zaken_are_indexed(amount=100)

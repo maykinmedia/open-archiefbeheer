@@ -11,10 +11,13 @@ import { useSubmitAction } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
+import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
-import { UpdateDestructionListAction } from "../../DestructionListDetail.action";
+import {
+  DestructionListUpdateZakenActionPayload,
+  UpdateDestructionListAction,
+} from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 
@@ -26,7 +29,6 @@ export function DestructionListEdit() {
   const { destructionList, destructionListItems, selectableZaken, storageKey } =
     useLoaderData() as DestructionListDetailContext;
 
-  const [selectionClearedState, setSelectionClearedState] = useState(false);
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const submitAction = useSubmitAction();
@@ -43,11 +45,9 @@ export function DestructionListEdit() {
   // The initially select items.
   const initiallySelectedZakenOnPage = useMemo(
     () =>
-      selectionClearedState
-        ? []
-        : paginatedDestructionListItems2paginatedZaken(destructionListItems)
-            .results,
-    [selectionClearedState, destructionListItems],
+      paginatedDestructionListItems2paginatedZaken(destructionListItems)
+        .results,
+    [destructionListItems],
   );
 
   // Whether extra fields should be rendered.
@@ -140,34 +140,33 @@ export function DestructionListEdit() {
     urlSearchParams.set("page", "1");
     urlSearchParams.set("is_editing", "true");
     setUrlSearchParams(value ? urlSearchParams : {});
-
-    if (!value) {
-      setSelectionClearedState(false);
-    }
-  };
-
-  /**
-   * Gets called when te selection is cleared.
-   */
-  const handleClearSelection = async () => {
-    setSelectionClearedState(true);
   };
 
   /**
    * Gets called when the user updates the zaak selection (adds/remove zaken to/from the destruction list).
    */
   const handleUpdate = async () => {
-    const zaakSelection = await getZaakSelection(storageKey);
-    const zaakUrls = Object.entries(zaakSelection)
-      .filter(([, selection]) => selection.selected)
+    const zaakSelection = await getFilteredZaakSelection(
+      storageKey,
+      false,
+      false,
+    );
+    const add = Object.entries(zaakSelection)
+      .filter(([, { selected }]) => selected)
+      .map(([url]) => url);
+    const remove = Object.entries(zaakSelection)
+      .filter(([, { selected }]) => !selected)
       .map(([url]) => url);
 
-    const action: UpdateDestructionListAction<Record<string, string[]>> = {
-      type: "UPDATE_ZAKEN",
-      payload: {
-        zaakUrls,
-      },
-    };
+    const action: UpdateDestructionListAction<DestructionListUpdateZakenActionPayload> =
+      {
+        type: "UPDATE_ZAKEN",
+        payload: {
+          storageKey,
+          add,
+          remove,
+        },
+      };
     submitAction(action);
   };
 
@@ -182,7 +181,6 @@ export function DestructionListEdit() {
       selectionActions={selectionActions}
       sortable={false}
       storageKey={storageKey}
-      onClearZaakSelection={handleClearSelection}
     ></BaseListView>
   );
 }

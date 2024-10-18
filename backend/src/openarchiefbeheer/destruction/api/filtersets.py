@@ -1,7 +1,13 @@
 from django.db.models import Case, QuerySet, Value, When
 from django.utils.translation import gettext_lazy as _
 
-from django_filters import FilterSet, NumberFilter, OrderingFilter, UUIDFilter
+from django_filters import (
+    BooleanFilter,
+    FilterSet,
+    NumberFilter,
+    OrderingFilter,
+    UUIDFilter,
+)
 
 from ..constants import InternalStatus
 from ..models import (
@@ -23,13 +29,34 @@ class DestructionListItemFilterset(FilterSet):
         ),
     )
 
+    # FIXME: Due to the implementation of the dit page, the zake endpoint and the destruction list items endpoint
+    # MUST return values in EXACTLY THE SAME order, untill we fix this properly, we use a special param
+    # "item-order_match_zaken" to instruct the filter to order on the "zaak_pk" which is the (default) ordering of the
+    # zaken endpoint.
+    order_match_zaken = BooleanFilter(
+        field_name="ordering",
+        method="filter_order_match_zaken",
+        help_text=_(
+            "If edit mode is active, ordering should match ordering on the zaken endpoint, use the item-ordering param "
+            "to define the exact same ordering as the zaak endpoint"
+        ),
+    )
+
     class Meta:
         model = DestructionListItem
-        fields = ("destruction_list", "status", "processing_status")
+        fields = (
+            "destruction_list",
+            "status",
+            "processing_status",
+            "order_match_zaken",
+        )
 
     def filter_in_destruction_list(
         self, queryset: QuerySet[DestructionListItem], name: str, value: str
     ) -> QuerySet[DestructionListItem]:
+        """
+        Fixme: see filter field.
+        """
         return (
             queryset.filter(destruction_list__uuid=value)
             .annotate(
@@ -44,6 +71,11 @@ class DestructionListItemFilterset(FilterSet):
             )
             .order_by("processing_status_index")
         )
+
+    def filter_order_match_zaken(
+        self, queryset: QuerySet[DestructionListItem], name: str, value: str
+    ) -> QuerySet[DestructionListItem]:
+        return queryset.order_by("zaak__pk")
 
 
 class DestructionListFilterset(FilterSet):
