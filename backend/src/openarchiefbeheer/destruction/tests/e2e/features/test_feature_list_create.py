@@ -62,9 +62,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
 
             await self.when.reviewer_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
-
-            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
-            await self.then.path_should_be(page, "/login?next=/destruction-lists/create")
+            await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
     async def test_scenario_archivist_cannot_create_list(self):
         async with browser_page() as page:
@@ -73,9 +71,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
 
             await self.when.archivist_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
-
-            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
-            await self.then.path_should_be(page, "/login?next=/destruction-lists/create")
+            await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
     async def test_zaaktype_filters_on_create_page(self):
            
