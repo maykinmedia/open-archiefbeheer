@@ -81,10 +81,10 @@ export const DestructionListProcessZaakReviewModal: React.FC<
 }) => {
   const initialFormState: ProcessZaakFormState = {
     zaakUrl: zaak?.url || "",
-    action: "",
-    selectielijstklasse: "",
-    archiefactiedatum: "",
-    comment: "",
+    action: action || "",
+    selectielijstklasse: selectielijstklasse,
+    archiefactiedatum: archiefactiedatum,
+    comment: comment || "",
   };
   // Form state, kept outside <Form/> to implement conditional fields (see `getFields()`).
   const [formState, setFormState] =
@@ -147,15 +147,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
    * Returns the `FormField[]` to show in the modal after selecting a Zaak (when processing review).
    */
   const getFields = (_formState: typeof formState = formState) => {
-    const isSelectielijstklasseActive =
-      formState.action === "change_selectielijstklasse" ||
-      !formState.selectielijstklasse;
+    const bewaartermijn = getBewaartermijn(_formState.selectielijstklasse);
 
-    const isArchiefactiedatumActive =
+    const isSelectielijstklasseActive =
+      formState.action === "change_selectielijstklasse";
+
+    const isArchiefactiedatumActive = Boolean(
       getBewaartermijn(_formState.selectielijstklasse) &&
-      (formState.action === "change_selectielijstklasse" ||
-        formState.action === "change_archiefactiedatum" ||
-        !formState.archiefactiedatum);
+        formState.action === "change_archiefactiedatum",
+    );
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -176,22 +176,27 @@ export const DestructionListProcessZaakReviewModal: React.FC<
           {
             label: LABEL_CHANGE_SELECTION_LIST_CLASS,
             value: "change_selectielijstklasse",
+            selected: _formState.action === "change_selectielijstklasse",
           },
-          {
-            label: LABEL_POSTPONE_DESTRUCTION,
-            value: "change_archiefactiedatum",
-          },
+          bewaartermijn
+            ? {
+                label: LABEL_POSTPONE_DESTRUCTION,
+                value: "change_archiefactiedatum",
+                selected: _formState.action === "change_archiefactiedatum",
+              }
+            : null,
           {
             label: LABEL_KEEP,
             value: "keep",
+            selected: _formState.action === "keep",
           },
-        ],
+        ].filter((v) => Boolean(v)),
       },
 
       {
         label: isSelectielijstklasseActive ? "Selectielijstklasse" : undefined,
         name: "selectielijstklasse",
-        required: true,
+        required: isSelectielijstklasseActive,
         type: isSelectielijstklasseActive ? undefined : "hidden",
         options: isSelectielijstklasseActive
           ? selectieLijstKlasseChoices
@@ -200,10 +205,18 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label: isArchiefactiedatumActive ? "Archiefactiedatum" : undefined,
+        label:
+          isArchiefactiedatumActive ||
+          (isSelectielijstklasseActive && bewaartermijn)
+            ? "Archiefactiedatum"
+            : undefined,
         name: "archiefactiedatum",
-        required: true,
-        type: isArchiefactiedatumActive ? "date" : "hidden",
+        required: isArchiefactiedatumActive,
+        type:
+          isArchiefactiedatumActive ||
+          (isSelectielijstklasseActive && bewaartermijn)
+            ? "date"
+            : "hidden",
         value: _formState.archiefactiedatum,
       },
     ];
@@ -236,8 +249,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       archiefactiedatum &&
       bewaartermijn
     ) {
-      const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
-      values.archiefactiedatum = formatDate(archiveDate, "iso");
+      const isSelectielijstklasseChanged =
+        values.selectielijstklasse !== selectielijstklasse;
+
+      // If the selectielijstklasse is changed, and all fields are available, update the archive date based on the
+      // selectielijstklasse.
+      if (isSelectielijstklasseChanged) {
+        const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
+        values.archiefactiedatum = formatDate(archiveDate, "iso");
+      }
     }
 
     setFormState(values as typeof formState);
