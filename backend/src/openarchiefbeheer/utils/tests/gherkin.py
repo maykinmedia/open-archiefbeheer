@@ -479,7 +479,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def page_should_contain_text(self, page, text):
             locator = page.get_by_text(text).nth(0)
-            await expect(locator).to_be_attached()
+            await expect(locator).to_be_visible()
 
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
