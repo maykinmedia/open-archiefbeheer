@@ -180,10 +180,17 @@ export async function destructionListApproveListAction({
     listFeedback: comment,
   };
 
-  await Promise.all([
-    await createDestructionListReview(data),
-    await clearZaakSelection(getDestructionListReviewKey(destructionList)),
-  ]);
+  try {
+    await Promise.all([
+      await createDestructionListReview(data),
+      await clearZaakSelection(getDestructionListReviewKey(destructionList)),
+    ]);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return redirect("/");
 }
 
@@ -206,9 +213,16 @@ export async function destructionListRejectListAction({
     zakenReviews: zaakReviews,
   };
 
-  await Promise.all([
-    createDestructionListReview(data),
-    clearZaakSelection(getDestructionListReviewKey(destructionList)),
-  ]);
+  try {
+    await Promise.all([
+      createDestructionListReview(data),
+      clearZaakSelection(getDestructionListReviewKey(destructionList)),
+    ]);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return redirect("/");
 }
