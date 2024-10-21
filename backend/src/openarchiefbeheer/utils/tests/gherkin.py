@@ -225,6 +225,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                     {
                         "label": "11.1 - Verleend - vernietigen - P1Y",
                         "value": "https://www.example.com",
+                        "detail": {
+                            "bewaartermijn": "P5Y",
+                        },
                     }
                 ]
                 await route.fulfill(json=json)
