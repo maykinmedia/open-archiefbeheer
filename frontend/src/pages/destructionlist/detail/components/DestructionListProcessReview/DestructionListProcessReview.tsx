@@ -189,7 +189,7 @@ export function DestructionListProcessReview() {
     zaakUrl: string,
     action: ProcessReviewAction,
     selectielijstklasse: string,
-    archiefactiedatum: string,
+    archiefactiedatum: string | undefined,
     comment: string,
   ) => {
     // Add `zaak` to `ZaakSelection`
