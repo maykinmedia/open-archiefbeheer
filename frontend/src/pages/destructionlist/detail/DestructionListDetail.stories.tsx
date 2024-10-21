@@ -354,6 +354,12 @@ export const CheckSelectielijstklasseSelection: Story = {
       name: "Selectielijstklasse",
     });
 
+    // we select a different selectielijstklasse
+    await userEvent.click(dropdownSelectielijstklasse);
+    await userEvent.click(
+      canvas.getByText("1.5 - Afgebroken - vernietigen - P1Y"),
+    );
+
     const archiefactiedatum =
       await canvas.findAllByLabelText("Archiefactiedatum");
     const input = archiefactiedatum.find((input) => {
@@ -370,20 +376,16 @@ export const CheckSelectielijstklasseSelection: Story = {
       ),
     );
 
-    // We expect the input to be visible
-    expect(input).toBeInTheDocument();
-
     // we select a different selectielijstklasse
     await userEvent.click(dropdownSelectielijstklasse);
     await userEvent.click(
-      canvas.getByText("1.1 - Ingericht - vernietigen - P10Y"),
+      canvas.getByText("1.1.1 - Ingericht - blijvend_bewaren"),
     );
 
     // We expect archiefactiedatum to be hidden now
     await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
 
-    // If we click on "verlengen bewaartermijn", we do not expect the archiefactiedatum to be visible
-    await userEvent.click(canvas.getByText("Verlengen bewaartermijn"));
+    // We do not expect the archiefactiedatum to be visible
     await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
 
     await userEvent.keyboard("{Escape}");
