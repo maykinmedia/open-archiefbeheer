@@ -41,7 +41,7 @@ export type DestructionListProcessZaakReviewModalProps = {
     zaakUrl: string,
     processAction: ProcessReviewAction,
     selectielijstklasse: string,
-    archiefactiedatum: string,
+    archiefactiedatum: string | undefined,
     comment: string,
   ) => void;
 };
@@ -278,7 +278,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       zaakUrl as string,
       action as ProcessReviewAction,
       selectielijstklasse,
-      archiefactiedatum,
+      getBewaartermijn(selectielijstklasse) ? archiefactiedatum : undefined,
       comment,
     );
   };
