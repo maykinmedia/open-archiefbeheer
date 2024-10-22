@@ -31,10 +31,7 @@ class CanUpdateDestructionList(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.new
-        )
+        return destruction_list.status == ListStatus.new
 
 
 class CanMarkListAsFinal(permissions.BasePermission):
@@ -47,10 +44,7 @@ class CanMarkListAsFinal(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.internally_reviewed
-        )
+        return destruction_list.status == ListStatus.internally_reviewed
 
 
 class CanTriggerDeletion(permissions.BasePermission):
@@ -63,10 +57,7 @@ class CanTriggerDeletion(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.ready_to_delete
-        )
+        return destruction_list.status == ListStatus.ready_to_delete
 
 
 class CanReassignDestructionList(permissions.BasePermission):
@@ -76,7 +67,7 @@ class CanReassignDestructionList(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return request.user == destruction_list.author and destruction_list.status in [
+        return destruction_list.status in [
             ListStatus.new,
             ListStatus.ready_to_review,
         ]
@@ -89,10 +80,7 @@ class CanMarkAsReadyToReview(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.new
-        )
+        return destruction_list.status == ListStatus.new
 
 
 class CanAbortDestruction(permissions.BasePermission):
@@ -103,7 +91,6 @@ class CanAbortDestruction(permissions.BasePermission):
 
     def has_object_permission(self, request, view, destruction_list):
         return (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.ready_to_delete
+            destruction_list.status == ListStatus.ready_to_delete
             and destruction_list.planned_destruction_date
         )

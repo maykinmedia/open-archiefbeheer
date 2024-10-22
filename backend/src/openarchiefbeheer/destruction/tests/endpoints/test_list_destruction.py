@@ -109,7 +109,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             _("This list is already planned to be destroyed on 08/01/2024."),
         )
 
-    def test_cannot_start_destruction_if_not_author(self):
+    def test_can_start_destruction_if_not_author(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -120,15 +120,14 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.client.force_authenticate(user=record_manager)
         with patch(
             "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
-        ) as m_task:
+        ):
             response = self.client.delete(
                 reverse(
                     "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
                 ),
             )
 
-        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
-        m_task.assert_not_called()
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
 
     def test_cannot_start_destruction_if_not_ready_to_delete(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)

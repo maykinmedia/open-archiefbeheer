@@ -14,9 +14,9 @@ from ..factories import DestructionListFactory
 
 
 class DestructionListAbortDestructionEndpointTest(APITestCase):
-    def test_only_author_can_abort(self):
-        record_manager = UserFactory.create(
-            username="record_manager", post__can_start_destruction=True
+    def test_only_record_manager_can_abort(self):
+        reviewer = UserFactory.create(
+            username="reviewer", post__can_start_destruction=False
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
@@ -25,7 +25,7 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
             planned_destruction_date=date(2024, 1, 8),
         )
 
-        self.client.force_authenticate(user=record_manager)
+        self.client.force_authenticate(user=reviewer)
         with freezegun.freeze_time("2024-01-05T12:00:00+01:00"):
             response = self.client.post(
                 reverse(

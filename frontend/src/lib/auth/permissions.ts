@@ -23,8 +23,7 @@ export function canMarkAsReadyToReview(
   destructionList: DestructionList,
 ) {
   return (
-    user.role.canStartDestruction &&
-    destructionList.author.pk === user.pk &&
+    canStartDestructionList(user) &&
     (destructionList.status === "new" ||
       destructionList.status === "changes_requested")
   );
@@ -80,9 +79,10 @@ export function canUpdateDestructionList(
 
 export function canViewDestructionList(
   user: User,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   destructionList: DestructionList,
 ) {
-  return user.pk === destructionList.author.pk;
+  return canStartDestructionList(user);
 }
 
 export function canMarkListAsFinal(
@@ -90,9 +90,8 @@ export function canMarkListAsFinal(
   destructionList: DestructionList,
 ) {
   return (
-    user.pk === destructionList.author.pk &&
-    destructionList.status === "internally_reviewed" &&
-    user.role.canStartDestruction
+    canStartDestructionList(user) &&
+    destructionList.status === "internally_reviewed"
   );
 }
 
@@ -101,8 +100,7 @@ export function canTriggerDestruction(
   destructionList: DestructionList,
 ) {
   return (
-    user.pk === destructionList.author.pk &&
-    destructionList.status === "ready_to_delete" &&
-    user.role.canStartDestruction
+    canStartDestructionList(user) &&
+    destructionList.status === "ready_to_delete"
   );
 }

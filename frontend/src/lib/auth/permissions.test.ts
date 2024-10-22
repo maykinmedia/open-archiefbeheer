@@ -225,9 +225,9 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
       expect(canViewDestructionList(user, destructionList)).toBe(true);
     });
 
-    test("should not allow a user who is not the author to view the destruction list", () => {
+    test("should allow a user who is not the author to view the destruction list", () => {
       destructionList.author = anotherUser;
-      expect(canViewDestructionList(user, destructionList)).toBe(false);
+      expect(canViewDestructionList(user, destructionList)).toBe(true);
     });
   });
 
@@ -253,9 +253,14 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
       expect(canMarkListAsFinal(user, destructionList)).toBe(isEligible);
     });
 
-    test("should not allow marking as final if the user is not the author", () => {
+    test("should allow marking as final if the user is not the author", () => {
       destructionList.author = anotherUser;
-      expect(canMarkListAsFinal(user, destructionList)).toBe(false);
+      expect(
+        canMarkListAsFinal(user, {
+          ...destructionList,
+          status: "internally_reviewed",
+        }),
+      ).toBe(true);
     });
 
     test("should not allow marking as final if the status is not internally_reviewed", () => {
