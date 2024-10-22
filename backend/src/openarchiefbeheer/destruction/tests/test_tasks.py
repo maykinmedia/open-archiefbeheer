@@ -337,6 +337,9 @@ class ProcessDeletingZakenTests(TestCase):
         m_eio.assert_called()
         m_zio.assert_called()
 
+        self.assertEqual(item1.extra_zaak_data, {})
+        self.assertEqual(item2.extra_zaak_data, {})
+
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
         item = DestructionListItemFactory.create(
