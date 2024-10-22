@@ -513,31 +513,31 @@ msgstr ""
 #: openarchiefbeheer/destruction/constants.py:6
 #: openarchiefbeheer/destruction/constants.py:37
 msgid "new"
-msgstr ""
+msgstr "nieuw"
 
 #: openarchiefbeheer/destruction/constants.py:7
 msgid "ready to review"
-msgstr ""
+msgstr "klaar voor beoordeling"
 
 #: openarchiefbeheer/destruction/constants.py:8
 msgid "changes requested"
-msgstr ""
+msgstr "wijzigingen aangevraagd"
 
 #: openarchiefbeheer/destruction/constants.py:9
 msgid "internally reviewed"
-msgstr ""
+msgstr "intern beoordeeld"
 
 #: openarchiefbeheer/destruction/constants.py:10
 msgid "ready for archivist"
-msgstr ""
+msgstr "klaar voor archivaris"
 
 #: openarchiefbeheer/destruction/constants.py:11
 msgid "ready to delete"
-msgstr ""
+msgstr "klaar om te vernietigen"
 
 #: openarchiefbeheer/destruction/constants.py:12
 msgid "deleted"
-msgstr ""
+msgstr "vernietigd"
 
 #: openarchiefbeheer/destruction/constants.py:16
 msgid "suggested for destruction"
