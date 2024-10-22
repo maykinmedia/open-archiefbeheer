@@ -132,7 +132,14 @@ export async function destructionListProcessReadyToReviewAction({
   request,
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
-  markDestructionListAsReadyToReview(payload.uuid);
+  try {
+    await markDestructionListAsReadyToReview(payload.uuid);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
   return redirect("/");
 }
 

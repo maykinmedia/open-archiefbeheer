@@ -277,7 +277,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_update_destruction_list_if_not_author(self):
+    def test_ca_update_destruction_list_if_not_author(self):
         record_manager1 = UserFactory.create(post__can_start_destruction=True)
         record_manager2 = UserFactory.create(post__can_start_destruction=True)
 
@@ -300,7 +300,7 @@ class DestructionListViewSetTest(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_cannot_reassign_destruction_list_if_not_record_manager(self):
         not_record_manager = UserFactory.create(post__can_start_destruction=False)
@@ -597,7 +597,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_mark_as_final_if_not_author(self):
+    def test_can_mark_as_final_if_not_author(self):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
@@ -615,12 +615,10 @@ class DestructionListViewSetTest(APITestCase):
             "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
         )
         response = self.client.post(
-            endpoint,
-            data={"user": archivist.pk},
-            format="json",
+            endpoint, data={"user": archivist.pk, "comment": "comment"}, format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_cannot_mark_as_finally_if_not_internally_reviewed(self):
         record_manager = UserFactory.create(
@@ -739,13 +737,18 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_cannot_mark_as_ready_to_review_if_not_author(self):
+    def test_can_mark_as_ready_to_review_if_not_author(self):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
         destruction_list = DestructionListFactory.create(
             name="A test list",
             status=ListStatus.new,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            role=ListRole.reviewer,
+            user__post__can_review_destruction=True,
         )
 
         self.client.force_authenticate(user=record_manager)
@@ -756,7 +759,7 @@ class DestructionListViewSetTest(APITestCase):
             ),
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class DestructionListItemsViewSetTest(APITestCase):
