@@ -189,7 +189,7 @@ msgstr "Wachtwoord wijzigen"
 
 #: openarchiefbeheer/api/authentication/serializers.py:28
 msgid "Unable to log in with provided credentials."
-msgstr ""
+msgstr "Kan niet inloggen met opgegeven gegevens."
 
 #: openarchiefbeheer/api/authentication/views.py:15
 msgid "Login"
@@ -207,57 +207,57 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/api/permissions.py:9
 msgid "You are not allowed to create a destruction list."
-msgstr ""
+msgstr "Je bent niet toegestaan om een vernietigingslijst aan te maken."
 
 #: openarchiefbeheer/destruction/api/permissions.py:16
 msgid "You are not allowed to review a destruction list."
-msgstr ""
+msgstr "Je bent niet toegestaan om een vernietigingslijst te beoordelen."
 
 #: openarchiefbeheer/destruction/api/permissions.py:27
 msgid ""
 "You are either not allowed to update this destruction list or the "
 "destruction list can currently not be updated."
-msgstr ""
+msgstr "Je bent ofwel niet toegestaan om deze vernietigingslijst bij te werken, of de vernietigingslijst kan momenteel niet worden bijgewerkt."
 
 #: openarchiefbeheer/destruction/api/permissions.py:43
 msgid ""
 "You are either not allowed to mark this destruction list as final or the "
 "destruction list can currently not be updated."
-msgstr ""
+msgstr "Je bent ofwel niet toegestaan om deze vernietigingslijst als definitief te markeren, of de vernietigingslijst kan momenteel niet worden bijgewerkt."
 
 #: openarchiefbeheer/destruction/api/permissions.py:59
 msgid ""
 "You are either not allowed to delete this destruction list or the "
 "destruction list can currently not be deleted."
-msgstr ""
+msgstr "Je bent ofwel niet toegestaan om deze vernietigingslijst te verwijderen, of de vernietigingslijst kan momenteel niet worden verwijderd."
 
 #: openarchiefbeheer/destruction/api/permissions.py:74
 msgid "You are not allowed to reassign the destruction list."
-msgstr ""
+msgstr "Je bent niet toegestaan om de vernietigingslijst opnieuw toe te wijzen."
 
 #: openarchiefbeheer/destruction/api/permissions.py:87
 msgid "You are not allowed to mark this destruction list as ready to review."
-msgstr ""
+msgstr "Je bent niet toegestaan om deze vernietigingslijst als klaar voor beoordeling te markeren."
 
 #: openarchiefbeheer/destruction/api/permissions.py:100
 msgid "You are not allowed to stop the planned destruction of the list."
-msgstr ""
+msgstr "Je bent niet toegestaan om de geplande vernietiging van de lijst te stoppen."
 
 #: openarchiefbeheer/destruction/api/serializers.py:48
 msgid ""
 "The chosen user does not have the permission of reviewing a destruction list."
-msgstr ""
+msgstr "De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst te beoordelen."
 
 #: openarchiefbeheer/destruction/api/serializers.py:60
 #: openarchiefbeheer/destruction/tests/test_endpoints.py:417
 #: openarchiefbeheer/destruction/tests/test_serializers.py:387
 msgid "The author of a list cannot also be a reviewer."
-msgstr ""
+msgstr "De auteur van een lijst kan niet tevens een beoordelaar zijn."
 
 #: openarchiefbeheer/destruction/api/serializers.py:76
 #: openarchiefbeheer/destruction/tests/test_endpoints.py:678
 msgid "The chosen user does not have the permission to review a final list."
-msgstr ""
+msgstr "De geselecteerde gebruiker heeft geen rechten om een definitieve lijst te beoordelen."
 
 #: openarchiefbeheer/destruction/api/serializers.py:120
 #: openarchiefbeheer/destruction/tests/test_endpoints.py:189
@@ -265,7 +265,7 @@ msgstr ""
 msgid ""
 "This case was already included in another destruction list and was not "
 "exempt during the review process."
-msgstr ""
+msgstr "Deze zaak was al opgenomen in een andere vernietigingslijst en werd niet uitgezonderd tijdens het beoordelingsproces."
 
 #: openarchiefbeheer/destruction/api/serializers.py:150
 msgid ""
@@ -284,7 +284,7 @@ msgstr ""
 msgid ""
 "This user is not currently assigned to the destruction list, so they cannot "
 "create a review at this stage."
-msgstr ""
+msgstr "Deze gebruiker is momenteel niet toegewezen aan de vernietigingslijst en kan op dit moment geen beoordeling maken."
 
 #: openarchiefbeheer/destruction/api/serializers.py:365
 #: openarchiefbeheer/destruction/tests/test_serializers.py:704
@@ -293,17 +293,17 @@ msgstr ""
 msgid ""
 "The status of this destruction list prevents you from creating a review at "
 "this stage."
-msgstr ""
+msgstr "De status van deze vernietigingslijst voorkomt dat je op dit moment een beoordeling kunt maken."
 
 #: openarchiefbeheer/destruction/api/serializers.py:378
 #: openarchiefbeheer/destruction/tests/test_serializers.py:888
 msgid "This field cannot be empty if changes are requested on the list."
-msgstr ""
+msgstr "Dit veld mag niet leeg zijn als er wijzigingen op de lijst worden aangevraagd."
 
 #: openarchiefbeheer/destruction/api/serializers.py:390
 #: openarchiefbeheer/destruction/tests/test_serializers.py:861
 msgid "There cannot be feedback on the cases if the list is approved."
-msgstr ""
+msgstr "Er kan geen feedback op de zaken zijn als de lijst is goedgekeurd."
 
 #: openarchiefbeheer/destruction/api/serializers.py:408
 #: openarchiefbeheer/destruction/tests/test_serializers.py:991
@@ -311,7 +311,7 @@ msgstr ""
 msgid ""
 "You can only provide feedback about cases that are part of the destruction "
 "list."
-msgstr ""
+msgstr "Je kunt alleen feedback geven over zaken die deel uitmaken van de vernietigingslijst."
 
 #: openarchiefbeheer/destruction/api/serializers.py:459
 msgid ""
@@ -337,7 +337,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/api/views.py:13
 msgid "List destruction list statuses"
-msgstr ""
+msgstr "Deze gebruiker is ofwel niet toegestaan om de vernietigingslijst bij te werken, of de vernietigingslijst kan momenteel niet worden bijgewerkt."
 
 #: openarchiefbeheer/destruction/api/views.py:14
 msgid "List the possible statuses that a destruction lists can have."
@@ -450,7 +450,7 @@ msgstr ""
 msgid ""
 "This list contains cases with archiving date later than "
 "%(destruction_date)s, so the destruction cannot be planned yet."
-msgstr ""
+msgstr "Deze lijst bevat zaken met een archiveringsdatum later dan %(destruction_date)s, dus de vernietiging kan nog niet worden gepland."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:285
 #, python-format
@@ -459,7 +459,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/api/viewsets.py:378
 msgid "List destruction list items"
-msgstr ""
+msgstr "Deze lijst staat al gepland om vernietigd te worden op %(destruction_date)s."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:380
 msgid "List all the items (cases) that are related to a destruction list."
@@ -677,7 +677,7 @@ msgstr ""
 #: openarchiefbeheer/destruction/models.py:334
 #: openarchiefbeheer/destruction/models.py:369
 msgid "destruction list"
-msgstr ""
+msgstr "vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:112
 msgid "destruction lists"
