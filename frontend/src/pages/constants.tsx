@@ -25,13 +25,13 @@ export const STATUSES_ELIGIBLE_FOR_REVIEW: (typeof DESTRUCTION_LIST_STATUSES)[nu
   ["ready_to_review", "ready_for_archivist"];
 
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
-  new: "Nieuw",
-  changes_requested: "Wijzigingen aangevraagd",
-  ready_to_review: "Klaar om te beoordelen",
-  ready_to_delete: "Klaar om te vernietigen",
-  internally_reviewed: "Intern beoordeeld",
-  ready_for_archivist: "Klaar voor archivaris",
-  deleted: "Vernietigd",
+  new: "nieuw",
+  changes_requested: "wijzigingen aangevraagd",
+  ready_to_review: "klaar voor beoordeling",
+  ready_to_delete: "klaar om te vernietigen",
+  internally_reviewed: "intern beoordeeld",
+  ready_for_archivist: "klaar voor archivaris",
+  deleted: "vernietigd",
 };
 
 export const STATUS_LEVEL_MAPPING: {
@@ -49,11 +49,11 @@ export const STATUS_LEVEL_MAPPING: {
 export const PROCESSING_STATUS_MAPPING: {
   [key in ProcessingStatus]: string;
 } = {
-  new: "new",
-  queued: "queued",
-  processing: "processing",
-  failed: "failed",
-  succeeded: "succeeded",
+  new: "nieuw",
+  queued: "in de wachtrij",
+  processing: "verwerken",
+  failed: "mislukt",
+  succeeded: "succesvol",
 };
 
 export const PROCESSING_STATUS_ICON_MAPPING: {

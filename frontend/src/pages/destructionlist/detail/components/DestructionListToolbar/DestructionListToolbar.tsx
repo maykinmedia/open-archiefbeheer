@@ -22,6 +22,8 @@ import { formatUser } from "../../../../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
+  STATUS_LEVEL_MAPPING,
+  STATUS_MAPPING,
 } from "../../../../constants";
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../index";
@@ -65,12 +67,9 @@ export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
               status: {
                 label: "Status",
                 value: (
-                  <ProcessingStatusBadge
-                    processingStatus={destructionList.processingStatus}
-                    plannedDestructionDate={
-                      destructionList.plannedDestructionDate
-                    }
-                  />
+                  <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
+                    {STATUS_MAPPING[destructionList.status]}
+                  </Badge>
                 ),
               },
               aangemaakt: {
