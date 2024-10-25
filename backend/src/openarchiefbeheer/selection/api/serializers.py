@@ -13,7 +13,7 @@ class SelectionItemDataReadSerializer(serializers.ModelSerializer):
         return representation["selection_data"]
 
 
-class SelectionSerializer(serializers.Serializer):
+class SelectionReadSerializer(serializers.Serializer):
     key = serializers.CharField(required=True)
 
     def to_representation(self, data: dict) -> dict:
@@ -24,3 +24,31 @@ class SelectionSerializer(serializers.Serializer):
         for item in iterable:
             result[item.zaak_url] = child_serializer.to_representation(item)
         return result
+
+
+class SelectionItemWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectionItem
+        fields = (
+            "key",
+            "zaak_url",
+            "selection_data",
+        )
+
+
+class SelectionWriteSerializer(serializers.ListSerializer):
+    child = SelectionItemWriteSerializer()
+
+    def to_internal_value(self, data: dict) -> list[dict]:
+        internal_data = []
+        selection_key = self.context["key"]
+        for zaak_url, selection_data in data.items():
+            internal_data.append(
+                {
+                    "key": selection_key,
+                    "zaak_url": zaak_url,
+                    "selection_data": selection_data,
+                }
+            )
+
+        return super().to_internal_value(internal_data)
