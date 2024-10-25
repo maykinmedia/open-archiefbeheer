@@ -277,7 +277,7 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_ca_update_destruction_list_if_not_author(self):
+    def test_can_update_destruction_list_if_not_author(self):
         record_manager1 = UserFactory.create(post__can_start_destruction=True)
         record_manager2 = UserFactory.create(post__can_start_destruction=True)
 
