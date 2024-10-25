@@ -1,18 +1,21 @@
 import {
-  Badge,
-  BadgeProps,
   ButtonProps,
   P,
   Solid,
   Toolbar,
+  useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderData, useRevalidator } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
-import { ZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import {
+  ZaakSelection,
+  addToZaakSelection,
+  removeFromZaakSelection,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { BaseListView } from "../abstract";
 import { useZaakReviewStatusBadges } from "../hooks";
@@ -28,6 +31,7 @@ export const getDestructionListReviewKey = (id: string) =>
  */
 export function DestructionListReviewPage() {
   const prompt = usePrompt();
+  const confirm = useConfirm();
   const revalidator = useRevalidator();
 
   // rows: AttributeData[], selected: boolean
@@ -238,7 +242,10 @@ export function DestructionListReviewPage() {
   const filterSelectionZaken = async (
     zaken: Zaak[],
     selected: boolean,
-    pageSpecificZaakSelection: ZaakSelection<{ approved: boolean }>,
+    pageSpecificZaakSelection: ZaakSelection<{
+      approved: boolean;
+      comment?: string;
+    }>,
   ) => {
     const excludedZaakSelection = Object.fromEntries(
       Object.entries(pageSpecificZaakSelection).filter(
@@ -253,6 +260,45 @@ export function DestructionListReviewPage() {
         const url = z.url as string;
         return !(url in excludedZaakSelection);
       });
+    }
+
+    // We only want to do anything prompt-related with `excluded` zaken
+    const isClickedZakenExcluded = zaken.some(
+      (z) => z.url && z.url in excludedZaakSelection,
+    );
+    if (isClickedZakenExcluded) {
+      confirm(
+        `Weet je zeker dat je de beoordeling wilt verwijderen?`,
+        "De opmerkingen en beoordelingen worden verwijderd.",
+        "Verwijderen",
+        "Annuleren",
+        async () => {
+          removeFromZaakSelection(storageKey, zaken);
+          revalidator.revalidate();
+        },
+        async () => {
+          // We want to re-add them with the `comments` present in the detail of the selection. (`pageSpecificZaakSelection[zaak.url].detail.comment`)
+          const foundDetailForZakenPromise = zaken.map((z) => {
+            const excludedZaakUrlsOnPage = Object.fromEntries(
+              Object.entries(pageSpecificZaakSelection).filter(
+                ([, item]) => item.detail?.approved === false,
+              ),
+            );
+
+            const approved = !((z.url as string) in excludedZaakUrlsOnPage);
+            const comment =
+              pageSpecificZaakSelection[z.url as string]?.detail?.comment || "";
+            return { approved, comment };
+          });
+
+          const foundDetailForZaken = await Promise.all(
+            foundDetailForZakenPromise,
+          );
+
+          await addToZaakSelection(storageKey, zaken, foundDetailForZaken);
+          revalidator.revalidate();
+        },
+      );
     }
 
     // 1 Zaak deselected, allow deselecting excluded zaak.
