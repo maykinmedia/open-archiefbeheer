@@ -23,6 +23,7 @@ from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListViewSet,
     ReviewResponseViewSet,
 )
+from openarchiefbeheer.selection.api.views import SelectionView
 from openarchiefbeheer.zaken.api.views import (
     CacheZakenView,
     InformatieobjecttypeChoicesView,
@@ -114,6 +115,9 @@ urlpatterns = [
                     "archive-config", ArchiveConfigView.as_view(), name="archive-config"
                 ),
                 path("oidc-info", OIDCInfoView.as_view(), name="oidc-info"),
+                path(
+                    "selections/<str:key>/", SelectionView.as_view(), name="selections"
+                ),
                 path(
                     "_retrieve_zaken/", CacheZakenView.as_view(), name="retrieve-zaken"
                 ),
