@@ -15,6 +15,12 @@ class FeatureListEditTests(GherkinLikeTestCase):
 
             # Create destruction list
             await self.when.record_manager_logs_in(page)
+
+            # FIXME - This works around a bug that causes the filter bar to block access to the first row when the
+            #  "stickyfix" is active, this is possibly resolved by implementing:
+            #  https://github.com/orgs/maykinmedia/projects/13/views/3?pane=issue&itemId=84829478&issue=maykinmedia%7Copen-archiefbeheer%7C461
+            await page.evaluate('() => sessionStorage.setItem("oab.lib.fieldSelection.field-selection-list", \'{"identificatie":true,"archiefnominatie":true,"resultaat":false,"startdatum":true,"einddatum":true,"zaaktype":true,"omschrijving":false,"toelichting":false,"Behandelend afdeling":false,"archiefactiedatum":false,"selectielijstklasse":true,"hoofdzaak":false,"relaties":false}\')')
+
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 0)
             await self.then.path_should_be(page, "/destruction-lists/create")
 
@@ -34,24 +40,24 @@ class FeatureListEditTests(GherkinLikeTestCase):
             # View destruction list
             destruction_list = await self.then.list_should_exist(page, "Destruction list to edit")
             await self.when.user_clicks_button(page, "Destruction list to edit")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             await self.when.user_clicks_button(page, "2")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}?page=2")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2")
             await self.then.page_should_contain_text(page, "ZAAK-200")
 
             # Add "ZAAK-100"
             await self.when.user_clicks_button(page, "Bewerken", 1)
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}?page=1&is_editing=true")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
 
             await self.when.user_clicks_button(page, "2")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}?page=2&is_editing=true")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
             await self.then.not_.zaak_should_be_selected(page, "ZAAK-100")  # First unselected zaak
 
             await self.when.user_selects_zaak(page, "ZAAK-100")
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             # View updated destruction list
             await self.when.user_clicks_button(page, "2")
@@ -59,16 +65,16 @@ class FeatureListEditTests(GherkinLikeTestCase):
 
             # Remove "ZAAK-100"
             await self.when.user_clicks_button(page, "Bewerken", 1)
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}?page=1&is_editing=true")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
 
             await self.when.user_clicks_button(page, "2")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}?page=2&is_editing=true")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
             await self.then.zaak_should_be_selected(page, "ZAAK-100")  # First unselected zaak
 
             await self.when.user_selects_zaak(page, "ZAAK-100")
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}")
+            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             # View updated destruction list
             await self.then.page_should_contain_text(page, "ZAAK-99")

@@ -11,11 +11,11 @@ import {
 import React, { useCallback, useMemo } from "react";
 import { useNavigation } from "react-router-dom";
 
+import { DestructionListToolbar } from "../../../components";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
 import { Zaak } from "../../../types";
-import { DestructionListToolbar } from "../detail/components";
 import { useFields } from "../hooks/useFields";
 import { useFilter } from "../hooks/useFilter";
 import { usePage } from "../hooks/usePage";
@@ -218,7 +218,11 @@ export function BaseListView({
         ...dataGridProps,
       }}
     >
-      <DestructionListToolbar title={title} />
+      <DestructionListToolbar
+        title={title}
+        destructionList={destructionList}
+        review={review}
+      />
       {children}
     </ListTemplate>
   );

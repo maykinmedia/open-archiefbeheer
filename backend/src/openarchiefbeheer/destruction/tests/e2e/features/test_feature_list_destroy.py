@@ -22,7 +22,7 @@ class FeatureListDestroyTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
 
             await self.when.user_clicks_button(page, "Destruction list to destroy")
-            await self.then.path_should_be(page, f"/destruction-lists/{destruction_list.uuid}")
+            await self.then.path_should_be(page, f"/destruction-lists/{destruction_list.uuid}/edit")
 
             await self.when.user_clicks_button(page, "Vernietigen starten")
             await self.when.user_fills_form_field(page, "Type naam van de lijst ter bevestiging", "Destruction list to destroy")

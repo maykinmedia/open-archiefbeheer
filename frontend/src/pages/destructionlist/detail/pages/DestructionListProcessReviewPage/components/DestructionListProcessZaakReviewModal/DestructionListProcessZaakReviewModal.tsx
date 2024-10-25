@@ -16,9 +16,9 @@ import {
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useEffect, useState } from "react";
 
-import { ReviewItem } from "../../../../../lib/api/review";
-import { addDuration, formatDate } from "../../../../../lib/format/date";
-import { Zaak } from "../../../../../types";
+import { ReviewItem } from "../../../../../../../lib/api/review";
+import { addDuration, formatDate } from "../../../../../../../lib/format/date";
+import { Zaak } from "../../../../../../../types";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Aanpassen van selectielijstklasse";

@@ -1,8 +1,8 @@
 import { ButtonProps, Solid, TypedField } from "@maykin-ui/admin-ui";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
-  useLoaderData,
   useNavigation,
+  useRouteLoaderData,
   useSearchParams,
 } from "react-router-dom";
 
@@ -25,9 +25,11 @@ import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
  * Show items of a destruction list.
  * Allows viewing, adding and removing destruction list items.
  */
-export function DestructionListEdit() {
+export function DestructionListEditPage() {
   const { destructionList, destructionListItems, selectableZaken, storageKey } =
-    useLoaderData() as DestructionListDetailContext;
+    useRouteLoaderData(
+      "destruction-list:detail",
+    ) as DestructionListDetailContext;
 
   const { state } = useNavigation();
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();

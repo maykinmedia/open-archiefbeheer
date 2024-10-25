@@ -63,6 +63,12 @@ const meta: Meta<typeof DestructionListCreatePage> = {
           },
         },
       },
+      {
+        url: "http://localhost:8000/api/v1/reviewers/?",
+        method: "GET",
+        status: 200,
+        response: usersFactory(),
+      },
     ],
   },
 };

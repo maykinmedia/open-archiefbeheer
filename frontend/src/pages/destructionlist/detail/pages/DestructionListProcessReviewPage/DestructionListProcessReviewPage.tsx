@@ -1,6 +1,6 @@
-import { ButtonProps, Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
+import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
 import React, { useMemo, useState } from "react";
-import { useLoaderData, useRevalidator } from "react-router-dom";
+import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
@@ -17,7 +17,7 @@ import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 import {
   DestructionListProcessZaakReviewModal,
   ProcessReviewAction,
-} from "../DestructionListProcessZaakReviewModal";
+} from "./components";
 
 type ZaakModalDataState = {
   open: boolean;
@@ -35,7 +35,7 @@ type ProcessZaakReviewSelectionDetail = {
  * Show items of a destruction list review.
  * Allows processing feedback of the destruction list.
  */
-export function DestructionListProcessReview() {
+export function DestructionListProcessReviewPage() {
   const {
     storageKey,
     destructionList,
@@ -44,7 +44,9 @@ export function DestructionListProcessReview() {
     review,
     reviewItems = [],
     selectieLijstKlasseChoicesMap,
-  } = useLoaderData() as DestructionListDetailContext;
+  } = useRouteLoaderData(
+    "destruction-list:detail",
+  ) as DestructionListDetailContext;
   const zakenOnPage = reviewItems?.map((ri) => ri.zaak) || [];
 
   const [selectionClearedState, setSelectionClearedState] = useState(false);

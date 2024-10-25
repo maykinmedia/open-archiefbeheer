@@ -6,7 +6,7 @@ import {
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useLoaderData, useRevalidator } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";

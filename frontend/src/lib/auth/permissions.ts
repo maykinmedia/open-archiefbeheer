@@ -79,10 +79,12 @@ export function canUpdateDestructionList(
 
 export function canViewDestructionList(
   user: User,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   destructionList: DestructionList,
 ) {
-  return canStartDestructionList(user);
+  return (
+    canStartDestructionList(user) ||
+    canReviewDestructionList(user, destructionList)
+  );
 }
 
 export function canMarkListAsFinal(
