@@ -1,4 +1,4 @@
-import { AttributeData } from "@maykin-ui/admin-ui";
+import { AttributeData, useConfirm } from "@maykin-ui/admin-ui";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -193,6 +193,7 @@ export function useZaakSelection<T = unknown>(
     setSelectionSizeState(size);
   };
 
+  const confirm = useConfirm();
   /**
    * Pass this to `onSelect` of a DataGrid component.
    * @param attributeData
@@ -235,12 +236,25 @@ export function useZaakSelection<T = unknown>(
       ? await Promise.all(detailPromises)
       : undefined;
 
-    selected
-      ? await addToZaakSelection(storageKey, filteredZaken, detailArray)
-      : await removeFromZaakSelection(storageKey, filteredZaken);
-
-    await _updatePageSpecificZaakSelectionState();
-    await _updateSelectionSizeState();
+    if (!selected) {
+      confirm(
+        `Weet je zeker dat je de beoordeling van ${filteredZaken.length} zaak${
+          filteredZaken.length > 1 ? "en" : ""
+        } wilt verwijderen?`,
+        "De opmerkingen en beoordelingen worden verwijderd.",
+        "Verwijderen",
+        "Annuleren",
+        async () => {
+          await removeFromZaakSelection(storageKey, filteredZaken);
+          await _updatePageSpecificZaakSelectionState();
+          await _updateSelectionSizeState();
+        },
+      );
+    } else {
+      await addToZaakSelection(storageKey, filteredZaken, detailArray);
+      await _updatePageSpecificZaakSelectionState();
+      await _updateSelectionSizeState();
+    }
   };
 
   /**
