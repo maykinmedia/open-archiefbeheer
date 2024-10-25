@@ -337,7 +337,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/api/views.py:13
 msgid "List destruction list statuses"
-msgstr "Deze gebruiker is ofwel niet toegestaan om de vernietigingslijst bij te werken, of de vernietigingslijst kan momenteel niet worden bijgewerkt."
+msgstr ""
 
 #: openarchiefbeheer/destruction/api/views.py:14
 msgid "List the possible statuses that a destruction lists can have."
@@ -459,7 +459,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/api/viewsets.py:378
 msgid "List destruction list items"
-msgstr "Deze lijst staat al gepland om vernietigd te worden op %(destruction_date)s."
+msgstr ""
 
 #: openarchiefbeheer/destruction/api/viewsets.py:380
 msgid "List all the items (cases) that are related to a destruction list."
