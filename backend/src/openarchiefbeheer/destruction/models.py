@@ -278,7 +278,7 @@ class DestructionList(models.Model):
         attach_report_to_zaak(destruction_list, store)
 
     def clear_local_metadata(self) -> None:
-        self.items.filter(status=ListItemStatus.suggested).update(extra_zaak_data={})
+        self.items.update(extra_zaak_data={})
 
 
 class DestructionListItem(models.Model):
