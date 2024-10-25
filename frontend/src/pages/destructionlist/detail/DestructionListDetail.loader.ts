@@ -2,10 +2,9 @@ import { Option } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
-import { AuditLogItem, listAuditLog } from "../../../lib/api/auditLog";
 import { User, whoAmI } from "../../../lib/api/auth";
 import {
-  DestructionListRead,
+  DestructionList,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
@@ -23,7 +22,6 @@ import {
   ReviewResponse,
   getLatestReviewResponse,
 } from "../../../lib/api/reviewResponse";
-import { listReviewers } from "../../../lib/api/reviewers";
 import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canViewDestructionListRequired,
@@ -38,15 +36,13 @@ import {
 export interface DestructionListDetailContext {
   storageKey: string;
 
-  destructionList: DestructionListRead;
+  destructionList: DestructionList;
   destructionListItems: PaginatedDestructionListItems;
-  logItems: AuditLogItem[];
 
   zaakSelection: ZaakSelection;
   selectableZaken: PaginatedZaken;
 
   archivists: User[];
-  reviewers: User[];
   user: User;
 
   review: Review | null;
@@ -173,11 +169,9 @@ export const destructionListDetailLoader = loginRequired(
       const [
         destructionListItems,
         reviewResponse,
-        logItems,
         zaakSelection,
         allZaken,
         archivists,
-        reviewers,
         user,
         selectieLijstKlasseChoicesMap,
       ] = await Promise.all([
@@ -186,11 +180,9 @@ export const destructionListDetailLoader = loginRequired(
           getLatestReviewResponse({
             review: review.pk,
           }),
-        listAuditLog(destructionList.uuid),
         getZaakSelection(storageKey),
         getSelectableZaken(),
         listArchivists(),
-        listReviewers(),
         whoAmI(),
         getReviewItems(),
       ]);
@@ -207,13 +199,11 @@ export const destructionListDetailLoader = loginRequired(
 
         destructionList,
         destructionListItems: destructionListItems,
-        logItems,
 
         zaakSelection,
         selectableZaken: allZaken,
 
         archivists: filteredArchivists,
-        reviewers,
         user,
 
         review: review,

@@ -3,14 +3,14 @@ import {
   Solid,
   ToolbarItem,
   useConfirm,
+  useFormDialog,
   usePrompt,
 } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
-import { useLoaderData, useNavigation } from "react-router-dom";
+import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../../components";
 import { useSubmitAction } from "../../../../hooks";
-import { DestructionList } from "../../../../lib/api/destructionLists";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
   canMarkAsReadyToReview,
@@ -24,8 +24,7 @@ import {
   UpdateDestructionListProcessReviewAction,
 } from "../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../DestructionListDetail.loader";
-import { ProcessReviewAction } from "../components";
-import { useFormDialog } from "./useFormDialog";
+import { ProcessReviewAction } from "../pages/DestructionListProcessReviewPage/components";
 
 interface ProcessZaakReviewSelectionDetail {
   comment: string;
@@ -48,7 +47,9 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     archivists,
     review,
     reviewItems,
-  } = useLoaderData() as DestructionListDetailContext;
+  } = useRouteLoaderData(
+    "destruction-list:detail",
+  ) as DestructionListDetailContext;
 
   const confirm = useConfirm();
   const prompt = usePrompt();

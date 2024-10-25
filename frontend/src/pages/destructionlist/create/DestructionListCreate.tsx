@@ -43,7 +43,7 @@ export function DestructionListCreatePage() {
   const submitAction = useSubmitAction<DestructionListCreateAction>();
 
   // Returned zaak selection is page specific, don't use it as we need all selected zaken.
-  const [, , { allPagesSelected, hasSelection }] = useZaakSelection(
+  const [, , { allPagesSelected }] = useZaakSelection(
     DESTRUCTION_LIST_CREATE_KEY,
     paginatedZaken.results,
   );

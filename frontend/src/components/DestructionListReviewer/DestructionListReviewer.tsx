@@ -10,13 +10,13 @@ import {
 import { FormEvent, useState } from "react";
 import { useNavigation } from "react-router-dom";
 
-import { useSubmitAction } from "../../../../../hooks";
-import { User } from "../../../../../lib/api/auth";
-import { DestructionListRead } from "../../../../../lib/api/destructionLists";
-import { formatUser } from "../../../../../lib/format/user";
+import { useSubmitAction } from "../../hooks";
+import { User } from "../../lib/api/auth";
+import { DestructionList } from "../../lib/api/destructionLists";
+import { formatUser } from "../../lib/format/user";
 
 export type DestructionListReviewerProps = {
-  destructionList: DestructionListRead;
+  destructionList: DestructionList;
   reviewers: User[];
 };
 

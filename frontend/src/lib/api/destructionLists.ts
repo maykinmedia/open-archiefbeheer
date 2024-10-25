@@ -23,16 +23,8 @@ export type DestructionList = {
 
 export type DestructionListAssignee = {
   user: User;
+  role?: "reviewer" | "author" | "archivist";
 };
-
-export type DestructionListAssigneeRead = {
-  user: User;
-  role: "reviewer" | "author" | "archivist";
-};
-
-export interface DestructionListRead extends DestructionList {
-  assignees: DestructionListAssigneeRead[];
-}
 
 // An array to be used in various parts of the application.
 export const DESTRUCTION_LIST_STATUSES = [
@@ -110,7 +102,7 @@ export async function createDestructionList(
  */
 export async function getDestructionList(uuid: string) {
   const response = await request("GET", `/destruction-lists/${uuid}/`);
-  const promise: Promise<DestructionListRead> = response.json();
+  const promise: Promise<DestructionList> = response.json();
   return promise;
 }
 

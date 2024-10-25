@@ -14,6 +14,8 @@ import "./index.css";
 import {
   DestructionListCreatePage,
   DestructionListDetailPage,
+  DestructionListEditPage,
+  DestructionListProcessReviewPage,
   DestructionListReviewPage,
   Landing,
   LoginPage,
@@ -73,44 +75,76 @@ const router = createBrowserRouter([
         },
       },
       {
+        id: "destruction-list:detail",
         path: "/destruction-lists/:uuid",
         element: <DestructionListDetailPage />,
-        action: destructionListUpdateAction,
         loader: destructionListDetailLoader,
-        handle: {
-          breadcrumbItems: [
-            {
-              label: "Vernietigingslijsten",
-              href: "/destruction-lists",
+        children: [
+          {
+            path: "edit",
+            element: <DestructionListEditPage />,
+            action: destructionListUpdateAction, // FIXME: Split actions and allow components direct access to shared actions functions?
+            handle: {
+              breadcrumbItems: [
+                {
+                  label: "Vernietigingslijsten",
+                  href: "/destruction-lists",
+                },
+                {
+                  label: "{uuid}",
+                  href: "/destruction-lists/{uuid}",
+                },
+                {
+                  label: "Bewerken",
+                  href: "/destruction-lists/{uuid}/edit",
+                },
+              ] as BreadcrumbItem[],
             },
-            {
-              label: "{uuid}",
-              href: "/destruction-lists/{uuid}",
+          },
+          {
+            path: "process-review",
+            element: <DestructionListProcessReviewPage />,
+            action: destructionListUpdateAction, // FIXME: Split actions and allow components direct access to shared actions functions?
+            handle: {
+              breadcrumbItems: [
+                {
+                  label: "Vernietigingslijsten",
+                  href: "/destruction-lists",
+                },
+                {
+                  label: "{uuid}",
+                  href: "/destruction-lists/{uuid}",
+                },
+                {
+                  label: "Beoordeling bekijken",
+                  href: "/destruction-lists/{uuid}/process-review",
+                },
+              ] as BreadcrumbItem[],
             },
-          ] as BreadcrumbItem[],
-        },
-      },
-      {
-        path: "/destruction-lists/:uuid/review",
-        loader: destructionListReviewLoader,
-        element: <DestructionListReviewPage />,
-        action: destructionListReviewAction,
-        handle: {
-          breadcrumbItems: [
-            {
-              label: "Vernietigingslijsten",
-              href: "/destruction-lists",
+          },
+          {
+            path: "review",
+            loader: destructionListReviewLoader,
+            element: <DestructionListReviewPage />,
+            action: destructionListReviewAction,
+            handle: {
+              breadcrumbItems: [
+                {
+                  label: "Vernietigingslijsten",
+                  href: "/destruction-lists",
+                },
+                {
+                  label: "{uuid}",
+                  href: "/destruction-lists/{uuid}",
+                },
+                {
+                  label: "Beoordelen",
+                  href: "/destruction-lists/{uuid}/review",
+                },
+              ] as BreadcrumbItem[],
             },
-            {
-              label: "{uuid}",
-              href: "/destruction-lists/{uuid}",
-            },
-            {
-              label: "Beoordelen",
-              href: "/destruction-lists/{uuid}/review",
-            },
-          ] as BreadcrumbItem[],
-        },
+          },
+        ],
       },
       {
         path: "/settings",

@@ -22,7 +22,7 @@ export const LoginPageStory: Story = {
 };
 
 export const LoginPageWithOIDC: Story = {
-  render: (args) => (
+  render: () => (
     <OidcConfigContext.Provider
       value={{
         enabled: true,

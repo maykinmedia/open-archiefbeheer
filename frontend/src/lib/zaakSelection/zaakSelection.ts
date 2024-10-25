@@ -88,7 +88,7 @@ export async function getFilteredZaakSelection<DetailType = unknown>(
   const selection = await _getZaakSelection<DetailType>(key);
   const entries = Object.entries(selection);
 
-  const filteredEntries = entries.filter(([url, { selected, detail }]) => {
+  const filteredEntries = entries.filter(([, { selected, detail }]) => {
     const _detail: Record<string, unknown> = detail || {};
     const selectionFilter = !selectedOnly || selected;
 

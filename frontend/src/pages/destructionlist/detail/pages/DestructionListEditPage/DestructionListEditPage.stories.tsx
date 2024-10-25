@@ -2,38 +2,33 @@ import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
-import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
 import {
   assertColumnSelection,
   clickButton,
-  fillButtonConfirmationForm,
   fillForm,
-} from "../../../../.storybook/playFunctions";
-import { auditLogFactory } from "../../../fixtures/auditLog";
-import { destructionListFactory } from "../../../fixtures/destructionList";
+} from "../../../../../../.storybook/playFunctions";
+import { auditLogFactory } from "../../../../../fixtures/auditLog";
+import { destructionListFactory } from "../../../../../fixtures/destructionList";
 import {
   paginatedDestructionListItemsFactory,
   paginatedDestructionListItemsFailedFactory,
-} from "../../../fixtures/destructionListItem";
-import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
-import { reviewFactory } from "../../../fixtures/review";
-import { reviewItemsFactory } from "../../../fixtures/reviewItem";
+} from "../../../../../fixtures/destructionListItem";
+import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
+import { reviewFactory } from "../../../../../fixtures/review";
+import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
 import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
-  selectieLijstKlasseFactory,
-} from "../../../fixtures/selectieLijstKlasseChoices";
-import { userFactory, usersFactory } from "../../../fixtures/user";
-import {
-  clearZaakSelection,
-  getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
-import { DestructionListDetailPage } from "./DestructionListDetail";
-import { DestructionListDetailContext } from "./DestructionListDetail.loader";
+} from "../../../../../fixtures/selectieLijstKlasseChoices";
+import { userFactory, usersFactory } from "../../../../../fixtures/user";
+import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
+import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
+import { DestructionListEditPage } from "./DestructionListEditPage";
 
-const meta: Meta<typeof DestructionListDetailPage> = {
-  title: "Pages/DestructionList/DestructionListDetailPage",
-  component: DestructionListDetailPage,
+const meta: Meta<typeof DestructionListEditPage> = {
+  title: "Pages/DestructionList/DestructionListEditPage",
+  component: DestructionListEditPage,
   decorators: [ReactRouterDecorator],
   parameters: {
     mockData: [
@@ -87,65 +82,45 @@ const meta: Meta<typeof DestructionListDetailPage> = {
         status: 200,
         response: userFactory(),
       },
+      {
+        url: "http://localhost:8000/api/v1/reviewers/?",
+        method: "GET",
+        status: 200,
+        response: usersFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/auditlog/?",
+        method: "GET",
+        status: 200,
+        response: auditLogFactory(),
+      },
     ],
+    reactRouterDecorator: {
+      route: {
+        id: "destruction-list:detail",
+        // loader:
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
+          return { ...FIXTURE_EDIT, zaakSelection };
+        },
+      },
+    },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const assertReassignDestructionList: PlayFunction<ReactRenderer> = async (
-  context,
-) => {
-  await clickButton({
-    ...context,
-    parameters: {
-      name: "Beoordelaar bewerken",
-    },
-  });
-
-  let form;
-  await waitFor(() => {
-    form = document.forms[0];
-    if (!form) {
-      throw new Error();
-    }
-  });
-
-  await fillForm({
-    ...context,
-    parameters: {
-      form,
-      formValues: {
-        Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
-        Reden: "omdat het kan",
-      },
-      submitForm: false,
-    },
-  });
-
-  const dialog = await within(
-    context.canvasElement,
-  ).findByRole<HTMLDialogElement>("dialog");
-  const close = await within(dialog).findByRole("button", {
-    name: "Close",
-  });
-
-  await userEvent.click(close, { delay: 300 });
-};
-
 const FIXTURE_EDIT: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
 
   destructionList: destructionListFactory({ status: "new" }),
   destructionListItems: paginatedDestructionListItemsFactory(),
-  logItems: auditLogFactory(),
 
   zaakSelection: {},
   selectableZaken: paginatedZakenFactory(),
 
   archivists: usersFactory(),
-  reviewers: usersFactory(),
   user: usersFactory()[0],
 
   review: null,
@@ -155,16 +130,6 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
 };
 
 export const EditDestructionList: Story = {
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
-          return { ...FIXTURE_EDIT, zaakSelection };
-        },
-      },
-    },
-  },
   play: async (context) => {
     const canvas = within(context.canvasElement);
     const editButton = await canvas.findByRole("button", {
@@ -182,216 +147,6 @@ export const EditDestructionList: Story = {
   },
 };
 
-const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
-  storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
-
-  destructionList: { ...destructionListFactory(), status: "changes_requested" },
-  destructionListItems: {
-    count: reviewItemsFactory().length,
-    next: null,
-    previous: null,
-    results: [],
-  },
-  logItems: auditLogFactory(),
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  reviewers: usersFactory(),
-  user: usersFactory()[0],
-
-  review: reviewFactory(),
-  reviewItems: reviewItemsFactory(),
-
-  selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
-};
-
-export const UpdateReviewer: Story = {
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        action: async () => true,
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
-          );
-
-          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
-        },
-      },
-    },
-  },
-  play: async (context) => {
-    await assertReassignDestructionList(context);
-  },
-};
-
-export const ProcessReview: Story = {
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        action: async () => true,
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
-          );
-
-          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
-        },
-      },
-    },
-  },
-  play: async (context) => {
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 0,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[0].label,
-          Reden: "omdat het moet",
-        },
-      },
-    });
-
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 1,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[1].label,
-          Reden: "omdat het kan",
-        },
-      },
-    });
-
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 2,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[2].label,
-          Reden: "Waarom niet",
-        },
-      },
-    });
-
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        name: "Opnieuw indienen",
-        formValues: {
-          Opmerking: "Kan gewoon",
-        },
-        submitForm: false,
-      },
-    });
-
-    const canvas = within(context.canvasElement);
-    await userEvent.keyboard("{Escape}");
-
-    const dialog = await canvas.findByRole("dialog");
-    const close = await within(dialog).findByRole("button", {
-      name: "Annuleren",
-    });
-    await userEvent.click(close, { delay: 300 });
-
-    await waitFor(
-      async () => {
-        const mutateButtons = canvas.getAllByRole("button", {
-          name: "Muteren",
-        });
-        await userEvent.click(mutateButtons[1], { delay: 10 });
-        await canvas.findByRole("dialog");
-      },
-      { timeout: 10000 },
-    );
-
-    // Clean up.
-    await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
-  },
-};
-
-export const CheckSelectielijstklasseSelection: Story = {
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        action: async () => true,
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
-          );
-
-          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
-        },
-      },
-    },
-  },
-  play: async (context) => {
-    await clickButton({
-      ...context,
-      parameters: {
-        name: "Muteren",
-      },
-    });
-
-    const canvas = within(context.canvasElement);
-
-    const modal = await canvas.findByRole("dialog");
-    const option = await within(modal).findByLabelText(
-      "Aanpassen van selectielijstklasse",
-    );
-
-    await userEvent.click(option, { delay: 10 });
-
-    const dropdownSelectielijstklasse = await canvas.findByRole("combobox", {
-      name: "Selectielijstklasse",
-    });
-
-    // we select a different selectielijstklasse
-    await userEvent.click(dropdownSelectielijstklasse);
-    await userEvent.click(
-      canvas.getByText("1.5 - Afgebroken - vernietigen - P1Y"),
-    );
-
-    const archiefactiedatum =
-      await canvas.findAllByLabelText("Archiefactiedatum");
-    const input = archiefactiedatum.find((input) => {
-      return (
-        input instanceof HTMLInputElement &&
-        input.type === "text" &&
-        input.offsetParent !== null
-      );
-    });
-    // The dropdown shows the selectielijst klasse
-    await waitFor(async () =>
-      expect(dropdownSelectielijstklasse.childNodes[0].textContent).toEqual(
-        "1.5 - Afgebroken - vernietigen - P1Y",
-      ),
-    );
-
-    // we select a different selectielijstklasse
-    await userEvent.click(dropdownSelectielijstklasse);
-    await userEvent.click(
-      canvas.getByText("1.1.1 - Ingericht - blijvend_bewaren"),
-    );
-
-    // We expect archiefactiedatum to be hidden now
-    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
-
-    // We do not expect the archiefactiedatum to be visible
-    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
-
-    await userEvent.keyboard("{Escape}");
-  },
-};
-
 const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
   storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
 
@@ -405,13 +160,11 @@ const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
     previous: null,
     results: [],
   },
-  logItems: auditLogFactory(),
 
   zaakSelection: {},
   selectableZaken: paginatedZakenFactory(),
 
   archivists: usersFactory(),
-  reviewers: usersFactory(),
   user: usersFactory()[0],
 
   review: reviewFactory(),
@@ -482,13 +235,11 @@ const FIXTURE_DELETE: DestructionListDetailContext = {
     processingStatus: "new",
   }),
   destructionListItems: paginatedDestructionListItemsFactory(),
-  logItems: auditLogFactory(),
 
   zaakSelection: {},
   selectableZaken: paginatedZakenFactory(),
 
   archivists: usersFactory(),
-  reviewers: usersFactory(),
   user: usersFactory()[0],
 
   review: null,
@@ -548,13 +299,11 @@ const FIXTURE_FAILED_DELETE: DestructionListDetailContext = {
     processingStatus: "failed",
   }),
   destructionListItems: paginatedDestructionListItemsFailedFactory(),
-  logItems: auditLogFactory(),
 
   zaakSelection: {},
   selectableZaken: paginatedZakenFactory(),
 
   archivists: usersFactory(),
-  reviewers: usersFactory(),
   user: usersFactory()[0],
 
   review: null,
@@ -583,13 +332,11 @@ const FIXTURE_CANCEL_PLANNED_DESTRUCTION: DestructionListDetailContext = {
     plannedDestructionDate: "2026-01-01T00:00:00Z",
   }),
   destructionListItems: paginatedDestructionListItemsFactory(),
-  logItems: auditLogFactory(),
 
   zaakSelection: {},
   selectableZaken: paginatedZakenFactory(),
 
   archivists: usersFactory(),
-  reviewers: usersFactory(),
   user: usersFactory()[0],
 
   review: null,

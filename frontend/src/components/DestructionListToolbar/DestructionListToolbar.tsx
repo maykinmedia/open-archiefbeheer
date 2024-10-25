@@ -9,43 +9,43 @@ import {
   Tabs,
   field2Title,
 } from "@maykin-ui/admin-ui";
-import { useLoaderData } from "react-router-dom";
 
-import { ProcessingStatusBadge } from "../../../../../components";
-import { AuditLogItem } from "../../../../../lib/api/auditLog";
-import { User } from "../../../../../lib/api/auth";
-import { DestructionListRead } from "../../../../../lib/api/destructionLists";
-import { Review } from "../../../../../lib/api/review";
-import { ReviewResponse } from "../../../../../lib/api/reviewResponse";
-import { formatDate } from "../../../../../lib/format/date";
-import { formatUser } from "../../../../../lib/format/user";
+import {
+  useAuditLog,
+  useLatestReviewResponse,
+  useReviewers,
+} from "../../hooks";
+import { DestructionList } from "../../lib/api/destructionLists";
+import { Review } from "../../lib/api/review";
+import { formatDate } from "../../lib/format/date";
+import { formatUser } from "../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
-} from "../../../../constants";
+} from "../../pages/constants";
 import { DestructionListAuditLog } from "../DestructionListAuditLog";
-import { DestructionListReviewer } from "../index";
+import { DestructionListReviewer } from "../DestructionListReviewer";
 
 export type DestructionListToolbarProps = {
   title?: string;
+  destructionList?: DestructionList;
+  review?: Review;
 };
 
 /**
  * Toolbar on top of destruction list page providing meta information.
  * @constructor
  */
-export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
-  const { destructionList, logItems, review, reviewers, reviewResponse } =
-    useLoaderData() as {
-      destructionList: DestructionListRead;
-      logItems: AuditLogItem[];
-      review: Review;
-      reviewers: User[];
-      reviewResponse: ReviewResponse;
-    };
-
+export function DestructionListToolbar({
+  title,
+  destructionList,
+  review,
+}: DestructionListToolbarProps) {
+  const reviewers = useReviewers();
+  const logItems = useAuditLog(destructionList);
+  const reviewResponse = useLatestReviewResponse(review);
   const properties = (
     <Grid>
       {destructionList && (
@@ -130,13 +130,13 @@ export function DestructionListToolbar({ title }: DestructionListToolbarProps) {
           <H2>{field2Title(destructionList.name, { unHyphen: false })}</H2>
         )
       )}
-      {logItems ? (
+      {logItems?.length ? (
         <Tabs>
           <Tab id="gegevens" label="Gegevens">
             {properties}
           </Tab>
           <Tab id="geschiedenis" label="Geschiedenis">
-            <DestructionListAuditLog />
+            <DestructionListAuditLog destructionList={destructionList} />
           </Tab>
         </Tabs>
       ) : (

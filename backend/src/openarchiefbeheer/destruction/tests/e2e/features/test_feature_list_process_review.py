@@ -58,7 +58,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
 
             await self.when.user_clicks_button(page, "Destruction list to process")
-            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
 
             await self.when.user_clicks_button(page, "Muteren")
 
@@ -166,7 +166,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
 
             await self.when.user_clicks_button(page, self.destruction_list.name)
-            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
             
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
         
@@ -201,6 +201,6 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Destruction list to process")
             
-            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
             await self.then.page_should_contain_text(page, "Opnieuw indienen")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
