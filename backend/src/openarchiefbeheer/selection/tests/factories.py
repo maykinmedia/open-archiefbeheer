@@ -1,19 +1,21 @@
-import random
+import copy
 
 import factory
 
 
 def get_selection_data():
-    return {"selected": random.choice([True, False]), "details": {}}
+    return {"selected": False, "details": {}}
 
 
 class SelectionItemFactory(factory.django.DjangoModelFactory):
     key = factory.Faker("word")
     zaak_url = factory.Faker("url")
-    selection_data = factory.LazyFunction(get_selection_data)
+    selection_data = factory.LazyAttribute(
+        lambda item: copy.copy({"selected": item.is_selected, "details": {}})
+    )
 
     class Meta:
         model = "selection.SelectionItem"
 
     class Params:
-        is_selected = factory.Trait(selection_data__selected=True)
+        is_selected = False
