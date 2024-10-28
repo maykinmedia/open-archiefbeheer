@@ -84,3 +84,16 @@ class SelectionView(APIView):
         return Response(
             data=self._get_selection_representation(), status=status.HTTP_200_OK
         )
+
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Clear selection"),
+        description=_("Clear a selection."),
+        responses={204: None},
+        request=None,
+    )
+    def delete(self, request, *args, **kwargs):
+        instances = SelectionItem.objects.filter(key=self.kwargs["key"])
+        instances.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
