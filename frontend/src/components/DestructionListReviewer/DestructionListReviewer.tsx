@@ -11,11 +11,12 @@ import {
 import { FormEvent, useState } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
-import { useReviewers, useSubmitAction } from "../../hooks";
+import { useReviewers, useWhoAmI } from "../../hooks";
 import {
   DestructionList,
   reassignDestructionList,
 } from "../../lib/api/destructionLists";
+import { canReassignDestructionList } from "../../lib/auth/permissions";
 import { formatUser } from "../../lib/format/user";
 
 export type DestructionListReviewerProps = {
@@ -35,6 +36,7 @@ export function DestructionListReviewer({
   const revalidator = useRevalidator();
   const alert = useAlert();
   const reviewers = useReviewers();
+  const user = useWhoAmI();
 
   /**
    * Gets called when the change is confirmed.
@@ -85,19 +87,26 @@ export function DestructionListReviewer({
                 value: (
                   <>
                     {formatUser(reviewer.user)}
-                    &nbsp;
-                    <Button
-                      aria-label="Beoordelaar bewerken"
-                      disabled={state === "loading" || state === "submitting"}
-                      size="xs"
-                      variant="secondary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setModalState(true);
-                      }}
-                    >
-                      <Solid.PencilIcon />
-                    </Button>
+                    {user &&
+                      canReassignDestructionList(user, destructionList) && (
+                        <>
+                          &nbsp;
+                          <Button
+                            aria-label="Beoordelaar bewerken"
+                            disabled={
+                              state === "loading" || state === "submitting"
+                            }
+                            size="xs"
+                            variant="secondary"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setModalState(true);
+                            }}
+                          >
+                            <Solid.PencilIcon />
+                          </Button>
+                        </>
+                      )}
                   </>
                 ),
               },
