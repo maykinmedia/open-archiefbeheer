@@ -1,3 +1,5 @@
+from django.db.models import QuerySet
+
 from rest_framework import serializers
 
 from ..models import SelectionItem
@@ -52,3 +54,33 @@ class SelectionWriteSerializer(serializers.ListSerializer):
             )
 
         return super().to_internal_value(internal_data)
+
+    def update(
+        self, instances: QuerySet[SelectionItem], validated_data: list[dict]
+    ) -> list[SelectionItem]:
+        if self.partial:
+            return self.partial_update(instances, validated_data)
+
+        instances.delete()
+        new_items = SelectionItem.objects.bulk_create(
+            [SelectionItem(**item) for item in validated_data]
+        )
+        return new_items
+
+    def partial_update(
+        self, instances: QuerySet[SelectionItem], validated_data: list[dict]
+    ) -> list[SelectionItem]:
+        zaak_urls = self.initial_data.keys()
+        instances = instances.filter(zaak_url__in=zaak_urls)
+        updated_items = []
+        for instance in instances:
+            # Use self.initial_data instead of self.validated_data, because the former is in form `{<zaak_url>: <selection_data>}`,
+            # while the latter is in form `[{"zaak_url": "http://bla", "selection_data": {...}}]`.
+            # WARNING: we have no validation of "selection_data" yet!!
+            instance.selection_data.update(self.initial_data[instance.zaak_url])
+            updated_items.append(instance)
+
+        updated_items = SelectionItem.objects.bulk_update(
+            updated_items, fields=["selection_data"]
+        )
+        return updated_items

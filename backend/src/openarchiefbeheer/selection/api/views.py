@@ -10,11 +10,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ..models import SelectionItem
 from .serializers import SelectionReadSerializer, SelectionWriteSerializer
 
 
-# TODO Update to use GenericAPIView?
 class SelectionView(APIView):
+    def _get_selection_representation(self):
+        read_serialiser = SelectionReadSerializer(data=self.kwargs)
+        read_serialiser.is_valid(raise_exception=True)
+        return read_serialiser.data
+
     @extend_schema(
         tags=["Selection"],
         summary=_("Get selection"),
@@ -53,10 +58,7 @@ class SelectionView(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
-        serialiser = SelectionReadSerializer(data=self.kwargs)
-        serialiser.is_valid(raise_exception=True)
-
-        return Response(serialiser.data)
+        return Response(self._get_selection_representation())
 
     @extend_schema(
         tags=["Selection"],
@@ -99,4 +101,32 @@ class SelectionView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            data=self._get_selection_representation(), status=status.HTTP_201_CREATED
+        )
+
+    def put(self, request, *args, **kwargs):
+        instances = SelectionItem.objects.filter(key=self.kwargs["key"])
+
+        serializer = SelectionWriteSerializer(
+            instance=instances, data=request.data, context=self.kwargs
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            data=self._get_selection_representation(), status=status.HTTP_200_OK
+        )
+
+    def patch(self, request, *args, **kwargs):
+        instances = SelectionItem.objects.filter(key=self.kwargs["key"])
+
+        serializer = SelectionWriteSerializer(
+            instance=instances, data=request.data, context=self.kwargs, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            data=self._get_selection_representation(), status=status.HTTP_200_OK
+        )
