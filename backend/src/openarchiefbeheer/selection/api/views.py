@@ -1,16 +1,12 @@
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.utils import (
-    OpenApiExample,
-    OpenApiRequest,
-    OpenApiResponse,
-    extend_schema,
-)
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ..models import SelectionItem
+from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
 from .serializers import SelectionReadSerializer, SelectionWriteSerializer
 
 
@@ -26,36 +22,7 @@ class SelectionView(APIView):
         description=_(
             "Get the zaken in a selection and whether they are checked or not."
         ),
-        responses={
-            200: OpenApiResponse(
-                response={
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "object",
-                        "description": "The zaak URL is used as key",
-                        "properties": {
-                            "selected": {"type": "boolean"},
-                            "details": {"type": "object"},
-                        },
-                    },
-                },
-                examples=[
-                    OpenApiExample(
-                        "A selection",
-                        value={
-                            "http://zaken.nl/api/v1/zaken/111-111-111": {
-                                "selected": True,
-                                "details": {},
-                            },
-                            "http://zaken.nl/api/v1/zaken/222-222-222": {
-                                "selected": False,
-                                "details": {},
-                            },
-                        },
-                    ),
-                ],
-            )
-        },
+        responses={200: SCHEMA_RESPONSE},
     )
     def get(self, request, *args, **kwargs):
         return Response(self._get_selection_representation())
@@ -66,35 +33,8 @@ class SelectionView(APIView):
         description=_(
             "Get the zaken in a selection and whether they are checked or not."
         ),
-        responses={201: None},
-        request=OpenApiRequest(
-            request={
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "description": "The zaak URL is used as key",
-                    "properties": {
-                        "selected": {"type": "boolean"},
-                        "details": {"type": "object"},
-                    },
-                },
-            },
-            examples=[
-                OpenApiExample(
-                    "Add to the selection",
-                    value={
-                        "http://zaken.nl/api/v1/zaken/111-111-111": {
-                            "selected": True,
-                            "details": {},
-                        },
-                        "http://zaken.nl/api/v1/zaken/222-222-222": {
-                            "selected": False,
-                            "details": {},
-                        },
-                    },
-                ),
-            ],
-        ),
+        responses={201: SCHEMA_RESPONSE},
+        request=SCHEMA_REQUEST,
     )
     def post(self, request, *args, **kwargs):
         serializer = SelectionWriteSerializer(data=request.data, context=self.kwargs)
@@ -105,6 +45,13 @@ class SelectionView(APIView):
             data=self._get_selection_representation(), status=status.HTTP_201_CREATED
         )
 
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Update to selection"),
+        description=_("Fully update a selection."),
+        responses={200: SCHEMA_RESPONSE},
+        request=SCHEMA_REQUEST,
+    )
     def put(self, request, *args, **kwargs):
         instances = SelectionItem.objects.filter(key=self.kwargs["key"])
 
@@ -118,6 +65,13 @@ class SelectionView(APIView):
             data=self._get_selection_representation(), status=status.HTTP_200_OK
         )
 
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Partial update to selection"),
+        description=_("Partially update a selection."),
+        responses={200: SCHEMA_RESPONSE},
+        request=SCHEMA_REQUEST,
+    )
     def patch(self, request, *args, **kwargs):
         instances = SelectionItem.objects.filter(key=self.kwargs["key"])
 
