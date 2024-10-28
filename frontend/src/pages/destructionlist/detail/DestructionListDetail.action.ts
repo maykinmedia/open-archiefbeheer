@@ -23,7 +23,6 @@ export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
   | "READY_TO_REVIEW"
-  | "UPDATE_REVIEWER"
   | "UPDATE_ZAKEN",
   P
 >;
@@ -50,8 +49,6 @@ export async function destructionListUpdateAction({
         request,
         params,
       });
-    case "UPDATE_REVIEWER":
-      return await destructionListUpdateReviewerAction({ request, params });
     case "UPDATE_ZAKEN":
       return await destructionListUpdateZakenAction({ request, params });
     case "CANCEL_DESTROY":
@@ -141,36 +138,6 @@ export async function destructionListProcessReadyToReviewAction({
     throw e;
   }
   return redirect("/");
-}
-
-export type DestructionListUpdateReviewerActionPayload =
-  UpdateDestructionListAction<{
-    assignee: { user: User["pk"] };
-    comment: string;
-  }>;
-
-/**
- * React Router action (user intents to reassign the destruction list).
- */
-export async function destructionListUpdateReviewerAction({
-  request,
-  params,
-}: ActionFunctionArgs) {
-  const data: DestructionListUpdateReviewerActionPayload = await request.json();
-  const { assignee, comment } = data.payload;
-
-  try {
-    await reassignDestructionList(params.uuid as string, {
-      assignee: assignee,
-      comment: comment,
-    });
-  } catch (e: unknown) {
-    if (e instanceof Response) {
-      return await (e as Response).json();
-    }
-    throw e;
-  }
-  return redirect(`/destruction-lists/${params.uuid}`);
 }
 
 export type DestructionListUpdateZakenActionPayload = {

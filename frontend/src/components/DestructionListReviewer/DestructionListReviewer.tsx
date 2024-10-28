@@ -6,18 +6,20 @@ import {
   Modal,
   SerializedFormData,
   Solid,
+  useAlert,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
-import { useNavigation } from "react-router-dom";
+import { useNavigation, useRevalidator } from "react-router-dom";
 
-import { useSubmitAction } from "../../hooks";
-import { User } from "../../lib/api/auth";
-import { DestructionList } from "../../lib/api/destructionLists";
+import { useReviewers, useSubmitAction } from "../../hooks";
+import {
+  DestructionList,
+  reassignDestructionList,
+} from "../../lib/api/destructionLists";
 import { formatUser } from "../../lib/format/user";
 
 export type DestructionListReviewerProps = {
   destructionList: DestructionList;
-  reviewers: User[];
 };
 
 /**
@@ -27,11 +29,12 @@ export type DestructionListReviewerProps = {
  */
 export function DestructionListReviewer({
   destructionList,
-  reviewers,
 }: DestructionListReviewerProps) {
-  const { state } = useNavigation();
-  const submitAction = useSubmitAction();
   const [modalState, setModalState] = useState<boolean>(false);
+  const { state } = useNavigation();
+  const revalidator = useRevalidator();
+  const alert = useAlert();
+  const reviewers = useReviewers();
 
   /**
    * Gets called when the change is confirmed.
@@ -45,13 +48,25 @@ export function DestructionListReviewer({
     if (!modalState) {
       return;
     }
-    submitAction({
-      type: "UPDATE_REVIEWER",
-      payload: {
-        assignee: { user: Number(reviewer) },
-        comment: String(comment),
-      },
-    });
+    reassignDestructionList(destructionList.uuid, {
+      assignee: { user: Number(reviewer) },
+      comment: String(comment),
+    })
+      .then(revalidator.revalidate) // Reload the current route.
+      .catch(async (e) => {
+        console.error(e);
+
+        const promise = e instanceof Response && e.json();
+        const data = await promise;
+
+        alert(
+          "Foutmelding",
+          data.detail ||
+            "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
+          "Ok",
+        );
+      });
+
     setModalState(false);
   };
 
