@@ -490,11 +490,21 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def url_should_contain_text(self, page, text):
             await expect(page).to_have_url(re.compile(text))
 
-        async def zaak_should_be_selected(self, page, identificatie):
-            locator = page.get_by_role(
-                "row", name=f"(de)selecteer rij {identificatie}"
-            ).get_by_label("(de)selecteer rij")
+        async def zaak_should_be_selected(
+            self, page, identificatie, template="(de)selecteer rij"
+        ):
+            locator = page.get_by_role("row", name=identificatie).get_by_label(
+                template.format(identificatie=identificatie)
+            )
             await expect(locator).to_be_checked()
+
+        async def zaak_should_not_be_selected(
+            self, page, identificatie, template="(de)selecteer rij"
+        ):
+            locator = page.get_by_role("row", name=identificatie).get_by_label(
+                template.format(identificatie=identificatie)
+            )
+            await expect(locator).not_to_be_checked()
 
         async def zaaktype_filters_are(self, page, expected_filters):
             select = page.get_by_label('filter veld "zaaktype"')
