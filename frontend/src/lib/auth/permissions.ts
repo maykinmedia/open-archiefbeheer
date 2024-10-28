@@ -106,3 +106,14 @@ export function canTriggerDestruction(
     destructionList.status === "ready_to_delete"
   );
 }
+
+export function canReassignDestructionList(
+  user: User,
+  destructionList: DestructionList,
+) {
+  return (
+    canStartDestructionList(user) &&
+    (destructionList.status === "new" ||
+      destructionList.status === "ready_to_review")
+  );
+}
