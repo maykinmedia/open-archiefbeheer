@@ -43,7 +43,6 @@ export function DestructionListToolbar({
   destructionList,
   review,
 }: DestructionListToolbarProps) {
-  const reviewers = useReviewers();
   const logItems = useAuditLog(destructionList);
   const reviewResponse = useLatestReviewResponse(review);
   const properties = (
@@ -81,12 +80,9 @@ export function DestructionListToolbar({
         </Column>
       )}
 
-      {destructionList && reviewers && (
+      {destructionList && (
         <Column span={3}>
-          <DestructionListReviewer
-            destructionList={destructionList}
-            reviewers={reviewers}
-          />
+          <DestructionListReviewer destructionList={destructionList} />
         </Column>
       )}
 

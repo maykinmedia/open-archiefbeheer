@@ -80,7 +80,7 @@ function App() {
               children: <Solid.HomeIcon />,
               title: "Home",
               // size: "xl",
-              onClick: () => navigate("/destruction-lists/"),
+              onClick: () => navigate("/destruction-lists"),
             },
             {
               children: <Solid.DocumentPlusIcon />,
