@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../../../fixtures/selectieLijstKlasseChoices";
+import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../fixtures/selectieLijstKlasseChoices";
 import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
 
 const mockAlert = jest.fn();

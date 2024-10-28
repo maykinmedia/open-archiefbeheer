@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { Zaak } from "../../../types";
+import { Zaak } from "../types";
 import { useZaakSelection } from "./useZaakSelection";
 
 export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;

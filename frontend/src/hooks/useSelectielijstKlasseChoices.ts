@@ -1,7 +1,7 @@
 import { Option, useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
-import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
+import { listSelectielijstKlasseChoices } from "../lib/api/private";
 
 /**
  * Hook resolving selectielijst choices

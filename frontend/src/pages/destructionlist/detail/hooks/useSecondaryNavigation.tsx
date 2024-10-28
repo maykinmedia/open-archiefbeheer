@@ -10,7 +10,7 @@ import React, { useMemo } from "react";
 import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../../components";
-import { useSubmitAction } from "../../../../hooks";
+import { useSubmitAction, useZaakSelection } from "../../../../hooks";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
   canMarkAsReadyToReview,
@@ -18,7 +18,6 @@ import {
   canTriggerDestruction,
 } from "../../../../lib/auth/permissions";
 import { getFilteredZaakSelection } from "../../../../lib/zaakSelection/zaakSelection";
-import { useZaakSelection } from "../../hooks";
 import {
   UpdateDestructionListAction,
   UpdateDestructionListProcessReviewAction,

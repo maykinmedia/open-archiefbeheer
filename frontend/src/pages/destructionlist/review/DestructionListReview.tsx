@@ -9,7 +9,7 @@ import {
 import React, { useMemo } from "react";
 import { useLoaderData, useRevalidator } from "react-router-dom";
 
-import { useSubmitAction } from "../../../hooks";
+import { useSubmitAction, useZaakReviewStatusBadges } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
 import {
   ZaakSelection,
@@ -18,7 +18,6 @@ import {
 } from "../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../types";
 import { BaseListView } from "../abstract";
-import { useZaakReviewStatusBadges } from "../hooks";
 import { ReviewDestructionListAction } from "./DestructionListReview.action";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";

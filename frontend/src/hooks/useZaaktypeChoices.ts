@@ -1,9 +1,9 @@
 import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
-import { DestructionList } from "../../../lib/api/destructionLists";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
-import { Review } from "../../../lib/api/review";
+import { DestructionList } from "../lib/api/destructionLists";
+import { ZaaktypeChoice, listZaaktypeChoices } from "../lib/api/private";
+import { Review } from "../lib/api/review";
 
 /**
  * Hook resolving zaaktype choices
