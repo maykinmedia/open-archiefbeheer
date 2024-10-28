@@ -2,18 +2,28 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from ..models import SelectionItem
+from .filtersets import SelectionItemBackend, SelectionItemFilterset
 from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
 from .serializers import SelectionReadSerializer, SelectionWriteSerializer
 
 
-class SelectionView(APIView):
-    def _get_selection_representation(self):
-        read_serialiser = SelectionReadSerializer(data=self.kwargs)
-        read_serialiser.is_valid(raise_exception=True)
+class SelectionView(GenericAPIView):
+    filter_backends = (SelectionItemBackend,)
+    filterset_class = SelectionItemFilterset
+
+    def get_queryset(self):
+        return SelectionItem.objects.filter(key=self.kwargs["key"])
+
+    def _get_selection_representation(self, queryset=None):
+        qs = queryset
+        if qs is None:
+            qs = self.get_queryset()
+
+        read_serialiser = SelectionReadSerializer(instance=qs)
         return read_serialiser.data
 
     @extend_schema(
@@ -25,7 +35,9 @@ class SelectionView(APIView):
         responses={200: SCHEMA_RESPONSE},
     )
     def get(self, request, *args, **kwargs):
-        return Response(self._get_selection_representation())
+        queryset = self.filter_queryset(self.get_queryset())
+
+        return Response(self._get_selection_representation(queryset))
 
     @extend_schema(
         tags=["Selection"],
