@@ -18,12 +18,11 @@ class SelectionItemDataReadSerializer(serializers.ModelSerializer):
 class SelectionReadSerializer(serializers.Serializer):
     key = serializers.CharField(required=True)
 
-    def to_representation(self, data: dict) -> dict:
-        iterable = SelectionItem.objects.filter(key=data["key"])
+    def to_representation(self, queryset: QuerySet[SelectionItem]) -> dict:
         child_serializer = SelectionItemDataReadSerializer()
 
         result = {}
-        for item in iterable:
+        for item in queryset:
             result[item.zaak_url] = child_serializer.to_representation(item)
         return result
 

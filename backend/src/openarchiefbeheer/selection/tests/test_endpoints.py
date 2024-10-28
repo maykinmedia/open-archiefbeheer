@@ -214,8 +214,10 @@ class SelectionAPITests(APITestCase):
             zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
         )
 
-        item2.selection_data["details"] = {"test": "trololo"}
-        item3.selection_data["details"] = {"test": "tralala"}
+        item2.selection_data["details"].update({"test": "trololo"})
+        item3.selection_data["details"].update({"test": "tralala"})
+        item2.save()
+        item3.save()
 
         self.client.force_login(self.user)
         endpoint = furl(reverse("api:selections", args=[key]))
@@ -229,7 +231,9 @@ class SelectionAPITests(APITestCase):
         data = response.json()
 
         self.assertEqual(len(data.keys()), 1)
-        self.assertEqual(data.keys()[0], "http://zaken.nl/api/v1/zaken/333-333-333")
+        self.assertEqual(
+            list(data.keys())[0], "http://zaken.nl/api/v1/zaken/333-333-333"
+        )
 
     def test_get_selection_item(self):
         key = "some-key"
