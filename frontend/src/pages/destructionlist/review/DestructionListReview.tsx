@@ -247,7 +247,13 @@ export function DestructionListReviewPage() {
       comment?: string;
     }>,
   ) => {
-    const excludedZaakSelection = Object.fromEntries(
+    // A guess if this is a "select" all action as we cant distinguish between:
+    // - Select all with 1 zaak.
+    // - Select single zaak.
+    const selectAll = zaken.length > 1;
+
+    // Zaak selection containing only zaken that are excluded.
+    const excludedZaakSelection: ZaakSelection = Object.fromEntries(
       Object.entries(pageSpecificZaakSelection).filter(
         ([, item]) => item.detail?.approved === false,
       ),
@@ -260,6 +266,12 @@ export function DestructionListReviewPage() {
         const url = z.url as string;
         return !(url in excludedZaakSelection);
       });
+    }
+
+    // All zaken on page deselected, only deselect approved zaken.
+    if (!selected && selectAll) {
+      const excludedUrls = Object.keys(excludedZaakSelection);
+      return zaken.filter((z) => !excludedUrls.includes(z.url as string));
     }
 
     // We only want to do anything prompt-related with `excluded` zaken
