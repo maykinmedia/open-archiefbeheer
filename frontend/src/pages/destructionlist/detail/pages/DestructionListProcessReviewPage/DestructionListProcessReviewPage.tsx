@@ -2,6 +2,7 @@ import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
 import React, { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
+import { useZaakReviewStatuses } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
 import {
@@ -11,7 +12,6 @@ import {
 } from "../../../../../lib/zaakSelection/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
-import { useZaakReviewStatuses } from "../../../hooks";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 import {

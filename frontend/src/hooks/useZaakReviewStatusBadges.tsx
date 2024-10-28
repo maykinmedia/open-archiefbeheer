@@ -1,7 +1,7 @@
 import { Badge, Solid } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
 
-import { Zaak } from "../../../types";
+import { Zaak } from "../types";
 import {
   ZAAK_REVIEW_STATUS_ENUM,
   useZaakReviewStatuses,

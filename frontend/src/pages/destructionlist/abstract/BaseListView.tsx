@@ -12,19 +12,19 @@ import React, { useCallback, useMemo } from "react";
 import { useNavigation } from "react-router-dom";
 
 import { DestructionListToolbar } from "../../../components";
-import { DestructionList } from "../../../lib/api/destructionLists";
-import { Review } from "../../../lib/api/review";
-import { PaginatedZaken } from "../../../lib/api/zaken";
-import { Zaak } from "../../../types";
-import { useFields } from "../hooks/useFields";
-import { useFilter } from "../hooks/useFilter";
-import { usePage } from "../hooks/usePage";
-import { useSort } from "../hooks/useSort";
+import { useFields } from "../../../hooks/useFields";
+import { useFilter } from "../../../hooks/useFilter";
+import { usePage } from "../../../hooks/usePage";
+import { useSort } from "../../../hooks/useSort";
 import {
   ZaakSelectionDetailGetter,
   ZaakSelectionZaakFilter,
   useZaakSelection,
-} from "../hooks/useZaakSelection";
+} from "../../../hooks/useZaakSelection";
+import { DestructionList } from "../../../lib/api/destructionLists";
+import { Review } from "../../../lib/api/review";
+import { PaginatedZaken } from "../../../lib/api/zaken";
+import { Zaak } from "../../../types";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;

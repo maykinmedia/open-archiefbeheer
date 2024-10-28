@@ -2,17 +2,17 @@ import { AttributeData, TypedField } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { DestructionList } from "../../../lib/api/destructionLists";
-import { Review } from "../../../lib/api/review";
+import { DestructionList } from "../lib/api/destructionLists";
+import { Review } from "../lib/api/review";
 import {
   FieldSelection,
   addToFieldSelection,
   getFieldSelection,
   removeFromFieldSelection,
-} from "../../../lib/fieldSelection/fieldSelection";
-import { formatDate } from "../../../lib/format/date";
-import { ExpandZaak, Zaak } from "../../../types";
-import { FIELD_SELECTION_STORAGE_KEY } from "../../constants";
+} from "../lib/fieldSelection/fieldSelection";
+import { formatDate } from "../lib/format/date";
+import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
+import { ExpandZaak, Zaak } from "../types";
 import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
 import { useZaaktypeChoices } from "./useZaaktypeChoices";
 

@@ -10,8 +10,8 @@ import {
   clearZaakSelection as libClearZaakSelection,
   removeFromZaakSelection,
   setAllZakenSelected,
-} from "../../../lib/zaakSelection/zaakSelection";
-import { Zaak } from "../../../types";
+} from "../lib/zaakSelection/zaakSelection";
+import { Zaak } from "../types";
 
 export type ZaakSelectionClearer = () => Promise<void>;
 

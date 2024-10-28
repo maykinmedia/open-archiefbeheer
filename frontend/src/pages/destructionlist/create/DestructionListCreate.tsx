@@ -14,9 +14,9 @@ import {
 } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
+import { useZaakSelection } from "../../../hooks/useZaakSelection";
 import { getFilteredZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { BaseListView } from "../abstract";
-import { useZaakSelection } from "../hooks/useZaakSelection";
 import {
   DestructionListCreateAction,
   DestructionListCreateActionResponseData,
