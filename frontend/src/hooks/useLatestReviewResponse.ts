@@ -13,7 +13,6 @@ import {
 export function useLatestReviewResponse(
   review?: Review,
 ): ReviewResponse | null {
-  const [errorState, setErrorState] = useState<unknown>();
   const alert = useAlert();
 
   const [reviewResponseState, setReviewResponseState] =
@@ -26,13 +25,12 @@ export function useLatestReviewResponse(
     getLatestReviewResponse({ review: review.pk })
       .then((r) => setReviewResponseState(r || null))
       .catch((e) => {
-        console.error(errorState);
+        console.error(e);
         alert(
           "Foutmelding",
           "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
           "Ok",
         );
-        setErrorState(e);
       });
   }, [review?.pk]);
 
