@@ -8,7 +8,6 @@ import { listReviewers } from "../lib/api/reviewers";
  * Hook resolving reviewers
  */
 export function useReviewers(): User[] {
-  const [errorState, setErrorState] = useState<unknown>();
   const alert = useAlert();
 
   const [reviewersState, setReviewersState] = useState<User[]>([]);
@@ -16,13 +15,12 @@ export function useReviewers(): User[] {
     listReviewers()
       .then((r) => setReviewersState(r))
       .catch((e) => {
-        console.error(errorState);
+        console.error(e);
         alert(
           "Foutmelding",
           "Er is een fout opgetreden bij het ophalen van beoordelaars!",
           "Ok",
         );
-        setErrorState(e);
       });
   }, []);
 

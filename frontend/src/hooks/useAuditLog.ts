@@ -8,7 +8,6 @@ import { DestructionList } from "../lib/api/destructionLists";
  * Hook resolving audit log items
  */
 export function useAuditLog(destructionList?: DestructionList): AuditLogItem[] {
-  const [errorState, setErrorState] = useState<unknown>();
   const alert = useAlert();
 
   const [auditLogState, setAuditLogState] = useState<AuditLogItem[]>([]);
@@ -21,13 +20,12 @@ export function useAuditLog(destructionList?: DestructionList): AuditLogItem[] {
     listAuditLog(destructionList.uuid)
       .then((a) => setAuditLogState(a))
       .catch((e) => {
-        console.error(errorState);
+        console.error(e);
         alert(
           "Foutmelding",
           "Er is een fout opgetreden bij het ophalen van de audit log!",
           "Ok",
         );
-        setErrorState(e);
       });
   }, [destructionList?.uuid]);
 

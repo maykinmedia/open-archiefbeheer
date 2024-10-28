@@ -7,7 +7,6 @@ import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
  * Hook resolving selectielijst choices
  */
 export function useSelectielijstKlasseChoices(): Option[] {
-  const [errorState, setErrorState] = useState<unknown>();
   const alert = useAlert();
 
   const [selectielijstChoicesState, setSelectielijstChoicesState] = useState<
@@ -17,13 +16,12 @@ export function useSelectielijstKlasseChoices(): Option[] {
     listSelectielijstKlasseChoices()
       .then((s) => setSelectielijstChoicesState(s))
       .catch((e) => {
-        console.error(errorState);
+        console.error(e);
         alert(
           "Foutmelding",
           "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
           "Ok",
         );
-        setErrorState(e);
       });
   }, []);
 

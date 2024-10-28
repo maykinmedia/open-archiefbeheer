@@ -14,7 +14,6 @@ export function useZaaktypeChoices(
   destructionList?: DestructionList,
   review?: Review,
 ): ZaaktypeChoice[] {
-  const [errorState, setErrorState] = useState<unknown>();
   const alert = useAlert();
 
   const [zaaktypeChoicesState, setZaaktypeChoicesState] = useState<
@@ -24,13 +23,12 @@ export function useZaaktypeChoices(
     listZaaktypeChoices(destructionList?.uuid, review?.pk)
       .then((z) => setZaaktypeChoicesState(z))
       .catch((e) => {
-        console.error(errorState);
+        console.error(e);
         alert(
           "Foutmelding",
           "Er is een fout opgetreden bij het ophalen van zaaktypen!",
           "Ok",
         );
-        setErrorState(e);
       });
   }, [destructionList?.uuid, review?.pk]);
 
