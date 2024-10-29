@@ -1,8 +1,13 @@
+import sys
+
 from django.db.models import QuerySet
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from ..models import SelectionItem
+from .constants import MAX_SELECTION_DATA_SIZE
 
 
 class SelectionItemDataReadSerializer(serializers.ModelSerializer):
@@ -35,6 +40,14 @@ class SelectionItemWriteSerializer(serializers.ModelSerializer):
             "zaak_url",
             "selection_data",
         )
+
+    def validate_selection_data(self, value):
+        if sys.getsizeof(value) > MAX_SELECTION_DATA_SIZE:
+            raise ValidationError(
+                _("Too much data passed, limit is %(max_size)s bytes")
+                % {"max_size": MAX_SELECTION_DATA_SIZE}
+            )
+        return value
 
 
 class SelectionWriteSerializer(serializers.ListSerializer):

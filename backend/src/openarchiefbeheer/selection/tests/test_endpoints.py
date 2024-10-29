@@ -1,3 +1,7 @@
+from unittest.mock import patch
+
+from django.utils.translation import gettext_lazy as _
+
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -356,3 +360,33 @@ class SelectionAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 3)
+
+    def test_too_large_selection_data(self):
+        key = "some-key"
+
+        data = {
+            "http://zaken.nl/api/v1/zaken/333-333-333": {
+                "selected": False,
+                "details": {"data": "This is toooooo laaaaarge"},
+            },
+        }
+
+        self.client.force_login(self.user)
+
+        with patch(
+            "openarchiefbeheer.selection.api.serializers.MAX_SELECTION_DATA_SIZE", 10
+        ):
+            response = self.client.post(
+                reverse("api:selections", args=[key]),
+                data=data,
+                format="json",
+            )
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        errors = response.json()
+
+        self.assertEqual(
+            errors[0]["selectionData"][0],
+            _("Too much data passed, limit is %(max_size)s bytes") % {"max_size": 10},
+        )
