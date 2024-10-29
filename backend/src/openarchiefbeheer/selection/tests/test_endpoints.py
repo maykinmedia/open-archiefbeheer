@@ -290,7 +290,7 @@ class SelectionAPITests(APITestCase):
         self.assertTrue(toggle.exists())
         self.assertTrue(toggle.first().all_selected)
 
-    def test_clear_all_zaken_selected(self):
+    def test_clear_select_all_toggle(self):
         key = "some-key"
 
         SelectionItemFactory.create(
@@ -310,13 +310,8 @@ class SelectionAPITests(APITestCase):
         )
         AllSelectedToggle.objects.create(key=key, all_selected=True)
 
+        # Now toggle select_all off
         self.client.force_login(self.user)
-        response = self.client.get(reverse("api:selections-count", args=[key]))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["count"], 3)
-
-        # Now toggle select_all on
         response = self.client.delete(reverse("api:selections-select-all", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -351,7 +346,7 @@ class SelectionAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 2)
 
-        # Now toggle select_all on
+        # Now toggle select_all on, the count should not change!
         response = self.client.post(reverse("api:selections-select-all", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -359,7 +354,7 @@ class SelectionAPITests(APITestCase):
         response = self.client.get(reverse("api:selections-count", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["count"], 3)
+        self.assertEqual(response.json()["count"], 2)
 
     def test_too_large_selection_data(self):
         key = "some-key"

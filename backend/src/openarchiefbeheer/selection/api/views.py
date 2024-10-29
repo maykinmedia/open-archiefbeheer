@@ -119,7 +119,7 @@ class SelectionCountView(APIView):
         summary=_("Count selected items"),
         description=_(
             "Retrieve how many items are selected. "
-            "If the 'select all' toggle is on, then it returns how many items are in the selection."
+            "It does not take into account the 'selected all' toggle."
         ),
         responses={
             200: build_object_type({"count": build_basic_type(OpenApiTypes.INT)})
@@ -129,10 +129,8 @@ class SelectionCountView(APIView):
     def get(self, request, *args, **kwargs):
         key = self.kwargs["key"]
 
-        toggle, created = AllSelectedToggle.objects.get_or_create(key=key)
-        qs = SelectionItem.objects.filter(key=key)
-        if not toggle.all_selected:
-            qs = qs.filter(selection_data__selected=True)
+        # The count operation does not take into consideration the select all toggle.
+        qs = SelectionItem.objects.filter(key=key, selection_data__selected=True)
 
         return Response(data={"count": qs.count()}, status=status.HTTP_200_OK)
 
