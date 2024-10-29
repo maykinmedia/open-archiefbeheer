@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.plumbing import build_basic_type, build_object_type
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -113,6 +114,18 @@ class SelectionView(GenericAPIView):
 
 
 class SelectionCountView(APIView):
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Count selected items"),
+        description=_(
+            "Retrieve how many items are selected. "
+            "If the 'select all' toggle is on, then it returns how many items are in the selection."
+        ),
+        responses={
+            200: build_object_type({"count": build_basic_type(OpenApiTypes.INT)})
+        },
+        request=None,
+    )
     def get(self, request, *args, **kwargs):
         key = self.kwargs["key"]
 
@@ -125,6 +138,13 @@ class SelectionCountView(APIView):
 
 
 class SelectionSelectAllView(APIView):
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Select all (on)"),
+        description=_("Toggle the selected_all property to true."),
+        responses={200: None},
+        request=None,
+    )
     def post(self, request, *args, **kwargs):
         key = self.kwargs["key"]
 
@@ -137,6 +157,13 @@ class SelectionSelectAllView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Select all (off)"),
+        description=_("Toggle the selected_all property to false."),
+        responses={204: None},
+        request=None,
+    )
     def delete(self, request, *args, **kwargs):
         key = self.kwargs["key"]
 
