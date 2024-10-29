@@ -136,3 +136,15 @@ class SelectionSelectAllView(APIView):
         toggle.save()
 
         return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        key = self.kwargs["key"]
+
+        toggle, created = AllSelectedToggle.objects.get_or_create(key=key)
+        if not toggle.all_selected:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        toggle.all_selected = False
+        toggle.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

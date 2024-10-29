@@ -286,6 +286,42 @@ class SelectionAPITests(APITestCase):
         self.assertTrue(toggle.exists())
         self.assertTrue(toggle.first().all_selected)
 
+    def test_clear_all_zaken_selected(self):
+        key = "some-key"
+
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=False,
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
+        )
+        AllSelectedToggle.objects.create(key=key, all_selected=True)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("api:selections-count", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 3)
+
+        # Now toggle select_all on
+        response = self.client.delete(reverse("api:selections-select-all", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(reverse("api:selections-count", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 2)
+
     def test_get_selection_size(self):
         key = "some-key"
 
