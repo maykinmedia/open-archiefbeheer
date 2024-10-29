@@ -277,7 +277,7 @@ class SelectionAPITests(APITestCase):
         key = "some-key"
 
         self.client.force_login(self.user)
-        response = self.client.post(f"/api/v1/selection/{key}/select_all")
+        response = self.client.post(reverse("api:selections-select-all", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -306,17 +306,17 @@ class SelectionAPITests(APITestCase):
         )
 
         self.client.force_login(self.user)
-        response = self.client.get(f"/api/v1/selection/{key}/count")
+        response = self.client.get(reverse("api:selections-count", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 2)
 
         # Now toggle select_all on
-        response = self.client.post(f"/api/v1/selection/{key}/select_all")
+        response = self.client.post(reverse("api:selections-select-all", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.get(f"/api/v1/selection/{key}/count")
+        response = self.client.get(reverse("api:selections-count", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 3)

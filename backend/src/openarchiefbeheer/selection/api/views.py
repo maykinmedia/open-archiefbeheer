@@ -4,8 +4,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from ..models import SelectionItem
+from ..models import AllSelectedToggle, SelectionItem
 from .filtersets import SelectionItemBackend, SelectionItemFilterset
 from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
 from .serializers import SelectionReadSerializer, SelectionWriteSerializer
@@ -109,3 +110,29 @@ class SelectionView(GenericAPIView):
         instances.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SelectionCountView(APIView):
+    def get(self, request, *args, **kwargs):
+        key = self.kwargs["key"]
+
+        toggle, created = AllSelectedToggle.objects.get_or_create(key=key)
+        qs = SelectionItem.objects.filter(key=key)
+        if not toggle.all_selected:
+            qs = qs.filter(selection_data__selected=True)
+
+        return Response(data={"count": qs.count()}, status=status.HTTP_200_OK)
+
+
+class SelectionSelectAllView(APIView):
+    def post(self, request, *args, **kwargs):
+        key = self.kwargs["key"]
+
+        toggle, created = AllSelectedToggle.objects.get_or_create(key=key)
+        if toggle.all_selected:
+            return Response(status=status.HTTP_200_OK)
+
+        toggle.all_selected = True
+        toggle.save()
+
+        return Response(status=status.HTTP_200_OK)

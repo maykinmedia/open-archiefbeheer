@@ -23,7 +23,11 @@ from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListViewSet,
     ReviewResponseViewSet,
 )
-from openarchiefbeheer.selection.api.views import SelectionView
+from openarchiefbeheer.selection.api.views import (
+    SelectionCountView,
+    SelectionSelectAllView,
+    SelectionView,
+)
 from openarchiefbeheer.zaken.api.views import (
     CacheZakenView,
     InformatieobjecttypeChoicesView,
@@ -117,6 +121,16 @@ urlpatterns = [
                 path("oidc-info", OIDCInfoView.as_view(), name="oidc-info"),
                 path(
                     "selections/<str:key>/", SelectionView.as_view(), name="selections"
+                ),
+                path(
+                    "selections/<str:key>/count/",
+                    SelectionCountView.as_view(),
+                    name="selections-count",
+                ),
+                path(
+                    "selections/<str:key>/select-all/",
+                    SelectionSelectAllView.as_view(),
+                    name="selections-select-all",
                 ),
                 path(
                     "_retrieve_zaken/", CacheZakenView.as_view(), name="retrieve-zaken"
