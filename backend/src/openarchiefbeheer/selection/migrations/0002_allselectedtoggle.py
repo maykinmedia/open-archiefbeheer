@@ -35,6 +35,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         help_text="Toggle to set all the items in the selection to 'selected'.",
                         verbose_name="all selected",
+                        default=False,
                     ),
                 ),
             ],

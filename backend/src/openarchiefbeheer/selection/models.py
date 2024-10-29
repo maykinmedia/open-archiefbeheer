@@ -34,6 +34,7 @@ class AllSelectedToggle(models.Model):
     all_selected = models.BooleanField(
         _("all selected"),
         help_text=_("Toggle to set all the items in the selection to 'selected'."),
+        default=False,
     )
 
     class Meta:
