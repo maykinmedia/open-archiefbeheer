@@ -1,7 +1,7 @@
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
-from django_filters import BooleanFilter, FilterSet
+from django_filters import BooleanFilter, CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 from ..models import SelectionItem
@@ -13,18 +13,30 @@ class SelectionItemFilterset(FilterSet):
         method="filter_selected",
         help_text=_("Filter on selected items."),
     )
+    item = CharFilter(
+        field_name="item",
+        method="filter_item",
+        help_text=_("Filter on the zaak url of an item"),
+    )
 
     class Meta:
         model = SelectionItem
-        fields = ("selected",)
+        fields = ("selected", "item")
 
     def filter_selected(
         self, queryset: QuerySet[SelectionItem], name: str, value: bool
-    ):
+    ) -> QuerySet[SelectionItem]:
         return queryset.filter(selection_data__selected=value)
 
+    def filter_item(
+        self, queryset: QuerySet[SelectionItem], name: str, value: str
+    ) -> QuerySet[SelectionItem]:
+        return queryset.filter(zaak_url=value)
+
     def make_dynamic_filters(self, request, queryset, view):
-        request.query_params.pop("selected", None)
+        for field_name in self.get_fields():
+            request.query_params.pop(field_name, None)
+
         if not request.query_params:
             return
 

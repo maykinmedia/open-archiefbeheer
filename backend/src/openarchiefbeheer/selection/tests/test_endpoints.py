@@ -263,7 +263,15 @@ class SelectionAPITests(APITestCase):
 
         data = response.json()
 
-        self.assertEqual(data, {"selected": False, "details": {}})
+        self.assertEqual(
+            data,
+            {
+                "http://zaken.nl/api/v1/zaken/111-111-111": {
+                    "selected": False,
+                    "details": {},
+                }
+            },
+        )
 
     def test_set_all_zaken_selected(self):
         key = "some-key"
