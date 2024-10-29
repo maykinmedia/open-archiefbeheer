@@ -3,10 +3,6 @@ import copy
 import factory
 
 
-def get_selection_data():
-    return {"selected": False, "details": {}}
-
-
 class SelectionItemFactory(factory.django.DjangoModelFactory):
     key = factory.Faker("word")
     zaak_url = factory.Faker("url")

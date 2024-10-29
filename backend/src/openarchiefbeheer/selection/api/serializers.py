@@ -88,7 +88,7 @@ class SelectionWriteSerializer(serializers.ListSerializer):
         for instance in instances:
             # Use self.initial_data instead of self.validated_data, because the former is in form `{<zaak_url>: <selection_data>}`,
             # while the latter is in form `[{"zaak_url": "http://bla", "selection_data": {...}}]`.
-            # WARNING: we have no validation of "selection_data" yet!!
+            # WARNING: we have no validation on the data in "selection_data", only on its size.
             instance.selection_data.update(self.initial_data[instance.zaak_url])
             updated_items.append(instance)
 
