@@ -28,6 +28,23 @@ class MainReviewersView(ListAPIView):
 
 @extend_schema(
     tags=["Users"],
+    summary=_("Co-reviewers list"),
+    description=_(
+        "List all the users that have the permission to co-review draft destruction lists."
+    ),
+    responses={
+        200: UserSerializer(many=True),
+    },
+)
+class CoReviewersView(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self) -> QuerySet[User]:
+        return User.objects.co_reviewers()
+
+
+@extend_schema(
+    tags=["Users"],
     summary=_("Archivists list"),
     description=_(
         "List all the users that have the permission to review final destruction lists."

@@ -51,3 +51,7 @@ class UserManager(BaseUserManager):
     def archivists(self) -> QuerySet["User"]:
         permission = Permission.objects.get(codename="can_review_final_list")
         return self._users_with_permission(permission)
+
+    def co_reviewers(self) -> QuerySet["User"]:
+        permission = Permission.objects.get(codename="can_co_review_destruction")
+        return self._users_with_permission(permission)

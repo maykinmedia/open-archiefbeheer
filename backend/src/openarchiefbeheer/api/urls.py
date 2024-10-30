@@ -9,6 +9,7 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
+    CoReviewersView,
     MainReviewersView,
     WhoAmIView,
 )
@@ -92,6 +93,7 @@ urlpatterns = [
             [
                 path("reviewers/", MainReviewersView.as_view(), name="reviewers"),
                 path("archivists/", ArchivistsView.as_view(), name="archivists"),
+                path("co-reviewers/", CoReviewersView.as_view(), name="co-reviewers"),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path(
                     "destruction-list-statuses/",
