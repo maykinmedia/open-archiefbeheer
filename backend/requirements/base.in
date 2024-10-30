@@ -24,6 +24,7 @@ djangorestframework-camel-case
 django-cors-headers
 django-filter
 djangorestframework-gis
+drf-nested-routers
 
 # WSGI servers & monitoring - production oriented
 uwsgi
