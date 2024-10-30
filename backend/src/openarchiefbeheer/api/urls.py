@@ -9,7 +9,7 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
-    ReviewersView,
+    MainReviewersView,
     WhoAmIView,
 )
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
@@ -90,7 +90,7 @@ urlpatterns = [
         "v1/",
         include(
             [
-                path("reviewers/", ReviewersView.as_view(), name="reviewers"),
+                path("reviewers/", MainReviewersView.as_view(), name="reviewers"),
                 path("archivists/", ArchivistsView.as_view(), name="archivists"),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path(

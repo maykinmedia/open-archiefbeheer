@@ -11,7 +11,7 @@ from .serializers import UserSerializer
 
 @extend_schema(
     tags=["Users"],
-    summary=_("Reviewers list"),
+    summary=_("Main reviewers list"),
     description=_(
         "List all the users that have the permission to review draft destruction lists."
     ),
@@ -19,11 +19,11 @@ from .serializers import UserSerializer
         200: UserSerializer(many=True),
     },
 )
-class ReviewersView(ListAPIView):
+class MainReviewersView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self) -> QuerySet[User]:
-        return User.objects.reviewers()
+        return User.objects.main_reviewers()
 
 
 @extend_schema(
