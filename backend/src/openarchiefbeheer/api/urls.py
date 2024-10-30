@@ -6,6 +6,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 from rest_framework import routers
+from rest_framework_nested.routers import NestedSimpleRouter
 
 from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
@@ -16,6 +17,7 @@ from openarchiefbeheer.accounts.api.views import (
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
+    DestructionListAssigneesViewSet,
     DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
@@ -57,6 +59,13 @@ router.register(
     basename="review-responses",
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
+
+destruction_list_router = NestedSimpleRouter(
+    router, r"destruction-lists", lookup="destruction_list"
+)
+destruction_list_router.register(
+    r"assignees", DestructionListAssigneesViewSet, basename="assignees"
+)
 
 
 urlpatterns = [
@@ -133,6 +142,7 @@ urlpatterns = [
                     name="retrieve-resultaattype-choices",
                 ),
                 path("", include(router.urls)),
+                path("", include(destruction_list_router.urls)),
             ]
         ),
     ),

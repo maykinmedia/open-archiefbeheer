@@ -50,6 +50,7 @@ from .permissions import (
 from .serializers import (
     AbortDestructionSerializer,
     AuditTrailItemSerializer,
+    DestructionListAssigneeReadSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReadSerializer,
@@ -484,3 +485,14 @@ class ReviewResponseViewSet(
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+
+class DestructionListAssigneesViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    def get_queryset(self):
+        return DestructionListAssignee.objects.filter(
+            destruction_list__uuid=self.kwargs["destruction_list_uuid"]
+        )
+
+    def get_serializer_class(self):
+        # if self.action == self.action_map["get"]:
+        return DestructionListAssigneeReadSerializer
