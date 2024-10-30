@@ -106,11 +106,11 @@ class ProcessReviewResponseTests(TestCase):
         first_reviwer = DestructionListAssigneeFactory.create(
             user=review_response.review.author,
             destruction_list=review_response.review.destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
         )
         DestructionListAssigneeFactory.create(
             destruction_list=review_response.review.destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
         )
 
         m.patch(zaak.url, json={"archiefactiedatum": "2026-01-01"})
@@ -168,7 +168,7 @@ class ProcessReviewResponseTests(TestCase):
         DestructionListAssigneeFactory.create(
             user=review_response.review.author,
             destruction_list=review_response.review.destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
         )
 
         with (

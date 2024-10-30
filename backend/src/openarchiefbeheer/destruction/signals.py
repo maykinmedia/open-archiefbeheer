@@ -34,7 +34,7 @@ def notify_author_after_review(sender, instance, created, **kwargs):
 
 @receiver(user_assigned, sender=DestructionListAssignee)
 def notify_reviewer_of_assignment(sender, assignee, **kwargs):
-    if assignee.role != ListRole.reviewer:
+    if assignee.role != ListRole.main_reviewer:
         return
 
     notify_reviewer(assignee.user, assignee.destruction_list)

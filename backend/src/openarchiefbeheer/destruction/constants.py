@@ -23,7 +23,7 @@ class ReviewDecisionChoices(models.TextChoices):
 
 
 class ListRole(models.TextChoices):
-    reviewer = "reviewer", _("reviewer")
+    main_reviewer = "main_reviewer", _("main reviewer")
     author = "author", _("author")
     archivist = "archivist", _("archivist")
 

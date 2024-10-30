@@ -15,7 +15,9 @@ class State(Protocol):
 
 class NewList:
     def assign_next(self, destruction_list: "DestructionList") -> None:
-        assignee = destruction_list.assignees.filter(role=ListRole.reviewer).first()
+        assignee = destruction_list.assignees.filter(
+            role=ListRole.main_reviewer
+        ).first()
 
         destruction_list.set_status(ListStatus.ready_to_review)
         destruction_list.assign(assignee)
@@ -43,11 +45,15 @@ class ReadyToReview:
             destruction_list.assign(destruction_list.get_author())
             return
 
-        reviewer = destruction_list.assignees.filter(role=ListRole.reviewer).first()
+        reviewer = destruction_list.assignees.filter(
+            role=ListRole.main_reviewer
+        ).first()
         destruction_list.assign(reviewer)
 
     def reassign(self, destruction_list: "DestructionList") -> None:
-        reviewer = destruction_list.assignees.filter(role=ListRole.reviewer).first()
+        reviewer = destruction_list.assignees.filter(
+            role=ListRole.main_reviewer
+        ).first()
         destruction_list.assign(reviewer)
 
 

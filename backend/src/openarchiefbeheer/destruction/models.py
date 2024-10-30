@@ -404,7 +404,7 @@ class DestructionListAssignee(models.Model):
     assigned_on = models.DateTimeField(_("assigned on"), blank=True, null=True)
     role = models.CharField(
         _("role"),
-        default=ListRole.reviewer,
+        default=ListRole.main_reviewer,
         choices=ListRole.choices,
         max_length=80,
     )

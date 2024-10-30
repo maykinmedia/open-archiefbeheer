@@ -258,7 +258,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         DestructionListAssignee.objects.create(
             user=reviewer_data["user"],
             destruction_list=destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
         )
 
         logevent.destruction_list_created(

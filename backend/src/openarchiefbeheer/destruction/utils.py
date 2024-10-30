@@ -113,11 +113,11 @@ def process_new_reviewer(
     reviewer: User,
 ) -> DestructionListAssignee:
     with transaction.atomic():
-        destruction_list.assignees.filter(role=ListRole.reviewer).delete()
+        destruction_list.assignees.filter(role=ListRole.main_reviewer).delete()
         new_reviewer = DestructionListAssignee(
             user=reviewer,
             destruction_list=destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
         )
         new_reviewer.save()
 

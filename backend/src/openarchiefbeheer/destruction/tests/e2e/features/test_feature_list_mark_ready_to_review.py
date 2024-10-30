@@ -18,8 +18,8 @@ class FeatureListMarkReadyForReviewTests(GherkinLikeTestCase):
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer1, role=ListRole.reviewer),
-                await self.given.assignee_exists(user=reviewer2, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer1, role=ListRole.main_reviewer),
+                await self.given.assignee_exists(user=reviewer2, role=ListRole.main_reviewer),
             ]
 
             destruction_list = await self.given.list_exists(name="list ready to review", status=ListStatus.new, assignees=assignees)
