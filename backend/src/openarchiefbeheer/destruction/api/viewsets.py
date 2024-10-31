@@ -490,6 +490,31 @@ class ReviewResponseViewSet(
         return [permission() for permission in permission_classes]
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Destruction list"],
+        summary=_("List co-reviewers"),
+        description=_("List all the co-reviewers assigned to a destruction list."),
+    ),
+    update=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Update co-reviewers"),
+        description=_(
+            "Full update of the co-reviewers assigned to a destruction list."
+        ),
+        request=CoReviewerAssignementSerializer,
+        responses={200: DestructionListAssigneeReadSerializer},
+    ),
+    partial_update=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Partial update co-reviewers"),
+        description=_(
+            "Partial update of the co-reviewers assigned to a destruction list."
+        ),
+        request=CoReviewerAssignementSerializer,
+        responses={200: DestructionListAssigneeReadSerializer},
+    ),
+)
 class CoReviewersViewSet(
     mixins.ListModelMixin,
     mixins.UpdateModelMixin,
