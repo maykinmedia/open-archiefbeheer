@@ -259,6 +259,12 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     remove = DestructionListItemWriteSerializer(many=True, required=False)
     reviewer = ReviewerAssigneeSerializer(required=False)
     author = UserSerializer(read_only=True)
+    toelichting = serializers.CharField(
+        required=False,
+        help_text=_(
+            "Additional information about the destruction list, such as the reason for creating it."
+        ),
+    )
     select_all = serializers.BooleanField(
         required=False,
         help_text=_(
@@ -280,6 +286,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
             "uuid",
             "name",
             "author",
+            "toelichting",
             "contains_sensitive_info",
             "reviewer",
             "status",
@@ -412,6 +419,7 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "uuid",
             "name",
             "author",
+            "toelichting",
             "contains_sensitive_info",
             "assignees",
             "assignee",
