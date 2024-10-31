@@ -127,27 +127,6 @@ class CoReviewerAssignementSerializer(serializers.Serializer):
             )
         return attrs
 
-    def create(self, validated_data: dict) -> QuerySet[DestructionListAssignee]:
-        destruction_list = self.context["destruction_list"]
-        co_reviewers = validated_data.get("add", [])
-
-        new_assignees = [
-            DestructionListAssignee(
-                user=co_reviewer["user"],
-                destruction_list=self.context["destruction_list"],
-                role=ListRole.co_reviewer,
-            )
-            for co_reviewer in co_reviewers
-        ]
-
-        DestructionListAssignee.objects.bulk_create(new_assignees)
-
-        # TODO Log
-
-        # TODO signal
-
-        return destruction_list.assignees.filter(role=ListRole.co_reviewer)
-
     def update(
         self, instance: QuerySet[DestructionListAssignee], validated_data: dict
     ) -> QuerySet[DestructionListAssignee]:

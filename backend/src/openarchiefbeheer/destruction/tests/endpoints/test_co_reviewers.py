@@ -166,52 +166,6 @@ class CoReviewersViewSetTest(APITestCase):
             )
         )
 
-    def test_create_co_reviewers(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review
-        )
-        new_co_reviewers = UserFactory.create_batch(
-            3,
-            post__can_co_review_destruction=True,
-        )
-
-        main_reviewer = DestructionListAssigneeFactory.create(
-            user__username="reviewer",
-            user__post__can_review_destruction=True,
-            role=ListRole.main_reviewer,
-            destruction_list=destruction_list,
-        )
-
-        destruction_list.assignee = main_reviewer.user
-        destruction_list.save()
-
-        self.client.force_authenticate(user=main_reviewer.user)
-        response = self.client.post(
-            reverse(
-                "api:co-reviewers-list",
-                kwargs={"destruction_list_uuid": destruction_list.uuid},
-            ),
-            data={
-                "comment": "test",
-                "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
-            },
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        new_assignees = destruction_list.assignees.filter(role=ListRole.co_reviewer)
-
-        self.assertEqual(new_assignees.count(), 3)
-        self.assertTrue(
-            all(
-                [
-                    new_assignees.filter(user=co_reviewer).exists()
-                    for co_reviewer in new_co_reviewers
-                ]
-            )
-        )
-
     def test_cant_add_more_than_5_co_reviewers(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
@@ -232,31 +186,6 @@ class CoReviewersViewSetTest(APITestCase):
         destruction_list.assignee = main_reviewer.user
         destruction_list.save()
         self.client.force_authenticate(user=main_reviewer.user)
-
-        with self.subTest("Create endpoint"):
-            response = self.client.post(
-                reverse(
-                    "api:co-reviewers-list",
-                    kwargs={"destruction_list_uuid": destruction_list.uuid},
-                ),
-                data={
-                    "comment": "test",
-                    "add": [
-                        {"user": co_reviewer.pk} for co_reviewer in new_co_reviewers
-                    ],
-                },
-                format="json",
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-            errors = response.json()
-
-            self.assertEqual(
-                errors["nonFieldErrors"][0],
-                _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
-                % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS},
-            )
 
         with self.subTest("Put endpoint"):
             response = self.client.put(

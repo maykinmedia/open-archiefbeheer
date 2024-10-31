@@ -493,7 +493,6 @@ class ReviewResponseViewSet(
 class CoReviewersViewSet(
     mixins.ListModelMixin,
     mixins.UpdateModelMixin,
-    mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
     def _get_destruction_list(self) -> DestructionList:
@@ -512,6 +511,16 @@ class CoReviewersViewSet(
 
         self.check_object_permissions(self.request, destruction_list)
         return destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
+    def check_object_permissions(
+        self, request, obj: DestructionList | QuerySet[DestructionListAssignee]
+    ):
+        # Needed to get the DRF interactive page to test out the endpoints.
+        # FIXME: For PUT/PATCH operations it shows a funny rendered response, but
+        # it only happens if using the DRF interactive page
+        if isinstance(obj, QuerySet):
+            obj = self._get_destruction_list()
+        return super().check_object_permissions(request, obj)
 
     def get_serializer_class(self):
         match self.action:
