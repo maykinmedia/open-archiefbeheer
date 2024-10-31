@@ -2,7 +2,8 @@ from datetime import date, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -45,11 +46,13 @@ from .permissions import (
     CanReviewPermission,
     CanStartDestructionPermission,
     CanTriggerDeletion,
+    CanUpdateCoReviewers,
     CanUpdateDestructionList,
 )
 from .serializers import (
     AbortDestructionSerializer,
     AuditTrailItemSerializer,
+    CoReviewerAssignementSerializer,
     DestructionListAssigneeReadSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
@@ -487,12 +490,44 @@ class ReviewResponseViewSet(
         return [permission() for permission in permission_classes]
 
 
-class DestructionListAssigneesViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    def get_queryset(self):
-        return DestructionListAssignee.objects.filter(
-            destruction_list__uuid=self.kwargs["destruction_list_uuid"]
+class CoReviewersViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    def _get_destruction_list(self) -> DestructionList:
+        return get_object_or_404(
+            DestructionList, uuid=self.kwargs["destruction_list_uuid"]
         )
 
+    def get_queryset(self):
+        return DestructionListAssignee.objects.filter(
+            destruction_list__uuid=self.kwargs["destruction_list_uuid"],
+            role=ListRole.co_reviewer,
+        )
+
+    def get_object(self) -> QuerySet[DestructionListAssignee]:
+        destruction_list = self._get_destruction_list()
+
+        self.check_object_permissions(self.request, destruction_list)
+        return destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
     def get_serializer_class(self):
-        # if self.action == self.action_map["get"]:
-        return DestructionListAssigneeReadSerializer
+        match self.action:
+            case "list":
+                return DestructionListAssigneeReadSerializer
+            case "update" | "partial_update" | "create":
+                return CoReviewerAssignementSerializer
+
+    def get_permissions(self):
+        if self.action in ["update", "partial_upate"]:
+            permission_classes = [IsAuthenticated & CanUpdateCoReviewers]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"destruction_list": self._get_destruction_list()})
+        return context

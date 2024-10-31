@@ -6,7 +6,6 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 from rest_framework import routers
-from rest_framework_nested.routers import NestedSimpleRouter
 
 from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
@@ -17,7 +16,7 @@ from openarchiefbeheer.accounts.api.views import (
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
-    DestructionListAssigneesViewSet,
+    CoReviewersViewSet,
     DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
@@ -33,6 +32,8 @@ from openarchiefbeheer.zaken.api.views import (
     ZaaktypenChoicesView,
 )
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
+
+from .routers import BulkNestedRouter
 
 app_name = "api"
 
@@ -60,11 +61,11 @@ router.register(
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
 
-destruction_list_router = NestedSimpleRouter(
+destruction_list_router = BulkNestedRouter(
     router, r"destruction-lists", lookup="destruction_list"
 )
 destruction_list_router.register(
-    r"assignees", DestructionListAssigneesViewSet, basename="assignees"
+    r"co-reviewers", CoReviewersViewSet, basename="co-reviewers"
 )
 
 

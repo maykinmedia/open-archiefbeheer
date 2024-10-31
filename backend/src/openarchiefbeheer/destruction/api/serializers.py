@@ -1,7 +1,7 @@
 from typing import Any, Iterable
 
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
@@ -22,6 +22,7 @@ from openarchiefbeheer.zaken.api.serializers import (
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
 
+from ..api.constants import MAX_NUMBER_CO_REVIEWERS
 from ..constants import (
     DestructionListItemAction,
     InternalStatus,
@@ -68,6 +69,118 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+
+
+class CoReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user",)
+
+    def validate_user(self, user: User) -> User:
+        if not user.has_perm("accounts.can_co_review_destruction"):
+            raise ValidationError(
+                _(
+                    "The chosen user does not have the permission to co-review a destruction list."
+                )
+            )
+        return user
+
+    def validate(self, attrs: dict) -> dict:
+        if self.parent.instance:
+            return attrs
+
+        main_reviewer = self.parent.context["request"].user
+        if main_reviewer.pk == attrs["user"].pk:
+            raise ValidationError(
+                {"user": _("The main reviewer cannot also be a co-reviewer.")}
+            )
+
+        return attrs
+
+
+class CoReviewerAssignementSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=True, allow_blank=False)
+    add = CoReviewerSerializer(many=True)
+    remove = CoReviewerSerializer(many=True, required=False)
+
+    def to_representation(self, instance):
+        read_serializer = DestructionListAssigneeReadSerializer(
+            instance=instance, many=True
+        )
+        return read_serializer.data
+
+    def validate(self, attrs):
+        current_number_co_reviewers = (
+            self.context["destruction_list"]
+            .assignees.filter(role=ListRole.co_reviewer)
+            .count()
+        )
+        if (
+            current_number_co_reviewers
+            + len(attrs.get("add", []))
+            - len(attrs.get("remove", []))
+            > MAX_NUMBER_CO_REVIEWERS
+        ):
+            raise ValidationError(
+                _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
+                % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS}
+            )
+        return attrs
+
+    def create(self, validated_data: dict) -> QuerySet[DestructionListAssignee]:
+        destruction_list = self.context["destruction_list"]
+        co_reviewers = validated_data.get("add", [])
+
+        new_assignees = [
+            DestructionListAssignee(
+                user=co_reviewer["user"],
+                destruction_list=self.context["destruction_list"],
+                role=ListRole.co_reviewer,
+            )
+            for co_reviewer in co_reviewers
+        ]
+
+        DestructionListAssignee.objects.bulk_create(new_assignees)
+
+        # TODO Log
+
+        # TODO signal
+
+        return destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
+    def update(
+        self, instance: QuerySet[DestructionListAssignee], validated_data: dict
+    ) -> QuerySet[DestructionListAssignee]:
+        destruction_list = self.context["destruction_list"]
+        if not self.partial:
+            instance.delete()
+
+        new_co_reviewers = validated_data.get("add", [])
+        co_reviewers_to_remove = validated_data.get("remove", [])
+
+        new_assignees = [
+            DestructionListAssignee(
+                user=co_reviewer["user"],
+                destruction_list=destruction_list,
+                role=ListRole.co_reviewer,
+            )
+            for co_reviewer in new_co_reviewers
+        ]
+
+        if self.partial:
+            instance.filter(
+                user__in=[
+                    co_reviewer["user"] for co_reviewer in co_reviewers_to_remove
+                ],
+            ).delete()
+
+        new_assignees = DestructionListAssignee.objects.bulk_create(new_assignees)
+
+        # TODO Log
+
+        # TODO signal
+
+        return destruction_list.assignees.filter(role=ListRole.co_reviewer)
 
 
 class MarkAsFinalSerializer(serializers.Serializer):

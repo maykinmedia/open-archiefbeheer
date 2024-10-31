@@ -94,3 +94,13 @@ class CanAbortDestruction(permissions.BasePermission):
             destruction_list.status == ListStatus.ready_to_delete
             and destruction_list.planned_destruction_date
         )
+
+
+class CanUpdateCoReviewers(permissions.BasePermission):
+    message = _("You are not a main reviewer.")
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("accounts.can_review_destruction")
+
+    def has_object_permission(self, request, view, destruction_list):
+        return destruction_list.status == ListStatus.ready_to_review
