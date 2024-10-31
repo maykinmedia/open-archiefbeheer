@@ -11,6 +11,7 @@ export type DestructionList = {
   assignee: User;
   assignees: DestructionListAssignee[];
   author: User;
+  toelichting: string;
   containsSensitiveInfo: boolean;
   plannedDestructionDate: string | null;
   created: string;
@@ -68,6 +69,7 @@ export type DestructionListMarkAsFinalData = {
  * @param assigneeId
  * @param zaakFilters
  * @param allZakenSelected
+ * @param toelichting
  */
 export async function createDestructionList(
   name: string,
@@ -75,6 +77,7 @@ export async function createDestructionList(
   assigneeId: string,
   zaakFilters: string,
   allZakenSelected: boolean,
+  toelichting?: string,
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
 
@@ -84,6 +87,7 @@ export async function createDestructionList(
     add: urls.map((url) => ({ zaak: url })),
     selectAll: allZakenSelected,
     zaakFilters: JSON.parse(zaakFilters),
+    toelichting,
   };
 
   const response = await request(

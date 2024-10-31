@@ -57,7 +57,7 @@ export function DestructionListCreatePage() {
    * Gets called when the form is submitted.
    */
   const handleSubmit = async (event: FormEvent, data: SerializedFormData) => {
-    const { name, assigneeId } = data as Record<string, string>;
+    const { name, assigneeId, toelichting } = data as Record<string, string>;
     const zaakFilters = JSON.stringify(Object.fromEntries(searchParams));
 
     const zaakUrls = Object.keys(
@@ -70,6 +70,7 @@ export function DestructionListCreatePage() {
         name: name,
         zaakUrls: zaakUrls,
         assigneeId: assigneeId,
+        toelichting: toelichting,
         zaakFilters: zaakFilters,
         allPagesSelected: allPagesSelected,
       },
@@ -94,6 +95,11 @@ export function DestructionListCreatePage() {
         label: user.username,
       })),
       required: true,
+    },
+    {
+      label: "Toelichting",
+      name: "toelichting",
+      required: false,
     },
   ];
 
