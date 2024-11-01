@@ -107,7 +107,7 @@ def format_zaaktype_choices(zaaktypen: Iterable[dict]) -> list[DropDownChoice]:
     formatted_zaaktypen = []
     for identificatie, urls in zaaktypen_per_version.items():
         omschrijving = id_to_omschrijving_map[identificatie]["omschrijving"]
-        label = f"{omschrijving} ({identificatie or _("no identificatie")})"
+        label = f"{omschrijving} ({identificatie or _('no identificatie')})"
         value = ",".join(urls)
         formatted_zaaktypen.append({"label": label, "value": value})
     return formatted_zaaktypen

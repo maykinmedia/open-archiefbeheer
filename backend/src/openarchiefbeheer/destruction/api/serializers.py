@@ -261,6 +261,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     comment = serializers.CharField(
         required=False,
+        allow_null=True,
         help_text=_(
             "Additional information about the destruction list, such as the reason for creating it."
         ),
