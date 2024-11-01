@@ -16,11 +16,6 @@ class FeatureListEditTests(GherkinLikeTestCase):
             # Create destruction list
             await self.when.record_manager_logs_in(page)
 
-            # FIXME - This works around a bug that causes the filter bar to block access to the first row when the
-            #  "stickyfix" is active, this is possibly resolved by implementing:
-            #  https://github.com/orgs/maykinmedia/projects/13/views/3?pane=issue&itemId=84829478&issue=maykinmedia%7Copen-archiefbeheer%7C461
-            await page.evaluate('() => sessionStorage.setItem("oab.lib.fieldSelection.field-selection-list", \'{"identificatie":true,"archiefnominatie":true,"resultaat":false,"startdatum":true,"einddatum":true,"zaaktype":true,"omschrijving":false,"toelichting":false,"Behandelend afdeling":false,"archiefactiedatum":false,"selectielijstklasse":true,"hoofdzaak":false,"relaties":false}\')')
-
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 0)
             await self.then.path_should_be(page, "/destruction-lists/create")
 
