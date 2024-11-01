@@ -123,7 +123,7 @@ django-solo==2.2.0
     #   -r requirements/base.in
     #   mozilla-django-oidc-db
     #   zgw-consumers
-django-timeline-logger==4.0.0
+django-timeline-logger==5.0.0
     # via -r requirements/base.in
 django-two-factor-auth==1.16.0
     # via maykin-2fa
