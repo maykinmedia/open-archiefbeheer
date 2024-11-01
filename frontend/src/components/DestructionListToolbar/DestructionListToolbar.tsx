@@ -8,6 +8,7 @@ import {
   Tab,
   Tabs,
   field2Title,
+  ucFirst,
 } from "@maykin-ui/admin-ui";
 
 import {
@@ -67,7 +68,7 @@ export function DestructionListToolbar({
                 label: "Status",
                 value: (
                   <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
-                    {STATUS_MAPPING[destructionList.status]}
+                    {ucFirst(STATUS_MAPPING[destructionList.status])}
                   </Badge>
                 ),
               },
