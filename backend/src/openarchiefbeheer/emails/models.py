@@ -67,6 +67,23 @@ class EmailConfig(SingletonModel):
         ),
         blank=True,
     )
+    subject_co_review_request = models.CharField(
+        max_length=250,
+        verbose_name=_("subject co-review request"),
+        help_text=_(
+            "Subject of the email that will be sent to the co-reviewer(s) "
+            "when the main reviewer assigns them."
+        ),
+        blank=True,
+    )
+    body_co_review_request = models.TextField(
+        verbose_name=_("body co-review request"),
+        help_text=_(
+            "Body of the email that will be sent to the co-reviewer(s) "
+            "when the main reviewer assigns them."
+        ),
+        blank=True,
+    )
     subject_error_during_deletion = models.CharField(
         max_length=250,
         verbose_name=_("subject error during deletion"),
