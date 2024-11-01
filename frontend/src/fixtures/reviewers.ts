@@ -8,7 +8,7 @@ const defaultAssignees: DestructionListAssignee[] = [
   },
   {
     user: beoordelaarFactory(),
-    role: "reviewer",
+    role: "main_reviewer",
   },
 ];
 
