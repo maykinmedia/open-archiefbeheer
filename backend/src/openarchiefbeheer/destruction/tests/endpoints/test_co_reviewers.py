@@ -1,9 +1,14 @@
+from unittest.mock import patch
+
+from django.core import mail
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from timeline_logger.models import TimelineLog
+
+from openarchiefbeheer.emails.models import EmailConfig
 
 from ...api.constants import MAX_NUMBER_CO_REVIEWERS
 from ...constants import ListRole, ListStatus
@@ -78,20 +83,33 @@ class CoReviewersViewSetTest(APITestCase):
         destruction_list.save()
 
         self.client.force_authenticate(user=main_reviewer.user)
-        response = self.client.put(
-            reverse(
-                "api:co-reviewers-list",
-                kwargs={"destruction_list_uuid": destruction_list.uuid},
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_co_review_request="Please co-review!",
+                    body_co_review_request="You have been invited to co-review.",
+                ),
             ),
-            data={
-                "comment": "test",
-                "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
-            },
-            format="json",
-        )
+        ):
+            response = self.client.put(
+                reverse(
+                    "api:co-reviewers-list",
+                    kwargs={"destruction_list_uuid": destruction_list.uuid},
+                ),
+                data={
+                    "comment": "test",
+                    "add": [
+                        {"user": co_reviewer.pk} for co_reviewer in new_co_reviewers
+                    ],
+                },
+                format="json",
+            )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Test that the co-reviewers are as expected
         new_assignees = destruction_list.assignees.filter(role=ListRole.co_reviewer)
 
         self.assertEqual(new_assignees.count(), 3)
@@ -104,6 +122,7 @@ class CoReviewersViewSetTest(APITestCase):
             )
         )
 
+        # Test that the changes have been logged
         logs = TimelineLog.objects.for_object(destruction_list)
 
         self.assertEqual(len(logs), 1)
@@ -141,6 +160,15 @@ class CoReviewersViewSetTest(APITestCase):
             message,
         )
 
+        # Test that the new co-reviewers have been notified
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Please co-review!")
+        self.assertEqual(mail.outbox[0].body, "You have been invited to co-review.")
+        self.assertEqual(
+            sorted(mail.outbox[0].recipients()),
+            sorted([co_reviewer.email for co_reviewer in new_co_reviewers]),
+        )
+
     def test_partially_update_co_reviewers(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, name="A beautiful list"
@@ -171,21 +199,33 @@ class CoReviewersViewSetTest(APITestCase):
         destruction_list.save()
 
         self.client.force_authenticate(user=main_reviewer.user)
-        response = self.client.patch(
-            reverse(
-                "api:co-reviewers-list",
-                kwargs={"destruction_list_uuid": destruction_list.uuid},
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+                return_value=EmailConfig(
+                    subject_co_review_request="Please co-review!",
+                    body_co_review_request="You have been invited to co-review.",
+                ),
             ),
-            data={
-                "comment": "test",
-                "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
-                "remove": [{"user": initial_assignee1.user.pk}],
-            },
-            format="json",
-        )
+        ):
+            response = self.client.patch(
+                reverse(
+                    "api:co-reviewers-list",
+                    kwargs={"destruction_list_uuid": destruction_list.uuid},
+                ),
+                data={
+                    "comment": "test",
+                    "add": [
+                        {"user": co_reviewer.pk} for co_reviewer in new_co_reviewers
+                    ],
+                    "remove": [{"user": initial_assignee1.user.pk}],
+                },
+                format="json",
+            )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Test that the co-reviewers are as expected
         assignees = destruction_list.assignees.filter(role=ListRole.co_reviewer)
 
         self.assertEqual(assignees.count(), 4)
@@ -200,6 +240,7 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertFalse(assignees.filter(user=initial_assignee1.user).exists())
         self.assertTrue(assignees.filter(user=initial_assignee2.user).exists())
 
+        # Test that the changes have been logged
         logs = TimelineLog.objects.for_object(destruction_list)
 
         self.assertEqual(len(logs), 1)
@@ -235,6 +276,15 @@ class CoReviewersViewSetTest(APITestCase):
                 "removed_co_reviewers": initial_assignee1.user.get_name_with_username(),
             },
             message,
+        )
+
+        # Test that the new co-reviewers have been notified
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Please co-review!")
+        self.assertEqual(mail.outbox[0].body, "You have been invited to co-review.")
+        self.assertEqual(
+            sorted(mail.outbox[0].recipients()),
+            sorted([co_reviewer.email for co_reviewer in new_co_reviewers]),
         )
 
     def test_cant_add_more_than_5_co_reviewers(self):
