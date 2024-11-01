@@ -15,7 +15,7 @@ import {
   ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+} from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
 import { BaseListView } from "../abstract";
 import { ReviewDestructionListAction } from "./DestructionListReview.action";
