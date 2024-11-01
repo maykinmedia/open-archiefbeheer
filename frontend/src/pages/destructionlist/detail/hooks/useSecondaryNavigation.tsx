@@ -6,7 +6,7 @@ import {
   useFormDialog,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../../components";
@@ -266,7 +266,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
                   required: true,
                 },
                 {
-                  label: "Comment",
+                  label: "Opmerking",
                   name: "comment",
                   required: true,
                 },

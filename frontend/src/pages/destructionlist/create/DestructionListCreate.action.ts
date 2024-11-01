@@ -15,7 +15,7 @@ export type DestructionListCreateActionPayload = {
   name: string;
   zaakUrls: string[];
   assigneeId: string;
-  toelichting?: string;
+  comment: string;
   zaakFilters: string;
   allPagesSelected: boolean;
 };
@@ -35,14 +35,8 @@ export const destructionListCreateAction = async ({
   Response | DestructionListCreateActionResponseData
 > => {
   const { payload } = await request.json();
-  const {
-    name,
-    assigneeId,
-    toelichting,
-    allPagesSelected,
-    zaakFilters,
-    zaakUrls,
-  } = payload as DestructionListCreateActionPayload;
+  const { name, assigneeId, comment, allPagesSelected, zaakFilters, zaakUrls } =
+    payload as DestructionListCreateActionPayload;
 
   try {
     await createDestructionList(
@@ -51,7 +45,7 @@ export const destructionListCreateAction = async ({
       assigneeId,
       zaakFilters,
       allPagesSelected,
-      toelichting,
+      comment,
     );
   } catch (e: unknown) {
     if (e instanceof Response) {

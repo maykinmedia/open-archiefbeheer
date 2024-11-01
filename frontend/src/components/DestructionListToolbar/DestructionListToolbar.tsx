@@ -57,8 +57,8 @@ export function DestructionListToolbar({
                 value: formatUser(destructionList.assignee),
               },
               toelicthing: {
-                label: "Toelichting",
-                value: destructionList.toelichting,
+                label: "Comment",
+                value: destructionList.comment,
               },
               bevatGevoeligeInformatie: {
                 label: "Bevat gevoelige informatie",

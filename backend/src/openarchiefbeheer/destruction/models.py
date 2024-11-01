@@ -52,10 +52,11 @@ class DestructionList(models.Model):
         verbose_name=_("author"),
         help_text=_("Creator of destruction list."),
     )
-    toelichting = models.TextField(
-        _("explanation"),
+    comment = models.TextField(
+        _("comment"),
         max_length=2000,
         blank=True,
+        null=True,
         help_text=_("Explanation of the destruction list."),
     )
     created = models.DateTimeField(auto_now_add=True)
