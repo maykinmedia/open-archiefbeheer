@@ -190,7 +190,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
             value: "keep",
             selected: _formState.action === "keep",
           },
-        ].filter((v) => Boolean(v)),
+        ].filter((v: Option | null): v is Option => Boolean(v)) as Option[],
       },
 
       {
