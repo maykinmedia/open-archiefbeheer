@@ -77,7 +77,7 @@ export async function createDestructionList(
   assigneeId: string,
   zaakFilters: string,
   allZakenSelected: boolean,
-  comment: string,
+  comment?: string,
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
 

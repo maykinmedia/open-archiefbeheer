@@ -15,7 +15,7 @@ export type DestructionListCreateActionPayload = {
   name: string;
   zaakUrls: string[];
   assigneeId: string;
-  comment: string;
+  comment?: string;
   zaakFilters: string;
   allPagesSelected: boolean;
 };
