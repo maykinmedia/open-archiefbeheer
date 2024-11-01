@@ -15,6 +15,7 @@ from .utils import (
 
 user_assigned = django.dispatch.Signal()
 deletion_failure = django.dispatch.Signal()
+co_reviewers_added = django.dispatch.Signal()
 
 
 @receiver(post_save, sender=DestructionListReview)
@@ -49,4 +50,19 @@ def notify_author_of_failure(sender: DestructionList, **kwargs):
         body=config.body_error_during_deletion,
         context={"list": sender},
         recipients=[sender.author.email],
+    )
+
+
+@receiver(co_reviewers_added)
+def notify_co_reviewers(sender: DestructionList, **kwargs):
+    added_co_reviewers = kwargs.get("added_co_reviewers", [])
+    if not added_co_reviewers:
+        return
+
+    config = EmailConfig.get_solo()
+    notify(
+        subject=config.subject_co_review_request,
+        body=config.body_co_review_request,
+        context={"list": sender},
+        recipients=[co_reviewer["user"].email for co_reviewer in added_co_reviewers],
     )

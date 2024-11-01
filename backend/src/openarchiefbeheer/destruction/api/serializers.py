@@ -170,7 +170,7 @@ class CoReviewerAssignementSerializer(serializers.Serializer):
             "comment": self.validated_data["comment"],
         }
 
-        # co_reviewers_added.send(sender=DestructionList, **params)
+        co_reviewers_added.send(sender=self.context["destruction_list"], **params)
         logevent.destruction_list_co_reviewers_added(**params)
 
         return instance
