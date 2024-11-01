@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from timeline_logger.models import TimelineLog
 
 from ...api.constants import MAX_NUMBER_CO_REVIEWERS
 from ...constants import ListRole, ListStatus
@@ -53,9 +54,9 @@ class CoReviewersViewSetTest(APITestCase):
 
     def test_fully_update_co_reviewers(self):
         destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review
+            status=ListStatus.ready_to_review, name="A beautiful list"
         )
-        initial_assignees = DestructionListAssigneeFactory.create_batch(
+        DestructionListAssigneeFactory.create_batch(
             2,
             role=ListRole.co_reviewer,
             user__post__can_co_review_destruction=True,
@@ -85,9 +86,6 @@ class CoReviewersViewSetTest(APITestCase):
             data={
                 "comment": "test",
                 "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
-                "remove": [
-                    {"user": assignee.user.pk} for assignee in initial_assignees
-                ],
             },
             format="json",
         )
@@ -106,12 +104,53 @@ class CoReviewersViewSetTest(APITestCase):
             )
         )
 
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(len(logs), 1)
+
+        message = logs[0].get_message()
+        self.assertIn(
+            _(
+                'User "%(user)s" has replaced all the co-reviewers of the list '
+                '"%(list_name)s" with: %(added_co_reviewers)s.'
+            )
+            % {
+                "user": "reviewer",
+                "list_name": "A beautiful list",
+                "added_co_reviewers": ", ".join(
+                    [
+                        co_reviewer.get_name_with_username()
+                        for co_reviewer in new_co_reviewers
+                    ]
+                ),
+            },
+            message,
+        )
+        self.assertIn(
+            _("They added the comment: %(comment)s.")
+            % {
+                "comment": "test",
+            },
+            message,
+        )
+        self.assertNotIn(
+            _("They also removed these co-reviewers: %(removed_co_reviewers)s.")
+            % {
+                "removed_co_reviewers": "",
+            },
+            message,
+        )
+
     def test_partially_update_co_reviewers(self):
         destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review
+            status=ListStatus.ready_to_review, name="A beautiful list"
         )
-        initial_assignees = DestructionListAssigneeFactory.create_batch(
-            2,
+        initial_assignee1 = DestructionListAssigneeFactory.create(
+            role=ListRole.co_reviewer,
+            user__post__can_co_review_destruction=True,
+            destruction_list=destruction_list,
+        )
+        initial_assignee2 = DestructionListAssigneeFactory.create(
             role=ListRole.co_reviewer,
             user__post__can_co_review_destruction=True,
             destruction_list=destruction_list,
@@ -140,6 +179,7 @@ class CoReviewersViewSetTest(APITestCase):
             data={
                 "comment": "test",
                 "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
+                "remove": [{"user": initial_assignee1.user.pk}],
             },
             format="json",
         )
@@ -148,7 +188,7 @@ class CoReviewersViewSetTest(APITestCase):
 
         assignees = destruction_list.assignees.filter(role=ListRole.co_reviewer)
 
-        self.assertEqual(assignees.count(), 5)
+        self.assertEqual(assignees.count(), 4)
         self.assertTrue(
             all(
                 [
@@ -157,13 +197,44 @@ class CoReviewersViewSetTest(APITestCase):
                 ]
             )
         )
-        self.assertTrue(
-            all(
-                [
-                    assignees.filter(user=co_reviewer.user).exists()
-                    for co_reviewer in initial_assignees
-                ]
+        self.assertFalse(assignees.filter(user=initial_assignee1.user).exists())
+        self.assertTrue(assignees.filter(user=initial_assignee2.user).exists())
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(len(logs), 1)
+
+        message = logs[0].get_message()
+        self.assertIn(
+            _(
+                'User "%(user)s" has added these users as co-reviewers to the list '
+                '"%(list_name)s": %(added_co_reviewers)s.'
             )
+            % {
+                "user": "reviewer",
+                "list_name": "A beautiful list",
+                "added_co_reviewers": ", ".join(
+                    [
+                        co_reviewer.get_name_with_username()
+                        for co_reviewer in new_co_reviewers
+                    ]
+                ),
+            },
+            message,
+        )
+        self.assertIn(
+            _("They added the comment: %(comment)s.")
+            % {
+                "comment": "test",
+            },
+            message,
+        )
+        self.assertIn(
+            _("They also removed these co-reviewers: %(removed_co_reviewers)s.")
+            % {
+                "removed_co_reviewers": initial_assignee1.user.get_name_with_username(),
+            },
+            message,
         )
 
     def test_cant_add_more_than_5_co_reviewers(self):
