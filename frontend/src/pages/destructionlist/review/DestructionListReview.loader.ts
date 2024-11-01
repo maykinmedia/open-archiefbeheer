@@ -25,7 +25,7 @@ import {
 import {
   ZaakSelection,
   getFilteredZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+} from "../../../lib/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewContext = {

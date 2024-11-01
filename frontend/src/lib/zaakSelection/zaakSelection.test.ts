@@ -5,8 +5,7 @@ import {
   getAllZakenSelected,
   getFilteredZaakSelection,
   getZaakSelection,
-  getZaakSelectionItem,
-  isZaakSelected,
+  getZaakSelectionItems,
   removeFromZaakSelection,
   setAllZakenSelected,
 } from "./zaakSelection";
@@ -93,15 +92,8 @@ describe("Zaak Selection Functions", () => {
   it("should return a single selected Zaak", async () => {
     await addToZaakSelection(mockKey, [mockZaak1]);
 
-    const zaak = await getZaakSelectionItem(mockKey, mockZaak1);
-    expect(zaak?.selected).toBe(true);
-  });
-
-  it("should check if a Zaak is selected", async () => {
-    await addToZaakSelection(mockKey, [mockZaak1]);
-
-    const isSelected = await isZaakSelected(mockKey, mockZaak1);
-    expect(isSelected).toBe(true);
+    const selection = await getZaakSelectionItems(mockKey, [mockZaak1]);
+    expect(selection[mockZaak1.url as string]?.selected).toBe(true);
   });
 
   it("should handle empty Zaak selections correctly", async () => {

@@ -22,7 +22,7 @@ import { userFactory, usersFactory } from "../../../../../fixtures/user";
 import {
   clearZaakSelection,
   getZaakSelection,
-} from "../../../../../lib/zaakSelection/zaakSelection";
+} from "../../../../../lib/zaakSelection";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListProcessReviewPage } from "./DestructionListProcessReviewPage";
 

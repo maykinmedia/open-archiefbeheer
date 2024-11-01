@@ -13,7 +13,7 @@ import {
   recordManagerFactory,
   usersFactory,
 } from "../../../fixtures/user";
-import { getZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../lib/zaakSelection";
 import {
   DESTRUCTION_LIST_CREATE_KEY,
   DestructionListCreatePage,

@@ -28,10 +28,7 @@ import {
   loginRequired,
 } from "../../../lib/auth/loaders";
 import { cacheMemo } from "../../../lib/cache/cache";
-import {
-  ZaakSelection,
-  getZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+import { ZaakSelection, getZaakSelection } from "../../../lib/zaakSelection";
 
 export interface DestructionListDetailContext {
   storageKey: string;

@@ -22,7 +22,7 @@ import {
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
 } from "../../../../../fixtures/selectieLijstKlasseChoices";
 import { userFactory, usersFactory } from "../../../../../fixtures/user";
-import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../../../lib/zaakSelection";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListEditPage } from "./DestructionListEditPage";
 

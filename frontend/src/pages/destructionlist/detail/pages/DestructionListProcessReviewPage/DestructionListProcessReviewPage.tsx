@@ -5,11 +5,11 @@ import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 import { useZaakReviewStatuses } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import {
-  ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
-} from "../../../../../lib/zaakSelection/zaakSelection";
+} from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";

@@ -1,241 +1,173 @@
-import { isPrimitive } from "@maykin-ui/admin-ui";
-
 import { Zaak } from "../../types";
-
-// FIXME: Limit to object type without breaking (or with fixing) other code.
-export type ZaakSelection<DetailType = unknown> = {
-  /**
-   * A `Zaak.url` mapped to a `boolean`.
-   * - `true`: The zaak is added to the selection.
-   * - `false`: The zaak is removed from the selection.
-   */
-  [index: string]: {
-    selected: boolean;
-    detail?: DetailType;
-  };
-};
+import { SessionStorageBackend, _getZaakSelection } from "./backends";
+import { ZaakSelectionBackendMeta } from "./types";
 
 /**
  * Adds `zaken` to zaak selection identified by key.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
- * @param detail An optional detail object of generic type
+ * @param [detail] An optional detail object of generic type
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ *  specific context such as `AbortSignal`s.
  */
 export async function addToZaakSelection<DetailType = unknown>(
   key: string,
   zaken: (string | Zaak)[],
   detail?: DetailType,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  await _mutateZaakSelection(key, zaken, true, detail);
+  return backend.addToZaakSelection<DetailType>(key, zaken, detail, meta);
 }
 
 /**
  * Removes `zaken` from zaak selection identified by key.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ *  specific context such as `AbortSignal`s.
  */
 export async function removeFromZaakSelection(
   key: string,
   zaken: (string | Zaak)[],
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  await _mutateZaakSelection(key, zaken, false);
+  return backend.removeFromZaakSelection(key, zaken, meta);
 }
 
 /**
  * Check if all zaken are selected.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
+ * @param backend
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ *  specific context such as `AbortSignal`s.
  */
-export async function getAllZakenSelected(key: string) {
-  const computedKey = `${_getComputedKey(key)}.allSelected`;
-  const json = sessionStorage.getItem(computedKey) || "false";
-  return JSON.parse(json) as boolean;
+export async function getAllZakenSelected(
+  key: string,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
+) {
+  return backend.getAllZakenSelected(key, meta);
 }
 
 /**
  * Marks all zaken as selected.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param selected Indicating whether the selection should be added (`true) or removed (`false).
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ *  specific context such as `AbortSignal`s.
  */
-export async function setAllZakenSelected(key: string, selected: boolean) {
-  const computedKey = `${_getComputedKey(key)}.allSelected`;
-  const json = JSON.stringify(selected);
-  sessionStorage.setItem(computedKey, json);
-
-  if (!selected) {
-    await clearZaakSelection(key);
-  }
+export async function setAllZakenSelected(
+  key: string,
+  selected: boolean,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
+) {
+  return backend.setAllZakenSelected(key, selected, meta);
 }
 
 /**
  * Gets the zaak selection, applies a filter to the detail object.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param exp
  * @param selectedOnly
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ * specific context such as `AbortSignal`s.
  */
 export async function getFilteredZaakSelection<DetailType = unknown>(
   key: string,
   exp?: Partial<DetailType>,
   selectedOnly = true,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  const selection = await _getZaakSelection<DetailType>(key);
-  const entries = Object.entries(selection);
-
-  const filteredEntries = entries.filter(([, { selected, detail }]) => {
-    const _detail: Record<string, unknown> = detail || {};
-    const selectionFilter = !selectedOnly || selected;
-
-    const expFilter =
-      !exp ||
-      (detail &&
-        Object.entries(exp).every(([key, value]) => _detail[key] === value));
-
-    return selectionFilter && expFilter;
-  });
-
-  return Object.fromEntries(filteredEntries);
+  return backend.getFilteredZaakSelection<DetailType>(
+    key,
+    exp,
+    selectedOnly,
+    meta,
+  );
 }
 
 /**
  * Gets the number of selected zaken.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
+ * WARNING: THIS DOES NOT TAKE ALL ZAKEN SELECTED INTO ACCOUNT!
  * @param key A key identifying the selection
- * @param exp
- * @param selectedOnly
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ *  specific context such as `AbortSignal`s.
  */
-export async function getZaakSelectionSize<DetailType = unknown>(
+export async function getZaakSelectionSize(
   key: string,
-  exp?: Partial<DetailType>,
-  selectedOnly = true,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  const selection = await getFilteredZaakSelection(key, exp, selectedOnly);
-  return Object.keys(selection).length;
+  return backend.getZaakSelectionSize(key, meta);
 }
 
 /**
- * Returns a single zaak in the zaak selection.
+ * Returns all zaken in the zaak selection.
  * @param key A key identifying the selection
- * @param zaak Either a `Zaak.url` or `Zaak` object.
+ * @param zaak
  * @param selectedOnly
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ * specific context such as `AbortSignal`s.
  */
-export async function getZaakSelectionItem<DetailType = unknown>(
+export async function getZaakSelectionItems<DetailType = unknown>(
   key: string,
-  zaak: string | Zaak,
+  zaak: (string | Zaak)[],
   selectedOnly = true,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  const zaakSelection = await _getZaakSelection<DetailType>(key);
-  const url = _getZaakUrl(zaak);
-  return zaakSelection[url]?.selected || !selectedOnly
-    ? zaakSelection[url]
-    : undefined;
-}
-
-/**
- * Sets zaak selection cache.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
- * @param key A key identifying the selection
- * @param zaakSelection
- */
-export async function setZaakSelection<DetailType = unknown>(
-  key: string,
-  zaakSelection: ZaakSelection<DetailType>,
-) {
-  const computedKey = _getComputedKey(key);
-  const json = JSON.stringify(zaakSelection);
-  sessionStorage.setItem(computedKey, json);
+  return backend.getZaakSelectionItems<DetailType>(
+    key,
+    zaak,
+    selectedOnly,
+    meta,
+  );
 }
 
 /**
  * Clears zaak selection cache.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
+ * @param [backend=BrowserBackend] The backend to use:
+ *  - `BrowserBackend`: stores selection in browser (locally).
+ *  - `APIBackend`: stores selection using an API, can be used to if the
+ *    selection needs to be shared= among multiple users.
+ * @param meta An optional `Record` allowing the implementation to pass backend
+ * specific context such as `AbortSignal`s.
  */
-export async function clearZaakSelection(key: string) {
-  const computedKey = _getComputedKey(key);
-  const json = "{}";
-  sessionStorage.setItem(computedKey, json);
-}
-
-/**
- * Returns whether zaak is selected.
- * @param key A key identifying the selection
- * @param zaak Either a `Zaak.url` or `Zaak` object.
- */
-export async function isZaakSelected<DetailType = unknown>(
+export async function clearZaakSelection(
   key: string,
-  zaak: string | Zaak,
+  backend = SessionStorageBackend,
+  meta?: ZaakSelectionBackendMeta,
 ) {
-  const zaakSelection = await _getZaakSelection<DetailType>(key);
-  const url = _getZaakUrl(zaak);
-  return zaakSelection[url]?.selected;
-}
-
-/**
- * Mutates the zaak selection
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
- * @param key A key identifying the selection
- * @param zaken An array containing either `Zaak.url` or `Zaak` objects
- * @param selected Indicating whether the selection should be added (`true) or removed (`false).
- * @param detail An optional detail object of generic type
- */
-export async function _mutateZaakSelection<DetailType = unknown>(
-  key: string,
-  zaken: (string | Zaak)[],
-  selected: boolean,
-  detail?: DetailType | DetailType[],
-) {
-  if (Array.isArray(detail)) {
-    if (detail.length !== (zaken as Zaak[]).length) {
-      throw new Error(
-        "Can't mutate Zaak selection, length of `zaken` is not equal to length of given `detail`!",
-      );
-    }
-  }
-
-  const currentZaakSelection = await _getZaakSelection<DetailType>(key);
-  const urls = _getZaakUrls(zaken);
-
-  const zaakSelectionOverrides = urls.reduce<ZaakSelection<DetailType>>(
-    (partialZaakSelection, url, i) => ({
-      ...partialZaakSelection,
-      [url]: {
-        selected,
-        detail: Array.isArray(detail) ? detail[i] : detail,
-      },
-    }),
-    {},
-  );
-
-  const combinedZaakSelection = {
-    ...currentZaakSelection,
-    ...zaakSelectionOverrides,
-  };
-
-  return setZaakSelection(key, combinedZaakSelection);
-}
-
-/**
- * Gets the zaak selection.
- * Note: only the `url` of selected `zaken` are stored.
- * Note: This function is async to accommodate possible future refactors.
- * @param key A key identifying the selection
- * @private
- */
-async function _getZaakSelection<DetailType = unknown>(key: string) {
-  const computedKey = _getComputedKey(key);
-  const json = sessionStorage.getItem(computedKey) || "{}";
-  return JSON.parse(json) as ZaakSelection<DetailType>;
+  return backend.clearZaakSelection(key, meta);
 }
 
 /**
@@ -243,35 +175,10 @@ async function _getZaakSelection<DetailType = unknown>(key: string) {
  */
 export async function getZaakSelection<DetailType = unknown>(key: string) {
   if (process.env.NODE_ENV === "development") {
-    console.warn("public use of _getZaakSelection is deprecated.");
+    console.warn(
+      "public use of _getZaakSelection is deprecated, and is only available on BrowserBackend.",
+    );
   }
 
   return _getZaakSelection<DetailType>(key);
-}
-
-/**
- * Computes the prefixed cache key.
- * @param key A key identifying the selection
- * @private
- */
-function _getComputedKey(key: string): string {
-  return `oab.lib.zaakSelection.${key}`;
-}
-
-/**
- * Returns the urls based on an `Array` of `string`s or `Zaak` objects.
- * @param zaken An array containing either `Zaak.url` or `Zaak` objects
- * @private
- */
-function _getZaakUrls(zaken: Array<string | Zaak>) {
-  return zaken.map(_getZaakUrl);
-}
-
-/**
- * Returns the url based on a `string` or `Zaak` object.
- * @param zaak Either a `Zaak.url` or `Zaak` object.
- * @private
- */
-function _getZaakUrl(zaak: string | Zaak) {
-  return isPrimitive(zaak) ? zaak : (zaak.url as string);
 }

@@ -11,8 +11,8 @@ import {
   clearZaakSelection,
   getFilteredZaakSelection,
   getZaakSelection,
-  getZaakSelectionItem,
-} from "../../../lib/zaakSelection/zaakSelection";
+  getZaakSelectionItems,
+} from "../../../lib/zaakSelection";
 import {
   DestructionListReviewPage,
   getDestructionListReviewKey,
@@ -94,17 +94,16 @@ export const ReviewDestructionList: Story = {
       route: {
         loader: async () => {
           const storageKey = getDestructionListReviewKey(FIXTURE.uuid);
-          const zaakSelection = await getZaakSelection(storageKey);
           const zakenOnPage = FIXTURE.paginatedZaken.results.map(
             (z) => z.url as string,
           );
 
           const approvedZaakUrlsOnPagePromise = await Promise.all(
             zakenOnPage.map(async (url) => {
-              const item = await getZaakSelectionItem<typeof zaakSelection>(
-                storageKey,
-                url,
-              );
+              const selection = await getZaakSelectionItems<{
+                approved: boolean;
+              }>(storageKey, [url]);
+              const item = selection[url];
               return { url, approved: item?.detail?.approved };
             }),
           );
