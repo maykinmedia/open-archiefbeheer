@@ -1,0 +1,21 @@
+{% load i18n %}{% with added_co_reviewers=log.extra_data.added_co_reviewers|join:", "  %}{% with removed_co_reviewers=log.extra_data.removed_co_reviewers|join:", "  %}
+{% if log.extra_data.partial %}
+{% blocktranslate trimmed with list_name=log.content_object.name user=log.user added_co_reviewers=added_co_reviewers %}
+User "{{ user }}" has added these users as co-reviewers to the list "{{ list_name }}": {{ added_co_reviewers }}.
+{% endblocktranslate %}
+{% if removed_co_reviewers %}
+{% blocktranslate trimmed with removed_co_reviewers=removed_co_reviewers %}
+They also removed these co-reviewers: {{ removed_co_reviewers }}.
+{% endblocktranslate %}
+{% endif %}
+{% else %}
+{% blocktranslate trimmed with list_name=log.content_object.name user=log.user added_co_reviewers=added_co_reviewers %}
+User "{{ user }}" has replaced all the co-reviewers of the list "{{ list_name }}" with: {{ added_co_reviewers }}.
+{% endblocktranslate %}
+{% endif %}
+
+{% blocktranslate trimmed with comment=log.extra_data.comment %}
+They added the comment: {{ comment }}.
+{% endblocktranslate %}
+{% endwith %}{% endwith %}
+

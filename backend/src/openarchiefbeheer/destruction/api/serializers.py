@@ -41,6 +41,7 @@ from ..models import (
     ReviewItemResponse,
     ReviewResponse,
 )
+from ..signals import co_reviewers_added
 from ..tasks import process_review_response
 
 
@@ -155,11 +156,24 @@ class CoReviewerAssignementSerializer(serializers.Serializer):
 
         new_assignees = DestructionListAssignee.objects.bulk_create(new_assignees)
 
-        # TODO Log
-
-        # TODO signal
-
         return destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+
+        params = {
+            "destruction_list": self.context["destruction_list"],
+            "partial": self.partial,
+            "added_co_reviewers": self.validated_data["add"],
+            "removed_co_reviewers": self.validated_data.get("remove", []),
+            "user": self.context["request"].user,
+            "comment": self.validated_data["comment"],
+        }
+
+        # co_reviewers_added.send(sender=DestructionList, **params)
+        logevent.destruction_list_co_reviewers_added(**params)
+
+        return instance
 
 
 class MarkAsFinalSerializer(serializers.Serializer):
