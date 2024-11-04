@@ -4,6 +4,8 @@ from drf_spectacular.plumbing import build_basic_type, build_object_type
 from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,6 +22,8 @@ from .serializers import (
 class SelectionView(GenericAPIView):
     filter_backends = (SelectionItemBackend,)
     filterset_class = SelectionItemFilterset
+    renderer_classes = (JSONRenderer,)
+    parser_classes = (JSONParser,)
 
     def get_queryset(self):
         return SelectionItem.objects.filter(key=self.kwargs["key"])

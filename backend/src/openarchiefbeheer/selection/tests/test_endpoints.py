@@ -386,6 +386,46 @@ class SelectionAPITests(APITestCase):
         errors = response.json()
 
         self.assertEqual(
-            errors[0]["selectionData"][0],
+            errors[0]["selection_data"][0],
             _("Too much data passed, limit is %(max_size)s bytes") % {"max_size": 10},
+        )
+
+    def test_urls_not_camelised(self):
+        key = "some_key"
+        SelectionItemFactory.create(
+            key=key,
+            zaak_url="http://zaken.nl/api/v1/zaken/should_not_be_camelised",
+        )
+
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("api:selections", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertIn("http://zaken.nl/api/v1/zaken/should_not_be_camelised", data)
+
+    def test_urls_not_snakelised(self):
+        key = "someKey"
+
+        data = {
+            "http://zaken.nl/api/v1/zaken/shouldNotBeSnakeCase": {"selected": True},
+        }
+
+        self.client.force_login(self.user)
+
+        response = self.client.put(
+            reverse("api:selections", args=[key]),
+            data=data,
+            format="json",
+        )
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        items = SelectionItem.objects.filter(key=key)
+
+        self.assertEqual(
+            items.first().zaak_url, "http://zaken.nl/api/v1/zaken/shouldNotBeSnakeCase"
         )
