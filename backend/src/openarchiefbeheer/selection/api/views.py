@@ -106,7 +106,16 @@ class SelectionView(GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SelectionCountView(APIView):
+class SelectionCountView(GenericAPIView):
+    filter_backends = (SelectionItemBackend,)
+    filterset_class = SelectionItemFilterset
+
+    def get_queryset(self):
+        # The count operation does not take into consideration the select all toggle.
+        return SelectionItem.objects.filter(
+            key=self.kwargs["key"], selection_data__selected=True
+        )
+
     @extend_schema(
         tags=["Selection"],
         summary=_("Count selected items"),
@@ -120,10 +129,7 @@ class SelectionCountView(APIView):
         request=None,
     )
     def get(self, request, *args, **kwargs):
-        key = self.kwargs["key"]
-
-        # The count operation does not take into consideration the select all toggle.
-        qs = SelectionItem.objects.filter(key=key, selection_data__selected=True)
+        qs = self.filter_queryset(self.get_queryset())
 
         return Response(data={"count": qs.count()}, status=status.HTTP_200_OK)
 
