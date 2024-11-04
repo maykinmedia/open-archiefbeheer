@@ -404,6 +404,33 @@ class SelectionAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["count"], 2)
 
+    def test_get_selection_size_with_filters(self):
+        key = "some-key"
+
+        SelectionItemFactory.create(
+            key=key,
+            selection_data={"selected": False, "details": {"some-detail": "oh!"}},
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            selection_data={"selected": True, "details": {"some-detail": "oh!"}},
+            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
+        )
+
+        self.client.force_login(self.user)
+        endpoint = furl(reverse("api:selections-count", args=[key]))
+        endpoint.args["some-detail"] = "oh!"
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
+
     def test_too_large_selection_data(self):
         key = "some-key"
 
