@@ -10,7 +10,11 @@ from rest_framework.views import APIView
 from ..models import AllSelectedToggle, SelectionItem
 from .filtersets import SelectionItemBackend, SelectionItemFilterset
 from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
-from .serializers import SelectionReadSerializer, SelectionWriteSerializer
+from .serializers import (
+    SelectAllToggleSerializer,
+    SelectionReadSerializer,
+    SelectionWriteSerializer,
+)
 
 
 class SelectionView(GenericAPIView):
@@ -155,3 +159,20 @@ class SelectionSelectAllView(APIView):
         toggle.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        tags=["Selection"],
+        summary=_("Get select all value"),
+        description=_(
+            "Check if all the items in a selection are selected with the 'select all' toggle."
+        ),
+        responses={200: AllSelectedToggle},
+        request=None,
+    )
+    def get(self, request, *args, **kwargs):
+        key = self.kwargs["key"]
+
+        toggle, created = AllSelectedToggle.objects.get_or_create(key=key)
+
+        serializer = SelectAllToggleSerializer(instance=toggle)
+        return Response(data=serializer.data)
