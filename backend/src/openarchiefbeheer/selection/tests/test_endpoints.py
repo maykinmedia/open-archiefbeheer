@@ -64,13 +64,13 @@ class SelectionAPITests(APITestCase):
 
         self.client.force_login(self.user)
 
-        response = self.client.post(
+        response = self.client.put(
             reverse("api:selections", args=[key]),
             data=data,
             format="json",
         )
 
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         items = SelectionItem.objects.filter(key=key)
 
@@ -136,11 +136,6 @@ class SelectionAPITests(APITestCase):
             key=key,
             is_selected=False,
             zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
-        )
-        SelectionItemFactory.create(
-            key=key,
-            is_selected=True,
-            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
         )
         SelectionItemFactory.create(
             key=key,
@@ -371,7 +366,7 @@ class SelectionAPITests(APITestCase):
         with patch(
             "openarchiefbeheer.selection.api.serializers.MAX_SELECTION_DATA_SIZE", 10
         ):
-            response = self.client.post(
+            response = self.client.put(
                 reverse("api:selections", args=[key]),
                 data=data,
                 format="json",
