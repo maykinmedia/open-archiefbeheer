@@ -82,17 +82,23 @@ class SelectionWriteSerializer(serializers.ListSerializer):
     def partial_update(
         self, instances: QuerySet[SelectionItem], validated_data: list[dict]
     ) -> list[SelectionItem]:
-        zaak_urls = self.initial_data.keys()
-        instances = instances.filter(zaak_url__in=zaak_urls)
+        mapped_validated_data = {item["zaak_url"]: item for item in validated_data}
+        zaak_urls = mapped_validated_data.keys()
+        items_to_update = instances.filter(zaak_url__in=zaak_urls)
+
         updated_items = []
-        for instance in instances:
-            # Use self.initial_data instead of self.validated_data, because the former is in form `{<zaak_url>: <selection_data>}`,
-            # while the latter is in form `[{"zaak_url": "http://bla", "selection_data": {...}}]`.
-            # WARNING: we have no validation on the data in "selection_data", only on its size.
-            instance.selection_data.update(self.initial_data[instance.zaak_url])
-            updated_items.append(instance)
+        for item in items_to_update:
+            item_data = mapped_validated_data.pop(item.zaak_url)
+            item.selection_data.update(item_data["selection_data"])
+            updated_items.append(item)
 
         updated_items = SelectionItem.objects.bulk_update(
             updated_items, fields=["selection_data"]
         )
-        return updated_items
+
+        items_to_create = [
+            SelectionItem(**item) for _, item in mapped_validated_data.items()
+        ]
+        SelectionItem.objects.bulk_create(items_to_create)
+
+        return SelectionItem.objects.filter(key=self.context["key"])
