@@ -255,7 +255,7 @@ class SelectionAPITests(APITestCase):
 
         self.client.force_login(self.user)
         endpoint = furl(reverse("api:selections", args=[key]))
-        endpoint.args["item"] = "http://zaken.nl/api/v1/zaken/111-111-111"
+        endpoint.args["items"] = "http://zaken.nl/api/v1/zaken/111-111-111"
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -269,6 +269,50 @@ class SelectionAPITests(APITestCase):
                     "selected": False,
                     "details": {},
                 }
+            },
+        )
+
+    def test_filter_items(self):
+        key = "some-key"
+
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=False,
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
+        )
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
+        )
+
+        self.client.force_login(self.user)
+        endpoint = furl(reverse("api:selections", args=[key]))
+        endpoint.args["items"] = (
+            "http://zaken.nl/api/v1/zaken/111-111-111,http://zaken.nl/api/v1/zaken/222-222-222"
+        )
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data,
+            {
+                "http://zaken.nl/api/v1/zaken/111-111-111": {
+                    "selected": False,
+                    "details": {},
+                },
+                "http://zaken.nl/api/v1/zaken/222-222-222": {
+                    "selected": True,
+                    "details": {},
+                },
             },
         )
 
