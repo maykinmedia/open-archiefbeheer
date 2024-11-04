@@ -285,6 +285,15 @@ class SelectionAPITests(APITestCase):
         self.assertTrue(toggle.exists())
         self.assertTrue(toggle.first().all_selected)
 
+    def test_get_selected_all_toggle(self):
+        key = "some-key"
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("api:selections-select-all", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.json()["allSelected"])
+
     def test_clear_select_all_toggle(self):
         key = "some-key"
 

@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ..models import SelectionItem
+from ..models import AllSelectedToggle, SelectionItem
 from .constants import MAX_SELECTION_DATA_SIZE
 
 
@@ -102,3 +102,9 @@ class SelectionWriteSerializer(serializers.ListSerializer):
         SelectionItem.objects.bulk_create(items_to_create)
 
         return SelectionItem.objects.filter(key=self.context["key"])
+
+
+class SelectAllToggleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AllSelectedToggle
+        fields = ("all_selected",)
