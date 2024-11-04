@@ -567,6 +567,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": API_VERSION,
     "POSTPROCESSING_HOOKS": [
         "openarchiefbeheer.zaken.api.drf_spectacular.hooks.camelize_serializer_fields_but_not_query_parameters",
+        "openarchiefbeheer.selection.api.drf_spectacular.hooks.update_schema_for_dynamic_keys",
     ],
 }
 
