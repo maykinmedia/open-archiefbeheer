@@ -14,6 +14,7 @@ from .filtersets import SelectionItemBackend, SelectionItemFilterset
 from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
 from .serializers import (
     SelectAllToggleSerializer,
+    SelectionItemDataReadSerializer,
     SelectionReadSerializer,
     SelectionWriteSerializer,
 )
@@ -45,7 +46,10 @@ class SelectionView(GenericAPIView):
         description=_(
             "Get the zaken in a selection and whether they are checked or not."
         ),
-        responses={200: SCHEMA_RESPONSE},
+        # This is not the right serializer, but we need to specify a ListSerializer,
+        # otherwise the filter backends are not picked up. The right response is added by using
+        # DRF spectacular post processing hooks.
+        responses={200: SelectionItemDataReadSerializer(many=True)},
     )
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
