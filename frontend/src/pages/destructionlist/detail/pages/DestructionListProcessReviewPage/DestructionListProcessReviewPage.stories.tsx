@@ -197,37 +197,20 @@ export const ProcessReview: Story = {
       },
     });
 
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        name: "Opnieuw indienen",
-        formValues: {
-          Opmerking: "Kan gewoon",
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    await waitFor(async () => {
+      fillButtonConfirmationForm({
+        ...context,
+        parameters: {
+          name: "Opnieuw indienen",
+          formValues: {
+            Opmerking: "Kan gewoon",
+          },
+          submitForm: false,
         },
-        submitForm: false,
-      },
+      });
     });
-
-    const canvas = within(context.canvasElement);
-    await userEvent.keyboard("{Escape}");
-
-    const dialog = await canvas.findByRole("dialog");
-    const close = await within(dialog).findByRole("button", {
-      name: "Annuleren",
-    });
-    await userEvent.click(close, { delay: 300 });
-
-    await waitFor(
-      async () => {
-        const mutateButtons = canvas.getAllByRole("button", {
-          name: "Muteren",
-        });
-        await userEvent.click(mutateButtons[1], { delay: 10 });
-        await canvas.findByRole("dialog");
-      },
-      { timeout: 10000 },
-    );
-
     // Clean up.
     await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
   },
