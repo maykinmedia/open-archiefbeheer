@@ -7,8 +7,8 @@ import { ZaakSelectionBackendMeta } from "./types";
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
  * @param [detail] An optional detail object of generic type
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -28,8 +28,8 @@ export async function addToZaakSelection<DetailType = unknown>(
  * Removes `zaken` from zaak selection identified by key.
  * @param key A key identifying the selection
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -63,8 +63,8 @@ export async function getAllZakenSelected(
  * Marks all zaken as selected.
  * @param key A key identifying the selection
  * @param selected Indicating whether the selection should be added (`true) or removed (`false).
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -84,8 +84,8 @@ export async function setAllZakenSelected(
  * @param key A key identifying the selection
  * @param exp
  * @param selectedOnly
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -110,8 +110,8 @@ export async function getFilteredZaakSelection<DetailType = unknown>(
  * Gets the number of selected zaken.
  * WARNING: THIS DOES NOT TAKE ALL ZAKEN SELECTED INTO ACCOUNT!
  * @param key A key identifying the selection
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -130,8 +130,8 @@ export async function getZaakSelectionSize(
  * @param key A key identifying the selection
  * @param zaak
  * @param selectedOnly
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -155,8 +155,8 @@ export async function getZaakSelectionItems<DetailType = unknown>(
 /**
  * Clears zaak selection cache.
  * @param key A key identifying the selection
- * @param [backend=BrowserBackend] The backend to use:
- *  - `BrowserBackend`: stores selection in browser (locally).
+ * @param [backend=SessionStorageBackend] The backend to use:
+ *  - `SessionStorageBackend`: stores selection in browser (locally).
  *  - `APIBackend`: stores selection using an API, can be used to if the
  *    selection needs to be shared= among multiple users.
  * @param meta An optional `Record` allowing the implementation to pass backend
@@ -176,7 +176,7 @@ export async function clearZaakSelection(
 export async function getZaakSelection<DetailType = unknown>(key: string) {
   if (process.env.NODE_ENV === "development") {
     console.warn(
-      "public use of _getZaakSelection is deprecated, and is only available on BrowserBackend.",
+      "public use of _getZaakSelection is deprecated, and is only available on SessionStorageBackend.",
     );
   }
 

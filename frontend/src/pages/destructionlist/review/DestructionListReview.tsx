@@ -12,6 +12,7 @@ import { useLoaderData, useRevalidator } from "react-router-dom";
 import { useSubmitAction, useZaakReviewStatusBadges } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
 import {
+  RestBackend,
   ZaakSelection,
   addToZaakSelection,
   removeFromZaakSelection,
@@ -48,6 +49,7 @@ export function DestructionListReviewPage() {
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
     storageKey,
     paginatedZaken.results,
+    RestBackend,
   );
 
   // The object list of the current page with review actions appended.
@@ -365,6 +367,7 @@ export function DestructionListReviewPage() {
         labelSelect: "Markeren als (on)gezien",
         labelSelectAll: "Alles als (on)gezien markeren",
       }}
+      selectionBackend={RestBackend}
       onSelectionChange={handleSelectionChange}
       onClearZaakSelection={handleSelectionChange}
     ></BaseListView>
