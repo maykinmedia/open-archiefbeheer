@@ -8,7 +8,7 @@ SCHEMA_RESPONSE = OpenApiResponse(
             "description": "The zaak URL is used as key",
             "properties": {
                 "selected": {"type": "boolean"},
-                "details": {"type": "object"},
+                "detail": {"type": "object"},
             },
         },
     },
@@ -18,11 +18,11 @@ SCHEMA_RESPONSE = OpenApiResponse(
             value={
                 "http://zaken.nl/api/v1/zaken/111-111-111": {
                     "selected": True,
-                    "details": {},
+                    "detail": {},
                 },
                 "http://zaken.nl/api/v1/zaken/222-222-222": {
                     "selected": False,
-                    "details": {},
+                    "detail": {},
                 },
             },
         ),
@@ -37,7 +37,7 @@ SCHEMA_REQUEST = OpenApiRequest(
             "description": "The zaak URL is used as key",
             "properties": {
                 "selected": {"type": "boolean"},
-                "details": {"type": "object"},
+                "detail": {"type": "object"},
             },
         },
     },
@@ -47,11 +47,11 @@ SCHEMA_REQUEST = OpenApiRequest(
             value={
                 "http://zaken.nl/api/v1/zaken/111-111-111": {
                     "selected": True,
-                    "details": {},
+                    "detail": {},
                 },
                 "http://zaken.nl/api/v1/zaken/222-222-222": {
                     "selected": False,
-                    "details": {},
+                    "detail": {},
                 },
             },
         ),
