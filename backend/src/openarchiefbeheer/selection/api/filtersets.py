@@ -17,6 +17,11 @@ class SelectionItemFilterset(FilterSet):
         method="filter_selected",
         help_text=_("Filter on selected items."),
     )
+    annotated = BooleanFilter(
+        field_name="annotated",
+        method="filter_annotated",
+        help_text=_("Filter on annotated items."),
+    )
     items = CharInFilter(
         field_name="zaak_url",
         lookup_expr="in",
@@ -25,12 +30,17 @@ class SelectionItemFilterset(FilterSet):
 
     class Meta:
         model = SelectionItem
-        fields = ("selected", "items")
+        fields = ("selected", "items", "annotated")
 
     def filter_selected(
         self, queryset: QuerySet[SelectionItem], name: str, value: bool
     ) -> QuerySet[SelectionItem]:
         return queryset.filter(selection_data__selected=value)
+
+    def filter_annotated(
+        self, queryset: QuerySet[SelectionItem], name: str, value: bool
+    ) -> QuerySet[SelectionItem]:
+        return queryset.filter(selection_data__details__annotated=value)
 
     def make_dynamic_filters(self, request, queryset, view):
         for field_name in self.get_fields():
