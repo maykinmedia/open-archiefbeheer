@@ -212,15 +212,22 @@ class SelectionAPITests(APITestCase):
             is_selected=True,
             zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
         )
+        item4 = SelectionItemFactory.create(
+            key=key,
+            is_selected=True,
+            zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
+        )
 
         item2.selection_data["details"].update({"test": "trololo"})
-        item3.selection_data["details"].update({"test": "tralala"})
+        item3.selection_data["details"].update({"test": "tralala", "annotated": True})
+        item4.selection_data["details"].update({"test": "tralala", "annotated": False})
         item2.save()
         item3.save()
 
         self.client.force_login(self.user)
         endpoint = furl(reverse("api:selections", args=[key]))
         endpoint.args["selected"] = True
+        endpoint.args["annotated"] = True
         endpoint.args["test"] = "tralala"
 
         response = self.client.get(endpoint.url)
