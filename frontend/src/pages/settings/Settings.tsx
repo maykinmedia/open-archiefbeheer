@@ -1,22 +1,24 @@
 import {
+  AttributeData,
   Body,
-  BodyBaseTemplate,
-  Button,
-  Form,
-  FormField,
   H2,
-  Modal,
-  P,
-  SerializedFormData,
-  Toolbar,
+  ListTemplate,
+  Solid,
+  useAlert,
 } from "@maykin-ui/admin-ui";
-import { FormEvent, useEffect, useState } from "react";
-import { useActionData, useLoaderData } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
+import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../hooks";
 import "./Settings.css";
 import { UpdateSettingsAction } from "./settings.action";
 import { SettingsContext } from "./settings.loader";
+
+interface ObjectListItem {
+  zaaktype: string;
+  value: string | number;
+  verkorteProcedure: boolean;
+}
 
 /**
  * Settings page
@@ -25,73 +27,114 @@ export function SettingsPage() {
   const { zaaktypesShortProcess, zaaktypeChoices } =
     useLoaderData() as SettingsContext;
   const submitAction = useSubmitAction<UpdateSettingsAction>();
-  const errors = (useActionData() || undefined) as
-    | Record<string, string>
-    | undefined;
+  const alert = useAlert();
 
-  // Close modal on error.
-  useEffect(() => {
-    errors && setModalOpenState(false);
-  }, [errors]);
-
-  const [modalOpenState, setModalOpenState] = useState<boolean>(false);
-
-  const verkorteProcedureFormFields: FormField[] = [
-    {
-      autoComplete: "off",
-      label: "Verkorte zaaktypes",
-      name: "zaaktypesShortProcess",
-      type: "checkbox",
-      options: zaaktypeChoices.map((choice) => ({
-        value: choice.value,
-        label: choice.label,
-        defaultChecked: zaaktypesShortProcess.includes(String(choice.value)),
+  const objectList = useMemo(
+    () =>
+      zaaktypeChoices.map((zaaktype) => ({
+        zaaktype: zaaktype.label,
+        value: zaaktype.value,
+        verkorteProcedure: zaaktypesShortProcess.includes(
+          String(zaaktype.value),
+        ),
       })),
-    },
-  ];
+    [zaaktypeChoices, zaaktypesShortProcess],
+  );
 
-  const handleSubmitPatchArchiveConfig = async (
-    _: FormEvent,
-    data: SerializedFormData,
-  ) => {
-    const zaaktypesShortProcess = (data.zaaktypesShortProcess ??
-      []) as string[];
+  const [selectedZaaktypes, setSelectedZaaktypes] = useState<Set<string>>(
+    new Set(
+      objectList
+        .filter((item) => item.verkorteProcedure)
+        .map((item) => String(item.zaaktype)),
+    ),
+  );
+
+  const handleSave = useCallback(() => {
+    const updatedZaaktypes = objectList
+      .filter((item) => selectedZaaktypes.has(String(item.zaaktype)))
+      .map((item) => String(item.value));
+
+    const countAdded = updatedZaaktypes.filter(
+      (zaaktype) => !zaaktypesShortProcess.includes(zaaktype),
+    ).length;
+
+    const countRemoved = zaaktypesShortProcess.filter(
+      (zaaktype) => !updatedZaaktypes.includes(zaaktype),
+    ).length;
+
+    const changesMessage = [
+      countAdded > 0
+        ? `${countAdded} zaaktype${countAdded === 1 ? "" : "n"} toegevoegd`
+        : "",
+      countRemoved > 0
+        ? `${countRemoved} zaaktype${countRemoved === 1 ? "" : "n"} verwijderd`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" en ");
+
+    const message = `De instellingen zijn succesvol opgeslagen${
+      changesMessage ? `, ${changesMessage} van de verkorte procedure.` : ""
+    }`;
+
     submitAction({
       type: "PATCH-ARCHIVE-CONFIG",
-      payload: {
-        zaaktypesShortProcess: zaaktypesShortProcess,
-      },
+      payload: { zaaktypesShortProcess: updatedZaaktypes },
     });
-    setModalOpenState(true);
-  };
+
+    alert("Instellingen opgeslagen", message, "Ok");
+  }, [
+    selectedZaaktypes,
+    objectList,
+    zaaktypesShortProcess,
+    submitAction,
+    alert,
+  ]);
+
+  const onSelectionChange = useCallback((selectedRows: AttributeData[]) => {
+    const newSelected = new Set(
+      (selectedRows as unknown as ObjectListItem[]).map((row) => row.zaaktype),
+    );
+    setSelectedZaaktypes(newSelected);
+  }, []);
+
+  const selectedItems = useMemo(
+    () =>
+      objectList.filter((item) => selectedZaaktypes.has(String(item.zaaktype))),
+    [objectList, selectedZaaktypes],
+  );
 
   return (
-    <BodyBaseTemplate>
-      <Modal
-        title={"Instellingen opgeslagen"}
-        open={modalOpenState}
-        size="m"
-        onClose={() => setModalOpenState(false)}
-      >
-        <Body>
-          <P>De instellingen zijn succesvol opgeslagen.</P>
-          <Toolbar align="end">
-            <Button onClick={() => setModalOpenState(false)}>Sluiten</Button>
-          </Toolbar>
-        </Body>
-      </Modal>
-      <H2>Instellingen</H2>
-      <P>
-        Hier kun je instellingen aanpassen die van invloed zijn op de
-        applicatie.
-      </P>
-      <br />
-      <Form
-        errors={errors}
-        fields={verkorteProcedureFormFields}
-        validateOnChange={true}
-        onSubmit={handleSubmitPatchArchiveConfig}
-      />
-    </BodyBaseTemplate>
+    <ListTemplate
+      secondaryNavigationItems={[
+        {
+          children: (
+            <>
+              <Solid.DocumentArrowUpIcon />
+              Opslaan
+            </>
+          ),
+          pad: "h",
+          onClick: handleSave,
+        },
+      ]}
+      dataGridProps={{
+        boolProps: { explicit: true },
+        objectList,
+        fields: [{ name: "zaaktype", type: "string" }],
+        selectable: true,
+        allowSelectAll: false,
+        selected: selectedItems,
+        count: zaaktypeChoices.length,
+        decorate: true,
+        filterable: true,
+        sort: "zaaktype",
+        onSelectionChange,
+      }}
+    >
+      <Body>
+        <H2>Instellingen</H2>
+      </Body>
+    </ListTemplate>
   );
 }

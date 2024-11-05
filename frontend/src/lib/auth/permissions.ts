@@ -117,3 +117,8 @@ export function canReassignDestructionList(
       destructionList.status === "ready_to_review")
   );
 }
+
+export function canChangeSettings(user: User) {
+  // Functioneel beheerder in future
+  return user.role.canStartDestruction;
+}

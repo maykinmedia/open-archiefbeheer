@@ -19,6 +19,7 @@ export const settingsLoader = loginRequired(
       archiveConfigPromise,
       zaaktypeChoicesPromise,
     ]);
+
     return {
       zaaktypesShortProcess: archiveConfig.zaaktypesShortProcess,
       zaaktypeChoices,
