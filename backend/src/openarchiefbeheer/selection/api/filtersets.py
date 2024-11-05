@@ -40,7 +40,7 @@ class SelectionItemFilterset(FilterSet):
     def filter_annotated(
         self, queryset: QuerySet[SelectionItem], name: str, value: bool
     ) -> QuerySet[SelectionItem]:
-        return queryset.filter(selection_data__details__annotated=value)
+        return queryset.filter(selection_data__detail__annotated=value)
 
     def make_dynamic_filters(self, request, queryset, view):
         for field_name in self.get_fields():
@@ -54,7 +54,7 @@ class SelectionItemFilterset(FilterSet):
             if not isinstance(value, (int, float, str, bool)):
                 continue
 
-            filter_lhs = "selection_data__details__%(field_name)s" % {"field_name": key}
+            filter_lhs = "selection_data__detail__%(field_name)s" % {"field_name": key}
             filter_rhs = value
             formatted_filters[filter_lhs] = filter_rhs
 

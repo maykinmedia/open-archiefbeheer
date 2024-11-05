@@ -58,7 +58,7 @@ class SelectionAPITests(APITestCase):
             "http://zaken.nl/api/v1/zaken/222-222-222": {"selected": False},
             "http://zaken.nl/api/v1/zaken/333-333-333": {
                 "selected": False,
-                "details": {"bla": "blo"},
+                "detail": {"bla": "blo"},
             },
         }
 
@@ -100,7 +100,7 @@ class SelectionAPITests(APITestCase):
             "http://zaken.nl/api/v1/zaken/222-222-222": {"selected": True},
             "http://zaken.nl/api/v1/zaken/333-333-333": {
                 "selected": False,
-                "details": {"bla": "Changed details!"},
+                "detail": {"bla": "Changed detail!"},
             },
         }
 
@@ -125,8 +125,8 @@ class SelectionAPITests(APITestCase):
         self.assertEqual(
             items.get(
                 zaak_url="http://zaken.nl/api/v1/zaken/333-333-333"
-            ).selection_data["details"],
-            {"bla": "Changed details!"},
+            ).selection_data["detail"],
+            {"bla": "Changed detail!"},
         )
 
     def test_set_zaak_selection(self):
@@ -150,7 +150,7 @@ class SelectionAPITests(APITestCase):
             data={
                 "http://zaken.nl/api/v1/zaken/111-111-111": {"selected": True},
                 "http://zaken.nl/api/v1/zaken/222-222-222": {"selected": False},
-                "http://zaken.nl/api/v1/zaken/333-333-333": {"details": {"bla": "blo"}},
+                "http://zaken.nl/api/v1/zaken/333-333-333": {"detail": {"bla": "blo"}},
             },
             format="json",
         )
@@ -163,7 +163,7 @@ class SelectionAPITests(APITestCase):
         self.assertFalse(data["http://zaken.nl/api/v1/zaken/222-222-222"]["selected"])
         self.assertFalse(data["http://zaken.nl/api/v1/zaken/333-333-333"]["selected"])
         self.assertEqual(
-            data["http://zaken.nl/api/v1/zaken/333-333-333"]["details"], {"bla": "blo"}
+            data["http://zaken.nl/api/v1/zaken/333-333-333"]["detail"], {"bla": "blo"}
         )
 
     def test_clear_zaak_selection(self):
@@ -218,9 +218,9 @@ class SelectionAPITests(APITestCase):
             zaak_url="http://zaken.nl/api/v1/zaken/333-333-333",
         )
 
-        item2.selection_data["details"].update({"test": "trololo"})
-        item3.selection_data["details"].update({"test": "tralala", "annotated": True})
-        item4.selection_data["details"].update({"test": "tralala", "annotated": False})
+        item2.selection_data["detail"].update({"test": "trololo"})
+        item3.selection_data["detail"].update({"test": "tralala", "annotated": True})
+        item4.selection_data["detail"].update({"test": "tralala", "annotated": False})
         item2.save()
         item3.save()
 
@@ -274,7 +274,7 @@ class SelectionAPITests(APITestCase):
             {
                 "http://zaken.nl/api/v1/zaken/111-111-111": {
                     "selected": False,
-                    "details": {},
+                    "detail": {},
                 }
             },
         )
@@ -314,11 +314,11 @@ class SelectionAPITests(APITestCase):
             {
                 "http://zaken.nl/api/v1/zaken/111-111-111": {
                     "selected": False,
-                    "details": {},
+                    "detail": {},
                 },
                 "http://zaken.nl/api/v1/zaken/222-222-222": {
                     "selected": True,
-                    "details": {},
+                    "detail": {},
                 },
             },
         )
@@ -416,12 +416,12 @@ class SelectionAPITests(APITestCase):
 
         SelectionItemFactory.create(
             key=key,
-            selection_data={"selected": False, "details": {"some-detail": "oh!"}},
+            selection_data={"selected": False, "detail": {"some-detail": "oh!"}},
             zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
         )
         SelectionItemFactory.create(
             key=key,
-            selection_data={"selected": True, "details": {"some-detail": "oh!"}},
+            selection_data={"selected": True, "detail": {"some-detail": "oh!"}},
             zaak_url="http://zaken.nl/api/v1/zaken/222-222-222",
         )
         SelectionItemFactory.create(
@@ -444,7 +444,7 @@ class SelectionAPITests(APITestCase):
         data = {
             "http://zaken.nl/api/v1/zaken/333-333-333": {
                 "selected": False,
-                "details": {"data": "This is toooooo laaaaarge"},
+                "detail": {"data": "This is toooooo laaaaarge"},
             },
         }
 

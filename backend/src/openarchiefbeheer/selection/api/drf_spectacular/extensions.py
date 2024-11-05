@@ -31,8 +31,8 @@ class SelectionItemFiltersExtension(DjangoFilterExtension):
                 required=False,
                 location=OpenApiParameter.QUERY,
                 description=(
-                    "Dynamic filter key for data inside the 'details' field. For example, "
-                    'if the details field is ``{"test": "bla"}``, the filter would be ``?test=bla``.'
+                    "Dynamic filter key for data inside the 'detail' field. For example, "
+                    'if the detail field is ``{"test": "bla"}``, the filter would be ``?test=bla``.'
                 ),
                 schema=build_basic_type(OpenApiTypes.STR),
             )
