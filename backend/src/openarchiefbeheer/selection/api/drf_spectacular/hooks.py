@@ -16,6 +16,7 @@ def update_schema_for_dynamic_keys(
 ) -> dict:
     openapi_response_schema = force_instance(SCHEMA_RESPONSE)
 
+    # TODO: Try if a OpenApiSerializerExtension can be used to do this?
     result["paths"]["/api/v1/selections/{key}/"]["get"]["responses"]["200"]["content"][
         "application/json"
     ]["schema"] = openapi_response_schema.response
