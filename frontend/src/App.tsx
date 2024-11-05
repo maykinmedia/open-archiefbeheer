@@ -33,7 +33,10 @@ import {
   ZaakSelectionContextProvider,
 } from "./contexts";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
-import { canStartDestructionList } from "./lib/auth/permissions";
+import {
+  canChangeSettings,
+  canStartDestructionList,
+} from "./lib/auth/permissions";
 import { formatUser } from "./lib/format/user";
 
 function App() {
@@ -105,6 +108,7 @@ function App() {
             {
               children: <Outline.CogIcon />,
               title: "Settings",
+              hidden: user ? !canChangeSettings(user) : true,
               // size: "xl",
               onClick: () => navigate("/settings"),
             },
