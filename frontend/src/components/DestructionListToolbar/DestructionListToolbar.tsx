@@ -56,7 +56,7 @@ export function DestructionListToolbar({
                 label: "Toegewezen aan",
                 value: formatUser(destructionList.assignee),
               },
-              toelicthing: {
+              toelichting: {
                 label: "Comment",
                 value: destructionList.comment,
               },
