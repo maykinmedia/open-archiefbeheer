@@ -2,7 +2,8 @@ from datetime import date, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -45,11 +46,14 @@ from .permissions import (
     CanReviewPermission,
     CanStartDestructionPermission,
     CanTriggerDeletion,
+    CanUpdateCoReviewers,
     CanUpdateDestructionList,
 )
 from .serializers import (
     AbortDestructionSerializer,
     AuditTrailItemSerializer,
+    CoReviewerAssignementSerializer,
+    DestructionListAssigneeReadSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReadSerializer,
@@ -484,3 +488,80 @@ class ReviewResponseViewSet(
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Destruction list"],
+        summary=_("List co-reviewers"),
+        description=_("List all the co-reviewers assigned to a destruction list."),
+    ),
+    update=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Update co-reviewers"),
+        description=_(
+            "Full update of the co-reviewers assigned to a destruction list."
+        ),
+        request=CoReviewerAssignementSerializer,
+        responses={200: DestructionListAssigneeReadSerializer},
+    ),
+    partial_update=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Partial update co-reviewers"),
+        description=_(
+            "Partial update of the co-reviewers assigned to a destruction list."
+        ),
+        request=CoReviewerAssignementSerializer,
+        responses={200: DestructionListAssigneeReadSerializer},
+    ),
+)
+class CoReviewersViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
+    def _get_destruction_list(self) -> DestructionList:
+        return get_object_or_404(
+            DestructionList, uuid=self.kwargs["destruction_list_uuid"]
+        )
+
+    def get_queryset(self):
+        return DestructionListAssignee.objects.filter(
+            destruction_list__uuid=self.kwargs["destruction_list_uuid"],
+            role=ListRole.co_reviewer,
+        )
+
+    def get_object(self) -> QuerySet[DestructionListAssignee]:
+        destruction_list = self._get_destruction_list()
+
+        self.check_object_permissions(self.request, destruction_list)
+        return destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
+    def check_object_permissions(
+        self, request, obj: DestructionList | QuerySet[DestructionListAssignee]
+    ):
+        # Needed to get the DRF interactive page to test out the endpoints.
+        # FIXME: For PUT/PATCH operations it shows a funny rendered response, but
+        # it only happens if using the DRF interactive page
+        if isinstance(obj, QuerySet):
+            obj = self._get_destruction_list()
+        return super().check_object_permissions(request, obj)
+
+    def get_serializer_class(self):
+        match self.action:
+            case "list":
+                return DestructionListAssigneeReadSerializer
+            case "update" | "partial_update" | "create":
+                return CoReviewerAssignementSerializer
+
+    def get_permissions(self):
+        if self.action in ["update", "partial_upate"]:
+            permission_classes = [IsAuthenticated & CanUpdateCoReviewers]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"destruction_list": self._get_destruction_list()})
+        return context

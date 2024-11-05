@@ -12,7 +12,12 @@ class EmailConfigAdmin(SingletonModelAdmin):
         (
             _("Template review request"),
             {
-                "fields": ["subject_review_required", "body_review_required"],
+                "fields": [
+                    "subject_review_required",
+                    "body_review_required",
+                    "subject_co_review_request",
+                    "body_co_review_request",
+                ],
             },
         ),
         (

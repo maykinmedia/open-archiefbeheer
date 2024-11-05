@@ -60,7 +60,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
         )
         DestructionListAssigneeFactory.create(
             user=reviewer,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
         review_response = ReviewResponseFactory.create(

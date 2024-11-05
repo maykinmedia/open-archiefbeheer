@@ -73,7 +73,7 @@ export function DestructionListReviewer({
   };
 
   const reviewer = destructionList.assignees.find(
-    (assignee) => assignee.role === "reviewer",
+    (assignee) => assignee.role === "main_reviewer",
   );
 
   return (

@@ -19,7 +19,7 @@ class AssignementLogicTest(TestCase):
     def test_assign_reviewer(self):
         destruction_list = DestructionListFactory.create(status=ListStatus.new)
         assignee = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
 
         destruction_list.assign_next()
@@ -39,7 +39,7 @@ class AssignementLogicTest(TestCase):
             user=destruction_list.author,
         )
         reviewer = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
             author=reviewer.user,
@@ -67,7 +67,7 @@ class AssignementLogicTest(TestCase):
             user=destruction_list.author,
         )
         reviewer = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
             author=reviewer.user,
@@ -95,7 +95,7 @@ class AssignementLogicTest(TestCase):
             user=destruction_list.author,
         )
         reviewer = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
             author=reviewer.user,
@@ -119,7 +119,7 @@ class AssignementLogicTest(TestCase):
             status=ListStatus.changes_requested
         )
         reviewer = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
         DestructionListReviewFactory.create(
             author=reviewer.user,
@@ -180,7 +180,7 @@ class AssignementLogicTest(TestCase):
             status=ListStatus.ready_to_review, assignee=reviewer_old
         )
         assignee_new = DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
 
         destruction_list.reassign()
@@ -196,7 +196,7 @@ class AssignementLogicTest(TestCase):
             status=ListStatus.new, assignee=record_manager, author=record_manager
         )
         DestructionListAssigneeFactory.create(
-            role=ListRole.reviewer, destruction_list=destruction_list
+            role=ListRole.main_reviewer, destruction_list=destruction_list
         )
 
         with self.subTest("New"):

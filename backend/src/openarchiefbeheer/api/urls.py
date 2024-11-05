@@ -9,12 +9,14 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
-    ReviewersView,
+    CoReviewersView,
+    MainReviewersView,
     WhoAmIView,
 )
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
+    CoReviewersViewSet,
     DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
@@ -30,6 +32,8 @@ from openarchiefbeheer.zaken.api.views import (
     ZaaktypenChoicesView,
 )
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
+
+from .routers import BulkNestedRouter
 
 app_name = "api"
 
@@ -56,6 +60,13 @@ router.register(
     basename="review-responses",
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
+
+destruction_list_router = BulkNestedRouter(
+    router, r"destruction-lists", lookup="destruction_list"
+)
+destruction_list_router.register(
+    r"co-reviewers", CoReviewersViewSet, basename="co-reviewers"
+)
 
 
 urlpatterns = [
@@ -90,8 +101,9 @@ urlpatterns = [
         "v1/",
         include(
             [
-                path("reviewers/", ReviewersView.as_view(), name="reviewers"),
+                path("reviewers/", MainReviewersView.as_view(), name="reviewers"),
                 path("archivists/", ArchivistsView.as_view(), name="archivists"),
+                path("co-reviewers/", CoReviewersView.as_view(), name="co-reviewers"),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path(
                     "destruction-list-statuses/",
@@ -131,6 +143,7 @@ urlpatterns = [
                     name="retrieve-resultaattype-choices",
                 ),
                 path("", include(router.urls)),
+                path("", include(destruction_list_router.urls)),
             ]
         ),
     ),

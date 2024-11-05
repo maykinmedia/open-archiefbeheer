@@ -31,5 +31,16 @@
         ],
         "codename": "can_review_final_list"
       }
+    },
+    {
+      "model": "auth.permission",
+      "fields": {
+        "name": "Can co-review destruction",
+        "content_type": [
+          "accounts",
+          "user"
+        ],
+        "codename": "can_co_review_destruction"
+      }
     }
 ]

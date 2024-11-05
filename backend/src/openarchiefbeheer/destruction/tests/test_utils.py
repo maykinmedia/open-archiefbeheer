@@ -16,14 +16,14 @@ class UtilsTest(TestCase):
     def test_process_assignees(self):
         destruction_list = DestructionListFactory.create()
         DestructionListAssigneeFactory.create_batch(
-            3, role=ListRole.reviewer, destruction_list=destruction_list
+            3, role=ListRole.main_reviewer, destruction_list=destruction_list
         )
 
         new_reviewer = UserFactory.create(post__can_review_destruction=True)
 
         process_new_reviewer(destruction_list, new_reviewer)
 
-        reviewer = destruction_list.assignees.get(role=ListRole.reviewer)
+        reviewer = destruction_list.assignees.get(role=ListRole.main_reviewer)
 
         self.assertEqual(new_reviewer.pk, reviewer.user.pk)
 

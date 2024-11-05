@@ -23,7 +23,7 @@ export type DestructionList = {
 
 export type DestructionListAssignee = {
   user: User;
-  role?: "reviewer" | "author" | "archivist";
+  role?: "main_reviewer" | "co_reviewer" | "author" | "archivist";
 };
 
 // An array to be used in various parts of the application.

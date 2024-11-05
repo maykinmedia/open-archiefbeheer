@@ -31,7 +31,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.main_reviewer),
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 
@@ -65,7 +65,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             assignees = [
                 await self.given.assignee_exists(user=record_manager, role=ListRole.author),
-                await self.given.assignee_exists(user=reviewer, role=ListRole.reviewer),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.main_reviewer),
                 await self.given.assignee_exists(user=archivist, role=ListRole.archivist),
             ]
 

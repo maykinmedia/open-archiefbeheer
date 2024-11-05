@@ -44,10 +44,14 @@ class UserManager(BaseUserManager):
             Q(groups__permissions=permission) | Q(user_permissions=permission)
         ).distinct()
 
-    def reviewers(self) -> QuerySet["User"]:
+    def main_reviewers(self) -> QuerySet["User"]:
         permission = Permission.objects.get(codename="can_review_destruction")
         return self._users_with_permission(permission)
 
     def archivists(self) -> QuerySet["User"]:
         permission = Permission.objects.get(codename="can_review_final_list")
+        return self._users_with_permission(permission)
+
+    def co_reviewers(self) -> QuerySet["User"]:
+        permission = Permission.objects.get(codename="can_co_review_destruction")
         return self._users_with_permission(permission)

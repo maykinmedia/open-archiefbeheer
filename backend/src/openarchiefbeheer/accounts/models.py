@@ -63,3 +63,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         "Returns the short name for the user."
         return self.first_name
+
+    def get_name_with_username(self):
+        if self.first_name or self.last_name:
+            full_name = self.get_full_name()
+            return f"{full_name.strip()} ({self.username})"
+
+        return self.username

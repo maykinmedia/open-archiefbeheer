@@ -274,7 +274,9 @@ class DestructionListSerializerTests(TestCase):
             name="A test list", contains_sensitive_info=True
         )
         DestructionListAssigneeFactory.create(
-            destruction_list=destruction_list, user=reviewer, role=ListRole.reviewer
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
         )
 
         DestructionListItemFactory.create_batch(
@@ -871,7 +873,7 @@ class DestructionListReviewSerializerTests(TestCase):
         )
         DestructionListAssigneeFactory.create(
             user=reviewer,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
 

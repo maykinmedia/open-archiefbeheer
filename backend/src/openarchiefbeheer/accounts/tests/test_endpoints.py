@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from openarchiefbeheer.accounts.tests.factories import UserFactory
+from .factories import UserFactory
 
 
 class WhoAmIViewTest(APITestCase):
@@ -59,6 +59,27 @@ class ArchivistViewTest(APITestCase):
 
         self.client.force_login(record_manager)
         response = self.client.get(reverse("api:archivists"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+
+
+class CoReviewerViewTest(APITestCase):
+    def test_not_authenticated_cant_access(self):
+        endpoint = reverse("api:co-reviewers")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_archivists(self):
+        UserFactory.create_batch(2, post__can_co_review_destruction=True)
+        UserFactory.create_batch(3, post__can_co_review_destruction=False)
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+
+        self.client.force_login(record_manager)
+        response = self.client.get(reverse("api:co-reviewers"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)

@@ -103,7 +103,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(assignees[0].user.username, "record_manager")
         self.assertEqual(assignees[0].role, ListRole.author)
         self.assertEqual(assignees[1].user.username, "reviewer")
-        self.assertEqual(assignees[1].role, ListRole.reviewer)
+        self.assertEqual(assignees[1].role, ListRole.main_reviewer)
 
         items = destruction_list.items.order_by("zaak__url")
 
@@ -217,7 +217,9 @@ class DestructionListViewSetTest(APITestCase):
             status=ListStatus.new,
         )
         DestructionListAssigneeFactory.create(
-            destruction_list=destruction_list, user=reviewer, role=ListRole.reviewer
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
         )
         DestructionListItemFactory.create_batch(
             2,
@@ -441,7 +443,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         new_assignees = DestructionListAssignee.objects.filter(
-            destruction_list=destruction_list, role=ListRole.reviewer
+            destruction_list=destruction_list, role=ListRole.main_reviewer
         ).order_by("pk")
 
         self.assertEqual(new_assignees[0].user, other_reviewer)
@@ -466,7 +468,9 @@ class DestructionListViewSetTest(APITestCase):
             name="A test list", contains_sensitive_info=True
         )
         DestructionListAssigneeFactory.create(
-            destruction_list=destruction_list, user=reviewer, role=ListRole.reviewer
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
         )
         DestructionListItemFactory.create_batch(
             2,
@@ -689,7 +693,7 @@ class DestructionListViewSetTest(APITestCase):
         )
         reviewer = DestructionListAssigneeFactory.create(
             destruction_list=destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             user__post__can_review_destruction=True,
         )
 
@@ -747,7 +751,7 @@ class DestructionListViewSetTest(APITestCase):
         )
         DestructionListAssigneeFactory.create(
             destruction_list=destruction_list,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             user__post__can_review_destruction=True,
         )
 
@@ -967,7 +971,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         )
         DestructionListAssigneeFactory.create(
             user=reviewer,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
 
@@ -1207,7 +1211,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         )
         DestructionListAssigneeFactory.create(
             user=reviewer,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
 
@@ -1267,7 +1271,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         )
         DestructionListAssigneeFactory.create(
             user=reviewer,
-            role=ListRole.reviewer,
+            role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
 

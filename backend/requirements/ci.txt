@@ -139,6 +139,7 @@ django==4.2.16
     #   django-timeline-logger
     #   django-two-factor-auth
     #   djangorestframework
+    #   drf-nested-routers
     #   drf-spectacular
     #   maykin-2fa
     #   mozilla-django-oidc
@@ -230,7 +231,7 @@ django-solo==2.2.0
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
     #   zgw-consumers
-django-timeline-logger==4.0.0
+django-timeline-logger==5.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -246,6 +247,7 @@ djangorestframework==3.15.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   djangorestframework-gis
+    #   drf-nested-routers
     #   drf-spectacular
 djangorestframework-camel-case==1.4.2
     # via
@@ -261,6 +263,10 @@ docutils==0.20.1
     # via
     #   sphinx
     #   sphinx-rtd-theme
+drf-nested-routers==0.94.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 drf-spectacular==0.27.2
     # via
     #   -c requirements/base.txt
