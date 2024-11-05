@@ -1,7 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.plumbing import build_basic_type, build_object_type
-from drf_spectacular.utils import OpenApiTypes, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import FormParser, JSONParser
@@ -128,7 +127,10 @@ class SelectionCountView(GenericAPIView):
             "It does not take into account the 'selected all' toggle."
         ),
         responses={
-            200: build_object_type({"count": build_basic_type(OpenApiTypes.INT)})
+            # This is not the right serializer, but we need to specify a ListSerializer,
+            # otherwise the filter backends are not picked up. The right response is added by using
+            # DRF spectacular post processing hooks.
+            200: SelectionItemDataReadSerializer(many=True)
         },
         request=None,
     )
