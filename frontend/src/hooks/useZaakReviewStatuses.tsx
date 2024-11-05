@@ -1,5 +1,9 @@
 import { useMemo } from "react";
 
+import {
+  SessionStorageBackend,
+  ZaakSelectionBackend,
+} from "../lib/zaakSelection";
 import { Zaak } from "../types";
 import { useZaakSelection } from "./useZaakSelection";
 
@@ -9,14 +13,19 @@ export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;
  * Returns `object` indicating whether each zaak in `zakenOnPage` is approved (`boolean`) or not reviewed (`null`).
  * @param storageKey
  * @param zakenOnPage
+ * @param selectionBackend
  */
 export function useZaakReviewStatuses(
   storageKey: string,
   zakenOnPage: Zaak[],
+  selectionBackend: ZaakSelectionBackend = SessionStorageBackend,
 ): Record<string, ZAAK_REVIEW_STATUS_ENUM> {
   const [, , { zaakSelectionOnPage }] = useZaakSelection<{ approved: boolean }>(
     storageKey,
     zakenOnPage,
+    undefined,
+    undefined,
+    selectionBackend,
   );
 
   // Page specific approved zaken.

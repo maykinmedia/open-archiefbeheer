@@ -1,6 +1,10 @@
 import { Badge, Solid } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
 
+import {
+  SessionStorageBackend,
+  ZaakSelectionBackend,
+} from "../lib/zaakSelection";
 import { Zaak } from "../types";
 import {
   ZAAK_REVIEW_STATUS_ENUM,
@@ -11,12 +15,18 @@ import {
  * Returns `object` with appropriate Badge element and `ZAAK_REVIEW_STATUS_ENUM` for each zaak in `zakenOnPage`.
  * @param storageKey
  * @param zakenOnPage
+ * @param selectionBackend
  */
 export function useZaakReviewStatusBadges(
   storageKey: string,
   zakenOnPage: Zaak[],
+  selectionBackend: ZaakSelectionBackend = SessionStorageBackend,
 ): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
-  const statuses = useZaakReviewStatuses(storageKey, zakenOnPage);
+  const statuses = useZaakReviewStatuses(
+    storageKey,
+    zakenOnPage,
+    selectionBackend,
+  );
   return useMemo(() => {
     const badges = zakenOnPage.map((z) => {
       const status = statuses[z.url as string];
@@ -26,7 +36,7 @@ export function useZaakReviewStatusBadges(
           return (
             // @ts-expect-error - style props not supported (yet?)
             <Badge key={z.uuid} level="success" style={{ display: "block" }}>
-              <Solid.HandThumbUpIcon />; Geaccordeerd
+              <Solid.HandThumbUpIcon /> Geaccordeerd
             </Badge>
           );
         } else {

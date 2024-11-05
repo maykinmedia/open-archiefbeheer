@@ -16,19 +16,20 @@ export const API_BASE_URL = `${API_URL}${API_PATH}`;
  * @param params
  * @param data
  * @param headers
+ * @param [signal]
  */
 export async function request(
-  method: "DELETE" | "GET" | "PATCH" | "POST",
+  method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT",
   endpoint: string,
   params?: URLSearchParams | Record<string, string | number>,
   data?: Record<string, unknown>,
   headers?: Record<string, string>,
+  signal?: AbortSignal,
 ) {
   // @ts-expect-error - params can be number, ignoring...
   const queryString = params ? new URLSearchParams(params).toString() : "";
   const url = `${API_BASE_URL + endpoint}?${queryString}`;
   const csrfToken = getCookie("csrftoken");
-  const abortController = new AbortController();
 
   const response = await fetch(url, {
     credentials: "include",
@@ -39,7 +40,7 @@ export async function request(
       ...headers,
     },
     method: method,
-    signal: abortController.signal,
+    signal: signal,
   });
 
   if (response.ok) {

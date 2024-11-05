@@ -23,6 +23,7 @@ import {
   loginRequired,
 } from "../../../lib/auth/loaders";
 import {
+  RestBackend,
   ZaakSelection,
   getFilteredZaakSelection,
 } from "../../../lib/zaakSelection";
@@ -98,7 +99,7 @@ export const destructionListReviewLoader = loginRequired(
 
       const excludedZaakSelection = await getFilteredZaakSelection<{
         approved: false;
-      }>(storageKey, { approved: false });
+      }>(storageKey, { approved: false }, undefined, RestBackend);
 
       return {
         storageKey,

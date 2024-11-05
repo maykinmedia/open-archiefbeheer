@@ -9,7 +9,13 @@ export function _zaken2zaakSelection<DetailType>(
   detail?: DetailType,
 ): ZaakSelection {
   return Object.fromEntries(
-    _getZaakUrls(zaken).map((url) => [url, { selected: selected, detail }]),
+    _getZaakUrls(zaken).map((url, index) => [
+      url,
+      {
+        selected: selected,
+        detail: Array.isArray(detail) ? detail[index] : detail,
+      },
+    ]),
   );
 }
 

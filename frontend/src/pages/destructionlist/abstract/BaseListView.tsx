@@ -24,6 +24,10 @@ import {
 import { DestructionList } from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
+import {
+  SessionStorageBackend,
+  ZaakSelectionBackend,
+} from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
 
 /** The template used to format urls to an external application providing zaak details. */
@@ -52,6 +56,7 @@ export type BaseListViewProps = React.PropsWithChildren<{
 
   dataGridProps?: Partial<DataGridProps>;
 
+  selectionBackend?: ZaakSelectionBackend;
   onClearZaakSelection?: () => void;
   onSelectionChange?: (rows: AttributeData[]) => void;
 }>;
@@ -80,6 +85,7 @@ export function BaseListView({
 
   children,
 
+  selectionBackend = SessionStorageBackend,
   onClearZaakSelection,
   onSelectionChange,
 }: BaseListViewProps) {
@@ -117,6 +123,7 @@ export function BaseListView({
     paginatedZaken.results,
     filterSelectionZaken,
     getSelectionDetail,
+    selectionBackend,
   );
 
   const selectedZakenOnPage = useMemo(() => {

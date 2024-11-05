@@ -6,11 +6,12 @@ import {
   ZaakReview,
   createDestructionListReview,
 } from "../../../lib/api/review";
+import { RestBackend } from "../../../lib/zaakSelection";
 import {
   addToZaakSelection,
   clearZaakSelection,
   removeFromZaakSelection,
-} from "../../../lib/zaakSelection/zaakSelection";
+} from "../../../lib/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewActionContext = {
@@ -102,6 +103,7 @@ export async function destructionListApproveItemsAction({
     getDestructionListReviewKey(destructionList),
     zaken,
     { approved: true },
+    RestBackend,
   );
   return null;
 }
@@ -121,6 +123,7 @@ export async function destructionListApproveItemAction({
     getDestructionListReviewKey(destructionList),
     [zaak],
     { approved: true },
+    RestBackend,
   );
   return null;
 }
@@ -140,6 +143,7 @@ export async function destructionListExcludeItemAction({
     getDestructionListReviewKey(destructionList),
     [zaak],
     { approved: false, comment },
+    RestBackend,
   );
   return null;
 }
@@ -158,6 +162,7 @@ export async function destructionListUnselectItemsAction({
   await removeFromZaakSelection(
     getDestructionListReviewKey(destructionList),
     zaken,
+    RestBackend,
   );
   return null;
 }
@@ -183,7 +188,10 @@ export async function destructionListApproveListAction({
   try {
     await Promise.all([
       await createDestructionListReview(data),
-      await clearZaakSelection(getDestructionListReviewKey(destructionList)),
+      await clearZaakSelection(
+        getDestructionListReviewKey(destructionList),
+        RestBackend,
+      ),
     ]);
   } catch (e: unknown) {
     if (e instanceof Response) {
@@ -216,7 +224,10 @@ export async function destructionListRejectListAction({
   try {
     await Promise.all([
       createDestructionListReview(data),
-      clearZaakSelection(getDestructionListReviewKey(destructionList)),
+      clearZaakSelection(
+        getDestructionListReviewKey(destructionList),
+        RestBackend,
+      ),
     ]);
   } catch (e: unknown) {
     if (e instanceof Response) {
