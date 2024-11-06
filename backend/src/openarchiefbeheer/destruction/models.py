@@ -1,5 +1,6 @@
 import csv
 import logging
+import traceback
 import uuid as _uuid
 from datetime import date
 from tempfile import NamedTemporaryFile
@@ -373,7 +374,11 @@ class DestructionListItem(models.Model):
         store = ResultStore(store=self)
         store.clear_traceback()
 
-        delete_zaak_and_related_objects(zaak=self.zaak, result_store=store)
+        try:
+            delete_zaak_and_related_objects(zaak=self.zaak, result_store=store)
+        except Exception as exc:
+            store.add_traceback(traceback.format_exc())
+            raise exc
 
         self.zaak.delete()
 
