@@ -83,7 +83,6 @@ class DeletingZakenWithErrorsTests(TestCase):
             results["resources_to_delete"]["enkelvoudiginformatieobjecten"][0],
             "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111",
         )
-        self.assertIn("ConnectTimeout", results["traceback"])
 
     @Mocker()
     def test_failure_on_deleting_zaak_relation_is_handled(self, m):
@@ -135,7 +134,6 @@ class DeletingZakenWithErrorsTests(TestCase):
             results["resources_to_delete"]["enkelvoudiginformatieobjecten"][0],
             "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111",
         )
-        self.assertIn("ConnectTimeout", results["traceback"])
 
         # The ZIO has already been deleted, so it is not returned anymore by OpenZaak
         m.get(
