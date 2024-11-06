@@ -3,10 +3,11 @@ from datetime import date
 from unittest.mock import patch
 
 from django.core import mail
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from freezegun import freeze_time
 from privates.test import temp_private_root
+from requests import HTTPError
 from requests_mock import Mocker
 from testfixtures import log_capture
 from zgw_consumers.constants import APITypes
@@ -600,3 +601,35 @@ class ProcessDeletingZakenTests(TestCase):
             queue_destruction_lists_for_deletion()
 
         m.assert_called_once_with(destruction_list)
+
+    @tag("gh-473")
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_traceback_from_failure_is_saved(self):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=date(2023, 1, 1),
+            zaak__url="http://zaak-test.nl/zaken/111-111-111",
+            destruction_list=destruction_list,
+        )
+
+        with (
+            freeze_time("2024-01-01T21:36:00+02:00"),
+            patch(
+                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+                side_effect=HTTPError,
+            ),
+        ):
+            delete_destruction_list(destruction_list)
+
+        item.refresh_from_db()
+
+        self.assertNotEqual(item.internal_results["traceback"], "")
+        self.assertIn("HTTPError", item.internal_results["traceback"])
