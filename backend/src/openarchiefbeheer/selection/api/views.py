@@ -185,7 +185,7 @@ class SelectionSelectAllView(APIView):
         description=_(
             "Check if all the items in a selection are selected with the 'select all' toggle."
         ),
-        responses={200: AllSelectedToggle},
+        responses={200: SelectAllToggleSerializer},
         request=None,
     )
     def get(self, request, *args, **kwargs):
