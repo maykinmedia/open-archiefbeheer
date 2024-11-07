@@ -15,19 +15,19 @@ describe("usePoll()", () => {
 
   test("usePoll() schedules `fn` ", async () => {
     const spy = jest.fn();
-    usePoll(spy, { timeout: 300 });
+    usePoll(spy, [], { timeout: 300 });
     _delay(() => expect(spy).toBeCalledTimes(1), 300);
   });
 
   test("usePoll() reschedules `fn` after completion", async () => {
     const spy = jest.fn(() => _delay(() => undefined, 300));
-    usePoll(spy, { timeout: 300 });
+    usePoll(spy, [], { timeout: 300 });
     _delay(() => expect(spy).toBeCalledTimes(2), 1000);
   });
 
   test("usePoll() delays first `fn` call", async () => {
     const spy = jest.fn();
-    usePoll(spy, { timeout: 300 });
+    usePoll(spy, [], { timeout: 300 });
     _delay(() => expect(spy).toBeCalledTimes(0), 0);
   });
 
@@ -44,7 +44,7 @@ describe("usePoll()", () => {
       .mockImplementation((fn) => (cancelFn = fn()));
     const spy = jest.fn();
 
-    usePoll(spy, { timeout: 300 });
+    usePoll(spy, [], { timeout: 300 });
     cancelFn();
     _delay(() => expect(spy).toBeCalledTimes(0), 300);
   });

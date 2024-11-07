@@ -1,10 +1,7 @@
 import { Badge, Solid } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
 
-import {
-  SessionStorageBackend,
-  ZaakSelectionBackend,
-} from "../lib/zaakSelection";
+import { ZaakSelection } from "../lib/zaakSelection";
 import { Zaak } from "../types";
 import {
   ZAAK_REVIEW_STATUS_ENUM,
@@ -13,19 +10,16 @@ import {
 
 /**
  * Returns `object` with appropriate Badge element and `ZAAK_REVIEW_STATUS_ENUM` for each zaak in `zakenOnPage`.
- * @param storageKey
  * @param zakenOnPage
- * @param selectionBackend
+ * @param reviewedZaakSelectionOnPage
  */
 export function useZaakReviewStatusBadges(
-  storageKey: string,
   zakenOnPage: Zaak[],
-  selectionBackend: ZaakSelectionBackend = SessionStorageBackend,
+  reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
 ): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
   const statuses = useZaakReviewStatuses(
-    storageKey,
     zakenOnPage,
-    selectionBackend,
+    reviewedZaakSelectionOnPage,
   );
   return useMemo(() => {
     const badges = zakenOnPage.map((z) => {

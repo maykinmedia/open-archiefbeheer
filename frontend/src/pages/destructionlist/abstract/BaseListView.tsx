@@ -56,7 +56,8 @@ export type BaseListViewProps = React.PropsWithChildren<{
 
   dataGridProps?: Partial<DataGridProps>;
 
-  selectionBackend?: ZaakSelectionBackend;
+  enableUseZaakSelection?: boolean;
+  selectionBackend?: ZaakSelectionBackend | null;
   onClearZaakSelection?: () => void;
   onSelectionChange?: (rows: AttributeData[]) => void;
 }>;

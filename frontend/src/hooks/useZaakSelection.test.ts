@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 
+import { ZaakSelectionContextProvider } from "../contexts";
 import { Zaak } from "../types";
 import { useZaakSelection } from "./useZaakSelection";
 
@@ -20,65 +21,86 @@ describe("useZaakSelection hook", () => {
   });
 
   it("should initialize with no selection", async () => {
-    const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
+    const { result } = renderHook(() => useZaakSelection("storageKey", zaken), {
+      wrapper: ZaakSelectionContextProvider,
+    });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual([]); // selectedZakenOnPage is empty
-      expect(result.current[2].hasSelection).toBe(false);
-      expect(result.current[2].allPagesSelected).toBe(false);
+      const [selectedZakenOnPage, , { hasSelection, allPagesSelected }] =
+        result.current;
+
+      expect(selectedZakenOnPage).toEqual([]); // selectedZakenOnPage is empty
+      expect(hasSelection).toBe(false);
+      expect(allPagesSelected).toBe(false);
     });
   });
 
   it("should select items on page", async () => {
-    const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
+    const { result } = renderHook(() => useZaakSelection("storageKey", zaken), {
+      wrapper: ZaakSelectionContextProvider,
+    });
 
     // Select items
     await act(async () => {
-      await result.current[1]([{ url: "zaak-1" }], true);
+      const [, handleSelect] = result.current;
+      await handleSelect([{ url: "zaak-1" }], true);
     });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual([{ url: "zaak-1" }]); // zaak-1 should now be selected
-      expect(result.current[2].selectionSize).toEqual(1); // 1 zaak should now be selected
+      const [selectedZakenOnPage, , { selectionSize }] = result.current;
+      expect(selectedZakenOnPage).toEqual([{ url: "zaak-1" }]); // zaak-1 should now be selected
+      expect(selectionSize).toEqual(1); // 1 zaak should now be selected
     });
   });
 
   it("should deselect items on page", async () => {
-    const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
+    const { result } = renderHook(() => useZaakSelection("storageKey", zaken), {
+      wrapper: ZaakSelectionContextProvider,
+    });
 
     // Deselect items
     await act(async () => {
-      await result.current[1]([{ url: "zaak-1" }], false);
+      const [, handleSelect] = result.current;
+      await handleSelect([{ url: "zaak-1" }], false);
     });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual([]); // No items selected now
+      const [zaakSelection] = result.current;
+      expect(zaakSelection).toEqual([]); // No items selected now
     });
   });
 
   it("should select all pages", async () => {
-    const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
+    const { result } = renderHook(() => useZaakSelection("storageKey", zaken), {
+      wrapper: ZaakSelectionContextProvider,
+    });
 
     // Select all pages
     await act(async () => {
-      await result.current[2].handleSelectAllPages(true);
+      const [, , { handleSelectAllPages }] = result.current;
+      await handleSelectAllPages(true);
     });
 
     await waitFor(() => {
-      expect(result.current[2].allPagesSelected).toBe(true);
+      const [, , { allPagesSelected }] = result.current;
+      expect(allPagesSelected).toBe(true);
     });
   });
 
   it("should clear selection", async () => {
-    const { result } = renderHook(() => useZaakSelection("storageKey", zaken));
+    const { result } = renderHook(() => useZaakSelection("storageKey", zaken), {
+      wrapper: ZaakSelectionContextProvider,
+    });
 
     // Clear selection
     await act(async () => {
-      await result.current[2].clearZaakSelection();
+      const [, , { clearZaakSelection }] = result.current;
+      await clearZaakSelection();
     });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual([]); // selectedZakenOnPage is empty
+      const selectedZakenOnPage = result.current[0];
+      expect(selectedZakenOnPage).toEqual([]); // selectedZakenOnPage is empty
     });
   });
 });

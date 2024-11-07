@@ -22,11 +22,6 @@ import {
   canReviewDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
-import {
-  RestBackend,
-  ZaakSelection,
-  getFilteredZaakSelection,
-} from "../../../lib/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewContext = {
@@ -41,8 +36,6 @@ export type DestructionListReviewContext = {
   reviewItems?: ReviewItemWithZaak[];
   reviewResponse?: ReviewResponse;
   reviewers: User[];
-
-  excludedZaakSelection: ZaakSelection<{ approved: false; comment?: string }>;
 };
 
 /**
@@ -58,7 +51,6 @@ export const destructionListReviewLoader = loginRequired(
     }: ActionFunctionArgs): Promise<DestructionListReviewContext> => {
       const searchParams = new URL(request.url).searchParams;
       const uuid = params.uuid as string;
-      const storageKey = getDestructionListReviewKey(uuid);
 
       searchParams.set("destruction_list", uuid);
       const objParams = Object.fromEntries(searchParams);
@@ -90,16 +82,14 @@ export const destructionListReviewLoader = loginRequired(
           }),
         ]);
 
+      const storageKey = getDestructionListReviewKey(uuid, list.status);
+
       // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
       // item.zaak can be null
       // TODO refactor: This code is the same as for the DestructionListDetail loader.
       const reviewItemsWithZaak = reviewItems
         ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
         : reviewItems;
-
-      const excludedZaakSelection = await getFilteredZaakSelection<{
-        approved: false;
-      }>(storageKey, { approved: false }, undefined, RestBackend);
 
       return {
         storageKey,
@@ -113,8 +103,6 @@ export const destructionListReviewLoader = loginRequired(
         reviewItems: reviewItemsWithZaak,
         reviewResponse,
         reviewers,
-
-        excludedZaakSelection,
       } satisfies DestructionListReviewContext;
     },
   ),

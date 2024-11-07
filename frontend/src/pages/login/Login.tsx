@@ -7,7 +7,7 @@ import {
 import { useContext } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 
-import OidcConfigContext from "../../lib/contexts/OidcConfigContext";
+import { OidcConfigContext } from "../../contexts";
 import "./Login.css";
 
 export type LoginProps = React.ComponentProps<"main"> & {

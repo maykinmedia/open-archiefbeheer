@@ -1,47 +1,33 @@
 import { useMemo } from "react";
 
-import {
-  SessionStorageBackend,
-  ZaakSelectionBackend,
-} from "../lib/zaakSelection";
+import { ZaakSelection } from "../lib/zaakSelection";
 import { Zaak } from "../types";
-import { useZaakSelection } from "./useZaakSelection";
 
 export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;
 
 /**
  * Returns `object` indicating whether each zaak in `zakenOnPage` is approved (`boolean`) or not reviewed (`null`).
- * @param storageKey
  * @param zakenOnPage
- * @param selectionBackend
+ * @param reviewedZaakSelectionOnPage
  */
 export function useZaakReviewStatuses(
-  storageKey: string,
   zakenOnPage: Zaak[],
-  selectionBackend: ZaakSelectionBackend = SessionStorageBackend,
+  reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
 ): Record<string, ZAAK_REVIEW_STATUS_ENUM> {
-  const [, , { zaakSelectionOnPage }] = useZaakSelection<{ approved: boolean }>(
-    storageKey,
-    zakenOnPage,
-    undefined,
-    undefined,
-    selectionBackend,
-  );
-
   // Page specific approved zaken.
   const approvedZaakUrlsOnPage = useMemo(() => {
-    return Object.entries(zaakSelectionOnPage)
+    return Object.entries(reviewedZaakSelectionOnPage)
       .filter(([, { detail }]) => detail?.approved === true)
       .map(([url]) => url);
-  }, [zaakSelectionOnPage]);
+  }, [reviewedZaakSelectionOnPage]);
 
   // Page specific excluded zaken.
   const excludedZaakSelectionOnPage = useMemo(
     () =>
-      Object.entries(zaakSelectionOnPage)
+      Object.entries(reviewedZaakSelectionOnPage)
         .filter(([, { detail }]) => detail?.approved === false)
         .map(([url]) => url),
-    [zaakSelectionOnPage],
+    [reviewedZaakSelectionOnPage],
   );
 
   // Find status of zaak.

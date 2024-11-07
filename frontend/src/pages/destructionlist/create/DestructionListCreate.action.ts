@@ -3,7 +3,11 @@ import { redirect } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
 import { createDestructionList } from "../../../lib/api/destructionLists";
-import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import {
+  clearZaakSelection,
+  getAllZakenSelected,
+  getFilteredZaakSelection,
+} from "../../../lib/zaakSelection/zaakSelection";
 import { DESTRUCTION_LIST_CREATE_KEY } from "./DestructionListCreate";
 
 export type DestructionListCreateAction = TypedAction<
@@ -13,11 +17,9 @@ export type DestructionListCreateAction = TypedAction<
 
 export type DestructionListCreateActionPayload = {
   name: string;
-  zaakUrls: string[];
   assigneeId: string;
   comment?: string;
   zaakFilters: string;
-  allPagesSelected: boolean;
 };
 
 export type DestructionListCreateActionResponseData = {
@@ -35,8 +37,12 @@ export const destructionListCreateAction = async ({
   Response | DestructionListCreateActionResponseData
 > => {
   const { payload } = await request.json();
-  const { name, assigneeId, comment, allPagesSelected, zaakFilters, zaakUrls } =
+  const { name, assigneeId, comment, zaakFilters } =
     payload as DestructionListCreateActionPayload;
+
+  const key = DESTRUCTION_LIST_CREATE_KEY;
+  const allPagesSelected = await getAllZakenSelected(key);
+  const zaakUrls = Object.keys(await getFilteredZaakSelection(key));
 
   try {
     await createDestructionList(
