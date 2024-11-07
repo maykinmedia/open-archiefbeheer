@@ -8,6 +8,7 @@ const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   uuid: "00000000-0000-0000-0000-000000000000",
   name: "My First Destruction List",
   author: userFactory(),
+  comment: "This is a test destruction list.",
   containsSensitiveInfo: false,
   status: "changes_requested",
   processingStatus: "new",

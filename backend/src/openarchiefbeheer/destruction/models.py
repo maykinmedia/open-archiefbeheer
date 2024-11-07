@@ -52,6 +52,12 @@ class DestructionList(models.Model):
         verbose_name=_("author"),
         help_text=_("Creator of destruction list."),
     )
+    comment = models.TextField(
+        _("comment"),
+        max_length=2000,
+        blank=True,
+        help_text=_("Explanation of the destruction list."),
+    )
     created = models.DateTimeField(auto_now_add=True)
     end = models.DateTimeField(
         _("end"),

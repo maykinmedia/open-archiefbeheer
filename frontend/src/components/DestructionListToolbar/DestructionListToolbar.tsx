@@ -11,11 +11,7 @@ import {
   ucFirst,
 } from "@maykin-ui/admin-ui";
 
-import {
-  useAuditLog,
-  useLatestReviewResponse,
-  useReviewers,
-} from "../../hooks";
+import { useAuditLog, useLatestReviewResponse } from "../../hooks";
 import { DestructionList } from "../../lib/api/destructionLists";
 import { Review } from "../../lib/api/review";
 import { formatDate } from "../../lib/format/date";
@@ -59,6 +55,10 @@ export function DestructionListToolbar({
               toegewezen: {
                 label: "Toegewezen aan",
                 value: formatUser(destructionList.assignee),
+              },
+              toelichting: {
+                label: "Comment",
+                value: destructionList.comment,
               },
               bevatGevoeligeInformatie: {
                 label: "Bevat gevoelige informatie",

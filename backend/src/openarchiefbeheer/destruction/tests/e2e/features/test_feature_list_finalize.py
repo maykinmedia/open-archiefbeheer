@@ -42,7 +42,7 @@ class FeatureListFinalizeTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Markeren als definitief")
             await self.when.user_fills_form_field(page, "Archivaris", "Archivaris")
-            await self.when.user_fills_form_field(page, "Comment", "Dit is een test comment")
+            await self.when.user_fills_form_field(page, "Opmerking", "Dit is een test comment")
             await self.when.user_clicks_button(page, "Markeer als definitief")
 
             await self.then.path_should_be(page, "/destruction-lists")
