@@ -1,5 +1,6 @@
 import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../lib/api/private";
@@ -13,6 +14,7 @@ import { Review } from "../lib/api/review";
 export function useZaaktypeChoices(
   destructionList?: DestructionList,
   review?: Review,
+  searchParams?: URLSearchParams,
 ): ZaaktypeChoice[] {
   const alert = useAlert();
 
@@ -20,7 +22,7 @@ export function useZaaktypeChoices(
     ZaaktypeChoice[]
   >([]);
   useEffect(() => {
-    listZaaktypeChoices(destructionList?.uuid, review?.pk)
+    listZaaktypeChoices(destructionList?.uuid, review?.pk, searchParams)
       .then((z) => setZaaktypeChoicesState(z))
       .catch((e) => {
         console.error(e);
@@ -30,7 +32,7 @@ export function useZaaktypeChoices(
           "Ok",
         );
       });
-  }, [destructionList?.uuid, review?.pk]);
+  }, [destructionList?.uuid, review?.pk, searchParams?.toString()]);
 
   return zaaktypeChoicesState;
 }

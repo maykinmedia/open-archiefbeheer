@@ -48,26 +48,34 @@ export async function listSelectielijstKlasseChoices(
 export async function listZaaktypeChoices(
   destructionListUuid?: DestructionList["uuid"],
   reviewPk?: Review["pk"],
+  searchParams?: URLSearchParams,
 ) {
+  const params = [destructionListUuid, reviewPk, searchParams]
+    .filter((param) => !!param)
+    .map((param) => String(param));
+
   return cacheMemo(
     "listZaaktypeChoices",
     async () => {
-      let params;
+      if (!searchParams) searchParams = new URLSearchParams();
+
+      const params = new URLSearchParams({
+        ...Object.fromEntries(searchParams),
+      });
 
       if (reviewPk) {
-        params = { inReview: reviewPk };
+        params.set("inReview", String(reviewPk));
       } else if (destructionListUuid) {
-        params = { inDestructionList: destructionListUuid };
+        params.set("inDestructionList", destructionListUuid);
       } else {
-        params = undefined;
+        params.set("notInDestructionList", "true");
       }
+
       const response = await request("GET", "/_zaaktypen-choices/", params);
       const promise: Promise<ZaaktypeChoice[]> = response.json();
 
       return promise;
     },
-    destructionListUuid || reviewPk
-      ? [destructionListUuid || String(reviewPk)]
-      : undefined,
+    params,
   );
 }
