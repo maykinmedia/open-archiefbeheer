@@ -330,7 +330,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 3)
+        self.assertEqual(len(response.json()), 5)
 
     def test_retrieve_zaaktypen_choices_for_review(self):
         user = UserFactory.create()

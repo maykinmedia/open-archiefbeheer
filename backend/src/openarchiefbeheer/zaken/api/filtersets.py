@@ -32,7 +32,7 @@ from openarchiefbeheer.destruction.models import (
 from ..models import Zaak
 
 
-class ZaakFilter(FilterSet):
+class ZaakFilterSet(FilterSet):
     not_in_destruction_list = BooleanFilter(
         field_name="not_in_destruction_list",
         method="filter_not_in_destruction_list",

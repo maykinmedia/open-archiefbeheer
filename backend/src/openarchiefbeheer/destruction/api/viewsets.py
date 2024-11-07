@@ -17,7 +17,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
-from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 
 from ..constants import WAITING_PERIOD, InternalStatus, ListRole
 from ..models import (
@@ -398,7 +398,7 @@ class DestructionListItemsViewSet(
     filter_backends = (NestedFilterBackend,)
     filterset_class = DestructionListItemFilterset
     filterset_kwargs = {"prefix": "item"}
-    nested_filterset_class = ZaakFilter
+    nested_filterset_class = ZaakFilterSet
     nested_filterset_relation_field = "zaak"
     pagination_class = PageNumberPagination
 
@@ -455,7 +455,7 @@ class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericVi
     filterset_class = DestructionListReviewItemFilterset
     filter_backends = (NestedFilterBackend,)
     filterset_kwargs = {"prefix": "item-review"}
-    nested_filterset_class = ZaakFilter
+    nested_filterset_class = ZaakFilterSet
     nested_filterset_relation_field = "destruction_list_item__zaak"
 
 

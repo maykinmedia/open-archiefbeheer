@@ -14,7 +14,7 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.logging import logevent
-from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
+from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
@@ -298,7 +298,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         if not isinstance(value, dict):
             raise ValidationError("Should be a JSON object.")
 
-        filterset = ZaakFilter(data=value)
+        filterset = ZaakFilterSet(data=value)
         if not filterset.is_valid():
             raise ValidationError("Invalid filter(s).")
 
@@ -330,7 +330,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
     ) -> Iterable[Zaak]:
         if bulk_select:
             zaak_filters.update({"not_in_destruction_list": True})
-            filterset = ZaakFilter(data=zaak_filters)
+            filterset = ZaakFilterSet(data=zaak_filters)
             filterset.is_valid()
 
             zaken = filterset.qs
