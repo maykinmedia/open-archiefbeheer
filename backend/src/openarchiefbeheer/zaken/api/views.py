@@ -47,6 +47,9 @@ class ZaaktypenChoicesView(GenericAPIView):
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
 
+    def get_queryset(self):
+        return Zaak.objects.all()
+
     @extend_schema(
         summary=_("Retrieve zaaktypen choices"),
         description=_(
