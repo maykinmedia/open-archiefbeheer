@@ -5,9 +5,11 @@ import { useEffect } from "react";
  * Reschedules after `fn` resolution to prevent flooding.
  * @param fn
  * @param options
+ * @param deps
  */
 export function usePoll<T = unknown>(
   fn: () => T | Promise<T>,
+  deps?: unknown[],
   options?: {
     timeout?: number;
   },
@@ -40,5 +42,5 @@ export function usePoll<T = unknown>(
       active = false;
       window.clearTimeout(ref);
     };
-  }, []);
+  }, deps);
 }

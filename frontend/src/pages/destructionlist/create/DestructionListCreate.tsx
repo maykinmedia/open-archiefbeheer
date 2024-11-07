@@ -14,8 +14,6 @@ import {
 } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
-import { useZaakSelection } from "../../../hooks/useZaakSelection";
-import { getFilteredZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 import { BaseListView } from "../abstract";
 import {
   DestructionListCreateAction,
@@ -42,12 +40,6 @@ export function DestructionListCreatePage() {
   const [searchParams] = useSearchParams();
   const submitAction = useSubmitAction<DestructionListCreateAction>();
 
-  // Returned zaak selection is page specific, don't use it as we need all selected zaken.
-  const [, , { allPagesSelected }] = useZaakSelection(
-    DESTRUCTION_LIST_CREATE_KEY,
-    paginatedZaken.results,
-  );
-
   /**
    * Gets called when the "Vernietigingslijst opstellen" is clicked
    */
@@ -60,19 +52,13 @@ export function DestructionListCreatePage() {
     const { name, assigneeId, comment } = data as Record<string, string>;
     const zaakFilters = JSON.stringify(Object.fromEntries(searchParams));
 
-    const zaakUrls = Object.keys(
-      await getFilteredZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
-    );
-
     submitAction({
       type: "CREATE_LIST",
       payload: {
         name: name,
-        zaakUrls: zaakUrls,
         assigneeId: assigneeId,
         comment: comment,
         zaakFilters: zaakFilters,
-        allPagesSelected: allPagesSelected,
       },
     });
 

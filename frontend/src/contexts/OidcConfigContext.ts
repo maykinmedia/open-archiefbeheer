@@ -5,9 +5,7 @@ export type OidcConfigContextType = {
   loginUrl: string;
 };
 
-const OidcConfigContext: React.Context<OidcConfigContextType> = createContext({
+export const OidcConfigContext = createContext<OidcConfigContextType>({
   enabled: false,
   loginUrl: "",
-} as OidcConfigContextType);
-
-export default OidcConfigContext;
+});

@@ -1,4 +1,5 @@
 import {
+  AttributeData,
   ButtonProps,
   P,
   Solid,
@@ -7,14 +8,20 @@ import {
   usePrompt,
 } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
-import { useLoaderData, useRevalidator } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
-import { useSubmitAction, useZaakReviewStatusBadges } from "../../../hooks";
+import {
+  usePoll,
+  useSubmitAction,
+  useZaakReviewStatusBadges,
+  useZaakSelection,
+} from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
 import {
   RestBackend,
   ZaakSelection,
   addToZaakSelection,
+  getZaakSelectionItems,
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
@@ -23,8 +30,8 @@ import { ReviewDestructionListAction } from "./DestructionListReview.action";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
-export const getDestructionListReviewKey = (id: string) =>
-  `destruction-list-review-${id}`;
+export const getDestructionListReviewKey = (id: string, status: string) =>
+  `destruction-list-review-${id}-${status}`;
 
 /**
  * Review-destruction-list page
@@ -32,7 +39,6 @@ export const getDestructionListReviewKey = (id: string) =>
 export function DestructionListReviewPage() {
   const prompt = usePrompt();
   const confirm = useConfirm();
-  const revalidator = useRevalidator();
 
   // rows: AttributeData[], selected: boolean
   const {
@@ -42,14 +48,81 @@ export function DestructionListReviewPage() {
     paginatedZaken,
     reviewItems,
     reviewResponse,
-    excludedZaakSelection,
   } = useLoaderData() as DestructionListReviewContext;
+
+  // Don't use the BaseListView zaak selection due to conflicting requirements, use custom implementation instead.
+  const [, handleSelect, { zaakSelectionOnPage, revalidateZaakSelection }] =
+    useZaakSelection<{
+      approved: boolean;
+      comment: string;
+    }>(
+      storageKey,
+      paginatedZaken.results,
+      filterSelectionZaken,
+      getSelectionDetail,
+      RestBackend,
+    );
+
+  // Poll for changes, update selection if a (remote) change has been made (by
+  // another reviewer).
+  usePoll(async () => {
+    const pollZaakSelection = await getZaakSelectionItems<{
+      approved: boolean;
+      comment: string;
+    }>(
+      storageKey,
+      paginatedZaken.results.map((z) => z.url as string),
+      true,
+      RestBackend,
+    );
+    const pollZaakUrls = Object.entries(pollZaakSelection)
+      .map(([url, { selected, detail }]) =>
+        [url, selected, detail?.approved].join(),
+      )
+      .sort();
+    const hookZaakUrls = Object.entries(zaakSelectionOnPage)
+      .filter(([, { selected }]) => selected)
+      .map(([url, { selected, detail }]) =>
+        [url, selected, detail?.approved].join(),
+      )
+      .sort();
+
+    const hasChanged = pollZaakUrls.join() !== hookZaakUrls.join();
+    if (hasChanged) {
+      revalidateZaakSelection();
+    }
+  });
+
+  // Get zaak selection for approved zaken.
+  const approvedZaakSelection: ZaakSelection<{
+    approved: boolean;
+    comment: string;
+  }> = Object.fromEntries(
+    Object.entries(zaakSelectionOnPage).filter(
+      ([, selectionItem]) =>
+        selectionItem.selected && selectionItem.detail?.approved === true,
+    ),
+  );
+
+  // Get zaak selection for excluded zaken.
+  const excludedZaakSelection: ZaakSelection<{
+    approved: boolean;
+    comment: string;
+  }> = Object.fromEntries(
+    Object.entries(zaakSelectionOnPage).filter(
+      ([, selectionItem]) =>
+        selectionItem.selected && selectionItem.detail?.approved === false,
+    ),
+  );
+
   const submitAction = useSubmitAction<ReviewDestructionListAction>();
-  const destructionListReviewKey = getDestructionListReviewKey(uuid);
+  const destructionListReviewKey = getDestructionListReviewKey(
+    uuid,
+    destructionList.status,
+  );
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
-    storageKey,
     paginatedZaken.results,
-    RestBackend,
+    { ...approvedZaakSelection, ...excludedZaakSelection },
   );
 
   // The object list of the current page with review actions appended.
@@ -161,10 +234,9 @@ export function DestructionListReviewPage() {
    * Gets called when a zaak is approved.
    * @param zaak
    */
-  function handleApproveClick(zaak: Zaak) {
-    submitAction({
-      type: "APPROVE_ITEM",
-      payload: { destructionList: uuid, zaak: zaak.url as string },
+  async function handleApproveClick(zaak: Zaak) {
+    return handleSelect([zaak] as unknown as AttributeData[], true, {
+      approved: true,
     });
   }
 
@@ -188,12 +260,11 @@ export function DestructionListReviewPage() {
       "Reden",
       "Zaak uitzonderen",
       "Annuleren",
-      (comment) => {
-        submitAction({
-          type: "EXCLUDE_ITEM",
-          payload: { comment, destructionList: uuid, zaak: zaak.url as string },
-        });
-      },
+      async (comment) =>
+        handleSelect([zaak] as unknown as AttributeData[], true, {
+          approved: false,
+          comment,
+        }),
     );
   }
 
@@ -212,7 +283,12 @@ export function DestructionListReviewPage() {
 
         submitAction({
           type: "REJECT_LIST",
-          payload: { comment, destructionList: uuid, zaakReviews },
+          payload: {
+            comment,
+            destructionList: uuid,
+            status: destructionList.status,
+            zaakReviews,
+          },
         });
       },
     );
@@ -231,7 +307,11 @@ export function DestructionListReviewPage() {
       (comment) => {
         submitAction({
           type: "APPROVE_LIST",
-          payload: { comment, destructionList: uuid },
+          payload: {
+            comment,
+            destructionList: uuid,
+            status: destructionList.status,
+          },
         });
       },
     );
@@ -240,14 +320,14 @@ export function DestructionListReviewPage() {
   /**
    * Gets called when adding item to selection, filtering the selection.
    */
-  const filterSelectionZaken = async (
+  async function filterSelectionZaken(
     zaken: Zaak[],
     selected: boolean,
     pageSpecificZaakSelection: ZaakSelection<{
       approved: boolean;
       comment?: string;
     }>,
-  ) => {
+  ) {
     // A guess if this is a "select" all action as we cant distinguish between:
     // - Select all with 1 zaak.
     // - Select single zaak.
@@ -272,6 +352,7 @@ export function DestructionListReviewPage() {
     // All zaken on page deselected, only deselect approved zaken.
     if (!selected && selectAll) {
       const excludedUrls = Object.keys(excludedZaakSelection);
+
       return zaken.filter((z) => !excludedUrls.includes(z.url as string));
     }
 
@@ -286,8 +367,7 @@ export function DestructionListReviewPage() {
         "Verwijderen",
         "Annuleren",
         async () => {
-          removeFromZaakSelection(storageKey, zaken);
-          revalidator.revalidate();
+          removeFromZaakSelection(storageKey, zaken, RestBackend);
         },
         async () => {
           // We want to re-add them with the `comments` present in the detail of the selection. (`pageSpecificZaakSelection[zaak.url].detail.comment`)
@@ -308,8 +388,13 @@ export function DestructionListReviewPage() {
             foundDetailForZakenPromise,
           );
 
-          await addToZaakSelection(storageKey, zaken, foundDetailForZaken);
-          revalidator.revalidate();
+          await addToZaakSelection(
+            storageKey,
+            zaken,
+            foundDetailForZaken,
+            RestBackend,
+          );
+          revalidateZaakSelection();
         },
       );
     }
@@ -322,32 +407,16 @@ export function DestructionListReviewPage() {
           const url = z.url as string;
           return !(url in excludedZaakSelection);
         });
-  };
+  }
 
   /**
-   * Gets called when adding item to selection, manipulating the detail value.
+   * Gets called when adding items to selection using "select all", returning
+   * the detail value.
    */
-  const getSelectionDetail = async (
-    zaak: Zaak,
-    pageSpecificZaakSelection: ZaakSelection<{ approved: boolean }>,
-  ) => {
-    const excludedZaakUrlsOnPage = Object.fromEntries(
-      Object.entries(pageSpecificZaakSelection).filter(
-        ([, item]) => item.detail?.approved === false,
-      ),
-    );
-
-    const approved = !((zaak.url as string) in excludedZaakUrlsOnPage);
-    return { approved };
-  };
-
-  /**
-   * Gets called when the selection changes outside of the per-zaak toolbar.
-   * Revalidates the loader so the selection is up2date.
-   */
-  const handleSelectionChange = () => {
-    revalidator.revalidate();
-  };
+  async function getSelectionDetail(zaak: Zaak) {
+    const approved = !((zaak.url as string) in excludedZaakSelection);
+    return { approved, comment: "" };
+  }
 
   return (
     <BaseListView
@@ -359,17 +428,12 @@ export function DestructionListReviewPage() {
         { filterable: false, name: "Beoordeling", type: "text" },
         { filterable: false, name: "Acties", type: "text" },
       ]}
-      // @ts-expect-error - Generic type of zaakSelection
-      filterSelectionZaken={filterSelectionZaken}
-      // @ts-expect-error - Generic type of zaakSelection
-      getSelectionDetail={getSelectionDetail}
       dataGridProps={{
         labelSelect: "Markeren als (on)gezien",
         labelSelectAll: "Alles als (on)gezien markeren",
+        onSelect: handleSelect,
       }}
       selectionBackend={RestBackend}
-      onSelectionChange={handleSelectionChange}
-      onClearZaakSelection={handleSelectionChange}
     ></BaseListView>
   );
 }

@@ -27,11 +27,13 @@ import {
 import { useAsync } from "react-use";
 
 import "./App.css";
+import {
+  OidcConfigContext,
+  OidcConfigContextType,
+  ZaakSelectionContextProvider,
+} from "./contexts";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
 import { canStartDestructionList } from "./lib/auth/permissions";
-import OidcConfigContext, {
-  OidcConfigContextType,
-} from "./lib/contexts/OidcConfigContext";
 import { formatUser } from "./lib/format/user";
 
 function App() {
@@ -165,9 +167,11 @@ function App() {
         }}
       >
         <OidcConfigContext.Provider value={oidcInfo}>
-          <ModalService>
-            <Outlet />
-          </ModalService>
+          <ZaakSelectionContextProvider>
+            <ModalService>
+              <Outlet />
+            </ModalService>
+          </ZaakSelectionContextProvider>
         </OidcConfigContext.Provider>
       </NavigationContext.Provider>
     </div>

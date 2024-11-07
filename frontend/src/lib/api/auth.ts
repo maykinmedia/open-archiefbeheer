@@ -1,5 +1,5 @@
+import { OidcConfigContextType } from "../../contexts/OidcConfigContext";
 import { cacheDelete, cacheMemo } from "../cache/cache";
-import { OidcConfigContextType } from "../contexts/OidcConfigContext";
 import { request } from "./request";
 
 export type User = {

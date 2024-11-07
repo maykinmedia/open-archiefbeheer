@@ -1,15 +1,16 @@
-import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
+import {
+  AttributeData,
+  Outline,
+  Toolbar,
+  TypedField,
+} from "@maykin-ui/admin-ui";
 import React, { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
-import { useZaakReviewStatuses } from "../../../../../hooks";
+import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
 import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
-import {
-  addToZaakSelection,
-  removeFromZaakSelection,
-} from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
@@ -40,7 +41,7 @@ export function DestructionListProcessReviewPage() {
     storageKey,
     destructionList,
     destructionListItems,
-    zaakSelection,
+    zaakSelection, // FIXME: remove usage
     review,
     reviewItems = [],
     selectieLijstKlasseChoicesMap,
@@ -52,7 +53,14 @@ export function DestructionListProcessReviewPage() {
   const [selectionClearedState, setSelectionClearedState] = useState(false);
   const revalidator = useRevalidator();
   const secondaryNavigationItems = useSecondaryNavigation();
-  const zaakReviewStatuses = useZaakReviewStatuses(storageKey, zakenOnPage);
+
+  const [, handleSelect, { zaakSelectionOnPage }] = useZaakSelection<{
+    approved: boolean;
+  }>(storageKey, zakenOnPage);
+  const zaakReviewStatuses = useZaakReviewStatuses(
+    zakenOnPage,
+    zaakSelectionOnPage,
+  );
 
   // State to manage the state of the zaak modal (when clicking a checkbox)
   const [processZaakReviewModalState, setProcessZaakReviewModalState] =
@@ -162,7 +170,7 @@ export function DestructionListProcessReviewPage() {
     //
     // Remove the zaak from the selection in the background.
     if (!selected) {
-      await removeFromZaakSelection(storageKey, [zaak.url as string]);
+      await handleSelect([zaak] as unknown as AttributeData[], false);
 
       // Call the Route's loader function
       //
@@ -198,7 +206,7 @@ export function DestructionListProcessReviewPage() {
     //
     // We add the selected zaak to the zaak selection and add our feedback as
     // details, this allows us to recover (and submit) the feedback later.
-    await addToZaakSelection(storageKey, [zaakUrl], {
+    await handleSelect([{ url: zaakUrl }] as unknown as AttributeData[], true, {
       action,
       selectielijstklasse,
       archiefactiedatum,

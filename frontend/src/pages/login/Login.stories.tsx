@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../.storybook/decorators";
-import OidcConfigContext from "../../lib/contexts/OidcConfigContext";
+import { OidcConfigContext } from "../../contexts/OidcConfigContext";
 import { LoginPage } from "./Login";
 
 const meta: Meta<typeof LoginPage> = {

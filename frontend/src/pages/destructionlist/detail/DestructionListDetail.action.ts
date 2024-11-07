@@ -2,13 +2,11 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { redirect } from "react-router-dom";
 
 import { JsonValue, TypedAction } from "../../../hooks";
-import { User } from "../../../lib/api/auth";
 import {
   abortPlannedDestruction,
   destroyDestructionList,
   markDestructionListAsFinal,
   markDestructionListAsReadyToReview,
-  reassignDestructionList,
   updateDestructionList,
 } from "../../../lib/api/destructionLists";
 import {

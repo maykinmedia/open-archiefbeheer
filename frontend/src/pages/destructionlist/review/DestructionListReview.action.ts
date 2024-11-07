@@ -7,11 +7,7 @@ import {
   createDestructionListReview,
 } from "../../../lib/api/review";
 import { RestBackend } from "../../../lib/zaakSelection";
-import {
-  addToZaakSelection,
-  clearZaakSelection,
-  removeFromZaakSelection,
-} from "../../../lib/zaakSelection";
+import { clearZaakSelection } from "../../../lib/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewActionContext = {
@@ -21,41 +17,19 @@ export type DestructionListReviewActionContext = {
 };
 
 export type ReviewDestructionListAction =
-  | ReviewDestructionListZaakAction
-  | ReviewDestructionListZakenAction
-  | ReviewDestructionListListAction;
-
-export type ReviewDestructionListZaakAction = TypedAction<
-  "APPROVE_ITEM" | "EXCLUDE_ITEM",
-  ReviewDestructionListZaakActionPayLoad
->;
-export type ReviewDestructionListZakenAction = TypedAction<
-  "APPROVE_ITEMS" | "UNSELECT_ITEMS",
-  ReviewDestructionListZakenActionPayLoad
->;
-export type ReviewDestructionListZaakActionPayLoad = {
-  comment?: string;
-  destructionList: string;
-  zaak: string;
-};
-
-export type ReviewDestructionListZakenActionPayLoad = {
-  destructionList: string;
-  zaken: string[];
-};
-
-export type ReviewDestructionListListAction =
   | TypedAction<"APPROVE_LIST", ReviewDestructionListListApproveActionPayLoad>
   | TypedAction<"REJECT_LIST", ReviewDestructionListListRejectActionPayLoad>;
 
 export type ReviewDestructionListListApproveActionPayLoad = {
-  destructionList: string;
   comment: string;
+  destructionList: string;
+  status: string;
 };
 
 export type ReviewDestructionListListRejectActionPayLoad = {
-  destructionList: string;
   comment: string;
+  destructionList: string;
+  status: string;
   zaakReviews?: ZaakReview[];
 };
 
@@ -72,100 +46,12 @@ export const destructionListReviewAction = async ({
   const action = data as ReviewDestructionListAction;
 
   switch (action.type) {
-    case "APPROVE_ITEMS":
-      return destructionListApproveItemsAction({ request, params });
-    case "APPROVE_ITEM":
-      return destructionListApproveItemAction({ request, params });
-    case "EXCLUDE_ITEM":
-      return destructionListExcludeItemAction({ request, params });
-    case "UNSELECT_ITEMS":
-      return destructionListUnselectItemsAction({ request, params });
-
     case "APPROVE_LIST":
       return destructionListApproveListAction({ request, params });
     case "REJECT_LIST":
       return destructionListRejectListAction({ request, params });
   }
 };
-
-/**
- * React Router action, user intends to approve a selection of items.
- * @param request
- * @param params
- */
-export async function destructionListApproveItemsAction({
-  request,
-}: ActionFunctionArgs) {
-  const { payload } = await request.json();
-  const { destructionList, zaken } =
-    payload as ReviewDestructionListZakenActionPayLoad;
-  await addToZaakSelection(
-    getDestructionListReviewKey(destructionList),
-    zaken,
-    { approved: true },
-    RestBackend,
-  );
-  return null;
-}
-
-/**
- * React Router action, user intends to approve an item.
- * @param request
- * @param params
- */
-export async function destructionListApproveItemAction({
-  request,
-}: ActionFunctionArgs) {
-  const { payload } = await request.json();
-  const { destructionList, zaak } =
-    payload as ReviewDestructionListZaakActionPayLoad;
-  await addToZaakSelection(
-    getDestructionListReviewKey(destructionList),
-    [zaak],
-    { approved: true },
-    RestBackend,
-  );
-  return null;
-}
-
-/**
- * React Router action, user intends to exclude an item.
- * @param request
- * @param params
- */
-export async function destructionListExcludeItemAction({
-  request,
-}: ActionFunctionArgs) {
-  const { payload } = await request.json();
-  const { comment, destructionList, zaak } =
-    payload as ReviewDestructionListZaakActionPayLoad;
-  await addToZaakSelection(
-    getDestructionListReviewKey(destructionList),
-    [zaak],
-    { approved: false, comment },
-    RestBackend,
-  );
-  return null;
-}
-
-/**
- * React Router action, user intends to unselect a selection of items.
- * @param request
- * @param params
- */
-export async function destructionListUnselectItemsAction({
-  request,
-}: ActionFunctionArgs) {
-  const { payload } = await request.json();
-  const { destructionList, zaken } =
-    payload as ReviewDestructionListZakenActionPayLoad;
-  await removeFromZaakSelection(
-    getDestructionListReviewKey(destructionList),
-    zaken,
-    RestBackend,
-  );
-  return null;
-}
 
 /**
  * React Router action, user intends to reject a list.
@@ -176,7 +62,7 @@ export async function destructionListApproveListAction({
   request,
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
-  const { destructionList, comment } =
+  const { comment, destructionList, status } =
     payload as ReviewDestructionListListApproveActionPayLoad;
 
   const data: Review = {
@@ -189,7 +75,7 @@ export async function destructionListApproveListAction({
     await Promise.all([
       await createDestructionListReview(data),
       await clearZaakSelection(
-        getDestructionListReviewKey(destructionList),
+        getDestructionListReviewKey(destructionList, status),
         RestBackend,
       ),
     ]);
@@ -211,7 +97,7 @@ export async function destructionListRejectListAction({
   request,
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
-  const { comment, destructionList, zaakReviews } =
+  const { comment, destructionList, status, zaakReviews } =
     payload as ReviewDestructionListListRejectActionPayLoad;
 
   const data: Review = {
@@ -225,7 +111,7 @@ export async function destructionListRejectListAction({
     await Promise.all([
       createDestructionListReview(data),
       clearZaakSelection(
-        getDestructionListReviewKey(destructionList),
+        getDestructionListReviewKey(destructionList, status),
         RestBackend,
       ),
     ]);

@@ -100,7 +100,7 @@ export const Landing = () => {
     if (!equal) {
       revalidator.revalidate();
     }
-  });
+  }, []);
 
   /**
    * Determines the href for a given destruction list based on its status and the user's role.

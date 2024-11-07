@@ -6,11 +6,12 @@ import {
   useFormDialog,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../../../components";
-import { useSubmitAction, useZaakSelection } from "../../../../hooks";
+import { ZaakSelectionContext } from "../../../../contexts";
+import { useSubmitAction } from "../../../../hooks";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
   canMarkAsReadyToReview,
@@ -55,7 +56,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
   const formDialog = useFormDialog();
 
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
-  const [, , { selectionSize }] = useZaakSelection(storageKey, []);
+  const { selectionSize } = useContext(ZaakSelectionContext);
 
   /**
    * Dispatches action to mark the destruction list as final (archivist approves).

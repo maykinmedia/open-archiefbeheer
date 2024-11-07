@@ -36,7 +36,7 @@ export interface DestructionListDetailContext {
   destructionList: DestructionList;
   destructionListItems: PaginatedDestructionListItems;
 
-  zaakSelection: ZaakSelection;
+  zaakSelection?: ZaakSelection;
   selectableZaken: PaginatedZaken;
 
   archivists: User[];
@@ -177,7 +177,7 @@ export const destructionListDetailLoader = loginRequired(
           getLatestReviewResponse({
             review: review.pk,
           }),
-        getZaakSelection(storageKey),
+        review ? getZaakSelection(storageKey) : undefined,
         getSelectableZaken(),
         listArchivists(),
         whoAmI(),
