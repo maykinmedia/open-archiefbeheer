@@ -1,8 +1,15 @@
 # fmt: off
 from django.test import tag
 
+from asgiref.sync import sync_to_async
+
+from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+
+from ...factories import DestructionListFactory, DestructionListItemFactory
 
 
 @tag("e2e")
@@ -75,3 +82,107 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "ZAAK-99")
             await self.when.user_clicks_button(page, "2")
             await self.then.not_.page_should_contain_text(page, "ZAAK-100")
+
+    async def test_zaaktype_filter(self):
+        @sync_to_async
+        def create_data():
+            record_manager = UserFactory.create(
+                username="record_manager", password="ANic3Password", post__can_start_destruction=True
+            )
+            destruction_list = DestructionListFactory.create(
+                assignee=record_manager,
+                author=record_manager,
+                uuid="00000000-0000-0000-0000-000000000000",
+                status=ListStatus.new
+            )
+            zaak1 = ZaakFactory.create(
+                identificatie="ZAAK-000-1",
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-01",
+                        "omschrijving": "ZAAKTYPE-01",
+                        "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        },
+                        "versiedatum": "2024-01-01"
+                    }
+                },
+            )
+            zaak2 = ZaakFactory.create(
+                identificatie="ZAAK-000-2",
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-02",
+                        "omschrijving": "ZAAKTYPE-02",
+                        "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        },
+                        "versiedatum": "2024-01-01"
+                    }
+                },
+            )
+            zaak3 = ZaakFactory.create(
+                identificatie="ZAAK-111-1",
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-03",
+                        "omschrijving": "ZAAKTYPE-03",
+                        "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }, 
+                        "versiedatum": "2024-01-01"
+                    }
+                },
+            )
+            zaak4 = ZaakFactory.create(
+                identificatie="ZAAK-111-2",
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-04",
+                        "omschrijving": "ZAAKTYPE-04",
+                        "url": "http://catalogue-api.nl/zaaktypen/444-444-444",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        }, 
+                        "versiedatum": "2024-01-01"
+                    }
+                },
+            )
+            
+            DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
+            DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
+            DestructionListItemFactory.create(zaak=zaak3, destruction_list=destruction_list)
+            DestructionListItemFactory.create(zaak=zaak4, destruction_list=destruction_list)
+
+            self.destruction_list = destruction_list
+
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.when.record_manager_logs_in(page, **{
+                "username": "record_manager",
+                "password": "ANic3Password",
+            })
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, self.destruction_list.name)
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit")
+            await self.when.user_clicks_button(page, "Bewerken")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
+            # Initially the filters are for all zaaktypes
+            await self.then.zaaktype_filters_are(page, [
+                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
+                "ZAAKTYPE-02 (ZAAKTYPE-02)", 
+                "ZAAKTYPE-03 (ZAAKTYPE-03)",
+                "ZAAKTYPE-04 (ZAAKTYPE-04)",
+            ])
+            # If filtering first on identificatie, the zaaktype filters change
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&identificatie__icontains=ZAAK-000")
+            await self.then.this_number_of_zaken_should_be_visible(page, 2)
+            await self.then.zaaktype_filters_are(page, [
+                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
+                "ZAAKTYPE-02 (ZAAKTYPE-02)" 
+            ])
