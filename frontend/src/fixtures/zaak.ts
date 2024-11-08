@@ -63,7 +63,7 @@ const FIXTURE_ZAAK: Zaak = {
         nummer: 1,
         url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
       },
-      omschrijving: "Aangifte behandelen",
+      omschrijving: "Aangifte behandelen 1",
       identificatie: "ZAAKTYPE-01",
     },
     resultaat: {
@@ -142,7 +142,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 1",
         identificatie: "ZAAKTYPE-01",
       },
       resultaat: {
@@ -218,7 +218,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 2",
         identificatie: "ZAAKTYPE-02",
       },
       resultaat: {
@@ -294,7 +294,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 2",
         identificatie: "ZAAKTYPE-02",
       },
       resultaat: {
@@ -368,7 +368,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 3",
         identificatie: "ZAAKTYPE-03",
       },
       resultaat: {
@@ -444,7 +444,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 4",
         identificatie: "ZAAKTYPE-04",
       },
       resultaat: {
@@ -520,7 +520,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 4",
         identificatie: "ZAAKTYPE-04",
       },
       resultaat: {
@@ -596,7 +596,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 5",
         identificatie: "ZAAKTYPE-05",
       },
       resultaat: {
@@ -672,7 +672,7 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
+        omschrijving: "Aangifte behandelen 5",
         identificatie: "ZAAKTYPE-05",
       },
       resultaat: {
@@ -746,8 +746,8 @@ const FIXTURE_ZAKEN: Zaak[] = [
           nummer: 1,
           url: "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
         },
-        omschrijving: "Aangifte behandelen",
-        identificatie: "ZAAKTYPE-05",
+        omschrijving: "Aangifte behandelen 6",
+        identificatie: "ZAAKTYPE-06",
       },
       resultaat: {
         resultaattype:

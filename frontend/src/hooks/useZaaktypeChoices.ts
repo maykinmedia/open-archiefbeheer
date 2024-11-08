@@ -1,6 +1,5 @@
 import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../lib/api/private";

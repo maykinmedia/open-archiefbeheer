@@ -1,24 +1,20 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
 import {
   clickButton,
   fillButtonConfirmationForm,
-  fillForm,
 } from "../../../../../../.storybook/playFunctions";
-import { auditLogFactory } from "../../../../../fixtures/auditLog";
 import { destructionListFactory } from "../../../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../../../fixtures/review";
 import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
 import {
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
   selectieLijstKlasseFactory,
 } from "../../../../../fixtures/selectieLijstKlasseChoices";
-import { userFactory, usersFactory } from "../../../../../fixtures/user";
+import { usersFactory } from "../../../../../fixtures/user";
 import {
   clearZaakSelection,
   getZaakSelection,
@@ -31,76 +27,6 @@ const meta: Meta<typeof DestructionListProcessReviewPage> = {
   component: DestructionListProcessReviewPage,
   decorators: [ReactRouterDecorator],
   parameters: {
-    mockData: [
-      {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            label: "Melding klein kansspel",
-            value:
-              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
-            extra: "MKK",
-          },
-        ],
-      },
-      {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inReview=1",
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            label: "Melding klein kansspel",
-            value:
-              "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/e95d9bdf-588d-4965-a469-378d9e0ca91e",
-            extra: "MKK",
-          },
-        ],
-      },
-      {
-        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",
-        method: "POST",
-        status: 200,
-        response: [],
-      },
-      {
-        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
-        method: "GET",
-        status: 200,
-        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-      },
-      {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inDestructionList=00000000-0000-0000-0000-000000000000",
-        method: "GET",
-        status: 200,
-        response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-      },
-      {
-        url: "http://localhost:8000/api/v1/whoami/?",
-        method: "GET",
-        status: 200,
-        response: userFactory(),
-      },
-      {
-        url: "http://localhost:8000/api/v1/reviewers/?",
-        method: "GET",
-        status: 200,
-        response: usersFactory(),
-      },
-      {
-        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/auditlog/?",
-        method: "GET",
-        status: 200,
-        response: auditLogFactory(),
-      },
-      {
-        url: "http://localhost:8000/api/v1/review-responses/?review=1",
-        method: "GET",
-        status: 200,
-        response: [],
-      },
-    ],
     reactRouterDecorator: {
       route: {
         id: "destruction-list:detail",
