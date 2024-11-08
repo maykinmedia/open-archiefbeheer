@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_page
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -68,7 +69,9 @@ class ZaaktypenChoicesView(GenericAPIView):
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params)
-        filterset.is_valid()
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
 
         zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
             "_expand__zaaktype", flat=True
