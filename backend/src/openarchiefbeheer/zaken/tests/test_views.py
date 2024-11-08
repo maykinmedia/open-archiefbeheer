@@ -404,6 +404,20 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
             review_items[2].destruction_list_item.zaak._expand["zaaktype"]["url"],
         )
 
+    def test_retrieve_zaaktypen_choices_invalid_filters(self):
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
+        endpoint.args["in_destruction_list"] = "invalid-uuid"
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["inDestructionList"][0], _("Enter a valid UUID.")
+        )
+
 
 class SelectielijstklasseChoicesViewTests(APITestCase):
     def setUp(self):
