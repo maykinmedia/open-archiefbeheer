@@ -1,5 +1,13 @@
-import { destructionListFactory } from "../../fixtures/destructionList";
-import { roleFactory, userFactory } from "../../fixtures/user";
+import {
+  destructionListAssigneeFactory,
+  destructionListFactory,
+} from "../../fixtures/destructionList";
+import {
+  beoordelaarFactory,
+  recordManagerFactory,
+  roleFactory,
+  userFactory,
+} from "../../fixtures/user";
 import {
   STATUSES_ELIGIBLE_FOR_EDIT,
   STATUSES_ELIGIBLE_FOR_REVIEW,
@@ -10,12 +18,55 @@ import {
   DestructionList,
 } from "../api/destructionLists";
 import {
+  canCoReviewDestructionList,
   canMarkListAsFinal,
   canReviewDestructionList,
   canStartDestructionList,
   canUpdateDestructionList,
   canViewDestructionList,
 } from "./permissions";
+
+describe("canViewDestructionList()", () => {
+  test("canViewDestructionList() returns false is not assigned nor a record manager", () => {
+    const user = beoordelaarFactory();
+    const destructionList = destructionListFactory({});
+    expect(canViewDestructionList(user, destructionList)).toBe(false);
+  });
+
+  test("canViewDestructionList() returns true if user is the author of destruction list", () => {
+    const author = recordManagerFactory();
+    const destructionList = destructionListFactory({
+      author: author,
+    });
+    expect(canViewDestructionList(author, destructionList)).toBe(true);
+  });
+
+  test("canViewDestructionList() returns true if user is record manager", () => {
+    const recordManager = recordManagerFactory();
+    const destructionList = destructionListFactory();
+    expect(canViewDestructionList(recordManager, destructionList)).toBe(true);
+  });
+
+  test("canViewDestructionList() returns true if user is assigned reviewer", () => {
+    const reviewer = beoordelaarFactory();
+    const destructionList = destructionListFactory({
+      assignee: reviewer,
+      status: "ready_to_review",
+    });
+    expect(canViewDestructionList(reviewer, destructionList)).toBe(true);
+  });
+
+  test("canViewDestructionList() returns true if user is assigned co-reviewer", () => {
+    const coReviewer = destructionListAssigneeFactory({
+      role: "co_reviewer",
+    });
+    const destructionList = destructionListFactory({
+      assignees: [coReviewer],
+      status: "ready_to_review",
+    });
+    expect(canViewDestructionList(coReviewer.user, destructionList)).toBe(true);
+  });
+});
 
 describe("canReviewDestructionList()", () => {
   test("canReviewDestructionList() returns false if user has no appropriate role", () => {
@@ -34,6 +85,7 @@ describe("canReviewDestructionList()", () => {
 
     expect(canReviewDestructionList(me, list)).toBeFalsy();
   });
+
   test("canReviewDestructionList() returns false if list has no appropriate status", () => {
     const me = userFactory({
       pk: 1,
@@ -104,6 +156,66 @@ describe("canReviewDestructionList()", () => {
 
     expect(canReviewDestructionList(me, list1)).toBeTruthy();
     expect(canReviewDestructionList(other, list2)).toBeTruthy();
+  });
+});
+
+describe("canCoReviewDestructionList()", () => {
+  test("canCoReviewDestructionList() returns false if user has no appropriate role", () => {
+    const me = destructionListAssigneeFactory({
+      user: userFactory({
+        role: roleFactory({ canCoReviewDestruction: false }),
+      }),
+      role: "co_reviewer",
+    });
+
+    const list = destructionListFactory({
+      assignees: [me],
+      status: "ready_to_review",
+    });
+
+    expect(canCoReviewDestructionList(me.user, list)).toBeFalsy();
+  });
+
+  test("canCoReviewDestructionList() returns false if list has no appropriate status", () => {
+    const me = destructionListAssigneeFactory({
+      role: "co_reviewer",
+    });
+
+    const list = destructionListFactory({
+      assignees: [me],
+      status: "changes_requested",
+    });
+
+    expect(canCoReviewDestructionList(me.user, list)).toBeFalsy();
+  });
+
+  test("canCoReviewDestructionList() returns false if user is not assigned", () => {
+    const me = destructionListAssigneeFactory({
+      user: userFactory({ pk: 1 }),
+      role: "co_reviewer",
+    });
+    const other = destructionListAssigneeFactory({
+      user: userFactory({ pk: 2 }),
+      role: "co_reviewer",
+    });
+
+    const list = destructionListFactory({
+      assignees: [other],
+      status: "ready_to_review",
+    });
+
+    expect(canCoReviewDestructionList(me.user, list)).toBeFalsy();
+  });
+
+  test("canCoReviewDestructionList() returns true", () => {
+    const me = destructionListAssigneeFactory({ role: "co_reviewer" });
+
+    const list = destructionListFactory({
+      assignees: [me],
+      status: "ready_to_review",
+    });
+
+    expect(canCoReviewDestructionList(me.user, list)).toBeTruthy();
   });
 });
 

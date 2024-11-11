@@ -5,7 +5,6 @@ import { Zaak } from "../../types";
 import { User } from "./auth";
 import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
-import { Assignee } from "./reviewers";
 
 export type DestructionList = {
   pk: number;
@@ -225,7 +224,7 @@ export async function reassignDestructionList(
  * @param uuid
  * @param data
  */
-export async function listCoReviewers(uuid: string) {
+export async function listDestructionListCoReviewers(uuid: string) {
   const response = await request(
     "GET",
     `/destruction-lists/${uuid}/co-reviewers/`,

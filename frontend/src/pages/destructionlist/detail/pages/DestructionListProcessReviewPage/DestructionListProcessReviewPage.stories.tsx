@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
+import { MOCK_ALL } from "../../../../../../.storybook/mockData";
 import {
   clickButton,
   fillButtonConfirmationForm,
@@ -27,6 +28,7 @@ const meta: Meta<typeof DestructionListProcessReviewPage> = {
   component: DestructionListProcessReviewPage,
   decorators: [ReactRouterDecorator],
   parameters: {
+    mockData: MOCK_ALL,
     reactRouterDecorator: {
       route: {
         id: "destruction-list:detail",

@@ -1,5 +1,7 @@
 export * from "./useAuditLog";
 export * from "./useCombinedSearchParams";
+export * from "./useCoReviewers";
+export * from "./useDestructionListCoReviewers";
 export * from "./useFields";
 export * from "./useFilter";
 export * from "./useLatestReviewResponse";

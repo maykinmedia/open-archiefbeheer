@@ -115,6 +115,16 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self.user_exists(**merged_kwargs)
 
+        async def co_reviewer_exists(self, **kwargs):
+            base_kwargs = {
+                "username": "co-beoordelaar",
+                "first_name": "Co",
+                "last_name": "Beoordelaar",
+                "post__can_co_review_destruction": True,
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            return await self.user_exists(**merged_kwargs)
+
         async def archivist_exists(self, **kwargs):
             base_kwargs = {
                 "username": "Achivaris",
@@ -310,14 +320,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             self.testcase = testcase
 
         async def user_logs_in(self, page, user):
-            await page.goto(self.testcase.live_server_url)
-            await page.wait_for_url(
-                f"{self.testcase.live_server_url}/login?next=/destruction-lists"
-            )
-
-            await page.get_by_label("Gebruikersnaam").fill(user.username)
-            await page.get_by_label("Wachtwoord").fill("ANic3Password")
-            await page.get_by_role("button", name="Inloggen").click()
+            await self._user_logs_in(page, user.username, "ANic3Password")
 
         async def record_manager_logs_in(self, page, **kwargs):
             base_kwargs = {
@@ -325,14 +328,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
-            await page.goto(self.testcase.live_server_url)
-            await page.wait_for_url(
-                f"{self.testcase.live_server_url}/login?next=/destruction-lists"
+            await self._user_logs_in(
+                page, merged_kwargs["username"], merged_kwargs["password"]
             )
-
-            await page.get_by_label("Gebruikersnaam").fill(merged_kwargs["username"])
-            await page.get_by_label("Wachtwoord").fill(merged_kwargs["password"])
-            await page.get_by_role("button", name="Inloggen").click()
 
         async def reviewer_logs_in(self, page, **kwargs):
             base_kwargs = {
@@ -340,14 +338,19 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
-            await page.goto(self.testcase.live_server_url)
-            await page.wait_for_url(
-                f"{self.testcase.live_server_url}/login?next=/destruction-lists"
+            await self._user_logs_in(
+                page, merged_kwargs["username"], merged_kwargs["password"]
             )
 
-            await page.get_by_label("Gebruikersnaam").fill(merged_kwargs["username"])
-            await page.get_by_label("Wachtwoord").fill(merged_kwargs["password"])
-            await page.get_by_role("button", name="Inloggen").click()
+        async def co_reviewer_logs_in(self, page, **kwargs):
+            base_kwargs = {
+                "username": "co-beoordelaar",
+                "password": "ANic3Password",
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            await self._user_logs_in(
+                page, merged_kwargs["username"], merged_kwargs["password"]
+            )
 
         async def archivist_logs_in(self, page, **kwargs):
             base_kwargs = {
@@ -355,17 +358,28 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}
+            await self._user_logs_in(
+                page, merged_kwargs["username"], merged_kwargs["password"]
+            )
+
+        async def _user_logs_in(self, page, username, password="ANic3Password"):
             await page.goto(self.testcase.live_server_url)
             await page.wait_for_url(
                 f"{self.testcase.live_server_url}/login?next=/destruction-lists"
             )
 
-            await page.get_by_label("Gebruikersnaam").fill(merged_kwargs["username"])
-            await page.get_by_label("Wachtwoord").fill(merged_kwargs["password"])
+            await page.get_by_label("Gebruikersnaam").fill(username)
+            await page.get_by_label("Wachtwoord").fill(password)
             await page.get_by_role("button", name="Inloggen").click()
+
+        async def user_logs_out(self, page):
+            await page.goto(f"{self.testcase.live_server_url}/logout")
 
         async def user_clicks_button(self, page, name, index=0):
             await self._user_clicks("button", page, name, index=index)
+
+        async def user_clicks_link(self, page, name, index=0):
+            await self._user_clicks("link", page, name, index=index)
 
         async def user_clicks_checkbox(self, page, name, index=0):
             await self._user_clicks("checkbox", page, name, index=index)

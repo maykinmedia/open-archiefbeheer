@@ -3,6 +3,7 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
+import { MOCK_ALL } from "../../../../../../.storybook/mockData";
 import {
   assertColumnSelection,
   clickButton,
@@ -18,7 +19,7 @@ import { reviewFactory } from "../../../../../fixtures/review";
 import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
 import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP } from "../../../../../fixtures/selectieLijstKlasseChoices";
 import { usersFactory } from "../../../../../fixtures/user";
-import { getZaakSelection } from "../../../../../lib/zaakSelection/zaakSelection";
+import { getZaakSelection } from "../../../../../lib/zaakSelection";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListEditPage } from "./DestructionListEditPage";
 
@@ -27,6 +28,7 @@ const meta: Meta<typeof DestructionListEditPage> = {
   component: DestructionListEditPage,
   decorators: [ReactRouterDecorator],
   parameters: {
+    mockData: MOCK_ALL,
     reactRouterDecorator: {
       route: {
         id: "destruction-list:detail",
