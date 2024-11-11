@@ -39,7 +39,10 @@ class DestructionListSerializerTests(TestCase):
             post__can_review_destruction=True,
         )
         record_manager = UserFactory.create(
-            username="record_manager", post__can_start_destruction=True
+            first_name="Jeffrey",
+            last_name="Jones",
+            username="record_manager",
+            post__can_start_destruction=True,
         )
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -109,7 +112,7 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             message,
             _('Destruction list "%(list_name)s" created by user %(author)s.')
-            % {"list_name": "A test list", "author": "record_manager"},
+            % {"list_name": "A test list", "author": "Jeffrey Jones (record_manager)"},
         )
 
     def test_zaak_already_included_in_other_list(self):
@@ -981,6 +984,8 @@ class DestructionListReviewSerializerTests(TestCase):
     @override_settings(LANGUAGE_CODE="en")
     def test_create_review_rejected(self):
         reviewer = UserFactory.create(
+            first_name="Jeffrey",
+            last_name="Jones",
             username="reviewer",
             email="reviewer@oab.nl",
             post__can_review_destruction=True,
@@ -1039,7 +1044,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "reviewer" has reviewed the list "Test list". The destruction list was rejected.',
+            'User "Jeffrey Jones (reviewer)" has reviewed the list "Test list". The destruction list was rejected.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):
