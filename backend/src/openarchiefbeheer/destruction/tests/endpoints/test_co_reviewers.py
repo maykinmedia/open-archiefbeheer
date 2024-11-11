@@ -134,13 +134,10 @@ class CoReviewersViewSetTest(APITestCase):
                 '"%(list_name)s" with: %(added_co_reviewers)s.'
             )
             % {
-                "user": "reviewer",
+                "user": main_reviewer.user,
                 "list_name": "A beautiful list",
                 "added_co_reviewers": ", ".join(
-                    [
-                        co_reviewer.get_name_with_username()
-                        for co_reviewer in new_co_reviewers
-                    ]
+                    [str(user) for user in new_co_reviewers]
                 ),
             },
             message,
@@ -252,13 +249,10 @@ class CoReviewersViewSetTest(APITestCase):
                 '"%(list_name)s": %(added_co_reviewers)s.'
             )
             % {
-                "user": "reviewer",
+                "user": main_reviewer.user,
                 "list_name": "A beautiful list",
                 "added_co_reviewers": ", ".join(
-                    [
-                        co_reviewer.get_name_with_username()
-                        for co_reviewer in new_co_reviewers
-                    ]
+                    [str(user) for user in new_co_reviewers]
                 ),
             },
             message,
@@ -273,7 +267,7 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertIn(
             _("They also removed these co-reviewers: %(removed_co_reviewers)s.")
             % {
-                "removed_co_reviewers": initial_assignee1.user.get_name_with_username(),
+                "removed_co_reviewers": initial_assignee1.user,
             },
             message,
         )
