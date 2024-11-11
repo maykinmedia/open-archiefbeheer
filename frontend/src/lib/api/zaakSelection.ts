@@ -130,7 +130,7 @@ export type AllSelectedResponse = {
 };
 
 /**
- * Set the 'selected_all' property for the given selection key.
+ * Get the 'selected_all' property for the given selection key.
  */
 export async function getAllSelected(key: string, signal?: AbortSignal) {
   const response = await request(
