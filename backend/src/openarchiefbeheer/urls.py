@@ -73,5 +73,15 @@ if settings.DEBUG and apps.is_installed("debug_toolbar"):
 # For this to work, you need to have built the frontend (`npm run build` in the frontend/ dir)
 if settings.E2E_SERVE_FRONTEND:
     urlpatterns = [
-        path("", TemplateView.as_view(template_name="index.html"), name="frontend")
+        path("", TemplateView.as_view(template_name="index.html"), name="frontend"),
+        path(
+            "login",
+            TemplateView.as_view(template_name="index.html"),
+            name="frontend-login",
+        ),
+        path(
+            "logout",
+            TemplateView.as_view(template_name="index.html"),
+            name="frontend-logout",
+        ),
     ] + urlpatterns

@@ -113,6 +113,7 @@ function App() {
               onClick: () => navigate("/settings"),
             },
             <Dropdown
+              aria-label="Profiel"
               key="account"
               label={
                 <IconInitials

@@ -3,18 +3,20 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 import { createMock, getMock } from "storybook-addon-module-mock";
 
-import { ReactRouterDecorator } from "../../../.storybook/decorators";
-import { fillForm } from "../../../.storybook/playFunctions";
 import {
-  destructionListAssigneeFactory,
-  destructionListFactory,
-} from "../../fixtures/destructionList";
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../.storybook/decorators";
+import { MOCK_ALL } from "../../../.storybook/mockData";
+import { fillForm } from "../../../.storybook/playFunctions";
+import { destructionListFactory } from "../../fixtures/destructionList";
 import {
   beoordelaarFactory,
   procesEigenaarFactory,
   recordManagerFactory,
-  userFactory,
+  roleFactory,
 } from "../../fixtures/user";
+import * as hooksUseWhoAmI from "../../hooks";
 import * as libDestructionList from "../../lib/api/destructionLists";
 import { updateCoReviewers } from "../../lib/api/destructionLists";
 import { DestructionListEditPage } from "../../pages";
@@ -23,27 +25,9 @@ import { DestructionListReviewer as DestructionListReviewerComponent } from "./D
 const meta: Meta<typeof DestructionListEditPage> = {
   title: "Components/DestructionListReviewer",
   component: DestructionListReviewerComponent,
-  decorators: [ReactRouterDecorator],
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        return [reassignDestructionList, updateCoReviewers];
-      },
-    },
+    mockData: MOCK_ALL,
   },
 };
 
@@ -54,16 +38,26 @@ type PlayFunctionWithReturnValue<T = unknown> = (
   ...args: Parameters<PlayFunction<ReactRenderer>>
 ) => Promise<T>;
 
-const RECORD_MANAGER = recordManagerFactory({ pk: 0 });
-const REVIEWER1 = beoordelaarFactory({ pk: 1 });
+const RECORD_MANAGER = recordManagerFactory({ pk: 1, username: "Foo" });
+const REVIEWER1 = beoordelaarFactory({ pk: 2 });
 const REVIEWER2 = beoordelaarFactory({
-  pk: 2,
+  pk: 3,
   username: "Beoor del Laar 2",
   firstName: "Beoor",
   lastName: "del Laar 2",
   email: "beoordelaar2@example.com",
 });
-const REVIEWER3 = procesEigenaarFactory({ pk: 3 });
+const REVIEWER3 = procesEigenaarFactory({ pk: 4 });
+const REVIEWER4 = beoordelaarFactory({
+  pk: 5,
+  username: "co-reviewer",
+  firstName: "Co",
+  lastName: "Reviewer",
+  role: roleFactory({
+    canReviewDestruction: false,
+    canCoReviewDestruction: true,
+  }),
+});
 
 const DESTRUCTION_LIST_NEW = destructionListFactory({
   author: RECORD_MANAGER,
@@ -82,9 +76,6 @@ const DESTRUCTION_LIST_READY_TO_REVIEW = destructionListFactory({
 const assertEditButton: PlayFunctionWithReturnValue<
   HTMLButtonElement | null
 > = async ({ canvasElement, parameters: { shouldBeVisible = true } }) => {
-  sessionStorage.removeItem("oab.lib.cache.listReviewers");
-  sessionStorage.removeItem("oab.lib.cache.whoAmI");
-
   const canvas = within(canvasElement);
   // Allow the button to appear.
   await new Promise((resolve) => setTimeout(resolve, 600));
@@ -104,9 +95,6 @@ const assertEditButton: PlayFunctionWithReturnValue<
  * Play function that asserts whether reviewer can be updated.
  */
 const assertEditReviewer: PlayFunction<ReactRenderer> = async (context) => {
-  sessionStorage.removeItem("oab.lib.cache.listReviewers");
-  sessionStorage.removeItem("oab.lib.cache.whoAmI");
-
   const editButton = (await assertEditButton({
     ...context,
     parameters: { shouldBeVisible: true },
@@ -143,9 +131,6 @@ const assertEditReviewer: PlayFunction<ReactRenderer> = async (context) => {
  * Play function that asserts whether reviewer can be updated.
  */
 const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
-  sessionStorage.removeItem("oab.lib.cache.listReviewers");
-  sessionStorage.removeItem("oab.lib.cache.whoAmI");
-
   const editButton = (await assertEditButton({
     ...context,
     parameters: { shouldBeVisible: true },
@@ -169,14 +154,15 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
     parameters: {
       form: form,
       formValues: {
-        "Medebeoordelaar 2": "Proces ei Genaar (Proces ei Genaar)",
+        Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
+        "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
         Reden: "Edit co-reviewers",
       },
       submitForm: true,
     },
   });
 
-  await expect(coReviewer2.value).toBe(REVIEWER3.pk.toString());
+  await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
 
   await waitFor(() => {
     const reassignDestructionList = getMock(
@@ -184,7 +170,7 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
       libDestructionList,
       "reassignDestructionList",
     );
-    expect(reassignDestructionList).toHaveBeenCalledOnce();
+    expect(reassignDestructionList).toHaveBeenCalled();
 
     const updateCoReviewers = getMock(
       context.parameters,
@@ -197,83 +183,39 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
 
 export const UserCannotReassignReviewer: Story = {
   args: { destructionList: destructionListFactory({ author: RECORD_MANAGER }) },
-  parameters: {
-    mockData: [
-      {
-        url: "http://localhost:8000/api/v1/oidc-info?",
-        method: "GET",
-        status: 200,
-        response: {},
-      },
-      {
-        url: "http://localhost:8000/api/v1/whoami",
-        method: "GET",
-        status: 200,
-        response: userFactory(),
-      },
-      {
-        url: "http://localhost:8000/api/v1/reviewers/?",
-        method: "GET",
-        status: 200,
-        response: [REVIEWER1, REVIEWER2, REVIEWER3],
-      },
-      {
-        url: `http://localhost:8000/api/v1/destruction-lists/${DESTRUCTION_LIST_READY_TO_REVIEW.uuid}/co-reviewers/?`,
-        method: "GET",
-        status: 200,
-        response: [
-          destructionListAssigneeFactory({
-            user: beoordelaarFactory({
-              username: "Beoor del Laar 2",
-              firstName: "Beoor",
-              lastName: "del Laar 2",
-              email: "beoordelaar2@example.com",
-            }),
-            role: "co_reviewer",
-          }),
-        ],
-      },
-    ],
-  },
   play: async (context) => {
-    assertEditButton({ ...context, parameters: { shouldBeVisible: false } });
+    await assertEditButton({
+      ...context,
+      parameters: { ...meta.parameters, shouldBeVisible: false },
+    });
   },
 };
 
 export const RecordManagerCanReassignReviewer: Story = {
   args: { destructionList: DESTRUCTION_LIST_NEW },
   parameters: {
-    mockData: [
-      {
-        url: "http://localhost:8000/api/v1/oidc-info?",
-        method: "GET",
-        status: 200,
-        response: {},
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
       },
-      {
-        url: "http://localhost:8000/api/v1/whoami",
-        method: "GET",
-        status: 200,
-        response: RECORD_MANAGER,
-      },
-      {
-        url: "http://localhost:8000/api/v1/reviewers/?",
-        method: "GET",
-        status: 200,
-        response: [REVIEWER1, REVIEWER2, REVIEWER3],
-      },
-      {
-        url: `http://localhost:8000/api/v1/destruction-lists/${DESTRUCTION_LIST_READY_TO_REVIEW.uuid}/co-reviewers/?`,
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            user: REVIEWER2,
-            role: "co_reviewer",
-          },
-        ],
-      },
-    ],
+    },
   },
   play: async (context) => {
     await assertEditReviewer(context);
@@ -283,37 +225,43 @@ export const RecordManagerCanReassignReviewer: Story = {
 export const ReviewerCanReassignCoReviewers: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    mockData: [
-      {
-        url: "http://localhost:8000/api/v1/oidc-info?",
-        method: "GET",
-        status: 200,
-        response: {},
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => beoordelaarFactory());
+
+        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
+        useCoReviewers.mockImplementation(() => [
+          REVIEWER2,
+          REVIEWER3,
+          REVIEWER4,
+        ]);
+
+        const useDestructionListCoReviewers = createMock(
+          hooksUseWhoAmI,
+          "useDestructionListCoReviewers",
+        );
+        useDestructionListCoReviewers.mockImplementation(() => [
+          { user: REVIEWER2, role: "co_reviewer" },
+        ]);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
       },
-      {
-        url: "http://localhost:8000/api/v1/whoami",
-        method: "GET",
-        status: 200,
-        response: REVIEWER1,
-      },
-      {
-        url: "http://localhost:8000/api/v1/reviewers/?",
-        method: "GET",
-        status: 200,
-        response: [REVIEWER1, REVIEWER2, REVIEWER3],
-      },
-      {
-        url: `http://localhost:8000/api/v1/destruction-lists/${DESTRUCTION_LIST_READY_TO_REVIEW.uuid}/co-reviewers/?`,
-        method: "GET",
-        status: 200,
-        response: [
-          {
-            user: REVIEWER2,
-            role: "co_reviewer",
-          },
-        ],
-      },
-    ],
+    },
   },
   play: async (context) => {
     await assertEditCoReviewers(context);

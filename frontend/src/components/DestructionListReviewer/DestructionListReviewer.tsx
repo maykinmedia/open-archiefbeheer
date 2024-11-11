@@ -11,8 +11,12 @@ import {
 import { useMemo } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
-import { useReviewers, useWhoAmI } from "../../hooks";
-import { useCoReviewers } from "../../hooks/useCoReviewers";
+import {
+  useCoReviewers,
+  useDestructionListCoReviewers,
+  useReviewers,
+  useWhoAmI,
+} from "../../hooks";
 import {
   DestructionList,
   reassignDestructionList,
@@ -42,8 +46,8 @@ export function DestructionListReviewer({
   const alert = useAlert();
   const formDialog = useFormDialog();
   const reviewers = useReviewers();
-  const coReviewers = reviewers.filter((r) => r.role.canCoReviewDestruction);
-  const assignedCoReviewers = useCoReviewers(destructionList);
+  const coReviewers = useCoReviewers();
+  const assignedCoReviewers = useDestructionListCoReviewers(destructionList);
   const user = useWhoAmI();
 
   /**
@@ -58,7 +62,7 @@ export function DestructionListReviewer({
 
     const promises: Promise<unknown>[] = [];
 
-    if (coReviewer?.length) {
+    if (coReviewer) {
       const add = coReviewer
         .filter((pk) => Boolean(pk))
         .map((pk) => ({ user: Number(pk) }));
@@ -85,9 +89,10 @@ export function DestructionListReviewer({
       promises.push(promise);
     }
 
-    if (reviewer) {
+    const reviewerPk = Number(reviewer);
+    if (reviewerPk !== user?.pk) {
       const promise = reassignDestructionList(destructionList.uuid, {
-        assignee: { user: Number(reviewer) },
+        assignee: { user: reviewerPk },
         comment: String(comment),
       }).catch(async (e) => {
         console.error(e);
@@ -156,7 +161,7 @@ export function DestructionListReviewer({
           value: assignedCoReviewers[i]?.user.pk,
         }));
 
-      return [...coReviewerFields, comment];
+      return [reviewer, ...coReviewerFields, comment];
     }
     return [reviewer, comment];
   }, [user, destructionList, reviewers, assignedCoReviewers]);

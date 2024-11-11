@@ -50,6 +50,29 @@ export function canReviewDestructionList(
 }
 
 /**
+ * Returns whether `user` is allowed to co-review `destructionList`.
+ * @param user
+ * @param destructionList
+ */
+export function canCoReviewDestructionList(
+  user: User,
+  destructionList: DestructionList,
+) {
+  if (!user.role.canCoReviewDestruction) {
+    return false;
+  }
+
+  if (!STATUSES_ELIGIBLE_FOR_REVIEW.includes(destructionList.status)) {
+    return false;
+  }
+
+  return destructionList.assignees
+    .filter((a) => a.role === "co_reviewer")
+    .map((a) => a.user.pk)
+    .includes(user.pk);
+}
+
+/**
  * Returns whether `user` is allowed to update `destructionList`.
  * @param user
  * @param destructionList
@@ -83,7 +106,8 @@ export function canViewDestructionList(
 ) {
   return (
     canStartDestructionList(user) ||
-    canReviewDestructionList(user, destructionList)
+    canReviewDestructionList(user, destructionList) ||
+    canCoReviewDestructionList(user, destructionList)
   );
 }
 

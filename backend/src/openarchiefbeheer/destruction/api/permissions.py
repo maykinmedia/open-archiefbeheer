@@ -21,6 +21,16 @@ class CanReviewPermission(permissions.BasePermission):
         ) or request.user.has_perm("accounts.can_review_final_list")
 
 
+class CanCoReviewPermission(permissions.BasePermission):
+    message = _("You are not allowed to co-review a destruction list.")
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("accounts.can_co_review_destruction")
+
+    def has_object_permission(self, request, view, destruction_list):
+        return destruction_list.assignees.includes(request.user)
+
+
 class CanUpdateDestructionList(permissions.BasePermission):
     message = _(
         "You are either not allowed to update this destruction list or "
@@ -64,7 +74,9 @@ class CanReassignDestructionList(permissions.BasePermission):
     message = _("You are not allowed to reassign the destruction list.")
 
     def has_permission(self, request, view):
-        return request.user.has_perm("accounts.can_start_destruction")
+        return request.user.has_perm(
+            "accounts.can_start_destruction"
+        ) or request.user.has_perm("accounts.can_review_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status in [

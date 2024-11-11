@@ -9,6 +9,19 @@ import {
 import App from "../src/App";
 
 /**
+ * Decorators removing all session storage items which key starts with "oab.".
+ */
+export const ClearSessionStorageDecorator = (Story: StoryFn) => {
+  Object.keys(sessionStorage)
+    .filter((key) => key.startsWith("oab."))
+    .forEach((key) => {
+      console.info(`ClearSessionStorageDecorator: removing item "${key}"`);
+      sessionStorage.removeItem(key);
+    });
+  return <Story />;
+};
+
+/**
  * Decorators providing React Router integration (RouterProvider), optionally: when using this decorator a parameter
  * "loader" can be specified providing React Router `LoaderFunction` for this `StoryFn`.
  */

@@ -25,7 +25,11 @@ class ZakenViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authenticated_without_permission(self):
-        user = UserFactory.create(post__can_start_destruction=False)
+        user = UserFactory.create(
+            post__can_start_destruction=False,
+            post__can_review_destruction=False,
+            post__can_co_review_destruction=False,
+        )
 
         self.client.force_authenticate(user=user)
         endpoint = reverse("api:zaken-list")
@@ -50,6 +54,18 @@ class ZakenViewSetTest(APITestCase):
         ZaakFactory.create_batch(4)
 
         user = UserFactory(username="reviewer", post__can_review_destruction=True)
+
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("api:zaken-list"))
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 4)
+
+    def test_retrieve_all_zaken_as_co_reviewer(self):
+        ZaakFactory.create_batch(4)
+
+        user = UserFactory(username="co-reviewer", post__can_co_review_destruction=True)
 
         self.client.force_authenticate(user)
         response = self.client.get(reverse("api:zaken-list"))

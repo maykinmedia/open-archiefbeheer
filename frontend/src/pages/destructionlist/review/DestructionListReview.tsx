@@ -13,6 +13,7 @@ import { useLoaderData } from "react-router-dom";
 import {
   usePoll,
   useSubmitAction,
+  useWhoAmI,
   useZaakReviewStatusBadges,
   useZaakSelection,
 } from "../../../hooks";
@@ -50,6 +51,8 @@ export function DestructionListReviewPage() {
     reviewItems,
     reviewResponse,
   } = useLoaderData() as DestructionListReviewContext;
+
+  const user = useWhoAmI();
 
   // Don't use the BaseListView zaak selection due to conflicting requirements, use custom implementation instead.
   const [, handleSelect, { zaakSelectionOnPage, revalidateZaakSelection }] =
@@ -183,7 +186,10 @@ export function DestructionListReviewPage() {
   /**
    * Returns the button to show in the secondary navigation (top bar).
    */
-  function getSubmitDestructionListButton(): ButtonProps {
+  function getSubmitDestructionListButton(): ButtonProps | null {
+    if (!user?.role.canReviewDestruction && !user?.role.canReviewFinalList) {
+      return null; // TODO: Implement mark ready
+    }
     if (Object.keys(excludedZaakSelection).length) {
       return {
         children: (

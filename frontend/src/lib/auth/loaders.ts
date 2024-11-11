@@ -6,6 +6,7 @@ import { DestructionList } from "../api/destructionLists";
 import { formatUser } from "../format/user";
 import {
   canChangeSettings,
+  canCoReviewDestructionList,
   canReviewDestructionList,
   canStartDestructionList,
   canTriggerDestruction,
@@ -84,7 +85,10 @@ export function canReviewDestructionListRequired<
     }
 
     const user = await whoAmI();
-    if (!canReviewDestructionList(user, destructionList)) {
+    if (
+      !canReviewDestructionList(user, destructionList) &&
+      !canCoReviewDestructionList(user, destructionList)
+    ) {
       throw new Response("Not Permitted", {
         status: 403,
         statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te beoordelen.`,

@@ -16,6 +16,7 @@ import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
 import { ProcessingStatus } from "../../lib/api/processingStatus";
 import {
+  canCoReviewDestructionList,
   canMarkAsReadyToReview,
   canMarkListAsFinal,
   canReviewDestructionList,
@@ -134,7 +135,8 @@ export const Landing = () => {
 
       case "ready_to_review":
       case "ready_for_archivist":
-        return canReviewDestructionList(user, list)
+        return canReviewDestructionList(user, list) ||
+          canCoReviewDestructionList(user, list)
           ? `/destruction-lists/${list.uuid}/review`
           : canViewDestructionList(user, list)
             ? `/destruction-lists/${list.uuid}`

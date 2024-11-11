@@ -1,6 +1,14 @@
-import { ZaaktypeChoice } from "../lib/api/private";
+import { Option } from "@maykin-ui/admin-ui";
 
-const FIXTURE_ZAAKTYPE_CHOICES = [
+import { createArrayFactory } from "./factory";
+
+const FIXTURE_ZAAKTYPE_CHOICE: Option = {
+  label: "Aangifte behandelen 1",
+  value:
+    "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+};
+
+const FIXTURE_ZAAKTYPE_CHOICES: Option[] = [
   {
     label: "Aangifte behandelen 1",
     value:
@@ -31,6 +39,19 @@ const FIXTURE_ZAAKTYPE_CHOICES = [
     value:
       "http://localhost:8000/catalogi/api/v1/zaaktypen/773b6b77-486a-4b6c-be3e-cf13f4387cf3",
   },
-] as ZaaktypeChoice[];
+];
 
-export { FIXTURE_ZAAKTYPE_CHOICES };
+const zaaktypeChoiceFactory = createArrayFactory<Option>(
+  FIXTURE_ZAAKTYPE_CHOICES,
+);
+
+const zaaktypeChoicesFactory = createArrayFactory<Option>(
+  FIXTURE_ZAAKTYPE_CHOICES,
+);
+
+export {
+  FIXTURE_ZAAKTYPE_CHOICE,
+  FIXTURE_ZAAKTYPE_CHOICES,
+  zaaktypeChoiceFactory,
+  zaaktypeChoicesFactory,
+};
