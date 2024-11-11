@@ -2,6 +2,8 @@ import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect } from "react";
 import { SubmitOptions, useActionData, useSubmit } from "react-router-dom";
 
+import { collectErrors } from "../lib/format/error";
+
 // From React Router
 export type JsonObject = {
   [Key in string]: JsonValue;
@@ -82,16 +84,4 @@ export function useSubmitAction<T extends TypedAction = TypedAction>() {
     Object.assign(targetOptions, options);
     return submit(typedAction, targetOptions);
   };
-}
-
-/**
- * Takes an errors object and returns a `string[]` with correct messages.
- * @param errors
- */
-function collectErrors(errors: string | object): string[] {
-  if (typeof errors === "string") {
-    return [errors];
-  }
-  const flatten = Object.values(errors).flat();
-  return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
 }

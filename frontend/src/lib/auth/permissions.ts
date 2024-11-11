@@ -112,7 +112,8 @@ export function canReassignDestructionList(
   destructionList: DestructionList,
 ) {
   return (
-    canStartDestructionList(user) &&
+    (canStartDestructionList(user) ||
+      canReviewDestructionList(user, destructionList)) &&
     (destructionList.status === "new" ||
       destructionList.status === "ready_to_review")
   );

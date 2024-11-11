@@ -9,6 +9,7 @@ const config: StorybookConfig = {
     "@chromatic-com/storybook",
     "@storybook/addon-interactions",
     "storybook-addon-mock",
+    "storybook-addon-module-mock",
   ],
   framework: {
     name: "@storybook/react-webpack5",

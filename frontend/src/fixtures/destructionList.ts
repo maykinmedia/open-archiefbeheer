@@ -1,7 +1,10 @@
-import { DestructionList } from "../lib/api/destructionLists";
-import { createObjectFactory } from "./factory";
+import {
+  DestructionList,
+  DestructionListAssignee,
+} from "../lib/api/destructionLists";
+import { createArrayFactory, createObjectFactory } from "./factory";
 import { defaultAssignees } from "./reviewers";
-import { userFactory } from "./user";
+import { beoordelaarFactory, procesEigenaarFactory, userFactory } from "./user";
 
 const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   pk: 1,
@@ -24,3 +27,31 @@ const destructionListFactory = createObjectFactory<DestructionList>(
 );
 
 export { destructionListFactory };
+
+const FIXTURE_DESTRUCTION_LIST_ASSIGNEE: DestructionListAssignee = {
+  user: beoordelaarFactory(),
+  role: "main_reviewer",
+};
+
+export const destructionListAssigneeFactory = createObjectFactory(
+  FIXTURE_DESTRUCTION_LIST_ASSIGNEE,
+);
+
+const FIXTURE_DESTRUCTION_LIST_ASSIGNEES: DestructionListAssignee[] = [
+  {
+    user: beoordelaarFactory(),
+    role: "main_reviewer",
+  },
+  {
+    user: beoordelaarFactory(),
+    role: "co_reviewer",
+  },
+  {
+    user: procesEigenaarFactory(),
+    role: "co_reviewer",
+  },
+];
+
+export const destructionListAssigneesFactory = createArrayFactory(
+  FIXTURE_DESTRUCTION_LIST_ASSIGNEES,
+);

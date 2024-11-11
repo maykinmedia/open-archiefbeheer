@@ -5,6 +5,7 @@ import { Zaak } from "../../types";
 import { User } from "./auth";
 import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
+import { Assignee } from "./reviewers";
 
 export type DestructionList = {
   pk: number;
@@ -217,6 +218,37 @@ export async function reassignDestructionList(
   data: DestructionListReassignData,
 ) {
   return request("POST", `/destruction-lists/${uuid}/reassign/`, {}, data);
+}
+
+/**
+ * List all the co-reviewers assigned to a destruction list.
+ * @param uuid
+ * @param data
+ */
+export async function listCoReviewers(uuid: string) {
+  const response = await request(
+    "GET",
+    `/destruction-lists/${uuid}/co-reviewers/`,
+  );
+  const promise: Promise<DestructionListAssignee[]> = response.json();
+  return promise;
+}
+
+export type DestructionListUpdateCoReviewersData = {
+  comment: string;
+  add: { user: number }[];
+};
+
+/**
+ * Full update of the co-reviewers assigned to a destruction list.
+ * @param uuid
+ * @param data
+ */
+export async function updateCoReviewers(
+  uuid: string,
+  data: DestructionListUpdateCoReviewersData,
+) {
+  return request("PUT", `/destruction-lists/${uuid}/co-reviewers/`, {}, data);
 }
 
 /**

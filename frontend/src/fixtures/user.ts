@@ -4,6 +4,7 @@ import { createArrayFactory, createObjectFactory } from "./factory";
 const FIXTURE_ROLE = {
   canStartDestruction: false,
   canReviewDestruction: false,
+  canCoReviewDestruction: true,
   canReviewFinalList: false,
 };
 export const roleFactory = createObjectFactory<Role>(FIXTURE_ROLE);
@@ -26,6 +27,7 @@ const FIXTURE_RECORD_MANAGER: User = {
   role: {
     canStartDestruction: true,
     canReviewDestruction: false,
+    canCoReviewDestruction: true,
     canReviewFinalList: false,
   },
 };
@@ -39,6 +41,7 @@ const FIXTURE_BEOORDELAAR: User = {
   role: {
     canStartDestruction: false,
     canReviewDestruction: true,
+    canCoReviewDestruction: true,
     canReviewFinalList: false,
   },
 };
@@ -52,6 +55,7 @@ const FIXTURE_PROCES_EIGENAAR: User = {
   role: {
     canStartDestruction: false,
     canReviewDestruction: true,
+    canCoReviewDestruction: true,
     canReviewFinalList: false,
   },
 };
