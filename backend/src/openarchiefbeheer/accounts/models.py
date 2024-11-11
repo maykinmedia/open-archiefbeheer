@@ -53,6 +53,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
+    def __str__(self):
+        return self.get_name_with_username()
+
     def get_full_name(self):
         """
         Returns the first_name plus the last_name, with a space in between.
@@ -65,8 +68,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name
 
     def get_name_with_username(self):
+        username = self.get_username()
         if self.first_name or self.last_name:
             full_name = self.get_full_name()
-            return f"{full_name.strip()} ({self.username})"
+            return f"{full_name} ({username})"
 
-        return self.username
+        return username
