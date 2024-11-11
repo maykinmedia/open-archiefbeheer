@@ -14,6 +14,7 @@ export type User = {
 export type Role = {
   canStartDestruction: boolean;
   canReviewDestruction: boolean;
+  canCoReviewDestruction: boolean;
   canReviewFinalList: boolean;
 };
 

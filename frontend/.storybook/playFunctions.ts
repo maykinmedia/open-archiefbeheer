@@ -249,7 +249,7 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
           await userEvent.click(option, { delay: 100 });
         } else {
           const input = field as HTMLInputElement;
-          await userEvent.type(input, value, { delay: 10 });
+          await userEvent.type(input, value, { delay: 10, skipClick: false });
         }
     }
   }
