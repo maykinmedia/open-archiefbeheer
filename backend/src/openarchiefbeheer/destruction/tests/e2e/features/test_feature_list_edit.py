@@ -35,7 +35,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 1)
 
             await self.when.user_fills_form_field(page, "Naam", "Destruction list to edit")
-            await self.when.user_fills_form_field(page, "Reviewer", reviewer.username)
+            await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
             await self.then.path_should_be(page, "/destruction-lists")
 
