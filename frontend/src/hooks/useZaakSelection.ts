@@ -49,6 +49,7 @@ export type ZaakSelectionDetailGetter<T = unknown> = (
 
 /**
  * Hook implementing zaak selection, returns: `[AttributeData[], Function, Object]` tuple.
+ * "Optimistic updates" are implemented meaning the state is updated ahead of the API calls to improve UX.
  * First items contains the page specific zaak selection.
  * Second item contains the onSelect update function.
  * Third item contains object with additional symbols.
@@ -82,7 +83,13 @@ export function useZaakSelection<T = unknown>(
     setPageSpecificZaakSelection,
   } = useContext(ZaakSelectionContext);
 
-  // Hacky mechanism to invalidate (nested) hook state due to changes from outside.
+  // extra.revalidateZaakSelection implementation.
+  //
+  // By calling `extra.revalidateZaakSelection`, `revalidateCount` is update (using a `setRevalidateCount` call), this
+  // results in an changed dependency of the `useEffect` hook interacting with the zaakSelection library.
+  //
+  // This here to allow external observers (`usePoll`) to trigger an update without having to re-implement all calls and
+  // update `ZaakSelectionContext`.
   const [revalidateCount, setRevalidateCount] = useState(0);
 
   // URL of the all zaken on (on page).
