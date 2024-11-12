@@ -151,7 +151,7 @@ export const MarkDestructionListAsFinal: Story = {
       parameters: {
         elementIndex: 0,
         formValues: {
-          Archivaris: "Record Manager",
+          Archivaris: "Record Manager (Record Manager)",
           Opmerking: "Ready for destruction",
         },
       },
