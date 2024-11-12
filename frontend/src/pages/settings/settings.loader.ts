@@ -3,7 +3,10 @@ import {
   getArchiveConfiguration,
 } from "../../lib/api/config";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
-import { loginRequired } from "../../lib/auth/loaders";
+import {
+  canStartDestructionListRequired,
+  loginRequired,
+} from "../../lib/auth/loaders";
 
 export type SettingsContext = {
   zaaktypesShortProcess: ArchiveConfiguration["zaaktypesShortProcess"];
@@ -11,7 +14,7 @@ export type SettingsContext = {
 };
 
 export const settingsLoader = loginRequired(
-  async (): Promise<SettingsContext> => {
+  canStartDestructionListRequired(async (): Promise<SettingsContext> => {
     const archiveConfigPromise = getArchiveConfiguration();
     const zaaktypeChoicesPromise = listZaaktypeChoices();
 
@@ -24,5 +27,5 @@ export const settingsLoader = loginRequired(
       zaaktypesShortProcess: archiveConfig.zaaktypesShortProcess,
       zaaktypeChoices,
     };
-  },
+  }),
 );

@@ -119,6 +119,6 @@ export function canReassignDestructionList(
 }
 
 export function canChangeSettings(user: User) {
-  // Functioneel beheerder in future
+  // TODO: Functioneel beheerder in future
   return user.role.canStartDestruction;
 }
