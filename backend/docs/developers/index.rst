@@ -12,7 +12,9 @@ Content
 .. toctree::
     :maxdepth: 3
 
+    setup-local-env
     e2e-tests
     gherkin-like-tests
     vcr-tests
     logic
+    deploying
