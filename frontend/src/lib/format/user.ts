@@ -7,15 +7,14 @@ import { User } from "../api/auth";
  * @param showRole
  */
 export function formatUser(user: User, { showUsername = true } = {}) {
-  if (!user) {
-    return "";
-  }
+  let displayName = "";
+  if (!user) return displayName;
 
-  const userNameSuffix = showUsername ? ` (${user.username})` : "";
-  const displayName =
-    user.firstName && user.lastName
-      ? `${user.firstName} ${user.lastName}${userNameSuffix}`
-      : user.username;
+  if (!user.firstName && !user.lastName) return user.username;
 
-  return displayName;
+  if (user.firstName) displayName = displayName.concat(user.firstName, " ");
+  if (user.lastName) displayName = displayName.concat(user.lastName, " ");
+  if (showUsername) displayName = displayName.concat(`(${user.username})`);
+
+  return displayName.trim();
 }

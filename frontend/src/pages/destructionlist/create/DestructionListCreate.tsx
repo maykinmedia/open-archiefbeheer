@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
+import { formatUser } from "../../../lib/format/user";
 import { BaseListView } from "../abstract";
 import {
   DestructionListCreateAction,
@@ -78,7 +79,7 @@ export function DestructionListCreatePage() {
       name: "assigneeId",
       options: reviewers.map((user) => ({
         value: String(user.pk),
-        label: user.username,
+        label: formatUser(user),
       })),
       required: true,
     },
