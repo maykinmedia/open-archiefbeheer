@@ -30,6 +30,7 @@ class AllSelectedToggle(models.Model):
         _("key"),
         help_text=_("The key to access this selection. "),
         max_length=250,
+        unique=True,
     )
     all_selected = models.BooleanField(
         _("all selected"),
