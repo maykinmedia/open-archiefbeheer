@@ -18,6 +18,7 @@ import {
   canMarkListAsFinal,
   canTriggerDestruction,
 } from "../../../../lib/auth/permissions";
+import { formatUser } from "../../../../lib/format/user";
 import { getFilteredZaakSelection } from "../../../../lib/zaakSelection/zaakSelection";
 import {
   UpdateDestructionListAction,
@@ -262,7 +263,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
                   name: "assigneeIds",
                   options: archivists.map((user) => ({
                     value: String(user.pk),
-                    label: user.username,
+                    label: formatUser(user),
                   })),
                   required: true,
                 },
