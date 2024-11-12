@@ -21,6 +21,7 @@ import {
   RestBackend,
   ZaakSelection,
   addToZaakSelection,
+  compareZaakSelection,
   getZaakSelectionItems,
   removeFromZaakSelection,
 } from "../../../lib/zaakSelection";
@@ -75,19 +76,11 @@ export function DestructionListReviewPage() {
       true,
       RestBackend,
     );
-    const pollZaakUrls = Object.entries(pollZaakSelection)
-      .map(([url, { selected, detail }]) =>
-        [url, selected, detail?.approved].join(),
-      )
-      .sort();
-    const hookZaakUrls = Object.entries(zaakSelectionOnPage)
-      .filter(([, { selected }]) => selected)
-      .map(([url, { selected, detail }]) =>
-        [url, selected, detail?.approved].join(),
-      )
-      .sort();
 
-    const hasChanged = pollZaakUrls.join() !== hookZaakUrls.join();
+    const hasChanged = !compareZaakSelection(
+      pollZaakSelection,
+      zaakSelectionOnPage,
+    );
     if (hasChanged) {
       revalidateZaakSelection();
     }

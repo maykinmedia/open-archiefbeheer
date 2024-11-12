@@ -1,7 +1,9 @@
 import { Zaak } from "../../types";
+import { ZaakSelection } from "./types";
 import {
   addToZaakSelection,
   clearZaakSelection,
+  compareZaakSelection,
   getAllZakenSelected,
   getFilteredZaakSelection,
   getZaakSelection,
@@ -99,5 +101,86 @@ describe("Zaak Selection Functions", () => {
   it("should handle empty Zaak selections correctly", async () => {
     const selection = await getZaakSelection(mockKey);
     expect(selection).toEqual({});
+  });
+
+  it("should compare ZaakSelection items correctly", async () => {
+    const a: ZaakSelection = {
+      "https://example.com/zaak1": {
+        selected: false,
+      },
+      "https://example.com/zaak2": {
+        selected: true,
+      },
+    };
+
+    const b: ZaakSelection = {
+      "https://example.com/zaak2": {
+        selected: true,
+      },
+      "https://example.com/zaak1": {
+        selected: false,
+      },
+    };
+
+    const c: ZaakSelection = {
+      "https://example.com/zaak1": {
+        selected: true,
+      },
+      "https://example.com/zaak2": {
+        selected: true,
+      },
+    };
+
+    const d: ZaakSelection = {
+      "https://example.com/zaak1": {
+        selected: false,
+        detail: {
+          approved: false,
+        },
+      },
+      "https://example.com/zaak2": {
+        selected: true,
+        detail: {
+          approved: false,
+        },
+      },
+    };
+
+    const e: ZaakSelection = {
+      "https://example.com/zaak2": {
+        selected: true,
+        detail: {
+          approved: false,
+        },
+      },
+      "https://example.com/zaak1": {
+        selected: false,
+        detail: {
+          approved: false,
+        },
+      },
+    };
+
+    const f: ZaakSelection = {
+      "https://example.com/zaak1": {
+        selected: false,
+        detail: {
+          approved: true,
+        },
+      },
+      "https://example.com/zaak2": {
+        selected: true,
+        detail: {
+          approved: true,
+        },
+      },
+    };
+
+    expect(compareZaakSelection(a, b)).toBeTruthy();
+    expect(compareZaakSelection(b, a)).toBeTruthy();
+    expect(compareZaakSelection(a, c)).toBeFalsy();
+    expect(compareZaakSelection(a, d)).toBeFalsy();
+    expect(compareZaakSelection(d, e)).toBeTruthy();
+    expect(compareZaakSelection(d, f)).toBeFalsy();
   });
 });
