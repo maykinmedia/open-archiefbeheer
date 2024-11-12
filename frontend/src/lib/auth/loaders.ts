@@ -5,6 +5,7 @@ import { whoAmI } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 import { formatUser } from "../format/user";
 import {
+  canChangeSettings,
   canReviewDestructionList,
   canStartDestructionList,
   canTriggerDestruction,
@@ -167,5 +168,21 @@ export function canTriggerDestructionRequired<
     }
 
     return data;
+  };
+}
+
+export function canViewAndEditSettingsRequired<T extends object>(
+  fn: LoaderFunction,
+): LoaderFunction<T | Response> {
+  return async (loaderFunctionArgs, handlerCtx) => {
+    const user = await whoAmI();
+    if (!canChangeSettings(user)) {
+      throw new Response("Not Permitted", {
+        status: 403,
+        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om de instellingen te wijzigen.`,
+      });
+    }
+
+    return await fn(loaderFunctionArgs, handlerCtx);
   };
 }
