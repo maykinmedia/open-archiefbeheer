@@ -7,6 +7,7 @@ import {
   ZaakSelection,
   ZaakSelectionBackend,
   addToZaakSelection,
+  compareZaakSelection,
   getAllZakenSelected,
   getZaakSelectionItems,
   getZaakSelectionSize,
@@ -211,10 +212,12 @@ export function useZaakSelection<T = unknown>(
     }
 
     // Update state.
-    const oldUrls = _serializeSelection(pageSpecificZaakSelection);
-    const newUrls = _serializeSelection(newState);
+    const hasChanged = !compareZaakSelection(
+      pageSpecificZaakSelection,
+      newState,
+    );
 
-    if (oldUrls !== newUrls) {
+    if (hasChanged) {
       setPageSpecificZaakSelection(newState);
     }
   };

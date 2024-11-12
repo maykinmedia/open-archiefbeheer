@@ -1,6 +1,6 @@
 import { Zaak } from "../../types";
 import { SessionStorageBackend, _getZaakSelection } from "./backends";
-import { ZaakSelectionBackendMeta } from "./types";
+import { ZaakSelection, ZaakSelectionBackendMeta } from "./types";
 
 /**
  * Adds `zaken` to zaak selection identified by key.
@@ -168,6 +168,17 @@ export async function clearZaakSelection(
   meta?: ZaakSelectionBackendMeta,
 ) {
   return backend.clearZaakSelection(key, meta);
+}
+
+/**
+ * Compares whether `ZaakSelection` a equals `ZaakSelection` b.
+ * @param a
+ * @param b
+ */
+export function compareZaakSelection(a: ZaakSelection, b: ZaakSelection) {
+  const _a = Object.fromEntries(Object.entries(a).sort());
+  const _b = Object.fromEntries(Object.entries(b).sort());
+  return JSON.stringify(_a) === JSON.stringify(_b);
 }
 
 /**
