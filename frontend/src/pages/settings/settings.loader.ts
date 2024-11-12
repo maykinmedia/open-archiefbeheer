@@ -4,7 +4,7 @@ import {
 } from "../../lib/api/config";
 import { ZaaktypeChoice, listZaaktypeChoices } from "../../lib/api/private";
 import {
-  canStartDestructionListRequired,
+  canViewAndEditSettingsRequired,
   loginRequired,
 } from "../../lib/auth/loaders";
 
@@ -14,7 +14,7 @@ export type SettingsContext = {
 };
 
 export const settingsLoader = loginRequired(
-  canStartDestructionListRequired(async (): Promise<SettingsContext> => {
+  canViewAndEditSettingsRequired(async (): Promise<SettingsContext> => {
     const archiveConfigPromise = getArchiveConfiguration();
     const zaaktypeChoicesPromise = listZaaktypeChoices();
 
