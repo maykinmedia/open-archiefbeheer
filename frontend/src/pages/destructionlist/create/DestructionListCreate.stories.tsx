@@ -74,8 +74,9 @@ export const DestructionListCreatePageStory: Story = {
     const selectFirstReviewer = await within(modal).findByLabelText("Reviewer");
     await userEvent.click(selectFirstReviewer, { delay: 10 });
 
+    const beoordelaar = beoordelaarFactory();
     const selectReviewerBeoordelaarOption = await within(modal).findAllByText(
-      [beoordelaarFactory().firstName, beoordelaarFactory().lastName].join(" "),
+      `${beoordelaar.firstName} ${beoordelaar.lastName} (${beoordelaar.username})`,
     );
     await userEvent.click(selectReviewerBeoordelaarOption[0], {
       delay: 10,
