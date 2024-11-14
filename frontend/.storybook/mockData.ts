@@ -6,7 +6,7 @@ import { zaaktypeChoicesFactory } from "../src/fixtures/zaaktypeChoices";
 
 export const MOCKS = {
   AUDIT_LOG: {
-    url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/auditlog/?",
+    url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/auditlog/",
     method: "GET",
     status: 200,
     response: auditLogFactory(),
@@ -30,7 +30,7 @@ export const MOCKS = {
     response: zaaktypeChoicesFactory(),
   },
   OIDC_INFO: {
-    url: "http://localhost:8000/api/v1/oidc-info?",
+    url: "http://localhost:8000/api/v1/oidc-info",
     method: "GET",
     status: 200,
     response: {
@@ -39,13 +39,13 @@ export const MOCKS = {
     },
   },
   REVIEWERS: {
-    url: "http://localhost:8000/api/v1/reviewers/?",
+    url: "http://localhost:8000/api/v1/reviewers/",
     method: "GET",
     status: 200,
     response: usersFactory(),
   },
   CO_REVIEWERS: {
-    url: "http://localhost:8000/api/v1/co-reviewers/?",
+    url: "http://localhost:8000/api/v1/co-reviewers/",
     method: "GET",
     status: 200,
     response: usersFactory(),
@@ -57,19 +57,19 @@ export const MOCKS = {
     response: [],
   },
   SELECTIE_LIJST_CHOICES: {
-    url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+    url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/",
     method: "GET",
     status: 200,
     response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   },
   WHOAMI: {
-    url: "http://localhost:8000/api/v1/whoami/?",
+    url: "http://localhost:8000/api/v1/whoami/",
     method: "GET",
     status: 200,
     response: userFactory(),
   },
   ZAAKTYPE_CHOICES: {
-    url: "http://localhost:8000/api/v1/_zaaktypen-choices?",
+    url: "http://localhost:8000/api/v1/_zaaktypen-choices",
     method: "GET",
     status: 200,
     response: zaaktypeChoicesFactory(),
