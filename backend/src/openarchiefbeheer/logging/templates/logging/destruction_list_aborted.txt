@@ -1,0 +1,3 @@
+{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name record_manager=log.user comment=log.extra_data.comment %}
+The destruction of destruction list "{{ list_name }}" was aborted by record manager {{ record_manager }} with reason: "{{ comment }}".
+{% endblocktranslate %}
