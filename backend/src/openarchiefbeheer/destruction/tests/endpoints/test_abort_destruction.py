@@ -6,6 +6,7 @@ import freezegun
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -116,3 +117,22 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
         self.assertEqual(destruction_list.processing_status, InternalStatus.new)
         self.assertEqual(destruction_list.assignee, record_manager)
         self.assertIsNone(destruction_list.planned_destruction_date)
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(len(logs), 1)
+
+        message = logs[0].get_message()
+
+        self.assertEqual(
+            message,
+            _(
+                'The destruction of destruction list "%(list_name)s" was aborted by record '
+                'manager %(record_manager)s with reason: "%(comment)s".'
+            )
+            % {
+                "list_name": "A test list",
+                "record_manager": str(record_manager),
+                "comment": "PANIC! ABORT!",
+            },
+        )
