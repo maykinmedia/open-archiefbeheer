@@ -230,8 +230,6 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Zaak uitzonderen")
             await self.when.user_clicks_checkbox(page, "Alles als (on)gezien markeren")
 
-            await self.when.user_clicks_button(page, "Verwijderen")
-
             await self.then.zaak_should_be_selected(page, zaken[0].identificatie, "Markeren als (on)gezien")
             await self.then.zaak_should_be_selected(page, zaken[1].identificatie, "Markeren als (on)gezien")
             await self.then.zaak_should_be_selected(page, zaken[2].identificatie, "Markeren als (on)gezien")
