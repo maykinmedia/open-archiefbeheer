@@ -3,7 +3,6 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
-import { MOCK_ALL } from "../../../../../../.storybook/mockData";
 import {
   assertColumnSelection,
   clickButton,
@@ -28,7 +27,6 @@ const meta: Meta<typeof DestructionListEditPage> = {
   component: DestructionListEditPage,
   decorators: [ReactRouterDecorator],
   parameters: {
-    mockData: MOCK_ALL,
     reactRouterDecorator: {
       route: {
         id: "destruction-list:detail",

@@ -82,4 +82,4 @@ export const MOCKS = {
   },
 };
 
-export const MOCK_ALL = Object.values(MOCKS);
+export const MOCK_BASE = Object.values(MOCKS);
