@@ -371,10 +371,11 @@ class DestructionListViewSet(
     def abort_destruction(self, request, *args, **kwargs):
         destruction_list = self.get_object()
 
-        serializer = AbortDestructionSerializer(data=request.data)
+        serializer = AbortDestructionSerializer(
+            data=request.data, instance=destruction_list, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
-
-        destruction_list.abort_destruction()
+        serializer.save()
 
         return Response()
 
