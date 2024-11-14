@@ -70,7 +70,10 @@ if settings.DEBUG and apps.is_installed("debug_toolbar"):
         path("__debug__/", include(debug_toolbar.urls)),
     ] + urlpatterns
 
-# For this to work, you need to have built the frontend (`npm run build` in the frontend/ dir)
+# Serve frontend paths
+#
+# For this to work, you need to have built the frontend (`npm run build` in the frontend/ dir). We explicitly set all
+# the used (base) paths here, in the future we might use `re_path` if the amount of paths  increases.
 if settings.E2E_SERVE_FRONTEND:
     urlpatterns = [
         path("", TemplateView.as_view(template_name="index.html"), name="frontend"),
