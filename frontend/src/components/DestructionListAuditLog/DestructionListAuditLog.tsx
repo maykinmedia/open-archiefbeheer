@@ -2,7 +2,7 @@ import { DataGrid } from "@maykin-ui/admin-ui";
 
 import { useAuditLog } from "../../hooks";
 import { DestructionList } from "../../lib/api/destructionLists";
-import { formatDate } from "../../lib/format/date";
+import { formatDateAndTime } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
 
 /**
@@ -16,7 +16,7 @@ export function DestructionListAuditLog({
   const logItems = useAuditLog(destructionList);
 
   const objectList = logItems.map((logItem) => ({
-    Datum: formatDate(logItem.timestamp),
+    Datum: formatDateAndTime(logItem.timestamp),
     "Gewijzigd door": formatUser(logItem.user),
     Wijziging: logItem.message,
   }));

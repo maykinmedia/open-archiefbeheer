@@ -15,6 +15,23 @@ export function formatDate(date: Date | string, format: "nl" | "iso" = "nl") {
 }
 
 /**
+ * Formats date and time.
+ * @param date
+ * @param format
+ * @returns Formatted date and time.
+ */
+export function formatDateAndTime(
+  date: Date | string,
+  format: "nl" | "iso" = "nl",
+) {
+  const _date = new Date(date);
+  if (format === "iso") {
+    return formatISO(date, { representation: "date" });
+  }
+  return _format(_date, "dd/MM/yyyy HH:mm");
+}
+
+/**
  * Options for customizing the output of the timeAgo function.
  */
 interface TimeAgoOptions {
