@@ -111,7 +111,9 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            _('Destruction list "%(list_name)s" created by user %(author)s.')
+            _(
+                'User "%(author)s" with the role of "" has created destruction list "%(list_name)s".'
+            )
             % {"list_name": "A test list", "author": "Jeffrey Jones (record_manager)"},
         )
 
@@ -264,8 +266,10 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message,
-            _('Destruction list "%(list_name)s" was updated.')
-            % {"list_name": "An updated test list"},
+            _(
+                'User "%(user)s" with the role of "" has updated destruction list "%(list_name)s".'
+            )
+            % {"list_name": "An updated test list", "user": record_manager},
         )
 
     def test_partial_list_update(self):
@@ -1044,7 +1048,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "Jeffrey Jones (reviewer)" has reviewed the list "Test list". The destruction list was rejected.',
+            'User "Jeffrey Jones (reviewer)" with the role of "" has reviewed the list "Test list". The destruction list was rejected.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):

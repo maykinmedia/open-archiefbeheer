@@ -1,2 +1,2 @@
-{% load i18n %}{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name user=log.user %}
-   User "{{ user }}" has reviewed the list "{{ list_name }}". {% endblocktranslate %}{% if log.extra_data.approved %}{% translate " The destruction list was approved." %}{% else %}{% translate " The destruction list was rejected." %}{% endif %}
+{% load i18n %}{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name role=log.extra_data.groups.0 user=log.user %}
+   User "{{ user }}" with the role of "{{ role }}" has reviewed the list "{{ list_name }}". {% endblocktranslate %}{% if log.extra_data.approved %}{% translate " The destruction list was approved." %}{% else %}{% translate " The destruction list was rejected." %}{% endif %}

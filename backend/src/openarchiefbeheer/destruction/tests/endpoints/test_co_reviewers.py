@@ -130,10 +130,11 @@ class CoReviewersViewSetTest(APITestCase):
         message = logs[0].get_message()
         self.assertIn(
             _(
-                'User "%(user)s" has replaced all the co-reviewers of the list '
+                'User "%(user)s" with the role of "%(role)s" has replaced all the co-reviewers of the list '
                 '"%(list_name)s" with: %(added_co_reviewers)s.'
             )
             % {
+                "role": "",
                 "user": main_reviewer.user,
                 "list_name": "A beautiful list",
                 "added_co_reviewers": ", ".join(
@@ -245,10 +246,11 @@ class CoReviewersViewSetTest(APITestCase):
         message = logs[0].get_message()
         self.assertIn(
             _(
-                'User "%(user)s" has added these users as co-reviewers to the list '
+                'User "%(user)s" with the role of "%(role)s" has added these users as co-reviewers to the list '
                 '"%(list_name)s": %(added_co_reviewers)s.'
             )
             % {
+                "role": "",
                 "user": main_reviewer.user,
                 "list_name": "A beautiful list",
                 "added_co_reviewers": ", ".join(
