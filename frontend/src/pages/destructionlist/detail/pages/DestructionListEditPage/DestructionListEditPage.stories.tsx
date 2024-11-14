@@ -152,7 +152,7 @@ export const MarkDestructionListAsFinal: Story = {
         elementIndex: 0,
         formValues: {
           Archivaris: "Record Manager",
-          Comment: "Ready for destruction",
+          Opmerking: "Ready for destruction",
         },
       },
     });
