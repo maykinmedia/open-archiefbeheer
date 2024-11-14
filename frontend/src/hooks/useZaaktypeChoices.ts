@@ -13,6 +13,7 @@ import { Review } from "../lib/api/review";
 export function useZaaktypeChoices(
   destructionList?: DestructionList,
   review?: Review,
+  searchParams?: URLSearchParams,
 ): ZaaktypeChoice[] {
   const alert = useAlert();
 
@@ -20,7 +21,7 @@ export function useZaaktypeChoices(
     ZaaktypeChoice[]
   >([]);
   useEffect(() => {
-    listZaaktypeChoices(destructionList?.uuid, review?.pk)
+    listZaaktypeChoices(destructionList?.uuid, review?.pk, searchParams)
       .then((z) => setZaaktypeChoicesState(z))
       .catch((e) => {
         console.error(e);
@@ -30,7 +31,7 @@ export function useZaaktypeChoices(
           "Ok",
         );
       });
-  }, [destructionList?.uuid, review?.pk]);
+  }, [destructionList?.uuid, review?.pk, searchParams?.toString()]);
 
   return zaaktypeChoicesState;
 }

@@ -2,10 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework_gis.fields import GeometryField
-
-from openarchiefbeheer.destruction.models import DestructionList, DestructionListReview
 
 from ..models import Zaak
 
@@ -100,27 +97,6 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
             "The URL of the zaak for which the selectielijstklasse choices are needed."
         ),
     )
-
-
-class ZaakTypeChoicesQueryParamSerializer(serializers.Serializer):
-    in_destruction_list = serializers.SlugRelatedField(
-        slug_field="uuid",
-        required=False,
-        queryset=DestructionList.objects.all().prefetch_related("items__zaak"),
-    )
-    in_review = serializers.PrimaryKeyRelatedField(
-        required=False,
-        queryset=DestructionListReview.objects.all().prefetch_related(
-            "item_reviews__destruction_list_item__zaak",
-        ),
-    )
-
-    def validate(self, attrs):
-        if len(attrs.keys()) > 1:
-            raise ValidationError(
-                _("Multiple query parameters at the same time are not supported.")
-            )
-        return attrs
 
 
 class ZaakMetadataSerializer(serializers.ModelSerializer):

@@ -6,3 +6,4 @@ class UtilsConfig(AppConfig):
 
     def ready(self):
         from . import checks  # noqa
+        from .drf_spectacular import extensions  # noqa

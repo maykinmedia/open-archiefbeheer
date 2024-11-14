@@ -13,7 +13,7 @@ from openarchiefbeheer.destruction.api.permissions import (
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 
 from ..models import Zaak
-from .filtersets import ZaakFilter
+from .filtersets import ZaakFilterSet
 from .serializers import ZaakSerializer
 
 
@@ -31,5 +31,5 @@ class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     ]
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, OrderingFilter)
-    filterset_class = ZaakFilter
+    filterset_class = ZaakFilterSet
     ordering_fields = "__all__"

@@ -37,7 +37,11 @@ export function useFields(
   }, []);
   const [searchParams] = useSearchParams();
   const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
-  const zaaktypeChoices = useZaaktypeChoices(destructionList, review);
+  const zaaktypeChoices = useZaaktypeChoices(
+    destructionList,
+    review,
+    searchParams,
+  );
 
   // The raw, unfiltered configuration of the available base fields.
   // NOTE: This get filtered by `getActiveFields()`.

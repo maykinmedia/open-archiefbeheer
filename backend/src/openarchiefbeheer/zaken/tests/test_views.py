@@ -330,7 +330,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 3)
+        self.assertEqual(len(response.json()), 5)
 
     def test_retrieve_zaaktypen_choices_for_review(self):
         user = UserFactory.create()
@@ -402,6 +402,20 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         self.assertEqual(
             choices[1]["value"],
             review_items[2].destruction_list_item.zaak._expand["zaaktype"]["url"],
+        )
+
+    def test_retrieve_zaaktypen_choices_invalid_filters(self):
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
+        endpoint.args["in_destruction_list"] = "invalid-uuid"
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["inDestructionList"][0], _("Enter a valid UUID.")
         )
 
 

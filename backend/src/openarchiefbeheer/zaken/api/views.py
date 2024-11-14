@@ -5,11 +5,14 @@ from django.views.decorators.cache import cache_page
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from openarchiefbeheer.utils.datastructure import HashableDict
+from openarchiefbeheer.utils.django_filters.backends import NoModelFilterBackend
 
 from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
@@ -18,13 +21,12 @@ from ..utils import (
     retrieve_paginated_type,
     retrieve_selectielijstklasse_choices,
 )
-from .filtersets import ZaakFilter
+from .filtersets import ZaakFilterSet
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
     SelectielijstklasseChoicesSerializer,
     ZaaktypeChoiceSerializer,
-    ZaakTypeChoicesQueryParamSerializer,
 )
 
 
@@ -41,8 +43,13 @@ class CacheZakenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ZaaktypenChoicesView(APIView):
+class ZaaktypenChoicesView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    filter_backends = (NoModelFilterBackend,)
+    filterset_class = ZaakFilterSet
+
+    def get_queryset(self):
+        return Zaak.objects.all()
 
     @extend_schema(
         summary=_("Retrieve zaaktypen choices"),
@@ -51,29 +58,20 @@ class ZaaktypenChoicesView(APIView):
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
-            "The response is cached for 15 minutes."
+            "The response is cached for 15 minutes.\n"
+            "All the filters for the zaken are available to limit which zaaktypen should be returned."
         ),
         tags=["private"],
-        parameters=[ZaakTypeChoicesQueryParamSerializer],
         responses={
-            200: ZaaktypeChoiceSerializer,
+            200: ZaaktypeChoiceSerializer(many=True),
         },
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        param_serializer = ZaakTypeChoicesQueryParamSerializer(
-            data=request.query_params
-        )
-        param_serializer.is_valid(raise_exception=True)
-
-        filters = (
-            {"not_in_destruction_list": True}
-            if not len(param_serializer.data.keys())
-            else param_serializer.data
-        )
-
-        filterset = ZaakFilter(data=filters)
-        filterset.is_valid()
+        filterset = ZaakFilterSet(data=request.query_params)
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
 
         zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
             "_expand__zaaktype", flat=True

@@ -203,6 +203,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 status=ListStatus.ready_to_review
             )
             zaak1 = ZaakFactory.create(
+                identificatie="ZAAK-000-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-01",
@@ -217,6 +218,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             )
             DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
             zaak2 = ZaakFactory.create(
+                identificatie="ZAAK-111-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-02",
@@ -244,7 +246,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                     }
                 },
             )
-            zaak5 = ZaakFactory.create(
+            zaak3 = ZaakFactory.create(
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-05",
@@ -257,7 +259,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                     }
                 },
             )
-            DestructionListItemFactory.create(zaak=zaak5)  # Different destruction list
+            DestructionListItemFactory.create(zaak=zaak3)  # Different destruction list
 
             self.destruction_list = destruction_list
 
@@ -270,6 +272,14 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
             
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
+
+            # If filtering first on identificatie, the zaaktype filters change
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review?identificatie__icontains=ZAAK-000&page=1")
+            await self.then.this_number_of_zaken_should_be_visible(page, 1)
+            await self.then.zaaktype_filters_are(page, [
+                "ZAAKTYPE-01 (ZAAKTYPE-01)"
+            ])
 
     @tag("gh-378")
     async def test_zaak_removed_outside_process(self):

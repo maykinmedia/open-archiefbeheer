@@ -74,10 +74,10 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
     async def test_zaaktype_filters_on_create_page(self):
-           
         @sync_to_async
         def create_data():
             ZaakFactory.create(
+                identificatie="ZAAK-000-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-01", 
@@ -88,6 +88,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 }, 
             )
             ZaakFactory.create(
+                identificatie="ZAAK-000-2",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-02", 
@@ -98,6 +99,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 }, 
             )
             ZaakFactory.create(
+                identificatie="ZAAK-111-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-03", 
@@ -108,12 +110,13 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 }, 
             )
             zaak = ZaakFactory.create(
+                identificatie="ZAAK-111-2",
                 post___expand={
                     "zaaktype": {
-                        "identificatie": "ZAAKTYPE-05", 
-                        "omschrijving": "ZAAKTYPE-05", 
+                        "identificatie": "ZAAKTYPE-04", 
+                        "omschrijving": "ZAAKTYPE-04", 
                         "versiedatum": "2024-01-01", 
-                        "url": "http://catalogue-api.nl/zaaktypen/555-555-555"
+                        "url": "http://catalogue-api.nl/zaaktypen/444-444-444"
                     }
                 }, 
             )
@@ -131,4 +134,12 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 "ZAAKTYPE-01 (ZAAKTYPE-01)", 
                 "ZAAKTYPE-02 (ZAAKTYPE-02)", 
                 "ZAAKTYPE-03 (ZAAKTYPE-03)"
+            ])
+
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.then.path_should_be(page, "/destruction-lists/create?identificatie__icontains=ZAAK-000&page=1")
+            await self.then.this_number_of_zaken_should_be_visible(page, 2)
+            await self.then.zaaktype_filters_are(page, [
+                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
+                "ZAAKTYPE-02 (ZAAKTYPE-02)" 
             ])

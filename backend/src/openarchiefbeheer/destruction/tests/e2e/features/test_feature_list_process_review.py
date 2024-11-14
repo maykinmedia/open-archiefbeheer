@@ -91,6 +91,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                 status=ListStatus.changes_requested
             )
             zaak1 = ZaakFactory.create(
+                identificatie="ZAAK-000-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-01",
@@ -105,6 +106,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             )
             item1 = DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
             zaak2 = ZaakFactory.create(
+                identificatie="ZAAK-111-1",
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-02",
@@ -117,14 +119,28 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                     }
                 },
             )
-            DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
-
-            ZaakFactory.create(
+            item2 = DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
+            zaak3 = ZaakFactory.create(
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-03",
                         "omschrijving": "ZAAKTYPE-03",
                         "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
+                        "selectielijst_procestype": {
+                            "url": "http://selectielijst.nl/api/v1/procestype/1"
+                        },
+                        "versiedatum": "2024-01-01"
+                    }
+                },
+            )
+            DestructionListItemFactory.create(zaak=zaak3, destruction_list=destruction_list)
+
+            ZaakFactory.create(
+                post___expand={
+                    "zaaktype": {
+                        "identificatie": "ZAAKTYPE-04",
+                        "omschrijving": "ZAAKTYPE-04",
+                        "url": "http://catalogue-api.nl/zaaktypen/444-444-444",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
                         }, 
@@ -136,7 +152,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                 post___expand={
                     "zaaktype": {
                         "identificatie": "ZAAKTYPE-05",
-                        "omschrijving": "ZAAKTYPE-03",
+                        "omschrijving": "ZAAKTYPE-05",
                         "url": "http://catalogue-api.nl/zaaktypen/555-555-555",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
@@ -147,7 +163,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             )
             DestructionListItemFactory.create(zaak=zaak5)  # Different destruction list
 
-            # Negative review item only for zaak 1
+            # Negative review item for zaak 1 and 2
             review = DestructionListReviewFactory.create(
                 destruction_list=destruction_list,
                 decision=ReviewDecisionChoices.rejected,
@@ -155,6 +171,11 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             DestructionListItemReviewFactory.create(
                 destruction_list=destruction_list,
                 destruction_list_item=item1, 
+                review=review
+            )
+            DestructionListItemReviewFactory.create(
+                destruction_list=destruction_list,
+                destruction_list_item=item2, 
                 review=review
             )
 
@@ -168,6 +189,12 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, self.destruction_list.name)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
             
+            await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
+
+            # If filtering first on identificatie, the zaaktype filters change
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review?identificatie__icontains=ZAAK-000&page=1")
+            await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
         
     @tag("gh-378")
