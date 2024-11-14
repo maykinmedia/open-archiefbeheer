@@ -1,7 +1,7 @@
 # fmt: off
 from django.test import tag
 
-from openarchiefbeheer.destruction.constants import ListStatus
+from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
@@ -11,9 +11,9 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
     async def test_scenario_co_reviewer_select_zaken_visible_to_reviewer(self):
         async with browser_page() as page:
             reviewer = await self.given.reviewer_exists()
-            reviewer_assignee = await self.given.assignee_exists(user=reviewer, role="main_reviewer")
+            reviewer_assignee = await self.given.assignee_exists(user=reviewer, role=ListRole.main_reviewer)
             co_reviewer = await self.given.co_reviewer_exists()
-            co_reviewer_assignee = await self.given.assignee_exists(user=co_reviewer, role="co_reviewer")
+            co_reviewer_assignee = await self.given.assignee_exists(user=co_reviewer, role=ListRole.co_reviewer)
 
             await self.given.list_exists(
                 assignee=reviewer,
