@@ -15,10 +15,7 @@ from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilter
-from openarchiefbeheer.zaken.api.serializers import (
-    ZaakMetadataSerializer,
-    ZaakSerializer,
-)
+from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
 
@@ -241,7 +238,6 @@ class DestructionListItemWriteSerializer(serializers.ModelSerializer):
 
 class DestructionListItemReadSerializer(serializers.ModelSerializer):
     zaak = ZaakSerializer(allow_null=True, read_only=True)
-    extra_zaak_data = ZaakMetadataSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = DestructionListItem
