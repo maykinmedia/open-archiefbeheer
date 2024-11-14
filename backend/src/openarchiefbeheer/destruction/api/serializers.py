@@ -795,3 +795,8 @@ class AuditTrailItemSerializer(serializers.ModelSerializer):
 
 class AbortDestructionSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
+
+    def save(self):
+        self.instance.abort_destruction()
+
+        return self.instance
