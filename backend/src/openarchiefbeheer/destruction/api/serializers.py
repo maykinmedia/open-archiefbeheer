@@ -799,4 +799,7 @@ class AbortDestructionSerializer(serializers.Serializer):
     def save(self):
         self.instance.abort_destruction()
 
+        logevent.destruction_list_aborted(
+            self.instance, self.validated_data["comment"], self.context["request"].user
+        )
         return self.instance
