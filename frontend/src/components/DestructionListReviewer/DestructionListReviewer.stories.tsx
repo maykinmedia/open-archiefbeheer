@@ -7,7 +7,6 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../.storybook/decorators";
-import { MOCK_ALL } from "../../../.storybook/mockData";
 import { fillForm } from "../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../fixtures/destructionList";
 import {
@@ -26,9 +25,6 @@ const meta: Meta<typeof DestructionListEditPage> = {
   title: "Components/DestructionListReviewer",
   component: DestructionListReviewerComponent,
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
-  parameters: {
-    mockData: MOCK_ALL,
-  },
 };
 
 export default meta;
