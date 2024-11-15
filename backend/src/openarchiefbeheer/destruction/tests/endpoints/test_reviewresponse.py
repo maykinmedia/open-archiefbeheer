@@ -238,9 +238,14 @@ class ReviewResponsesViewSetTests(APITestCase):
         self.assertEqual(
             data[0]["message"],
             _(
-                'User "%(user)s" with the role of "%(role)s" has reassigned destruction list "%(list_name)s".'
+                'User "%(user)s" (member of group%(n_groups)s "%(groups)s") has reassigned destruction list "%(list_name)s".'
             )
-            % {"list_name": "Test audittrail", "user": record_manager, "role": ""},
+            % {
+                "list_name": "Test audittrail",
+                "user": record_manager,
+                "n_groups": "",
+                "groups": "",
+            },
         )
         self.assertEqual(
             data[0]["extra_data"]["assignee"]["user"],

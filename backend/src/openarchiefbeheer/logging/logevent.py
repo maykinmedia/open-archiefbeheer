@@ -17,6 +17,10 @@ from openarchiefbeheer.destruction.models import (
 def _create_log(
     model: Model, event: str, extra_data: dict | None = None, user: User | None = None
 ) -> TimelineLog:
+    if extra_data is None:
+        # Making sure extra_data is always a dict to prevent NoneType errors
+        extra_data = {}
+
     if user:
         serializer = UserSerializer(user)
         user_groups = [group.name for group in user.groups.all()]
@@ -25,7 +29,7 @@ def _create_log(
     return TimelineLog.objects.create(
         content_object=model,
         template=f"logging/{event}.txt",
-        extra_data=extra_data or {},
+        extra_data=extra_data,
         user=user,
     )
 

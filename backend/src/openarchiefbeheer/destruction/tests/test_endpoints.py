@@ -565,14 +565,15 @@ class DestructionListViewSetTest(APITestCase):
         message = logs[0].get_message()
 
         self.assertEqual(
-            message.strip("\n"),
+            message,
             _(
-                'User "%(user)s" with the role of "%(role)s" has made destruction list "%(list_name)s" final and '
-                "assigned it to the archivist %(archivist)s."
+                'User "%(user)s" (member of group%(n_groups)s "%(groups)s") has made destruction list "%(list_name)s" final and '
+                'assigned it to the archivist "%(archivist)s".'
             )
             % {
                 "user": record_manager,
-                "role": "",
+                "groups": "",
+                "n_groups": "",
                 "list_name": "A test list",
                 "record_manager": "record_manager",
                 "archivist": "archivist",

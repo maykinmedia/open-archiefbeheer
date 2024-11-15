@@ -2,5 +2,4 @@
 {% with groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length %}
 {% blocktranslate trimmed with list_name=log.content_object.name groups=groups n_groups=n_groups author=log.user %}
 User "{{ author }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has created destruction list "{{ list_name }}".
-{% endblocktranslate %}
-{% endwith %}
+{% endblocktranslate %}{% endwith %}
