@@ -2,7 +2,7 @@ import re
 from typing import Callable
 
 from asgiref.sync import sync_to_async
-from playwright.async_api import expect
+from playwright.async_api import TimeoutError, expect
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.models import DestructionList
@@ -444,6 +444,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 await self.then.page_should_contain_text(page, "Vernietigingslijsten")
         """
 
+        # This indicates that the test is inverted (not_), this can be used to optimize tests.
+        is_inverted = False
+
         def __init__(self, testcase):
             self.testcase = testcase
 
@@ -452,6 +455,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             class InvertedThen:
                 def __init__(self, then):
                     self.then = then
+                    self.then.is_inverted = True
 
                 def __getattr__(self, item):
                     method = getattr(self.then, item)
@@ -459,7 +463,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                     async def inverted_method(*args, **kwargs):
                         try:
                             await method(*args, **kwargs)
-                        except AssertionError:
+                        except (AssertionError, TimeoutError):
                             return
 
                         raise AssertionError(
@@ -508,9 +512,16 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             count = await get_number_of_items()
             self.testcase.assertEqual(number_of_items, count)
 
-        async def page_should_contain_text(self, page, text):
-            locator = page.get_by_text(text).nth(0)
-            await expect(locator).to_be_visible()
+        async def page_should_contain_text(self, page, text, timeout=None):
+            if timeout is None:
+                timeout = 500 if self.is_inverted else 10000
+
+            # Wait for the text to appear in the DOM
+            await page.wait_for_selector(f"text={text}", timeout=timeout)
+
+            # Confirm the element with the text is visible
+            element = page.locator(f"text={text}")
+            await expect(element.nth(0)).to_be_visible(timeout=timeout)
 
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
