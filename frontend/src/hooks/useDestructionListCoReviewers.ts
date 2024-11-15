@@ -1,4 +1,3 @@
-import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import {
@@ -6,6 +5,7 @@ import {
   DestructionListAssignee,
 } from "../lib/api/destructionLists";
 import { listDestructionListCoReviewers } from "../lib/api/destructionLists";
+import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving reviewers
@@ -13,7 +13,9 @@ import { listDestructionListCoReviewers } from "../lib/api/destructionLists";
 export function useDestructionListCoReviewers(
   destructionList: DestructionList,
 ): DestructionListAssignee[] {
-  const alert = useAlert();
+  const alertOnError = useAlertOnError(
+    "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
+  );
 
   const [coReviewersState, setCoReviewersState] = useState<
     DestructionListAssignee[]
@@ -23,14 +25,7 @@ export function useDestructionListCoReviewers(
       .then(
         (r) => setCoReviewersState(r.filter((r) => r.role === "co_reviewer")), // Only list co-reviewers.
       )
-      .catch((e) => {
-        console.error(e);
-        alert(
-          "Foutmelding",
-          "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
-          "Ok",
-        );
-      });
+      .catch(alertOnError);
   }, [destructionList]);
 
   return coReviewersState;
