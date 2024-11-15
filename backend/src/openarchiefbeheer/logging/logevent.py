@@ -1,5 +1,7 @@
 import traceback
 
+from django.db.models import Model
+
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
@@ -10,12 +12,14 @@ from openarchiefbeheer.destruction.models import (
     DestructionListReview,
     ReviewDecisionChoices,
 )
-from django.db.models import Model
 
-def _create_log(model: Model, event: str, extra_data: dict | None = None, user: User | None = None) -> TimelineLog:
+
+def _create_log(
+    model: Model, event: str, extra_data: dict | None = None, user: User | None = None
+) -> TimelineLog:
     if user:
         serializer = UserSerializer(user)
-        user_groups = [group.name for group in user.groups.all()] 
+        user_groups = [group.name for group in user.groups.all()]
         extra_data.update({"user": serializer.data, "user_groups": user_groups})
 
     return TimelineLog.objects.create(
@@ -46,9 +50,7 @@ def destruction_list_created(
 
 
 def destruction_list_updated(destruction_list: DestructionList, user: User) -> None:
-    _create_log(
-        model=destruction_list, event="destruction_list_updated", user=user
-    )
+    _create_log(model=destruction_list, event="destruction_list_updated", user=user)
 
 
 def destruction_list_reassigned(
