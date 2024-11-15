@@ -150,7 +150,6 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
     parameters: {
       form: form,
       formValues: {
-        Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
         "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
         Reden: "Edit co-reviewers",
       },
@@ -166,7 +165,7 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
       libDestructionList,
       "reassignDestructionList",
     );
-    expect(reassignDestructionList).toHaveBeenCalled();
+    expect(reassignDestructionList).not.toHaveBeenCalled();
 
     const updateCoReviewers = getMock(
       context.parameters,
