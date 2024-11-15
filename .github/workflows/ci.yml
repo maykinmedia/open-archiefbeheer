@@ -141,8 +141,8 @@ jobs:
       - name: Publish coverage report
         uses: codecov/codecov-action@v3.1.4
         with:
-          working-directory: frontend/coverage
-          files: ./clover.xml
+          working-directory: frontend/coverage/storybook
+          files: ./coverage-storybook.json
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
