@@ -108,16 +108,16 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(logs.count(), 1)
 
         message = logs[0].get_message()
-
         self.assertEqual(
             message,
             _(
-                'User "%(author)s" with the role of "%(role)s" has created destruction list "%(list_name)s".'
+                'User "%(author)s" (member of group%(n_groups)s "%(groups)s") has created destruction list "%(list_name)s".'
             )
             % {
                 "list_name": "A test list",
                 "author": "Jeffrey Jones (record_manager)",
-                "role": "",
+                "groups": "",
+                "n_groups": "",
             },
         )
 
@@ -1049,10 +1049,9 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, reviewer)
-        self.assertFalse(logs[0].extra_data["approved"])
         self.assertEqual(
             logs[0].get_message(),
-            'User "Jeffrey Jones (reviewer)" with the role of "" has reviewed the list "Test list". The destruction list was rejected.',
+            'User "Jeffrey Jones (reviewer)" (member of group "") has reviewed the list "Test list". The destruction list was rejected.',
         )
 
     def test_reviewing_cases_not_in_destruction_list(self):

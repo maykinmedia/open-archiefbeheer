@@ -1,6 +1,6 @@
 {% load i18n %}
 {% with groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length %}
-{% blocktranslate trimmed with timestamp=log.timestamp|date:"c" list_name=log.content_object.name groups=groups n_groups=n_groups user=log.user %}
-User "{{ user }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has reassigned destruction list "{{ list_name }}" on "{{ timestamp }}".
+{% blocktranslate trimmed with list_name=log.content_object.name groups=groups n_groups=n_groups user=log.user %}
+User "{{ user }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has reassigned destruction list "{{ list_name }}".
 {% endblocktranslate %}
 {% endwith %}
