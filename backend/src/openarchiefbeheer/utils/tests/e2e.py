@@ -1,3 +1,4 @@
+import socket
 from contextlib import asynccontextmanager
 
 from django.conf import settings
@@ -57,20 +58,30 @@ async def browser_page_with_tracing(log_levels=["debug"]):
 
 
 class LiveServerThreadWithReuse(LiveServerThread):
-    """Live server thread with reuse of local addresses
-
-    Apparently, after the server thread is stopped, the socket is still bound to the address and in TIME_WAIT state.
-    The connection is kept around so that any delayed packets can be matched to the connection and handled appropriately.
-    The OS will close the connection once a timeout period has passed.
-    By reusing the address, we prevent the ``socket.error: [Errno 48] Address already in use`` error.
-    """
+    """Live server thread with a retry limit for finding an available port."""
 
     def _create_server(self, connections_override=None):
-        return self.server_class(
-            (self.host, self.port),
-            QuietWSGIRequestHandler,
-            allow_reuse_address=True,
-            connections_override=connections_override,
+        max_retries = 100  # Limit retries to 100 steps
+        retries = 0
+
+        while retries < max_retries:
+            try:
+                return self.server_class(
+                    (self.host, self.port),
+                    QuietWSGIRequestHandler,
+                    allow_reuse_address=True,
+                    connections_override=connections_override,
+                )
+            except OSError as e:
+                if e.errno == socket.errno.EADDRINUSE:  # Port is in use
+                    self.port += 1  # Try the next port
+                    retries += 1
+                else:
+                    raise  # Re-raise unexpected errors
+
+        # If no port was found after max_retries, raise an exception
+        raise RuntimeError(
+            f"Could not find an available port after {max_retries} attempts starting from {self.port - max_retries}."
         )
 
 

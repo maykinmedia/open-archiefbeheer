@@ -1,7 +1,15 @@
 import { getCookie } from "../cookie/cookie";
 
-/** Scheme for all API requests. */
-export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+/** Host for all API requests. */
+export const API_HOST = process.env.REACT_APP_API_HOST || "http://localhost";
+
+/** Port for all API requests. */
+export const API_PORT =
+  document.body.dataset.testApiPort || process.env.REACT_APP_API_PORT || 8000;
+
+/** Base URL for all API requests. */
+export const API_URL =
+  process.env.REACT_APP_API_URL || `${API_HOST}:${API_PORT}`;
 
 /** The base path for all API requests. */
 export const API_PATH = process.env.REACT_APP_API_PATH || "/api/v1";
