@@ -15,7 +15,7 @@ export const MOCKS = {
     url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",
     method: "POST",
     status: 201,
-    response: undefined,
+    response: {},
   },
   DESTRUCTION_LIST_CO_REVIEWERS: {
     url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
