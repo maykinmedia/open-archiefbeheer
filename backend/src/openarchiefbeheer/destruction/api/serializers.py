@@ -692,6 +692,11 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
                         }
                     )
 
+                # If no selectielijstklasse is specified on the zaak, allow updating
+                # the archiefactiedatum manually
+                if not review_item.destruction_list_item.zaak.selectielijstklasse:
+                    return
+
                 resultaat = self._get_selectielijst_resultaat(
                     review_item.destruction_list_item.zaak.selectielijstklasse
                 )
