@@ -11,6 +11,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
     async def test_scenario_user_approves_and_deselects_single_item(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -38,6 +39,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_approves_and_deselects_all_items_individually(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -83,6 +85,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_excludes_and_deselects_single_item(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -118,6 +121,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_excludes_and_keeps_single_item(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -153,6 +157,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_approves_and_deselects_all_items_in_batch(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -181,6 +186,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_approves_items_hybrid(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
@@ -211,6 +217,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
     async def test_scenario_user_approves_and_deselect_unexcluded_items_in_batch(self):
         async with browser_page() as page:
+            await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
 
