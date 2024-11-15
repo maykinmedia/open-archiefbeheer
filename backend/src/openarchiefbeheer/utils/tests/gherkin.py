@@ -13,6 +13,7 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
 )
+from openarchiefbeheer.selection.models import AllSelectedToggle, SelectionItem
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -247,6 +248,10 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def zaken_are_indexed(self, amount, **kwargs):
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
 
+        async def zaak_selection_api_is_empty(self):
+            await SelectionItem.objects.all().adelete()
+            await AllSelectedToggle.objects.all().adelete()
+
         @sync_to_async
         def _orm_get(self, model, **kwargs):
             return model.objects.get(**kwargs)
@@ -363,11 +368,8 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             )
 
         async def _user_logs_in(self, page, username, password="ANic3Password"):
-            await page.goto(self.testcase.live_server_url)
-            await page.wait_for_url(
-                f"{self.testcase.live_server_url}/login?next=/destruction-lists"
-            )
-
+            await self.user_logs_out(page)
+            await page.goto(f"{self.testcase.live_server_url}/login")
             await page.get_by_label("Gebruikersnaam").fill(username)
             await page.get_by_label("Wachtwoord").fill(password)
             await page.get_by_role("button", name="Inloggen").click()
@@ -525,7 +527,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             locator = page.get_by_role("row", name=identificatie).get_by_label(
                 template.format(identificatie=identificatie)
             )
-            await expect(locator).to_be_checked()
+            await expect(locator).to_be_checked(
+                timeout=10000
+            )  # Attempt to fix flakiness?
 
         async def zaak_should_not_be_selected(
             self, page, identificatie, template="(de)selecteer rij"

@@ -90,10 +90,12 @@ class FeatureListEditTests(GherkinLikeTestCase):
                 username="record_manager", password="ANic3Password", post__can_start_destruction=True
             )
             destruction_list = DestructionListFactory.create(
+                name="Destruction list to filter",
                 assignee=record_manager,
                 author=record_manager,
                 uuid="00000000-0000-0000-0000-000000000000",
                 status=ListStatus.new
+
             )
             zaak1 = ZaakFactory.create(
                 identificatie="ZAAK-000-1",
