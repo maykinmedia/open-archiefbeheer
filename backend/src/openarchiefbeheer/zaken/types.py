@@ -6,4 +6,4 @@ from typing import Optional
 class DropDownChoice:
     label: str
     value: str
-    extra_data: Optional[int] = None
+    extra_data: Optional[dict] = None
