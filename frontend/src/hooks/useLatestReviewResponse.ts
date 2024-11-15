@@ -1,4 +1,3 @@
-import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import { Review } from "../lib/api/review";
@@ -6,6 +5,7 @@ import {
   ReviewResponse,
   getLatestReviewResponse,
 } from "../lib/api/reviewResponse";
+import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving latest review response
@@ -13,7 +13,9 @@ import {
 export function useLatestReviewResponse(
   review?: Review,
 ): ReviewResponse | null {
-  const alert = useAlert();
+  const alertOnError = useAlertOnError(
+    "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
+  );
 
   const [reviewResponseState, setReviewResponseState] =
     useState<ReviewResponse | null>(null);
@@ -24,14 +26,7 @@ export function useLatestReviewResponse(
     }
     getLatestReviewResponse({ review: review.pk })
       .then((r) => setReviewResponseState(r || null))
-      .catch((e) => {
-        console.error(e);
-        alert(
-          "Foutmelding",
-          "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
-          "Ok",
-        );
-      });
+      .catch(alertOnError);
   }, [review?.pk]);
 
   return reviewResponseState;

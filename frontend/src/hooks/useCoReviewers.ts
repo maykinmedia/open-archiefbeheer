@@ -1,27 +1,22 @@
-import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import { User } from "../lib/api/auth";
 import { listCoReviewers } from "../lib/api/reviewers";
+import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving reviewers
  */
 export function useCoReviewers(): User[] {
-  const alert = useAlert();
+  const alertOnError = useAlertOnError(
+    "Er is een fout opgetreden bij het ophalen van mede beoordelaars!",
+  );
 
   const [reviewersState, setReviewersState] = useState<User[]>([]);
   useEffect(() => {
     listCoReviewers()
       .then((r) => setReviewersState(r))
-      .catch((e) => {
-        console.error(e);
-        alert(
-          "Foutmelding",
-          "Er is een fout opgetreden bij het ophalen van mede beoordelaars!",
-          "Ok",
-        );
-      });
+      .catch(alertOnError);
   }, []);
 
   return reviewersState;

@@ -1,14 +1,16 @@
-import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import { AuditLogItem, listAuditLog } from "../lib/api/auditLog";
 import { DestructionList } from "../lib/api/destructionLists";
+import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving audit log items
  */
 export function useAuditLog(destructionList?: DestructionList): AuditLogItem[] {
-  const alert = useAlert();
+  const alertOnError = useAlertOnError(
+    "Er is een fout opgetreden bij het ophalen van de audit log!",
+  );
 
   const [auditLogState, setAuditLogState] = useState<AuditLogItem[]>([]);
   useEffect(() => {
@@ -19,14 +21,7 @@ export function useAuditLog(destructionList?: DestructionList): AuditLogItem[] {
 
     listAuditLog(destructionList.uuid)
       .then((a) => setAuditLogState(a))
-      .catch((e) => {
-        console.error(e);
-        alert(
-          "Foutmelding",
-          "Er is een fout opgetreden bij het ophalen van de audit log!",
-          "Ok",
-        );
-      });
+      .catch(alertOnError);
   }, [destructionList?.uuid]);
 
   return auditLogState;

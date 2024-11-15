@@ -1,13 +1,16 @@
-import { Option, useAlert } from "@maykin-ui/admin-ui";
+import { Option } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import { listSelectielijstKlasseChoices } from "../lib/api/private";
+import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving selectielijst choices
  */
 export function useSelectielijstKlasseChoices(): Option[] {
-  const alert = useAlert();
+  const alertOnError = useAlertOnError(
+    "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+  );
 
   const [selectielijstChoicesState, setSelectielijstChoicesState] = useState<
     Option[]
@@ -15,14 +18,7 @@ export function useSelectielijstKlasseChoices(): Option[] {
   useEffect(() => {
     listSelectielijstKlasseChoices()
       .then((s) => setSelectielijstChoicesState(s))
-      .catch((e) => {
-        console.error(e);
-        alert(
-          "Foutmelding",
-          "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
-          "Ok",
-        );
-      });
+      .catch(alertOnError);
   }, []);
 
   return selectielijstChoicesState;
