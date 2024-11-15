@@ -89,10 +89,9 @@ export function DestructionListReviewer({
       promises.push(promise);
     }
 
-    const reviewerPk = Number(reviewer);
-    if (reviewerPk !== user?.pk) {
+    if (reviewer) {
       const promise = reassignDestructionList(destructionList.uuid, {
-        assignee: { user: reviewerPk },
+        assignee: { user: Number(reviewer) },
         comment: String(comment),
       }).catch(async (e) => {
         console.error(e);
@@ -161,7 +160,7 @@ export function DestructionListReviewer({
           value: assignedCoReviewers[i]?.user.pk,
         }));
 
-      return [reviewer, ...coReviewerFields, comment];
+      return [...coReviewerFields, comment];
     }
     return [reviewer, comment];
   }, [user, destructionList, reviewers, assignedCoReviewers]);
