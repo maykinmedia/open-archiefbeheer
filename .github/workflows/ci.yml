@@ -36,8 +36,6 @@ jobs:
         run: |
           npm ci --legacy-peer-deps
           CI=false npm run build 
-        env: 
-          REACT_APP_API_URL: "http://localhost:8000"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -236,7 +234,7 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/build/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=e2e
+          python src/manage.py test openarchiefbeheer --tag=e2e --parallel=3
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
