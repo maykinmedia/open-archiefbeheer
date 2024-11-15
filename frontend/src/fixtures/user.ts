@@ -4,7 +4,7 @@ import { createArrayFactory, createObjectFactory } from "./factory";
 const FIXTURE_ROLE = {
   canStartDestruction: false,
   canReviewDestruction: false,
-  canCoReviewDestruction: true,
+  canCoReviewDestruction: false,
   canReviewFinalList: false,
 };
 export const roleFactory = createObjectFactory<Role>(FIXTURE_ROLE);

@@ -1,12 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
-import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import {
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../../.storybook/decorators";
 import { MOCK_BASE } from "../../../../.storybook/mockData";
 import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../fixtures/review";
-import { usersFactory } from "../../../fixtures/user";
+import {
+  beoordelaarFactory,
+  roleFactory,
+  userFactory,
+  usersFactory,
+} from "../../../fixtures/user";
 import {
   clearZaakSelection,
   getFilteredZaakSelection,
@@ -22,10 +30,16 @@ import { DestructionListReviewContext } from "./DestructionListReview.loader";
 const meta: Meta<typeof DestructionListReviewPage> = {
   title: "Pages/DestructionList/DestructionListReviewPage",
   component: DestructionListReviewPage,
-  decorators: [ReactRouterDecorator],
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     mockData: [
       ...MOCK_BASE,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: beoordelaarFactory(),
+      },
       {
         url: "http://localhost:8000/api/v1/selections/storybook-storage-key?",
         method: "PATCH",
@@ -152,5 +166,56 @@ export const ReviewDestructionList: Story = {
 
     const excludeButtons = await canvas.findAllByText("Uitzonderen");
     await userEvent.click(excludeButtons[0], { delay: 10 });
+  },
+};
+
+export const ReviewerCanApproveDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE,
+        action: destructionListReviewAction,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const approveButton = await within(canvasElement).findByText("Goedkeuren");
+    await expect(approveButton).toBeInTheDocument();
+  },
+};
+
+export const CoReviewerCannotApproveDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        loader: async () => FIXTURE,
+        action: destructionListReviewAction,
+      },
+    },
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: userFactory({
+          username: "co-reviewer",
+          firstName: "Co",
+          lastName: "Reviewer",
+          role: roleFactory({
+            canReviewDestruction: false,
+            canCoReviewDestruction: true,
+          }),
+        }),
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await waitFor(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const approveButton =
+        await within(canvasElement).queryByText("Goedkeuren");
+      await expect(approveButton).not.toBeInTheDocument();
+    });
   },
 };
