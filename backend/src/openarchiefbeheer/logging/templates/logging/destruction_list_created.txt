@@ -1,3 +1,6 @@
-{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name role=log.extra_data.groups.0 author=log.user %}
-User "{{ author }}" with the role of "{{ role }}" has created destruction list "{{ list_name }}".
+{% load i18n %}
+{% with groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length %}
+{% blocktranslate trimmed with list_name=log.content_object.name groups=groups n_groups=n_groups author=log.user %}
+User "{{ author }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has created destruction list "{{ list_name }}".
 {% endblocktranslate %}
+{% endwith %}

@@ -1,4 +1,6 @@
 {% load i18n %}
-{% blocktranslate trimmed with list_name=log.content_object.name role=log.extra_data.groups.0 user=log.user record_manager=log.user.username archivist=log.extra_data.archivist.username %}
-    User "{{ user }}" with the role of "{{ role }}" has made destruction list "{{ list_name }}" final and assigned it to the archivist {{ archivist }}.
+{% with groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length %}
+{% blocktranslate trimmed with list_name=log.content_object.name groups=groups n_groups=n_groups user=log.user record_manager=log.user.username archivist=log.extra_data.archivist.username %}
+User "{{ user }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has made destruction list "{{ list_name }}" final and assigned it to the archivist "{{ archivist }}".
 {% endblocktranslate %}
+{% endwith %}
