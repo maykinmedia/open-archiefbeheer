@@ -127,10 +127,11 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
         self.assertEqual(
             message,
             _(
-                'User "%(record_manager)s" with the role of "" has aborted the destruction of destruction list "%(list_name)s" '
+                'User "%(record_manager)s" with the role of "%(role)s" has aborted the destruction of destruction list "%(list_name)s" '
                 'with reason: "%(comment)s".'
             )
             % {
+                "role": "",
                 "list_name": "A test list",
                 "record_manager": str(record_manager),
                 "comment": "PANIC! ABORT!",

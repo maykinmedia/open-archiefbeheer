@@ -112,9 +112,9 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             message,
             _(
-                'User "%(author)s" with the role of "" has created destruction list "%(list_name)s".'
+                'User "%(author)s" with the role of "%(role)s" has created destruction list "%(list_name)s".'
             )
-            % {"list_name": "A test list", "author": "Jeffrey Jones (record_manager)"},
+            % {"list_name": "A test list", "author": "Jeffrey Jones (record_manager)", "role": ""},
         )
 
     def test_zaak_already_included_in_other_list(self):
@@ -267,9 +267,9 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             message,
             _(
-                'User "%(user)s" with the role of "" has updated destruction list "%(list_name)s".'
+                'User "%(user)s" with the role of "%(role)s" has updated destruction list "%(list_name)s".'
             )
-            % {"list_name": "An updated test list", "user": record_manager},
+            % {"list_name": "An updated test list", "user": record_manager, "role": ""},
         )
 
     def test_partial_list_update(self):

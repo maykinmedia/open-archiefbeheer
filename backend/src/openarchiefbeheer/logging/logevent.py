@@ -10,27 +10,18 @@ from openarchiefbeheer.destruction.models import (
     DestructionListReview,
     ReviewDecisionChoices,
 )
+from django.db.models import Model
 
-
-def _create_log_destruction_list(
-    destruction_list: DestructionList,
-    event: str,
-    extra_data: dict | None = None,
-    user: User | None = None,
-) -> TimelineLog:
-    serialized_user = UserSerializer(user).data if user else {}
-    user_groups = [group.name for group in user.groups.all()] if user else []
-
-    combined_extra_data = {
-        **(extra_data or {}),
-        "user": serialized_user,
-        "groups": user_groups,
-    }
+def _create_log(model: Model, event: str, extra_data: dict | None = None, user: User | None = None) -> TimelineLog:
+    if user:
+        serializer = UserSerializer(user)
+        user_groups = [group.name for group in user.groups.all()] 
+        extra_data.update({"user": serializer.data, "user_groups": user_groups})
 
     return TimelineLog.objects.create(
-        content_object=destruction_list,
+        content_object=model,
         template=f"logging/{event}.txt",
-        extra_data=combined_extra_data,
+        extra_data=extra_data or {},
         user=user,
     )
 
@@ -38,8 +29,8 @@ def _create_log_destruction_list(
 def destruction_list_created(
     destruction_list: DestructionList, author: User, reviewer: User
 ) -> None:
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_created",
         user=author,
         extra_data={
@@ -55,8 +46,8 @@ def destruction_list_created(
 
 
 def destruction_list_updated(destruction_list: DestructionList, user: User) -> None:
-    _create_log_destruction_list(
-        destruction_list=destruction_list, event="destruction_list_updated", user=user
+    _create_log(
+        model=destruction_list, event="destruction_list_updated", user=user
     )
 
 
@@ -66,8 +57,8 @@ def destruction_list_reassigned(
     comment: str,
     user: User,
 ) -> None:
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_reassigned",
         user=user,
         extra_data={
@@ -91,8 +82,8 @@ def destruction_list_co_reviewers_added(
     comment: str,
     user: User,
 ):
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_co_reviewers_added",
         user=user,
         extra_data={
@@ -113,8 +104,8 @@ def destruction_list_co_reviewers_added(
 def destruction_list_reviewed(
     destruction_list: DestructionList, review: DestructionListReview, user: User
 ) -> None:
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_reviewed",
         user=user,
         extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
@@ -127,8 +118,8 @@ def destruction_list_finalized(
     archivist: User,
     record_manager: User,
 ) -> None:
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_finalized",
         user=record_manager,
         extra_data={
@@ -149,8 +140,8 @@ def destruction_list_aborted(
     comment: str,
     record_manager: User,
 ):
-    _create_log_destruction_list(
-        destruction_list=destruction_list,
+    _create_log(
+        model=destruction_list,
         event="destruction_list_aborted",
         user=record_manager,
         extra_data={

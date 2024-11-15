@@ -37,15 +37,11 @@ msgid "Co-reviewers list"
 msgstr ""
 
 #: openarchiefbeheer/accounts/api/views.py:33
-#, fuzzy
-#| msgid ""
-#| "The chosen user does not have the permission of reviewing a destruction "
-#| "list."
 msgid ""
 "List all the users that have the permission to co-review draft destruction "
 "lists."
 msgstr ""
-"De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst te "
+"Lijst van alle gebruikers die de rechten hebben om concept-vernietigingslijsten mede te "
 "beoordelen."
 
 #: openarchiefbeheer/accounts/api/views.py:48
@@ -135,16 +131,12 @@ msgid "You cannot create or update a user with more permissions than yourself."
 msgstr "U kunt een gebruiker niet meer rechten geven dan u zelf heeft."
 
 #: openarchiefbeheer/api/authentication/serializers.py:8
-#, fuzzy
-#| msgid "username"
 msgid "Username"
 msgstr "gebruikersnaam"
 
 #: openarchiefbeheer/api/authentication/serializers.py:10
-#, fuzzy
-#| msgid "Change password"
 msgid "Password"
-msgstr "Wachtwoord wijzigen"
+msgstr "Wachtwoord"
 
 #: openarchiefbeheer/api/authentication/serializers.py:28
 msgid "Unable to log in with provided credentials."
@@ -267,16 +259,12 @@ msgid "Which service to use to query the Selectielijst API."
 msgstr ""
 
 #: openarchiefbeheer/config/models.py:87
-#, fuzzy
-#| msgid "Administration"
 msgid "API configuration"
-msgstr "Beheer"
+msgstr "API-configuratie"
 
 #: openarchiefbeheer/config/models.py:88
-#, fuzzy
-#| msgid "Administration"
 msgid "API configurations"
-msgstr "Beheer"
+msgstr "API-configuraties"
 
 #: openarchiefbeheer/destruction/api/filtersets.py:27
 msgid ""
@@ -340,10 +328,8 @@ msgstr ""
 "Je bent niet toegestaan om de geplande vernietiging van de lijst te stoppen."
 
 #: openarchiefbeheer/destruction/api/permissions.py:100
-#, fuzzy
-#| msgid "You are not allowed to review a destruction list."
 msgid "You are not a main reviewer."
-msgstr "Je bent niet toegestaan om een vernietigingslijst te beoordelen."
+msgstr "Je bent geen hoofd beoordelaar."
 
 #: openarchiefbeheer/destruction/api/serializers.py:54
 msgid ""
@@ -359,21 +345,14 @@ msgid "The author of a list cannot also be a reviewer."
 msgstr "De auteur van een lijst kan niet tevens een beoordelaar zijn."
 
 #: openarchiefbeheer/destruction/api/serializers.py:81
-#, fuzzy
-#| msgid ""
-#| "The chosen user does not have the permission of reviewing a destruction "
-#| "list."
 msgid ""
 "The chosen user does not have the permission to co-review a destruction list."
 msgstr ""
-"De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst te "
-"beoordelen."
+"De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst gezamelijk te beoordelen."
 
 #: openarchiefbeheer/destruction/api/serializers.py:93
-#, fuzzy
-#| msgid "The author of a list cannot also be a reviewer."
 msgid "The main reviewer cannot also be a co-reviewer."
-msgstr "De auteur van een lijst kan niet tevens een beoordelaar zijn."
+msgstr "De hoofdbeoordelaar kan niet tevens een medebeoordelaar zijn."
 
 #: openarchiefbeheer/destruction/api/serializers.py:123
 #: openarchiefbeheer/destruction/tests/endpoints/test_co_reviewers.py:326
