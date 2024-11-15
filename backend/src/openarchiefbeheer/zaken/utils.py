@@ -120,7 +120,7 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
     return {
         "label": description,
         "value": resultaat["url"],
-        "detail": {
+        "extra_data": {
             "bewaartermijn": resultaat.get("bewaartermijn"),
         },
     }

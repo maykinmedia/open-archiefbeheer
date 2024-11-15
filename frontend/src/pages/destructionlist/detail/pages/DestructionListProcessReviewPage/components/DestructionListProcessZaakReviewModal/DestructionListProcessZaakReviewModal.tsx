@@ -138,9 +138,11 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const getBewaartermijn = (selectielijstklasse: string) => {
     const selectedChoice = selectieLijstKlasseChoices.find(
       (choice) => choice.value === selectielijstklasse,
-    ) as (Option & { detail?: { bewaartermijn: string | null } }) | undefined;
+    ) as
+      | (Option & { extraData?: { bewaartermijn: string | null } })
+      | undefined;
 
-    return selectedChoice?.detail?.bewaartermijn;
+    return selectedChoice?.extraData?.bewaartermijn;
   };
 
   /**

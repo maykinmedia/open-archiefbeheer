@@ -490,21 +490,21 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                     "label": "11.1 - Verleend - vernietigen - P1Y",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": "P1Y",
                     },
                 },
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                     "label": "1 - Verleend - vernietigen - P2Y",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": "P2Y",
                     },
                 },
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                     "label": "11.1.2 - Verleend - vernietigen",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": None,
                     },
                 },
@@ -575,21 +575,21 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                     "label": "11.1 - Verleend - vernietigen - P1Y",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": "P1Y",
                     },
                 },
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                     "label": "1 - Verleend - vernietigen - P2Y",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": "P2Y",
                     },
                 },
                 {
                     "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                     "label": "11.1.2 - Verleend - vernietigen",
-                    "detail": {
+                    "extraData": {
                         "bewaartermijn": None,
                     },
                 },

@@ -61,32 +61,9 @@ class ZaakSerializer(serializers.ModelSerializer):
 class ChoiceSerializer(serializers.Serializer):
     label = serializers.CharField(help_text=_("The description field of the choice."))
     value = serializers.CharField(help_text=_("The URL of the choice."))
-    extra = serializers.CharField(
+    extra_data = serializers.JSONField(
         help_text=_("Any extra information about this choice."),
         required=False,
-    )
-
-
-class ZaaktypeChoiceSerializer(serializers.Serializer):
-    label = serializers.CharField(help_text=_("The description field of the zaaktype."))
-    value = serializers.CharField(help_text=_("The URL field of the zaaktype."))
-    extra = serializers.CharField(
-        help_text=_(
-            "A combination of the identification and the date on which "
-            "the zaaktype will no longer be valid (if present)."
-        ),
-        required=False,
-    )
-
-
-class SelectielijstklasseChoicesSerializer(serializers.Serializer):
-    label = serializers.CharField(
-        help_text=_(
-            "The description field of the resultaat from the selectielijst API."
-        )
-    )
-    value = serializers.CharField(
-        help_text=_("The URL field of the resultaat from the selectielijst API.")
     )
 
 

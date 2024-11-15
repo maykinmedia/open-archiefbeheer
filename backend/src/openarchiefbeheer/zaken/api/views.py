@@ -25,8 +25,6 @@ from .filtersets import ZaakFilterSet
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
-    SelectielijstklasseChoicesSerializer,
-    ZaaktypeChoiceSerializer,
 )
 
 
@@ -63,7 +61,7 @@ class ZaaktypenChoicesView(GenericAPIView):
         ),
         tags=["private"],
         responses={
-            200: ZaaktypeChoiceSerializer(many=True),
+            200: ChoiceSerializer(many=True),
         },
     )
     @method_decorator(cache_page(60 * 15))
@@ -78,7 +76,7 @@ class ZaaktypenChoicesView(GenericAPIView):
         )
         zaaktypen_choices = format_zaaktype_choices(zaaktypen)
 
-        serializer = ZaaktypeChoiceSerializer(data=zaaktypen_choices, many=True)
+        serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -93,7 +91,7 @@ class SelectielijstklasseChoicesView(APIView):
         ),
         tags=["private"],
         responses={
-            200: SelectielijstklasseChoicesSerializer,
+            200: ChoiceSerializer(many=True),
         },
         parameters=[SelectielijstklasseChoicesQueryParamSerializer],
     )
