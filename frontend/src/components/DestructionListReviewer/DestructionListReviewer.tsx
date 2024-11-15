@@ -208,6 +208,8 @@ export function DestructionListReviewer({
                                 "Toewijzen",
                                 "Annuleren",
                                 handleSubmit,
+                                undefined,
+                                { allowClose: true },
                               );
                             }}
                           >
