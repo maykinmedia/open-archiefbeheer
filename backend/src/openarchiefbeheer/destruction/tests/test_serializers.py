@@ -114,7 +114,11 @@ class DestructionListSerializerTests(TestCase):
             _(
                 'User "%(author)s" with the role of "%(role)s" has created destruction list "%(list_name)s".'
             )
-            % {"list_name": "A test list", "author": "Jeffrey Jones (record_manager)", "role": ""},
+            % {
+                "list_name": "A test list",
+                "author": "Jeffrey Jones (record_manager)",
+                "role": "",
+            },
         )
 
     def test_zaak_already_included_in_other_list(self):
