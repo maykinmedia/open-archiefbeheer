@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.destruction.constants import ListStatus
@@ -9,6 +10,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 @tag("e2e")
 @tag("gh-446")
 class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_user_approves_and_deselects_single_item(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -37,6 +39,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
+    @transaction.atomic
     async def test_scenario_user_approves_and_deselects_all_items_individually(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -83,6 +86,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
+    @transaction.atomic
     async def test_scenario_user_excludes_and_deselects_single_item(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -119,6 +123,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Niet beoordeeld")
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
+    @transaction.atomic
     async def test_scenario_user_excludes_and_keeps_single_item(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -155,6 +160,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Uitgezonderd")
             await self.then.page_should_contain_text(page, "Afwijzen")
 
+    @transaction.atomic
     async def test_scenario_user_approves_and_deselects_all_items_in_batch(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -184,6 +190,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
+    @transaction.atomic
     async def test_scenario_user_approves_items_hybrid(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()
@@ -215,6 +222,7 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
+    @transaction.atomic
     async def test_scenario_user_approves_and_deselect_unexcluded_items_in_batch(self):
         async with browser_page() as page:
             await self.given.zaak_selection_api_is_empty()

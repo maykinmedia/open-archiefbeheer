@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
@@ -9,6 +10,7 @@ from ....constants import ListStatus
 
 @tag("e2e")
 class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_user_cancels_filtered_edit_mode(self):
         async with browser_page() as page:
             await self.given.list_exists(

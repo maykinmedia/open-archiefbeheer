@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.destruction.constants import ListRole, ListStatus
@@ -8,6 +9,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 @tag("e2e")
 class FeatureListMarkReadyForReviewTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_marks_list_as_ready_to_review(self):
         async with browser_page() as page:
             await self.given.zaken_are_indexed(amount=100)

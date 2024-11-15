@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.test import tag
 
 from playwright.async_api import expect
@@ -10,6 +11,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 class OIDCLoginTest(GherkinLikeTestCase):
     fixtures = ["permissions.json", "oidc_config_test.json"]
 
+    @transaction.atomic
     async def test_login_admin_superuser_with_oidc(self):
         async with browser_page() as page:
             await page.goto(f"{self.live_server_url}/admin")
@@ -36,6 +38,7 @@ class OIDCLoginTest(GherkinLikeTestCase):
             configuration_link = page.get_by_role("link", name="API configuration")
             await expect(configuration_link).to_be_visible()
 
+    @transaction.atomic
     async def test_login_admin_staff_with_oidc(self):
         async with browser_page() as page:
             await page.goto(f"{self.live_server_url}/admin")
@@ -62,6 +65,7 @@ class OIDCLoginTest(GherkinLikeTestCase):
             page_text = page.get_by_text("You don't have permission to")
             await expect(page_text).to_be_visible()
 
+    @transaction.atomic
     async def test_login_app_with_oidc(self):
         async with browser_page() as page:
             await page.goto(self.live_server_url)

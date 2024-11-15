@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.destruction.constants import ListRole, ListStatus
@@ -8,6 +9,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 @tag("e2e")
 class FeatureCoReviewTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_co_reviewer_select_zaken_visible_to_reviewer(self):
         async with browser_page() as page:
             reviewer = await self.given.reviewer_exists()

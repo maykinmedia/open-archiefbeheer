@@ -482,24 +482,23 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             return await get_list()
 
         async def list_should_have_assignee(self, page, destruction_list, assignee):
-            @sync_to_async()
-            def refresh_list():
-                destruction_list.refresh_from_db()
+            """
+            Warning: this utilizes arefresh_from_db, if used in parallel context, consider using `@transaction.atomic`.
+            """
 
             @sync_to_async()
             def get_assignee():
                 return destruction_list.assignee
 
-            await refresh_list()
+            await destruction_list.arefresh_from_db()
             list_assignee = await get_assignee()
             self.testcase.assertEqual(list_assignee, assignee)
 
         async def list_should_have_status(self, page, destruction_list, status):
-            @sync_to_async()
-            def refresh_list():
-                destruction_list.refresh_from_db()
-
-            await refresh_list()
+            """
+            Warning: this utilizes arefresh_from_db, if used in parallel context, consider using `@transaction.atomic`.
+            """
+            await destruction_list.arefresh_from_db()
             self.testcase.assertEqual(destruction_list.status, status)
 
         async def list_should_have_number_of_items(

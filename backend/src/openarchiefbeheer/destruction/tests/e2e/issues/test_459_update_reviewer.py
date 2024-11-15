@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
@@ -10,6 +11,7 @@ from ....constants import ListStatus
 @tag("e2e")
 @tag("gh-459")
 class Issue459UpdateReviewer(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_updates_reviewer(self):
         async with browser_page() as page:
             record_manger = await self.given.record_manager_exists()

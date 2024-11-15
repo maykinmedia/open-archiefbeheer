@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -12,6 +13,7 @@ from ...factories import DestructionListItemFactory
 
 @tag("e2e")
 class FeatureListCreateTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_creates_list(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()
@@ -33,6 +35,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to create")
 
+    @transaction.atomic
     async def test_scenario_record_manager_cannot_create_existing_list(self):
         async with browser_page([]) as page:  # Silence (debug) warning.
             await self.given.record_manager_exists()
@@ -55,6 +58,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Foutmelding")
             await self.then.page_should_contain_text(page, "Er bestaat al een vernietigingslijst met eenzelfde naam")
 
+    @transaction.atomic
     async def test_scenario_reviewer_cannot_create_list(self):
         async with browser_page() as page:
             await self.given.reviewer_exists()
@@ -64,6 +68,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
+    @transaction.atomic
     async def test_scenario_archivist_cannot_create_list(self):
         async with browser_page() as page:
             await self.given.archivist_exists()
@@ -73,6 +78,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
+    @transaction.atomic
     async def test_zaaktype_filters_on_create_page(self):
         @sync_to_async
         def create_data():

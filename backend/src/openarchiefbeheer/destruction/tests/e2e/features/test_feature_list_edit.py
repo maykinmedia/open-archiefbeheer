@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -14,6 +15,7 @@ from ...factories import DestructionListFactory, DestructionListItemFactory
 
 @tag("e2e")
 class FeatureListEditTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_user_edits_multi_page_destruction_list(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()

@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from openarchiefbeheer.destruction.constants import (
@@ -12,6 +13,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 @tag("e2e")
 class FeatureListFinalizeTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_finalizes_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()

@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -23,6 +24,7 @@ from ...factories import (
 
 @tag("e2e")
 class FeatureListReviewTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_reviewer_approves_list(self):
         async with browser_page() as page:
             record_manager = await self.given.record_manager_exists()

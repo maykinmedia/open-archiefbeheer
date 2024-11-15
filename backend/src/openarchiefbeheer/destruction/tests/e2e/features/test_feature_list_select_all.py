@@ -1,4 +1,5 @@
 # fmt: off
+from django.db import transaction
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -15,6 +16,7 @@ def get_list(name):
 
 @tag("e2e")
 class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_creates_list_with_select_all(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()

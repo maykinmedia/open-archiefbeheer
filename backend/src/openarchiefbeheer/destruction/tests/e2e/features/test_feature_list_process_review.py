@@ -1,6 +1,7 @@
 # fmt: off
 from unittest.mock import patch
 
+from django.db import transaction
 from django.test import tag
 
 from asgiref.sync import sync_to_async
@@ -25,6 +26,7 @@ from ...factories import (
 
 @tag("e2e")
 class FeatureProcessReviewTests(GherkinLikeTestCase):
+    @transaction.atomic
     async def test_scenario_record_manager_process_review(self):
         patcher = patch(
             "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat", 
@@ -78,6 +80,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
 
+    @transaction.atomic
     async def test_zaaktype_filters_on_process_review_page(self):
         @sync_to_async
         def create_data():
@@ -198,6 +201,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
         
     @tag("gh-378")
+    @transaction.atomic
     async def test_zaak_removed_outside_process(self):
         @sync_to_async
         def create_data():
