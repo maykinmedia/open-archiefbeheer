@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
 import freezegun
@@ -204,6 +205,10 @@ class ReviewResponsesViewSetTests(APITestCase):
             status=ListStatus.ready_to_review,
             author=record_manager,
         )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         DestructionListAssigneeFactory.create(destruction_list=destruction_list)
         other_reviewer = UserFactory.create(post__can_review_destruction=True)
 
@@ -236,15 +241,15 @@ class ReviewResponsesViewSetTests(APITestCase):
             "2023-09-15T21:36:00+02:00",
         )
         self.assertEqual(
-            data[0]["message"],
+            data[0]["message"].strip(),
             _(
-                'User "%(user)s" (member of group%(n_groups)s "%(groups)s") has reassigned destruction list "%(list_name)s".'
+                "User %(user)s (member of group %(groups)s) has reassigned destruction list "
+                '"%(list_name)s".'
             )
             % {
                 "list_name": "Test audittrail",
                 "user": record_manager,
-                "n_groups": "",
-                "groups": "",
+                "groups": "Record Manager",
             },
         )
         self.assertEqual(

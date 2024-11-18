@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.core import mail
 from django.utils.translation import gettext_lazy as _
 
@@ -78,6 +79,8 @@ class CoReviewersViewSetTest(APITestCase):
             role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
+        reviewer_group, created = Group.objects.get_or_create(name="Reviewer")
+        main_reviewer.user.groups.add(reviewer_group)
 
         destruction_list.assignee = main_reviewer.user
         destruction_list.save()
@@ -127,19 +130,19 @@ class CoReviewersViewSetTest(APITestCase):
 
         self.assertEqual(len(logs), 1)
 
-        message = logs[0].get_message()
+        message = logs[0].get_message().strip()
         self.assertIn(
             _(
-                'User "%(user)s" with the role of "%(role)s" has replaced all the co-reviewers of the list '
-                '"%(list_name)s" with: %(added_co_reviewers)s.'
+                "User %(user)s (member of group %(groups)s) has replaced all the co-reviewers "
+                'of the list "%(list_name)s" with: %(added_co_reviewers)s.'
             )
             % {
-                "role": "",
                 "user": main_reviewer.user,
                 "list_name": "A beautiful list",
                 "added_co_reviewers": ", ".join(
                     [str(user) for user in new_co_reviewers]
                 ),
+                "groups": "Reviewer",
             },
             message,
         )
@@ -192,6 +195,8 @@ class CoReviewersViewSetTest(APITestCase):
             role=ListRole.main_reviewer,
             destruction_list=destruction_list,
         )
+        reviewer_group, created = Group.objects.get_or_create(name="Reviewer")
+        main_reviewer.user.groups.add(reviewer_group)
 
         destruction_list.assignee = main_reviewer.user
         destruction_list.save()
@@ -246,13 +251,13 @@ class CoReviewersViewSetTest(APITestCase):
         message = logs[0].get_message()
         self.assertIn(
             _(
-                'User "%(user)s" with the role of "%(role)s" has added these users as co-reviewers to the list '
-                '"%(list_name)s": %(added_co_reviewers)s.'
+                "User %(user)s (member of group %(groups)s) has added these users as co-"
+                'reviewers to the list "%(list_name)s": %(added_co_reviewers)s.'
             )
             % {
-                "role": "",
                 "user": main_reviewer.user,
                 "list_name": "A beautiful list",
+                "groups": "Reviewer",
                 "added_co_reviewers": ", ".join(
                     [str(user) for user in new_co_reviewers]
                 ),

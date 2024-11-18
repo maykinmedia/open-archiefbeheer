@@ -1,11 +1,11 @@
 {% load i18n %}
-{% with groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length %}
-{% blocktranslate trimmed with list_name=log.content_object.name groups=groups n_groups=n_groups user=log.user approved=log.extra_data.approved %}
-User "{{ user }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has reviewed the list "{{ list_name }}".
+{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " user=log.user approved=log.extra_data.approved count counter=log.extra_data.user_groups|length %}
+User {{ user }} (member of group {{ groups }}) has reviewed the list "{{ list_name }}".
+{% plural %}
+User {{ user }} (member of groups {{ groups }}) has reviewed the list "{{ list_name }}".
 {% endblocktranslate %}
 {% if approved %}
     {% translate "The destruction list was approved." %}
 {% else %}
     {% translate "The destruction list was rejected." %}
 {% endif %}
-{% endwith %}

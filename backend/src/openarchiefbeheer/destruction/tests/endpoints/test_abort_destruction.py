@@ -1,6 +1,7 @@
 from datetime import date
 
-from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _, ngettext
 
 import freezegun
 from rest_framework import status
@@ -91,6 +92,12 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        administrator_group, created = Group.objects.get_or_create(name="Administrator")
+        record_manager.groups.add(record_manager_group)
+        record_manager.groups.add(administrator_group)
         destruction_list = DestructionListFactory.create(
             name="A test list",
             author=record_manager,
@@ -126,14 +133,15 @@ class DestructionListAbortDestructionEndpointTest(APITestCase):
 
         self.assertEqual(
             message,
-            _(
-                'User "%(record_manager)s" with the role of "%(role)s" has aborted the destruction of destruction list "%(list_name)s" '
-                'with reason: "%(comment)s".'
+            ngettext(
+                'User %(record_manager)s (member of group %(groups)s) has aborted the destruction of destruction list "%(list_name)s" with reason: %(comment)s.',
+                'User %(record_manager)s (member of groups %(groups)s) has aborted the destruction of destruction list "%(list_name)s" with reason: %(comment)s.',
+                2,
             )
             % {
-                "role": "",
                 "list_name": "A test list",
                 "record_manager": str(record_manager),
                 "comment": "PANIC! ABORT!",
+                "groups": "Administrator, Record Manager",
             },
         )

@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import TestCase, override_settings, tag
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from freezegun import freeze_time
 from rest_framework.test import APIRequestFactory
@@ -44,6 +45,10 @@ class DestructionListSerializerTests(TestCase):
             username="record_manager",
             post__can_start_destruction=True,
         )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         ZaakFactory.create(
             url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
         )
@@ -111,13 +116,13 @@ class DestructionListSerializerTests(TestCase):
         self.assertEqual(
             message,
             _(
-                'User "%(author)s" (member of group%(n_groups)s "%(groups)s") has created destruction list "%(list_name)s".'
+                "User %(author)s (member of group %(groups)s) has created "
+                'destruction list "%(list_name)s".'
             )
             % {
                 "list_name": "A test list",
                 "author": "Jeffrey Jones (record_manager)",
-                "groups": "",
-                "n_groups": "",
+                "groups": "Record Manager",
             },
         )
 
@@ -220,7 +225,10 @@ class DestructionListSerializerTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
-
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         destruction_list = DestructionListFactory.create(
             name="A test list", contains_sensitive_info=True, author=record_manager
         )
@@ -269,11 +277,16 @@ class DestructionListSerializerTests(TestCase):
         message = logs[0].get_message()
 
         self.assertEqual(
-            message,
+            message.strip(),
             _(
-                'User "%(user)s" with the role of "%(role)s" has updated destruction list "%(list_name)s".'
+                "User %(user)s (member of group %(groups)s) has updated destruction list "
+                '"%(list_name)s".'
             )
-            % {"list_name": "An updated test list", "user": record_manager, "role": ""},
+            % {
+                "list_name": "An updated test list",
+                "user": record_manager,
+                "groups": "Record Manager",
+            },
         )
 
     def test_partial_list_update(self):
@@ -998,6 +1011,8 @@ class DestructionListReviewSerializerTests(TestCase):
             email="reviewer@oab.nl",
             post__can_review_destruction=True,
         )
+        reviewer_group, created = Group.objects.get_or_create(name="Reviewer")
+        reviewer.groups.add(reviewer_group)
         destruction_list = DestructionListFactory.create(
             assignee=reviewer, name="Test list", status=ListStatus.ready_to_review
         )
@@ -1049,10 +1064,17 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, reviewer)
-        self.assertEqual(
-            logs[0].get_message(),
-            'User "Jeffrey Jones (reviewer)" (member of group "") has reviewed the list "Test list". The destruction list was rejected.',
+
+        message = logs[0].get_message()
+        self.assertIn(
+            _(
+                "User %(user)s (member of group %(groups)s) has reviewed the list "
+                '"%(list_name)s".'
+            )
+            % {"list_name": "Test list", "user": reviewer, "groups": "Reviewer"},
+            message,
         )
+        self.assertIn(_("The destruction list was rejected."), message)
 
     def test_reviewing_cases_not_in_destruction_list(self):
         reviewer = UserFactory.create(
