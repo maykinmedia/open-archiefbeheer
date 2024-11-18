@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.core import mail
 from django.utils.translation import gettext_lazy as _
 
@@ -523,6 +524,10 @@ class DestructionListViewSetTest(APITestCase):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         archivist = UserFactory.create(
             username="archivist", post__can_review_final_list=True
         )
@@ -565,17 +570,15 @@ class DestructionListViewSetTest(APITestCase):
         message = logs[0].get_message()
 
         self.assertEqual(
-            message,
+            message.strip(),
             _(
-                'User "%(user)s" (member of group%(n_groups)s "%(groups)s") has made destruction list "%(list_name)s" final and '
-                'assigned it to the archivist "%(archivist)s".'
+                "User %(user)s (member of group %(groups)s) has made destruction list "
+                '"%(list_name)s" final and assigned it to the archivist "%(archivist)s".'
             )
             % {
                 "user": record_manager,
-                "groups": "",
-                "n_groups": "",
+                "groups": "Record Manager",
                 "list_name": "A test list",
-                "record_manager": "record_manager",
                 "archivist": "archivist",
             },
         )

@@ -33,7 +33,7 @@ class OIDCLoginTest(GherkinLikeTestCase):
 
             await page.wait_for_url(f"{self.live_server_url}/admin/")
 
-            configuration_link = page.get_by_role("link", name="API configuration")
+            configuration_link = page.get_by_role("link", name="API-configuratie")
             await expect(configuration_link).to_be_visible()
 
     async def test_login_admin_staff_with_oidc(self):

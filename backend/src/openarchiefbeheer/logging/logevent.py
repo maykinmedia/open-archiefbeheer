@@ -23,7 +23,7 @@ def _create_log(
 
     if user:
         serializer = UserSerializer(user)
-        user_groups = [group.name for group in user.groups.all()]
+        user_groups = sorted([group.name for group in user.groups.all()])
         extra_data.update({"user": serializer.data, "user_groups": user_groups})
 
     return TimelineLog.objects.create(

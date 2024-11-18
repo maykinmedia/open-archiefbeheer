@@ -1,3 +1,3 @@
-{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " n_groups=log.extra_data.user_groups|length record_manager=log.user comment=log.extra_data.comment %}
-User "{{ record_manager }}" (member of group{{ n_groups|pluralize }} "{{ groups }}") has aborted the destruction of destruction list "{{ list_name }}" with reason: "{{ comment }}".
+{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " record_manager=log.user comment=log.extra_data.comment count counter=log.extra_data.user_groups|length %}
+User {{ record_manager }} (member of group {{ groups }}) has aborted the destruction of destruction list "{{ list_name }}" with reason: {{ comment }}.{% plural %}User {{ record_manager }} (member of groups {{ groups }}) has aborted the destruction of destruction list "{{ list_name }}" with reason: {{ comment }}.
 {% endblocktranslate %}
