@@ -554,6 +554,8 @@ class CoReviewersViewSet(
                 return DestructionListAssigneeReadSerializer
             case "update" | "partial_update" | "create":
                 return CoReviewerAssignementSerializer
+            case default:  # noqa
+                return DestructionListAssigneeReadSerializer
 
     def get_permissions(self):
         if self.action in ["update", "partial_upate"]:
