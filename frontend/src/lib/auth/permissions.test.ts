@@ -310,9 +310,13 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
       expect(canUpdateDestructionList(user, destructionList)).toBe(false);
     });
 
-    test("should not allow a user to update if they are not the assignee", () => {
-      destructionList.assignee = anotherUser;
-      expect(canUpdateDestructionList(user, destructionList)).toBe(false);
+    test("should allow a user to update if they are not the author", () => {
+      expect(
+        canUpdateDestructionList(
+          user,
+          destructionListFactory({ status: "changes_requested" }),
+        ),
+      ).toBe(true);
     });
   });
 
