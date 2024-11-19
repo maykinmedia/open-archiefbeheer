@@ -54,24 +54,26 @@ export function useFields(
       width: "300px",
     },
     {
-      name: "archiefnominatie",
-      filterValue: searchParams.get("archiefnominatie") || "",
+      name: "zaaktype",
+      filterLookup: "zaaktype__in",
+      filterValue: searchParams.get("zaaktype__in") || "",
+      options: zaaktypeChoices,
       type: "string",
-      options: [
-        { label: "Blijvend bewaren", value: "blijvend_bewaren" },
-        { label: "Vernietigen", value: "vernietigen" },
-      ],
-      width: "180px",
+      width: "300px",
     },
     {
-      name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
-      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+      name: "omschrijving",
+      filterLookup: "omschrijving__icontains",
+      filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
-      width: "180px",
+      width: "300px",
+    },
+    {
+      active: false,
+      name: "toelichting",
+      type: "string",
+      filterLookup: "toelichting__icontains",
+      width: "300px",
     },
     {
       name: "startdatum",
@@ -97,30 +99,7 @@ export function useFields(
       width: "150px",
     },
     {
-      name: "zaaktype",
-      filterLookup: "zaaktype__in",
-      filterValue: searchParams.get("zaaktype__in") || "",
-      options: zaaktypeChoices,
-      type: "string",
-      width: "300px",
-    },
-    {
-      name: "omschrijving",
-      filterLookup: "omschrijving__icontains",
-      filterValue: searchParams.get("omschrijving__icontains") || "",
-      type: "string",
-      width: "300px",
-    },
-    {
-      active: false,
-      name: "toelichting",
-      type: "string",
-      filterLookup: "toelichting__icontains",
-      width: "300px",
-    },
-    {
-      name: "Behandelend afdeling",
-      active: false,
+      name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling__icontains",
       valueTransform: (rowData: object) => {
@@ -145,6 +124,23 @@ export function useFields(
       width: "180px",
     },
     {
+      name: "selectielijstklasse",
+      type: "string",
+      // filterLookup: // TODO: Expand?
+      options: selectielijstKlasseChoices,
+      width: "180px",
+    },
+    {
+      name: "resultaat",
+      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
+      filterValue:
+        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
+        "",
+      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+      type: "string",
+      width: "180px",
+    },
+    {
       name: "archiefactiedatum",
       type: "daterange",
       width: "130px",
@@ -159,17 +155,14 @@ export function useFields(
           : "",
     },
     {
+      name: "archiefnominatie",
       active: false,
-      name: "selectielijstklasse",
+      filterValue: searchParams.get("archiefnominatie") || "",
       type: "string",
-      // filterLookup: // TODO: Expand?
-      options: selectielijstKlasseChoices,
-      width: "180px",
-    },
-    {
-      name: "hoofdzaak",
-      type: "string",
-      // valueLookup: // TODO: Expand?
+      options: [
+        { label: "Blijvend bewaren", value: "blijvend_bewaren" },
+        { label: "Vernietigen", value: "vernietigen" },
+      ],
       width: "180px",
     },
     {
@@ -184,6 +177,13 @@ export function useFields(
         { value: "true", label: "Ja" },
         { value: "false", label: "Nee" },
       ],
+    },
+    {
+      name: "hoofdzaak",
+      active: false,
+      type: "string",
+      // valueLookup: // TODO: Expand?
+      width: "180px",
     },
     ...(extraFields || []),
   ];
