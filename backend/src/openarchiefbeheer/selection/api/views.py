@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from ..models import AllSelectedToggle, SelectionItem
 from .filtersets import SelectionItemBackend, SelectionItemFilterset
-from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE
+from .schemas import SCHEMA_REQUEST, SCHEMA_RESPONSE, SCHEMA_SELECTION_REQUEST
 from .serializers import (
     SelectAllToggleSerializer,
     SelectionItemDataReadSerializer,
@@ -50,6 +50,7 @@ class SelectionView(GenericAPIView):
         # otherwise the filter backends are not picked up. The right response is added by using
         # DRF spectacular post processing hooks.
         responses={200: SelectionItemDataReadSerializer(many=True)},
+        request=SCHEMA_SELECTION_REQUEST,
     )
     def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
