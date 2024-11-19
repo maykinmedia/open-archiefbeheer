@@ -24,6 +24,7 @@ class SelectionView(GenericAPIView):
     filterset_class = SelectionItemFilterset
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     parser_classes = (JSONParser, FormParser)
+    lookup_url_kwarg = "key"
 
     def get_serializer_class(self):
         return SelectionReadSerializer
