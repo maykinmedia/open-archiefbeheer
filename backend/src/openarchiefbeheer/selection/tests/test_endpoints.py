@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.test import tag
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
@@ -507,3 +508,18 @@ class SelectionAPITests(APITestCase):
         self.assertEqual(
             items.first().zaak_url, "http://zaken.nl/api/v1/zaken/shouldNotBeSnakeCase"
         )
+
+    @tag("gh-493")
+    def test_options_method(self):
+        key = "some-key"
+        SelectionItemFactory.create(
+            key=key,
+            is_selected=False,
+            zaak_url="http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+
+        self.client.force_login(self.user)
+
+        response = self.client.options(reverse("api:selections", args=[key]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
