@@ -51,7 +51,7 @@ class SelectionView(GenericAPIView):
         # DRF spectacular post processing hooks.
         responses={200: SelectionItemDataReadSerializer(many=True)},
     )
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         return Response(self._get_selection_representation(queryset))

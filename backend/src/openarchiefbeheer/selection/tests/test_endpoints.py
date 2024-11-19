@@ -41,7 +41,7 @@ class SelectionAPITests(APITestCase):
 
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("api:selections", args=[key]))
+        response = self.client.post(reverse("api:selections", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -231,7 +231,7 @@ class SelectionAPITests(APITestCase):
         endpoint.args["annotated"] = True
         endpoint.args["test"] = "tralala"
 
-        response = self.client.get(endpoint.url)
+        response = self.client.post(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -264,7 +264,7 @@ class SelectionAPITests(APITestCase):
         self.client.force_login(self.user)
         endpoint = furl(reverse("api:selections", args=[key]))
         endpoint.args["items"] = "http://zaken.nl/api/v1/zaken/111-111-111"
-        response = self.client.get(endpoint.url)
+        response = self.client.post(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -304,7 +304,7 @@ class SelectionAPITests(APITestCase):
         endpoint.args["items"] = (
             "http://zaken.nl/api/v1/zaken/111-111-111,http://zaken.nl/api/v1/zaken/222-222-222"
         )
-        response = self.client.get(endpoint.url)
+        response = self.client.post(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -478,7 +478,7 @@ class SelectionAPITests(APITestCase):
 
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("api:selections", args=[key]))
+        response = self.client.post(reverse("api:selections", args=[key]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

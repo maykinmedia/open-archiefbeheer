@@ -35,15 +35,14 @@ export async function getSelectionItems<DetailType = unknown>(
   selectedOnly = true,
   signal?: AbortSignal,
 ) {
-  const zaakUrls = zaken.map((zaak) => _getZaakUrl(zaak));
-  const params = new URLSearchParams({ items: zaakUrls.join(",") });
+  const items = zaken.map((zaak) => _getZaakUrl(zaak));
+  const params = new URLSearchParams();
   selectedOnly && params.set("selected", "true");
-
   const response = await request(
-    "GET",
+    "POST",
     `/selections/${key}/`,
     params,
-    undefined,
+    { items },
     undefined,
     signal,
   );
