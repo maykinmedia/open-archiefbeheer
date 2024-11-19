@@ -9,6 +9,7 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.destruction.models import (
     DestructionList,
     DestructionListAssignee,
+    DestructionListCoReview,
     DestructionListReview,
     ReviewDecisionChoices,
 )
@@ -115,6 +116,16 @@ def destruction_list_reviewed(
         event="destruction_list_reviewed",
         user=user,
         extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
+    )
+
+
+def destruction_list_co_reviewed(
+    destruction_list: DestructionList, co_review: DestructionListCoReview, user: User
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_co_reviewed",
+        user=user,
     )
 
 
