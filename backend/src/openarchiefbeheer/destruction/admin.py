@@ -5,6 +5,7 @@ from privates.admin import PrivateMediaMixin
 from .models import (
     DestructionList,
     DestructionListAssignee,
+    DestructionListCoReview,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
@@ -60,6 +61,13 @@ class DestructionListReviewAdmin(admin.ModelAdmin):
     search_fields = ("author__username", "destruction_list__name")
     raw_id_fields = ("destruction_list",)
     inlines = (DestructionListItemReviewInline,)
+
+
+@admin.register(DestructionListCoReview)
+class DestructionListCoReviewAdmin(admin.ModelAdmin):
+    list_display = ("author", "destruction_list")
+    search_fields = ("author__username", "destruction_list__name")
+    raw_id_fields = ("destruction_list",)
 
 
 @admin.register(DestructionListItemReview)

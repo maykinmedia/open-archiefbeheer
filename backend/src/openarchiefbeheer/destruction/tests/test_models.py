@@ -17,8 +17,10 @@ from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
+from ...accounts.tests.factories import UserFactory
 from ..constants import InternalStatus, ListItemStatus, ListStatus
 from .factories import (
+    DestructionListCoReviewFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     ReviewResponseFactory,
@@ -686,3 +688,31 @@ class DestructionListTest(TestCase):
 
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
+
+
+class DestructionListCoReviewTest(TestCase):
+    def test_destruction_list_hierarchy(self):
+        co_review = DestructionListCoReviewFactory.create()
+        self.assertTrue(co_review.created)
+
+        destruction_list = co_review.destruction_list
+        self.assertIn(co_review, destruction_list.co_reviews.all())
+
+    def test_author_list_hierarchy(self):
+        co_review = DestructionListCoReviewFactory.create()
+        author = co_review.author
+        self.assertIn(co_review, author.created_co_reviews.all())
+
+    def test_str(self):
+        destruction_list = DestructionListFactory(name="Destruction list to co-review")
+        author = UserFactory.create(
+            username="co-reviewer", first_name="Co", last_name="Reviewer"
+        )
+        co_review = DestructionListCoReviewFactory.create(
+            destruction_list=destruction_list, author=author
+        )
+
+        self.assertEqual(
+            str(co_review),
+            "Co-review for Destruction list to co-review (Co Reviewer (co-reviewer))",
+        )

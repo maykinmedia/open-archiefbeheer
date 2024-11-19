@@ -93,6 +93,14 @@ class DestructionListItemReviewFactory(factory.django.DjangoModelFactory):
         model = "destruction.DestructionListItemReview"
 
 
+class DestructionListCoReviewFactory(factory.django.DjangoModelFactory):
+    destruction_list = factory.SubFactory(DestructionListFactory)
+    author = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = "destruction.DestructionListCoReview"
+
+
 class ReviewItemResponseFactory(factory.django.DjangoModelFactory):
     review_item = factory.SubFactory(DestructionListItemReviewFactory)
 

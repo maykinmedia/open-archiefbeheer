@@ -510,6 +510,32 @@ class DestructionListItemReview(models.Model):
         return f"Case review for {self.destruction_list} ({self.destruction_list_item})"
 
 
+class DestructionListCoReview(models.Model):
+    destruction_list = models.ForeignKey(
+        DestructionList,
+        on_delete=models.CASCADE,
+        related_name="co_reviews",
+        verbose_name=_("destruction list"),
+    )
+    author = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="created_co_reviews",
+        verbose_name=_("author"),
+        help_text=_("User who created the review."),
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    list_feedback = models.TextField(
+        _("list feedback"),
+        max_length=2000,
+        blank=True,
+        help_text=_("Feedback about the destruction list as a whole."),
+    )
+
+    def __str__(self):
+        return f"Co-review for {self.destruction_list} ({self.author})"
+
+
 class ReviewResponse(models.Model):
     review = models.ForeignKey(
         DestructionListReview,
