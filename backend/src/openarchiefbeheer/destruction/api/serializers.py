@@ -33,6 +33,7 @@ from ..constants import (
 from ..models import (
     DestructionList,
     DestructionListAssignee,
+    DestructionListCoReview,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
@@ -621,6 +622,64 @@ class DestructionListItemReviewSerializer(serializers.ModelSerializer):
 
         serializer = ZaakSerializer(instance=zaak)
         return serializer.data
+
+
+class DestructionListCoReviewSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    destruction_list = SlugRelatedField(
+        slug_field="uuid", queryset=DestructionList.objects.all()
+    )
+    list_feedback = serializers.CharField(required=True)
+
+    class Meta:
+        model = DestructionListCoReview
+        fields = (
+            "pk",
+            "destruction_list",
+            "author",
+            "list_feedback",
+            "created",
+        )
+
+    def validate(self, attrs: dict) -> dict:
+        destruction_list = attrs["destruction_list"]
+        user_assignees = destruction_list.assignees.values_list("user__pk", flat=True)
+        user = self.context["request"].user
+
+        # User is not assigned
+        if user.pk not in user_assignees:
+            raise ValidationError(
+                {
+                    "author": _(
+                        "This user is not currently assigned to the destruction list, "
+                        "so they cannot create a co-review at this stage."
+                    )
+                }
+            )
+
+        # User is not permitted based on role + status
+        if (
+            destruction_list.status == ListStatus.ready_to_review
+            and not user.has_perm("accounts.can_co_review_destruction")
+        ) or destruction_list.status != ListStatus.ready_to_review:
+            raise ValidationError(
+                {
+                    "author": _(
+                        "The status of this destruction list prevents you from creating a co-review at this stage."
+                    )
+                }
+            )
+
+        return {"author": user, **attrs}
+
+    def create(self, validated_data: dict) -> DestructionListReview:
+        co_review = super().create(validated_data)
+        logevent.destruction_list_co_reviewed(
+            destruction_list=validated_data["destruction_list"],
+            co_review=co_review,
+            user=validated_data["author"],
+        )
+        return co_review
 
 
 class ActionZaakSerializer(serializers.Serializer):

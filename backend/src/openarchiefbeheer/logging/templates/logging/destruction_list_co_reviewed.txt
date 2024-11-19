@@ -1,0 +1,6 @@
+{% load i18n %}
+{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " user=log.user count counter=log.extra_data.user_groups|length %}
+User {{ user }} (member of group {{ groups }}) has co-reviewed the list "{{ list_name }}".
+{% plural %}
+User {{ user }} (member of groups {{ groups }}) has co-reviewed the list "{{ list_name }}".
+{% endblocktranslate %}

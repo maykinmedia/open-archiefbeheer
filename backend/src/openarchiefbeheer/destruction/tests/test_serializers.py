@@ -14,6 +14,7 @@ from openarchiefbeheer.emails.models import EmailConfig
 
 from ...zaken.tests.factories import ZaakFactory
 from ..api.serializers import (
+    DestructionListCoReviewSerializer,
     DestructionListReviewSerializer,
     DestructionListWriteSerializer,
 )
@@ -937,6 +938,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, reviewer)
         self.assertTrue(logs[0].extra_data["approved"])
+        self.assertIn(_("The destruction list was approved."), logs[0].get_message())
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
@@ -1155,4 +1157,128 @@ class DestructionListReviewSerializerTests(TestCase):
             _(
                 "You can only provide feedback about cases that are part of the destruction list."
             ),
+        )
+
+
+class DestructionListCoReviewSerializerTests(TestCase):
+    def test_if_user_not_assigned_cannot_create_review(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=True,
+        )
+        user = UserFactory.create(post__can_co_review_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        destruction_list.assignees.set(assignees)
+        request = factory.get("/foo")
+        request.user = user
+
+        serializer = DestructionListCoReviewSerializer(
+            data={
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+            context={"request": request},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 1)
+        self.assertTrue(serializer.errors["author"])
+
+    def test_if_list_in_wrong_status_cannot_be_reviewed(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=True,
+        )
+        co_reviewer = assignees[2]
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_for_archivist
+        )
+        destruction_list.assignees.set(assignees)
+        request = factory.get("/foo")
+        request.user = co_reviewer
+
+        serializer = DestructionListCoReviewSerializer(
+            data={
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+            context={"request": request},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 1)
+        self.assertTrue(serializer.errors["author"])
+
+    def test_if_user_not_a_co_reviewer_cannot_create_review(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=False,
+        )
+        co_reviewer = assignees[2].user
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        destruction_list.assignees.set(assignees)
+        request = factory.get("/foo")
+        request.user = co_reviewer
+
+        serializer = DestructionListCoReviewSerializer(
+            data={
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+            context={"request": request},
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(len(serializer.errors), 1)
+        self.assertTrue(serializer.errors["author"])
+
+    def test_create_review(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=True,
+        )
+        co_reviewer = assignees[2].user
+        co_reviewer_group, created = Group.objects.get_or_create(name="Co-Reviewers")
+        co_reviewer.groups.add(co_reviewer_group)
+        destruction_list = DestructionListFactory.create(
+            name="Test list", status=ListStatus.ready_to_review
+        )
+        destruction_list.assignees.set(assignees)
+        request = factory.get("/foo")
+        request.user = co_reviewer
+
+        serializer = DestructionListCoReviewSerializer(
+            data={
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+            context={"request": request},
+        )
+
+        serializer.is_valid()
+        serializer.save()
+
+        co_review = destruction_list.co_reviews.first()
+        self.assertEqual(co_review.list_feedback, "gh-497")
+
+        logs = destruction_list.logs.all()
+        message = logs[0].get_message()
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(logs[0].user, co_reviewer)
+        self.assertIn(
+            _(
+                "User %(user)s (member of group %(groups)s) has co-reviewed the list "
+                '"%(list_name)s".'
+            )
+            % {
+                "list_name": "Test list",
+                "user": co_reviewer,
+                "groups": "Co-Reviewers",
+            },
+            message,
         )
