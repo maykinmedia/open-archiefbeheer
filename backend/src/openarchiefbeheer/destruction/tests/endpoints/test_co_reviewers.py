@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.test import tag
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
@@ -365,3 +366,20 @@ class CoReviewersViewSetTest(APITestCase):
                 _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
                 % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS},
             )
+
+    @tag("gh-493")
+    def test_options_method(self):
+        destruction_list = DestructionListFactory.create()
+        assignee = DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+        )
+
+        self.client.force_authenticate(user=assignee.user)
+        response = self.client.options(
+            reverse(
+                "api:co-reviewers-list",
+                kwargs={"destruction_list_uuid": destruction_list.uuid},
+            ),
+        )
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
