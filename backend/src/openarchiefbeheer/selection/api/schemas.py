@@ -57,3 +57,28 @@ SCHEMA_REQUEST = OpenApiRequest(
         ),
     ],
 )
+
+
+SCHEMA_SELECTION_REQUEST = OpenApiRequest(
+    request={
+        "type": "object",
+        "properties": {
+            "items": {
+                "type": "array",
+                "description": "Filter on specific items in the selection",
+                "items": {"type": "string"},
+            }
+        },
+    },
+    examples=[
+        OpenApiExample(
+            "Add to the selection",
+            value={
+                "items": [
+                    "http://zaken.nl/api/v1/zaken/111-111-111",
+                    "http://zaken.nl/api/v1/zaken/222-222-222",
+                ]
+            },
+        ),
+    ],
+)
