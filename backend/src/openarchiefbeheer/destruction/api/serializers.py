@@ -748,12 +748,8 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs: dict) -> dict:
         destruction_list = attrs["review"].destruction_list
-        request = self.context["request"]
 
-        if not (
-            request.user == destruction_list.author
-            and destruction_list.status == ListStatus.changes_requested
-        ):
+        if not (destruction_list.status == ListStatus.changes_requested):
             raise ValidationError(
                 _(
                     "This user is either not allowed to update the destruction list or "

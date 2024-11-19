@@ -133,7 +133,7 @@ class ReviewResponsesViewSetTests(APITestCase):
 
         self.assertEqual(item_response3.action_zaak["archiefactiedatum"], "2030-01-01")
 
-    def test_cannot_create_response_if_not_author(self):
+    def test_can_create_response_if_not_author(self):
         record_manager1 = UserFactory.create(post__can_start_destruction=True)
         record_manager2 = UserFactory.create(post__can_start_destruction=True)
 
@@ -156,14 +156,7 @@ class ReviewResponsesViewSetTests(APITestCase):
             format="json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.json()["nonFieldErrors"][0],
-            _(
-                "This user is either not allowed to update the destruction list or "
-                "the destruction list cannot currently be updated."
-            ),
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_cannot_create_response_if_not_changes_requested(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)

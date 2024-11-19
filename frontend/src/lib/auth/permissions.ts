@@ -97,7 +97,7 @@ export function canUpdateDestructionList(
     return false;
   }
 
-  return user.pk === destructionList.assignee.pk;
+  return true;
 }
 
 export function canViewDestructionList(
