@@ -53,6 +53,11 @@ class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
             case ListRole.main_reviewer:
                 permission = Permission.objects.get(codename="can_review_destruction")
                 assignee.user.user_permissions.add(permission)
+            case ListRole.co_reviewer:
+                permission = Permission.objects.get(
+                    codename="can_co_review_destruction"
+                )
+                assignee.user.user_permissions.add(permission)
             case ListRole.archivist:
                 permission = Permission.objects.get(codename="can_review_final_list")
                 assignee.user.user_permissions.add(permission)

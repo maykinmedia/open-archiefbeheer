@@ -12,6 +12,7 @@ from django_filters import (
 from ..constants import InternalStatus
 from ..models import (
     DestructionList,
+    DestructionListCoReview,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
@@ -125,6 +126,24 @@ class DestructionListReviewItemFilterset(FilterSet):
     class Meta:
         model = DestructionListItemReview
         fields = ("review",)
+
+
+class DestructionListCoReviewFilterset(FilterSet):
+    destruction_list__uuid = UUIDFilter(
+        field_name="destruction_list__uuid",
+        help_text="The UUID of the destruction list.",
+        method="filter_destruction_list_uuid",
+    )
+    ordering = OrderingFilter(fields=("created", "created"))
+
+    class Meta:
+        model = DestructionListCoReview
+        fields = ("destruction_list", "destruction_list__uuid", "ordering")
+
+    def filter_destruction_list_uuid(
+        self, queryset: QuerySet[DestructionListReview], name: str, value: str
+    ):
+        return queryset.filter(destruction_list__uuid=value)
 
 
 class ReviewResponseFilterset(FilterSet):
