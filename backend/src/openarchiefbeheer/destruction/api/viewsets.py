@@ -2,7 +2,16 @@ from datetime import date, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Prefetch, QuerySet
+from django.db.models import (
+    Case,
+    F,
+    OuterRef,
+    Prefetch,
+    QuerySet,
+    Subquery,
+    Value,
+    When,
+)
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -19,13 +28,19 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 
-from ..constants import WAITING_PERIOD, InternalStatus, ListRole
+from ..constants import (
+    WAITING_PERIOD,
+    DestructionListItemAction,
+    InternalStatus,
+    ListRole,
+)
 from ..models import (
     DestructionList,
     DestructionListAssignee,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
+    ReviewItemResponse,
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
@@ -394,13 +409,43 @@ class DestructionListItemsViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListItemReadSerializer
-    queryset = DestructionListItem.objects.all().select_related("zaak")
     filter_backends = (NestedFilterBackend,)
     filterset_class = DestructionListItemFilterset
     filterset_kwargs = {"prefix": "item"}
     nested_filterset_class = ZaakFilterSet
     nested_filterset_relation_field = "zaak"
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        review_response_items = ReviewItemResponse.objects.filter(
+            review_item__destruction_list_item=OuterRef("pk")
+        ).order_by("-created")
+
+        qs = (
+            DestructionListItem.objects.all()
+            .select_related("zaak")
+            .annotate(
+                last_review_response_action_item=Subquery(
+                    review_response_items.values("action_item")[:1]
+                )
+            )
+            .annotate(
+                review_advice_ignored=Case(
+                    When(
+                        last_review_response_action_item=DestructionListItemAction.keep,
+                        then=Value(True),
+                    ),
+                    When(
+                        last_review_response_action_item=DestructionListItemAction.remove,
+                        then=Value(False),
+                    ),
+                    When(
+                        last_review_response_action_item__isnull=True, then=Value(None)
+                    ),
+                )
+            )
+        )
+        return qs.order_by(F("review_advice_ignored").desc(nulls_last=True))
 
 
 @extend_schema_view(
