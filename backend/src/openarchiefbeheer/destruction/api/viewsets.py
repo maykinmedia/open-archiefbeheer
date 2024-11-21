@@ -28,6 +28,7 @@ from ..constants import (
 from ..models import (
     DestructionList,
     DestructionListAssignee,
+    DestructionListCoReview,
     DestructionListItem,
     DestructionListItemReview,
     DestructionListReview,
@@ -38,6 +39,7 @@ from ..tasks import delete_destruction_list
 from ..utils import process_new_reviewer
 from .backends import NestedFilterBackend
 from .filtersets import (
+    DestructionListCoReviewFilterset,
     DestructionListFilterset,
     DestructionListItemFilterset,
     DestructionListReviewFilterset,
@@ -46,6 +48,7 @@ from .filtersets import (
 )
 from .permissions import (
     CanAbortDestruction,
+    CanCoReviewPermission,
     CanMarkAsReadyToReview,
     CanMarkListAsFinal,
     CanReassignDestructionList,
@@ -60,6 +63,7 @@ from .serializers import (
     AuditTrailItemSerializer,
     CoReviewerAssignementSerializer,
     DestructionListAssigneeReadSerializer,
+    DestructionListCoReviewSerializer,
     DestructionListItemReadSerializer,
     DestructionListItemReviewSerializer,
     DestructionListReadSerializer,
@@ -469,6 +473,41 @@ class DestructionListReviewViewSet(
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [IsAuthenticated & CanReviewPermission]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Co-Reviews"],
+        summary=_("List co-reviews"),
+        description=_(
+            "List all the co-reviews that have been made for a destruction list."
+        ),
+    ),
+    create=extend_schema(
+        tags=["Co-Reviews"],
+        summary=_("Create co-review"),
+        description=_(
+            "Create a co-review for a destruction list. "
+            "Only a user currently assigned as co-reviewer to the destruction list can create a review."
+        ),
+    ),
+)
+class DestructionListCoReviewViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = DestructionListCoReviewSerializer
+    queryset = DestructionListCoReview.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListCoReviewFilterset
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated & CanCoReviewPermission]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]

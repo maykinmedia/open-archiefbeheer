@@ -17,6 +17,7 @@ from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
     CoReviewersViewSet,
+    DestructionListCoReviewViewSet,
     DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
@@ -58,6 +59,11 @@ router.register(
     r"review-items",
     DestructionListItemReviewViewSet,
     basename="reviews-items",
+)
+router.register(
+    r"destruction-list-co-reviews",
+    DestructionListCoReviewViewSet,
+    basename="destruction-list-co-reviews",
 )
 router.register(
     r"review-responses",
