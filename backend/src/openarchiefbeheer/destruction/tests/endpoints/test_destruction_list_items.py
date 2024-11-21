@@ -256,10 +256,11 @@ class DestructionListItemsViewSetTest(APITestCase):
         )
 
         self.client.force_authenticate(user=record_manager)
-        endpoint = reverse("api:destruction-list-items-list")
+        endpoint = furl(reverse("api:destruction-list-items-list"))
+        endpoint.args["item-order_review_ignored"] = True
 
         response = self.client.get(
-            endpoint,
+            endpoint.url,
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
