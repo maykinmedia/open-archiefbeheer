@@ -1,4 +1,4 @@
-from django.db.models import Case, QuerySet, Value, When
+from django.db.models import Case, F, QuerySet, Value, When
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
@@ -41,6 +41,13 @@ class DestructionListItemFilterset(FilterSet):
             "to define the exact same ordering as the zaak endpoint"
         ),
     )
+    order_review_ignored = BooleanFilter(
+        field_name="ordering",
+        method="filter_order_review_ignored",
+        help_text=_(
+            "Return the items where a record manager went against the advice of a reviewer first."
+        ),
+    )
 
     class Meta:
         model = DestructionListItem
@@ -49,6 +56,7 @@ class DestructionListItemFilterset(FilterSet):
             "status",
             "processing_status",
             "order_match_zaken",
+            "order_review_ignored",
         )
 
     def filter_in_destruction_list(
@@ -76,6 +84,11 @@ class DestructionListItemFilterset(FilterSet):
         self, queryset: QuerySet[DestructionListItem], name: str, value: str
     ) -> QuerySet[DestructionListItem]:
         return queryset.order_by("zaak__pk")
+
+    def filter_order_review_ignored(
+        self, queryset: QuerySet[DestructionListItem], name: str, value: bool
+    ) -> QuerySet[DestructionListItem]:
+        return queryset.order_by(F("review_advice_ignored").desc(nulls_last=True))
 
 
 class DestructionListFilterset(FilterSet):

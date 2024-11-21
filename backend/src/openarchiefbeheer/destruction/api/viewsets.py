@@ -2,16 +2,7 @@ from datetime import date, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import (
-    Case,
-    F,
-    OuterRef,
-    Prefetch,
-    QuerySet,
-    Subquery,
-    Value,
-    When,
-)
+from django.db.models import Case, OuterRef, Prefetch, QuerySet, Subquery, Value, When
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -445,7 +436,7 @@ class DestructionListItemsViewSet(
                 )
             )
         )
-        return qs.order_by(F("review_advice_ignored").desc(nulls_last=True))
+        return qs
 
 
 @extend_schema_view(
