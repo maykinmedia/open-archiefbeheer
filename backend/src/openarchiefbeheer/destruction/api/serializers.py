@@ -242,7 +242,7 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
     review_advice_ignored = serializers.SerializerMethodField(
         help_text=_(
             "Specifies whether the record manager went against"
-            " the advice of a reviewer when processing a review."
+            " the advice of a reviewer when processing the last review."
         ),
         allow_null=True,
     )
@@ -258,7 +258,7 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
             "review_advice_ignored",
         )
 
-    @extend_schema_field(build_basic_type((OpenApiTypes.BOOL, OpenApiTypes.NONE)))
+    @extend_schema_field(build_basic_type(OpenApiTypes.BOOL))
     def get_review_advice_ignored(self, item: DestructionListItem) -> bool | None:
         if hasattr(item, "review_advice_ignored"):
             return item.review_advice_ignored
