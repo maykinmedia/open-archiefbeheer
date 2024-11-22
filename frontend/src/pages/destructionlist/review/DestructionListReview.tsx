@@ -19,6 +19,10 @@ import {
 } from "../../../hooks";
 import { ZaakReview } from "../../../lib/api/review";
 import {
+  canCoReviewDestructionList,
+  canReviewDestructionList,
+} from "../../../lib/auth/permissions";
+import {
   RestBackend,
   ZaakSelection,
   addToZaakSelection,
@@ -192,9 +196,28 @@ export function DestructionListReviewPage() {
    * Returns the button to show in the secondary navigation (top bar).
    */
   function getSubmitDestructionListButton(): ButtonProps | null {
-    if (!user?.role.canReviewDestruction && !user?.role.canReviewFinalList) {
-      return null; // TODO: Implement mark ready
+    const isReview = user && canReviewDestructionList(user, destructionList);
+    const isCoReview =
+      !isReview && user && canCoReviewDestructionList(user, destructionList);
+
+    if (!isReview && !isCoReview) {
+      return null;
     }
+
+    if (isCoReview) {
+      return {
+        children: (
+          <>
+            <Solid.CheckCircleIcon />
+            Medebeoordeling afronden
+          </>
+        ),
+        pad: "h",
+        variant: "primary",
+        onClick: () => handleCompleteCoReview(),
+      };
+    }
+
     if (Object.keys(excludedZaakSelection).length) {
       return {
         children: (
@@ -315,6 +338,28 @@ export function DestructionListReviewPage() {
             comment,
             destructionList: uuid,
             status: destructionList.status,
+          },
+        });
+      },
+    );
+  }
+
+  /**
+   * Gets called when the co-reviewer completes reviewing the destruction list.
+   */
+  function handleCompleteCoReview() {
+    prompt(
+      `Medebeoordeling afronden`,
+      `U staat op het punt om de medebeoordeling voor vernietigingslijst ${destructionList.name} af te ronden, wilt u doorgaan?`,
+      "Opmerking",
+      "Medebeoordeling afronden",
+      "Annuleren",
+      (comment) => {
+        submitAction({
+          type: "COMPLETE_CO_REVIEW",
+          payload: {
+            comment,
+            destructionList: uuid,
           },
         });
       },

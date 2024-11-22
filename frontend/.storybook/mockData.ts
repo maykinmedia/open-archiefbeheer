@@ -1,4 +1,5 @@
 import { auditLogFactory } from "../src/fixtures/auditLog";
+import { coReviewsFactory } from "../src/fixtures/coReview";
 import { destructionListAssigneesFactory } from "../src/fixtures/destructionList";
 import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../src/fixtures/selectieLijstKlasseChoices";
 import { userFactory, usersFactory } from "../src/fixtures/user";
@@ -10,6 +11,18 @@ export const MOCKS = {
     method: "GET",
     status: 200,
     response: auditLogFactory(),
+  },
+  CO_REVIEWS: {
+    url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+    method: "GET",
+    status: 200,
+    response: coReviewsFactory(),
+  },
+  CO_REVIEW_CREATE: {
+    url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+    method: "POST",
+    status: 201,
+    response: {},
   },
   DESTRUCTION_LIST_MAKE_FINAL: {
     url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final",

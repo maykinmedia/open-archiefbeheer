@@ -1,6 +1,7 @@
 import { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
+import exp from "node:constants";
 import { createMock, getMock } from "storybook-addon-module-mock";
 
 import {
@@ -8,6 +9,7 @@ import {
   ReactRouterDecorator,
 } from "../../../.storybook/decorators";
 import { fillForm } from "../../../.storybook/playFunctions";
+import { coReviewFactory } from "../../fixtures/coReview";
 import { destructionListFactory } from "../../fixtures/destructionList";
 import {
   beoordelaarFactory,
@@ -260,5 +262,60 @@ export const ReviewerCanReassignCoReviewers: Story = {
   },
   play: async (context) => {
     await assertEditCoReviewers(context);
+  },
+};
+
+export const CoReviewStatusVisible: Story = {
+  args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
+  parameters: {
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => beoordelaarFactory());
+
+        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
+        useCoReviewers.mockImplementation(() => [
+          REVIEWER2,
+          REVIEWER3,
+          REVIEWER4,
+        ]);
+
+        const useDestructionListCoReviewers = createMock(
+          hooksUseWhoAmI,
+          "useDestructionListCoReviewers",
+        );
+        useDestructionListCoReviewers.mockImplementation(() => [
+          { user: REVIEWER2, role: "co_reviewer" },
+        ]);
+
+        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
+        useCoReviews.mockImplementation(() => [
+          coReviewFactory({ author: REVIEWER2 }),
+        ]);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const element = await canvas.getByTitle(
+      "Medebeoordelaar is klaar met beoordelen",
+    );
+    await expect(element).toBeVisible();
   },
 };
