@@ -33,6 +33,7 @@ export async function listDestructionListItems(
         page_size?: number;
         "item-processing_status"?: ProcessingStatus;
         "item-status": DestructionListItemStatus; // TODO ?
+        "item-order_review_ignored"?: string;
       },
 ) {
   const response = await request("GET", "/destruction-list-items/", {

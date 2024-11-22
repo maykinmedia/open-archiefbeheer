@@ -7,6 +7,10 @@ import {
   getDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
+  PaginatedDestructionListItems,
+  listDestructionListItems,
+} from "../../../lib/api/destructionListsItem";
+import {
   Review,
   ReviewItemWithZaak,
   getLatestReview,
@@ -17,7 +21,6 @@ import {
   getLatestReviewResponse,
 } from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
 import {
   canReviewDestructionListRequired,
   loginRequired,
@@ -31,7 +34,7 @@ export type DestructionListReviewContext = {
   destructionList: DestructionList;
   logItems: AuditLogItem[];
 
-  paginatedZaken: PaginatedZaken;
+  paginatedZaken: PaginatedDestructionListItems;
   review: Review;
   reviewItems?: ReviewItemWithZaak[];
   reviewResponse?: ReviewResponse;
@@ -76,9 +79,9 @@ export const destructionListReviewLoader = loginRequired(
           reviewItemsPromise,
           reviewResponsePromise,
           listReviewers(),
-          listZaken({
-            ...objParams,
-            in_destruction_list: uuid,
+          listDestructionListItems(uuid, {
+            "item-order_review_ignored": String(true),
+            ...(objParams as unknown as URLSearchParams),
           }),
         ]);
 
