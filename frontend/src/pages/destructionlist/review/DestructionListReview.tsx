@@ -7,7 +7,7 @@ import {
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import {
@@ -60,6 +60,10 @@ export function DestructionListReviewPage() {
     reviewItems,
     reviewResponse,
   } = useLoaderData() as DestructionListReviewContext;
+  const zakenResults = paginatedZaken.results
+    .map((zaak) => zaak.zaak)
+    .filter((zaak) => zaak !== null) as Zaak[];
+  console.log(paginatedZaken);
 
   const user = useWhoAmI();
 
@@ -70,7 +74,7 @@ export function DestructionListReviewPage() {
       comment: string;
     }>(
       storageKey,
-      paginatedZaken.results,
+      zakenResults,
       filterSelectionZaken,
       getSelectionDetail,
       RestBackend,
@@ -84,7 +88,7 @@ export function DestructionListReviewPage() {
       comment: string;
     }>(
       storageKey,
-      paginatedZaken.results.map((z) => z.url as string),
+      paginatedZaken.results.map((z) => z.zaak?.url as string),
       true,
       RestBackend,
     );
@@ -125,14 +129,15 @@ export function DestructionListReviewPage() {
     uuid,
     destructionList.status,
   );
-  const zaakReviewStatusBadges = useZaakReviewStatusBadges(
-    paginatedZaken.results,
-    { ...approvedZaakSelection, ...excludedZaakSelection },
-  );
+  const zaakReviewStatusBadges = useZaakReviewStatusBadges(zakenResults, {
+    ...approvedZaakSelection,
+    ...excludedZaakSelection,
+  });
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
-    return paginatedZaken.results.map((zaak) => {
+    return paginatedZaken.results.map((result) => {
+      const zaak = result.zaak as Zaak;
       const badge = zaakReviewStatusBadges[zaak.url as string].badge;
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
