@@ -7,8 +7,19 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import InternalStatus, ListItemStatus
-from ..factories import DestructionListFactory, DestructionListItemFactory
+from ...constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListItemStatus,
+    ListStatus,
+)
+from ..factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
+    ReviewItemResponseFactory,
+)
 
 
 class DestructionListItemsViewSetTest(APITestCase):
@@ -221,3 +232,50 @@ class DestructionListItemsViewSetTest(APITestCase):
             data["results"][0]["extraZaakData"]["url"],
             "http://localhost:8003/zaken/api/v1/zaken/eafc5f37-4524-43ce-872f-39ff3df11e1e",
         )
+
+    def test_retrieve_items_with_review_responses(self):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+        )
+        item_reviews = DestructionListItemReviewFactory.create_batch(
+            3,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+        ReviewItemResponseFactory.create(
+            review_item=item_reviews[1],
+            review_item__review=review,
+            action_item=DestructionListItemAction.keep,
+        )
+        ReviewItemResponseFactory.create(
+            review_item=item_reviews[2],
+            review_item__review=review,
+            action_item=DestructionListItemAction.remove,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destruction-list-items-list"))
+        endpoint.args["item-order_review_ignored"] = True
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["results"][0]["pk"], item_reviews[1].destruction_list_item.pk
+        )
+        self.assertTrue(data["results"][0]["reviewAdviceIgnored"])
+        self.assertEqual(
+            data["results"][1]["pk"], item_reviews[2].destruction_list_item.pk
+        )
+        self.assertFalse(data["results"][1]["reviewAdviceIgnored"])
+        self.assertEqual(
+            data["results"][2]["pk"], item_reviews[0].destruction_list_item.pk
+        )
+        self.assertIsNone(data["results"][2]["reviewAdviceIgnored"])

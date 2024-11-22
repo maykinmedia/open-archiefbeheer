@@ -4,7 +4,8 @@ from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.plumbing import build_basic_type
+from drf_spectacular.utils import OpenApiTypes, extend_schema_field
 from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -238,6 +239,13 @@ class DestructionListItemWriteSerializer(serializers.ModelSerializer):
 
 class DestructionListItemReadSerializer(serializers.ModelSerializer):
     zaak = ZaakSerializer(allow_null=True, read_only=True)
+    review_advice_ignored = serializers.SerializerMethodField(
+        help_text=_(
+            "Specifies whether the record manager went against"
+            " the advice of a reviewer when processing the last review."
+        ),
+        allow_null=True,
+    )
 
     class Meta:
         model = DestructionListItem
@@ -247,7 +255,23 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
             "extra_zaak_data",
             "zaak",
             "processing_status",
+            "review_advice_ignored",
         )
+
+    @extend_schema_field(build_basic_type(OpenApiTypes.BOOL))
+    def get_review_advice_ignored(self, item: DestructionListItem) -> bool | None:
+        if hasattr(item, "review_advice_ignored"):
+            return item.review_advice_ignored
+
+        last_review_response = (
+            ReviewItemResponse.objects.filter(review_item__destruction_list_item=item)
+            .order_by("-created")
+            .last()
+        )
+        if last_review_response is None:
+            return
+
+        return last_review_response.action_item == DestructionListItemAction.keep
 
 
 class DestructionListWriteSerializer(serializers.ModelSerializer):
