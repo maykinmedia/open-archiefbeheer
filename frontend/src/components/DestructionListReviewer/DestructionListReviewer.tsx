@@ -190,7 +190,7 @@ export function DestructionListReviewer({
           },
         };
       }, {}),
-    [assignedCoReviewers],
+    [assignedCoReviewers, coReviews],
   );
 
   return (
