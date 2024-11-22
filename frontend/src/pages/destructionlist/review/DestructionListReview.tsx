@@ -63,7 +63,7 @@ export function DestructionListReviewPage() {
   const zakenResults = paginatedZaken.results
     .map((zaak) => zaak.zaak)
     .filter((zaak) => zaak !== null) as Zaak[];
-  console.log(paginatedZaken);
+  console.log(zakenResults);
 
   const user = useWhoAmI();
 

@@ -12,7 +12,7 @@ import {
   destructionListAssigneesFactory,
   destructionListFactory,
 } from "../../../fixtures/destructionList";
-import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { paginatedDestructionListItemsFailedFactory } from "../../../fixtures/destructionListItem";
 import { reviewFactory } from "../../../fixtures/review";
 import {
   beoordelaarFactory,
@@ -20,7 +20,15 @@ import {
   userFactory,
   usersFactory,
 } from "../../../fixtures/user";
-import { DestructionListReviewPage } from "./DestructionListReview";
+import {
+  getFilteredZaakSelection,
+  getZaakSelectionItems,
+} from "../../../lib/zaakSelection";
+import { Zaak } from "../../../types";
+import {
+  DestructionListReviewPage,
+  getDestructionListReviewKey,
+} from "./DestructionListReview";
 import { destructionListReviewAction } from "./DestructionListReview.action";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
@@ -167,14 +175,47 @@ const FIXTURE: DestructionListReviewContext = {
   logItems: [],
   review: reviewFactory(),
   reviewers: usersFactory(),
-  paginatedZaken: paginatedZakenFactory(),
+  paginatedZaken: paginatedDestructionListItemsFailedFactory(),
 };
 
 export const ReviewerCanApproveZaak: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE,
+        loader: async () => {
+          const storageKey = getDestructionListReviewKey(
+            FIXTURE.uuid,
+            FIXTURE.destructionList.status,
+          );
+          const zakenResults = FIXTURE.paginatedZaken.results
+            .map((zaak) => zaak.zaak)
+            .filter((zaak) => zaak !== null) as Zaak[];
+          const zakenOnPage = zakenResults.map((z) => z.url as string);
+
+          const approvedZaakUrlsOnPagePromise = await Promise.all(
+            zakenOnPage.map(async (url) => {
+              const selection = await getZaakSelectionItems<{
+                approved: boolean;
+              }>(storageKey, [url]);
+              const item = selection[url];
+              return { url, approved: item?.detail?.approved };
+            }),
+          );
+
+          const approvedZaakUrlsOnPage = approvedZaakUrlsOnPagePromise
+            .filter((result) => result.approved)
+            .map((result) => result.url);
+
+          const excludedZaakSelection = await getFilteredZaakSelection<{
+            approved: false;
+          }>(storageKey, { approved: false });
+
+          return {
+            ...FIXTURE,
+            approvedZaakUrlsOnPage,
+            excludedZaakSelection,
+          };
+        },
         action: destructionListReviewAction,
       },
     },

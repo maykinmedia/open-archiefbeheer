@@ -21,7 +21,6 @@ import {
   getLatestReviewResponse,
 } from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
-import { listZaken } from "../../../lib/api/zaken";
 import {
   canReviewDestructionListRequired,
   loginRequired,
@@ -73,12 +72,6 @@ export const destructionListReviewLoader = loginRequired(
           })
         : undefined;
 
-      const a = await listZaken({
-        ...objParams,
-        in_destruction_list: uuid,
-      });
-      console.log(a);
-
       const [list, logItems, reviewItems, reviewResponse, reviewers, zaken] =
         await Promise.all([
           getDestructionList(uuid),
@@ -86,10 +79,10 @@ export const destructionListReviewLoader = loginRequired(
           reviewItemsPromise,
           reviewResponsePromise,
           listReviewers(),
-          listDestructionListItems(
-            uuid,
-            objParams as unknown as URLSearchParams,
-          ),
+          listDestructionListItems(uuid, {
+            "item-order_review_ignored": String(true),
+            ...(objParams as unknown as URLSearchParams),
+          }),
         ]);
 
       const storageKey = getDestructionListReviewKey(uuid, list.status);
@@ -100,6 +93,7 @@ export const destructionListReviewLoader = loginRequired(
       const reviewItemsWithZaak = reviewItems
         ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
         : reviewItems;
+      console.log({ reviewResponse, zaken, objParams });
 
       return {
         storageKey,
