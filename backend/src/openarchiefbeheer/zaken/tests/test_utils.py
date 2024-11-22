@@ -8,7 +8,11 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.utils import delete_zaak_and_related_objects, format_zaaktype_choices
+from openarchiefbeheer.zaken.utils import (
+    delete_zaak_and_related_objects,
+    format_zaaktype_choices,
+)
+
 
 class DeletingZakenWithErrorsTests(TestCase):
     @classmethod
@@ -142,6 +146,7 @@ class DeletingZakenWithErrorsTests(TestCase):
 
         with self.assertRaises(ConnectTimeout):
             delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
+
 
 class FormatZaaktypeChoicesTests(TestCase):
     def test_format_zaaktype_choices_with_multiple_versions(self):
