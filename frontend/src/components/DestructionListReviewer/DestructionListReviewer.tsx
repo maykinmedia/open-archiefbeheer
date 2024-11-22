@@ -8,11 +8,12 @@ import {
   useAlert,
   useFormDialog,
 } from "@maykin-ui/admin-ui";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
 import {
   useCoReviewers,
+  useCoReviews,
   useDestructionListCoReviewers,
   useReviewers,
   useWhoAmI,
@@ -45,6 +46,7 @@ export function DestructionListReviewer({
   const revalidator = useRevalidator();
   const alert = useAlert();
   const formDialog = useFormDialog();
+  const coReviews = useCoReviews(destructionList);
   const reviewers = useReviewers();
   const coReviewers = useCoReviewers();
   const assignedCoReviewers = useDestructionListCoReviewers(destructionList);
@@ -169,9 +171,23 @@ export function DestructionListReviewer({
     () =>
       assignedCoReviewers.reduce((acc, coReviewer, i) => {
         const key = `Medebeoordelaar ${1 + i}`;
+        const hasReview = coReviews.find(
+          (coReview) => coReview.author?.pk === coReviewer.user.pk,
+        );
+        const icon = hasReview && <Solid.CheckCircleIcon />;
+
         return {
           ...acc,
-          [key]: { label: key, value: formatUser(coReviewer.user) },
+          [key]: {
+            label: key,
+            value: (
+              <P title={hasReview && "Medebeoordelaar is klaar met beoordelen"}>
+                {formatUser(coReviewer.user)}
+                &nbsp;
+                {icon}
+              </P>
+            ),
+          },
         };
       }, {}),
     [assignedCoReviewers],

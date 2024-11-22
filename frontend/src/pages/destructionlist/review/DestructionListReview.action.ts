@@ -1,6 +1,7 @@
 import { ActionFunctionArgs, redirect } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
+import { CoReview, createCoReview } from "../../../lib/api/coReview";
 import {
   Review,
   ZaakReview,
@@ -17,20 +18,29 @@ export type DestructionListReviewActionContext = {
 };
 
 export type ReviewDestructionListAction =
-  | TypedAction<"APPROVE_LIST", ReviewDestructionListListApproveActionPayLoad>
-  | TypedAction<"REJECT_LIST", ReviewDestructionListListRejectActionPayLoad>;
+  | TypedAction<"APPROVE_LIST", ReviewDestructionListApproveActionPayLoad>
+  | TypedAction<"REJECT_LIST", ReviewDestructionListRejectActionPayLoad>
+  | TypedAction<
+      "COMPLETE_CO_REVIEW",
+      ReviewDestructionListCompleteCoReviewPayload
+    >;
 
-export type ReviewDestructionListListApproveActionPayLoad = {
+export type ReviewDestructionListApproveActionPayLoad = {
   comment: string;
   destructionList: string;
   status: string;
 };
 
-export type ReviewDestructionListListRejectActionPayLoad = {
+export type ReviewDestructionListRejectActionPayLoad = {
   comment: string;
   destructionList: string;
   status: string;
   zaakReviews?: ZaakReview[];
+};
+
+export type ReviewDestructionListCompleteCoReviewPayload = {
+  comment: string;
+  destructionList: string;
 };
 
 /**
@@ -50,6 +60,8 @@ export const destructionListReviewAction = async ({
       return destructionListApproveListAction({ request, params });
     case "REJECT_LIST":
       return destructionListRejectListAction({ request, params });
+    case "COMPLETE_CO_REVIEW":
+      return destructionListCompleteCoReviewAction({ request, params });
   }
 };
 
@@ -63,7 +75,7 @@ export async function destructionListApproveListAction({
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
   const { comment, destructionList, status } =
-    payload as ReviewDestructionListListApproveActionPayLoad;
+    payload as ReviewDestructionListApproveActionPayLoad;
 
   const data: Review = {
     destructionList: destructionList,
@@ -100,7 +112,7 @@ export async function destructionListRejectListAction({
 }: ActionFunctionArgs) {
   const { payload } = await request.json();
   const { comment, destructionList, status, zaakReviews } =
-    payload as ReviewDestructionListListRejectActionPayLoad;
+    payload as ReviewDestructionListRejectActionPayLoad;
 
   const data: Review = {
     destructionList: destructionList,
@@ -119,6 +131,34 @@ export async function destructionListRejectListAction({
         RestBackend,
       ),
     ]);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
+  return redirect("/");
+}
+
+/**
+ * React Router action, user intends to complete a co-review.
+ * @param request
+ * @param params
+ */
+export async function destructionListCompleteCoReviewAction({
+  request,
+}: ActionFunctionArgs) {
+  const { payload } = await request.json();
+  const { comment, destructionList } =
+    payload as ReviewDestructionListCompleteCoReviewPayload;
+
+  const data: CoReview = {
+    destructionList: destructionList,
+    listFeedback: comment,
+  };
+
+  try {
+    await createCoReview(data);
   } catch (e: unknown) {
     if (e instanceof Response) {
       return await (e as Response).json();

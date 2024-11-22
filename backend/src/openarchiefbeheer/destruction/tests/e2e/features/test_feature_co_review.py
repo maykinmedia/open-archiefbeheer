@@ -37,7 +37,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Destruction list to co-review")
             await self.then.page_should_contain_text(page, "Geaccordeerd")
 
-            # Co-reviewer rejects see second case.
+            # Co-reviewer rejects second case.
             await self.when.user_clicks_button(page, "Uitzonderen")
             await self.when.user_fills_form_field(page, "Reden", "gh-448")
             await self.when.user_clicks_button(page, "Zaak uitzonderen")
@@ -50,3 +50,21 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             await self.when.reviewer_logs_in(page)
             await self.when.user_clicks_button(page, "Destruction list to co-review")
             await self.then.page_should_contain_text(page, "Uitgezonderd")
+
+            # Log out.
+            await self.when.user_logs_out(page)
+
+            # Co-reviewer finishes co-review
+            await self.when.co_reviewer_logs_in(page)
+            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Medebeoordeling afronden")
+            await self.when.user_fills_form_field(page, "Opmerking", "gh-497")
+            await self.when.user_clicks_button(page, "Medebeoordeling afronden", 1)
+
+            # Log out.
+            await self.when.user_logs_out(page)
+
+            # Reviewer should see review completed.
+            await self.when.reviewer_logs_in(page)
+            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.then.page_should_contain_element_with_title(page, "Medebeoordelaar is klaar met beoordelen")
