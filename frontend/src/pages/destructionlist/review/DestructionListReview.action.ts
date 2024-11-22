@@ -74,6 +74,8 @@ export async function destructionListApproveListAction({
   try {
     await Promise.all([
       await createDestructionListReview(data),
+      // The selection is cleared to prevent clashes, since the backend
+      // can pre-populate it for future reviews (see github issue #498).
       await clearZaakSelection(
         getDestructionListReviewKey(destructionList, status),
         RestBackend,
@@ -110,6 +112,8 @@ export async function destructionListRejectListAction({
   try {
     await Promise.all([
       createDestructionListReview(data),
+      // The selection is cleared to prevent clashes, since the backend
+      // can pre-populate it for future reviews (see github issue #498).
       clearZaakSelection(
         getDestructionListReviewKey(destructionList, status),
         RestBackend,
