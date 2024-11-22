@@ -1,7 +1,11 @@
 import { ActionFunctionArgs, redirect } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
-import { CoReview, createCoReview } from "../../../lib/api/coReview";
+import {
+  CoReview,
+  CoReviewBase,
+  createCoReview,
+} from "../../../lib/api/coReview";
 import {
   Review,
   ZaakReview,
@@ -152,7 +156,7 @@ export async function destructionListCompleteCoReviewAction({
   const { comment, destructionList } =
     payload as ReviewDestructionListCompleteCoReviewPayload;
 
-  const data: CoReview = {
+  const data: CoReviewBase = {
     destructionList: destructionList,
     listFeedback: comment,
   };
