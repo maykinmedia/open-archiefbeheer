@@ -16,7 +16,7 @@ const mockZaak1: Zaak = { url: "https://example.com/zaak1" } as Zaak;
 const mockZaak2 = "https://example.com/zaak2";
 const mockKey = "testKey";
 
-describe("Zaak Selection Functions", () => {
+describe("zaakSelection", () => {
   beforeEach(() => {
     sessionStorage.clear();
   });
