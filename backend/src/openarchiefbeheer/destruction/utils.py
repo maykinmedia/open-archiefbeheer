@@ -262,6 +262,11 @@ def attach_report_to_zaak(
 def get_selection_key_for_review(
     destruction_list: "DestructionList", context: str
 ) -> str:
+    """
+    Warning! This key needs to remain in sync with the key created by the frontend,
+    since the frontend need to be able to retrieve the pre-populates selection
+    in the review page. See github issue #498
+    """
     return f"destruction-list-{context}-{destruction_list.uuid}-{ListStatus.ready_to_review}"
 
 

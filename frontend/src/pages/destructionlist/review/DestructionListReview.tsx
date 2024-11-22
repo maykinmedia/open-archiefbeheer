@@ -32,6 +32,11 @@ import { ReviewDestructionListAction } from "./DestructionListReview.action";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
+/**
+ * Warning! This key needs to remain in sync with the key created by the backend,
+ * since the backend can pre-populate the selection after a review is processed by
+ * the record manager. See github issue #498
+ */
 export const getDestructionListReviewKey = (id: string, status: string) =>
   `destruction-list-review-${id}-${status}`;
 
