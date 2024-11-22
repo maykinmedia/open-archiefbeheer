@@ -15,6 +15,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -24,6 +25,7 @@ from ..constants import (
     ListItemStatus,
     ListRole,
     ListStatus,
+    ReviewDecisionChoices,
     ZaakActionType,
 )
 from ..tasks import (
@@ -33,10 +35,13 @@ from ..tasks import (
     process_review_response,
     queue_destruction_lists_for_deletion,
 )
+from ..utils import get_selection_key_for_review
 from .factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
     ReviewItemResponseFactory,
     ReviewResponseFactory,
 )
@@ -198,6 +203,77 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(
             zaak.archiefactiedatum.isoformat(), "2025-01-01"
         )  # NOT changed!!
+
+    def test_prepopulating_selection(self, m):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.changes_requested
+        )
+        reviewer = DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list, post__can_review_destruction=True
+        )
+        items = DestructionListItemFactory.create_batch(
+            3, destruction_list=destruction_list, with_zaak=True
+        )
+
+        review = DestructionListReviewFactory.create(
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.rejected,
+            author=reviewer.user,
+        )
+        review_item1 = DestructionListItemReviewFactory.create(
+            destruction_list=destruction_list,
+            review=review,
+            destruction_list_item=items[0],
+        )
+        review_item2 = DestructionListItemReviewFactory.create(
+            destruction_list=destruction_list,
+            review=review,
+            destruction_list_item=items[1],
+        )
+
+        review_response = ReviewResponseFactory.create(review=review)
+        # Reviewer suggestion on zaak1 ignored
+        ReviewItemResponseFactory.create(
+            review_item=review_item1,
+            action_item=DestructionListItemAction.keep,
+        )
+        # Reviewer suggestion implemented, zaak2 is removed from the list
+        ReviewItemResponseFactory.create(
+            review_item=review_item2,
+            action_item=DestructionListItemAction.remove,
+            action_zaak_type=ZaakActionType.bewaartermijn,
+            action_zaak={
+                "archiefactiedatum": "2026-01-01",
+            },
+        )
+        # The third zaak was accepted
+
+        # Now we process the review and we expect the selection to contain zaak1 NOT selected and zaak3 selected.
+        # Zaak2 should not be present because it was removed from the list
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://zaken-api.nl/",
+        )
+        m.patch(items[1].zaak.url, json={"archiefactiedatum": "2026-01-01"})
+        process_review_response(review_response.pk)
+
+        selection_key = get_selection_key_for_review(destruction_list, "review")
+
+        selection_items = SelectionItem.objects.filter(key=selection_key).order_by(
+            "selection_data__selected"
+        )
+
+        self.assertEqual(selection_items.count(), 2)
+        self.assertEqual(selection_items[0].zaak_url, items[0].zaak.url)
+        self.assertEqual(selection_items[1].zaak_url, items[2].zaak.url)
+
+        # This is the zaak which the reviewer already had approved (zaak3)
+        self.assertTrue(selection_items[1].selection_data["detail"]["approved"])
+        self.assertTrue(selection_items[1].selection_data["selected"])
+
+        # This is the zaak for which the feedback was ignored (zaak1)
+        self.assertNotIn("detail", selection_items[0].selection_data)
+        self.assertFalse(selection_items[0].selection_data["selected"])
 
 
 @temp_private_root()
