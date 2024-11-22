@@ -11,7 +11,10 @@ from .constants import InternalStatus, ListItemStatus, ListStatus
 from .exceptions import DeletionProcessingError
 from .models import DestructionList, DestructionListItem, ReviewResponse
 from .signals import deletion_failure
-from .utils import notify_assignees_successful_deletion
+from .utils import (
+    notify_assignees_successful_deletion,
+    prepopulate_selection_after_review_response,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +25,9 @@ def process_review_response(pk: int) -> None:
         "review", "review__destruction_list"
     ).get(pk=pk)
     items_review_responses = review_response.items_responses.select_related(
-        "review_item", "review_item__destruction_list_item"
+        "review_item",
+        "review_item__destruction_list_item",
+        "review_item__destruction_list_item__zaak",
     )
 
     for item_response in items_review_responses:
@@ -38,6 +43,9 @@ def process_review_response(pk: int) -> None:
             item_response.save()
             return
 
+    prepopulate_selection_after_review_response(
+        review_response.review.destruction_list, items_review_responses
+    )
     review_response.review.destruction_list.assign_next()
 
 

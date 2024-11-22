@@ -4,7 +4,7 @@ from typing import Protocol
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -16,11 +16,23 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
+from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 
-from .constants import InternalStatus, ListRole
-from .models import DestructionList, DestructionListAssignee, DestructionListItem
+from .constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListItemStatus,
+    ListRole,
+    ListStatus,
+)
+from .models import (
+    DestructionList,
+    DestructionListAssignee,
+    DestructionListItem,
+    ReviewItemResponse,
+)
 
 
 def notify(subject: str, body: str, context: dict, recipients: list[str]) -> None:
@@ -245,3 +257,58 @@ def attach_report_to_zaak(
         )
         response.raise_for_status()
         store.add_created_resource("zaakinformatieobjecten", response.json()["url"])
+
+
+def get_selection_key_for_review(
+    destruction_list: "DestructionList", context: str
+) -> str:
+    return f"destruction-list-{context}-{destruction_list.uuid}-{ListStatus.ready_to_review}"
+
+
+def prepopulate_selection_after_review_response(
+    destruction_list: "DestructionList",
+    review_response_items: QuerySet[ReviewItemResponse],
+) -> None:
+    selection_key = get_selection_key_for_review(destruction_list, "review")
+
+    ignored_advice_responses = review_response_items.filter(
+        action_item=DestructionListItemAction.keep
+    )
+
+    selection_items_advice_ignored_to_create = []
+    for response in ignored_advice_responses:
+        selection_items_advice_ignored_to_create.append(
+            SelectionItem(
+                key=selection_key,
+                selection_data={"selected": False},
+                zaak_url=response.review_item.destruction_list_item.zaak.url,
+            )
+        )
+
+    # Make sure that the selection is clean
+    SelectionItem.objects.filter(key=selection_key).delete()
+
+    # Create the selection items for the items where review advice
+    # was ignored (they will appear NOT selected)
+    SelectionItem.objects.bulk_create(selection_items_advice_ignored_to_create)
+
+    # Create the selection items for the items that were already
+    # approved (they will appear as selected and approved)
+    other_selection_items_to_create = []
+    for item in destruction_list.items.filter(
+        ~Q(
+            zaak__in=ignored_advice_responses.values_list(
+                "review_item__destruction_list_item__zaak"
+            )
+        ),
+        status=ListItemStatus.suggested,
+    ):
+        other_selection_items_to_create.append(
+            SelectionItem(
+                key=selection_key,
+                selection_data={"selected": True, "detail": {"approved": True}},
+                zaak_url=item.zaak.url,
+            )
+        )
+
+    SelectionItem.objects.bulk_create(other_selection_items_to_create)
