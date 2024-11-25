@@ -130,8 +130,9 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
 def format_resultaten_choices(resultaten: list[dict]) -> DropDownChoice:
     result = [
         {
-            "value": resultaat["url"],
-            "label": resultaat.get("toelichting", resultaat["uuid"]),
+            "value": resultaat["_expand"]["resultaattype"]["url"],
+            "label": resultaat["_expand"]["resultaattype"]["omschrijving"],
+            "extra_data": {"toelichting": resultaat.get("toelichting")},
         }
         for resultaat in resultaten
     ]

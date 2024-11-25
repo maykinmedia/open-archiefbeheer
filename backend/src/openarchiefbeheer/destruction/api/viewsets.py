@@ -375,6 +375,8 @@ class DestructionListViewSet(
 
         destruction_list.assign_next()
 
+        logevent.destruction_list_ready_for_first_review(destruction_list, request.user)
+
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], name="abort-destruction")
