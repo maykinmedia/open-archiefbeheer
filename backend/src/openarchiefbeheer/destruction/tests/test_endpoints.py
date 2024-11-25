@@ -681,8 +681,16 @@ class DestructionListViewSetTest(APITestCase):
         )
 
     def test_mark_as_ready_to_review(self):
-        record_manager = UserFactory.create(post__can_start_destruction=True)
-
+        record_manager = UserFactory.create(
+            username="dolly123",
+            first_name="Dolly",
+            last_name="Sheep",
+            post__can_start_destruction=True,
+        )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         destruction_list = DestructionListFactory.create(
             name="A test list",
             author=record_manager,
@@ -725,6 +733,22 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(len(sent_mail), 1)
         self.assertEqual(sent_mail[0].subject, "Destruction list review request")
         self.assertEqual(sent_mail[0].recipients(), [reviewer.user.email])
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(
+            logs[0].get_message(),
+            _(
+                "User %(record_manager)s (member of group %(groups)s) has marked the "
+                'destruction list "%(list_name)s" as ready to review.'
+            )
+            % {
+                "record_manager": "Dolly Sheep (dolly123)",
+                "groups": "Record Manager",
+                "list_name": "A test list",
+            },
+        )
 
     def test_cannot_mark_as_ready_to_review_if_not_authenticated(self):
         destruction_list = DestructionListFactory.create(

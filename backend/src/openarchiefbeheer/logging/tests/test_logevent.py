@@ -30,8 +30,13 @@ class LogEventTests(TestCase):
             },
             "resultaat": {
                 "url": "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
-                "uuid": "111-111-111",
                 "toelichting": "Completed.",
+                "_expand": {
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "omschrijving": "Completed.",
+                    }
+                },
             },
         }
         items[1].zaak._expand = {
@@ -43,8 +48,13 @@ class LogEventTests(TestCase):
             },
             "resultaat": {
                 "url": "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
-                "uuid": "111-111-111",
                 "toelichting": "Completed.",
+                "_expand": {
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "omschrijving": "Completed.",
+                    }
+                },
             },
         }
         items[2].zaak._expand = {
@@ -56,8 +66,13 @@ class LogEventTests(TestCase):
             },
             "resultaat": {
                 "url": "http://zaken-api.nl/zaken/api/v1/resultaten/222-222-222",
-                "uuid": "222-222-222",
                 "toelichting": "Abandoned.",
+                "_expand": {
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/222-222-222",
+                        "omschrijving": "Abandoned.",
+                    }
+                },
             },
         }
 
@@ -99,11 +114,13 @@ class LogEventTests(TestCase):
             [
                 {
                     "label": "Abandoned.",
-                    "value": "http://zaken-api.nl/zaken/api/v1/resultaten/222-222-222",
+                    "value": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/222-222-222",
+                    "extra_data": {"toelichting": "Abandoned."},
                 },
                 {
                     "label": "Completed.",
-                    "value": "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
+                    "value": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                    "extra_data": {"toelichting": "Completed."},
                 },
             ],
         )
