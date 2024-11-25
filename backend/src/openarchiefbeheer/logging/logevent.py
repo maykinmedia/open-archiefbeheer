@@ -1,6 +1,6 @@
 import traceback
 
-from django.db.models import Model
+from django.db.models import Max, Min, Model
 
 from timeline_logger.models import TimelineLog
 
@@ -12,6 +12,10 @@ from openarchiefbeheer.destruction.models import (
     DestructionListCoReview,
     DestructionListReview,
     ReviewDecisionChoices,
+)
+from openarchiefbeheer.zaken.utils import (
+    format_resultaten_choices,
+    format_zaaktype_choices,
 )
 
 
@@ -51,6 +55,47 @@ def destruction_list_created(
                 "username": reviewer.username,
             },
         },
+    )
+
+
+def destruction_list_ready_for_first_review(
+    destruction_list: DestructionList, user: User
+) -> None:
+
+    extra_data = {
+        "zaaktypen": format_zaaktype_choices(
+            destruction_list.items.distinct("zaak__zaaktype").values_list(
+                "zaak___expand__zaaktype", flat=True
+            )
+        ),
+        "resultaten": format_resultaten_choices(
+            destruction_list.items.distinct("zaak__resultaat")
+            .values_list("zaak___expand__resultaat", flat=True)
+            .distinct()
+        ),
+        "archiefnominaties": list(
+            destruction_list.items.distinct("zaak__archiefnominatie").values_list(
+                "zaak__archiefnominatie", flat=True
+            )
+        ),
+        "comment": destruction_list.comment,
+        "number_of_zaken": destruction_list.items.count(),
+    }
+
+    items_max_min = destruction_list.items.aggregate(
+        Min("zaak__archiefactiedatum"), Max("zaak__archiefactiedatum")
+    )
+    if archiefactiedatum_min := items_max_min.get("zaak__archiefactiedatum__min"):
+        extra_data["min_archiefactiedatum"] = archiefactiedatum_min
+
+    if archiefactiedatum_max := items_max_min.get("zaak__archiefactiedatum__max"):
+        extra_data["max_archiefactiedatum"] = archiefactiedatum_max
+
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_ready_for_first_review",
+        user=user,
+        extra_data=extra_data,
     )
 
 
