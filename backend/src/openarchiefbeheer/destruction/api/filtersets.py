@@ -1,4 +1,4 @@
-from django.db.models import Case, F, QuerySet, Value, When
+from django.db.models import Case, DateField, F, Max, Q, QuerySet, Value, When
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
@@ -143,7 +143,24 @@ class DestructionListCoReviewFilterset(FilterSet):
     def filter_destruction_list_uuid(
         self, queryset: QuerySet[DestructionListReview], name: str, value: str
     ):
-        return queryset.filter(destruction_list__uuid=value)
+        """
+        Return CoReview objects which
+        - associated DestructionList has no DestructionListReview
+        - associated DestructionList has no ReviewResponse associated with its DestructionListReview
+        - was created after the creation date of the ReviewResponse associated with the DestructionListReview
+          associated with the DestructionList
+        """
+        qs = queryset.annotate(
+            last_review_response_date=Max(
+                "destruction_list__reviews__responses__created",
+                output_field=DateField(),
+            )
+        ).filter(
+            Q(last_review_response_date__isnull=True)
+            | Q(created__gte=F("last_review_response_date")),
+            destruction_list__uuid=value,
+        )
+        return qs
 
 
 class ReviewResponseFilterset(FilterSet):
