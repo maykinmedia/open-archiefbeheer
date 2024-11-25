@@ -14,6 +14,7 @@ import { ZaakSelectionContext } from "../../../../contexts";
 import { useSubmitAction } from "../../../../hooks";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
+  DestructionListPermissionCheck,
   canMarkAsReadyToReview,
   canMarkListAsFinal,
   canTriggerDestruction,
@@ -60,6 +61,39 @@ export function useSecondaryNavigation(): ToolbarItem[] {
   const { selectionSize } = useContext(ZaakSelectionContext);
 
   /**
+   * Return `toolbarItem` if `permissionCheck(user, destructionList)` return true.
+   * @param toolbarItem
+   * @param permissionCheck
+   */
+  const getPermittedToolbarItem = (
+    toolbarItem: ToolbarItem,
+    permissionCheck: DestructionListPermissionCheck,
+  ): ToolbarItem => {
+    if (!permissionCheck(user, destructionList)) {
+      return null;
+    }
+    return toolbarItem;
+  };
+
+  const BUTTON_READY_TO_REVIEW: ToolbarItem = {
+    children: (
+      <>
+        <Solid.DocumentArrowUpIcon />
+        Ter beoordeling indienen
+      </>
+    ),
+    pad: "h",
+    onClick: () =>
+      confirm(
+        "Ter beoordeling indienen",
+        "U staat op het punt om de lijst ter beoordeling in te dienen hierna kunt u geen zaken meer toevoegen en/of verwijderen van de vernietigingslijst",
+        "Ter beoordeling indienen",
+        "Annuleren",
+        handleReadyToReview,
+      ),
+  };
+
+  /**
    * Dispatches action to mark the destruction list as final (archivist approves).
    */
   const handleReadyToReview = async () => {
@@ -71,10 +105,33 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     });
   };
 
+  const BUTTON_PROCESS_REVIEW: ToolbarItem = {
+    children: (
+      <>
+        <Solid.DocumentArrowUpIcon />
+        Opnieuw indienen
+      </>
+    ),
+    disabled:
+      ["loading", "submitting"].includes(state) ||
+      selectionSize !== destructionListItems.count,
+    variant: "primary",
+    pad: "h",
+    onClick: () =>
+      prompt(
+        `${destructionList.name} opnieuw indienen`,
+        undefined,
+        "Opmerking",
+        "Opnieuw indienen",
+        "Annuleren",
+        handleProcessReview,
+      ),
+  };
+
   /**
    * Gets called when the destruction list feedback is submitted.
    */
-  const handleProcessReviewSubmitList = async (comment: string) => {
+  const handleProcessReview = async (comment: string) => {
     const zaakSelection = await getFilteredZaakSelection(storageKey);
 
     console.assert(
@@ -124,6 +181,47 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     submitAction(actionData);
   };
 
+  const BUTTON_MAKE_FINAL: ToolbarItem = {
+    children: (
+      <>
+        <Solid.KeyIcon />
+        Markeren als definitief
+      </>
+    ),
+    pad: "h",
+    onClick: () =>
+      formDialog(
+        "Markeer als definitief",
+        undefined,
+        [
+          {
+            label: "Archivaris",
+            name: "assigneeIds",
+            options: archivists.map((user) => ({
+              value: String(user.pk),
+              label: formatUser(user),
+            })),
+            required: true,
+          },
+          {
+            label: "Opmerking",
+            name: "comment",
+            required: true,
+          },
+        ],
+        "Markeer als definitief",
+        "Annuleren",
+        ({ assigneeIds, comment }) =>
+          handleMakeFinal(Number(assigneeIds), String(comment)),
+        undefined,
+        undefined,
+        {
+          role: "form",
+          validateOnChange: true,
+        },
+      ),
+  };
+
   /**
    * Dispatches action to mark the destruction list as final (archivist approves).
    * @param assigneeId
@@ -138,6 +236,46 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         comment: comment,
       },
     });
+  };
+
+  const BUTTON_DESTROY: ToolbarItem = {
+    bold: true,
+    children: (
+      <>
+        <Solid.TrashIcon />
+        {destructionList.processingStatus === "new"
+          ? "Vernietigen starten"
+          : "Vernietigen herstarten"}
+      </>
+    ),
+    variant: "danger",
+    pad: "h",
+    onClick: () =>
+      formDialog(
+        "Zaken definitief vernietigen",
+        `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
+        [
+          {
+            label: "Type naam van de lijst ter bevestiging",
+            name: "name",
+            placeholder: "Naam van de vernietigingslijst",
+            required: true,
+          },
+        ],
+        `${destructionListItems.count} zaken vernietigen`,
+        "Annuleren",
+        handleDestroy,
+        undefined,
+        undefined,
+        {
+          buttonProps: {
+            variant: "danger",
+          },
+          validate: validateDestroy,
+          validateOnChange: true,
+          role: "form",
+        },
+      ),
   };
 
   const validateDestroy = ({ name }: AttributeData) => {
@@ -165,6 +303,27 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     });
   };
 
+  const BUTTON_CANCEL_DESTROY: ToolbarItem = {
+    bold: true,
+    children: (
+      <>
+        <Solid.XMarkIcon />
+        Vernietigen annuleren
+      </>
+    ),
+    variant: "danger",
+    pad: "h",
+    onClick: () =>
+      prompt(
+        "Vernietiging annuleren",
+        `U staat op het punt om de vernietiging van ${destructionListItems.count} zaken vernietigen`,
+        "Opmerking",
+        "Vernietiging annuleren",
+        "Annuleren",
+        handleCancelDestroy,
+      ),
+  };
+
   /**
    * Dispatches action to cancel the destruction of all zaken on the destruction list.
    */
@@ -190,188 +349,46 @@ export function useSecondaryNavigation(): ToolbarItem[] {
   };
 
   return useMemo<ToolbarItem[]>(() => {
-    if (canMarkAsReadyToReview(user, destructionList)) {
-      switch (destructionList.status) {
-        case "new":
-          return [
-            {
-              children: (
-                <>
-                  <Solid.DocumentArrowUpIcon />
-                  Ter beoordeling indienen
-                </>
-              ),
-              pad: "h",
-              onClick: () =>
-                confirm(
-                  "Ter beoordeling indienen",
-                  "U staat op het punt om de lijst ter beoordeling in te dienen hierna kunt u geen zaken meer toevoegen en/of verwijderen van de vernietigingslijst",
-                  "Ter beoordeling indienen",
-                  "Annuleren",
-                  handleReadyToReview,
-                ),
-            },
-          ];
+    return [
+      // Status: "new", "Ter beoordeling indienen"
+      getPermittedToolbarItem(
+        BUTTON_READY_TO_REVIEW,
+        (user, destructionList) =>
+          canMarkAsReadyToReview(user, destructionList) &&
+          destructionList.status === "new",
+      ),
 
-        case "changes_requested":
-          return [
-            {
-              children: (
-                <>
-                  <Solid.DocumentArrowUpIcon />
-                  Opnieuw indienen
-                </>
-              ),
-              disabled:
-                ["loading", "submitting"].includes(state) ||
-                selectionSize !== destructionListItems.count,
-              variant: "primary",
-              pad: "h",
-              onClick: () =>
-                prompt(
-                  `${destructionList.name} opnieuw indienen`,
-                  undefined,
-                  "Opmerking",
-                  "Opnieuw indienen",
-                  "Annuleren",
-                  handleProcessReviewSubmitList,
-                ),
-            },
-          ];
-        default:
-          return [];
-      }
-    }
+      // Status: "changes_requested", "Opnieuw indienen"
+      getPermittedToolbarItem(
+        BUTTON_PROCESS_REVIEW,
+        (user, destructionList) =>
+          canMarkAsReadyToReview(user, destructionList) &&
+          destructionList.status === "changes_requested",
+      ),
 
-    if (canMarkListAsFinal(user, destructionList)) {
-      return [
-        {
-          children: (
-            <>
-              <Solid.KeyIcon />
-              Markeren als definitief
-            </>
-          ),
-          pad: "h",
-          onClick: () =>
-            formDialog(
-              "Markeer als definitief",
-              undefined,
-              [
-                {
-                  label: "Archivaris",
-                  name: "assigneeIds",
-                  options: archivists.map((user) => ({
-                    value: String(user.pk),
-                    label: formatUser(user),
-                  })),
-                  required: true,
-                },
-                {
-                  label: "Opmerking",
-                  name: "comment",
-                  required: true,
-                },
-              ],
-              "Markeer als definitief",
-              "Annuleren",
-              ({ assigneeIds, comment }) =>
-                handleMakeFinal(Number(assigneeIds), String(comment)),
-              undefined,
-              undefined,
-              {
-                role: "form",
-                validateOnChange: true,
-              },
-            ),
-        },
-      ];
-    }
+      // Status: "internally_reviewed", "Markeren als definitief"
+      getPermittedToolbarItem(BUTTON_MAKE_FINAL, canMarkListAsFinal),
 
-    if (canTriggerDestruction(user, destructionList)) {
-      if (!isPlannedForDestruction()) {
-        return [
-          destructionList.processingStatus === "new" ? (
-            <></>
-          ) : (
-            <ProcessingStatusBadge
-              key={destructionList.pk}
-              processingStatus={destructionList.processingStatus}
-            />
-          ),
-          "spacer",
-          ["new", "failed"].includes(destructionList.processingStatus) ? (
-            {
-              bold: true,
-              children: (
-                <>
-                  <Solid.TrashIcon />
-                  {destructionList.processingStatus === "new"
-                    ? "Vernietigen starten"
-                    : "Vernietigen herstarten"}
-                </>
-              ),
-              variant: "danger",
-              pad: "h",
-              onClick: () =>
-                formDialog(
-                  "Zaken definitief vernietigen",
-                  `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
-                  [
-                    {
-                      label: "Type naam van de lijst ter bevestiging",
-                      name: "name",
-                      placeholder: "Naam van de vernietigingslijst",
-                      required: true,
-                    },
-                  ],
-                  `${destructionListItems.count} zaken vernietigen`,
-                  "Annuleren",
-                  handleDestroy,
-                  undefined,
-                  undefined,
-                  {
-                    buttonProps: {
-                      variant: "danger",
-                    },
-                    validate: validateDestroy,
-                    validateOnChange: true,
-                    role: "form",
-                  },
-                ),
-            }
-          ) : (
-            <></>
-          ),
-        ];
-      }
-    }
+      // Status: "ready_to_delete", badge, spacer, and "Vernietigen starten"/"Vernietigen herstarten"
+      getPermittedToolbarItem(
+        <ProcessingStatusBadge
+          key={destructionList.pk}
+          processingStatus={destructionList.processingStatus}
+        />,
+        (user, destructionList) =>
+          canTriggerDestruction(user, destructionList) &&
+          destructionList.processingStatus !== "new",
+      ),
+      getPermittedToolbarItem("spacer", canTriggerDestruction),
+      getPermittedToolbarItem(
+        BUTTON_DESTROY,
+        (user, destructionList) =>
+          canTriggerDestruction(user, destructionList) &&
+          ["new", "failed"].includes(destructionList.processingStatus),
+      ),
 
-    if (isPlannedForDestruction()) {
-      return [
-        {
-          bold: true,
-          children: (
-            <>
-              <Solid.XMarkIcon />
-              Vernietigen annuleren
-            </>
-          ),
-          variant: "danger",
-          pad: "h",
-          onClick: () =>
-            prompt(
-              "Vernietiging annuleren",
-              `U staat op het punt om de vernietiging van ${destructionListItems.count} zaken vernietigen`,
-              "Opmerking",
-              "Vernietiging annuleren",
-              "Annuleren",
-              handleCancelDestroy,
-            ),
-        },
-      ];
-    }
-
-    return [];
+      // Status: "ready_to_delete"
+      getPermittedToolbarItem(BUTTON_CANCEL_DESTROY, isPlannedForDestruction),
+    ];
   }, [user, destructionList, selectionSize]);
 }

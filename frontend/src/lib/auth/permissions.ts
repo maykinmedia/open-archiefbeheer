@@ -5,39 +5,47 @@ import {
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 
+export type PermissionCheck = (user: User) => boolean;
+
+export type DestructionListPermissionCheck = (
+  user: User,
+  destructionList: DestructionList,
+) => boolean;
+
+export const canChangeSettings: PermissionCheck = (user) => {
+  // TODO: Functioneel beheerder in future
+  return user.role.canStartDestruction;
+};
+
 /**
  * Returns whether `user` is allowed to create a new destruction list.
  * @param user
  */
-export function canStartDestructionList(user: User) {
-  return user.role.canStartDestruction;
-}
+export const canStartDestructionList: PermissionCheck = (user) =>
+  user.role.canStartDestruction;
 
 /**
  * Returns whether `user` is allowed to mark `destructionList` as ready to review.
  * @param user
  * @param destructionList
  */
-export function canMarkAsReadyToReview(
-  user: User,
-  destructionList: DestructionList,
-) {
-  return (
-    canStartDestructionList(user) &&
-    (destructionList.status === "new" ||
-      destructionList.status === "changes_requested")
-  );
-}
+export const canMarkAsReadyToReview: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) =>
+  canStartDestructionList(user) &&
+  (destructionList.status === "new" ||
+    destructionList.status === "changes_requested");
 
 /**
  * Returns whether `user` is allowed to review `destructionList`.
  * @param user
  * @param destructionList
  */
-export function canReviewDestructionList(
-  user: User,
-  destructionList: DestructionList,
-) {
+export const canReviewDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
   if (!(user.role.canReviewDestruction || user.role.canReviewFinalList)) {
     return false;
   }
@@ -47,17 +55,17 @@ export function canReviewDestructionList(
   }
 
   return user.pk === destructionList.assignee.pk;
-}
+};
 
 /**
  * Returns whether `user` is allowed to co-review `destructionList`.
  * @param user
  * @param destructionList
  */
-export function canCoReviewDestructionList(
-  user: User,
-  destructionList: DestructionList,
-) {
+export const canCoReviewDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
   if (!user.role.canCoReviewDestruction) {
     return false;
   }
@@ -70,17 +78,17 @@ export function canCoReviewDestructionList(
     .filter((a) => a.role === "co_reviewer")
     .map((a) => a.user.pk)
     .includes(user.pk);
-}
+};
 
 /**
  * Returns whether `user` is allowed to update `destructionList`.
  * @param user
  * @param destructionList
  */
-export function canUpdateDestructionList(
-  user: User,
-  destructionList: DestructionList,
-) {
+export const canUpdateDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
   if (!user.role.canStartDestruction) {
     return false;
   }
@@ -98,52 +106,34 @@ export function canUpdateDestructionList(
   }
 
   return true;
-}
+};
 
-export function canViewDestructionList(
-  user: User,
-  destructionList: DestructionList,
-) {
-  return (
-    canStartDestructionList(user) ||
-    canReviewDestructionList(user, destructionList) ||
-    canCoReviewDestructionList(user, destructionList)
-  );
-}
+export const canViewDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) =>
+  canStartDestructionList(user) ||
+  canReviewDestructionList(user, destructionList) ||
+  canCoReviewDestructionList(user, destructionList);
 
-export function canMarkListAsFinal(
-  user: User,
-  destructionList: DestructionList,
-) {
-  return (
-    canStartDestructionList(user) &&
-    destructionList.status === "internally_reviewed"
-  );
-}
+export const canMarkListAsFinal: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) =>
+  canStartDestructionList(user) &&
+  destructionList.status === "internally_reviewed";
 
-export function canTriggerDestruction(
-  user: User,
-  destructionList: DestructionList,
-) {
-  return (
-    canStartDestructionList(user) &&
-    destructionList.status === "ready_to_delete"
-  );
-}
+export const canTriggerDestruction: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) =>
+  canStartDestructionList(user) && destructionList.status === "ready_to_delete";
 
-export function canReassignDestructionList(
-  user: User,
-  destructionList: DestructionList,
-) {
-  return (
-    (canStartDestructionList(user) ||
-      canReviewDestructionList(user, destructionList)) &&
-    (destructionList.status === "new" ||
-      destructionList.status === "ready_to_review")
-  );
-}
-
-export function canChangeSettings(user: User) {
-  // TODO: Functioneel beheerder in future
-  return user.role.canStartDestruction;
-}
+export const canReassignDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) =>
+  (canStartDestructionList(user) ||
+    canReviewDestructionList(user, destructionList)) &&
+  (destructionList.status === "new" ||
+    destructionList.status === "ready_to_review");
