@@ -10,7 +10,6 @@ from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
-from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
@@ -856,21 +855,6 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         process_review_response.delay(review_response.pk)
 
         return review_response
-
-
-class AuditTrailItemSerializer(serializers.ModelSerializer):
-    message = serializers.CharField(source="get_message")
-    user = UserSerializer()
-
-    class Meta:
-        model = TimelineLog
-        fields = (
-            "pk",
-            "timestamp",
-            "user",
-            "message",
-            "extra_data",
-        )
 
 
 class AbortDestructionSerializer(serializers.Serializer):

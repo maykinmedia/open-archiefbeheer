@@ -219,10 +219,9 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        endpoint_audittrail = reverse(
-            "api:destructionlist-auditlog", kwargs={"uuid": destruction_list.uuid}
-        )
-        response_audittrail = self.client.get(endpoint_audittrail)
+        endpoint_audittrail = furl(reverse("api:logs-list"))
+        endpoint_audittrail.args["destruction_list"] = destruction_list.uuid
+        response_audittrail = self.client.get(endpoint_audittrail.url)
 
         self.assertEqual(response_audittrail.status_code, status.HTTP_200_OK)
 

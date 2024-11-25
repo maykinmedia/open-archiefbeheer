@@ -7,7 +7,7 @@ import { zaaktypeChoicesFactory } from "../src/fixtures/zaaktypeChoices";
 
 export const MOCKS = {
   AUDIT_LOG: {
-    url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/auditlog/",
+    url: "http://localhost:8000/api/v1/logs?destruction-list=00000000-0000-0000-0000-000000000000",
     method: "GET",
     status: 200,
     response: auditLogFactory(),
