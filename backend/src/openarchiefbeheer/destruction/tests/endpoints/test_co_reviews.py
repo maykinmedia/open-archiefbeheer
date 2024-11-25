@@ -12,6 +12,7 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
     DestructionListCoReviewFactory,
     DestructionListFactory,
+    ReviewResponseFactory,
 )
 
 
@@ -51,6 +52,85 @@ class CoReviewsViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["pk"], co_review_related.pk)
+
+    def test_list_after_review_response(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        # Co review response created on date 1 chronologically
+        co_review_date_1 = DestructionListCoReviewFactory.create(
+            destruction_list=destruction_list
+        )
+        co_review_date_1.created = "1988-08-02T08:30:00+01:00"
+        co_review_date_1.save()
+
+        # Review response created on date 2 chronologically
+        review_response_date_2 = ReviewResponseFactory.create(
+            review__destruction_list=destruction_list,
+        )
+        review_response_date_2.created = "1990-10-31T00:00:00+01:00"
+        review_response_date_2.save()
+
+        # Co review created on date 3 chronologically
+        co_review_date_3 = DestructionListCoReviewFactory.create(
+            destruction_list=destruction_list
+        )
+        co_review_date_3.created = "2023-09-15T21:36:00+01:00"
+        co_review_date_3.save()
+
+        # Unrelated review response created now (date 4 chronologically, should not exclude co_review_date_3)
+        ReviewResponseFactory.create()
+
+        user = UserFactory()
+
+        self.client.force_login(user)
+        url = reverse("api:destruction-list-co-reviews-list")
+        response = self.client.get(
+            furl(url, args={"destruction_list__uuid": destruction_list.uuid}).url
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["pk"], co_review_date_3.pk)
+
+    def test_list_after_review_response_multiple(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        # Co review response created on date 1 chronologically
+        co_review_date_1 = DestructionListCoReviewFactory.create(
+            destruction_list=destruction_list
+        )
+        co_review_date_1.created = "1988-08-02T08:30:00+01:00"
+        co_review_date_1.save()
+
+        # Review response created now (date 4 chronologically, should exclude co_review_date_3)
+        ReviewResponseFactory.create(
+            review__destruction_list=destruction_list,
+        )
+
+        # Review response created on date 2 chronologically
+        review_response_date_2 = ReviewResponseFactory.create(
+            review__destruction_list=destruction_list,
+        )
+        review_response_date_2.created = "1990-10-31T00:00:00+01:00"
+        review_response_date_2.save()
+
+        # Co review created on date 3 chronologically
+        co_review_date_3 = DestructionListCoReviewFactory.create(
+            destruction_list=destruction_list
+        )
+        co_review_date_3.created = "2023-09-15T21:36:00+01:00"
+        co_review_date_3.save()
+
+        user = UserFactory()
+
+        self.client.force_login(user)
+        url = reverse("api:destruction-list-co-reviews-list")
+        response = self.client.get(
+            furl(url, args={"destruction_list__uuid": destruction_list.uuid}).url
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
     def test_create_not_logged_in(self):
         co_reviewer = DestructionListAssigneeFactory.create(role=ListRole.co_reviewer)
