@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-18 16:06+0100\n"
+"POT-Creation-Date: 2024-11-26 16:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -150,17 +150,23 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/filtersets.py:27
+#: openarchiefbeheer/destruction/api/filtersets.py:28
 msgid ""
 "Retrieve the items that are in a destruction list and order them based on "
 "processing status."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/filtersets.py:40
+#: openarchiefbeheer/destruction/api/filtersets.py:41
 msgid ""
 "If edit mode is active, ordering should match ordering on the zaken "
 "endpoint, use the item-ordering param to define the exact same ordering as "
 "the zaak endpoint"
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/filtersets.py:49
+msgid ""
+"Return the items where a record manager went against the advice of a "
+"reviewer first."
 msgstr ""
 
 #: openarchiefbeheer/destruction/api/permissions.py:9
@@ -220,40 +226,40 @@ msgstr ""
 msgid "You are not a main reviewer."
 msgstr "Je bent geen hoofd beoordelaar."
 
-#: openarchiefbeheer/destruction/api/serializers.py:54
+#: openarchiefbeheer/destruction/api/serializers.py:55
 msgid ""
 "The chosen user does not have the permission of reviewing a destruction list."
 msgstr ""
 "De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst te "
 "beoordelen."
 
-#: openarchiefbeheer/destruction/api/serializers.py:66
+#: openarchiefbeheer/destruction/api/serializers.py:67
 msgid "The author of a list cannot also be a reviewer."
 msgstr "De auteur van een lijst kan niet tevens een beoordelaar zijn."
 
-#: openarchiefbeheer/destruction/api/serializers.py:81
+#: openarchiefbeheer/destruction/api/serializers.py:82
 msgid ""
 "The chosen user does not have the permission to co-review a destruction list."
 msgstr ""
 "De geselecteerde gebruiker heeft geen rechten om een vernietigingslijst "
 "gezamelijk te beoordelen."
 
-#: openarchiefbeheer/destruction/api/serializers.py:93
+#: openarchiefbeheer/destruction/api/serializers.py:94
 msgid "The main reviewer cannot also be a co-reviewer."
 msgstr "De hoofdbeoordelaar kan niet tevens een medebeoordelaar zijn."
 
-#: openarchiefbeheer/destruction/api/serializers.py:123
+#: openarchiefbeheer/destruction/api/serializers.py:124
 #, python-format
 msgid "The maximum number of allowed co-reviewers is %(max_co_reviewers)s."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:186
+#: openarchiefbeheer/destruction/api/serializers.py:187
 msgid "The chosen user does not have the permission to review a final list."
 msgstr ""
 "De geselecteerde gebruiker heeft geen rechten om een definitieve lijst te "
 "beoordelen."
 
-#: openarchiefbeheer/destruction/api/serializers.py:230
+#: openarchiefbeheer/destruction/api/serializers.py:231
 msgid ""
 "This case was already included in another destruction list and was not "
 "exempt during the review process."
@@ -261,19 +267,25 @@ msgstr ""
 "Deze zaak was al opgenomen in een andere vernietigingslijst en werd niet "
 "uitgezonderd tijdens het beoordelingsproces."
 
-#: openarchiefbeheer/destruction/api/serializers.py:261
+#: openarchiefbeheer/destruction/api/serializers.py:244
+msgid ""
+"Specifies whether the record manager went against the advice of a reviewer "
+"when processing the last review."
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/serializers.py:285
 msgid ""
 "Option to bulk select cases. Adds all the cases corresponding to the given "
 "filters to the list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:267
+#: openarchiefbeheer/destruction/api/serializers.py:291
 msgid ""
 "If the option to bulk select cases is enabled, these filters are used to "
 "select the right cases."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:465
+#: openarchiefbeheer/destruction/api/serializers.py:489
 msgid ""
 "This user is not currently assigned to the destruction list, so they cannot "
 "create a review at this stage."
@@ -281,7 +293,7 @@ msgstr ""
 "Deze gebruiker is momenteel niet toegewezen aan de vernietigingslijst en kan "
 "op dit moment geen beoordeling maken."
 
-#: openarchiefbeheer/destruction/api/serializers.py:487
+#: openarchiefbeheer/destruction/api/serializers.py:511
 msgid ""
 "The status of this destruction list prevents you from creating a review at "
 "this stage."
@@ -289,17 +301,17 @@ msgstr ""
 "De status van deze vernietigingslijst voorkomt dat je op dit moment een "
 "beoordeling kunt maken."
 
-#: openarchiefbeheer/destruction/api/serializers.py:500
+#: openarchiefbeheer/destruction/api/serializers.py:524
 msgid "This field cannot be empty if changes are requested on the list."
 msgstr ""
 "Dit veld mag niet leeg zijn als er wijzigingen op de lijst worden "
 "aangevraagd."
 
-#: openarchiefbeheer/destruction/api/serializers.py:512
+#: openarchiefbeheer/destruction/api/serializers.py:536
 msgid "There cannot be feedback on the cases if the list is approved."
 msgstr "Er kan geen feedback op de zaken zijn als de lijst is goedgekeurd."
 
-#: openarchiefbeheer/destruction/api/serializers.py:530
+#: openarchiefbeheer/destruction/api/serializers.py:554
 msgid ""
 "You can only provide feedback about cases that are part of the destruction "
 "list."
@@ -307,61 +319,85 @@ msgstr ""
 "Je kunt alleen feedback geven over zaken die deel uitmaken van de "
 "vernietigingslijst."
 
-#: openarchiefbeheer/destruction/api/serializers.py:581
+#: openarchiefbeheer/destruction/api/serializers.py:605
 msgid ""
 "In the case that the zaak has already been deleted, this field will be null."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:605
+#: openarchiefbeheer/destruction/api/serializers.py:653
+#, fuzzy
+#| msgid ""
+#| "This user is not currently assigned to the destruction list, so they "
+#| "cannot create a review at this stage."
+msgid ""
+"This user is not currently assigned to the destruction list, so they cannot "
+"create a co-review at this stage."
+msgstr ""
+"Deze gebruiker is momenteel niet toegewezen aan de vernietigingslijst en kan "
+"op dit moment geen beoordeling maken."
+
+#: openarchiefbeheer/destruction/api/serializers.py:667
+#, fuzzy
+#| msgid ""
+#| "The status of this destruction list prevents you from creating a review "
+#| "at this stage."
+msgid ""
+"The status of this destruction list prevents you from creating a co-review "
+"at this stage."
+msgstr ""
+"De status van deze vernietigingslijst voorkomt dat je op dit moment een "
+"beoordeling kunt maken."
+
+#: openarchiefbeheer/destruction/api/serializers.py:687
 msgid "The URL of to a 'resultaat' resource from the selectielijst API."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:608
+#: openarchiefbeheer/destruction/api/serializers.py:690
 msgid "A new date for when this case should be archived."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:645
+#: openarchiefbeheer/destruction/api/serializers.py:727
 msgid ""
 "Could not validate the selectielijstklasse waardering due to an unexpected "
 "response from the Selectielijst API."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:668
+#: openarchiefbeheer/destruction/api/serializers.py:750
 msgid ""
 "The selectielijstklasse is required for action type is "
 "'selectielijstklasse_and_bewaartermijn'."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:679
+#: openarchiefbeheer/destruction/api/serializers.py:761
 msgid ""
 "The selectielijstklasse has waardering 'blijvend_bewaren', so the "
 "archiefactiedatum should be null."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:690
+#: openarchiefbeheer/destruction/api/serializers.py:772
 msgid ""
 "The selectielijstklasse cannot be changed if the case action type is "
 "'bewaartermijn'."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:707
+#: openarchiefbeheer/destruction/api/serializers.py:789
 msgid ""
 "The selectielijstklasse has waardering 'blijvend_bewaren', so an "
 "archiefactiedatum cannot be set."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:721
+#: openarchiefbeheer/destruction/api/serializers.py:803
 msgid "The case cannot be changed if it is kept in the destruction list."
 msgstr ""
 "De zaak mag niet aangepast worden als het in de vernietigingslijst blijft."
 
-#: openarchiefbeheer/destruction/api/serializers.py:730
+#: openarchiefbeheer/destruction/api/serializers.py:812
 msgid ""
 "When removing an item from a destruction list, the fields action_zaak_type "
 "and action_zaak are required."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/serializers.py:759
+#: openarchiefbeheer/destruction/api/serializers.py:837
 msgid ""
 "This user is either not allowed to update the destruction list or the "
 "destruction list cannot currently be updated."
@@ -375,109 +411,101 @@ msgstr ""
 msgid "List the possible statuses that a destruction lists can have."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:72
+#: openarchiefbeheer/destruction/api/viewsets.py:79
 msgid "List destruction lists"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:73
+#: openarchiefbeheer/destruction/api/viewsets.py:80
 msgid "List all destruction lists."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:78
+#: openarchiefbeheer/destruction/api/viewsets.py:85
 msgid "Create destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:79
+#: openarchiefbeheer/destruction/api/viewsets.py:86
 msgid "Create a new destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:111
+#: openarchiefbeheer/destruction/api/viewsets.py:118
 msgid "Update destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:113
+#: openarchiefbeheer/destruction/api/viewsets.py:120
 msgid ""
 "Update a destruction list. The cases are updated in bulk. The assignees can "
 "only be changed through the 'reassign' endpoint."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:142
+#: openarchiefbeheer/destruction/api/viewsets.py:149
 msgid "Partially update a destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:144
+#: openarchiefbeheer/destruction/api/viewsets.py:151
 msgid ""
 "Partially update a destruction list. The cases are updated in bulk. The "
 "assignees can only be changed through the 'reassign' endpoint."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:160
+#: openarchiefbeheer/destruction/api/viewsets.py:167
 msgid "Retrieve destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:161
+#: openarchiefbeheer/destruction/api/viewsets.py:168
 msgid "Retrieve details about a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:166
+#: openarchiefbeheer/destruction/api/viewsets.py:173
 msgid "Destroy destruction list"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:168
+#: openarchiefbeheer/destruction/api/viewsets.py:175
 msgid ""
 "Calling this endpoint will start a background process that will delete the "
 "cases in the list from the case system."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:174
+#: openarchiefbeheer/destruction/api/viewsets.py:181
 msgid "Make destruction list final"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:176
+#: openarchiefbeheer/destruction/api/viewsets.py:183
 msgid ""
 "Change the status of a destruction list to 'final' and assign an archivist "
 "to it."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:183
+#: openarchiefbeheer/destruction/api/viewsets.py:190
 msgid "Reassign the destruction list to new assignees."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:185
+#: openarchiefbeheer/destruction/api/viewsets.py:192
 msgid ""
 "This endpoint can be used to change the users that are assigned to a list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:192
-msgid "Retrieve audit log."
-msgstr ""
-
-#: openarchiefbeheer/destruction/api/viewsets.py:193
-msgid "Retrieve the audit log for this destruction list."
-msgstr ""
-
-#: openarchiefbeheer/destruction/api/viewsets.py:198
+#: openarchiefbeheer/destruction/api/viewsets.py:199
 msgid "Mark as ready to review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:200
+#: openarchiefbeheer/destruction/api/viewsets.py:201
 msgid ""
 "This endpoint can be used to mark a new list as 'ready to review' and assign "
 "the first reviewer to it."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:206
+#: openarchiefbeheer/destruction/api/viewsets.py:207
 msgid "Abort planned destruction"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:208
+#: openarchiefbeheer/destruction/api/viewsets.py:209
 msgid ""
 "This endpoint can be used to abort the destruction of a list when the date "
 "to process it has been set. The status of the list is then set back to 'new' "
 "and the record manager is re-assigned to it."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:280
+#: openarchiefbeheer/destruction/api/viewsets.py:279
 #, python-format
 msgid ""
 "This list contains cases with archiving date later than "
@@ -486,86 +514,114 @@ msgstr ""
 "Deze lijst bevat zaken met een archiveringsdatum later dan "
 "%(destruction_date)s, dus de vernietiging kan nog niet worden gepland."
 
-#: openarchiefbeheer/destruction/api/viewsets.py:292
+#: openarchiefbeheer/destruction/api/viewsets.py:291
 #, python-format
 msgid "This list is already planned to be destroyed on %(destruction_date)s."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:386
+#: openarchiefbeheer/destruction/api/viewsets.py:377
 msgid "List destruction list items"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:388
+#: openarchiefbeheer/destruction/api/viewsets.py:379
 msgid "List all the items (cases) that are related to a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:409
+#: openarchiefbeheer/destruction/api/viewsets.py:430
 msgid "List reviews"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:411
+#: openarchiefbeheer/destruction/api/viewsets.py:432
 msgid "List all the reviews that have been made for a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:416
+#: openarchiefbeheer/destruction/api/viewsets.py:437
 msgid "Create review"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:418
+#: openarchiefbeheer/destruction/api/viewsets.py:439
 msgid ""
 "Create a review for a destruction list. Only the user currently assigned to "
 "the destruction list can create a review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:444
+#: openarchiefbeheer/destruction/api/viewsets.py:465
+msgid "List co-reviews"
+msgstr ""
+
+#: openarchiefbeheer/destruction/api/viewsets.py:467
+#, fuzzy
+#| msgid "List all the co-reviewers assigned to a destruction list."
+msgid "List all the co-reviews that have been made for a destruction list."
+msgstr "Toon alle medebeoordelaars die aan een lijst toegewezen zijn."
+
+#: openarchiefbeheer/destruction/api/viewsets.py:472
+#, fuzzy
+#| msgid "ready to review"
+msgid "Create co-review"
+msgstr "klaar voor beoordeling"
+
+#: openarchiefbeheer/destruction/api/viewsets.py:474
+#, fuzzy
+#| msgid ""
+#| "This user is not currently assigned to the destruction list, so they "
+#| "cannot create a review at this stage."
+msgid ""
+"Create a co-review for a destruction list. Only a user currently assigned as "
+"co-reviewer to the destruction list can create a review."
+msgstr ""
+"Deze gebruiker is momenteel niet toegewezen aan de vernietigingslijst en kan "
+"op dit moment geen beoordeling maken."
+
+#: openarchiefbeheer/destruction/api/viewsets.py:500
 msgid "List review items"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:446
+#: openarchiefbeheer/destruction/api/viewsets.py:502
 msgid "List all the feedback to specific cases within a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:465
+#: openarchiefbeheer/destruction/api/viewsets.py:521
 msgid "List review responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:466
+#: openarchiefbeheer/destruction/api/viewsets.py:522
 msgid "List all the responses to the reviews of a destruction list."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:470
+#: openarchiefbeheer/destruction/api/viewsets.py:526
 msgid "Create a review response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:472
+#: openarchiefbeheer/destruction/api/viewsets.py:528
 msgid ""
 "Create a response to a review. You need to be the author of a destruction "
 "list for this and you need to be assigned to it. The status of the "
 "destruction list must be 'changes requested'."
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:497
+#: openarchiefbeheer/destruction/api/viewsets.py:553
 msgid "List co-reviewers"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:498
+#: openarchiefbeheer/destruction/api/viewsets.py:554
 msgid "List all the co-reviewers assigned to a destruction list."
 msgstr "Toon alle medebeoordelaars die aan een lijst toegewezen zijn."
 
-#: openarchiefbeheer/destruction/api/viewsets.py:502
+#: openarchiefbeheer/destruction/api/viewsets.py:558
 msgid "Update co-reviewers"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:504
+#: openarchiefbeheer/destruction/api/viewsets.py:560
 msgid "Full update of the co-reviewers assigned to a destruction list."
 msgstr ""
 "Volledige update van de medebeoordelaars die aan een lijst toegewezen zijn."
 
-#: openarchiefbeheer/destruction/api/viewsets.py:511
+#: openarchiefbeheer/destruction/api/viewsets.py:567
 msgid "Partial update co-reviewers"
 msgstr ""
 
-#: openarchiefbeheer/destruction/api/viewsets.py:513
+#: openarchiefbeheer/destruction/api/viewsets.py:569
 #, fuzzy
 #| msgid "You are not allowed to reassign the destruction list."
 msgid "Partial update of the co-reviewers assigned to a destruction list."
@@ -630,6 +686,7 @@ msgstr ""
 #: openarchiefbeheer/destruction/constants.py:28
 #: openarchiefbeheer/destruction/models.py:53
 #: openarchiefbeheer/destruction/models.py:455
+#: openarchiefbeheer/destruction/models.py:524
 msgid "author"
 msgstr ""
 
@@ -684,8 +741,8 @@ msgid "Creator of destruction list."
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:57
-#: openarchiefbeheer/destruction/models.py:521
-#: openarchiefbeheer/destruction/models.py:601
+#: openarchiefbeheer/destruction/models.py:547
+#: openarchiefbeheer/destruction/models.py:627
 msgid "comment"
 msgstr ""
 
@@ -749,7 +806,7 @@ msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:110
 #: openarchiefbeheer/destruction/models.py:327
-#: openarchiefbeheer/destruction/models.py:610
+#: openarchiefbeheer/destruction/models.py:636
 msgid "processing status"
 msgstr ""
 
@@ -766,10 +823,8 @@ msgid "Date from which this destruction list can be deleted."
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:125
-#, fuzzy
-#| msgid "destruction list"
 msgid "destruction report"
-msgstr "vernietigingslijst"
+msgstr "verklaring van vernietiging"
 
 #: openarchiefbeheer/destruction/models.py:131
 #: openarchiefbeheer/destruction/models.py:336
@@ -787,6 +842,7 @@ msgstr ""
 #: openarchiefbeheer/destruction/models.py:407
 #: openarchiefbeheer/destruction/models.py:449
 #: openarchiefbeheer/destruction/models.py:484
+#: openarchiefbeheer/destruction/models.py:518
 msgid "destruction list"
 msgstr "vernietigingslijst"
 
@@ -857,6 +913,7 @@ msgid "destruction list assignees"
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:456
+#: openarchiefbeheer/destruction/models.py:525
 msgid "User who created the review."
 msgstr ""
 
@@ -865,10 +922,12 @@ msgid "decision"
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:465
+#: openarchiefbeheer/destruction/models.py:529
 msgid "list feedback"
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:468
+#: openarchiefbeheer/destruction/models.py:532
 msgid "Feedback about the destruction list as a whole."
 msgstr ""
 
@@ -881,7 +940,7 @@ msgid "destruction list reviews"
 msgstr ""
 
 #: openarchiefbeheer/destruction/models.py:496
-#: openarchiefbeheer/destruction/models.py:518
+#: openarchiefbeheer/destruction/models.py:544
 msgid "review"
 msgstr ""
 
@@ -901,64 +960,64 @@ msgstr ""
 msgid "destruction list item reviews"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:524
+#: openarchiefbeheer/destruction/models.py:550
 msgid "The response of the author of the destruction list to a review."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:529
+#: openarchiefbeheer/destruction/models.py:555
 msgid "review response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:530
+#: openarchiefbeheer/destruction/models.py:556
 msgid "review responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:579
+#: openarchiefbeheer/destruction/models.py:605
 msgid "review item"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:582
+#: openarchiefbeheer/destruction/models.py:608
 msgid "action item"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:587
+#: openarchiefbeheer/destruction/models.py:613
 msgid "action zaak type"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:590
+#: openarchiefbeheer/destruction/models.py:616
 msgid "What type of change to do on the case. "
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:594
+#: openarchiefbeheer/destruction/models.py:620
 msgid "action case"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:596
+#: openarchiefbeheer/destruction/models.py:622
 msgid "Fields that should be changed on the case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:605
+#: openarchiefbeheer/destruction/models.py:631
 msgid ""
 "The response of the author of the destruction list to feedback of the "
 "reviewer on a specific case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:614
+#: openarchiefbeheer/destruction/models.py:640
 msgid ""
 "Field used to track the status of the changes that should be made to a "
 "destruction list item and the corresponding case."
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:620
+#: openarchiefbeheer/destruction/models.py:646
 msgid "review item response"
 msgstr ""
 
-#: openarchiefbeheer/destruction/models.py:621
+#: openarchiefbeheer/destruction/models.py:647
 msgid "review item responses"
 msgstr ""
 
-#: openarchiefbeheer/destruction/utils.py:153
-#: openarchiefbeheer/destruction/utils.py:211
+#: openarchiefbeheer/destruction/utils.py:165
+#: openarchiefbeheer/destruction/utils.py:223
 #, fuzzy, python-format
 #| msgid "Destruction list \"%(list_name)s\" was updated."
 msgid "Destruction report of list: %(list_name)s"
@@ -1138,6 +1197,18 @@ msgstr "Beheer"
 msgid "email configurations"
 msgstr ""
 
+#: openarchiefbeheer/logging/api/filtersets.py:15
+msgid "Retrieve the logs of a particular destruction list."
+msgstr ""
+
+#: openarchiefbeheer/logging/api/filtersets.py:20
+msgid "Retrieve the logs for a particular event."
+msgstr ""
+
+#: openarchiefbeheer/logging/api/viewsets.py:16
+msgid "List logs"
+msgstr ""
+
 #: openarchiefbeheer/logging/templates/logging/destruction_list_aborted.txt:1
 #, python-format
 msgid ""
@@ -1154,6 +1225,20 @@ msgstr[1] ""
 "Gebruiker %(record_manager)s (lid van groepen %(groups)s) heeft het "
 "vernietigen van vernietigingslijst \"%(list_name)s\" afgebroken met reden: "
 "%(comment)s."
+
+#: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewed.txt:2
+msgid ""
+"User %(user)s (member of group %(groups)s) has co-reviewed the list "
+"\"%(list_name)s\"."
+msgid_plural ""
+"User %(user)s (member of groups %(groups)s) has co-reviewed the list "
+"\"%(list_name)s\"."
+msgstr[0] ""
+"Gebruiker %(user)s (lid van groep %(groups)s) heeft de lijst "
+"\"%(list_name)s\" gezamelijk beoordeeld."
+msgstr[1] ""
+"Gebruiker %(user)s (lid van groepen %(groups)s) heeft de lijst "
+"\"%(list_name)s\" gezamelijk beoordeeld."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:3
 #, python-format
@@ -1236,6 +1321,20 @@ msgstr[1] ""
 "\"%(list_name)s\" definitief gemaakt en toegewezen aan de archivaris "
 "%(archivist)s."
 
+#: openarchiefbeheer/logging/templates/logging/destruction_list_ready_for_first_review.txt:1
+msgid ""
+"User %(record_manager)s (member of group %(groups)s) has marked the "
+"destruction list \"%(list_name)s\" as ready to review."
+msgid_plural ""
+"User %(record_manager)s (member of groups %(groups)s) has marked the "
+"destruction list \"%(list_name)s\" as ready to review."
+msgstr[0] ""
+"Gebruiker %(record_manager)s (lid van groep %(groups)s) heeft de "
+"vernietigingslijst \"%(list_name)s\" gemarkeerd als klaar om te reviewen."
+msgstr[1] ""
+"Gebruiker %(record_manager)s (lid van groepen %(groups)s) heeft de "
+"vernietigingslijst \"%(list_name)s\" gemarkeerd als klaar om te reviewen."
+
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reassigned.txt:1
 #, python-format
 msgid ""
@@ -1250,6 +1349,32 @@ msgstr[0] ""
 msgstr[1] ""
 "Gebruiker %(user)s (lid van groepen %(groups)s) heeft de vernietigingslijst "
 "\"%(list_name)s\" opnieuw toegewezen."
+
+#: openarchiefbeheer/logging/templates/logging/destruction_list_review_response_created.txt:1
+msgid ""
+"User %(author)s (member of group %(groups)s) has processed the feedback on "
+"destruction list \"%(list_name)s\"."
+msgid_plural ""
+"User %(author)s (member of groups %(groups)s) has processed the feedback on "
+"destruction list \"%(list_name)s\"."
+msgstr[0] ""
+"Gebruiker %(author)s (lid van groep %(groups)s) heeft de feedback op vernietigingslijst "
+"\"%(list_name)s\" verwerkt."
+msgstr[1] ""
+"Gebruiker %(author)s (lid van groepen %(groups)s) heeft de feedback op vernietigingslijst "
+"\"%(list_name)s\" verwerkt."
+
+#: openarchiefbeheer/logging/templates/logging/destruction_list_review_response_processed.txt:1
+msgid ""
+"The review response of destruction list \"%(list_name)s\" has been processed."
+msgstr "De aanpassingen aan de vernietigingslijst \"%(list_name)s\" zijn verwerkt."
+
+#: openarchiefbeheer/logging/templates/logging/destruction_list_review_response_processed.txt:4
+#, python-format
+msgid "There is now one zaak on the list."
+msgid_plural "There are now %(number_of_zaken)s zaken on the list."
+msgstr[0] ""
+msgstr[1] ""
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_reviewed.txt:2
 #, python-format
@@ -1319,69 +1444,69 @@ msgstr ""
 msgid "Too much data passed, limit is %(max_size)s bytes"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:44
+#: openarchiefbeheer/selection/api/views.py:45
 msgid "Get selection"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:46
+#: openarchiefbeheer/selection/api/views.py:47
 msgid "Get the zaken in a selection and whether they are checked or not."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:60
+#: openarchiefbeheer/selection/api/views.py:62
 msgid "Update to selection"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:61
+#: openarchiefbeheer/selection/api/views.py:63
 msgid "Fully update a selection."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:80
+#: openarchiefbeheer/selection/api/views.py:82
 msgid "Partial update to selection"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:81
+#: openarchiefbeheer/selection/api/views.py:83
 msgid "Partially update a selection."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:100
+#: openarchiefbeheer/selection/api/views.py:102
 msgid "Clear selection"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:101
+#: openarchiefbeheer/selection/api/views.py:103
 msgid "Clear a selection."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:124
+#: openarchiefbeheer/selection/api/views.py:126
 msgid "Count selected items"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:126
+#: openarchiefbeheer/selection/api/views.py:128
 msgid ""
 "Retrieve how many items are selected. It does not take into account the "
 "'selected all' toggle."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:146
+#: openarchiefbeheer/selection/api/views.py:148
 msgid "Select all (on)"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:147
+#: openarchiefbeheer/selection/api/views.py:149
 msgid "Toggle the selected_all property to true."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:165
+#: openarchiefbeheer/selection/api/views.py:167
 msgid "Select all (off)"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:166
+#: openarchiefbeheer/selection/api/views.py:168
 msgid "Toggle the selected_all property to false."
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:184
+#: openarchiefbeheer/selection/api/views.py:186
 msgid "Get select all value"
 msgstr ""
 
-#: openarchiefbeheer/selection/api/views.py:186
+#: openarchiefbeheer/selection/api/views.py:188
 msgid ""
 "Check if all the items in a selection are selected with the 'select all' "
 "toggle."
@@ -1989,10 +2114,6 @@ msgstr "API-configuraties"
 #~ "User \"%(user)s\" has added these users as co-reviewers to the list "
 #~ "\"%(list_name)s\": %(added_co_reviewers)s."
 #~ msgstr "Gebruiker \"%(user)s\" heeft de lijst \"%(list_name)s\" beoordeeld."
-
-#, python-format
-#~ msgid "Destruction list \"%(list_name)s\" was reassigned."
-#~ msgstr "Vernietigingslijst \"%(list_name)s\" is opnieuw toegewezen."
 
 #, python-format
 #~ msgid "Destruction list \"%(list_name)s\" created by user %(author)s."
