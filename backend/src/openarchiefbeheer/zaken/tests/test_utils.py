@@ -1,14 +1,17 @@
 from django.test import TestCase
-from openarchiefbeheer.destruction.tests.factories import \
-    DestructionListItemFactory
-from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.utils import (delete_zaak_and_related_objects,
-                                           format_zaaktype_choices)
+
 from requests.exceptions import ConnectTimeout
 from requests_mock import Mocker
 from rest_framework import status
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
+
+from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.zaken.utils import (
+    delete_zaak_and_related_objects,
+    format_zaaktype_choices,
+)
 
 
 class DeletingZakenWithErrorsTests(TestCase):
