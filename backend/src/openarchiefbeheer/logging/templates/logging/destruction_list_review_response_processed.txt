@@ -1,0 +1,6 @@
+{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name %}
+The review response of destruction list "{{ list_name }}" has been processed.
+{% endblocktranslate %}
+{% blocktranslate trimmed with number_of_zaken=log.extra_data.number_of_zaken count counter=log.extra_data.number_of_zaken %}
+There is now one zaak on the list.{% plural %}There are now {{ number_of_zaken }} zaken on the list.
+{% endblocktranslate %}

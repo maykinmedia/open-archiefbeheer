@@ -6,6 +6,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.models import (
     DestructionList,
     DestructionListAssignee,
@@ -96,6 +97,30 @@ def destruction_list_ready_for_first_review(
         event="destruction_list_ready_for_first_review",
         user=user,
         extra_data=extra_data,
+    )
+
+
+def destruction_list_review_response_created(
+    destruction_list: DestructionList, user: User
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_review_response_created",
+        user=user,
+    )
+
+
+def destruction_list_review_response_processed(
+    destruction_list: DestructionList,
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_review_response_processed",
+        extra_data={
+            "number_of_zaken": destruction_list.items.filter(
+                status=ListItemStatus.suggested
+            ).count(),
+        },
     )
 
 

@@ -1,0 +1,3 @@
+{% load i18n %}{% with groups=log.extra_data.user_groups|join:", " %}{% blocktranslate trimmed with list_name=log.content_object.name groups=groups group_pluralized=group_pluralized author=log.user count counter=log.extra_data.user_groups|length %}
+User {{ author }} (member of group {{ groups }}) has processed the feedback on destruction list "{{ list_name }}".{% plural %}User {{ author }} (member of groups {{ groups }}) has processed the feedback on destruction list "{{ list_name }}".
+{% endblocktranslate %}{% endwith %}

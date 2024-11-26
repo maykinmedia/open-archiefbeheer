@@ -852,6 +852,10 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         review_response = ReviewResponse.objects.create(**validated_data)
         ReviewItemResponse.objects.bulk_create(items_responses)
 
+        logevent.destruction_list_review_response_created(
+            validated_data["review"].destruction_list, self.context["request"].user
+        )
+
         process_review_response.delay(review_response.pk)
 
         return review_response

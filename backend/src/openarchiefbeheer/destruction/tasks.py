@@ -6,6 +6,7 @@ from django.conf import settings
 from celery import chain
 
 from openarchiefbeheer.celery import app
+from openarchiefbeheer.logging import logevent
 
 from .constants import InternalStatus, ListItemStatus, ListStatus
 from .exceptions import DeletionProcessingError
@@ -43,10 +44,13 @@ def process_review_response(pk: int) -> None:
             item_response.save()
             return
 
+    destruction_list = review_response.review.destruction_list
     prepopulate_selection_after_review_response(
-        review_response.review.destruction_list, items_review_responses
+        destruction_list, items_review_responses
     )
-    review_response.review.destruction_list.assign_next()
+    destruction_list.assign_next()
+
+    logevent.destruction_list_review_response_processed(destruction_list)
 
 
 def delete_destruction_list(destruction_list: DestructionList) -> None:
