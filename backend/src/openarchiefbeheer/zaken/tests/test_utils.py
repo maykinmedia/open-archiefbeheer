@@ -1,17 +1,14 @@
 from django.test import TestCase
-
+from openarchiefbeheer.destruction.tests.factories import \
+    DestructionListItemFactory
+from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.zaken.utils import (delete_zaak_and_related_objects,
+                                           format_zaaktype_choices)
 from requests.exceptions import ConnectTimeout
 from requests_mock import Mocker
 from rest_framework import status
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
-
-from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
-from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.utils import (
-    delete_zaak_and_related_objects,
-    format_zaaktype_choices,
-)
 
 
 class DeletingZakenWithErrorsTests(TestCase):
@@ -151,6 +148,7 @@ class DeletingZakenWithErrorsTests(TestCase):
 class FormatZaaktypeChoicesTests(TestCase):
     def test_format_zaaktype_choices_with_multiple_versions(self):
         # Test that the function picks the latest version of each zaaktype based on versiedatum
+        # And test that the output is sorted by label
         zaaktypen = [
             {
                 "identificatie": "ZKT-001",
@@ -215,37 +213,5 @@ class FormatZaaktypeChoicesTests(TestCase):
         expected_result = []
 
         # Should return an empty list
-        result = format_zaaktype_choices(zaaktypen)
-        self.assertEqual(result, expected_result)
-
-    def test_format_zaaktype_choices_sorted_output(self):
-        # Test that the output is sorted by label
-        zaaktypen = [
-            {
-                "identificatie": "ZKT-002",
-                "url": "http://localhost:8000/api/v1/zaaktypen/2",
-                "omschrijving": "Zaaktype B",
-                "versiedatum": "2023-01-01",
-            },
-            {
-                "identificatie": "ZKT-001",
-                "url": "http://localhost:8000/api/v1/zaaktypen/1",
-                "omschrijving": "Zaaktype A",
-                "versiedatum": "2023-01-01",
-            },
-        ]
-
-        # Expecting the results to be sorted alphabetically by label
-        expected_result = [
-            {
-                "label": "Zaaktype A (ZKT-001)",
-                "value": "http://localhost:8000/api/v1/zaaktypen/1",
-            },
-            {
-                "label": "Zaaktype B (ZKT-002)",
-                "value": "http://localhost:8000/api/v1/zaaktypen/2",
-            },
-        ]
-
         result = format_zaaktype_choices(zaaktypen)
         self.assertEqual(result, expected_result)
