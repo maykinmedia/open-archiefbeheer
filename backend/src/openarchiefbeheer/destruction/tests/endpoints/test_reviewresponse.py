@@ -8,6 +8,7 @@ from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -56,6 +57,10 @@ class ReviewResponsesViewSetTests(APITestCase):
 
     def test_create_review_response(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
             destruction_list__status=ListStatus.changes_requested,
@@ -132,6 +137,25 @@ class ReviewResponsesViewSetTests(APITestCase):
         item_response3 = ReviewItemResponse.objects.get(review_item=items_reviews[2].pk)
 
         self.assertEqual(item_response3.action_zaak["archiefactiedatum"], "2030-01-01")
+
+        logs = TimelineLog.objects.for_object(review.destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertIn(
+            _(
+                "User %(author)s (member of group %(groups)s) has processed the feedback on "
+                'destruction list "%(list_name)s".'
+            )
+            % {
+                "author": str(record_manager),
+                "groups": "Record Manager",
+                "list_name": review.destruction_list.name,
+            },
+            message,
+        )
 
     def test_can_create_response_if_not_author(self):
         record_manager1 = UserFactory.create(post__can_start_destruction=True)
@@ -219,10 +243,9 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        endpoint_audittrail = reverse(
-            "api:destructionlist-auditlog", kwargs={"uuid": destruction_list.uuid}
-        )
-        response_audittrail = self.client.get(endpoint_audittrail)
+        endpoint_audittrail = furl(reverse("api:logs-list"))
+        endpoint_audittrail.args["destruction_list"] = destruction_list.uuid
+        response_audittrail = self.client.get(endpoint_audittrail.url)
 
         self.assertEqual(response_audittrail.status_code, status.HTTP_200_OK)
 

@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Case, OuterRef, Prefetch, QuerySet, Subquery, Value, When
 from django.shortcuts import get_object_or_404
@@ -13,7 +12,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
@@ -60,7 +58,6 @@ from .permissions import (
 )
 from .serializers import (
     AbortDestructionSerializer,
-    AuditTrailItemSerializer,
     CoReviewerAssignementSerializer,
     DestructionListAssigneeReadSerializer,
     DestructionListCoReviewSerializer,
@@ -197,12 +194,6 @@ from .serializers import (
         request=ReassignementSerializer,
         responses={200: None},
     ),
-    auditlog=extend_schema(
-        tags=["Destruction list"],
-        summary=_("Retrieve audit log."),
-        description=_("Retrieve the audit log for this destruction list."),
-        responses={200: AuditTrailItemSerializer(many=True)},
-    ),
     mark_ready_review=extend_schema(
         tags=["Destruction list"],
         summary=_("Mark as ready to review."),
@@ -258,8 +249,6 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
         elif self.action == "reassign":
             permission_classes = [IsAuthenticated & CanReassignDestructionList]
-        elif self.action == "auditlog":
-            permission_classes = [IsAuthenticated]
         elif self.action == "mark_ready_review":
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
         elif self.action == "abort_destruction":
@@ -359,21 +348,13 @@ class DestructionListViewSet(
         )
         return Response()
 
-    @action(detail=True, methods=["get"], name="audit_log")
-    def auditlog(self, request, *args, **kwargs):
-        destruction_list = self.get_object()
-        items = TimelineLog.objects.filter(
-            content_type=ContentType.objects.get_for_model(DestructionList),
-            object_id=destruction_list.pk,
-        )
-        serializer = AuditTrailItemSerializer(instance=items, many=True)
-        return Response(serializer.data)
-
     @action(detail=True, methods=["post"], name="mark-ready-review")
     def mark_ready_review(self, request, *args, **kwargs):
         destruction_list = self.get_object()
 
         destruction_list.assign_next()
+
+        logevent.destruction_list_ready_for_first_review(destruction_list, request.user)
 
         return Response(status=status.HTTP_201_CREATED)
 

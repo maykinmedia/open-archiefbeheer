@@ -127,6 +127,18 @@ def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
     }
 
 
+def format_resultaten_choices(resultaten: list[dict]) -> DropDownChoice:
+    result = [
+        {
+            "value": resultaat["_expand"]["resultaattype"]["url"],
+            "label": resultaat["_expand"]["resultaattype"]["omschrijving"],
+            "extra_data": {"toelichting": resultaat.get("toelichting")},
+        }
+        for resultaat in resultaten
+    ]
+    return result
+
+
 @lru_cache
 def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> list:
     config = APIConfig.get_solo()

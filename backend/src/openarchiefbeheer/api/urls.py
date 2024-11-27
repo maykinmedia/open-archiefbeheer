@@ -24,6 +24,7 @@ from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListViewSet,
     ReviewResponseViewSet,
 )
+from openarchiefbeheer.logging.api.viewsets import LogsViewset
 from openarchiefbeheer.selection.api.views import (
     SelectionCountView,
     SelectionSelectAllView,
@@ -71,6 +72,7 @@ router.register(
     basename="review-responses",
 )
 router.register(r"zaken", ZakenViewSet, basename="zaken")
+router.register(r"logs", LogsViewset, basename="logs")
 
 destruction_list_router = BulkNestedRouter(
     router, r"destruction-lists", lookup="destruction_list"

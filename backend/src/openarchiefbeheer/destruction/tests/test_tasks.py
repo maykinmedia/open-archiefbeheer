@@ -4,12 +4,14 @@ from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings, tag
+from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from requests import HTTPError
 from requests_mock import Mocker
 from testfixtures import log_capture
+from timeline_logger.models import TimelineLog
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -163,6 +165,7 @@ class ProcessReviewResponseTests(TestCase):
         zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
         review_item_response = ReviewItemResponseFactory.create(
             review_item__destruction_list_item__zaak=zaak,
+            review_item__destruction_list_item__destruction_list=review_response.review.destruction_list,
             review_item__review=review_response.review,
             action_item=DestructionListItemAction.keep,
             action_zaak_type=ZaakActionType.bewaartermijn,
@@ -203,6 +206,21 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(
             zaak.archiefactiedatum.isoformat(), "2025-01-01"
         )  # NOT changed!!
+
+        logs = TimelineLog.objects.for_object(review_response.review.destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertIn(
+            _(
+                'The review response of destruction list "%(list_name)s" has been processed.'
+            )
+            % {"list_name": review_response.review.destruction_list.name},
+            message,
+        )
+        self.assertIn(_("There is now one zaak on the list."), message)
 
     def test_prepopulating_selection(self, m):
         destruction_list = DestructionListFactory.create(
@@ -274,6 +292,29 @@ class ProcessReviewResponseTests(TestCase):
         # This is the zaak for which the feedback was ignored (zaak1)
         self.assertNotIn("detail", selection_items[0].selection_data)
         self.assertFalse(selection_items[0].selection_data["selected"])
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertIn(
+            _(
+                'The review response of destruction list "%(list_name)s" has been processed.'
+            )
+            % {"list_name": review_response.review.destruction_list.name},
+            message,
+        )
+        self.assertIn(
+            ngettext(
+                "There is now one zaak on the list.",
+                "There are now %(number_of_zaken)s zaken on the list.",
+                2,
+            )
+            % {"number_of_zaken": 2},
+            message,
+        )
 
 
 @temp_private_root()

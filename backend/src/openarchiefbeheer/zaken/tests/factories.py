@@ -55,6 +55,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                         "resultaattype": {
                             "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
                             "archiefactietermijn": "P1D",
+                            "omschrijving": "This is a result type",
                         }
                     },
                 },

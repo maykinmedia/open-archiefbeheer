@@ -28,7 +28,7 @@ export type AuditLogItem = {
  * @param uuid
  */
 export async function listAuditLog(uuid: string) {
-  const response = await request("GET", `/destruction-lists/${uuid}/auditlog/`);
+  const response = await request("GET", "/logs/", { destruction_list: uuid });
   const promise: AuditLogItem[] = await response.json();
   return promise;
 }
