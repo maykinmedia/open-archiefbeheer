@@ -646,8 +646,17 @@ OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = config(
     "OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS", default=60 * 15
 )
 
+#
 # Django privates
 #
 PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private_media")
 
 PRIVATE_MEDIA_URL = "/private-media/"
+
+#
+# Django setup configuration
+#
+SETUP_CONFIGURATION_STEPS = [
+    "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
+    "openarchiefbeheer.config.setup_configuration.steps.APIConfigConfigurationStep",
+]
