@@ -87,7 +87,7 @@ export function DestructionListReviewPage() {
       comment: string;
     }>(
       storageKey,
-      paginatedZaken.results.map((z) => z.zaak?.url as string),
+      zakenResults.map((zaak) => zaak.url as string),
       true,
       RestBackend,
     );
@@ -135,14 +135,13 @@ export function DestructionListReviewPage() {
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
-    return paginatedZaken.results.map((result) => {
-      const zaak = result.zaak as Zaak;
+    return zakenResults.map((zaak) => {
       const badge = zaakReviewStatusBadges[zaak.url as string].badge;
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
     });
   }, [
-    paginatedZaken,
+    zakenResults,
     zaakReviewStatusBadges,
     reviewItems,
     excludedZaakSelection,
