@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",
     "mozilla_django_oidc_db",
     "privates",
+    "django_setup_configuration",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
