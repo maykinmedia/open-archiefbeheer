@@ -3,7 +3,6 @@ zgw_consumers:
   services:
   - identifier: zaken-test
     label: Open Zaak - Zaken API
-    oas: http://localhost:8003/zaken/api/v1/schema/openapi.yaml
     api_root: http://localhost:8003/zaken/api/v1/
     api_type: zrc
     auth_type: zgw
@@ -11,7 +10,6 @@ zgw_consumers:
     secret: test-vcr
   - identifier: documenten-test
     label: Open Zaak - Documenten API
-    oas: http://localhost:8003/documenten/api/v1/schema/openapi.yaml
     api_root: http://localhost:8003/documenten/api/v1/
     api_type: drc
     auth_type: zgw
@@ -19,7 +17,6 @@ zgw_consumers:
     secret: test-vcr
   - identifier: catalogi-test
     label: Open Zaak - Catalogi API
-    oas: http://localhost:8003/catalogi/api/v1/schema/openapi.yaml
     api_root: http://localhost:8003/catalogi/api/v1/
     api_type: ztc
     auth_type: zgw
@@ -27,7 +24,6 @@ zgw_consumers:
     secret: test-vcr
   - identifier: besluiten-test
     label: Open Zaak - Besluiten API
-    oas: http://localhost:8003/besluiten/api/v1/schema/openapi.yaml
     api_root: http://localhost:8003/besluiten/api/v1/
     api_type: brc
     auth_type: zgw
@@ -35,7 +31,6 @@ zgw_consumers:
     secret: test-vcr
   - identifier: selectielijst
     label: Open Zaak (public) - Selectielijst API
-    oas: https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml
     api_root: https://selectielijst.openzaak.nl/api/v1/
     api_type: orc
     auth_type: no_auth
