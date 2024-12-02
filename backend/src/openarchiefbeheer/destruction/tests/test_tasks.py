@@ -19,6 +19,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -358,9 +359,16 @@ class ProcessDeletingZakenTests(TestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_process_list(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete
+        record_manager = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
         )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete, author=record_manager
+        )
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -371,6 +379,7 @@ class ProcessDeletingZakenTests(TestCase):
             zaak__einddatum=date(2022, 1, 1),
             zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-111",
             destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
         )
         item2 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -381,6 +390,7 @@ class ProcessDeletingZakenTests(TestCase):
             zaak__einddatum=date(2022, 1, 2),
             zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-222",
             destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
         )
 
         with (
@@ -394,6 +404,7 @@ class ProcessDeletingZakenTests(TestCase):
                 "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
             ) as m_eio,
             patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
+            freeze_time("2024-12-02T12:00:00+01:00"),
         ):
             delete_destruction_list(destruction_list)
 
@@ -445,9 +456,28 @@ class ProcessDeletingZakenTests(TestCase):
         sheet_deleted_zaken = wb[_("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 6)
         self.assertEqual(
-            rows[1],
+            rows[0][:4],
+            (
+                _("Date/Time of deletion"),
+                _("User who started the deletion"),
+                _("Groups"),
+                _("Number of deleted cases"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:4],
+            (
+                "2024-12-02 12:00+01:00",
+                "John Doe (jdoe1)",
+                None,
+                2,
+            ),
+        )
+
+        self.assertEqual(
+            rows[4],
             (
                 "111-111-111",
                 "Aangifte behandelen",
@@ -460,7 +490,7 @@ class ProcessDeletingZakenTests(TestCase):
             ),
         )
         self.assertEqual(
-            rows[2],
+            rows[5],
             (
                 "111-111-111",
                 "Aangifte behandelen",
@@ -547,10 +577,17 @@ class ProcessDeletingZakenTests(TestCase):
         m_zio.assert_called()
 
     def test_complete_and_notify(self):
+        record_manager = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
+        )
         destruction_list = DestructionListFactory.create(
             name="Some destruction list",
             processing_status=InternalStatus.processing,
             status=ListStatus.ready_to_delete,
+            author=record_manager,
         )
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -585,6 +622,7 @@ class ProcessDeletingZakenTests(TestCase):
         )
 
         self.assertIsNone(destruction_list.destruction_report.name)
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
         with (
             patch(
@@ -627,9 +665,18 @@ class ProcessDeletingZakenTests(TestCase):
         sheet_deleted_zaken = wb[_("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows), 5)
         self.assertEqual(
-            rows[0],
+            rows[1][:4],
+            (
+                "2024-10-09 12:00+02:00",
+                "John Doe (jdoe1)",
+                None,
+                1,
+            ),
+        )
+        self.assertEqual(
+            rows[3],
             (
                 "Zaaktype UUID",
                 "Zaaktype Omschrijving",
@@ -642,7 +689,7 @@ class ProcessDeletingZakenTests(TestCase):
             ),
         )
         self.assertEqual(
-            rows[1],
+            rows[4],
             (
                 "111-111-111",
                 "Tralala zaaktype",

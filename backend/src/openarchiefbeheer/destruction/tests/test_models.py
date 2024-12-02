@@ -299,9 +299,20 @@ class DestructionListTest(TestCase):
         self.assertTrue(has_short_review_process)
 
     def test_generate_destruction_report(self):
-        destruction_list = DestructionListFactory.create(status=ListStatus.deleted)
+        record_manager = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
+        )
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
+            status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             extra_zaak_data={
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
@@ -328,6 +339,7 @@ class DestructionListTest(TestCase):
         )
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
+            status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             extra_zaak_data={
                 "url": "http://zaken.nl/api/v1/zaken/111-111-222",
@@ -381,9 +393,27 @@ class DestructionListTest(TestCase):
         sheet_deleted_zaken = wb[gettext("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 4)
+        self.assertEqual(len(rows), 7)
         self.assertEqual(
-            rows[0],
+            rows[0][:4],
+            (
+                gettext("Date/Time of deletion"),
+                gettext("User who started the deletion"),
+                gettext("Groups"),
+                gettext("Number of deleted cases"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:4],
+            (
+                "2024-12-02 12:00+01:00",
+                "John Doe (jdoe1)",
+                None,
+                3,
+            ),
+        )
+        self.assertEqual(
+            rows[3],
             (
                 "Zaaktype UUID",
                 "Zaaktype Omschrijving",
@@ -396,7 +426,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[1],
+            rows[4],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -409,7 +439,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[2],
+            rows[5],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -422,7 +452,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[3],
+            rows[6],
             (
                 "111-111-222",
                 "Tralala zaaktype",
@@ -432,6 +462,148 @@ class DestructionListTest(TestCase):
                 "2022-01-03",
                 "Instellen en inrichten organisatie",
                 None,
+            ),
+        )
+
+    def test_generate_destruction_report_with_cases_excluded_from_list(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
+        )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            status=ListItemStatus.suggested,
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/111-111-111",
+                "omschrijving": "Test description 3",
+                "identificatie": "ZAAK-01",
+                "startdatum": "2020-01-03",
+                "einddatum": "2022-01-03",
+                "resultaat": None,
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "naam": "Instellen en inrichten organisatie",
+                    },
+                },
+            },
+        )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.new,
+            status=ListItemStatus.removed,  # Case no longer in destruction list
+            destruction_list=destruction_list,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/222-222-222",
+                "omschrijving": "Test description 3",
+                "identificatie": "ZAAK-02",
+                "startdatum": "2020-01-03",
+                "einddatum": "2022-01-03",
+                "resultaat": None,
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "naam": "Instellen en inrichten organisatie",
+                    },
+                },
+            },
+        )
+        DestructionListItemFactory.create(
+            processing_status=InternalStatus.succeeded,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+            extra_zaak_data={
+                "url": "http://zaken.nl/api/v1/zaken/333-333-333",
+                "omschrijving": "Test description 3",
+                "identificatie": "ZAAK-03",
+                "startdatum": "2020-01-03",
+                "einddatum": "2022-01-03",
+                "resultaat": None,
+                "zaaktype": {
+                    "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                    "omschrijving": "Tralala zaaktype",
+                    "selectielijst_procestype": {
+                        "naam": "Instellen en inrichten organisatie",
+                    },
+                },
+            },
+        )
+
+        destruction_list.generate_destruction_report()
+
+        destruction_list.refresh_from_db()
+
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[gettext("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
+
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(
+            rows[3],
+            (
+                "Zaaktype UUID",
+                "Zaaktype Omschrijving",
+                "Zaaktype Identificatie",
+                "Zaak Identificatie",
+                "Zaak Startdatum",
+                "Zaak Einddatum",
+                "Selectielijst Procestype",
+                "Resultaat",
+            ),
+        )
+        deleted_zaken_ids = sorted([rows[4][3], rows[5][3]])
+        self.assertEqual(
+            deleted_zaken_ids,
+            ["ZAAK-01", "ZAAK-03"],
+        )
+
+    def test_generate_destruction_report_with_multiple_logs(self):
+        record_manager1 = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
+        )
+        record_manager2 = UserFactory.create(
+            first_name="Jane",
+            last_name="Doe",
+            username="jdoe2",
+            post__can_start_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
+        )
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager1)
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager2)
+
+        destruction_list.generate_destruction_report()
+
+        destruction_list.refresh_from_db()
+
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[gettext("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
+
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(
+            rows[0][:4],
+            (
+                gettext("Date/Time of deletion"),
+                gettext("User who started the deletion"),
+                gettext("Groups"),
+                gettext("Number of deleted cases"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:4],
+            (
+                "2024-12-02 12:00+01:00",
+                "Jane Doe (jdoe2)",
+                None,
+                0,
             ),
         )
 
@@ -455,7 +627,9 @@ class DestructionListTest(TestCase):
         archivist.groups.add(archivist_group)
 
         destruction_list = DestructionListFactory.create(
-            status=ListStatus.deleted, author=author
+            status=ListStatus.deleted,
+            author=author,
+            end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
 
         review_reviewer_rejected = DestructionListReviewFactory.create(
