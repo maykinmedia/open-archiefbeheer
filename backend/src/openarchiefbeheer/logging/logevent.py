@@ -241,6 +241,17 @@ def destruction_list_aborted(
     )
 
 
+def destruction_list_deletion_triggered(
+    destruction_list: DestructionList,
+    record_manager: User,
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_deletion_triggered",
+        user=record_manager,
+    )
+
+
 def resync_started() -> None:
     return TimelineLog.objects.create(
         template="logging/resync_started.txt",
