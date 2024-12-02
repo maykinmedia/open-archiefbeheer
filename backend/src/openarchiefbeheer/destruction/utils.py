@@ -224,7 +224,7 @@ def create_eio_destruction_report(
                 % {"list_name": destruction_list.name},
                 "auteur": "Open Archiefbeheer",
                 "taal": "nld",
-                "formaat": "text/csv",
+                "formaat": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 "inhoud": b64encode(f_report.read()).decode("utf-8"),
                 "informatieobjecttype": config.informatieobjecttype,
                 "indicatie_gebruiksrecht": False,
