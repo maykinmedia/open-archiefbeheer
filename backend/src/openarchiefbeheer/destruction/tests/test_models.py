@@ -133,13 +133,21 @@ class DestructionListItemTest(TestCase):
             item.extra_zaak_data["zaaktype"],
             {
                 "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                "identificatie": "ZAAKTYPE-01",
                 "omschrijving": "Aangifte behandelen",
-                "selectielijst_procestype": {"nummer": 1},
+                "selectielijst_procestype": {
+                    "naam": "Evaluatie uitvoeren",
+                    "nummer": 1,
+                    "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                },
             },
         )
         self.assertEqual(
             item.extra_zaak_data["resultaat"],
-            "http://zaken.nl/api/v1/resultaten/111-111-111",
+            {
+                "url": "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
+                "resultaattype": {"omschrijving": "This is a result type"},
+            },
         )
 
 
@@ -301,12 +309,19 @@ class DestructionListTest(TestCase):
                 "identificatie": "ZAAK-01",
                 "startdatum": "2020-01-01",
                 "einddatum": "2022-01-01",
-                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "resultaat": {
+                    "url": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactietermijn": "P1D",
+                        "omschrijving": "Resulttype 0",
+                    },
+                },
                 "zaaktype": {
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
-                        "nummer": 1,
+                        "naam": "Plannen opstellen",
                     },
                 },
             },
@@ -320,12 +335,20 @@ class DestructionListTest(TestCase):
                 "identificatie": "ZAAK-02",
                 "startdatum": "2020-01-02",
                 "einddatum": "2022-01-02",
-                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-222",
+                "resultaat": {
+                    "url": "http://zaken.nl/api/v1/resultaten/111-111-222",
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactietermijn": "P1D",
+                        "omschrijving": "Resulttype 0",
+                    },
+                },
                 "zaaktype": {
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "nummer": 1,
+                        "naam": "Beleid en regelgeving opstellen",
                     },
                 },
             },
@@ -339,12 +362,12 @@ class DestructionListTest(TestCase):
                 "identificatie": "ZAAK-03",
                 "startdatum": "2020-01-03",
                 "einddatum": "2022-01-03",
-                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-333",
+                "resultaat": None,
                 "zaaktype": {
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
-                        "nummer": 2,
+                        "naam": "Instellen en inrichten organisatie",
                     },
                 },
             },
@@ -362,57 +385,53 @@ class DestructionListTest(TestCase):
         self.assertEqual(
             rows[0],
             (
-                "url",
-                "einddatum",
-                "resultaat",
-                "startdatum",
-                "omschrijving",
-                "identificatie",
-                "zaaktype url",
-                "zaaktype omschrijving",
-                "selectielijst procestype nummer",
+                "Zaaktype UUID",
+                "Zaaktype Omschrijving",
+                "Zaaktype Identificatie",
+                "Zaak Identificatie",
+                "Zaak Startdatum",
+                "Zaak Einddatum",
+                "Selectielijst Procestype",
+                "Resultaat",
             ),
         )
         self.assertEqual(
             rows[1],
             (
-                "http://zaken.nl/api/v1/zaken/111-111-111",
-                "2022-01-01",
-                "http://zaken.nl/api/v1/resultaten/111-111-111",
-                "2020-01-01",
-                "Test description 1",
-                "ZAAK-01",
-                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "111-111-111",
                 "Tralala zaaktype",
-                1,
+                None,  # pyopenxl reads empty values as None
+                "ZAAK-01",
+                "2020-01-01",
+                "2022-01-01",
+                "Plannen opstellen",
+                "Resulttype 0",
             ),
         )
         self.assertEqual(
             rows[2],
             (
-                "http://zaken.nl/api/v1/zaken/111-111-222",
-                "2022-01-02",
-                "http://zaken.nl/api/v1/resultaten/111-111-222",
-                "2020-01-02",
-                "Test description 2",
-                "ZAAK-02",
-                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "111-111-111",
                 "Tralala zaaktype",
-                1,
+                None,
+                "ZAAK-02",
+                "2020-01-02",
+                "2022-01-02",
+                "Beleid en regelgeving opstellen",
+                "Resulttype 0",
             ),
         )
         self.assertEqual(
             rows[3],
             (
-                "http://zaken.nl/api/v1/zaken/111-111-333",
-                "2022-01-03",
-                "http://zaken.nl/api/v1/resultaten/111-111-333",
-                "2020-01-03",
-                "Test description 3",
-                "ZAAK-03",
-                "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                "111-111-222",
                 "Tralala zaaktype",
-                2,
+                None,
+                "ZAAK-03",
+                "2020-01-03",
+                "2022-01-03",
+                "Instellen en inrichten organisatie",
+                None,
             ),
         )
 

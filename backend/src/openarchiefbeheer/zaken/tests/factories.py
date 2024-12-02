@@ -44,12 +44,14 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                     "selectielijst_procestype": {
                         "nummer": 1,
                         "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                        "naam": "Evaluatie uitvoeren",
                     },
                     "omschrijving": "Aangifte behandelen",
                     "identificatie": "ZAAKTYPE-01",
                     "versiedatum": "2024-01-01",
                 },
                 "resultaat": {
+                    "url": "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111",
                     "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
                     "_expand": {
                         "resultaattype": {
