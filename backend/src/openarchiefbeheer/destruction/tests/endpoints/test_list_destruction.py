@@ -7,6 +7,7 @@ import freezegun
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -222,3 +223,10 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             )
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+
+        logs = TimelineLog.objects.for_object(destruction_list).filter(
+            template="logging/destruction_list_deletion_triggered.txt"
+        )
+
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0].extra_data["user"]["username"], "record_manager")
