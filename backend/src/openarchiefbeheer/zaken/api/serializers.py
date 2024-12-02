@@ -80,6 +80,7 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
 # TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):
     zaaktype = serializers.SerializerMethodField()
+    resultaat = serializers.SerializerMethodField()
 
     class Meta:
         model = Zaak
@@ -99,7 +100,19 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
         return {
             "url": zaaktype["url"],
             "omschrijving": zaaktype["omschrijving"],
-            "selectielijst_procestype": {
-                "nummer": zaaktype["selectielijst_procestype"]["nummer"]
+            "identificatie": zaaktype.get("identificatie", ""),
+            "selectielijst_procestype": zaaktype["selectielijst_procestype"],
+        }
+
+    @extend_schema_field(serializers.JSONField)
+    def get_resultaat(self, zaak: Zaak) -> dict | None:
+        if not zaak.resultaat:
+            return None
+
+        resultaattype = zaak._expand["resultaat"]["_expand"]["resultaattype"]
+        return {
+            "url": zaak._expand["resultaat"]["url"],
+            "resultaattype": {
+                "omschrijving": resultaattype["omschrijving"],
             },
         }

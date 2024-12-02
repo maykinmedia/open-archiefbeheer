@@ -1,15 +1,14 @@
 # The structure of ZAAK_METADATA_FIELDS_MAPPINGS needs to remain in sync with ZaakMetadataSerializer
 ZAAK_METADATA_FIELDS_MAPPINGS = [
-    {"name": "url", "path": "url"},
-    {"name": "einddatum", "path": "einddatum"},
-    {"name": "resultaat", "path": "resultaat"},
-    {"name": "startdatum", "path": "startdatum"},
-    {"name": "omschrijving", "path": "omschrijving"},
-    {"name": "identificatie", "path": "identificatie"},
-    {"name": "zaaktype url", "path": "zaaktype.url"},
-    {"name": "zaaktype omschrijving", "path": "zaaktype.omschrijving"},
+    {"name": "Zaaktype UUID", "path": "zaaktype.url"},
+    {"name": "Zaaktype Omschrijving", "path": "zaaktype.omschrijving"},
+    {"name": "Zaaktype Identificatie", "path": "zaaktype.identificatie"},
+    {"name": "Zaak Identificatie", "path": "identificatie"},
+    {"name": "Zaak Startdatum", "path": "startdatum"},
+    {"name": "Zaak Einddatum", "path": "omschrijving"},
     {
-        "name": "selectielijst procestype nummer",
-        "path": "zaaktype.selectielijst_procestype.nummer",
+        "name": "Selectielijst Procestype",
+        "path": "zaaktype.selectielijst_procestype.naam",
     },
+    {"name": "Resultaat", "path": "resultaattype.omschrijving"},
 ]
