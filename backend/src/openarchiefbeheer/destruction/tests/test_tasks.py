@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
@@ -596,7 +597,7 @@ class ProcessDeletingZakenTests(TestCase):
             patch("openarchiefbeheer.destruction.utils.create_zaak_for_report"),
             patch("openarchiefbeheer.destruction.utils.create_eio_destruction_report"),
             patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak"),
-            freeze_time("2024-10-09"),
+            freeze_time("2024-10-09T12:00:00+02:00"),
         ):
             complete_and_notify(destruction_list.pk)
 
@@ -614,6 +615,12 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(
             destruction_list.destruction_report.name,
             "destruction_reports/2024/10/09/report_some-destruction-list.xlsx",
+        )
+        self.assertEqual(
+            destruction_list.end.astimezone(
+                tz=timezone.get_default_timezone()
+            ).isoformat(),
+            "2024-10-09T12:00:00+02:00",
         )
 
         wb = load_workbook(filename=destruction_list.destruction_report.path)
