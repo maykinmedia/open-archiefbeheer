@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
+from furl import furl
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
@@ -98,6 +99,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
     def get_zaaktype(self, zaak: Zaak) -> dict | None:
         zaaktype = zaak._expand["zaaktype"]
         return {
+            "uuid": furl(zaaktype["url"]).path.segments[-1],
             "url": zaaktype["url"],
             "omschrijving": zaaktype["omschrijving"],
             "identificatie": zaaktype.get("identificatie", ""),

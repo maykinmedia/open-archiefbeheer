@@ -151,6 +151,8 @@ class DestructionList(models.Model):
     def set_status(self, status: str) -> None:
         self.status = status
         self.status_changed = timezone.now()
+        if status == ListStatus.deleted:
+            self.end = timezone.now()
         self.save()
 
     def add_items(

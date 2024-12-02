@@ -1,6 +1,6 @@
 # The structure of ZAAK_METADATA_FIELDS_MAPPINGS needs to remain in sync with ZaakMetadataSerializer
 ZAAK_METADATA_FIELDS_MAPPINGS = [
-    {"name": "Zaaktype UUID", "path": "zaaktype.url"},
+    {"name": "Zaaktype UUID", "path": "zaaktype.uuid"},
     {"name": "Zaaktype Omschrijving", "path": "zaaktype.omschrijving"},
     {"name": "Zaaktype Identificatie", "path": "zaaktype.identificatie"},
     {"name": "Zaak Identificatie", "path": "identificatie"},
