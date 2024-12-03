@@ -1,10 +1,9 @@
 import { isPrimitive } from "@maykin-ui/admin-ui";
 
-import { Zaak } from "../../types";
-import { ZaakSelection } from "./types";
+import { ZaakIdentifier, ZaakSelection } from "./types";
 
 export function _zaken2zaakSelection<DetailType>(
-  zaken: Array<string | Zaak>,
+  zaken: Array<string | ZaakIdentifier>,
   selected: boolean,
   detail?: DetailType,
 ): ZaakSelection {
@@ -24,7 +23,7 @@ export function _zaken2zaakSelection<DetailType>(
  * @param zaken An array containing either `Zaak.url` or `Zaak` objects
  * @private
  */
-export function _getZaakUrls(zaken: Array<string | Zaak>) {
+export function _getZaakUrls(zaken: Array<string | ZaakIdentifier>) {
   return zaken.map(_getZaakUrl);
 }
 
@@ -33,6 +32,6 @@ export function _getZaakUrls(zaken: Array<string | Zaak>) {
  * @param zaak Either a `Zaak.url` or `Zaak` object.
  * @private
  */
-export function _getZaakUrl(zaak: string | Zaak) {
-  return isPrimitive(zaak) ? zaak : (zaak.url as string);
+export function _getZaakUrl(zaak: string | ZaakIdentifier) {
+  return isPrimitive(zaak) ? zaak : zaak.url;
 }

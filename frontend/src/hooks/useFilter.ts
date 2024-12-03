@@ -1,11 +1,12 @@
-import { AttributeData } from "@maykin-ui/admin-ui";
-
 import { useCombinedSearchParams } from "./useCombinedSearchParams";
 
 /**
  * Hook providing filter interaction, returns: `[RESERVED, Function]` tuple.
  */
-export function useFilter(): [object, (filterData: AttributeData) => void] {
+export function useFilter<T extends object>(): [
+  object,
+  (filterData: T) => void,
+] {
   const [, setCombinedSearchParams] = useCombinedSearchParams();
   // Reserved for possible future expansion (filter state)
   const RESERVED = {};
@@ -15,9 +16,9 @@ export function useFilter(): [object, (filterData: AttributeData) => void] {
    * Pass this to `onFilter` of a DataGrid component.
    * @param filterData
    */
-  const setFilterField = (filterData: AttributeData) => {
+  const setFilterField = (filterData: T) => {
     setCombinedSearchParams({
-      ...(filterData as AttributeData<string>),
+      ...(filterData as object),
       page: "1",
     });
   };

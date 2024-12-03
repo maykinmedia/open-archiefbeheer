@@ -1,5 +1,4 @@
 import {
-  AttributeData,
   Solid,
   ToolbarItem,
   useConfirm,
@@ -34,6 +33,15 @@ interface ProcessZaakReviewSelectionDetail {
   selectielijstklasse: string;
   archiefactiedatum: string;
 }
+
+type MakeFinalFormType = {
+  assigneeIds: string;
+  comment: string;
+};
+
+type DestroyFormType = {
+  name: string;
+};
 
 /**
  * Returns the items to show in the secondary navigation (top bar) and provides
@@ -210,7 +218,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     ),
     pad: "h",
     onClick: () =>
-      formDialog(
+      formDialog<MakeFinalFormType>(
         "Markeer als definitief",
         undefined,
         [
@@ -271,7 +279,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     variant: "danger",
     pad: "h",
     onClick: () =>
-      formDialog(
+      formDialog<DestroyFormType>(
         "Zaken definitief vernietigen",
         `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
         [
@@ -298,7 +306,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       ),
   };
 
-  const validateDestroy = ({ name }: AttributeData) => {
+  const validateDestroy = ({ name }: DestroyFormType) => {
     // Name can be undefined at a certain point and will crash the entire page
     if (
       (name as string | undefined)?.toLowerCase() ===

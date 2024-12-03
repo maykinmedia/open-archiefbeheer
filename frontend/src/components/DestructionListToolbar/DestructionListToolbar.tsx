@@ -3,11 +3,12 @@ import {
   Badge,
   Body,
   Column,
+  Form,
   Grid,
   H2,
   Tab,
   Tabs,
-  field2Title,
+  string2Title,
   ucFirst,
 } from "@maykin-ui/admin-ui";
 
@@ -47,6 +48,7 @@ export function DestructionListToolbar({
       {destructionList && (
         <Column span={3}>
           <AttributeTable
+            compact
             labeledObject={{
               auteur: {
                 label: "Auteur",
@@ -90,6 +92,7 @@ export function DestructionListToolbar({
       {review && (
         <Column span={3}>
           <AttributeTable
+            compact
             object={{
               "Laatste review door": review.author && formatUser(review.author),
               Opmerking: review.listFeedback,
@@ -106,6 +109,7 @@ export function DestructionListToolbar({
       {reviewResponse && (
         <Column span={3}>
           <AttributeTable
+            compact
             object={{
               "Laatst ingediend": formatDate(
                 new Date(String(reviewResponse.created)),
@@ -124,7 +128,7 @@ export function DestructionListToolbar({
         <H2>{title}</H2>
       ) : (
         destructionList && (
-          <H2>{field2Title(destructionList.name, { unHyphen: false })}</H2>
+          <H2>{string2Title(destructionList.name, { unHyphen: false })}</H2>
         )
       )}
       {logItems?.length ? (

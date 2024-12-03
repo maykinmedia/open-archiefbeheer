@@ -125,6 +125,7 @@ function App() {
                 />
               }
               pad="v"
+              variant="transparent"
             >
               <Body>
                 <Card>
