@@ -2,13 +2,17 @@ from dataclasses import dataclass
 from typing import IO
 
 from django.utils import timezone
-from django.utils.translation import gettext
+from django.utils.translation import gettext as _
 
 import xlsxwriter
 from glom import glom
 from timeline_logger.models import TimelineLog
 from xlsxwriter.worksheet import Worksheet
 
+from openarchiefbeheer.logging.logevent import (
+    destruction_list_reviewed,
+    get_event_template,
+)
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
 from .constants import InternalStatus
@@ -23,15 +27,16 @@ class DestructionReportGenerator:
         self, worksheet: Worksheet, start_row: int = 0
     ) -> None:
         column_names = [
-            gettext("Group"),
-            gettext("Name"),
-            gettext("Date/Time"),
-            gettext("Changes"),
+            _("Group"),
+            _("Name"),
+            _("Date/Time"),
+            _("Changes"),
         ]
         worksheet.write_row(start_row, 0, column_names)
 
         logs = TimelineLog.objects.for_object(self).filter(
-            template="logging/destruction_list_reviewed.txt", extra_data__approved=True
+            template=get_event_template(destruction_list_reviewed),
+            extra_data__approved=True,
         )
         for row_count, log in enumerate(logs):
             user_data = log.extra_data["user"]
@@ -45,7 +50,7 @@ class DestructionReportGenerator:
                 ),
                 # This column is not useful, since we are filtering on approved reviews.
                 # But it was specifically requested.
-                gettext("Has approved"),
+                _("Has approved"),
             ]
             worksheet.write_row(start_row + row_count + 1, 0, data)
 
@@ -68,10 +73,8 @@ class DestructionReportGenerator:
     def generate_destruction_report(self, file: IO) -> None:
         workbook = xlsxwriter.Workbook(file.name, options={"in_memory": False})
 
-        worksheet_zaken = workbook.add_worksheet(name=gettext("Deleted zaken"))
-        worksheet_review_process = workbook.add_worksheet(
-            name=gettext("Review process")
-        )
+        worksheet_zaken = workbook.add_worksheet(name=_("Deleted zaken"))
+        worksheet_review_process = workbook.add_worksheet(name=_("Review process"))
 
         self.add_zaken_table(worksheet_zaken)
         self.add_review_process_table(worksheet_review_process)

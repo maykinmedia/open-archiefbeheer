@@ -1,4 +1,5 @@
 import traceback
+from typing import Callable
 
 from django.db.models import Max, Min, Model
 
@@ -19,6 +20,8 @@ from openarchiefbeheer.zaken.utils import (
     format_zaaktype_choices,
 )
 
+TEMPLATE_FORMAT = "logging/%(event)s.txt"
+
 
 def _create_log(
     model: Model, event: str, extra_data: dict | None = None, user: User | None = None
@@ -34,7 +37,7 @@ def _create_log(
 
     return TimelineLog.objects.create(
         content_object=model,
-        template=f"logging/{event}.txt",
+        template=TEMPLATE_FORMAT % {"event": event},
         extra_data=extra_data,
         user=user,
     )
@@ -257,3 +260,7 @@ def resync_failed(exc: Exception) -> None:
     return TimelineLog.objects.create(
         template="logging/resync_failed.txt", extra_data={"error": error}
     )
+
+
+def get_event_template(logging_func: Callable) -> str:
+    return TEMPLATE_FORMAT % {"event": logging_func.__name__}
