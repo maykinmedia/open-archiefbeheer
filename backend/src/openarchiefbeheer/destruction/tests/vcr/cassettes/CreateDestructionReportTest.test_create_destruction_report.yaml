@@ -153,7 +153,7 @@ interactions:
 - request:
     body: '{"bronorganisatie": "000000000", "creatiedatum": "2024-10-14", "titel":
       "Destruction report of list: trouble", "auteur": "Open Archiefbeheer", "taal":
-      "nld", "formaat": "text/csv", "inhoud": "c29tZSBkYXRh", "informatieobjecttype":
+      "nld", "formaat": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "inhoud": "c29tZSBkYXRh", "informatieobjecttype":
       "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
       "indicatie_gebruiksrecht": false}'
     headers:
@@ -177,7 +177,7 @@ interactions:
     body:
       string: '{"url":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/174fc1c3-36fe-4ed1-b2c4-b0368efa2008","identificatie":"DOCUMENT-2024-0000000003","bronorganisatie":"000000000","creatiedatum":"2024-10-14","titel":"Destruction
         report of list: trouble","vertrouwelijkheidaanduiding":"openbaar","auteur":"Open
-        Archiefbeheer","status":"","formaat":"text/csv","taal":"nld","versie":1,"beginRegistratie":"2024-10-14T13:13:05.150793Z","bestandsnaam":"","inhoud":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/174fc1c3-36fe-4ed1-b2c4-b0368efa2008/download?versie=1","bestandsomvang":9,"link":"","beschrijving":"","ontvangstdatum":null,"verzenddatum":null,"indicatieGebruiksrecht":false,"verschijningsvorm":"","ondertekening":{"soort":"","datum":null},"integriteit":{"algoritme":"","waarde":"","datum":null},"informatieobjecttype":"http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485","locked":false,"bestandsdelen":[],"trefwoorden":[],"lock":""}'
+        Archiefbeheer","status":"","formaat":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","taal":"nld","versie":1,"beginRegistratie":"2024-10-14T13:13:05.150793Z","bestandsnaam":"","inhoud":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/174fc1c3-36fe-4ed1-b2c4-b0368efa2008/download?versie=1","bestandsomvang":9,"link":"","beschrijving":"","ontvangstdatum":null,"verzenddatum":null,"indicatieGebruiksrecht":false,"verschijningsvorm":"","ondertekening":{"soort":"","datum":null},"integriteit":{"algoritme":"","waarde":"","datum":null},"informatieobjecttype":"http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485","locked":false,"bestandsdelen":[],"trefwoorden":[],"lock":""}'
     headers:
       API-version:
       - 1.4.2

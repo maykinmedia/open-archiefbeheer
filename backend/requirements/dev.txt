@@ -324,6 +324,11 @@ elastic-apm==6.22.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+et-xmlfile==2.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   openpyxl
 face==20.1.1
     # via
     #   -c requirements/ci.txt
@@ -456,6 +461,10 @@ mypy-extensions==1.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   black
+openpyxl==3.1.5
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 orderedmultidict==1.0.1
     # via
     #   -c requirements/ci.txt
@@ -820,6 +829,10 @@ wrapt==1.14.1
     #   -r requirements/ci.txt
     #   elastic-apm
     #   vcrpy
+xlsxwriter==3.2.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 yarl==1.9.4
     # via
     #   -c requirements/ci.txt

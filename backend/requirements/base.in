@@ -38,3 +38,4 @@ celery
 zgw-consumers
 furl
 python-slugify
+XlsxWriter

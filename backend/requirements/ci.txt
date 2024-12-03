@@ -280,6 +280,8 @@ elastic-apm==6.22.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+et-xmlfile==2.0.0
+    # via openpyxl
 face==20.1.1
     # via
     #   -c requirements/base.txt
@@ -369,6 +371,8 @@ multidict==6.0.5
     # via yarl
 mypy-extensions==1.0.0
     # via black
+openpyxl==3.1.5
+    # via -r requirements/test-tools.in
 orderedmultidict==1.0.1
     # via
     #   -c requirements/base.txt
@@ -630,6 +634,10 @@ wrapt==1.14.1
     #   -r requirements/base.txt
     #   elastic-apm
     #   vcrpy
+xlsxwriter==3.2.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 yarl==1.9.4
     # via vcrpy
 zgw-consumers==0.36.1

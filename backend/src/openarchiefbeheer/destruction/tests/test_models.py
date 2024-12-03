@@ -4,8 +4,10 @@ from unittest.mock import patch
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from freezegun import freeze_time
+from openpyxl import load_workbook
 from privates.test import temp_private_root
 from requests import HTTPError
 from requests_mock import Mocker
@@ -344,25 +346,66 @@ class DestructionListTest(TestCase):
 
         destruction_list.refresh_from_db()
 
-        destruction_list.destruction_report
-        lines = [line for line in destruction_list.destruction_report.readlines()]
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[gettext("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(lines), 4)
+        self.assertEqual(len(rows), 4)
         self.assertEqual(
-            lines[0],
-            b"url,einddatum,resultaat,startdatum,omschrijving,identificatie,zaaktype url,zaaktype omschrijving,selectielijst procestype nummer\n",
+            rows[0],
+            (
+                "url",
+                "einddatum",
+                "resultaat",
+                "startdatum",
+                "omschrijving",
+                "identificatie",
+                "zaaktype url",
+                "zaaktype omschrijving",
+                "selectielijst procestype nummer",
+            ),
         )
         self.assertEqual(
-            lines[1],
-            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
+            rows[1],
+            (
+                "http://zaken.nl/api/v1/zaken/111-111-111",
+                "2022-01-01",
+                "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "2020-01-01",
+                "Test description 1",
+                "ZAAK-01",
+                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "Tralala zaaktype",
+                1,
+            ),
         )
         self.assertEqual(
-            lines[2],
-            b"http://zaken.nl/api/v1/zaken/111-111-222,2022-01-02,http://zaken.nl/api/v1/resultaten/111-111-222,2020-01-02,Test description 2,ZAAK-02,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
+            rows[2],
+            (
+                "http://zaken.nl/api/v1/zaken/111-111-222",
+                "2022-01-02",
+                "http://zaken.nl/api/v1/resultaten/111-111-222",
+                "2020-01-02",
+                "Test description 2",
+                "ZAAK-02",
+                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "Tralala zaaktype",
+                1,
+            ),
         )
         self.assertEqual(
-            lines[3],
-            b"http://zaken.nl/api/v1/zaken/111-111-333,2022-01-03,http://zaken.nl/api/v1/resultaten/111-111-333,2020-01-03,Test description 3,ZAAK-03,http://catalogi.nl/api/v1/zaaktypen/111-111-222,Tralala zaaktype,2\n",
+            rows[3],
+            (
+                "http://zaken.nl/api/v1/zaken/111-111-333",
+                "2022-01-03",
+                "http://zaken.nl/api/v1/resultaten/111-111-333",
+                "2020-01-03",
+                "Test description 3",
+                "ZAAK-03",
+                "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
+                "Tralala zaaktype",
+                2,
+            ),
         )
 
     def test_zaak_creation_skipped_if_internal_status_succeeded(self):

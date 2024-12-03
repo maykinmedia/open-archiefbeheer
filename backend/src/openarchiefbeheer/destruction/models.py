@@ -1,4 +1,3 @@
-import csv
 import logging
 import traceback
 import uuid as _uuid
@@ -220,48 +219,21 @@ class DestructionList(models.Model):
         self.save()
 
     def generate_destruction_report(self) -> None:
+        from .destruction_report import DestructionReportGenerator
+
         if not self.status == ListStatus.deleted:
             logger.warning("The destruction list has not been deleted yet.")
             return
 
-        fieldnames = [
-            "url",
-            "einddatum",
-            "resultaat",
-            "startdatum",
-            "omschrijving",
-            "identificatie",
-            "zaaktype url",
-            "zaaktype omschrijving",
-            "selectielijst procestype nummer",
-        ]
-        with NamedTemporaryFile(mode="w", newline="", delete_on_close=False) as f_tmp:
-            writer = csv.DictWriter(f_tmp, fieldnames=fieldnames)
-            writer.writeheader()
-            for item in self.items.filter(
-                processing_status=InternalStatus.succeeded
-            ).iterator(chunk_size=1000):
-                data = {
-                    **item.extra_zaak_data,
-                    **{
-                        "zaaktype url": item.extra_zaak_data["zaaktype"]["url"],
-                        "zaaktype omschrijving": item.extra_zaak_data["zaaktype"][
-                            "omschrijving"
-                        ],
-                        "selectielijst procestype nummer": item.extra_zaak_data[
-                            "zaaktype"
-                        ]["selectielijst_procestype"]["nummer"],
-                    },
-                }
-                del data["zaaktype"]
-
-                writer.writerow(data)
-
+        generator = DestructionReportGenerator(destruction_list=self)
+        with NamedTemporaryFile(mode="wb", delete_on_close=False) as f_tmp:
+            generator.generate_destruction_report(f_tmp)
             f_tmp.close()
-            with open(f_tmp.name, mode="r") as f:
+
+            with open(f_tmp.name, mode="rb") as f:
                 django_file = File(f)
                 self.destruction_report.save(
-                    f"report_{slugify(self.name)}.csv", django_file
+                    f"report_{slugify(self.name)}.xlsx", django_file
                 )
 
         self.save()

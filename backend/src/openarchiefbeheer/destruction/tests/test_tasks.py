@@ -7,6 +7,7 @@ from django.test import TestCase, override_settings, tag
 from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
+from openpyxl import load_workbook
 from privates.test import temp_private_root
 from requests import HTTPError
 from requests_mock import Mocker
@@ -439,16 +440,38 @@ class ProcessDeletingZakenTests(TestCase):
             ).exists()
         )
 
-        lines = [line for line in destruction_list.destruction_report.readlines()]
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[_("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(lines), 3)
+        self.assertEqual(len(rows), 3)
         self.assertEqual(
-            lines[1],
-            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogue-api.nl/zaaktypen/111-111-111,Aangifte behandelen,1\n",
+            rows[1],
+            (
+                "http://zaken.nl/api/v1/zaken/111-111-111",
+                "2022-01-01",
+                "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "2020-01-01",
+                "Test description 1",
+                "ZAAK-01",
+                "http://catalogue-api.nl/zaaktypen/111-111-111",
+                "Aangifte behandelen",
+                1,
+            ),
         )
         self.assertEqual(
-            lines[2],
-            b"http://zaken.nl/api/v1/zaken/222-222-222,2022-01-02,http://zaken.nl/api/v1/resultaten/111-111-222,2020-01-02,Test description 2,ZAAK-02,http://catalogue-api.nl/zaaktypen/111-111-111,Aangifte behandelen,1\n",
+            rows[2],
+            (
+                "http://zaken.nl/api/v1/zaken/222-222-222",
+                "2022-01-02",
+                "http://zaken.nl/api/v1/resultaten/111-111-222",
+                "2020-01-02",
+                "Test description 2",
+                "ZAAK-02",
+                "http://catalogue-api.nl/zaaktypen/111-111-111",
+                "Aangifte behandelen",
+                1,
+            ),
         )
 
         m_zaak.assert_called()
@@ -583,19 +606,41 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
         self.assertEqual(
             destruction_list.destruction_report.name,
-            "destruction_reports/2024/10/09/report_some-destruction-list.csv",
+            "destruction_reports/2024/10/09/report_some-destruction-list.xlsx",
         )
 
-        lines = [line for line in destruction_list.destruction_report.readlines()]
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[_("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(lines), 2)
+        self.assertEqual(len(rows), 2)
         self.assertEqual(
-            lines[0],
-            b"url,einddatum,resultaat,startdatum,omschrijving,identificatie,zaaktype url,zaaktype omschrijving,selectielijst procestype nummer\n",
+            rows[0],
+            (
+                "url",
+                "einddatum",
+                "resultaat",
+                "startdatum",
+                "omschrijving",
+                "identificatie",
+                "zaaktype url",
+                "zaaktype omschrijving",
+                "selectielijst procestype nummer",
+            ),
         )
         self.assertEqual(
-            lines[1],
-            b"http://zaken.nl/api/v1/zaken/111-111-111,2022-01-01,http://zaken.nl/api/v1/resultaten/111-111-111,2020-01-01,Test description 1,ZAAK-01,http://catalogi.nl/api/v1/zaaktypen/111-111-111,Tralala zaaktype,1\n",
+            rows[1],
+            (
+                "http://zaken.nl/api/v1/zaken/111-111-111",
+                "2022-01-01",
+                "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "2020-01-01",
+                "Test description 1",
+                "ZAAK-01",
+                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "Tralala zaaktype",
+                1,
+            ),
         )
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
