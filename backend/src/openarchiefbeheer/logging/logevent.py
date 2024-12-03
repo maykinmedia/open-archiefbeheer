@@ -1,5 +1,4 @@
 import traceback
-from typing import Callable
 
 from django.db.models import Max, Min, Model
 
@@ -260,7 +259,3 @@ def resync_failed(exc: Exception) -> None:
     return TimelineLog.objects.create(
         template="logging/resync_failed.txt", extra_data={"error": error}
     )
-
-
-def get_event_template(logging_func: Callable) -> str:
-    return TEMPLATE_FORMAT % {"event": logging_func.__name__}

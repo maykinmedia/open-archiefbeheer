@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import IO
 
-from django.utils import timezone
 from django.utils.translation import gettext as _
 
 import xlsxwriter
@@ -9,10 +8,9 @@ from glom import glom
 from timeline_logger.models import TimelineLog
 from xlsxwriter.worksheet import Worksheet
 
-from openarchiefbeheer.logging.logevent import (
-    destruction_list_reviewed,
-    get_event_template,
-)
+from openarchiefbeheer.accounts.utils import format_user, format_user_groups
+from openarchiefbeheer.logging.logevent import destruction_list_reviewed
+from openarchiefbeheer.logging.utils import get_event_template, get_readable_timestamp
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
 from .constants import InternalStatus
@@ -34,20 +32,16 @@ class DestructionReportGenerator:
         ]
         worksheet.write_row(start_row, 0, column_names)
 
-        logs = TimelineLog.objects.for_object(self).filter(
+        logs = TimelineLog.objects.for_object(self.destruction_list).filter(
             template=get_event_template(destruction_list_reviewed),
             extra_data__approved=True,
         )
         for row_count, log in enumerate(logs):
-            user_data = log.extra_data["user"]
             # Not using the FK because the user might have been deleted in the mean time
-            formatted_user = f"{user_data["first_name"]} {user_data["last_name"]} ({user_data["username"]})"
             data = [
-                ", ".join(log.extra_data["user_groups"]),
-                formatted_user,
-                log.timestamp.astimezone(tz=timezone.get_default_timezone()).isoformat(
-                    sep=" ", timespec="minutes"
-                ),
+                format_user_groups(log.extra_data["user_groups"]),
+                format_user(log.extra_data["user"]),
+                get_readable_timestamp(log),
                 # This column is not useful, since we are filtering on approved reviews.
                 # But it was specifically requested.
                 _("Has approved"),
