@@ -93,6 +93,26 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       ),
   };
 
+  const BUTTON_ABORT_PROCESS: ToolbarItem = {
+    children: (
+      <>
+        <Solid.DocumentArrowUpIcon />
+        Proces afbreken
+      </>
+    ),
+    pad: "h",
+    variant: "warning",
+    onClick: () =>
+      prompt(
+        "Proces afbreken",
+        `U staat op het punt om vernietigingslijst terug te zetten naar de status "nieuw", de huidige beoordeling(en) worden afgebroken`,
+        "Opmerking",
+        "Proces afbreken",
+        "Annuleren",
+        handleCancelDestroy,
+      ),
+  };
+
   /**
    * Dispatches action to mark the destruction list as final (archivist approves).
    */
@@ -307,7 +327,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     bold: true,
     children: (
       <>
-        <Solid.XMarkIcon />
+        <Solid.HandRaisedIcon />
         Vernietigen annuleren
       </>
     ),
@@ -350,12 +370,37 @@ export function useSecondaryNavigation(): ToolbarItem[] {
 
   return useMemo<ToolbarItem[]>(() => {
     return [
+      //
+      // LEFT
+      //
+
+      // Status: "ready_to_delete", badge and spacer
+      getPermittedToolbarItem(
+        <ProcessingStatusBadge
+          key={destructionList.pk}
+          processingStatus={destructionList.processingStatus}
+        />,
+        (user, destructionList) =>
+          canTriggerDestruction(user, destructionList) &&
+          destructionList.processingStatus !== "new",
+      ),
+      getPermittedToolbarItem("spacer", canTriggerDestruction),
+
+      //
+      // Right
+      //
+
       // Status: "new", "Ter beoordeling indienen"
       getPermittedToolbarItem(
         BUTTON_READY_TO_REVIEW,
         (user, destructionList) =>
           canMarkAsReadyToReview(user, destructionList) &&
           destructionList.status === "new",
+      ),
+
+      getPermittedToolbarItem(
+        BUTTON_ABORT_PROCESS,
+        (user, destructionList) => destructionList.status !== "new",
       ),
 
       // Status: "changes_requested", "Opnieuw indienen"
@@ -369,17 +414,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       // Status: "internally_reviewed", "Markeren als definitief"
       getPermittedToolbarItem(BUTTON_MAKE_FINAL, canMarkListAsFinal),
 
-      // Status: "ready_to_delete", badge, spacer, and "Vernietigen starten"/"Vernietigen herstarten"
-      getPermittedToolbarItem(
-        <ProcessingStatusBadge
-          key={destructionList.pk}
-          processingStatus={destructionList.processingStatus}
-        />,
-        (user, destructionList) =>
-          canTriggerDestruction(user, destructionList) &&
-          destructionList.processingStatus !== "new",
-      ),
-      getPermittedToolbarItem("spacer", canTriggerDestruction),
+      // Status: "ready_to_delete" "Vernietigen starten"/"Vernietigen herstarten"
       getPermittedToolbarItem(
         BUTTON_DESTROY,
         (user, destructionList) =>

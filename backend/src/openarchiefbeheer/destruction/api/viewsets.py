@@ -202,12 +202,12 @@ from .serializers import (
         ),
         responses={201: None},
     ),
-    abort_destruction=extend_schema(
+    abort=extend_schema(
         tags=["Destruction list"],
-        summary=_("Abort planned destruction"),
+        summary=_('"Abort" destruction list'),
         description=_(
-            "This endpoint can be used to abort the destruction of a list when the date to process it has been set."
-            " The status of the list is then set back to 'new' and the record manager is re-assigned to it."
+            'Sets the status of the destruction list to "new"'
+            "Cancels if the destruction list is due to be destroyed."
         ),
         request=AbortDestructionSerializer,
         responses={200: None},
@@ -251,7 +251,7 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanReassignDestructionList]
         elif self.action == "mark_ready_review":
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
-        elif self.action == "abort_destruction":
+        elif self.action == "abort":
             permission_classes = [IsAuthenticated & CanAbortDestruction]
         else:
             permission_classes = [IsAuthenticated]
@@ -358,8 +358,13 @@ class DestructionListViewSet(
 
         return Response(status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=["post"], name="abort-destruction")
-    def abort_destruction(self, request, *args, **kwargs):
+    @action(detail=True, methods=["post"], name="abort")
+    def abort(self, request, *args, **kwargs):
+        """
+        "Abort" destruction list:
+        - Sets the status of the destruction list to "new"
+        - Cancels if the destruction list is due to be destroyed.
+        """
         destruction_list = self.get_object()
 
         serializer = AbortDestructionSerializer(

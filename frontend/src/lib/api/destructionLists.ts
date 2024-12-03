@@ -251,17 +251,11 @@ export async function updateCoReviewers(
 }
 
 /**
- * Abort the destruction of a destruction list.
+ * "Aborts" a destruction list:
+ * - Sets the status of the destruction list to "new"
+ * - Cancels if the destruction list is due to be destroyed.
  * @param uuid
  */
-export async function abortPlannedDestruction(
-  uuid: string,
-  data: { comment: string },
-) {
-  return request(
-    "POST",
-    `/destruction-lists/${uuid}/abort_destruction/`,
-    {},
-    data,
-  );
+export async function abort(uuid: string, data: { comment: string }) {
+  return request("POST", `/destruction-lists/${uuid}/abort/`, {}, data);
 }
