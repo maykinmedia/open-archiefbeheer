@@ -1,11 +1,4 @@
-import {
-  AttributeData,
-  Body,
-  H2,
-  ListTemplate,
-  Solid,
-  useAlert,
-} from "@maykin-ui/admin-ui";
+import { Body, H2, ListTemplate, Solid, useAlert } from "@maykin-ui/admin-ui";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
@@ -14,7 +7,7 @@ import "./Settings.css";
 import { UpdateSettingsAction } from "./settings.action";
 import { SettingsContext } from "./settings.loader";
 
-interface ObjectListItem {
+interface ShortProcedureSetting {
   zaaktype: string;
   value: string | number;
   verkorteProcedure: boolean;
@@ -29,11 +22,11 @@ export function SettingsPage() {
   const submitAction = useSubmitAction<UpdateSettingsAction>();
   const alert = useAlert();
 
-  const objectList = useMemo(
+  const objectList = useMemo<ShortProcedureSetting[]>(
     () =>
       zaaktypeChoices.map((zaaktype) => ({
-        zaaktype: zaaktype.label,
-        value: zaaktype.value,
+        zaaktype: zaaktype.label.toString(),
+        value: zaaktype.value || "",
         verkorteProcedure: zaaktypesShortProcess.includes(
           String(zaaktype.value),
         ),
@@ -91,12 +84,17 @@ export function SettingsPage() {
     alert,
   ]);
 
-  const onSelectionChange = useCallback((selectedRows: AttributeData[]) => {
-    const newSelected = new Set(
-      (selectedRows as unknown as ObjectListItem[]).map((row) => row.zaaktype),
-    );
-    setSelectedZaaktypes(newSelected);
-  }, []);
+  const onSelectionChange = useCallback(
+    (selectedRows: ShortProcedureSetting[]) => {
+      const newSelected = new Set(
+        (selectedRows as unknown as ShortProcedureSetting[]).map(
+          (row) => row.zaaktype,
+        ),
+      );
+      setSelectedZaaktypes(newSelected);
+    },
+    [],
+  );
 
   const selectedItems = useMemo(
     () =>
@@ -105,7 +103,7 @@ export function SettingsPage() {
   );
 
   return (
-    <ListTemplate
+    <ListTemplate<ShortProcedureSetting>
       secondaryNavigationItems={[
         {
           children: (

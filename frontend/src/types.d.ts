@@ -2879,7 +2879,7 @@ export interface Zaak {
    * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
    * @format uri
    */
-  url?: string;
+  url: string; // FIXME: Manual fix here, removed optional flag.
   /**
    * Unieke resource identifier (UUID4)
    * @format uuid

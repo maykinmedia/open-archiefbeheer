@@ -1,5 +1,4 @@
 import {
-  AttributeData,
   Body,
   Column,
   ErrorMessage,
@@ -24,6 +23,14 @@ export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Aanpassen van selectielijstklasse";
 export const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
 export const LABEL_KEEP = "Afwijzen van het voorstel";
+
+type DestructionListProcessZaakReviewModalFormType = {
+  zaakUrl: string;
+  action: string;
+  selectielijstklasse: string;
+  archiefactiedatum: string;
+  comment: string;
+};
 
 export type DestructionListProcessZaakReviewModalProps = {
   zaakModalDataState: {
@@ -236,7 +243,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     return [...baseFields, ...(_formState.action ? actionSelectedFields : [])];
   };
 
-  const validate = (values: AttributeData) => {
+  const validate = (values: DestructionListProcessZaakReviewModalFormType) => {
     const action = values.action;
     /**
      * Updates the form state, and validates the form.
@@ -322,7 +329,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
               </Column>
 
               <Column span={9}>
-                <Form
+                <Form<DestructionListProcessZaakReviewModalFormType>
                   autoComplete="off"
                   justify="stretch"
                   noValidate

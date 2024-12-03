@@ -1,6 +1,9 @@
-import { Zaak } from "../../types";
 import { SessionStorageBackend, _getZaakSelection } from "./backends";
-import { ZaakSelection, ZaakSelectionBackendMeta } from "./types";
+import {
+  ZaakIdentifier,
+  ZaakSelection,
+  ZaakSelectionBackendMeta,
+} from "./types";
 
 /**
  * Adds `zaken` to zaak selection identified by key.
@@ -16,7 +19,7 @@ import { ZaakSelection, ZaakSelectionBackendMeta } from "./types";
  */
 export async function addToZaakSelection<DetailType = unknown>(
   key: string,
-  zaken: (string | Zaak)[],
+  zaken: (string | ZaakIdentifier)[],
   detail?: DetailType,
   backend = SessionStorageBackend,
   meta?: ZaakSelectionBackendMeta,
@@ -37,7 +40,7 @@ export async function addToZaakSelection<DetailType = unknown>(
  */
 export async function removeFromZaakSelection(
   key: string,
-  zaken: (string | Zaak)[],
+  zaken: (string | ZaakIdentifier)[],
   backend = SessionStorageBackend,
   meta?: ZaakSelectionBackendMeta,
 ) {
@@ -139,7 +142,7 @@ export async function getZaakSelectionSize(
  */
 export async function getZaakSelectionItems<DetailType = unknown>(
   key: string,
-  zaak: (string | Zaak)[],
+  zaak: (string | ZaakIdentifier)[],
   selectedOnly = true,
   backend = SessionStorageBackend,
   meta?: ZaakSelectionBackendMeta,

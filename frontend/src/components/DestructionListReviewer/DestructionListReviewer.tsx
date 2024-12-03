@@ -3,7 +3,6 @@ import {
   Button,
   FormField,
   P,
-  SerializedFormData,
   Solid,
   useAlert,
   useFormDialog,
@@ -34,6 +33,12 @@ export type DestructionListReviewerProps = {
   destructionList: DestructionList;
 };
 
+export type DestructionListReviewerFormType = {
+  comment: string;
+  reviewer?: string;
+  coReviewer?: string[];
+};
+
 /**
  * Allows viewing/assigning the reviewers of a destruction list.
  * @param destructionList
@@ -45,7 +50,7 @@ export function DestructionListReviewer({
   const { state } = useNavigation();
   const revalidator = useRevalidator();
   const alert = useAlert();
-  const formDialog = useFormDialog();
+  const formDialog = useFormDialog<DestructionListReviewerFormType>();
   const coReviews = useCoReviews(destructionList);
   const reviewers = useReviewers();
   const coReviewers = useCoReviewers();
@@ -55,12 +60,8 @@ export function DestructionListReviewer({
   /**
    * Gets called when the change is confirmed.
    */
-  const handleSubmit = (data: SerializedFormData) => {
-    const { coReviewer, reviewer, comment } = data as {
-      comment: string;
-      reviewer?: string;
-      coReviewer?: string[];
-    };
+  const handleSubmit = (data: DestructionListReviewerFormType) => {
+    const { coReviewer, reviewer, comment } = data;
 
     const promises: Promise<unknown>[] = [];
 
@@ -198,6 +199,7 @@ export function DestructionListReviewer({
       {reviewer && (
         <>
           <AttributeTable
+            compact
             labeledObject={{
               reviewer: {
                 label: "Beoordelaar",

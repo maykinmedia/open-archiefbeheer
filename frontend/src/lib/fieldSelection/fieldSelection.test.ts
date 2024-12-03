@@ -1,6 +1,7 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 
 import {
+  FieldSelection,
   addToFieldSelection,
   clearFieldSelection,
   getFieldSelection,
@@ -11,7 +12,7 @@ import {
 
 describe("fieldSelection", () => {
   const testKey = "testKey";
-  const mockFields: TypedField[] = [
+  const mockFields: TypedField<Record<string, unknown>>[] = [
     { name: "field1", type: "boolean" },
     { name: "field2", type: "number" },
     { name: "field3", type: "string" },
@@ -45,7 +46,10 @@ describe("fieldSelection", () => {
   });
 
   test("should retrieve field selection", async () => {
-    const fieldSelection = { field1: true, field2: false };
+    const fieldSelection: FieldSelection<Record<string, unknown>> = {
+      field1: true,
+      field2: false,
+    };
     await setFieldSelection(testKey, fieldSelection);
 
     const result = await getFieldSelection(testKey);
