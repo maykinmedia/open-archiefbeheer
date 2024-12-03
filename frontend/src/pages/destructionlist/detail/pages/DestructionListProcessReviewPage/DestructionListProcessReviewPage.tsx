@@ -1,9 +1,4 @@
-import {
-  AttributeData,
-  Outline,
-  Toolbar,
-  TypedField,
-} from "@maykin-ui/admin-ui";
+import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
 import React, { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
@@ -170,7 +165,7 @@ export function DestructionListProcessReviewPage() {
     //
     // Remove the zaak from the selection in the background.
     if (!selected) {
-      await handleSelect([zaak] as unknown as AttributeData[], false);
+      await handleSelect([zaak], false);
 
       // Call the Route's loader function
       //
@@ -206,7 +201,7 @@ export function DestructionListProcessReviewPage() {
     //
     // We add the selected zaak to the zaak selection and add our feedback as
     // details, this allows us to recover (and submit) the feedback later.
-    await handleSelect([{ url: zaakUrl }] as unknown as AttributeData[], true, {
+    await handleSelect([{ url: zaakUrl }], true, {
       action,
       selectielijstklasse,
       archiefactiedatum,

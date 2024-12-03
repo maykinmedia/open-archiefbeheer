@@ -1,20 +1,18 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 
-export type FieldSelection = {
-  /**
-   * A `Field.name` mapped to a `boolean`.
-   * - `true`: The field is active
-   * - `false`: The field is inactive
-   */
-  [index: string]: boolean;
-};
+import { Zaak } from "../../types";
+
+export type FieldSelection<T extends object = Zaak> = Record<keyof T, boolean>;
 
 /**
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  * @param fields An array containing either `TypedField` objects.
  */
-export async function addToFieldSelection(key: string, fields: TypedField[]) {
+export async function addToFieldSelection<T extends object = Zaak>(
+  key: string,
+  fields: TypedField<T>[],
+) {
   await _mutateFieldSelection(key, fields, true);
 }
 
@@ -23,9 +21,9 @@ export async function addToFieldSelection(key: string, fields: TypedField[]) {
  * @param key A key identifying the selection
  * @param fields An array containing either `TypedField` objects.
  */
-export async function removeFromFieldSelection(
+export async function removeFromFieldSelection<T extends object = Zaak>(
   key: string,
-  fields: TypedField[],
+  fields: TypedField<T>[],
 ) {
   await _mutateFieldSelection(key, fields, false);
 }
@@ -35,10 +33,10 @@ export async function removeFromFieldSelection(
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection
  */
-export async function getFieldSelection(key: string) {
+export async function getFieldSelection<T extends object = Zaak>(key: string) {
   const computedKey = _getComputedKey(key);
   const json = sessionStorage.getItem(computedKey) || "{}";
-  return JSON.parse(json) as FieldSelection;
+  return JSON.parse(json) as FieldSelection<T>;
 }
 
 /**
@@ -47,9 +45,9 @@ export async function getFieldSelection(key: string) {
  * @param key A key identifying the selection
  * @param fieldSelection
  */
-export async function setFieldSelection(
+export async function setFieldSelection<T extends object = Zaak>(
   key: string,
-  fieldSelection: FieldSelection,
+  fieldSelection: FieldSelection<T>,
 ) {
   const computedKey = _getComputedKey(key);
   const json = JSON.stringify(fieldSelection);
@@ -72,9 +70,12 @@ export async function clearFieldSelection(key: string) {
  * @param key A key identifying the selection
  * @param field Either a `Field.name` or `Field` object.
  */
-export async function isFieldActive(key: string, field: TypedField) {
+export async function isFieldActive<T extends object = Zaak>(
+  key: string,
+  field: TypedField<T>,
+) {
   const fieldSelection = await getFieldSelection(key);
-  return fieldSelection[field.name];
+  return fieldSelection[field.name as keyof typeof fieldSelection];
 }
 
 /**
@@ -84,20 +85,20 @@ export async function isFieldActive(key: string, field: TypedField) {
  * @param fields An array containing either `TypedField` objects.
  * @param active Indicating whether the selection should be added (`true) or removed (`false).
  */
-export async function _mutateFieldSelection(
+export async function _mutateFieldSelection<T extends object = Zaak>(
   key: string,
-  fields: TypedField[],
+  fields: TypedField<T>[],
   active: boolean,
 ) {
   const currentFieldSelection = await getFieldSelection(key);
   const names = fields.map((f) => f.name);
 
-  const fieldSelectionOverrides = names.reduce<FieldSelection>(
+  const fieldSelectionOverrides = names.reduce<FieldSelection<T>>(
     (partialFieldSelection, url) => ({
       ...partialFieldSelection,
       [url]: active,
     }),
-    {},
+    {} as FieldSelection<T>,
   );
 
   const combinedFieldSelection = {

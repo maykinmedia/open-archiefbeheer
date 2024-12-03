@@ -1,5 +1,4 @@
 import {
-  AttributeData,
   Badge,
   FieldSet,
   KanbanTemplate,
@@ -42,7 +41,7 @@ export type LandingKanbanEntry = {
   assignees: React.ReactNode;
 };
 
-export const STATUSES: FieldSet[] = [
+export const STATUSES: FieldSet<LandingKanbanEntry>[] = [
   [
     STATUS_MAPPING.new,
     {
@@ -219,7 +218,7 @@ export const Landing = () => {
   };
 
   return (
-    <KanbanTemplate
+    <KanbanTemplate<LandingKanbanEntry>
       kanbanProps={{
         title: "Vernietigingslijsten",
         fieldsets: STATUSES,
@@ -248,9 +247,7 @@ export const Landing = () => {
             },
           ],
         },
-        renderPreview: (object: AttributeData) => {
-          const entry = object as LandingKanbanEntry;
-
+        renderPreview: (entry) => {
           if (
             entry.processingStatus === "new" &&
             !entry.plannedDestructionDate

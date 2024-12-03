@@ -1,5 +1,4 @@
 import {
-  AttributeData,
   ButtonProps,
   DataGridProps,
   ListTemplate,
@@ -12,15 +11,12 @@ import React, { useCallback, useMemo } from "react";
 import { useNavigation } from "react-router-dom";
 
 import { DestructionListToolbar } from "../../../components";
-import { useFields } from "../../../hooks/useFields";
-import { useFilter } from "../../../hooks/useFilter";
-import { usePage } from "../../../hooks/usePage";
-import { useSort } from "../../../hooks/useSort";
 import {
   ZaakSelectionDetailGetter,
   ZaakSelectionZaakFilter,
   useZaakSelection,
-} from "../../../hooks/useZaakSelection";
+} from "../../../hooks";
+import { useFields, useFilter, usePage, useSort } from "../../../hooks";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
@@ -33,7 +29,7 @@ import { Zaak } from "../../../types";
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
 
-export type BaseListViewProps = React.PropsWithChildren<{
+export type BaseListViewProps<T extends Zaak = Zaak> = React.PropsWithChildren<{
   storageKey: string;
   title?: string;
   errors?: string | string[];
@@ -50,19 +46,19 @@ export type BaseListViewProps = React.PropsWithChildren<{
   initiallySelectedZakenOnPage?: Zaak[];
   sortable?: boolean;
 
-  extraFields?: TypedField[];
+  extraFields?: TypedField<T>[];
   filterSelectionZaken?: ZaakSelectionZaakFilter;
   getSelectionDetail?: ZaakSelectionDetailGetter;
 
-  dataGridProps?: Partial<DataGridProps>;
+  dataGridProps?: Partial<DataGridProps<T>>;
 
   enableUseZaakSelection?: boolean;
   selectionBackend?: ZaakSelectionBackend | null;
   onClearZaakSelection?: () => void;
-  onSelectionChange?: (rows: AttributeData[]) => void;
+  onSelectionChange?: (rows: T[]) => void;
 }>;
 
-export function BaseListView({
+export function BaseListView<T extends Zaak = Zaak>({
   storageKey,
   title,
   errors,
@@ -89,24 +85,27 @@ export function BaseListView({
   selectionBackend = SessionStorageBackend,
   onClearZaakSelection,
   onSelectionChange,
-}: BaseListViewProps) {
+}: BaseListViewProps<T>) {
   const { state } = useNavigation();
   const [page, setPage] = usePage();
-  const [, setFilterField] = useFilter();
   const [sort, setSort] = useSort();
 
   // Object list.
   const objectList = paginatedZaken.results.map((zaak) => ({
     ...zaak,
     href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
-  }));
+  })) as unknown as T[];
 
   // Fields.
-  const [fields, setFields, filterTransform] = useFields(
+  const [fields, setFields, filterTransform] = useFields<T>(
     destructionList,
     review,
     extraFields,
   );
+  type FilterTransformData = ReturnType<typeof filterTransform>;
+
+  // Filter.
+  const [, setFilterField] = useFilter<FilterTransformData>();
 
   // Selection.
   const [
@@ -182,58 +181,60 @@ export function BaseListView({
     document.documentElement.clientHeight;
 
   return (
-    <ListTemplate
+    <ListTemplate<T, FilterTransformData>
       errors={errors}
       secondaryNavigationItems={secondaryNavigationItems}
-      dataGridProps={{
-        aProps: {
-          target: "_blank",
-        },
-        boolProps: {
-          explicit: true,
-        },
-        fieldsSelectable: true,
-        // If no vertical scrolling is applied, used (slower) 100% height to
-        // push paginator down at bottom of page.
-        // This triggers a "stickyfill" behaviour which is slower than native
-        // sticky which is not compatible with the percentage value.
-        height: hasVerticalOverflow ? undefined : "100%",
-        pageSize: 100,
-        showPaginator: true,
-        selectable: selectable === true,
-        filterable: true,
-        tableLayout: "fixed",
+      dataGridProps={
+        {
+          aProps: {
+            target: "_blank",
+          },
+          boolProps: {
+            explicit: true,
+          },
+          fieldsSelectable: true,
+          // If no vertical scrolling is applied, used (slower) 100% height to
+          // push paginator down at bottom of page.
+          // This triggers a "stickyfill" behaviour which is slower than native
+          // sticky which is not compatible with the percentage value.
+          height: hasVerticalOverflow ? undefined : "100%",
+          pageSize: 100,
+          showPaginator: true,
+          selectable: selectable === true,
+          filterable: true,
+          tableLayout: "fixed",
 
-        allowSelectAllPages,
-        allPagesSelected,
-        count: paginatedZaken.count,
-        equalityChecker: (a, b) =>
-          a && b && (a.uuid === b.uuid || a.url === b.url),
-        fields,
-        filterTransform,
-        loading: state !== "idle",
-        objectList: objectList,
-        page,
-        sort: sortable && sort,
-        selected: selectable
-          ? ([
-              ...new Map(
-                selectedZakenOnPage.map((zaak) => [zaak["uuid"], zaak]),
-              ).values(),
-            ] as unknown as AttributeData[])
-          : [],
-        selectionActions: getSelectionActions(),
+          allowSelectAllPages,
+          allPagesSelected,
+          count: paginatedZaken.count,
+          equalityChecker: (a, b) =>
+            a && b && (a.uuid === b.uuid || a.url === b.url),
+          fields: fields,
+          filterTransform,
+          loading: state !== "idle",
+          objectList: objectList,
+          page,
+          sort: sortable && sort,
+          selected: selectable
+            ? ([
+                ...new Map(
+                  selectedZakenOnPage.map((zaak) => [zaak["uuid"], zaak]),
+                ).values(),
+              ] as T[])
+            : [],
+          selectionActions: getSelectionActions(),
 
-        onFieldsChange: setFields,
-        onFilter: setFilterField,
-        onPageChange: setPage,
-        onSelect: handleSelect,
-        onSelectAllPages: handleSelectAllPages,
-        onSelectionChange: onSelectionChange,
-        onSort: setSort,
+          onFieldsChange: setFields,
+          onFilter: setFilterField,
+          onPageChange: setPage,
+          onSelect: handleSelect,
+          onSelectAllPages: handleSelectAllPages,
+          onSelectionChange: onSelectionChange,
+          onSort: setSort,
 
-        ...dataGridProps,
-      }}
+          ...dataGridProps,
+        } as DataGridProps<T, FilterTransformData>
+      }
     >
       <DestructionListToolbar
         title={title}

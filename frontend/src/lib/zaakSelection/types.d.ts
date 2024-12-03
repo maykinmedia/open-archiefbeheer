@@ -1,11 +1,17 @@
 import { Zaak } from "../../types";
 
+/**
+ * A type describing an object with a `Zaak`'s url and optionally other `Zaak`
+ * attributes.
+ */
+export type ZaakIdentifier = { url: string } & Partial<Zaak>;
+
+/**
+ * A `Zaak.url` mapped to a `boolean`.
+ * - `true`: The zaak is added to the selection.
+ * - `false`: The zaak is removed from the selection.
+ */
 export type ZaakSelection<DetailType = unknown> = {
-  /**
-   * A `Zaak.url` mapped to a `boolean`.
-   * - `true`: The zaak is added to the selection.
-   * - `false`: The zaak is removed from the selection.
-   */
   [index: string]: {
     selected: boolean;
     detail?: DetailType;
@@ -21,7 +27,7 @@ export type ZaakSelectionBackend = {
    */
   addToZaakSelection<DetailType = unknown>(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     detail?: DetailType,
     meta?: ZaakSelectionBackendMeta,
   ): Promise<void>;
@@ -31,7 +37,7 @@ export type ZaakSelectionBackend = {
    */
   removeFromZaakSelection(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     meta?: ZaakSelectionBackendMeta,
   ): Promise<void>;
 
@@ -75,7 +81,7 @@ export type ZaakSelectionBackend = {
    */
   getZaakSelectionItems<DetailType = unknown>(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     selectedOnly?: boolean,
     meta?: ZaakSelectionBackendMeta,
   ): Promise<ZaakSelection<DetailType>>;

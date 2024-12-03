@@ -21,6 +21,8 @@ import {
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
 
+type DestructionListEditData = Zaak & { processingStatus: string };
+
 /**
  * Show items of a destruction list.
  * Allows viewing, adding and removing destruction list items.
@@ -53,7 +55,7 @@ export function DestructionListEditPage() {
   );
 
   // Whether extra fields should be rendered.
-  const extraFields: TypedField[] = useMemo(
+  const extraFields: TypedField<DestructionListEditData>[] = useMemo(
     () =>
       !editingState && destructionList.processingStatus !== "new"
         ? [
@@ -173,7 +175,7 @@ export function DestructionListEditPage() {
   };
 
   return (
-    <BaseListView
+    <BaseListView<DestructionListEditData>
       destructionList={destructionList}
       extraFields={extraFields}
       initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}

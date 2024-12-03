@@ -1,11 +1,11 @@
 import {
+  ZaakIdentifier,
   ZaakSelection,
   ZaakSelectionBackend,
   ZaakSelectionBackendMeta,
   _getZaakUrl,
   _getZaakUrls,
 } from "../";
-import { Zaak } from "../../../types";
 
 export const SessionStorageBackend: ZaakSelectionBackend = {
   /**
@@ -17,7 +17,7 @@ export const SessionStorageBackend: ZaakSelectionBackend = {
    */
   async addToZaakSelection<DetailType = unknown>(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     detail?: DetailType,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: ZaakSelectionBackendMeta,
@@ -33,7 +33,7 @@ export const SessionStorageBackend: ZaakSelectionBackend = {
    */
   async removeFromZaakSelection(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: ZaakSelectionBackendMeta,
   ) {
@@ -137,7 +137,7 @@ export const SessionStorageBackend: ZaakSelectionBackend = {
    */
   async getZaakSelectionItems<DetailType = unknown>(
     key: string,
-    zaken: (string | Zaak)[],
+    zaken: (string | ZaakIdentifier)[],
     selectedOnly = true,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _?: ZaakSelectionBackendMeta,
@@ -176,12 +176,12 @@ export const SessionStorageBackend: ZaakSelectionBackend = {
  */
 export async function _mutateZaakSelection<DetailType = unknown>(
   key: string,
-  zaken: (string | Zaak)[],
+  zaken: (string | ZaakIdentifier)[],
   selected: boolean,
   detail?: DetailType | DetailType[],
 ) {
   if (Array.isArray(detail)) {
-    if (detail.length !== (zaken as Zaak[]).length) {
+    if (detail.length !== (zaken as ZaakIdentifier[]).length) {
       throw new Error(
         "Can't mutate Zaak selection, length of `zaken` is not equal to length of given `detail`!",
       );
