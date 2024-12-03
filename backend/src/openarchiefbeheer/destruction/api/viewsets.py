@@ -206,8 +206,7 @@ from .serializers import (
         tags=["Destruction list"],
         summary=_('"Abort" destruction list'),
         description=_(
-            'Sets the status of the destruction list to "new"'
-            "Cancels if the destruction list is due to be destroyed."
+            'Sets the status of the destruction list to "new", cancels if the destruction list is due to be destroyed.'
         ),
         request=AbortDestructionSerializer,
         responses={200: None},
