@@ -3,7 +3,7 @@ import { redirect } from "react-router-dom";
 
 import { JsonValue, TypedAction } from "../../../hooks";
 import {
-  abortPlannedDestruction,
+  abort,
   destroyDestructionList,
   markDestructionListAsFinal,
   markDestructionListAsReadyToReview,
@@ -177,6 +177,6 @@ export async function destructionListCancelDestroyAction({
     comment: string;
   }>;
   const { comment, uuid } = payload;
-  await abortPlannedDestruction(uuid, { comment });
+  await abort(uuid, { comment });
   return redirect(`/destruction-lists/${uuid}`);
 }

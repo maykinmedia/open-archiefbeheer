@@ -865,9 +865,13 @@ class AbortDestructionSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
 
     def save(self):
+        status = self.instance.status
         self.instance.abort_destruction()
 
         logevent.destruction_list_aborted(
-            self.instance, self.validated_data["comment"], self.context["request"].user
+            self.instance,
+            self.validated_data["comment"],
+            self.context["request"].user,
+            abort_destruction=status == ListStatus.ready_to_delete,
         )
         return self.instance

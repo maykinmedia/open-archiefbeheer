@@ -226,6 +226,7 @@ def destruction_list_aborted(
     destruction_list: DestructionList,
     comment: str,
     record_manager: User,
+    abort_destruction: bool,
 ):
     _create_log(
         model=destruction_list,
@@ -233,6 +234,7 @@ def destruction_list_aborted(
         user=record_manager,
         extra_data={
             "comment": comment,
+            "abort_destruction": abort_destruction,
         },
     )
 
