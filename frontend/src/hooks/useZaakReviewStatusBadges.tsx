@@ -16,14 +16,27 @@ import {
 export function useZaakReviewStatusBadges(
   zakenOnPage: Zaak[],
   reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
+  reviewAdviceIgnoredResults: Record<string, boolean>, // Map of reviewAdviceIgnored
 ): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
   const statuses = useZaakReviewStatuses(
     zakenOnPage,
     reviewedZaakSelectionOnPage,
   );
+
   return useMemo(() => {
     const badges = zakenOnPage.map((z) => {
       const status = statuses[z.url as string];
+      const reviewAdviceIgnored = reviewAdviceIgnoredResults[z.url as string];
+
+      if (reviewAdviceIgnored) {
+        // Display "Herboordelen" badge for reviewAdviceIgnored zaken
+        return (
+          // @ts-expect-error - style props not supported (yet?)
+          <Badge key={z.uuid} level="info" style={{ display: "block" }}>
+            <Solid.ClockIcon /> Herboordelen
+          </Badge>
+        );
+      }
 
       if (typeof status === "boolean") {
         if (status) {
@@ -37,8 +50,7 @@ export function useZaakReviewStatusBadges(
           return (
             // @ts-expect-error - style props not supported (yet?)
             <Badge key={z.uuid} level="danger" style={{ display: "block" }}>
-              <Solid.HandThumbDownIcon />
-              Uitgezonderd
+              <Solid.HandThumbDownIcon /> Uitgezonderd
             </Badge>
           );
         }
@@ -46,8 +58,7 @@ export function useZaakReviewStatusBadges(
         return (
           // @ts-expect-error - style props not supported (yet?)
           <Badge key={z.uuid} style={{ display: "block" }}>
-            <Solid.QuestionMarkCircleIcon />
-            Niet beoordeeld
+            <Solid.QuestionMarkCircleIcon /> Niet beoordeeld
           </Badge>
         );
       }
@@ -58,5 +69,5 @@ export function useZaakReviewStatusBadges(
       { badge: badges[i], status: statuses[z.url as string] },
     ]);
     return Object.fromEntries(entries);
-  }, [statuses]);
+  }, [statuses, reviewAdviceIgnoredResults, zakenOnPage]);
 }

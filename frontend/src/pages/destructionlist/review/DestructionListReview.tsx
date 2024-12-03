@@ -123,15 +123,26 @@ export function DestructionListReviewPage() {
     ),
   );
 
+  const reviewAdviceIgnoredResults = Object.fromEntries(
+    paginatedZaken.results.map((result) => [
+      result.zaak?.url as string,
+      result.reviewAdviceIgnored || false,
+    ]),
+  );
+
   const submitAction = useSubmitAction<ReviewDestructionListAction>();
   const destructionListReviewKey = getDestructionListReviewKey(
     uuid,
     destructionList.status,
   );
-  const zaakReviewStatusBadges = useZaakReviewStatusBadges(zakenResults, {
-    ...approvedZaakSelection,
-    ...excludedZaakSelection,
-  });
+  const zaakReviewStatusBadges = useZaakReviewStatusBadges(
+    zakenResults,
+    {
+      ...approvedZaakSelection,
+      ...excludedZaakSelection,
+    },
+    reviewAdviceIgnoredResults,
+  );
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {

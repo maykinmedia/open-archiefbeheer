@@ -12,6 +12,7 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM: DestructionListItem = {
   zaak: zaakFactory(),
   processingStatus: "new",
   plannedDestructionDate: null,
+  reviewAdviceIgnored: null,
 };
 export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   pk: 2,
@@ -20,6 +21,7 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   zaak: null,
   processingStatus: "succeeded",
   plannedDestructionDate: "2026-01-01T00:00:00Z",
+  reviewAdviceIgnored: null,
 };
 export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   pk: 3,
@@ -28,6 +30,7 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   zaak: zaakFactory(),
   processingStatus: "failed",
   plannedDestructionDate: "2026-01-01T00:00:00Z",
+  reviewAdviceIgnored: null,
 };
 
 export const destructionListItemFactory = createObjectFactory(

@@ -80,8 +80,8 @@ export const destructionListReviewLoader = loginRequired(
           reviewResponsePromise,
           listReviewers(),
           listDestructionListItems(uuid, {
-            "item-order_review_ignored": String(true),
-            ...(objParams as unknown as URLSearchParams),
+            "item-order_review_ignored": true,
+            ...objParams,
           }),
         ]);
 
