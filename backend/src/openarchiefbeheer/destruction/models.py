@@ -10,9 +10,8 @@ from django.core.files import File
 from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
-from django.utils.translation import gettext, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-import xlsxwriter
 from privates.fields import PrivateMediaFileField
 from slugify import slugify
 from timeline_logger.models import TimelineLog
@@ -220,49 +219,17 @@ class DestructionList(models.Model):
         self.save()
 
     def generate_destruction_report(self) -> None:
+        from .destruction_report import DestructionReportGenerator
+
         if not self.status == ListStatus.deleted:
             logger.warning("The destruction list has not been deleted yet.")
             return
 
-        fieldnames = [
-            "url",
-            "einddatum",
-            "resultaat",
-            "startdatum",
-            "omschrijving",
-            "identificatie",
-            "zaaktype url",
-            "zaaktype omschrijving",
-            "selectielijst procestype nummer",
-        ]
+        generator = DestructionReportGenerator(destruction_list=self)
         with NamedTemporaryFile(mode="wb", delete_on_close=False) as f_tmp:
-            workbook = xlsxwriter.Workbook(f_tmp.name, options={"in_memory": False})
-            worksheet = workbook.add_worksheet(name=gettext("Deleted zaken"))
-            worksheet.write_row(0, 0, fieldnames)
-
-            for row_count, item in enumerate(
-                self.items.filter(processing_status=InternalStatus.succeeded).iterator(
-                    chunk_size=1000
-                )
-            ):
-                data = [
-                    item.extra_zaak_data["url"],
-                    item.extra_zaak_data["einddatum"],
-                    item.extra_zaak_data["resultaat"],
-                    item.extra_zaak_data["startdatum"],
-                    item.extra_zaak_data["omschrijving"],
-                    item.extra_zaak_data["identificatie"],
-                    item.extra_zaak_data["zaaktype"]["url"],
-                    item.extra_zaak_data["zaaktype"]["omschrijving"],
-                    item.extra_zaak_data["zaaktype"]["selectielijst_procestype"][
-                        "nummer"
-                    ],
-                ]
-
-                worksheet.write_row(row_count + 1, 0, data)
-            workbook.close()
-
+            generator.generate_destruction_report(f_tmp)
             f_tmp.close()
+
             with open(f_tmp.name, mode="rb") as f:
                 django_file = File(f)
                 self.destruction_report.save(

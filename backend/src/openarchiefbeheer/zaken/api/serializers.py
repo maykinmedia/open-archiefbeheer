@@ -76,6 +76,8 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
     )
 
 
+# The structure of ZaakMetadataSerializer needs to remain in sync with ZAAK_METADATA_FIELDS_MAPPINGS
+# TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):
     zaaktype = serializers.SerializerMethodField()
 
