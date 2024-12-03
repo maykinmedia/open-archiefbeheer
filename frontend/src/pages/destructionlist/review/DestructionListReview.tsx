@@ -7,7 +7,7 @@ import {
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import {
@@ -60,6 +60,9 @@ export function DestructionListReviewPage() {
     reviewItems,
     reviewResponse,
   } = useLoaderData() as DestructionListReviewContext;
+  const zakenResults = paginatedZaken.results
+    .map((zaak) => zaak.zaak)
+    .filter((zaak) => zaak !== null) as Zaak[];
 
   const user = useWhoAmI();
 
@@ -70,7 +73,7 @@ export function DestructionListReviewPage() {
       comment: string;
     }>(
       storageKey,
-      paginatedZaken.results,
+      zakenResults,
       filterSelectionZaken,
       getSelectionDetail,
       RestBackend,
@@ -84,7 +87,7 @@ export function DestructionListReviewPage() {
       comment: string;
     }>(
       storageKey,
-      paginatedZaken.results.map((z) => z.url as string),
+      zakenResults.map((zaak) => zaak.url as string),
       true,
       RestBackend,
     );
@@ -120,25 +123,36 @@ export function DestructionListReviewPage() {
     ),
   );
 
+  const reviewAdviceIgnoredResults = Object.fromEntries(
+    paginatedZaken.results.map((result) => [
+      result.zaak?.url as string,
+      result.reviewAdviceIgnored || false,
+    ]),
+  );
+
   const submitAction = useSubmitAction<ReviewDestructionListAction>();
   const destructionListReviewKey = getDestructionListReviewKey(
     uuid,
     destructionList.status,
   );
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
-    paginatedZaken.results,
-    { ...approvedZaakSelection, ...excludedZaakSelection },
+    zakenResults,
+    {
+      ...approvedZaakSelection,
+      ...excludedZaakSelection,
+    },
+    reviewAdviceIgnoredResults,
   );
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo(() => {
-    return paginatedZaken.results.map((zaak) => {
+    return zakenResults.map((zaak) => {
       const badge = zaakReviewStatusBadges[zaak.url as string].badge;
       const actions = getActionsToolbarForZaak(zaak);
       return { ...zaak, Beoordeling: badge, Acties: actions };
     });
   }, [
-    paginatedZaken,
+    zakenResults,
     zaakReviewStatusBadges,
     reviewItems,
     excludedZaakSelection,

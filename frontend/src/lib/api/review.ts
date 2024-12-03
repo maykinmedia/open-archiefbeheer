@@ -5,7 +5,7 @@ import { request } from "./request";
 
 export type Review = {
   destructionList: string;
-  decision: "accepted" | "rejected";
+  decision: "accepted" | "rejected" | "ignored_review";
   listFeedback: string;
   pk?: number;
   author?: User;

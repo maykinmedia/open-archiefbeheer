@@ -12,7 +12,7 @@ import {
   destructionListAssigneesFactory,
   destructionListFactory,
 } from "../../../fixtures/destructionList";
-import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
+import { paginatedDestructionListItemsFactory } from "../../../fixtures/destructionListItem";
 import { reviewFactory } from "../../../fixtures/review";
 import {
   beoordelaarFactory,
@@ -167,7 +167,7 @@ const FIXTURE: DestructionListReviewContext = {
   logItems: [],
   review: reviewFactory(),
   reviewers: usersFactory(),
-  paginatedZaken: paginatedZakenFactory(),
+  paginatedZaken: paginatedDestructionListItemsFactory(),
 };
 
 export const ReviewerCanApproveZaak: Story = {
@@ -186,8 +186,10 @@ export const ReviewerCanApproveZaak: Story = {
     });
     const approve = approves[0];
     await userEvent.click(approve);
-    const checkbox = await canvas.findByRole("checkbox", { checked: true });
-    await expect(checkbox).toBeInTheDocument();
+    // Find all checkboxes
+    const checkboxes = await canvas.findAllByRole("checkbox");
+    const checkbox = checkboxes[0];
+    await expect(checkbox).toBeChecked();
   },
 };
 

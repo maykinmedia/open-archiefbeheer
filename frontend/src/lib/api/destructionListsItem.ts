@@ -10,6 +10,7 @@ export type DestructionListItem = {
   zaak: Zaak | null;
   processingStatus: ProcessingStatus;
   plannedDestructionDate: string | null;
+  reviewAdviceIgnored: boolean | null;
 };
 
 export interface ZaakItem extends Zaak {
@@ -32,14 +33,25 @@ export async function listDestructionListItems(
         page?: number;
         page_size?: number;
         "item-processing_status"?: ProcessingStatus;
-        "item-status": DestructionListItemStatus; // TODO ?
+        "item-status"?: DestructionListItemStatus;
+        "item-order_review_ignored"?: string | boolean;
       },
 ) {
+  if (params && !(params instanceof URLSearchParams)) {
+    if (typeof params["item-order_review_ignored"] === "boolean") {
+      params["item-order_review_ignored"] = String(
+        params["item-order_review_ignored"],
+      );
+    }
+  }
+
+  // Use the params object directly in the request
   const response = await request("GET", "/destruction-list-items/", {
     "item-destruction_list": destructionListUuid,
     "item-status": "suggested",
-    ...params,
-  } as typeof params & { "item-destruction_list": string });
+    ...((params as Record<string, string>) || {}),
+  });
+
   const promise: Promise<PaginatedDestructionListItems> = response.json();
   return promise;
 }

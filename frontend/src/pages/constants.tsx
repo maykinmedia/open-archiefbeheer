@@ -10,6 +10,7 @@ import { Review } from "../lib/api/review";
 export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
   accepted: "Goedgekeurd",
   rejected: "Afgewezen",
+  ignored_review: "Herboordelen",
 };
 
 export const REVIEW_DECISION_LEVEL_MAPPING: Record<
@@ -18,6 +19,7 @@ export const REVIEW_DECISION_LEVEL_MAPPING: Record<
 > = {
   accepted: "success",
   rejected: "danger",
+  ignored_review: "info",
 };
 
 export const STATUSES_ELIGIBLE_FOR_EDIT = ["new", "changes_requested"];
