@@ -33,7 +33,7 @@ export function useZaakReviewStatusBadges(
         return (
           // @ts-expect-error - style props not supported (yet?)
           <Badge key={z.uuid} level="info" style={{ display: "block" }}>
-            <Solid.ClockIcon /> Herboordelen
+            <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
           </Badge>
         );
       }
