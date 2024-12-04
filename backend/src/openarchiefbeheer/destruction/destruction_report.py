@@ -13,7 +13,8 @@ from openarchiefbeheer.logging.logevent import (
     destruction_list_deletion_triggered,
     destruction_list_reviewed,
 )
-from openarchiefbeheer.logging.utils import get_event_template, get_readable_timestamp
+from openarchiefbeheer.logging.utils import get_event_template
+from openarchiefbeheer.utils.formatting import get_readable_timestamp
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
 from .constants import InternalStatus, ListItemStatus
@@ -61,20 +62,20 @@ class DestructionReportGenerator:
         worksheet.write_row(start_row, 0, column_names)
 
         log = (
-            TimelineLog.objects.for_object(self)
+            TimelineLog.objects.for_object(self.destruction_list)
             .filter(template=get_event_template(destruction_list_deletion_triggered))
             .order_by("timestamp")
             .last()
         )
-        number_of_cases = self.items.filter(
+        number_of_cases = self.destruction_list.items.filter(
             processing_status=InternalStatus.succeeded,
             status=ListItemStatus.suggested,
         ).count()
 
         general_info_data = [
-            get_readable_timestamp(self.end),
-            format_user(log.extra_data["user"]),
-            format_user_groups(log.extra_data["user_groups"]),
+            get_readable_timestamp(self.destruction_list.end),
+            format_user(log.extra_data["user"]) if log else "",
+            format_user_groups(log.extra_data["user_groups"]) if log else "",
             number_of_cases,
         ]
         worksheet.write_row(start_row + 1, 0, general_info_data)
