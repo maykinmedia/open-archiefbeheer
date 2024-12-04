@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from .managers import UserManager
+from .utils import format_user
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -68,9 +69,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name
 
     def get_name_with_username(self):
-        username = self.get_username()
-        if self.first_name or self.last_name:
-            full_name = self.get_full_name()
-            return f"{full_name} ({username})"
-
-        return username
+        return format_user(self)

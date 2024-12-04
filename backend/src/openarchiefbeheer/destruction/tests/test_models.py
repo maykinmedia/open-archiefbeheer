@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from unittest.mock import patch
 
+from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.utils import timezone
@@ -15,16 +16,23 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...accounts.tests.factories import UserFactory
-from ..constants import InternalStatus, ListItemStatus, ListStatus
+from ..constants import (
+    InternalStatus,
+    ListItemStatus,
+    ListStatus,
+    ReviewDecisionChoices,
+)
 from .factories import (
     DestructionListCoReviewFactory,
     DestructionListFactory,
     DestructionListItemFactory,
+    DestructionListReviewFactory,
     ReviewResponseFactory,
 )
 
@@ -405,6 +413,82 @@ class DestructionListTest(TestCase):
                 "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
                 "Tralala zaaktype",
                 2,
+            ),
+        )
+
+    def test_generate_destruction_report_review_process(self):
+        author = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_review_destruction=True,
+        )
+        reviewer_group, created = Group.objects.get_or_create(name="Reviewer")
+        reviewer.groups.add(reviewer_group)
+        archivist = UserFactory.create(
+            first_name="Alice",
+            last_name="Wonderland",
+            username="awonderland1",
+            post__can_review_final_list=True,
+        )
+        archivist_group, created = Group.objects.get_or_create(name="Archivist")
+        archivist.groups.add(archivist_group)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.deleted, author=author
+        )
+
+        review_reviewer_rejected = DestructionListReviewFactory.create(
+            author=reviewer, decision=ReviewDecisionChoices.rejected
+        )
+        review_reviewer_accepted = DestructionListReviewFactory.create(
+            author=reviewer, decision=ReviewDecisionChoices.accepted
+        )
+        review_archivist_accepted = DestructionListReviewFactory.create(
+            author=archivist, decision=ReviewDecisionChoices.accepted
+        )
+
+        logevent.destruction_list_created(
+            destruction_list, author, reviewer
+        )  # A log with a different template (should NOT be present in the report)
+
+        logevent.destruction_list_reviewed(
+            destruction_list, review_reviewer_rejected, reviewer
+        )  # A rejection (should NOT be present in the report)
+        with freeze_time("2024-05-02T16:00:00+02:00"):
+            logevent.destruction_list_reviewed(
+                destruction_list, review_reviewer_accepted, reviewer
+            )
+        with freeze_time("2024-05-08T09:45:00+02:00"):
+            logevent.destruction_list_reviewed(
+                destruction_list, review_archivist_accepted, archivist
+            )
+
+        destruction_list.generate_destruction_report()
+
+        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        sheet_deleted_zaken = wb[gettext("Review process")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
+
+        self.assertEqual(len(rows), 3)
+
+        self.assertEqual(
+            rows[1],
+            (
+                "Reviewer",
+                "John Doe (jdoe1)",
+                "2024-05-02 16:00+02:00",
+                gettext("Has approved"),
+            ),
+        )
+        self.assertEqual(
+            rows[2],
+            (
+                "Archivist",
+                "Alice Wonderland (awonderland1)",
+                "2024-05-08 09:45+02:00",
+                gettext("Has approved"),
             ),
         )
 
