@@ -607,6 +607,7 @@ class ProcessDeletingZakenTests(TestCase):
                     },
                 },
                 "zaaktype": {
+                    "uuid": "111-111-111",
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {

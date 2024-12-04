@@ -132,6 +132,7 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(
             item.extra_zaak_data["zaaktype"],
             {
+                "uuid": "111-111-111",
                 "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
                 "identificatie": "ZAAKTYPE-01",
                 "omschrijving": "Aangifte behandelen",
@@ -329,6 +330,7 @@ class DestructionListTest(TestCase):
                     },
                 },
                 "zaaktype": {
+                    "uuid": "111-111-111",
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
@@ -356,6 +358,7 @@ class DestructionListTest(TestCase):
                     },
                 },
                 "zaaktype": {
+                    "uuid": "111-111-111",
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
@@ -376,6 +379,7 @@ class DestructionListTest(TestCase):
                 "einddatum": "2022-01-03",
                 "resultaat": None,
                 "zaaktype": {
+                    "uuid": "111-111-222",
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-222",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
