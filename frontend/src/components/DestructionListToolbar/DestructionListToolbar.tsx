@@ -22,7 +22,10 @@ import {
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
 } from "../../pages/constants";
-import { DestructionListAuditLog } from "../DestructionListAuditLog";
+import {
+  DestructionListAuditLogDetails,
+  DestructionListAuditLogHistory,
+} from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../DestructionListReviewer";
 
 export type DestructionListToolbarProps = {
@@ -41,12 +44,17 @@ export function DestructionListToolbar({
   review,
 }: DestructionListToolbarProps) {
   const logItems = useAuditLog(destructionList);
+  const logItemsReadyForFirstReview = useAuditLog(
+    destructionList,
+    "destruction_list_ready_for_first_review",
+  );
   const reviewResponse = useLatestReviewResponse(review);
   const properties = (
     <Grid>
       {destructionList && (
         <Column span={3}>
           <AttributeTable
+            compact
             labeledObject={{
               auteur: {
                 label: "Auteur",
@@ -90,6 +98,7 @@ export function DestructionListToolbar({
       {review && (
         <Column span={3}>
           <AttributeTable
+            compact
             object={{
               "Laatste review door": review.author && formatUser(review.author),
               Opmerking: review.listFeedback,
@@ -106,6 +115,7 @@ export function DestructionListToolbar({
       {reviewResponse && (
         <Column span={3}>
           <AttributeTable
+            compact
             object={{
               "Laatst ingediend": formatDate(
                 new Date(String(reviewResponse.created)),
@@ -133,7 +143,12 @@ export function DestructionListToolbar({
             {properties}
           </Tab>
           <Tab id="geschiedenis" label="Geschiedenis">
-            <DestructionListAuditLog destructionList={destructionList} />
+            <DestructionListAuditLogHistory logItems={logItems} />
+          </Tab>
+          <Tab id="details" label="Details">
+            <DestructionListAuditLogDetails
+              readyForFirstReviewLogItem={logItemsReadyForFirstReview[0]}
+            />
           </Tab>
         </Tabs>
       ) : (
