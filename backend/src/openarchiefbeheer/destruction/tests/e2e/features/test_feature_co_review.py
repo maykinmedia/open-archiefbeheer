@@ -61,6 +61,9 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             await self.when.user_fills_form_field(page, "Opmerking", "gh-497")
             await self.when.user_clicks_button(page, "Medebeoordeling afronden", 1)
 
+            # Make sure that the request for finishing the co-review is done
+            await page.wait_for_url(f"{self.live_server_url}/destruction-lists")
+
             # Log out.
             await self.when.user_logs_out(page)
 
