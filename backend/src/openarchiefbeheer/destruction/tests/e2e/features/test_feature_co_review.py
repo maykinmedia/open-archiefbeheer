@@ -67,4 +67,5 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             # Reviewer should see review completed.
             await self.when.reviewer_logs_in(page)
             await self.when.user_clicks_button(page, "Destruction list to co-review")
-            await self.then.page_should_contain_element_with_title(page, "Medebeoordelaar is klaar met beoordelen")
+            # Making the timeout higher because this is dependent on the polling
+            await self.then.page_should_contain_element_with_title(page, "Medebeoordelaar is klaar met beoordelen", timeout=10000)
