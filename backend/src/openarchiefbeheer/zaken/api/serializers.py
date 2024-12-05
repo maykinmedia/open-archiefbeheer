@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
+from furl import furl
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 
@@ -80,6 +81,7 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
 # TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):
     zaaktype = serializers.SerializerMethodField()
+    resultaat = serializers.SerializerMethodField()
 
     class Meta:
         model = Zaak
@@ -97,9 +99,22 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
     def get_zaaktype(self, zaak: Zaak) -> dict | None:
         zaaktype = zaak._expand["zaaktype"]
         return {
+            "uuid": furl(zaaktype["url"]).path.segments[-1],
             "url": zaaktype["url"],
             "omschrijving": zaaktype["omschrijving"],
-            "selectielijst_procestype": {
-                "nummer": zaaktype["selectielijst_procestype"]["nummer"]
+            "identificatie": zaaktype.get("identificatie", ""),
+            "selectielijst_procestype": zaaktype["selectielijst_procestype"],
+        }
+
+    @extend_schema_field(serializers.JSONField)
+    def get_resultaat(self, zaak: Zaak) -> dict | None:
+        if not zaak.resultaat:
+            return None
+
+        resultaattype = zaak._expand["resultaat"]["_expand"]["resultaattype"]
+        return {
+            "url": zaak._expand["resultaat"]["url"],
+            "resultaattype": {
+                "omschrijving": resultaattype["omschrijving"],
             },
         }

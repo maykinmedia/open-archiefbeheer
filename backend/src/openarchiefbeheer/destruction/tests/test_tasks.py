@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.core import mail
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
@@ -18,6 +19,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -357,9 +359,16 @@ class ProcessDeletingZakenTests(TestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_process_list(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete
+        record_manager = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
         )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete, author=record_manager
+        )
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -370,6 +379,7 @@ class ProcessDeletingZakenTests(TestCase):
             zaak__einddatum=date(2022, 1, 1),
             zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-111",
             destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
         )
         item2 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -380,6 +390,7 @@ class ProcessDeletingZakenTests(TestCase):
             zaak__einddatum=date(2022, 1, 2),
             zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-222",
             destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
         )
 
         with (
@@ -393,6 +404,7 @@ class ProcessDeletingZakenTests(TestCase):
                 "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
             ) as m_eio,
             patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
+            freeze_time("2024-12-02T12:00:00+01:00"),
         ):
             delete_destruction_list(destruction_list)
 
@@ -444,33 +456,50 @@ class ProcessDeletingZakenTests(TestCase):
         sheet_deleted_zaken = wb[_("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 6)
         self.assertEqual(
-            rows[1],
+            rows[0][:4],
             (
-                "http://zaken.nl/api/v1/zaken/111-111-111",
-                "2022-01-01",
-                "http://zaken.nl/api/v1/resultaten/111-111-111",
-                "2020-01-01",
-                "Test description 1",
-                "ZAAK-01",
-                "http://catalogue-api.nl/zaaktypen/111-111-111",
-                "Aangifte behandelen",
-                1,
+                _("Date/Time of deletion"),
+                _("User who started the deletion"),
+                _("Groups"),
+                _("Number of deleted cases"),
             ),
         )
         self.assertEqual(
-            rows[2],
+            rows[1][:4],
             (
-                "http://zaken.nl/api/v1/zaken/222-222-222",
-                "2022-01-02",
-                "http://zaken.nl/api/v1/resultaten/111-111-222",
-                "2020-01-02",
-                "Test description 2",
-                "ZAAK-02",
-                "http://catalogue-api.nl/zaaktypen/111-111-111",
+                "2024-12-02 12:00+01:00",
+                "John Doe (jdoe1)",
+                None,
+                2,
+            ),
+        )
+
+        self.assertEqual(
+            rows[4],
+            (
+                "111-111-111",
                 "Aangifte behandelen",
-                1,
+                "ZAAKTYPE-01",
+                "ZAAK-01",
+                "2020-01-01",
+                "2022-01-01",
+                "Evaluatie uitvoeren",
+                "This is a result type",
+            ),
+        )
+        self.assertEqual(
+            rows[5],
+            (
+                "111-111-111",
+                "Aangifte behandelen",
+                "ZAAKTYPE-01",
+                "ZAAK-02",
+                "2020-01-02",
+                "2022-01-02",
+                "Evaluatie uitvoeren",
+                "This is a result type",
             ),
         )
 
@@ -548,10 +577,17 @@ class ProcessDeletingZakenTests(TestCase):
         m_zio.assert_called()
 
     def test_complete_and_notify(self):
+        record_manager = UserFactory.create(
+            first_name="John",
+            last_name="Doe",
+            username="jdoe1",
+            post__can_start_destruction=True,
+        )
         destruction_list = DestructionListFactory.create(
             name="Some destruction list",
             processing_status=InternalStatus.processing,
             status=ListStatus.ready_to_delete,
+            author=record_manager,
         )
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -562,12 +598,22 @@ class ProcessDeletingZakenTests(TestCase):
                 "identificatie": "ZAAK-01",
                 "startdatum": "2020-01-01",
                 "einddatum": "2022-01-01",
-                "resultaat": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                "resultaat": {
+                    "url": "http://zaken.nl/api/v1/resultaten/111-111-111",
+                    "resultaattype": {
+                        "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactietermijn": "P1D",
+                        "omschrijving": "Resulttype 0",
+                    },
+                },
                 "zaaktype": {
+                    "uuid": "111-111-111",
                     "url": "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "nummer": 1,
+                        "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                        "naam": "Evaluatie uitvoeren",
                     },
                 },
             },
@@ -577,6 +623,7 @@ class ProcessDeletingZakenTests(TestCase):
         )
 
         self.assertIsNone(destruction_list.destruction_report.name)
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
         with (
             patch(
@@ -589,7 +636,7 @@ class ProcessDeletingZakenTests(TestCase):
             patch("openarchiefbeheer.destruction.utils.create_zaak_for_report"),
             patch("openarchiefbeheer.destruction.utils.create_eio_destruction_report"),
             patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak"),
-            freeze_time("2024-10-09"),
+            freeze_time("2024-10-09T12:00:00+02:00"),
         ):
             complete_and_notify(destruction_list.pk)
 
@@ -608,38 +655,51 @@ class ProcessDeletingZakenTests(TestCase):
             destruction_list.destruction_report.name,
             "destruction_reports/2024/10/09/report_some-destruction-list.xlsx",
         )
+        self.assertEqual(
+            destruction_list.end.astimezone(
+                tz=timezone.get_default_timezone()
+            ).isoformat(),
+            "2024-10-09T12:00:00+02:00",
+        )
 
         wb = load_workbook(filename=destruction_list.destruction_report.path)
         sheet_deleted_zaken = wb[_("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows), 5)
         self.assertEqual(
-            rows[0],
+            rows[1][:4],
             (
-                "url",
-                "einddatum",
-                "resultaat",
-                "startdatum",
-                "omschrijving",
-                "identificatie",
-                "zaaktype url",
-                "zaaktype omschrijving",
-                "selectielijst procestype nummer",
+                "2024-10-09 12:00+02:00",
+                "John Doe (jdoe1)",
+                None,
+                1,
             ),
         )
         self.assertEqual(
-            rows[1],
+            rows[3],
             (
-                "http://zaken.nl/api/v1/zaken/111-111-111",
-                "2022-01-01",
-                "http://zaken.nl/api/v1/resultaten/111-111-111",
-                "2020-01-01",
-                "Test description 1",
-                "ZAAK-01",
-                "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
+                "Zaaktype UUID",
+                "Zaaktype Omschrijving",
+                "Zaaktype Identificatie",
+                "Zaak Identificatie",
+                "Zaak Startdatum",
+                "Zaak Einddatum",
+                "Selectielijst Procestype",
+                "Resultaat",
+            ),
+        )
+        self.assertEqual(
+            rows[4],
+            (
+                "111-111-111",
                 "Tralala zaaktype",
-                1,
+                None,
+                "ZAAK-01",
+                "2020-01-01",
+                "2022-01-01",
+                "Evaluatie uitvoeren",
+                "Resulttype 0",
             ),
         )
 

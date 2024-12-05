@@ -292,6 +292,8 @@ class DestructionListViewSet(
                 % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
+        logevent.destruction_list_deletion_triggered(instance, self.request.user)
+
         if instance.processing_status == InternalStatus.new:
             instance.planned_destruction_date = today + timedelta(days=WAITING_PERIOD)
             instance.save()
