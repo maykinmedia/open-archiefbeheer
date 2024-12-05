@@ -23,7 +23,10 @@ import {
   STATUS_LEVEL_MAPPING,
   STATUS_MAPPING,
 } from "../../pages/constants";
-import { DestructionListAuditLog } from "../DestructionListAuditLog";
+import {
+  DestructionListAuditLogDetails,
+  DestructionListAuditLogHistory,
+} from "../DestructionListAuditLog";
 import { DestructionListReviewer } from "../DestructionListReviewer";
 
 export type DestructionListToolbarProps = {
@@ -137,7 +140,10 @@ export function DestructionListToolbar({
             {properties}
           </Tab>
           <Tab id="geschiedenis" label="Geschiedenis">
-            <DestructionListAuditLog destructionList={destructionList} />
+            <DestructionListAuditLogHistory logItems={logItems} />
+          </Tab>
+          <Tab id="details" label="Details">
+            <DestructionListAuditLogDetails destructionList={destructionList} />
           </Tab>
         </Tabs>
       ) : (
