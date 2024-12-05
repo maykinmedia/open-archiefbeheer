@@ -523,9 +523,11 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             element = page.locator(f"text={text}")
             await expect(element.nth(0)).to_be_visible(timeout=timeout)
 
-        async def page_should_contain_element_with_title(self, page, title):
+        async def page_should_contain_element_with_title(
+            self, page, title, timeout=5000
+        ):
             element = page.get_by_title(title)
-            await expect(element).to_be_visible()
+            await expect(element).to_be_visible(timeout=timeout)
 
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
