@@ -58,12 +58,15 @@ services:
     networks:
       - open-archiefbeheer-dev
 
+  # TODO: the configuration does not result in properly working OIDC
+  # The backchannel needs a hostname resolvable in the docker network but the 
+  # frontchannel needs a hostname resolvable on the host.
   web-init:
     build: .
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
-      - ./backend/docker-services/setup-configuration:/app/setup_configuration
+      - ./backend/src/openarchiefbeheer/config/setup-configuration/fixtures:/app/setup_configuration
     depends_on:
       - db
       - redis

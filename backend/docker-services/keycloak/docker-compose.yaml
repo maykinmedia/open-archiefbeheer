@@ -16,10 +16,9 @@ services:
     networks:
       - keycloak-dev
 
-  keycloak:
+  keycloak.local:
     depends_on:
       - keycloak-db
-    container_name: keycloak_dev
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
@@ -40,3 +39,4 @@ services:
 
 networks:
   keycloak-dev:
+    name: keycloak-dev
