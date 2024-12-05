@@ -5,24 +5,28 @@ import { DestructionList } from "../lib/api/destructionLists";
 import { useAlertOnError } from "./useAlertOnError";
 
 /**
- * Hook resolving audit log items
+ * Hook resolving audit log items with an optional event filter.
  */
-export function useAuditLog(destructionList?: DestructionList): AuditLogItem[] {
+export function useAuditLog(
+  destructionList?: DestructionList,
+  event?: string,
+): AuditLogItem[] {
   const alertOnError = useAlertOnError(
     "Er is een fout opgetreden bij het ophalen van de audit log!",
   );
 
   const [auditLogState, setAuditLogState] = useState<AuditLogItem[]>([]);
+
   useEffect(() => {
     if (!destructionList) {
       setAuditLogState([]);
       return;
     }
 
-    listAuditLog(destructionList.uuid)
-      .then((a) => setAuditLogState(a))
+    listAuditLog(destructionList.uuid, event)
+      .then((logItems) => setAuditLogState(logItems))
       .catch(alertOnError);
-  }, [destructionList?.uuid]);
+  }, [destructionList?.uuid, event]);
 
   return auditLogState;
 }

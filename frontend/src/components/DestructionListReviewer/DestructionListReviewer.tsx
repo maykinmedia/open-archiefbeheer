@@ -7,7 +7,7 @@ import {
   useAlert,
   useFormDialog,
 } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
 import {
