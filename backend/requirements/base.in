@@ -36,7 +36,7 @@ elastic-apm  # Elastic APM integration
 celery
 
 # Additional libraries
-zgw-consumers[setup-configuration] @ git+https://github.com/maykinmedia/zgw-consumers@feature/django-setup-configuration#egg=zgw-consumers
+zgw-consumers[setup-configuration]
 furl
 python-slugify
 XlsxWriter

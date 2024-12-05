@@ -1,19 +1,9 @@
 from django_setup_configuration import BaseConfigurationStep
+from django_setup_configuration.exceptions import ConfigurationRunFailed
 from zgw_consumers.models import Service
 
 from ..models import APIConfig
 from .models import APIConfigConfigurationModel
-
-
-def get_service(slug: str) -> Service:
-    """
-    Try to find a Service and re-raise DoesNotExist with the identifier to make debugging
-    easier
-    """
-    try:
-        return Service.objects.get(slug=slug)
-    except Service.DoesNotExist as e:
-        raise Service.DoesNotExist(f"{str(e)} (identifier = {slug})")
 
 
 class APIConfigConfigurationStep(BaseConfigurationStep[APIConfigConfigurationModel]):
@@ -25,16 +15,16 @@ class APIConfigConfigurationStep(BaseConfigurationStep[APIConfigConfigurationMod
     verbose_name = "API Configuration"
 
     def execute(self, model: APIConfigConfigurationModel) -> None:
-        service = get_service(model.selectielijst_service_identifier)
-
         config = APIConfig.get_solo()
 
-        # Idempotent configuration
-        if (
-            config.selectielijst_api_service
-            and service.pk == config.selectielijst_api_service.pk
-        ):
-            return
+        try:
+            config.selectielijst_api_service = Service.objects.get(
+                slug=model.selectielijst_service_identifier
+            )
+        except Service.DoesNotExist:
+            raise ConfigurationRunFailed(
+                f"Could not find an existing `selectielijst` service with identifier `{model.selectielijst_service_identifier}`."
+                " Make sure it is already configured, manually or by first running the configuration step of `zgw_consumers`."
+            )
 
-        config.selectielijst_api_service = service
-        config.save()
+        config.save(update_fields=["selectielijst_api_service"])
