@@ -85,7 +85,6 @@ export const destructionListReviewLoader = loginRequired(
           }),
         ]);
 
-      console.log({ logItems });
       const storageKey = getDestructionListReviewKey(uuid, list.status);
 
       // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
