@@ -58,6 +58,18 @@ services:
     networks:
       - open-archiefbeheer-dev
 
+  web-init:
+    build: .
+    environment: *web_env
+    command: /setup_configuration.sh
+    volumes:
+      - ./backend/docker-services/setup-configuration:/app/setup_configuration
+    depends_on:
+      - db
+      - redis
+    networks:
+      - open-archiefbeheer-dev
+
   celery:
     build: .
     command: /celery_worker.sh

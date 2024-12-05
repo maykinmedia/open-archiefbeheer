@@ -16,6 +16,7 @@ django-timeline-logger
 django-solo
 mozilla-django-oidc-db
 django-privates
+django-setup-configuration
 
 # API libraries
 djangorestframework
@@ -35,7 +36,7 @@ elastic-apm  # Elastic APM integration
 celery
 
 # Additional libraries
-zgw-consumers
+zgw-consumers[setup-configuration]
 furl
 python-slugify
 XlsxWriter

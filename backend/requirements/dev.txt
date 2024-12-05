@@ -10,6 +10,11 @@ amqp==5.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   kombu
+annotated-types==0.7.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
 ape-pie==0.1.0
     # via
     #   -c requirements/ci.txt
@@ -166,6 +171,7 @@ django==4.2.16
     #   django-relativedelta
     #   django-rosetta
     #   django-sendfile2
+    #   django-setup-configuration
     #   django-simple-certmanager
     #   django-solo
     #   django-timeline-logger
@@ -258,6 +264,10 @@ django-sendfile2==0.7.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-privates
+django-setup-configuration==0.4.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 django-simple-certmanager==2.0.0
     # via
     #   -c requirements/ci.txt
@@ -536,6 +546,22 @@ pycparser==2.22
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cffi
+pydantic==2.9.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-setup-configuration
+    #   pydantic-settings
+pydantic-core==2.23.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
+pydantic-settings==2.6.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-setup-configuration
 pyee==11.1.0
     # via
     #   -c requirements/ci.txt
@@ -610,6 +636,7 @@ python-dotenv==1.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   pydantic-settings
 python-slugify==8.0.4
     # via
     #   -c requirements/ci.txt
@@ -620,6 +647,7 @@ pyyaml==6.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
+    #   pydantic-settings
     #   vcrpy
 qrcode==7.4.2
     # via
@@ -760,6 +788,8 @@ typing-extensions==4.11.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
+    #   pydantic
+    #   pydantic-core
     #   pyee
     #   qrcode
     #   zgw-consumers
