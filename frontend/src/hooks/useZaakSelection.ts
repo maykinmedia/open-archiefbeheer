@@ -1,9 +1,9 @@
-import { AttributeData } from "@maykin-ui/admin-ui";
 import { useContext, useEffect, useMemo, useState } from "react";
 
 import { ZaakSelectionContext } from "../contexts";
 import {
   SessionStorageBackend,
+  ZaakIdentifier,
   ZaakSelection,
   ZaakSelectionBackend,
   addToZaakSelection,
@@ -15,12 +15,11 @@ import {
   removeFromZaakSelection,
   setAllZakenSelected,
 } from "../lib/zaakSelection";
-import { Zaak } from "../types";
 
 export type ZaakSelectionClearer = () => Promise<void>;
 
 export type ZaakSelectionSelectHandler = (
-  attributeData: AttributeData[],
+  zaken: ZaakIdentifier[],
   selected: boolean,
   detail?: object,
 ) => Promise<void>;
@@ -34,22 +33,22 @@ export type ZaakSelectionSelectAllPagesHandler = (
  * Can be used to filter zaken to set selection for.
  */
 export type ZaakSelectionZaakFilter<T = unknown> = (
-  zaken: Zaak[],
+  zaken: ZaakIdentifier[],
   selected: boolean,
   pageSpecificZaakSelection: ZaakSelection<T>,
-) => Promise<Zaak[]>;
+) => Promise<ZaakIdentifier[]>;
 
 /**
  * Function returning `ZaakSelection` `detail` object for `zaak`.
  * Can be used allow looking up detail object.
  */
 export type ZaakSelectionDetailGetter<T = unknown> = (
-  zaak: Zaak,
+  zaak: ZaakIdentifier,
   pageSpecificZaakSelection: ZaakSelection,
 ) => Promise<T>;
 
 /**
- * Hook implementing zaak selection, returns: `[AttributeData[], Function, Object]` tuple.
+ * Hook implementing zaak selection, returns: `[Zaak[], Function, Object]` tuple.
  * "Optimistic updates" are implemented meaning the state is updated ahead of the API calls to improve UX.
  * First items contains the page specific zaak selection.
  * Second item contains the onSelect update function.
@@ -57,18 +56,18 @@ export type ZaakSelectionDetailGetter<T = unknown> = (
  */
 export function useZaakSelection<T = unknown>(
   storageKey: string,
-  zakenOnPage: Zaak[],
+  zakenOnPage: ZaakIdentifier[],
   filterSelectionZaken?: ZaakSelectionZaakFilter<T>,
   getSelectionDetail?: ZaakSelectionDetailGetter<T>,
   backend: ZaakSelectionBackend | null = SessionStorageBackend,
 ): [
-  selectedZakenOnPage: Zaak[],
+  selectedZakenOnPage: ZaakIdentifier[],
   handleSelect: ZaakSelectionSelectHandler,
   extra: {
     hasSelection: boolean;
     allPagesSelected: boolean;
     selectionSize: number;
-    deSelectedZakenOnPage: Zaak[];
+    deSelectedZakenOnPage: ZaakIdentifier[];
     zaakSelectionOnPage: ZaakSelection<T>;
     handleSelectAllPages: ZaakSelectionSelectAllPagesHandler;
     clearZaakSelection: ZaakSelectionClearer;
@@ -179,7 +178,7 @@ export function useZaakSelection<T = unknown>(
    * @private
    */
   const _optimisticallyUpdatePageSpecificZaakSelectionState = (
-    zaken: Zaak[],
+    zaken: ZaakIdentifier[],
     selected: boolean,
   ) => {
     const optimisticSelection = zaken.reduce((selection, zaak) => {
@@ -264,39 +263,38 @@ export function useZaakSelection<T = unknown>(
 
   /**
    * Pass this to `onSelect` of a DataGrid component.
-   * @param attributeData
+   * @param zaken
    * @param selected
    * @param detail If called directly (not as callback for DataGrid), `detail`
    *   can be passed directly, use `getSelectionDetail` otherwise.
    */
   const onSelect = async (
-    attributeData: AttributeData[],
+    zaken: ZaakIdentifier[],
     selected: boolean,
     detail?: object,
   ) => {
     if (!backend) return;
 
-    const _zaken = attributeData as unknown as Zaak[];
-    _optimisticallyUpdatePageSpecificZaakSelectionState(_zaken, selected);
+    _optimisticallyUpdatePageSpecificZaakSelectionState(zaken, selected);
     _optimisticallyUpdateSelectionSizeState(
       selected ? selectionSize + 1 : selectionSize - 1,
     );
 
     const filter = filterSelectionZaken
       ? filterSelectionZaken
-      : (zaken: Zaak[]) => {
+      : (zaken: ZaakIdentifier[]) => {
           return zaken;
         };
 
     const filteredZaken = selected
       ? await filter(
-          attributeData as unknown as Zaak[],
+          zaken,
           selected,
           pageSpecificZaakSelection as ZaakSelection<T>,
         )
-      : attributeData.length
+      : zaken.length
         ? await filter(
-            attributeData as unknown as Zaak[],
+            zaken,
             selected,
             pageSpecificZaakSelection as ZaakSelection<T>,
           )

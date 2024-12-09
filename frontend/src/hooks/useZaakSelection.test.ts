@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { ZaakSelectionContextProvider } from "../contexts";
+import { ZaakIdentifier } from "../lib/zaakSelection";
 import { Zaak } from "../types";
 import { useZaakSelection } from "./useZaakSelection";
 
@@ -10,10 +11,10 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("useZaakSelection hook", () => {
-  const zaken = [
-    { url: "zaak-1" } as Zaak,
-    { url: "zaak-2" } as Zaak,
-    { url: "zaak-3" } as Zaak,
+  const zaken: ZaakIdentifier[] = [
+    { url: "zaak-1" },
+    { url: "zaak-2" },
+    { url: "zaak-3" },
   ];
 
   beforeEach(() => {

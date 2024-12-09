@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
+import { Zaak } from "../types";
 import { useFields } from "./useFields";
 
 jest.mock("./useSelectielijstKlasseChoices", () => ({

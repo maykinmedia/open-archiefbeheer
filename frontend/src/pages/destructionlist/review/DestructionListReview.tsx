@@ -1,5 +1,4 @@
 import {
-  AttributeData,
   ButtonProps,
   P,
   Solid,
@@ -24,6 +23,7 @@ import {
 } from "../../../lib/auth/permissions";
 import {
   RestBackend,
+  ZaakIdentifier,
   ZaakSelection,
   addToZaakSelection,
   compareZaakSelection,
@@ -276,7 +276,7 @@ export function DestructionListReviewPage() {
    * @param zaak
    */
   async function handleApproveClick(zaak: Zaak) {
-    return handleSelect([zaak] as unknown as AttributeData[], true, {
+    return handleSelect([zaak], true, {
       approved: true,
     });
   }
@@ -302,7 +302,7 @@ export function DestructionListReviewPage() {
       "Zaak uitzonderen",
       "Annuleren",
       async (comment) =>
-        handleSelect([zaak] as unknown as AttributeData[], true, {
+        handleSelect([zaak], true, {
           approved: false,
           comment,
         }),
@@ -384,7 +384,7 @@ export function DestructionListReviewPage() {
    * Gets called when adding item to selection, filtering the selection.
    */
   async function filterSelectionZaken(
-    zaken: Zaak[],
+    zaken: ZaakIdentifier[],
     selected: boolean,
     pageSpecificZaakSelection: ZaakSelection<{
       approved: boolean;
@@ -476,7 +476,7 @@ export function DestructionListReviewPage() {
    * Gets called when adding items to selection using "select all", returning
    * the detail value.
    */
-  async function getSelectionDetail(zaak: Zaak) {
+  async function getSelectionDetail(zaak: ZaakIdentifier) {
     const approved = !((zaak.url as string) in excludedZaakSelection);
     return { approved, comment: "" };
   }

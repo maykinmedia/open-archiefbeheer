@@ -1,4 +1,4 @@
-import { AttributeData, TypedField } from "@maykin-ui/admin-ui";
+import { TypedField, TypedSerializedFormData } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -16,17 +16,35 @@ import { ExpandZaak, Zaak } from "../types";
 import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
 import { useZaaktypeChoices } from "./useZaaktypeChoices";
 
+type FilterTransformReturnType<T> = Record<
+  | "startdatum__gte"
+  | "startdatum__lte"
+  | "einddatum__gte"
+  | "einddatum__lte"
+  | "archiefactiedatum__gte"
+  | "archiefactiedatum__lte",
+  string | null
+> &
+  Partial<
+    Omit<
+      TypedSerializedFormData<keyof T & string>,
+      "startdatum" | "einddatum" | "archiefactiedatum"
+    >
+  >;
+
 /**
- * Hook resolving zaaktype choices, returns: `[TypedField[], Function]` tuple.
+ * Hook resolving the base fields for lists.
  */
-export function useFields(
+export function useFields<T extends Zaak = Zaak>(
   destructionList?: DestructionList,
   review?: Review,
-  extraFields?: TypedField[],
+  extraFields?: TypedField<T>[],
 ): [
-  TypedField[],
-  (fields: TypedField[]) => void,
-  (filterData: AttributeData) => AttributeData,
+  TypedField<T>[],
+  (fields: TypedField<T>[]) => void,
+  (
+    filterData: Partial<TypedSerializedFormData<keyof T & string>>,
+  ) => FilterTransformReturnType<T>,
 ] {
   const [fieldSelectionState, setFieldSelectionState] =
     useState<FieldSelection>();
@@ -45,7 +63,7 @@ export function useFields(
 
   // The raw, unfiltered configuration of the available base fields.
   // NOTE: This get filtered by `getActiveFields()`.
-  const fields: TypedField[] = [
+  const fields: TypedField<T>[] = [
     {
       name: "identificatie",
       filterLookup: "identificatie__icontains",
@@ -190,7 +208,8 @@ export function useFields(
 
   const getActiveFields = useCallback(() => {
     return fields.map((field) => {
-      const isActiveFromStorage = fieldSelectionState?.[field.name];
+      const isActiveFromStorage =
+        fieldSelectionState?.[field.name as keyof typeof fieldSelectionState];
       const isActive =
         typeof isActiveFromStorage === "undefined"
           ? field.active !== false
@@ -204,7 +223,7 @@ export function useFields(
    * Pass this to `filterTransform` of a DataGrid component.
    * @param fields
    */
-  const setFields = async (fields: TypedField[]) => {
+  const setFields = async (fields: TypedField<T>[]) => {
     const activeFields = fields.filter((f) => f.active !== false);
     const inActiveFields = fields.filter((f) => f.active === false);
     await addToFieldSelection(FIELD_SELECTION_STORAGE_KEY, activeFields);
@@ -218,7 +237,9 @@ export function useFields(
    * Pass this to `filterTransform` of a DataGrid component.
    * @param filterData
    */
-  const filterTransform = (filterData: AttributeData) => {
+  const filterTransform = (
+    filterData: Partial<TypedSerializedFormData<keyof T & string>>,
+  ): FilterTransformReturnType<T> => {
     const {
       startdatum = "",
       einddatum = "",
@@ -226,12 +247,16 @@ export function useFields(
       ..._filterData
     } = filterData;
 
-    const [startdatum__gte = "", startdatum__lte = ""] =
-      String(startdatum).split("/");
-    const [einddatum__gte = "", einddatum__lte = ""] =
-      String(einddatum).split("/");
-    const [archiefactiedatum__gte = "", archiefactiedatum__lte = ""] =
-      String(archiefactiedatum).split("/");
+    const [startdatum__gte = null, startdatum__lte = null] = (startdatum &&
+      (startdatum as Date[]).map((d) => formatDate(d, "iso"))) || [null, null];
+    const [einddatum__gte = null, einddatum__lte = null] = (einddatum &&
+      (einddatum as Date[]).map((d) => formatDate(d, "iso"))) || [null, null];
+    const [archiefactiedatum__gte = null, archiefactiedatum__lte = null] =
+      (archiefactiedatum &&
+        (archiefactiedatum as Date[]).map((d) => formatDate(d, "iso"))) || [
+        null,
+        null,
+      ];
 
     return {
       startdatum__gte,

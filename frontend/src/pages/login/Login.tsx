@@ -1,5 +1,5 @@
 import {
-  AttributeData,
+  FormProps,
   LoginTemplate,
   LoginTemplateProps,
   forceArray,
@@ -25,6 +25,8 @@ const makeRedirectUrl = (oidcLoginUrl: string) => {
 
   return loginUrl.href;
 };
+
+type LoginFormType = { username: string; password: string };
 
 /**
  * Login page
@@ -60,21 +62,20 @@ export function LoginPage({ ...props }: LoginProps) {
   );
   const { detail, nonFieldErrors, ...errors } = formErrors;
 
-  const oidcProps: Partial<LoginTemplateProps> = {};
+  const oidcProps: Partial<LoginTemplateProps<LoginFormType>> = {};
   if (oidcEnabled) {
     oidcProps.urlOidcLogin = makeRedirectUrl(oidcLoginUrl);
     oidcProps.labelOidcLogin = "Organisatie login";
   }
 
   return (
-    <LoginTemplate
+    <LoginTemplate<LoginFormType>
       slotPrimaryNavigation={<></>} // FIXME: Should be easier to override
       formProps={{
         nonFieldErrors: nonFieldErrors || detail,
         errors,
         fields,
-        onSubmit: (_, data) =>
-          submit(data as AttributeData<string>, { method: "POST" }),
+        onSubmit: (_, data) => submit(data, { method: "POST" }),
       }}
       {...oidcProps}
       {...props}
