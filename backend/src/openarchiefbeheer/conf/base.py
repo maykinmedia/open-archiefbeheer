@@ -659,4 +659,5 @@ PRIVATE_MEDIA_URL = "/private-media/"
 SETUP_CONFIGURATION_STEPS = [
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "openarchiefbeheer.config.setup_configuration.steps.APIConfigConfigurationStep",
+    "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
 ]

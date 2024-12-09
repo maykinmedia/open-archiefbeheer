@@ -12,7 +12,7 @@ services:
     image: redis:7
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - oab-dev
+      - openzaak-dev
 
   openzaak-db:
     image: postgis/postgis:${PG_VERSION:-14-master}
@@ -22,7 +22,7 @@ services:
       - ./docker-init-open-zaak-db/:/docker-entrypoint-initdb.d
       - open-zaak-db:/var/lib/postgresql/data
     networks:
-      - oab-dev
+      - openzaak-dev
 
   openzaak-web.local:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
@@ -57,7 +57,7 @@ services:
       - openzaak-db
       - openzaak-redis
     networks:
-      - oab-dev
+      - openzaak-dev
 
   celery:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
@@ -68,7 +68,7 @@ services:
       - openzaak-db
       - openzaak-redis
     networks:
-      - oab-dev
+      - openzaak-dev
 
 volumes:
   open-zaak-db:
@@ -76,5 +76,5 @@ volumes:
   private-media:
 
 networks:
-  oab-dev:
-    name: oab-dev
+  openzaak-dev:
+    name: openzaak-dev
