@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from timeline_logger.models import TimelineLog
 
@@ -129,3 +129,33 @@ class LogEventTests(TestCase):
         )
         self.assertEqual(extra_data["comment"], "A list to test logging data.")
         self.assertEqual(extra_data["number_of_zaken"], 3)
+
+    @tag("gh-539")
+    def test_resultaat_of_zaak_can_be_not_set(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            comment="A list to test logging data.", author=user
+        )
+        item = DestructionListItemFactory.create(
+            destruction_list=destruction_list,
+            with_zaak=True,
+        )
+        item.zaak._expand = {
+            "zaaktype": {
+                "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                "identificatie": "ZAAKTYPE-01",
+                "omschrijving": "ZAAKTYPE 1.0",
+                "versiedatum": "2024-01-01",
+            },
+            # No resultaat present
+        }
+        item.zaak.save()
+
+        logevent.destruction_list_ready_for_first_review(destruction_list, user)
+
+        log = TimelineLog.objects.for_object(destruction_list)[0]
+
+        self.assertEqual(
+            log.extra_data["resultaten"],
+            [],
+        )
