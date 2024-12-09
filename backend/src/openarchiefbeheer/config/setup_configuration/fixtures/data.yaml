@@ -1,4 +1,4 @@
-zgw_consumers_config_enable: True
+zgw_consumers_config_enable: true
 zgw_consumers:
   services:
   - identifier: zaken-test
@@ -35,12 +35,12 @@ zgw_consumers:
     api_type: orc
     auth_type: no_auth
 
-api_configuration_enabled: True
+api_configuration_enabled: true
 api_configuration:
   selectielijst_service_identifier: selectielijst
 
 
-oidc_db_config_enable: True
+oidc_db_config_enable: true
 oidc_db_config_admin_auth:
   enabled: true
   oidc_rp_client_id: "openarchiefbeheer-dev"
