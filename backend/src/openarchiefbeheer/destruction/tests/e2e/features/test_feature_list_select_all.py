@@ -27,7 +27,7 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
             await self.then.path_should_be(page, "/destruction-lists/create")
 
-            await self.when.user_clicks_checkbox(page, "(de)selecteer 200 pagina's", index=0)
+            await self.when.user_clicks_checkbox(page, "(de)selecteer 2 pagina's", index=0)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list select all")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
@@ -57,8 +57,9 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/create")
 
             await self.when.user_filters_zaken(page, "omschrijving", "Test 1")
-            await self.when.user_clicks_checkbox(page, "(de)selecteer 5 pagina's", index=0)
+            await self.then.page_should_contain_text(page, "(de)selecteer 5 rijen")
 
+            await self.when.user_clicks_checkbox(page, "(de)selecteer 1 pagina's", index=0)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list select all with filters")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
