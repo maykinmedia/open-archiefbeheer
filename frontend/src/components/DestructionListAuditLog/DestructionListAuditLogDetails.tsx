@@ -1,24 +1,9 @@
-import { AttributeTable, DataGrid } from "@maykin-ui/admin-ui";
+import { AttributeTable } from "@maykin-ui/admin-ui";
 
 import { useAuditLog } from "../../hooks";
-import { AuditLogItem } from "../../lib/api/auditLog";
 import { DestructionList } from "../../lib/api/destructionLists";
 import { formatDateAndTime } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
-
-export function DestructionListAuditLogHistory({
-  logItems,
-}: {
-  logItems: AuditLogItem[];
-}) {
-  const historyObjectList = logItems.map((logItem) => ({
-    Datum: formatDateAndTime(logItem.timestamp),
-    "Gewijzigd door": formatUser(logItem.user),
-    Wijziging: logItem.message,
-  }));
-
-  return <DataGrid objectList={historyObjectList} sort={true} />;
-}
 
 export function DestructionListAuditLogDetails({
   destructionList,
