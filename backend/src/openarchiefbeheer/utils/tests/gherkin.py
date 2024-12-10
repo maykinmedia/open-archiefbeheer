@@ -142,14 +142,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             )
 
         async def list_exists(self, **kwargs):
-            @sync_to_async()
-            def add_items(destruction_list, assignees=[], items=[]):
-                if assignees:
-                    destruction_list.assignees.set(assignees)
-
-                if items:
-                    destruction_list.items.set(items)
-
             record_manager = await self.record_manager_exists()
             base_kwargs = {
                 "name": "My First Destruction List",
@@ -171,7 +163,13 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 )
                 for zaak in zaken
             ]
-            await add_items(destruction_list, assignees, items)
+
+            if assignees:
+                await destruction_list.assignees.aset(assignees)
+
+            if items:
+                await destruction_list.items.aset(items)
+
             return destruction_list
 
         async def list_item_exists(self, **kwargs):
@@ -188,11 +186,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             )
 
         async def review_exists(self, **kwargs):
-            @sync_to_async()
-            def add_items(review, items=None):
-                if items:
-                    review.item_reviews.set(items)
-
             base_kwargs = {
                 "destruction_list": (
                     await self.list_exists() if "destruction_list" not in kwargs else {}
@@ -211,18 +204,19 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             review = await self._get_or_create(
                 DestructionListReviewFactory, **merged_kwargs
             )
-            await add_items(review, items)
+
+            if items:
+                await review.item_reviews.aset(items)
+
             return review
 
         async def review_item_exists(self, **kwargs):
-            @sync_to_async()
-            def get_item(merged_kwargs):
-                return merged_kwargs["destruction_list"].items.first()
-
             destruction_list = await self.list_exists()
             base_kwargs = {"destruction_list": destruction_list}
             merged_kwargs = {**base_kwargs, **kwargs}
-            item = merged_kwargs.pop("items", await get_item(merged_kwargs))
+            item = merged_kwargs.pop(
+                "items", await merged_kwargs["destruction_list"].items.afirst()
+            )
 
             return await self._get_or_create(
                 DestructionListItemReviewFactory,
@@ -253,10 +247,6 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await AllSelectedToggle.objects.all().adelete()
 
         @sync_to_async
-        def _orm_get(self, model, **kwargs):
-            return model.objects.get(**kwargs)
-
-        @sync_to_async
         def _orm_filter(self, model, **kwargs):
             return (
                 model.objects.filter(**kwargs) or False
@@ -283,7 +273,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                     if key not in factory._meta.parameters
                     and not key.startswith("post__")
                 }
-                return await self._orm_get(factory._meta.model, **orm_params)
+                return await factory._meta.model.objects.aget(**orm_params)
             except factory._meta.model.DoesNotExist:
                 return await self._factory_create(factory, **kwargs)
 
@@ -475,41 +465,25 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             return InvertedThen(self)
 
         async def list_should_exist(self, page, name):
-            @sync_to_async()
-            def get_list():
-                return DestructionList.objects.get(name=name)
-
-            return await get_list()
+            return await DestructionList.objects.aget(name=name)
 
         async def list_should_have_assignee(self, page, destruction_list, assignee):
-            @sync_to_async()
-            def refresh_list():
-                destruction_list.refresh_from_db()
-
             @sync_to_async()
             def get_assignee():
                 return destruction_list.assignee
 
-            await refresh_list()
+            await destruction_list.arefresh_from_db()
             list_assignee = await get_assignee()
             self.testcase.assertEqual(list_assignee, assignee)
 
         async def list_should_have_status(self, page, destruction_list, status):
-            @sync_to_async()
-            def refresh_list():
-                destruction_list.refresh_from_db()
-
-            await refresh_list()
+            await destruction_list.arefresh_from_db()
             self.testcase.assertEqual(destruction_list.status, status)
 
         async def list_should_have_number_of_items(
             self, destruction_list, number_of_items
         ):
-            @sync_to_async()
-            def get_number_of_items():
-                return destruction_list.items.count()
-
-            count = await get_number_of_items()
+            count = await destruction_list.items.acount()
             self.testcase.assertEqual(number_of_items, count)
 
         async def page_should_contain_text(self, page, text, timeout=None):
