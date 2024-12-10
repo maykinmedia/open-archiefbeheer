@@ -86,11 +86,7 @@ export function SettingsPage() {
 
   const onSelectionChange = useCallback(
     (selectedRows: ShortProcedureSetting[]) => {
-      const newSelected = new Set(
-        (selectedRows as unknown as ShortProcedureSetting[]).map(
-          (row) => row.zaaktype,
-        ),
-      );
+      const newSelected = new Set(selectedRows.map((row) => row.zaaktype));
       setSelectedZaaktypes(newSelected);
     },
     [],

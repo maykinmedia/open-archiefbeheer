@@ -18,7 +18,7 @@ export function useFilter<T extends object>(): [
    */
   const setFilterField = (filterData: T) => {
     setCombinedSearchParams({
-      ...(filterData as object),
+      ...filterData,
       page: "1",
     });
   };
