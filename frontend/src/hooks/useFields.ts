@@ -240,23 +240,21 @@ export function useFields<T extends Zaak = Zaak>(
   const filterTransform = (
     filterData: Partial<TypedSerializedFormData<keyof T & string>>,
   ): FilterTransformReturnType<T> => {
-    const {
-      startdatum = "",
-      einddatum = "",
-      archiefactiedatum = "",
-      ..._filterData
-    } = filterData;
+    const { startdatum, einddatum, archiefactiedatum, ..._filterData } =
+      filterData;
 
-    const [startdatum__gte = null, startdatum__lte = null] = (startdatum &&
-      (startdatum as Date[]).map((d) => formatDate(d, "iso"))) || [null, null];
-    const [einddatum__gte = null, einddatum__lte = null] = (einddatum &&
-      (einddatum as Date[]).map((d) => formatDate(d, "iso"))) || [null, null];
-    const [archiefactiedatum__gte = null, archiefactiedatum__lte = null] =
-      (archiefactiedatum &&
-        (archiefactiedatum as Date[]).map((d) => formatDate(d, "iso"))) || [
-        null,
-        null,
-      ];
+    const formatDateRange = (dates: Date[] | undefined) =>
+      dates ? dates.map((d) => formatDate(d, "iso")) : [null, null];
+
+    const [startdatum__gte, startdatum__lte] = formatDateRange(
+      startdatum as Date[] | undefined,
+    );
+    const [einddatum__gte, einddatum__lte] = formatDateRange(
+      einddatum as Date[] | undefined,
+    );
+    const [archiefactiedatum__gte, archiefactiedatum__lte] = formatDateRange(
+      archiefactiedatum as Date[] | undefined,
+    );
 
     return {
       startdatum__gte,
