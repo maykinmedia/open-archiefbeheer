@@ -18,7 +18,7 @@ from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
-class GherkinLikeTestCase(PlaywrightTestCase):
+class GerkinMixin:
     """
     Experimental approach to writing Gherkin-like style test scenarios.
     Example:
@@ -532,6 +532,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
 
+        async def url_regex_should_be(self, page, regex_path):
+            await expect(page).to_have_url(re.compile(regex_path))
+
         async def url_should_be(self, page, url):
             await expect(page).to_have_url(url)
 
@@ -571,3 +574,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             rows = await locator.locator("tbody").locator("tr").all()
 
             self.testcase.assertEqual(len(rows), number)
+
+
+class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
+    pass
