@@ -24,7 +24,7 @@ from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
-class GherkinLikeTestCase(PlaywrightTestCase):
+class GerkinMixin:
     """
     Experimental approach to writing Gherkin-like style test scenarios.
     Example:
@@ -770,6 +770,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             elements = await locator.all()
             await expect(elements[index]).to_have_value(value)
 
+        async def url_regex_should_be(self, page, regex_path):
+            await expect(page).to_have_url(re.compile(regex_path))
+
         async def url_should_be(self, page, url):
             await expect(page).to_have_url(url)
 
@@ -813,3 +816,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def input_field_should_be_empty(self, page, placeholder):
             locator = page.get_by_placeholder(placeholder)
             await expect(locator).to_have_value("")
+
+
+class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
+    pass
