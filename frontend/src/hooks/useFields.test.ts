@@ -3,7 +3,6 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
-import { Zaak } from "../types";
 import { useFields } from "./useFields";
 
 jest.mock("./useSelectielijstKlasseChoices", () => ({
@@ -91,12 +90,12 @@ describe("useFields Hook", () => {
   it("should apply filter transformations correctly", async () => {
     const { result } = renderHook(() => useFields());
 
-    waitFor(() => {
+    await waitFor(async () => {
       const [, , filterTransform] = result.current;
 
       const filterData = {
-        startdatum: "2023-01-01/2023-01-31",
-        einddatum: "2023-02-01/2023-02-28",
+        startdatum: [new Date("2023-01-01"), new Date("2023-01-31")],
+        einddatum: [new Date("2023-02-01"), new Date("2023-02-28")],
       };
 
       const transformedData = filterTransform(filterData);
@@ -110,11 +109,13 @@ describe("useFields Hook", () => {
   });
 
   it("should provide selectielijst klasse options to selectielijst klasse field", async () => {
-    const { result } = renderHook(() => useFields());
+    const { result } = await act(async () => renderHook(() => useFields()));
+
     const [fields] = result.current;
     const selectielijstKlasse = fields.find(
       (f) => f.name === "selectielijstklasse",
     );
+
     expect(selectielijstKlasse?.options?.length).toBeTruthy();
     expect(selectielijstKlasse?.options?.[0].value).toContain("https://");
   });
