@@ -4,10 +4,9 @@ import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { auditLogItemFactory } from "../../fixtures/auditLog";
 import { userFactory } from "../../fixtures/user";
 import { formatDate } from "../../lib/format/date";
-import { DestructionListEditPage } from "../../pages";
 import { DestructionListAuditLogHistory } from "./DestructionListAuditLogHistory";
 
-const meta: Meta<typeof DestructionListEditPage> = {
+const meta: Meta<typeof DestructionListAuditLogHistory> = {
   title: "Components/DestructionListAuditLogHistory",
   component: DestructionListAuditLogHistory,
   args: {
