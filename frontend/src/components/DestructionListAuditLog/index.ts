@@ -1,1 +1,2 @@
-export * from "./DestructionListAuditLog";
+export * from "./DestructionListAuditLogHistory";
+export * from "./DestructionListAuditLogDetails";
