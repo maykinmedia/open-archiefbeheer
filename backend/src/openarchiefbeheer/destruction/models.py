@@ -35,6 +35,7 @@ from .constants import (
     ZaakActionType,
 )
 from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
+from .managers import DestructionListManager
 
 if TYPE_CHECKING:
     from openarchiefbeheer.zaken.models import Zaak
@@ -136,6 +137,8 @@ class DestructionList(models.Model):
     )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
+
+    objects = DestructionListManager()
 
     class Meta:
         verbose_name = _("destruction list")

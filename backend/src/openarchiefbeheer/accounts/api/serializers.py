@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Permission
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
@@ -34,15 +35,33 @@ class UserSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(RoleSerializer)
     def get_role(self, user: User) -> dict | None:
-        data = {}
-        for permission in Permission.objects.filter(user=user):
-            data[permission.codename] = True
+        """
+        Annotating a `UserQuerySet` using `annotate_permissions` (or `annotate_user_permission` on
+        `DestructionListQuerySet`) causes `user_permission_codenames` and `group_permission_codenames` to be set and
+         used for serialization. This may improve performance in cases where otherwise an n+1 issues could occur.
+        """
 
-        for group in user.groups.all():
-            for permission in group.permissions.all():
-                data[permission.codename] = True
+        # Retrieve all permission codenames.
+        permissions = []
 
-        serializer = RoleSerializer(data=data)
-        serializer.is_valid()
+        try:
+            permissions += user.user_permission_codenames
+            permissions += user.group_permission_codenames
 
-        return serializer.data
+        except AttributeError:
+            permissions = (
+                Permission.objects.filter(Q(user=user) | Q(group__user=user))
+                .distinct()
+                .values_list("codename", flat=True)
+            )
+
+        permissions_set = set(permissions)
+
+        data = {
+            "can_start_destruction": "can_start_destruction" in permissions_set,
+            "can_review_destruction": "can_review_destruction" in permissions_set,
+            "can_co_review_destruction": "can_co_review_destruction" in permissions_set,
+            "can_review_final_list": "can_review_final_list" in permissions_set,
+        }
+
+        return RoleSerializer(data).data
