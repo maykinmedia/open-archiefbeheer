@@ -1,7 +1,6 @@
 import { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import { PlayFunction } from "@storybook/types";
-import exp from "node:constants";
 import { createMock, getMock } from "storybook-addon-module-mock";
 
 import {
@@ -20,6 +19,8 @@ import {
 import * as hooksUseWhoAmI from "../../hooks";
 import * as libDestructionList from "../../lib/api/destructionLists";
 import { updateCoReviewers } from "../../lib/api/destructionLists";
+import * as libReviewers from "../../lib/api/reviewers";
+import { formatUser } from "../../lib/format/user";
 import { DestructionListEditPage } from "../../pages";
 import { DestructionListReviewer as DestructionListReviewerComponent } from "./DestructionListReviewer";
 
@@ -317,5 +318,154 @@ export const CoReviewStatusVisible: Story = {
       "Medebeoordelaar is klaar met beoordelen",
     );
     await expect(element).toBeVisible();
+  },
+};
+
+export const UpdateCoReviewersErrorShowsErrorMessage: Story = {
+  args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
+  parameters: {
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => {
+          throw new Error("example");
+        });
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => beoordelaarFactory());
+
+        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
+        useCoReviewers.mockImplementation(() => [
+          REVIEWER2,
+          REVIEWER3,
+          REVIEWER4,
+        ]);
+
+        const useDestructionListCoReviewers = createMock(
+          hooksUseWhoAmI,
+          "useDestructionListCoReviewers",
+        );
+        useDestructionListCoReviewers.mockImplementation(() => [
+          { user: REVIEWER2, role: "co_reviewer" },
+        ]);
+
+        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
+        useCoReviews.mockImplementation(() => [
+          coReviewFactory({ author: REVIEWER2 }),
+        ]);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const edit = canvas.getByRole("button", { name: "Beoordelaar bewerken" });
+    await userEvent.click(edit);
+
+    const reden = await canvas.findByLabelText("Reden");
+    const submit = await canvas.findByRole("button", { name: "Toewijzen" });
+
+    await userEvent.type(reden, "example", { delay: 10 });
+    await userEvent.click(submit, { delay: 10 });
+
+    await canvas.findByText(
+      "Er is een fout opgetreden bij het bewerken van de mede beoordelaars!",
+    );
+  },
+};
+
+export const ReassignDestructionListErrorShowsErrorMessage: Story = {
+  args: { destructionList: DESTRUCTION_LIST_NEW },
+  parameters: {
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(async () => {
+          throw new Error("example");
+        });
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => recordManagerFactory());
+
+        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
+        useCoReviewers.mockImplementation(() => [
+          REVIEWER2,
+          REVIEWER3,
+          REVIEWER4,
+        ]);
+
+        const useDestructionListCoReviewers = createMock(
+          hooksUseWhoAmI,
+          "useDestructionListCoReviewers",
+        );
+        useDestructionListCoReviewers.mockImplementation(() => [
+          { user: REVIEWER2, role: "co_reviewer" },
+        ]);
+
+        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
+        useCoReviews.mockImplementation(() => [
+          coReviewFactory({ author: REVIEWER2 }),
+        ]);
+
+        const listReviewers = createMock(libReviewers, "listReviewers");
+        listReviewers.mockImplementation(async () => [
+          REVIEWER1,
+          REVIEWER2,
+          REVIEWER3,
+        ]);
+
+        return [
+          reassignDestructionList,
+          updateCoReviewers,
+          useWhoAmI,
+          listReviewers,
+        ];
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const edit = canvas.getByRole("button", { name: "Beoordelaar bewerken" });
+    await new Promise((resolve) => setTimeout(resolve));
+    await userEvent.click(edit);
+
+    const dialog = await canvas.findByRole("dialog");
+
+    const beoordelaar = await canvas.findByLabelText("Beoordelaar");
+    await userEvent.click(beoordelaar, { delay: 10 });
+    const option = await within(dialog).findByText(
+      "Beoor del Laar 2 (Beoor del Laar 2)",
+    );
+    await userEvent.click(option, { delay: 10 });
+
+    const reden = await canvas.findByLabelText("Reden");
+    const submit = await canvas.findByRole("button", { name: "Toewijzen" });
+    await userEvent.type(reden, "example", { delay: 10 });
+    await userEvent.click(submit, { delay: 10 });
+
+    await canvas.findByText(
+      "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
+    );
   },
 };
