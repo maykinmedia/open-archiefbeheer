@@ -20,11 +20,9 @@ import * as hooksUseWhoAmI from "../../hooks";
 import * as libDestructionList from "../../lib/api/destructionLists";
 import { updateCoReviewers } from "../../lib/api/destructionLists";
 import * as libReviewers from "../../lib/api/reviewers";
-import { formatUser } from "../../lib/format/user";
-import { DestructionListEditPage } from "../../pages";
 import { DestructionListReviewer as DestructionListReviewerComponent } from "./DestructionListReviewer";
 
-const meta: Meta<typeof DestructionListEditPage> = {
+const meta: Meta<typeof DestructionListReviewerComponent> = {
   title: "Components/DestructionListReviewer",
   component: DestructionListReviewerComponent,
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
