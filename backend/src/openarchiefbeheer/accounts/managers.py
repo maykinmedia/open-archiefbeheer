@@ -1,13 +1,46 @@
-from typing import TYPE_CHECKING
-
-from django.contrib.auth.models import BaseUserManager, Permission
-from django.db.models import Q, QuerySet
-
-if TYPE_CHECKING:
-    from .models import User
+from django.contrib.auth.models import BaseUserManager, Group, Permission
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Prefetch, Q, QuerySet
 
 
-class UserManager(BaseUserManager):
+class UserQuerySet(QuerySet):
+    def annotate_permissions(self) -> "UserQuerySet":
+        """
+        Adds `user_permission_codenames` and `group_permission_codenames` as `ArrayField` to the current QuerySet
+        containing the codenames of the applicable permissions. `user_permissions` and `permissions` are prefetched to
+        minimize queries.
+
+        This is used to avoid n+1 issues with nested `UserSerializer`.
+        """
+        return self.prefetch_related(
+            Prefetch(
+                "user_permissions",
+                queryset=Permission.objects.select_related("content_type").order_by(
+                    "codename"
+                ),
+            ),
+            Prefetch(
+                "groups",
+                queryset=Group.objects.prefetch_related(
+                    Prefetch(
+                        "permissions",
+                        queryset=Permission.objects.select_related(
+                            "content_type"
+                        ).order_by("codename"),
+                    )
+                ),
+            ),
+        ).annotate(
+            user_permission_codenames=ArrayAgg(
+                "user_permissions__codename", distinct=True
+            ),
+            group_permission_codenames=ArrayAgg(
+                "groups__permissions__codename", distinct=True
+            ),
+        )
+
+
+class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
     use_in_migrations = True
 
     def _create_user(self, username, email, password, **extra_fields):
@@ -39,19 +72,19 @@ class UserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def _users_with_permission(self, permission: Permission) -> QuerySet["User"]:
+    def _users_with_permission(self, permission: Permission) -> UserQuerySet:
         return self.filter(
             Q(groups__permissions=permission) | Q(user_permissions=permission)
         ).distinct()
 
-    def main_reviewers(self) -> QuerySet["User"]:
+    def main_reviewers(self) -> UserQuerySet:
         permission = Permission.objects.get(codename="can_review_destruction")
         return self._users_with_permission(permission)
 
-    def archivists(self) -> QuerySet["User"]:
+    def archivists(self) -> UserQuerySet:
         permission = Permission.objects.get(codename="can_review_final_list")
         return self._users_with_permission(permission)
 
-    def co_reviewers(self) -> QuerySet["User"]:
+    def co_reviewers(self) -> UserQuerySet:
         permission = Permission.objects.get(codename="can_co_review_destruction")
         return self._users_with_permission(permission)

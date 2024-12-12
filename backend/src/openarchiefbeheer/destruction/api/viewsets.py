@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from django.db import transaction
-from django.db.models import Case, OuterRef, Prefetch, QuerySet, Subquery, Value, When
+from django.db.models import Case, OuterRef, QuerySet, Subquery, Value, When
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -221,18 +221,8 @@ class DestructionListViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListWriteSerializer
-    queryset = (
-        DestructionList.objects.all()
-        .select_related("author", "assignee")
-        .prefetch_related(
-            Prefetch(
-                "assignees",
-                queryset=DestructionListAssignee.objects.prefetch_related(
-                    "user__user_permissions"
-                ).order_by("pk"),
-            )
-        )
-    )
+    queryset = DestructionList.objects.annotate_user_permissions()
+
     lookup_field = "uuid"
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListFilterset
