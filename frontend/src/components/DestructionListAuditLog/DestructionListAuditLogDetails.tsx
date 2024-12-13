@@ -1,28 +1,14 @@
 import { AttributeTable } from "@maykin-ui/admin-ui";
 
-import { useAuditLog } from "../../hooks";
-import { DestructionList } from "../../lib/api/destructionLists";
+import { AuditLogItem } from "../../lib/api/auditLog";
 import { formatDateAndTime } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
 
 export function DestructionListAuditLogDetails({
-  destructionList,
+  readyForFirstReviewLogItem,
 }: {
-  destructionList?: DestructionList;
+  readyForFirstReviewLogItem: AuditLogItem;
 }) {
-  const logItemsReadyForFirstReview = useAuditLog(
-    destructionList,
-    "destruction_list_ready_for_first_review",
-  );
-  const readyForFirstReviewLogItem =
-    logItemsReadyForFirstReview.length > 0
-      ? logItemsReadyForFirstReview[0]
-      : null;
-
-  if (!readyForFirstReviewLogItem) {
-    return null;
-  }
-
   const extraData = readyForFirstReviewLogItem.extraData;
   const detailsObjectList = {
     Auteur: formatUser(readyForFirstReviewLogItem.user),

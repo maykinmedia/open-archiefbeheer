@@ -3,7 +3,6 @@ import {
   Badge,
   Body,
   Column,
-  Form,
   Grid,
   H2,
   Tab,
@@ -45,6 +44,10 @@ export function DestructionListToolbar({
   review,
 }: DestructionListToolbarProps) {
   const logItems = useAuditLog(destructionList);
+  const logItemsReadyForFirstReview = useAuditLog(
+    destructionList,
+    "destruction_list_ready_for_first_review",
+  );
   const reviewResponse = useLatestReviewResponse(review);
   const properties = (
     <Grid>
@@ -134,21 +137,23 @@ export function DestructionListToolbar({
           <H2>{string2Title(destructionList.name, { unHyphen: false })}</H2>
         )
       )}
-      {logItems?.length ? (
-        <Tabs>
-          <Tab id="gegevens" label="Gegevens">
-            {properties}
-          </Tab>
+      <Tabs>
+        <Tab id="gegevens" label="Gegevens">
+          {properties}
+        </Tab>
+        {logItems?.length ? (
           <Tab id="geschiedenis" label="Geschiedenis">
             <DestructionListAuditLogHistory logItems={logItems} />
           </Tab>
+        ) : null}
+        {logItemsReadyForFirstReview?.length ? (
           <Tab id="details" label="Details">
-            <DestructionListAuditLogDetails destructionList={destructionList} />
+            <DestructionListAuditLogDetails
+              readyForFirstReviewLogItem={logItemsReadyForFirstReview[0]}
+            />
           </Tab>
-        </Tabs>
-      ) : (
-        properties
-      )}
+        ) : null}
+      </Tabs>
     </Body>
   );
 }
