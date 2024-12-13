@@ -6,7 +6,7 @@ import { createArrayFactory, createObjectFactory } from "./factory";
 import { defaultAssignees } from "./reviewers";
 import { beoordelaarFactory, procesEigenaarFactory, userFactory } from "./user";
 
-const FIXTURE_DESTRUCTION_LIST: DestructionList = {
+export const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   pk: 1,
   uuid: "00000000-0000-0000-0000-000000000000",
   name: "My First Destruction List",
@@ -22,11 +22,9 @@ const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   statusChanged: "2024-07-11:16:57",
 };
 
-const destructionListFactory = createObjectFactory<DestructionList>(
+export const destructionListFactory = createObjectFactory<DestructionList>(
   FIXTURE_DESTRUCTION_LIST,
 );
-
-export { destructionListFactory };
 
 const FIXTURE_DESTRUCTION_LIST_ASSIGNEE: DestructionListAssignee = {
   user: beoordelaarFactory(),

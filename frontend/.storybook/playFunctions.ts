@@ -9,6 +9,7 @@ import { PlayFunction } from "@storybook/types";
 /**
  * Selects and deselects the "Identificatie" column and asserts whether it's shown/hidden based on the selected state.
  * @param canvasElement
+ * @param parameters
  */
 export const assertCheckboxSelection: PlayFunction<ReactRenderer> = async ({
   canvasElement,
@@ -49,7 +50,7 @@ export const assertCheckboxSelection: PlayFunction<ReactRenderer> = async ({
   }
 
   // Stop if forwards direction is used.
-  if (parameters?.direction === "forwards") {
+  if (parameters?.assertCheckboxSelection?.direction === "forwards") {
     return;
   }
 
@@ -149,7 +150,7 @@ export const clickButton: PlayFunction<ReactRenderer> = async (context) => {
   await clickElement({
     ...context,
     parameters: {
-      ...context.parameters,
+      clickElement: { role: "button", ...context.parameters?.clickButton },
       role: "button",
     },
   });
@@ -163,7 +164,7 @@ export const clickCheckbox: PlayFunction<ReactRenderer> = async (context) => {
   await clickElement({
     ...context,
     parameters: {
-      ...context.parameters,
+      clickElement: { role: "checkbox", ...context.parameters.clickCheckbox },
       role: "checkbox",
     },
   });
@@ -175,12 +176,12 @@ export const clickCheckbox: PlayFunction<ReactRenderer> = async (context) => {
  */
 export const clickElement: PlayFunction<ReactRenderer> = async (context) => {
   const {
-    checked,
+    checked = false,
     elementIndex = 0,
     inTBody = false,
     role,
     name,
-  } = context.parameters as ClickElementParameters;
+  } = context.parameters.clickElement as ClickElementParameters;
 
   console.assert(
     role,
@@ -201,13 +202,6 @@ export const clickElement: PlayFunction<ReactRenderer> = async (context) => {
 
   const element = elements[elementIndex];
 
-  const checkedState = (element as HTMLInputElement).checked;
-
-  // Normalize state.
-  if (typeof checked !== "undefined" && checked === checkedState) {
-    await userEvent.click(element, { delay: 10 });
-  }
-
   await userEvent.click(element, { delay: 10 });
 };
 
@@ -225,14 +219,22 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
   const canvas = within(context.canvasElement);
 
   const {
-    form = await canvas.findByRole("form"),
+    form = (await canvas.queryByRole("form")) ||
+      (await canvas.findByRole("dialog")), // Fixme
     formValues = {},
     submitForm = true,
-  } = context.parameters as FillFormParameters;
+  } = context.parameters.fillForm as FillFormParameters;
+
+  await waitFor(() => expect(form).toBeVisible());
 
   for (const [name, value] of Object.entries(formValues)) {
-    const field: HTMLInputElement | HTMLSelectElement =
-      await within(form).findByLabelText(name);
+    const fields: (HTMLInputElement | HTMLSelectElement)[] =
+      await within(form).findAllByLabelText(name);
+
+    const field =
+      fields.length > 1
+        ? await within(form).findByLabelText(value as string)
+        : fields[0]; // Exception if not found.
 
     switch (typeof value) {
       case "boolean":
@@ -260,47 +262,4 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
     const submit = buttons[buttons.length - 1];
     await userEvent.click(submit, { delay: 100 });
   }
-};
-
-type FillConfirmationFormParameters = ClickElementParameters &
-  FillFormParameters;
-
-/**
- * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
- * Then fills in dialog form, submits if `submitForm` is truthy.
- * @param context
- */
-export const fillButtonConfirmationForm: PlayFunction<ReactRenderer> = async (
-  context,
-) => {
-  await fillConfirmationForm({
-    ...context,
-    parameters: { ...context.parameters, role: "button" },
-  });
-};
-
-/**
- * Clicks element at position `elementIndex`, within <tbody> if `inTbody` is truthy.
- * Then fills in dialog form, submits if `submitForm` is truthy.
- * @param context
- */
-export const fillConfirmationForm: PlayFunction<ReactRenderer> = async (
-  context,
-) => {
-  const parameters = context.parameters as FillConfirmationFormParameters;
-  const _context = { ...context, parameters };
-  await clickElement(_context);
-
-  const canvas = within(context.canvasElement);
-  const modal = await canvas.findByRole("dialog");
-  // FIXME: Fix in admin-ui form should be picked up by role.
-  // const form = await within(modal).findByRole("form", {}, { timeout: 3000 });
-
-  await fillForm({
-    ..._context,
-    parameters: {
-      ...parameters,
-      form: modal,
-    },
-  });
 };

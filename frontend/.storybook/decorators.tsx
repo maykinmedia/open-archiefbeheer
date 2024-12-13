@@ -29,6 +29,7 @@ export const ReactRouterDecorator = (
   Story: StoryFn,
   { parameters }: StoryContext,
 ) => {
+  const { id, ...params } = parameters.reactRouterDecorator?.route || {};
   const router = createBrowserRouter([
     {
       path: "",
@@ -39,9 +40,22 @@ export const ReactRouterDecorator = (
       },
       children: [
         {
+          id: id,
           path: "/iframe.html",
           element: <Story />,
-          ...parameters.reactRouterDecorator?.route,
+          ...params,
+        },
+        {
+          path: "*?", // On redirect.
+          Component: () => {
+            const container = window.frameElement
+              ? // @ts-expect-error - This does exist.
+                window.frameElement.contentWindow
+              : window;
+            container.history.go(-1);
+          },
+          ...params,
+          id: "foo",
         },
       ],
     },
