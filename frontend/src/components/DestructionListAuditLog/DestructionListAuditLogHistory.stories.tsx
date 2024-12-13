@@ -7,7 +7,7 @@ import { formatDate } from "../../lib/format/date";
 import { DestructionListAuditLogHistory } from "./DestructionListAuditLogHistory";
 
 const meta: Meta<typeof DestructionListAuditLogHistory> = {
-  title: "Components/DestructionListAuditLogHistory",
+  title: "Components/Audit Log/DestructionListAuditLogHistory",
   component: DestructionListAuditLogHistory,
   args: {
     logItems: [
