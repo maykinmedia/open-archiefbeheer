@@ -3,10 +3,9 @@ import { expect, within } from "@storybook/test";
 
 import { auditLogItemFactory } from "../../fixtures/auditLog";
 import { userFactory } from "../../fixtures/user";
-import { DestructionListEditPage } from "../../pages";
 import { DestructionListAuditLogDetails } from "./DestructionListAuditLogDetails";
 
-const meta: Meta<typeof DestructionListEditPage> = {
+const meta: Meta<typeof DestructionListAuditLogDetails> = {
   title: "Components/Audit Log/DestructionListAuditLogDetails",
   component: DestructionListAuditLogDetails,
 };
