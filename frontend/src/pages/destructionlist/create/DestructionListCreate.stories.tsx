@@ -1,10 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { userEvent, within } from "@storybook/test";
 
-import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import {
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../../.storybook/decorators";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
+  clickButton,
+  fillForm,
 } from "../../../../.storybook/playFunctions";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
 import {
@@ -23,18 +28,7 @@ import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
   component: DestructionListCreatePage,
-  decorators: [ReactRouterDecorator],
-};
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-const FIXTURE: DestructionListCreateContext = {
-  reviewers: usersFactory(),
-  paginatedZaken: paginatedZakenFactory(),
-};
-
-export const DestructionListCreatePageStory: Story = {
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     reactRouterDecorator: {
       route: {
@@ -46,40 +40,39 @@ export const DestructionListCreatePageStory: Story = {
       },
     },
   },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+const FIXTURE: DestructionListCreateContext = {
+  reviewers: usersFactory(),
+  paginatedZaken: paginatedZakenFactory(),
+};
+
+export const CheckboxSelection: Story = {
+  play: assertCheckboxSelection,
+};
+
+export const ColumnSelection: Story = {
+  play: assertColumnSelection,
+};
+
+export const CreateDestructionList: Story = {
+  parameters: {
+    assertCheckboxSelection: { direction: "forwards" },
+    clickButton: { name: "Vernietigingslijst opstellen" },
+    fillForm: {
+      formValues: {
+        Naam: "My First Destruction List",
+        Reviewer: "Beoor del Laar (Beoor del Laar)",
+        Opmerking: "CreateDestructionList",
+      },
+    },
+  },
   play: async (context) => {
     await assertCheckboxSelection(context);
-    await assertColumnSelection(context);
-    await assertCheckboxSelection({
-      ...context,
-      parameters: { direction: "forwards" },
-    });
-
-    const canvas = within(context.canvasElement);
-    const buttonCreate = await canvas.findByRole("button", {
-      name: "Vernietigingslijst opstellen",
-    });
-
-    await userEvent.click(buttonCreate, { delay: 10 });
-
-    const modal = await canvas.findByRole("dialog");
-    const inputName = await within(modal).findByLabelText("Naam");
-    await userEvent.type(
-      inputName,
-      [recordManagerFactory().firstName, recordManagerFactory().lastName].join(
-        " ",
-      ),
-      { delay: 10 },
-    );
-
-    const selectFirstReviewer = await within(modal).findByLabelText("Reviewer");
-    await userEvent.click(selectFirstReviewer, { delay: 10 });
-
-    const beoordelaar = beoordelaarFactory();
-    const selectReviewerBeoordelaarOption = await within(modal).findAllByText(
-      `${beoordelaar.firstName} ${beoordelaar.lastName} (${beoordelaar.username})`,
-    );
-    await userEvent.click(selectReviewerBeoordelaarOption[0], {
-      delay: 10,
-    });
+    await clickButton(context);
+    await fillForm(context);
   },
 };

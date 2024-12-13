@@ -1,24 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
 import {
   clickButton,
-  fillButtonConfirmationForm,
+  fillForm,
 } from "../../../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
 import { reviewFactory } from "../../../../../fixtures/review";
 import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
-import {
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
-  selectieLijstKlasseFactory,
-} from "../../../../../fixtures/selectieLijstKlasseChoices";
+import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP } from "../../../../../fixtures/selectieLijstKlasseChoices";
 import { usersFactory } from "../../../../../fixtures/user";
-import {
-  clearZaakSelection,
-  getZaakSelection,
-} from "../../../../../lib/zaakSelection";
+import { getZaakSelection } from "../../../../../lib/zaakSelection";
+import { destructionListProcessReviewAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListProcessReviewPage } from "./DestructionListProcessReviewPage";
 
@@ -72,81 +66,7 @@ export const ProcessReview: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        action: async () => true,
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            `${FIXTURE_PROCESS_REVIEW.storageKey}`,
-          );
-
-          return { ...FIXTURE_PROCESS_REVIEW, zaakSelection };
-        },
-      },
-    },
-  },
-  play: async (context) => {
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 0,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[0].label,
-          Reden: "omdat het moet",
-        },
-      },
-    });
-
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 1,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[1].label,
-          Reden: "omdat het kan",
-        },
-      },
-    });
-
-    await fillButtonConfirmationForm({
-      ...context,
-      parameters: {
-        elementIndex: 2,
-        name: "Muteren",
-        formValues: {
-          "Aanpassen van selectielijstklasse": true,
-          Selectielijstklasse: selectieLijstKlasseFactory()[2].label,
-          Reden: "Waarom niet",
-        },
-      },
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    await waitFor(async () => {
-      fillButtonConfirmationForm({
-        ...context,
-        parameters: {
-          name: "Opnieuw indienen",
-          formValues: {
-            Opmerking: "Kan gewoon",
-          },
-          submitForm: false,
-        },
-      });
-    });
-    // Clean up.
-    await clearZaakSelection(`${FIXTURE_PROCESS_REVIEW.storageKey}`);
-  },
-};
-
-export const CheckSelectielijstklasseSelection: Story = {
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        action: async () => true,
+        action: destructionListProcessReviewAction,
         loader: async () => {
           const zaakSelection = await getZaakSelection(
             `${FIXTURE_PROCESS_REVIEW.storageKey}`,
@@ -160,61 +80,68 @@ export const CheckSelectielijstklasseSelection: Story = {
   play: async (context) => {
     await clickButton({
       ...context,
+      parameters: { clickButton: { name: "Muteren", elementIndex: 0 } },
+    });
+    await fillForm({
+      ...context,
       parameters: {
-        name: "Muteren",
+        fillForm: {
+          formValues: {
+            Actie: "Aanpassen van selectielijstklasse",
+            Selectielijstklasse: "1.2 - Ingesteld - blijvend_bewaren",
+            Reden: "ProcessReview",
+          },
+        },
       },
     });
 
-    const canvas = within(context.canvasElement);
-
-    const modal = await canvas.findByRole("dialog");
-    const option = await within(modal).findByLabelText(
-      "Aanpassen van selectielijstklasse",
-    );
-
-    await userEvent.click(option, { delay: 10 });
-
-    const dropdownSelectielijstklasse = await canvas.findByRole("combobox", {
-      name: "Selectielijstklasse",
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Muteren", elementIndex: 1 } },
+    });
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            Actie: "Afwijzen van het voorstel",
+            Reden: "ProcessReview",
+          },
+        },
+      },
     });
 
-    // we select a different selectielijstklasse
-    await userEvent.click(dropdownSelectielijstklasse);
-    await userEvent.click(
-      canvas.getByText("1.5 - Afgebroken - vernietigen - P1Y"),
-    );
-
-    const archiefactiedatum =
-      await canvas.findAllByLabelText("Archiefactiedatum");
-
-    // FIXME: Remove?
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const input = archiefactiedatum.find((input) => {
-      return (
-        input instanceof HTMLInputElement &&
-        input.type === "text" &&
-        input.offsetParent !== null
-      );
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Muteren", elementIndex: 2 } },
     });
-    // The dropdown shows the selectielijst klasse
-    await waitFor(async () =>
-      expect(dropdownSelectielijstklasse.childNodes[0].textContent).toEqual(
-        "1.5 - Afgebroken - vernietigen - P1Y",
-      ),
-    );
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            Actie: "Afwijzen van het voorstel",
+            Reden: "ProcessReview",
+          },
+        },
+      },
+    });
 
-    // we select a different selectielijstklasse
-    await userEvent.click(dropdownSelectielijstklasse);
-    await userEvent.click(
-      canvas.getByText("1.1.1 - Ingericht - blijvend_bewaren"),
-    );
-
-    // We expect archiefactiedatum to be hidden now
-    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
-
-    // We do not expect the archiefactiedatum to be visible
-    await waitFor(async () => expect(archiefactiedatum[0]).not.toBeVisible());
-
-    await userEvent.keyboard("{Escape}");
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: { name: "Opnieuw indienen" },
+      },
+    });
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            Opmerking: "ProcessReview",
+          },
+        },
+      },
+    });
   },
 };

@@ -1,49 +1,33 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { PlayFunction } from "@storybook/types";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
 import {
-  assertColumnSelection,
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../../../../.storybook/decorators";
+import {
   clickButton,
+  clickCheckbox,
   fillForm,
 } from "../../../../../../.storybook/playFunctions";
 import { destructionListFactory } from "../../../../../fixtures/destructionList";
-import {
-  paginatedDestructionListItemsFactory,
-  paginatedDestructionListItemsFailedFactory,
-} from "../../../../../fixtures/destructionListItem";
+import { paginatedDestructionListItemsFactory } from "../../../../../fixtures/destructionListItem";
 import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
-import { reviewFactory } from "../../../../../fixtures/review";
-import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
-import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP } from "../../../../../fixtures/selectieLijstKlasseChoices";
 import { usersFactory } from "../../../../../fixtures/user";
 import { getZaakSelection } from "../../../../../lib/zaakSelection";
+import { destructionListUpdateAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { DestructionListEditPage } from "./DestructionListEditPage";
 
 const meta: Meta<typeof DestructionListEditPage> = {
   title: "Pages/DestructionList/DestructionListEditPage",
   component: DestructionListEditPage,
-  decorators: [ReactRouterDecorator],
-  parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        // loader:
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
-          return { ...FIXTURE_EDIT, zaakSelection };
-        },
-      },
-    },
-  },
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const FIXTURE_EDIT: DestructionListDetailContext = {
+const FIXTURE_BASE: DestructionListDetailContext = {
   storageKey: "storybook-storage-key",
 
   destructionList: destructionListFactory({ status: "new" }),
@@ -61,242 +45,171 @@ const FIXTURE_EDIT: DestructionListDetailContext = {
   selectieLijstKlasseChoicesMap: null,
 };
 
+const FIXTURE_EDIT = { ...FIXTURE_BASE };
+
 export const EditDestructionList: Story = {
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        id: "destruction-list:detail",
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
+          return { ...FIXTURE_EDIT, zaakSelection };
+        },
+        action: destructionListUpdateAction,
+      },
+    },
+  },
   play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const editButton = await canvas.findByRole("button", {
-      name: "Bewerken",
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Bewerken" } },
     });
-    userEvent.click(editButton, { delay: 10 });
-    // When the 'Annuleren' button is visible, then the "edit mode" is active
-    const cancelButton = await canvas.findByRole("button", {
-      name: "Annuleren",
+    await clickCheckbox({
+      ...context,
+      parameters: { clickCheckbox: { elementIndex: 2 } },
     });
-
-    await assertColumnSelection(context);
-
-    userEvent.click(cancelButton, { delay: 10 });
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Vernietigingslijst aanpassen" } },
+    });
   },
 };
 
 const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
-  storageKey: `storybook-storage-key!${meta.title}:FinalDestruction`,
-
+  ...FIXTURE_BASE,
   destructionList: {
-    ...destructionListFactory(),
+    ...FIXTURE_BASE.destructionList,
     status: "internally_reviewed",
   },
-  destructionListItems: {
-    count: reviewItemsFactory().length,
-    next: null,
-    previous: null,
-    results: [],
-  },
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  user: usersFactory()[0],
-
-  review: reviewFactory(),
-  reviewItems: reviewItemsFactory(),
-
-  selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
-};
-
-const fillMarkListAsFinalForm: PlayFunction<ReactRenderer> = async (
-  context,
-) => {
-  const canvas = within(context.canvasElement);
-  const buttons = await canvas.findAllByRole("button");
-  const markListAsFinalButton = buttons.find((button) => {
-    return button.textContent === "Markeren als definitief";
-  });
-
-  if (!markListAsFinalButton) {
-    throw new Error("Markeren als definitief knop niet gevonden.");
-  }
-  await userEvent.click(markListAsFinalButton, { delay: 100 });
-
-  const modal = await canvas.findByRole("dialog");
-  const form = await within(modal).findByRole("form");
-  await fillForm({
-    ...context,
-    parameters: {
-      ...context.parameters,
-      form,
-    },
-  });
 };
 
 export const MarkDestructionListAsFinal: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        action: async () => true,
+        id: "destruction-list:detail",
         loader: async () => {
           const zaakSelection = await getZaakSelection(
-            `${FIXTURE_FINAL_DESTRUCTION.storageKey}`,
+            FIXTURE_FINAL_DESTRUCTION.storageKey,
           );
-
           return { ...FIXTURE_FINAL_DESTRUCTION, zaakSelection };
         },
+        action: destructionListUpdateAction,
+      },
+    },
+    clickButton: { name: "Markeren als definitief" },
+    fillForm: {
+      formValues: {
+        Archivaris: "Proces ei Genaar (Proces ei Genaar)",
+        Opmerking: "MarkDestructionListAsFinal",
       },
     },
   },
   play: async (context) => {
-    fillMarkListAsFinalForm({
-      ...context,
-      parameters: {
-        elementIndex: 0,
-        formValues: {
-          Archivaris: "Record Manager (Record Manager)",
-          Opmerking: "Ready for destruction",
-        },
-      },
-    });
+    await clickButton(context);
+    await fillForm(context);
   },
 };
 
 const FIXTURE_DELETE: DestructionListDetailContext = {
-  storageKey: "storybook-storage-key",
-
-  destructionList: destructionListFactory({
+  ...FIXTURE_BASE,
+  destructionList: {
+    ...FIXTURE_BASE.destructionList,
     status: "ready_to_delete",
     processingStatus: "new",
-  }),
-  destructionListItems: paginatedDestructionListItemsFactory(),
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  user: usersFactory()[0],
-
-  review: null,
-  reviewItems: null,
-
-  selectieLijstKlasseChoicesMap: null,
+  },
 };
 
 export const DeleteDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE_DELETE,
+        id: "destruction-list:detail",
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            FIXTURE_DELETE.storageKey,
+          );
+          return { ...FIXTURE_DELETE, zaakSelection };
+        },
+        action: destructionListUpdateAction,
+      },
+    },
+    clickButton: { name: "Vernietigen starten" },
+    fillForm: {
+      formValues: {
+        "Type naam van de lijst ter bevestiging": "My first destruction list",
       },
     },
   },
   play: async (context) => {
-    await clickButton({
-      ...context,
-      parameters: {
-        ...context.parameters,
-        name: /Vernietigen/,
-        exact: false,
-      },
-    });
-    const canvas = within(context.canvasElement);
-    const submit = await canvas.findByText<HTMLButtonElement>(
-      "zaken vernietigen",
-      { exact: false },
-    );
-    const input = await canvas.getByLabelText(
-      "Type naam van de lijst ter bevestiging",
-    );
-    expect(submit).toBeDisabled();
-    await userEvent.click(input, {
-      delay: 10,
-    });
-    userEvent.type(
-      document.activeElement as HTMLInputElement,
-      "My First Destruction List",
-      {
-        delay: 10,
-      },
-    );
-    await waitFor(async () => {
-      const isDisabled = submit.getAttribute("disabled");
-      expect(isDisabled).toBe("");
-    });
+    await clickButton(context);
+    await fillForm(context);
   },
 };
 
 const FIXTURE_FAILED_DELETE: DestructionListDetailContext = {
-  storageKey: "storybook-storage-key",
-
-  destructionList: destructionListFactory({
-    status: "ready_to_delete",
+  ...FIXTURE_DELETE,
+  destructionList: {
+    ...FIXTURE_DELETE.destructionList,
     processingStatus: "failed",
-  }),
-  destructionListItems: paginatedDestructionListItemsFailedFactory(),
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  user: usersFactory()[0],
-
-  review: null,
-  reviewItems: null,
-
-  selectieLijstKlasseChoicesMap: null,
+  },
 };
 
 export const DeleteFailedDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE_FAILED_DELETE,
+        id: "destruction-list:detail",
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            FIXTURE_FAILED_DELETE.storageKey,
+          );
+          return { ...FIXTURE_FAILED_DELETE, zaakSelection };
+        },
+        action: destructionListUpdateAction,
+      },
+    },
+    clickButton: { name: "Vernietigen herstarten" },
+    fillForm: {
+      formValues: {
+        "Type naam van de lijst ter bevestiging": "My first destruction list",
       },
     },
   },
   play: DeleteDestructionList.play,
 };
 
-const FIXTURE_CANCEL_PLANNED_DESTRUCTION: DestructionListDetailContext = {
-  storageKey: "storybook-storage-key",
-
-  destructionList: destructionListFactory({
+const FIXTURE_PLANNED_DELETE: DestructionListDetailContext = {
+  ...FIXTURE_DELETE,
+  destructionList: {
+    ...FIXTURE_DELETE.destructionList,
     status: "ready_to_delete",
-    processingStatus: "new",
+    processingStatus: "queued",
     plannedDestructionDate: "2026-01-01T00:00:00Z",
-  }),
-  destructionListItems: paginatedDestructionListItemsFactory(),
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  user: usersFactory()[0],
-
-  review: null,
-  reviewItems: null,
-
-  selectieLijstKlasseChoicesMap: null,
+  },
 };
 
-export const CancelPlannedDestruction: Story = {
+export const CancelPlannedDestructionList: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE_CANCEL_PLANNED_DESTRUCTION,
+        id: "destruction-list:detail",
+        loader: async () => {
+          const zaakSelection = await getZaakSelection(
+            FIXTURE_PLANNED_DELETE.storageKey,
+          );
+          return { ...FIXTURE_PLANNED_DELETE, zaakSelection };
+        },
+        action: destructionListUpdateAction,
+      },
+    },
+    clickButton: { name: "Proces afbreken" },
+    fillForm: {
+      formValues: {
+        Opmerking: "CancelPlannedDestructionList",
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    await clickButton({
-      ...context,
-      parameters: {
-        ...context.parameters,
-        name: "Vernietigen annuleren",
-      },
-    });
-    const input = await canvas.findByLabelText("Opmerking");
-    userEvent.type(input, "Test Comment", {
-      delay: 10,
-    });
-  },
+  play: DeleteDestructionList.play,
 };

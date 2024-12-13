@@ -105,12 +105,14 @@ const assertEditReviewer: PlayFunction<ReactRenderer> = async (context) => {
   await fillForm({
     ...context,
     parameters: {
-      form: form,
-      formValues: {
-        Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
-        Reden: "Edit reviewer",
+      fillForm: {
+        form: form,
+        formValues: {
+          Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
+          Reden: "Edit reviewer",
+        },
+        submitForm: true,
       },
-      submitForm: true,
     },
   });
   await waitFor(() => {
@@ -149,12 +151,14 @@ const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
   await fillForm({
     ...context,
     parameters: {
-      form: form,
-      formValues: {
-        "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
-        Reden: "Edit co-reviewers",
+      fillForm: {
+        form: form,
+        formValues: {
+          "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
+          Reden: "Edit co-reviewers",
+        },
+        submitForm: true,
       },
-      submitForm: true,
     },
   });
 
