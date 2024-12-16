@@ -72,14 +72,6 @@ export function DestructionListToolbar({
                 label: "Bevat gevoelige informatie",
                 value: destructionList.containsSensitiveInfo,
               },
-              status: {
-                label: "Status",
-                value: (
-                  <Badge level={STATUS_LEVEL_MAPPING[destructionList.status]}>
-                    {ucFirst(STATUS_MAPPING[destructionList.status])}
-                  </Badge>
-                ),
-              },
               aangemaakt: {
                 label: "Aangemaakt",
                 value: formatDate(new Date(destructionList.created)),
