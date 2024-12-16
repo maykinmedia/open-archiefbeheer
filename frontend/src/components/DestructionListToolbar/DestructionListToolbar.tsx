@@ -68,10 +68,11 @@ export function DestructionListToolbar({
                 label: "Comment",
                 value: destructionList.comment,
               },
-              bevatGevoeligeInformatie: {
-                label: "Bevat gevoelige informatie",
-                value: destructionList.containsSensitiveInfo,
-              },
+              // Commented out due to no actual implementation of specifying this.
+              // bevatGevoeligeInformatie: {
+              //   label: "Bevat gevoelige informatie",
+              //   value: destructionList.containsSensitiveInfo,
+              // },
               aangemaakt: {
                 label: "Aangemaakt",
                 value: formatDate(new Date(destructionList.created)),
