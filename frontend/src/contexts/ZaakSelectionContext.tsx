@@ -13,14 +13,18 @@ export type ZaakSelectionContextType = {
   ) => void;
 };
 
-export const ZaakSelectionContext = createContext<ZaakSelectionContextType>({
+export const DEFAULT_ZAAK_SELECTION_CONTEXT = {
   allPagesSelected: false,
   setAllPagesSelected: () => undefined,
   selectionSize: 0,
   setSelectionSize: () => undefined,
   pageSpecificZaakSelection: {},
   setPageSpecificZaakSelection: () => undefined,
-});
+};
+
+export const ZaakSelectionContext = createContext<ZaakSelectionContextType>(
+  DEFAULT_ZAAK_SELECTION_CONTEXT,
+);
 
 /**
  * Implements `ZaakSelectionContext.Provider` and supplies `useState()` based
