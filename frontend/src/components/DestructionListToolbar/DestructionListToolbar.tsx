@@ -73,10 +73,6 @@ export function DestructionListToolbar({
               //   label: "Bevat gevoelige informatie",
               //   value: destructionList.containsSensitiveInfo,
               // },
-              aangemaakt: {
-                label: "Aangemaakt",
-                value: formatDate(new Date(destructionList.created)),
-              },
             }}
           />
         </Column>
