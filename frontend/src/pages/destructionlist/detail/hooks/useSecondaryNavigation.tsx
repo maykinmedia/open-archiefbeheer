@@ -8,7 +8,10 @@ import {
 import { useContext, useMemo } from "react";
 import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
-import { ProcessingStatusBadge } from "../../../../components";
+import {
+  DestructionListStatusBadge,
+  ProcessingStatusBadge,
+} from "../../../../components";
 import { ZaakSelectionContext } from "../../../../contexts";
 import { useSubmitAction } from "../../../../hooks";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
@@ -19,7 +22,7 @@ import {
   canTriggerDestruction,
 } from "../../../../lib/auth/permissions";
 import { formatUser } from "../../../../lib/format/user";
-import { getFilteredZaakSelection } from "../../../../lib/zaakSelection/zaakSelection";
+import { getFilteredZaakSelection } from "../../../../lib/zaakSelection";
 import {
   UpdateDestructionListAction,
   UpdateDestructionListProcessReviewAction,
@@ -382,6 +385,11 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       // LEFT
       //
 
+      <DestructionListStatusBadge
+        key="status"
+        destructionList={destructionList}
+      />,
+
       // Status: "ready_to_delete", badge and spacer
       getPermittedToolbarItem(
         <ProcessingStatusBadge
@@ -392,7 +400,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
           canTriggerDestruction(user, destructionList) &&
           destructionList.processingStatus !== "new",
       ),
-      getPermittedToolbarItem("spacer", canTriggerDestruction),
+
+      "spacer",
 
       //
       // Right
