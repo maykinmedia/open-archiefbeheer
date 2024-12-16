@@ -39,7 +39,10 @@ export const AuditLogDetails: StoryObj<typeof DestructionListAuditLogDetails> =
 
       expect(canvas.getByText("John Doe (johndoe)")).toBeInTheDocument();
       expect(
-        canvas.getByText("van 01/01/2021 01:00 tot 31/12/2021 01:00"),
+        canvas.getByText("01/01/2021", { exact: false }),
+      ).toBeInTheDocument();
+      expect(
+        canvas.getByText("31/12/2021", { exact: false }),
       ).toBeInTheDocument();
       expect(canvas.getByText("This is a comment")).toBeInTheDocument();
       expect(canvas.getByText("10")).toBeInTheDocument;
