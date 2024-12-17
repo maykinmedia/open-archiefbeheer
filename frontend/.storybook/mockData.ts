@@ -3,8 +3,8 @@ import { coReviewsFactory } from "../src/fixtures/coReview";
 import {
   FIXTURE_DESTRUCTION_LIST,
   destructionListAssigneesFactory,
+  destructionListFactory,
 } from "../src/fixtures/destructionList";
-import { FIXTURE_DESTRUCTION_LIST_ITEM } from "../src/fixtures/destructionListItem";
 import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../src/fixtures/selectieLijstKlasseChoices";
 import { userFactory, usersFactory } from "../src/fixtures/user";
 import { zaaktypeChoicesFactory } from "../src/fixtures/zaaktypeChoices";
@@ -46,6 +46,56 @@ export const MOCKS = {
     method: "GET",
     status: 200,
     response: zaaktypeChoicesFactory(),
+  },
+  DESTRUCTION_LISTS: {
+    url: "http://localhost:8000/api/v1/destruction-lists/?ordering=-created",
+    method: "GET",
+    status: 200,
+    response: [
+      // New
+      destructionListFactory({
+        name: "My first destruction list",
+        status: "new",
+      }),
+      destructionListFactory({
+        name: "My second destruction list",
+        status: "new",
+      }),
+      destructionListFactory({
+        name: "My third destruction list",
+        status: "new",
+      }),
+      // Changes requested
+      destructionListFactory({
+        name: "My fourth destruction list",
+        status: "changes_requested",
+      }),
+      // Ready to review
+      destructionListFactory({
+        name: "My fifth destruction list",
+        status: "ready_to_review",
+      }),
+      // Internally reviewed
+      destructionListFactory({
+        name: "My sixt destruction list",
+        status: "internally_reviewed",
+      }),
+      // Ready for archivist
+      destructionListFactory({
+        name: "My seventh destruction list",
+        status: "ready_for_archivist",
+      }),
+      // Ready to delete
+      destructionListFactory({
+        name: "My eighth destruction list",
+        status: "ready_to_delete",
+      }),
+      // Deleted
+      destructionListFactory({
+        name: "My ninth destruction list",
+        status: "deleted",
+      }),
+    ],
   },
   OIDC_INFO: {
     url: "http://localhost:8000/api/v1/oidc-info",
