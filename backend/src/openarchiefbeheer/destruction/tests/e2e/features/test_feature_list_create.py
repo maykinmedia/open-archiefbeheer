@@ -53,7 +53,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.page_should_contain_text(page, "Foutmelding")
-            await self.then.page_should_contain_text(page, "Er bestaat al een vernietigingslijst met eenzelfde naam")
+            await self.then.page_should_contain_text(page, "Er bestaat al een vernietigingslijst met dezelfde naam")
 
     async def test_scenario_reviewer_cannot_create_list(self):
         async with browser_page() as page:
