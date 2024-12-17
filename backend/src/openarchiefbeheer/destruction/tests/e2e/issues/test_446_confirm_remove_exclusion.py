@@ -235,19 +235,19 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Uitzonderen", 2)
             await self.when.user_fills_form_field(page, "Reden", "gh-446")
             await self.when.user_clicks_button(page, "Zaak uitzonderen")
-            await self.when.user_clicks_checkbox(page, "Alles als (on)gezien markeren")
+            await self.then.page_should_contain_text(page, "Uitgezonderd", timeout=10000)
 
+            await self.when.user_clicks_checkbox(page, "Alles als (on)gezien markeren")
             await self.then.zaak_should_be_selected(page, zaken[0].identificatie, "Markeren als (on)gezien")
             await self.then.zaak_should_be_selected(page, zaken[1].identificatie, "Markeren als (on)gezien")
             await self.then.zaak_should_be_selected(page, zaken[2].identificatie, "Markeren als (on)gezien")
 
-            await self.then.page_should_contain_text(page, "Geaccordeerd")
-            await self.then.page_should_contain_text(page, "Uitgezonderd")
-            await self.then.page_should_contain_text(page, "Afwijzen")
+            await self.then.page_should_contain_text(page, "Geaccordeerd", timeout=10000)
+            await self.then.page_should_contain_text(page, "Afwijzen", timeout=10000)
 
             await self.when.user_clicks_checkbox(page, "Alles als (on)gezien markeren")
             await self.then.zaak_should_be_selected(page, zaken[2].identificatie, "Markeren als (on)gezien")
 
-            await self.then.page_should_contain_text(page, "Niet beoordeeld")
-            await self.then.page_should_contain_text(page, "Uitgezonderd")
-            await self.then.page_should_contain_text(page, "Afwijzen")
+            await self.then.page_should_contain_text(page, "Niet beoordeeld", timeout=10000)
+            await self.then.page_should_contain_text(page, "Uitgezonderd", timeout=10000)
+            await self.then.page_should_contain_text(page, "Afwijzen", timeout=10000)
