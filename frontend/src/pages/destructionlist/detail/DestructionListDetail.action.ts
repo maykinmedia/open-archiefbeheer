@@ -16,7 +16,7 @@ import {
 import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
-  | "DESTROY"
+  | "QUEUE_DESTRUCTION"
   | "CANCEL_DESTROY"
   | "MAKE_FINAL"
   | "PROCESS_REVIEW"
@@ -36,7 +36,7 @@ export async function destructionListUpdateAction({
   const action = data as UpdateDestructionListAction<unknown>;
 
   switch (action.type) {
-    case "DESTROY":
+    case "QUEUE_DESTRUCTION":
       return await destructionListDestroyAction({ request, params });
     case "MAKE_FINAL":
       return await destructionListMakeFinalAction({ request, params });

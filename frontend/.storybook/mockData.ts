@@ -162,9 +162,9 @@ export const MOCKS = {
     status: "200",
     response: FIXTURE_DESTRUCTION_LIST,
   },
-  DESTRUCTION_LIST_DELETE: {
-    url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000", // FIXME
-    method: "DELETE",
+  DESTRUCTION_LIST_QUEUE_DESTRUCTION: {
+    url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/queue_destruction/",
+    method: "POST",
     status: "200",
     response: {},
   },
