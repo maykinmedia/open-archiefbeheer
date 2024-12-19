@@ -327,7 +327,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
    */
   const handleDestroy = async () => {
     submitAction({
-      type: "DESTROY",
+      type: "QUEUE_DESTRUCTION",
       payload: {
         uuid: destructionList.uuid,
       },

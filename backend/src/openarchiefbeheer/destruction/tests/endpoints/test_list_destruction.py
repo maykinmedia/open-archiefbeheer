@@ -30,13 +30,14 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         destruction_list.refresh_from_db()
 
@@ -69,13 +70,14 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
                 "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
             ) as m_delete,
         ):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         m_delete.assert_called_once()
         self.assertEqual(m_delete.call_args_list[0].args[0].pk, destruction_list.pk)
 
@@ -98,9 +100,10 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         )
         self.client.force_authenticate(user=record_manager)
         with (freezegun.freeze_time("2024-01-01T21:36:00+02:00"),):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
@@ -122,13 +125,14 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         with patch(
             "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
         ):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     def test_cannot_start_destruction_if_not_ready_to_delete(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -143,9 +147,10 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         with patch(
             "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
         ) as m_task:
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
@@ -176,9 +181,10 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
@@ -216,13 +222,14 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
-            response = self.client.delete(
+            response = self.client.post(
                 reverse(
-                    "api:destructionlist-detail", kwargs={"uuid": destruction_list.uuid}
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
                 ),
             )
 
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         logs = TimelineLog.objects.for_object(destruction_list).filter(
             template="logging/destruction_list_deletion_triggered.txt"
