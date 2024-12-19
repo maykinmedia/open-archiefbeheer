@@ -3,11 +3,13 @@ import {
   Button,
   FormField,
   P,
+  SerializedFormData,
   Solid,
   useAlert,
   useFormDialog,
+  validateForm,
 } from "@maykin-ui/admin-ui";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
 import {
@@ -57,11 +59,47 @@ export function DestructionListReviewer({
   const assignedCoReviewers = useDestructionListCoReviewers(destructionList);
   const user = useWhoAmI();
 
+  const [
+    assignCoReviewersFormValuesState,
+    setAssignCoReviewersFormValuesState,
+  ] = useState<SerializedFormData>({});
+
+  /**
+   * Pre-populates `assignCoReviewersFormValuesState` with the current
+   * co-reviewers.
+   */
+  useEffect(() => {
+    const coReviewerPks = assignedCoReviewers.map((r) => r.user.pk.toString());
+
+    setAssignCoReviewersFormValuesState({
+      ...assignCoReviewersFormValuesState,
+      coReviewer: coReviewerPks,
+    });
+  }, [assignedCoReviewers.map((r) => r.user.pk).join()]);
+
+  const [assignCoReviewerModalOpenState, setAssignCoReviewerModalOpenState] =
+    useState(false);
+
+  /**
+   * Updates `assignCoReviewersFormValuesState` with `values`.
+   * This allows `field` to use filtered options based on it's value.
+   * @param values
+   */
+  const handleValidate = (values: SerializedFormData) => {
+    // Ignore first run.
+    if (!Object.keys(values).length) {
+      return;
+    }
+    setAssignCoReviewersFormValuesState(values);
+    return validateForm(values, fields);
+  };
+
   /**
    * Gets called when the change is confirmed.
    */
   const handleSubmit = (data: DestructionListReviewerFormType) => {
     const { coReviewer, reviewer, comment } = data;
+    setAssignCoReviewerModalOpenState(false);
 
     const promises: Promise<unknown>[] = [];
 
@@ -122,6 +160,10 @@ export function DestructionListReviewer({
     (assignee) => assignee.role === "main_reviewer",
   );
 
+  /**
+   * The fields to show in the form dialog, can be either for (re)assigning a
+   * reviewer or for (re)assigning co-reviewers.
+   */
   const fields = useMemo<FormField[]>(() => {
     if (!user) return [];
 
@@ -145,29 +187,52 @@ export function DestructionListReviewer({
       required: true,
     };
 
+    const activeCoReviewers =
+      (assignCoReviewersFormValuesState.coReviewer as string[]) || [];
+
     if (canReviewDestructionList(user, destructionList)) {
-      const coReviewerFields = new Array(5)
-        .fill({
-          label: "Medebeoordelaar",
-          name: "coReviewer",
-          type: "string",
-          options: coReviewers.map((user) => ({
-            label: formatUser(user),
-            value: user.pk,
-          })),
-          required: false,
-        })
-        .map((f, i) => ({
+      const coReviewerFields = new Array(5).fill(null).map((f, i) => {
+        return {
           ...f,
           label: `Medebeoordelaar ${1 + i}`,
-          value: assignedCoReviewers[i]?.user.pk,
-        }));
+          name: "coReviewer",
+          required: false,
+          type: "string",
+          value: activeCoReviewers?.[i],
+          options: coReviewers
+            // Don't show the co-reviewer as option if:
+            // - The co-reviewer is already selected AND
+            // - The co-reviewer is not selected as value for the current
+            //   field.
+            .filter((c) => {
+              const selectedIndex = activeCoReviewers.indexOf(c.pk.toString());
+              if (selectedIndex < 0 || selectedIndex === i) {
+                return true;
+              }
+              return false;
+            })
+            .map((user) => ({
+              label: formatUser(user),
+              value: user.pk,
+            })),
+        };
+      });
 
       return [...coReviewerFields, comment];
     }
     return [reviewer, comment];
-  }, [user, destructionList, reviewers, assignedCoReviewers]);
+  }, [
+    user,
+    destructionList,
+    reviewers,
+    assignedCoReviewers,
+    assignCoReviewersFormValuesState,
+  ]);
 
+  /**
+   * Contains the co-reviewers that are assigned to the destruction list as
+   * items for the AttributeTable.
+   */
   const coReviewerItems = useMemo(
     () =>
       assignedCoReviewers.reduce((acc, coReviewer, i) => {
@@ -194,6 +259,29 @@ export function DestructionListReviewer({
     [assignedCoReviewers, coReviews],
   );
 
+  /**
+   * Opens a dialog to assign a co-reviewer and updates it when `fields` change.
+   */
+  useEffect(() => {
+    formDialog(
+      "Beoordelaar toewijzen",
+      null,
+      fields,
+      "Toewijzen",
+      "Annuleren",
+      handleSubmit,
+      undefined,
+      {
+        allowClose: true,
+        open: assignCoReviewerModalOpenState,
+        onClose: () => setAssignCoReviewerModalOpenState(false),
+      },
+      {
+        validate: handleValidate,
+      },
+    );
+  }, [assignCoReviewerModalOpenState, JSON.stringify(fields)]);
+
   return (
     <>
       {reviewer && (
@@ -217,18 +305,9 @@ export function DestructionListReviewer({
                             }
                             size="xs"
                             variant="secondary"
-                            onClick={(e) => {
-                              formDialog(
-                                "Beoordelaar toewijzen",
-                                null,
-                                fields,
-                                "Toewijzen",
-                                "Annuleren",
-                                handleSubmit,
-                                undefined,
-                                { allowClose: true },
-                              );
-                            }}
+                            onClick={() =>
+                              setAssignCoReviewerModalOpenState(true)
+                            }
                           >
                             <Solid.PencilIcon />
                           </Button>
