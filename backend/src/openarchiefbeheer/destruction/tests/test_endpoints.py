@@ -118,8 +118,20 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(destruction_list.author, record_manager)
 
-    def test_list_destruction_lists(self):
-        user = UserFactory.create()
+    def test_list_destruction_lists_unprivileged_user(self):
+        user = UserFactory.create(post__can_start_destruction=False)
+        DestructionListFactory.create_batch(3)
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:destructionlist-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 0)
+
+    def test_list_destruction_lists_record_manager(self):
+        user = UserFactory.create(post__can_start_destruction=True)
         DestructionListFactory.create_batch(3)
 
         self.client.force_authenticate(user=user)
@@ -129,6 +141,20 @@ class DestructionListViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 3)
+
+    def test_list_destruction_lists_assignee(self):
+        user = UserFactory.create()
+        lists = DestructionListFactory.create_batch(3)
+        DestructionListAssigneeFactory.create(destruction_list=lists[0], user=user)
+        DestructionListAssigneeFactory.create(destruction_list=lists[2], user=user)
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:destructionlist-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
 
     def test_zaak_already_in_another_destruction_list(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -496,7 +522,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(destruction_list.assignees.all().count(), 1)
 
     def test_destruction_list_filter_on_assignee(self):
-        user = UserFactory.create()
+        user = UserFactory.create(post__can_start_destruction=True)
         reviewer1 = UserFactory.create()
         reviewer2 = UserFactory.create()
         lists = DestructionListFactory.create_batch(3)
