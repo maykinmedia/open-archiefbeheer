@@ -27,17 +27,6 @@ export function useZaakReviewStatusBadges(
     const badges = zakenOnPage.map((z) => {
       const status = statuses[z.url as string];
       const reviewAdviceIgnored = reviewAdviceIgnoredResults[z.url as string];
-
-      if (reviewAdviceIgnored) {
-        // Display "Herboordelen" badge for reviewAdviceIgnored zaken
-        return (
-          // @ts-expect-error - style props not supported (yet?)
-          <Badge key={z.uuid} level="info" style={{ display: "block" }}>
-            <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
-          </Badge>
-        );
-      }
-
       if (typeof status === "boolean") {
         if (status) {
           return (
@@ -54,6 +43,14 @@ export function useZaakReviewStatusBadges(
             </Badge>
           );
         }
+      } else if (reviewAdviceIgnored) {
+        // Display "Herboordelen" badge for reviewAdviceIgnored zaken
+        return (
+          // @ts-expect-error - style props not supported (yet?)
+          <Badge key={z.uuid} level="info" style={{ display: "block" }}>
+            <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
+          </Badge>
+        );
       } else {
         return (
           // @ts-expect-error - style props not supported (yet?)
