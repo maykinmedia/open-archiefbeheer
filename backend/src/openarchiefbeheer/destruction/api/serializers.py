@@ -114,12 +114,19 @@ class CoReviewerAssignementSerializer(serializers.Serializer):
             .assignees.filter(role=ListRole.co_reviewer)
             .count()
         )
-        if (
-            current_number_co_reviewers
-            + len(attrs.get("add", []))
-            - len(attrs.get("remove", []))
-            > MAX_NUMBER_CO_REVIEWERS
-        ):
+
+        # (New) number of co reviewers depends on whether a partial update has been mode or a full update is provided.
+        number_of_co_reviewers = (
+            (
+                current_number_co_reviewers
+                + len(attrs.get("add", []))
+                - len(attrs.get("remove", []))
+            )
+            if self.partial
+            else len(attrs.get("add", []))
+        )
+
+        if number_of_co_reviewers > MAX_NUMBER_CO_REVIEWERS:
             raise ValidationError(
                 _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
                 % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS}

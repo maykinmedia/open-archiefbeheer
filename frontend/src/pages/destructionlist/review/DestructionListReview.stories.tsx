@@ -208,7 +208,7 @@ export const ReviewerCanExcludeZaak: Story = {
       name: "Uitzonderen",
     });
     const exclude = excludes[0];
-    await userEvent.click(exclude);
+    await userEvent.click(exclude, { delay: 60 });
 
     const reason = await canvas.findByLabelText("Reden");
     const submitExclude = await canvas.findByRole("button", {
