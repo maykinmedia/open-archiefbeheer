@@ -14,6 +14,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...factories import (
+    DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListItemReviewFactory,
@@ -111,10 +112,11 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             )
             item = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[0])
             DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[1])
+            DestructionListAssigneeFactory.create(destruction_list=destruction_list, user=reviewer)
 
             review = DestructionListReviewFactory.create(destruction_list=destruction_list, author=reviewer, decision=ReviewDecisionChoices.rejected)
             DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item, review=review)
-            
+
         async with browser_page() as page:
             await self.given.data_exists(create_data)
             await self.when.reviewer_logs_in(page)
@@ -202,6 +204,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
                 uuid="00000000-0000-0000-0000-000000000000",
                 status=ListStatus.ready_to_review
             )
+            DestructionListAssigneeFactory.create(destruction_list=destruction_list, user=reviewer)
             zaak1 = ZaakFactory.create(
                 identificatie="ZAAK-000-1",
                 post___expand={
@@ -298,6 +301,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             )
             item1 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[0])
             item2 = DestructionListItemFactory.create(destruction_list=destruction_list, zaak=zaken[1])
+            DestructionListAssigneeFactory.create(destruction_list=destruction_list, user=reviewer)
 
             review = DestructionListReviewFactory.create(destruction_list=destruction_list, decision=ReviewDecisionChoices.rejected)
             DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item1, review=review)
