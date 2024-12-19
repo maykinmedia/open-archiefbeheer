@@ -23,8 +23,7 @@ class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Destruction list to edit")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit")
             await self.then.page_should_contain_text(page, "Zaak-")
-
-            await self.when.user_clicks_button(page, "Bewerken")
+            await self.when.user_clicks_button(page, "Bewerken", 1)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
             await self.when.user_fills_form_field(page, "Identificatie", "non-matching-identifier", "textbox")
 

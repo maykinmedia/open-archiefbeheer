@@ -166,6 +166,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             if assignees:
                 await destruction_list.assignees.aset(assignees)
+            else:
+                await self._get_or_create(
+                    DestructionListAssigneeFactory,
+                    destruction_list=destruction_list,
+                    user=destruction_list.assignee,
+                )
 
             if items:
                 await destruction_list.items.aset(items)

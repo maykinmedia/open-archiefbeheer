@@ -173,7 +173,9 @@ class DestructionListEndpoint(APITestCase):
         with freeze_time("2025-02-05T17:00:00+02:00"):
             DestructionListFactory.create(name="Destruction list C")
 
-        record_manager = UserFactory.create(username="record_manager")
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
 
         self.client.force_authenticate(user=record_manager)
         endpoint = furl(reverse("api:destructionlist-list"))

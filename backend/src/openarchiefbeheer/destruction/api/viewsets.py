@@ -221,7 +221,11 @@ class DestructionListViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListWriteSerializer
-    queryset = DestructionList.objects.annotate_user_permissions()
+
+    # `queryset` is required for the DRF router to dynamically pickup the "basename". However, we use the
+    # `get_queryset()` method to restrict items based on the user. We use `DestructionList.objects.none()` as
+    # failsafe default.
+    queryset = DestructionList.objects.none()
 
     lookup_field = "uuid"
     filter_backends = (DjangoFilterBackend,)
@@ -245,6 +249,11 @@ class DestructionListViewSet(
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return DestructionList.objects.permitted_for_user(
+            self.request.user
+        ).annotate_user_permissions()
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
