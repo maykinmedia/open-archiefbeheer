@@ -449,11 +449,11 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "deletable_items_count",
         )
 
-    def get_deletable_items_count(self, instance) -> int:
+    def get_deletable_items_count(self, instance: DestructionList) -> int:
         succeeded_count = instance.items.filter(
             processing_status=InternalStatus.succeeded
         ).count()
-        total_count = instance.items.all().count()
+        total_count = instance.items.filter(status=ListItemStatus.suggested).count()
         return total_count - succeeded_count
 
 

@@ -3,7 +3,7 @@ from django.test import tag
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
-from ....constants import InternalStatus, ListStatus
+from ....constants import InternalStatus, ListItemStatus, ListStatus
 
 
 @tag("e2e")
@@ -11,7 +11,7 @@ from ....constants import InternalStatus, ListStatus
 class Issue568CorrectCount(GherkinLikeTestCase):
     async def test_destruction_fails_with_incorrect_count(self):
         async with browser_page() as page:
-            zaken = await self.given.zaken_are_indexed(amount=5)
+            zaken = await self.given.zaken_are_indexed(amount=6)
             await self.given.record_manager_exists()
 
             destruction_list = await self.given.list_exists(
@@ -44,6 +44,12 @@ class Issue568CorrectCount(GherkinLikeTestCase):
                 destruction_list=destruction_list,
                 processing_status=InternalStatus.succeeded,
                 zaak=zaken[4],
+            )
+            await self.given.list_item_exists(
+                destruction_list=destruction_list,
+                status=ListItemStatus.removed,
+                processing_status=InternalStatus.new,
+                zaak=zaken[5],
             )
 
             await self.when.record_manager_logs_in(page)
