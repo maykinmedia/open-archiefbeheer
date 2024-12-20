@@ -6,13 +6,10 @@ from django_filters import (
     CharFilter,
     ChoiceFilter,
     FilterSet,
-    ModelChoiceFilter,
     NumberFilter,
     OrderingFilter,
     UUIDFilter,
 )
-
-from openarchiefbeheer.accounts.models import User
 
 from ..constants import InternalStatus, ListRole, ListStatus
 from ..models import (
@@ -100,10 +97,9 @@ class DestructionListItemFilterset(FilterSet):
 class DestructionListFilterset(FilterSet):
     name = CharFilter(lookup_expr="icontains")
     status = ChoiceFilter(choices=ListStatus.choices)
-    author = ModelChoiceFilter(queryset=User.objects.record_managers())
-    reviewer = ModelChoiceFilter(
+    author = NumberFilter()
+    reviewer = NumberFilter(
         field_name="assignees__user",
-        queryset=User.objects.reviewers(),
         method="filter_reviewer",
     )
     assignee = NumberFilter(
