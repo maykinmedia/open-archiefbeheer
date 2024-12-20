@@ -186,7 +186,7 @@ export async function markDestructionListAsFinal(
  * @param uuid
  * @returns
  */
-export async function destroyDestructionList(uuid: string) {
+export async function destructionListQueueDestruction(uuid: string) {
   const response = await request(
     "POST",
     `/destruction-lists/${uuid}/queue_destruction/`,
