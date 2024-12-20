@@ -3,42 +3,29 @@ from typing import Any, Iterable
 from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
-
 from drf_spectacular.plumbing import build_basic_type
 from drf_spectacular.utils import OpenApiTypes, extend_schema_field
-from requests.exceptions import HTTPError
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.relations import SlugRelatedField
-
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
+from openarchiefbeheer.zaken.utils import \
+    retrieve_selectielijstklasse_resultaat
+from requests.exceptions import HTTPError
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
 
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
-from ..constants import (
-    DestructionListItemAction,
-    InternalStatus,
-    ListItemStatus,
-    ListRole,
-    ListStatus,
-    ReviewDecisionChoices,
-    ZaakActionType,
-)
-from ..models import (
-    DestructionList,
-    DestructionListAssignee,
-    DestructionListCoReview,
-    DestructionListItem,
-    DestructionListItemReview,
-    DestructionListReview,
-    ReviewItemResponse,
-    ReviewResponse,
-)
+from ..constants import (DestructionListItemAction, InternalStatus,
+                         ListItemStatus, ListRole, ListStatus,
+                         ReviewDecisionChoices, ZaakActionType)
+from ..models import (DestructionList, DestructionListAssignee,
+                      DestructionListCoReview, DestructionListItem,
+                      DestructionListItemReview, DestructionListReview,
+                      ReviewItemResponse, ReviewResponse)
 from ..signals import co_reviewers_added
 from ..tasks import process_review_response
 
@@ -426,6 +413,11 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeReadSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
+    deletable_items_count = serializers.SerializerMethodField(
+        help_text=_("Number of items to be deleted"),
+        allow_null=True,
+
+    )
 
     class Meta:
         model = DestructionList
@@ -442,8 +434,13 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "created",
             "status_changed",
             "planned_destruction_date",
+            "deletable_items_count"
         )
 
+    def get_deletable_items_count(self, instance) -> int:
+        succeeded_count = instance.items.filter(processing_status=InternalStatus.succeeded).count()
+        total_count = instance.items.all().count()
+        return total_count - succeeded_count
 
 class ZakenReviewSerializer(serializers.Serializer):
     zaak_url = serializers.URLField(
