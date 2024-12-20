@@ -47,12 +47,13 @@ from .filtersets import (
 from .permissions import (
     CanAbortDestruction,
     CanCoReviewPermission,
+    CanDeleteList,
     CanMarkAsReadyToReview,
     CanMarkListAsFinal,
+    CanQueueDestruction,
     CanReassignDestructionList,
     CanReviewPermission,
     CanStartDestructionPermission,
-    CanTriggerDeletion,
     CanUpdateCoReviewers,
     CanUpdateDestructionList,
 )
@@ -168,6 +169,15 @@ from .serializers import (
         description=_("Retrieve details about a destruction list."),
         responses={200: DestructionListReadSerializer},
     ),
+    destroy=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Delete destruction list"),
+        description=_(
+            "Delete a destruction list. Can only be used for lists with status 'new'."
+        ),
+        request=None,
+        responses={204: None},
+    ),
     queue_destruction=extend_schema(
         tags=["Destruction list"],
         summary=_("Queue destruction list destruction"),
@@ -238,8 +248,10 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
         elif self.action == "update":
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
+        elif self.action == "destroy":
+            permission_classes = [IsAuthenticated & CanDeleteList]
         elif self.action == "queue_destruction":
-            permission_classes = [IsAuthenticated & CanTriggerDeletion]
+            permission_classes = [IsAuthenticated & CanQueueDestruction]
         elif self.action == "make_final":
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
         elif self.action == "reassign":

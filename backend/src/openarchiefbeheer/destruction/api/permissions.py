@@ -57,9 +57,9 @@ class CanMarkListAsFinal(permissions.BasePermission):
         return destruction_list.status == ListStatus.internally_reviewed
 
 
-class CanTriggerDeletion(permissions.BasePermission):
+class CanQueueDestruction(permissions.BasePermission):
     message = _(
-        "You are either not allowed to delete this destruction list or "
+        "You are either not allowed to queue the deletion of this destruction list or "
         "the destruction list can currently not be deleted."
     )
 
@@ -68,6 +68,19 @@ class CanTriggerDeletion(permissions.BasePermission):
 
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status == ListStatus.ready_to_delete
+
+
+class CanDeleteList(permissions.BasePermission):
+    message = _(
+        "You are either not allowed to delete this destruction list or "
+        "the destruction list does not have the status '%(status)s'."
+    ) % {"status": ListStatus.new}
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("accounts.can_start_destruction")
+
+    def has_object_permission(self, request, view, destruction_list):
+        return destruction_list.status == ListStatus.new
 
 
 class CanReassignDestructionList(permissions.BasePermission):
