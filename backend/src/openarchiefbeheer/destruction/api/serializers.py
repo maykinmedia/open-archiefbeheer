@@ -97,7 +97,7 @@ class CoReviewerSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class CoReviewerAssignementSerializer(serializers.Serializer):
+class CoReviewerAssignmentSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
     add = CoReviewerSerializer(many=True)
     remove = CoReviewerSerializer(many=True, required=False)

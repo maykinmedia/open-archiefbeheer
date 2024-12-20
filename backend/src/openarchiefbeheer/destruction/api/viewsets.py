@@ -58,7 +58,7 @@ from .permissions import (
 )
 from .serializers import (
     AbortDestructionSerializer,
-    CoReviewerAssignementSerializer,
+    CoReviewerAssignmentSerializer,
     DestructionListAssigneeReadSerializer,
     DestructionListCoReviewSerializer,
     DestructionListItemReadSerializer,
@@ -555,7 +555,7 @@ class ReviewResponseViewSet(
         description=_(
             "Full update of the co-reviewers assigned to a destruction list."
         ),
-        request=CoReviewerAssignementSerializer,
+        request=CoReviewerAssignmentSerializer,
         responses={200: DestructionListAssigneeReadSerializer},
     ),
     partial_update=extend_schema(
@@ -564,7 +564,7 @@ class ReviewResponseViewSet(
         description=_(
             "Partial update of the co-reviewers assigned to a destruction list."
         ),
-        request=CoReviewerAssignementSerializer,
+        request=CoReviewerAssignmentSerializer,
         responses={200: DestructionListAssigneeReadSerializer},
     ),
 )
@@ -605,7 +605,7 @@ class CoReviewersViewSet(
             case "list":
                 return DestructionListAssigneeReadSerializer
             case "update" | "partial_update" | "create":
-                return CoReviewerAssignementSerializer
+                return CoReviewerAssignmentSerializer
             case default:  # noqa
                 return DestructionListAssigneeReadSerializer
 
