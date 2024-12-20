@@ -310,7 +310,10 @@ class DestructionListTest(TestCase):
             status=ListStatus.deleted,
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
+        with freeze_time("2024-12-01T12:00:00+01:00"):
+            logevent.destruction_list_deletion_triggered(
+                destruction_list, record_manager
+            )
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
             status=ListItemStatus.suggested,
@@ -397,27 +400,9 @@ class DestructionListTest(TestCase):
         sheet_deleted_zaken = wb[gettext("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 7)
+        self.assertEqual(len(rows), 4)
         self.assertEqual(
-            rows[0][:4],
-            (
-                gettext("Date/Time of deletion"),
-                gettext("User who started the deletion"),
-                gettext("Groups"),
-                gettext("Number of deleted cases"),
-            ),
-        )
-        self.assertEqual(
-            rows[1][:4],
-            (
-                "2024-12-02 12:00+01:00",
-                "John Doe (jdoe1)",
-                None,
-                3,
-            ),
-        )
-        self.assertEqual(
-            rows[3],
+            rows[0],
             (
                 "Zaaktype UUID",
                 "Zaaktype Omschrijving",
@@ -430,7 +415,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[4],
+            rows[1],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -443,7 +428,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[5],
+            rows[2],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -456,7 +441,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[6],
+            rows[3],
             (
                 "111-111-222",
                 "Tralala zaaktype",
@@ -469,8 +454,34 @@ class DestructionListTest(TestCase):
             ),
         )
 
+        sheet_process_details = wb[gettext("Process details")]
+        rows = list(sheet_process_details.iter_rows(values_only=True))
+
+        self.assertEqual(
+            rows[0][:5],
+            (
+                gettext("Date/Time starting destruction"),
+                gettext("Date/Time of destruction"),
+                gettext("User who started the destruction"),
+                gettext("Groups"),
+                gettext("Number of deleted cases"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:5],
+            (
+                "2024-12-01 12:00+01:00",
+                "2024-12-02 12:00+01:00",
+                "John Doe (jdoe1)",
+                None,
+                3,
+            ),
+        )
+
     def test_generate_destruction_report_with_cases_excluded_from_list(self):
+        author = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
+            author=author,
             status=ListStatus.deleted,
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
@@ -534,6 +545,7 @@ class DestructionListTest(TestCase):
                 },
             },
         )
+        logevent.destruction_list_deletion_triggered(destruction_list, author)
 
         destruction_list.generate_destruction_report()
 
@@ -543,9 +555,9 @@ class DestructionListTest(TestCase):
         sheet_deleted_zaken = wb[gettext("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows), 3)
         self.assertEqual(
-            rows[3],
+            rows[0],
             (
                 "Zaaktype UUID",
                 "Zaaktype Omschrijving",
@@ -557,7 +569,7 @@ class DestructionListTest(TestCase):
                 "Resultaat",
             ),
         )
-        deleted_zaken_ids = sorted([rows[4][3], rows[5][3]])
+        deleted_zaken_ids = sorted([rows[1][3], rows[2][3]])
         self.assertEqual(
             deleted_zaken_ids,
             ["ZAAK-01", "ZAAK-03"],
@@ -580,30 +592,38 @@ class DestructionListTest(TestCase):
             status=ListStatus.deleted,
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager1)
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager2)
+        with freeze_time("2024-12-01T12:00:00+01:00"):
+            logevent.destruction_list_deletion_triggered(
+                destruction_list, record_manager1
+            )
+        with freeze_time("2024-12-01T12:30:00+01:00"):
+            logevent.destruction_list_deletion_triggered(
+                destruction_list, record_manager2
+            )
 
         destruction_list.generate_destruction_report()
 
         destruction_list.refresh_from_db()
 
         wb = load_workbook(filename=destruction_list.destruction_report.path)
-        sheet_deleted_zaken = wb[gettext("Deleted zaken")]
+        sheet_deleted_zaken = wb[gettext("Process details")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 4)
+        self.assertEqual(len(rows), 4)  # No reviews logs
         self.assertEqual(
-            rows[0][:4],
+            rows[0][:5],
             (
-                gettext("Date/Time of deletion"),
-                gettext("User who started the deletion"),
+                gettext("Date/Time starting destruction"),
+                gettext("Date/Time of destruction"),
+                gettext("User who started the destruction"),
                 gettext("Groups"),
                 gettext("Number of deleted cases"),
             ),
         )
         self.assertEqual(
-            rows[1][:4],
+            rows[1][:5],
             (
+                "2024-12-01 12:30+01:00",
                 "2024-12-02 12:00+01:00",
                 "Jane Doe (jdoe2)",
                 None,
@@ -653,6 +673,7 @@ class DestructionListTest(TestCase):
         logevent.destruction_list_reviewed(
             destruction_list, review_reviewer_rejected, reviewer
         )  # A rejection (should NOT be present in the report)
+        logevent.destruction_list_deletion_triggered(destruction_list, author)
         with freeze_time("2024-05-02T16:00:00+02:00"):
             logevent.destruction_list_reviewed(
                 destruction_list, review_reviewer_accepted, reviewer
@@ -665,13 +686,13 @@ class DestructionListTest(TestCase):
         destruction_list.generate_destruction_report()
 
         wb = load_workbook(filename=destruction_list.destruction_report.path)
-        sheet_deleted_zaken = wb[gettext("Review process")]
+        sheet_deleted_zaken = wb[gettext("Process details")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 6)
 
         self.assertEqual(
-            rows[1],
+            rows[4][:4],
             (
                 "Reviewer",
                 "John Doe (jdoe1)",
@@ -680,7 +701,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[2],
+            rows[5][:4],
             (
                 "Archivist",
                 "Alice Wonderland (awonderland1)",

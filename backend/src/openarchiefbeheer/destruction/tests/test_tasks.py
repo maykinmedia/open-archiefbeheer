@@ -368,7 +368,16 @@ class ProcessDeletingZakenTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete, author=record_manager
         )
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
+        review = DestructionListReviewFactory.create(
+            destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted
+        )
+
+        with freeze_time("2024-10-06T12:00:00+02:00"):
+            logevent.destruction_list_reviewed(destruction_list, review, review.author)
+        with freeze_time("2024-12-01T12:00:00+01:00"):
+            logevent.destruction_list_deletion_triggered(
+                destruction_list, record_manager
+            )
 
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -456,28 +465,9 @@ class ProcessDeletingZakenTests(TestCase):
         sheet_deleted_zaken = wb[_("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
-        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows), 3)
         self.assertEqual(
-            rows[0][:4],
-            (
-                _("Date/Time of deletion"),
-                _("User who started the deletion"),
-                _("Groups"),
-                _("Number of deleted cases"),
-            ),
-        )
-        self.assertEqual(
-            rows[1][:4],
-            (
-                "2024-12-02 12:00+01:00",
-                "John Doe (jdoe1)",
-                None,
-                2,
-            ),
-        )
-
-        self.assertEqual(
-            rows[4],
+            rows[1],
             (
                 "111-111-111",
                 "Aangifte behandelen",
@@ -490,7 +480,7 @@ class ProcessDeletingZakenTests(TestCase):
             ),
         )
         self.assertEqual(
-            rows[5],
+            rows[2],
             (
                 "111-111-111",
                 "Aangifte behandelen",
@@ -500,6 +490,31 @@ class ProcessDeletingZakenTests(TestCase):
                 "2022-01-02",
                 "Evaluatie uitvoeren",
                 "This is a result type",
+            ),
+        )
+
+        sheet_process_details = wb[_("Process details")]
+        rows = list(sheet_process_details.iter_rows(values_only=True))
+
+        self.assertEqual(len(rows), 5)
+        self.assertEqual(
+            rows[0][:5],
+            (
+                _("Date/Time starting destruction"),
+                _("Date/Time of destruction"),
+                _("User who started the destruction"),
+                _("Groups"),
+                _("Number of deleted cases"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:5],
+            (
+                "2024-12-01 12:00+01:00",
+                "2024-12-02 12:00+01:00",
+                "John Doe (jdoe1)",
+                None,
+                2,
             ),
         )
 
@@ -529,9 +544,13 @@ class ProcessDeletingZakenTests(TestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_processing_list_with_failed_item(self):
+        author = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete, processing_status=InternalStatus.failed
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.failed,
+            author=author,
         )
+        logevent.destruction_list_deletion_triggered(destruction_list, author)
 
         DestructionListItemFactory.create(
             with_zaak=True,
@@ -618,12 +637,20 @@ class ProcessDeletingZakenTests(TestCase):
                 },
             },
         )
+        review = DestructionListReviewFactory.create(
+            destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted
+        )
         assignees = DestructionListAssigneeFactory.create_batch(
             3, destruction_list=destruction_list
         )
 
         self.assertIsNone(destruction_list.destruction_report.name)
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
+        with freeze_time("2024-10-06T12:00:00+02:00"):
+            logevent.destruction_list_reviewed(destruction_list, review, review.author)
+        with freeze_time("2024-10-08T12:00:00+02:00"):
+            logevent.destruction_list_deletion_triggered(
+                destruction_list, record_manager
+            )
 
         with (
             patch(
@@ -663,21 +690,27 @@ class ProcessDeletingZakenTests(TestCase):
         )
 
         wb = load_workbook(filename=destruction_list.destruction_report.path)
-        sheet_deleted_zaken = wb[_("Deleted zaken")]
-        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
+        sheet_process_details = wb[_("Process details")]
+        rows = list(sheet_process_details.iter_rows(values_only=True))
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(
-            rows[1][:4],
+            rows[1][:5],
             (
+                "2024-10-08 12:00+02:00",
                 "2024-10-09 12:00+02:00",
                 "John Doe (jdoe1)",
                 None,
                 1,
             ),
         )
+
+        sheet_deleted_zaken = wb[_("Deleted zaken")]
+        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
+
+        self.assertEqual(len(rows), 2)
         self.assertEqual(
-            rows[3],
+            rows[0],
             (
                 "Zaaktype UUID",
                 "Zaaktype Omschrijving",
@@ -690,7 +723,7 @@ class ProcessDeletingZakenTests(TestCase):
             ),
         )
         self.assertEqual(
-            rows[4],
+            rows[1],
             (
                 "111-111-111",
                 "Tralala zaaktype",
