@@ -8,7 +8,9 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
+from ..constants import ListStatus
 from .factories import (
+    DestructionListAssigneeFactory,
     DestructionListFactory,
     DestructionListItemFactory,
     DestructionListItemReviewFactory,
@@ -165,6 +167,138 @@ class DestructionListItemReviewEndpoint(APITestCase):
 
 
 class DestructionListEndpoint(APITestCase):
+    def test_filter_name(self):
+        DestructionListFactory.create(name="Destruction list A")
+        DestructionListFactory.create(name="Destruction list B")
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["name"] = "b"
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        data = response.json()
+
+        names = [list["name"] for list in data]
+
+        self.assertEqual(
+            names,
+            ["Destruction list B"],
+        )
+
+    def test_filter_status(self):
+        DestructionListFactory.create(name="Destruction list A", status=ListStatus.new)
+        DestructionListFactory.create(
+            name="Destruction list B", status=ListStatus.ready_to_review
+        )
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["status"] = "ready_to_review"
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        data = response.json()
+
+        names = [list["name"] for list in data]
+
+        self.assertEqual(
+            names,
+            ["Destruction list B"],
+        )
+
+    def test_filter_author(self):
+        user_a = UserFactory.create()
+        user_b = UserFactory.create()
+
+        DestructionListFactory.create(name="Destruction list A", author=user_a)
+        DestructionListFactory.create(name="Destruction list B", author=user_b)
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["author"] = user_b.pk
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        data = response.json()
+
+        names = [list["name"] for list in data]
+
+        self.assertEqual(
+            names,
+            ["Destruction list B"],
+        )
+
+    def test_filter_reviewer(self):
+        user_a = UserFactory.create()
+        user_b = UserFactory.create()
+
+        destruction_list_a = DestructionListFactory.create(
+            name="Destruction list A",
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list_a, user=user_a
+        )
+
+        destruction_list_b = DestructionListFactory.create(
+            name="Destruction list B",
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list_b, user=user_b
+        )
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["reviewer"] = user_b.pk
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        data = response.json()
+
+        names = [list["name"] for list in data]
+
+        self.assertEqual(
+            names,
+            ["Destruction list B"],
+        )
+
+    def test_filter_assignee(self):
+        user_a = UserFactory.create()
+        user_b = UserFactory.create()
+
+        DestructionListFactory.create(name="Destruction list A", assignee=user_a)
+        DestructionListFactory.create(name="Destruction list B", assignee=user_b)
+
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        endpoint.args["assignee"] = user_b.pk
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        data = response.json()
+
+        names = [list["name"] for list in data]
+
+        self.assertEqual(
+            names,
+            ["Destruction list B"],
+        )
+
     def test_ordering_on_creation_date(self):
         with freeze_time("2024-05-02T16:00:00+02:00"):
             DestructionListFactory.create(name="Destruction list A")

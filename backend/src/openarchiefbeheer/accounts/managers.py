@@ -4,6 +4,50 @@ from django.db.models import Prefetch, Q, QuerySet
 
 
 class UserQuerySet(QuerySet):
+    def record_managers(self) -> "UserQuerySet":
+        """
+        Returns a QuerySet of users that have the permission to start a destruction list.
+        """
+        permission = Permission.objects.get(codename="can_start_destruction")
+        return self._users_with_permission(permission)
+
+    def reviewers(self) -> "UserQuerySet":
+        """
+        Returns a QuerySet of users that have the permission to review a destruction list.
+        """
+        return self.filter(  # noqa
+            Q(groups__permissions__codename="can_review_destruction")
+            | Q(user_permissions__codename="can_review_destruction")
+            | Q(groups__permissions__codename="can_review_final_list")
+            | Q(user_permissions__codename="can_review_final_list")
+        ).distinct()
+
+    def main_reviewers(self) -> "UserQuerySet":
+        """
+        Returns a QuerySet of users that have the permission to review a destruction list (main reviewers ony).
+        """
+        permission = Permission.objects.get(codename="can_review_destruction")
+        return self._users_with_permission(permission)
+
+    def co_reviewers(self) -> "UserQuerySet":
+        """
+        Returns a QuerySet of users that have the permission to review a destruction list (co reviewers ony).
+        """
+        permission = Permission.objects.get(codename="can_co_review_destruction")
+        return self._users_with_permission(permission)
+
+    def archivists(self) -> "UserQuerySet":
+        """
+        Returns a QuerySet of users that have the permission to perform a final review on a destruction list.
+        """
+        permission = Permission.objects.get(codename="can_review_final_list")
+        return self._users_with_permission(permission)
+
+    def _users_with_permission(self, permission: Permission) -> "UserQuerySet":
+        return self.filter(  # noqa
+            Q(groups__permissions=permission) | Q(user_permissions=permission)
+        ).distinct()
+
     def annotate_permissions(self) -> "UserQuerySet":
         """
         Adds `user_permission_codenames` and `group_permission_codenames` as `ArrayField` to the current QuerySet
@@ -71,20 +115,3 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(username, email, password, **extra_fields)
-
-    def _users_with_permission(self, permission: Permission) -> UserQuerySet:
-        return self.filter(
-            Q(groups__permissions=permission) | Q(user_permissions=permission)
-        ).distinct()
-
-    def main_reviewers(self) -> UserQuerySet:
-        permission = Permission.objects.get(codename="can_review_destruction")
-        return self._users_with_permission(permission)
-
-    def archivists(self) -> UserQuerySet:
-        permission = Permission.objects.get(codename="can_review_final_list")
-        return self._users_with_permission(permission)
-
-    def co_reviewers(self) -> UserQuerySet:
-        permission = Permission.objects.get(codename="can_co_review_destruction")
-        return self._users_with_permission(permission)

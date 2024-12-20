@@ -3,13 +3,18 @@ from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
     BooleanFilter,
+    CharFilter,
+    ChoiceFilter,
     FilterSet,
+    ModelChoiceFilter,
     NumberFilter,
     OrderingFilter,
     UUIDFilter,
 )
 
-from ..constants import InternalStatus
+from openarchiefbeheer.accounts.models import User
+
+from ..constants import InternalStatus, ListRole, ListStatus
 from ..models import (
     DestructionList,
     DestructionListCoReview,
@@ -93,15 +98,31 @@ class DestructionListItemFilterset(FilterSet):
 
 
 class DestructionListFilterset(FilterSet):
+    name = CharFilter(lookup_expr="icontains")
+    status = ChoiceFilter(choices=ListStatus.choices)
+    author = ModelChoiceFilter(queryset=User.objects.record_managers())
+    reviewer = ModelChoiceFilter(
+        field_name="assignees__user",
+        queryset=User.objects.reviewers(),
+        method="filter_reviewer",
+    )
     assignee = NumberFilter(
         field_name="assignee",
         help_text="The pk of the user currently assigned to the list.",
     )
-    ordering = OrderingFilter(fields=("created", "created"))
+
+    def filter_reviewer(self, queryset, name, value):
+        return queryset.filter(
+            Q(assignees__role=ListRole.main_reviewer)
+            | Q(assignees__role=ListRole.co_reviewer),
+            assignees__user=value,
+        )
+
+    ordering = OrderingFilter(fields=(("created", "created"), ("name", "name")))
 
     class Meta:
         model = DestructionList
-        fields = ("assignee", "ordering")
+        fields = ("name", "status", "author", "reviewer", "assignee", "ordering")
 
 
 class DestructionListReviewFilterset(FilterSet):

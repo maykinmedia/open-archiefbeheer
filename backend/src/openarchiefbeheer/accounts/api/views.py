@@ -11,6 +11,38 @@ from .serializers import UserSerializer
 
 @extend_schema(
     tags=["Users"],
+    summary=_("Users list"),
+    description=_("List all the users."),
+    responses={
+        200: UserSerializer(many=True),
+    },
+)
+class UsersView(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self) -> QuerySet[User]:
+        return User.objects.all()
+
+
+@extend_schema(
+    tags=["Users"],
+    summary=_("Record managers list"),
+    description=_(
+        "List all the users that have the permission to create destruction lists."
+    ),
+    responses={
+        200: UserSerializer(many=True),
+    },
+)
+class RecordManagersView(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self) -> QuerySet[User]:
+        return User.objects.record_managers()
+
+
+@extend_schema(
+    tags=["Users"],
     summary=_("Main reviewers list"),
     description=_(
         "List all the users that have the permission to review draft destruction lists."

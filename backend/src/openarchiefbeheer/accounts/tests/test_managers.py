@@ -9,6 +9,67 @@ from .factories import UserFactory
 
 
 class UserQuerySetTests(TestCase):
+    def test_can_start_destruction_user_permission(self):
+        user = UserFactory.create()
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        qs = User.objects.record_managers()
+        self.assertEqual(len(qs), 1)
+        self.assertIn(record_manager, qs)
+        self.assertNotIn(user, qs)
+
+    def test_can_start_destruction_group_permission(self):
+        record_managers = Group.objects.create()
+        record_managers.permissions.add(
+            Permission.objects.get(
+                codename="can_start_destruction",
+            )
+        )
+
+        user = UserFactory.create()
+        record_manager = UserFactory.create()
+        record_manager.groups.add(record_managers)
+
+        qs = User.objects.record_managers()
+        self.assertEqual(len(qs), 1)
+        self.assertIn(record_manager, qs)
+        self.assertNotIn(user, qs)
+
+    def test_can_review_destruction_user_permission(self):
+        user = UserFactory.create()
+        reviewer = UserFactory.create(post__can_review_destruction=True)
+        archivist = UserFactory.create(post__can_review_final_list=True)
+        qs = User.objects.reviewers()
+        self.assertEqual(len(qs), 2)
+        self.assertIn(reviewer, qs)
+        self.assertIn(archivist, qs)
+        self.assertNotIn(user, qs)
+
+    def test_can_review_destruction_group_permission(self):
+        reviewers = Group.objects.create(name="reviewers")
+        reviewers.permissions.add(
+            Permission.objects.get(
+                codename="can_review_destruction",
+            )
+        )
+        archivists = Group.objects.create(name="archivists")
+        archivists.permissions.add(
+            Permission.objects.get(
+                codename="can_review_final_list",
+            )
+        )
+
+        user = UserFactory.create()
+        reviewer = UserFactory.create()
+        reviewer.groups.add(reviewers)
+        archivist = UserFactory.create()
+        archivist.groups.add(archivists)
+
+        qs = User.objects.reviewers()
+        self.assertEqual(len(qs), 2)
+        self.assertIn(reviewer, qs)
+        self.assertIn(archivist, qs)
+        self.assertNotIn(user, qs)
+
     def test_annotate_permissions(self):
         content_type = ContentType.objects.get_for_model(DestructionList)
 
