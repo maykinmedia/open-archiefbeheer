@@ -13,12 +13,13 @@ export type DestructionList = {
   author: User;
   comment: string;
   containsSensitiveInfo: boolean;
-  plannedDestructionDate: string | null;
   created: string;
+  plannedDestructionDate: string | null;
   name: string;
   status: DestructionListStatus;
   processingStatus: ProcessingStatus;
   statusChanged: string | null;
+  deletableItemsCount: number;
   uuid: string;
 };
 
