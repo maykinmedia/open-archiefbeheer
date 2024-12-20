@@ -16,9 +16,8 @@ export interface LandingContext {
 export const landingLoader = loginRequired(
   async ({ request }): Promise<LandingContext> => {
     const url = new URL(request.url);
-    const queryParams = url.searchParams;
-    const orderQuery = queryParams.get("ordering");
-    const statusMap = await getStatusMap(orderQuery);
+    const urlSearchParams = url.searchParams;
+    const statusMap = await getStatusMap(urlSearchParams);
     const user = await whoAmI();
 
     return {
@@ -28,10 +27,11 @@ export const landingLoader = loginRequired(
   },
 );
 
-export const getStatusMap = async (orderQuery: string | null) => {
-  const lists = await listDestructionLists({
-    ordering: orderQuery ?? "-created",
-  });
+export const getStatusMap = async (urlSearchParams: URLSearchParams) => {
+  if (!urlSearchParams.has("ordering")) {
+    urlSearchParams.set("ordering", "-created");
+  }
+  const lists = await listDestructionLists(urlSearchParams);
   return STATUSES.reduce((acc, val) => {
     const status = val[0] || "";
     const destructionLists = lists.filter(

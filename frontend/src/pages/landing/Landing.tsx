@@ -6,13 +6,24 @@ import {
   P,
   Solid,
   Tooltip,
+  string2Title,
 } from "@maykin-ui/admin-ui";
+import { useMemo } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../components/ProcessingStatusBadge";
+import {
+  useCombinedSearchParams,
+  useRecordManagers,
+  useReviewers,
+  useUsers,
+} from "../../hooks";
 import { usePoll } from "../../hooks/usePoll";
 import { User } from "../../lib/api/auth";
-import { DestructionList } from "../../lib/api/destructionLists";
+import {
+  DESTRUCTION_LIST_STATUSES,
+  DestructionList,
+} from "../../lib/api/destructionLists";
 import { ProcessingStatus } from "../../lib/api/processingStatus";
 import {
   canCoReviewDestructionList,
@@ -90,12 +101,13 @@ export const Landing = () => {
   const { statusMap, user } = useLoaderData() as LandingContext;
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+  const [searchParams, setSearchParams] = useCombinedSearchParams();
+  const recordManagers = useRecordManagers();
+  const reviewers = useReviewers();
+  const users = useUsers();
 
   usePoll(async () => {
-    const orderQuery = new URLSearchParams(window.location.search).get(
-      "ordering",
-    );
-    const _statusMap = await getStatusMap(orderQuery);
+    const _statusMap = await getStatusMap(searchParams);
     const equal = JSON.stringify(_statusMap) === JSON.stringify(statusMap);
     if (!equal) {
       revalidator.revalidate();
@@ -199,22 +211,15 @@ export const Landing = () => {
     }),
   );
 
-  const sortOptions = [
-    { label: "Nieuwste eerst", value: "-created" },
-    { label: "Oudste eerst", value: "created" },
-  ];
-
-  const selectedSort =
-    new URLSearchParams(window.location.search).get("ordering") || "-created";
-
-  const sortedOptions = sortOptions.map((option) => ({
-    ...option,
-    selected: option.value === selectedSort,
-  }));
-
-  const onChangeSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    // update the query string
-    navigate(`?ordering=${event.target.value}`);
+  /**
+   * Updates the search params when the user changes a filter/order input.
+   * @param target
+   */
+  const handleFilter = ({
+    target,
+  }: React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent) => {
+    const { name, value } = target as HTMLInputElement;
+    setSearchParams({ ...searchParams, [name]: value });
   };
 
   return (
@@ -226,11 +231,108 @@ export const Landing = () => {
         toolbarProps: {
           items: [
             {
+              icon: <Outline.MagnifyingGlassIcon />,
+              name: "name",
+              placeholder: "Zoeken…",
+              title: "Zoeken",
+              type: "search",
+              value: searchParams.get("name") || "",
+              onBlur: handleFilter,
+              onKeyUp: (e: React.KeyboardEvent) => {
+                if (e.key === "Enter") {
+                  handleFilter(e);
+                }
+              },
+            },
+            {
+              icon: <Outline.DocumentIcon />,
+              name: "status",
+              options: useMemo(
+                () =>
+                  DESTRUCTION_LIST_STATUSES.map((status) => ({
+                    label: string2Title(STATUS_MAPPING[status]),
+                    value: status,
+                  })),
+                [],
+              ),
+              placeholder: "Status…",
+              required: false,
+              title: "Status",
+              value: searchParams.get("status") || "",
+              onChange: handleFilter,
+            },
+            {
+              icon: <Outline.DocumentPlusIcon />,
+              name: "author",
+              options: useMemo(
+                () => [
+                  ...recordManagers.map((rm) => {
+                    return {
+                      label: formatUser(rm, { showUsername: false }),
+                      value: rm.pk,
+                    };
+                  }),
+                ],
+                [recordManagers],
+              ),
+              placeholder: "Auteur…",
+              required: false,
+              title: "Auteur",
+              value: searchParams.get("author") || "",
+              onChange: handleFilter,
+            },
+            {
+              icon: <Outline.DocumentArrowUpIcon />,
+              name: "reviewer",
+              options: useMemo(
+                () => [
+                  ...reviewers.map((rm) => {
+                    return {
+                      label: formatUser(rm, { showUsername: false }),
+                      value: rm.pk,
+                    };
+                  }),
+                ],
+                [reviewers],
+              ),
+              placeholder: "Beoordelaar…",
+              required: false,
+              title: "Beoordelaar",
+              value: searchParams.get("reviewer") || "",
+              onChange: handleFilter,
+            },
+            {
+              icon: <Outline.UserIcon />,
+              name: "assignee",
+              options: useMemo(
+                () => [
+                  ...users.map((rm) => {
+                    return {
+                      label: formatUser(rm, { showUsername: false }),
+                      value: rm.pk,
+                    };
+                  }),
+                ],
+                [users],
+              ),
+              placeholder: "Toegewezen aan…",
+              required: false,
+              title: "Toegewezen aan",
+              value: searchParams.get("assignee") || "",
+              onChange: handleFilter,
+            },
+            {
+              icon: <Outline.ChevronUpDownIcon />,
               direction: "horizontal",
-              label: "Sorteren",
+              name: "ordering",
+              options: [
+                { label: "Nieuwste eerst", value: "-created" },
+                { label: "Oudste eerst", value: "created" },
+              ],
               required: true,
-              options: sortedOptions,
-              onChange: onChangeSort,
+              title: "Sorteren",
+              value: searchParams.get("ordering") || "-created",
+              onChange: handleFilter,
             },
             "spacer",
             {

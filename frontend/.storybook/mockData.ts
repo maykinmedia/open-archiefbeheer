@@ -6,7 +6,11 @@ import {
   destructionListFactory,
 } from "../src/fixtures/destructionList";
 import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../src/fixtures/selectieLijstKlasseChoices";
-import { userFactory, usersFactory } from "../src/fixtures/user";
+import {
+  recordManagerFactory,
+  userFactory,
+  usersFactory,
+} from "../src/fixtures/user";
 import { zaaktypeChoicesFactory } from "../src/fixtures/zaaktypeChoices";
 
 export const MOCKS = {
@@ -105,6 +109,18 @@ export const MOCKS = {
       enabled: false,
       loginUrl: "http://www.example.com",
     },
+  },
+  USERS: {
+    url: "http://localhost:8000/api/v1/users/",
+    method: "GET",
+    status: 200,
+    response: usersFactory(),
+  },
+  RECORD_MANAGERS: {
+    url: "http://localhost:8000/api/v1/record-managers/",
+    method: "GET",
+    status: 200,
+    response: [recordManagerFactory()],
   },
   REVIEWERS: {
     url: "http://localhost:8000/api/v1/reviewers/",
