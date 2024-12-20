@@ -186,15 +186,14 @@ export async function markDestructionListAsFinal(
  * @param uuid
  * @returns
  */
-export async function destroyDestructionList(uuid: string) {
+export async function destructionListQueueDestruction(uuid: string) {
   const response = await request(
-    "DELETE",
-    `/destruction-lists/${uuid}/`,
+    "POST",
+    `/destruction-lists/${uuid}/queue_destruction/`,
     {},
     { uuid },
   );
-  // Check if the response is a 201 Created status code.
-  if (response.status === 204) {
+  if (response.status === 200) {
     return null;
   }
 

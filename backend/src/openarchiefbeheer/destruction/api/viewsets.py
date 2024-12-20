@@ -168,13 +168,15 @@ from .serializers import (
         description=_("Retrieve details about a destruction list."),
         responses={200: DestructionListReadSerializer},
     ),
-    destroy=extend_schema(
+    queue_destruction=extend_schema(
         tags=["Destruction list"],
-        summary=_("Destroy destruction list"),
+        summary=_("Queue destruction list destruction"),
         description=_(
-            "Calling this endpoint will start a background process that will "
+            "Calling this endpoint will queue a background process that will "
             "delete the cases in the list from the case system."
         ),
+        request=None,
+        responses={200: None},
     ),
     make_final=extend_schema(
         tags=["Destruction list"],
@@ -236,7 +238,7 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanStartDestructionPermission]
         elif self.action == "update":
             permission_classes = [IsAuthenticated & CanUpdateDestructionList]
-        elif self.action == "destroy":
+        elif self.action == "queue_destruction":
             permission_classes = [IsAuthenticated & CanTriggerDeletion]
         elif self.action == "make_final":
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
@@ -268,10 +270,13 @@ class DestructionListViewSet(
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    def perform_destroy(self, instance: DestructionList) -> None:
+    @action(detail=True, methods=["post"], name="queue-destruction")
+    def queue_destruction(self, request, *args, **kwargs) -> None:
+        destruction_list = self.get_object()
+
         today = date.today()
         destruction_date = today + timedelta(days=WAITING_PERIOD)
-        if not instance.all_items_can_be_deleted_by_date(destruction_date):
+        if not destruction_list.all_items_can_be_deleted_by_date(destruction_date):
             raise ValidationError(
                 _(
                     "This list contains cases with archiving date later than %(destruction_date)s, "
@@ -281,8 +286,8 @@ class DestructionListViewSet(
             )
 
         if (
-            instance.planned_destruction_date
-            and instance.planned_destruction_date > today
+            destruction_list.planned_destruction_date
+            and destruction_list.planned_destruction_date > today
         ):
             raise ValidationError(
                 _(
@@ -291,15 +296,20 @@ class DestructionListViewSet(
                 % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
-        logevent.destruction_list_deletion_triggered(instance, self.request.user)
+        logevent.destruction_list_deletion_triggered(
+            destruction_list, self.request.user
+        )
 
-        if instance.processing_status == InternalStatus.new:
-            instance.planned_destruction_date = today + timedelta(days=WAITING_PERIOD)
-            instance.save()
-            return
+        if destruction_list.processing_status == InternalStatus.new:
+            destruction_list.planned_destruction_date = today + timedelta(
+                days=WAITING_PERIOD
+            )
+            destruction_list.save()
+            return Response()
 
         # If it is a retry, process immediately
-        delete_destruction_list(instance)
+        delete_destruction_list(destruction_list)
+        return Response()
 
     @action(detail=True, methods=["post"], name="make-final")
     def make_final(self, request, *args, **kwargs):
