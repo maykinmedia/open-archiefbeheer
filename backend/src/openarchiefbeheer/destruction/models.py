@@ -14,16 +14,24 @@ from django.utils.translation import gettext_lazy as _
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.utils import (delete_zaak_and_related_objects,
-                                           get_zaak_metadata)
+from openarchiefbeheer.zaken.utils import (
+    delete_zaak_and_related_objects,
+    get_zaak_metadata,
+)
 from privates.fields import PrivateMediaFileField
 from slugify import slugify
 from timeline_logger.models import TimelineLog
 
 from .assignment_logic import STATE_MANAGER
-from .constants import (DestructionListItemAction, InternalStatus,
-                        ListItemStatus, ListRole, ListStatus,
-                        ReviewDecisionChoices, ZaakActionType)
+from .constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListItemStatus,
+    ListRole,
+    ListStatus,
+    ReviewDecisionChoices,
+    ZaakActionType,
+)
 from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
 from .managers import DestructionListManager
 
@@ -234,9 +242,11 @@ class DestructionList(models.Model):
         self.save()
 
     def create_report_zaak(self) -> None:
-        from .utils import (attach_report_to_zaak,
-                            create_eio_destruction_report,
-                            create_zaak_for_report)
+        from .utils import (
+            attach_report_to_zaak,
+            create_eio_destruction_report,
+            create_zaak_for_report,
+        )
 
         if self.processing_status == InternalStatus.succeeded:
             return

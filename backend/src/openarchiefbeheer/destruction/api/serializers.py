@@ -11,21 +11,32 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.utils import \
-    retrieve_selectielijstklasse_resultaat
+from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
 from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
-from ..constants import (DestructionListItemAction, InternalStatus,
-                         ListItemStatus, ListRole, ListStatus,
-                         ReviewDecisionChoices, ZaakActionType)
-from ..models import (DestructionList, DestructionListAssignee,
-                      DestructionListCoReview, DestructionListItem,
-                      DestructionListItemReview, DestructionListReview,
-                      ReviewItemResponse, ReviewResponse)
+from ..constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListItemStatus,
+    ListRole,
+    ListStatus,
+    ReviewDecisionChoices,
+    ZaakActionType,
+)
+from ..models import (
+    DestructionList,
+    DestructionListAssignee,
+    DestructionListCoReview,
+    DestructionListItem,
+    DestructionListItemReview,
+    DestructionListReview,
+    ReviewItemResponse,
+    ReviewResponse,
+)
 from ..signals import co_reviewers_added
 from ..tasks import process_review_response
 
@@ -416,7 +427,6 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
     deletable_items_count = serializers.SerializerMethodField(
         help_text=_("Number of items to be deleted"),
         allow_null=True,
-
     )
 
     class Meta:
@@ -434,13 +444,16 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "created",
             "status_changed",
             "planned_destruction_date",
-            "deletable_items_count"
+            "deletable_items_count",
         )
 
     def get_deletable_items_count(self, instance) -> int:
-        succeeded_count = instance.items.filter(processing_status=InternalStatus.succeeded).count()
+        succeeded_count = instance.items.filter(
+            processing_status=InternalStatus.succeeded
+        ).count()
         total_count = instance.items.all().count()
         return total_count - succeeded_count
+
 
 class ZakenReviewSerializer(serializers.Serializer):
     zaak_url = serializers.URLField(
