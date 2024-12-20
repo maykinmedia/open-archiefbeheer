@@ -3,8 +3,14 @@ from typing import Any, Iterable
 from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
+
 from drf_spectacular.plumbing import build_basic_type
 from drf_spectacular.utils import OpenApiTypes, extend_schema_field
+from requests.exceptions import HTTPError
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
+
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.logging import logevent
@@ -12,10 +18,6 @@ from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
-from requests.exceptions import HTTPError
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.relations import SlugRelatedField
 
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
 from ..constants import (

@@ -1,7 +1,5 @@
-import asyncio
-
-from asgiref.sync import sync_to_async
 from django.test import tag
+
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 

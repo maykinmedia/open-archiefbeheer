@@ -11,6 +11,11 @@ from django.db import models
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from privates.fields import PrivateMediaFileField
+from slugify import slugify
+from timeline_logger.models import TimelineLog
+
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
@@ -18,9 +23,6 @@ from openarchiefbeheer.zaken.utils import (
     delete_zaak_and_related_objects,
     get_zaak_metadata,
 )
-from privates.fields import PrivateMediaFileField
-from slugify import slugify
-from timeline_logger.models import TimelineLog
 
 from .assignment_logic import STATE_MANAGER
 from .constants import (
