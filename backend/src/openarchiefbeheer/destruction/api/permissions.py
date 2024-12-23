@@ -124,3 +124,13 @@ class CanUpdateCoReviewers(permissions.BasePermission):
 
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status == ListStatus.ready_to_review
+
+
+class CanDownloadReport(permissions.BasePermission):
+    message = _("You cannot download the destruction report.")
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("accounts.can_start_destruction")
+
+    def has_object_permission(self, request, view, destruction_list):
+        return destruction_list.status == ListStatus.deleted
