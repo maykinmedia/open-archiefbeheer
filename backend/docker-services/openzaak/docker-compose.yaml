@@ -46,8 +46,6 @@ services:
       - JWT_EXPIRY=99999999999  # Roughly 3170 years. This is required for tests with time frozen to work
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-2}
       - DISABLE_2FA=yes
-    ports:
-      - 8003:8000
     volumes: &openzaak_web_volumes
       # mount fixtures dir to automatically populate the DB
       - ./fixtures/:/app/fixtures
@@ -59,6 +57,16 @@ services:
     networks:
       - openzaak-dev
 
+  web-init:
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
+    environment: *openzaak_web_env
+    volumes: *openzaak_web_volumes
+    command: ["/bin/sh", "-c", "echo \"This is a destruction report\" > /app/private-media/uploads/2024/12/01219b90-0d13-4e25-b463-ab1545b05f05.bin"]
+    depends_on:
+      - openzaak-web.local
+    networks:
+      - openzaak-dev
+
   celery:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.13.0}
     environment: *openzaak_web_env
@@ -67,6 +75,18 @@ services:
     depends_on:
       - openzaak-db
       - openzaak-redis
+    networks:
+      - openzaak-dev
+
+  openzaak-nginx:
+    image: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - private-media:/private-media
+    ports:
+      - 8003:80
+    depends_on:
+      - openzaak-web.local
     networks:
       - openzaak-dev
 
