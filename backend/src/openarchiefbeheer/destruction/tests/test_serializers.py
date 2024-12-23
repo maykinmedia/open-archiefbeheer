@@ -13,7 +13,9 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
 
 from ...zaken.tests.factories import ZaakFactory
+from ..api.constants import MAX_NUMBER_CO_REVIEWERS
 from ..api.serializers import (
+    CoReviewerAssignmentSerializer,
     DestructionListCoReviewSerializer,
     DestructionListReviewSerializer,
     DestructionListWriteSerializer,
@@ -1282,3 +1284,140 @@ class DestructionListCoReviewSerializerTests(TestCase):
             },
             message,
         )
+
+
+class CoReviewerAssignmentSerializerTests(TestCase):
+    def test_validate_max_co_reviewers_invalid_full(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+
+        request = factory.put("/foo")
+        request.user = UserFactory.create()
+
+        serializer = CoReviewerAssignmentSerializer(
+            instance=destruction_list,
+            data={
+                "add": [
+                    {"user": user.pk}
+                    for user in UserFactory.create_batch(
+                        10, post__can_co_review_destruction=True
+                    )
+                ],
+                "comment": "gh-561",
+            },
+            context={
+                "request": request,
+                "destruction_list": destruction_list,
+            },
+            partial=False,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["non_field_errors"][0],
+            _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
+            % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS},
+        )
+
+    def test_validate_max_co_reviewers_valid_full(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+
+        request = factory.put("/foo")
+        request.user = UserFactory.create()
+
+        serializer = CoReviewerAssignmentSerializer(
+            instance=destruction_list,
+            data={
+                "add": [
+                    {"user": user.pk}
+                    for user in UserFactory.create_batch(
+                        5, post__can_co_review_destruction=True
+                    )
+                ],
+                "comment": "gh-561",
+            },
+            context={
+                "request": request,
+                "destruction_list": destruction_list,
+            },
+            partial=False,
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+    def test_validate_max_co_reviewers_invalid_partial(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        DestructionListAssigneeFactory.create_batch(
+            5, destruction_list=destruction_list, role=ListRole.co_reviewer
+        )
+
+        request = factory.patch("/foo")
+        request.user = UserFactory.create()
+
+        serializer = CoReviewerAssignmentSerializer(
+            instance=destruction_list,
+            data={
+                "add": [
+                    {
+                        "user": UserFactory.create(
+                            post__can_co_review_destruction=True
+                        ).pk
+                    }
+                ],
+                "comment": "gh-561",
+            },
+            context={
+                "request": request,
+                "destruction_list": destruction_list,
+            },
+            partial=True,
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["non_field_errors"][0],
+            _("The maximum number of allowed co-reviewers is %(max_co_reviewers)s.")
+            % {"max_co_reviewers": MAX_NUMBER_CO_REVIEWERS},
+        )
+
+    def test_validate_max_co_reviewers_valid_partial(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        assignees = DestructionListAssigneeFactory.create_batch(
+            5, destruction_list=destruction_list, role=ListRole.co_reviewer
+        )
+
+        request = factory.patch("/foo")
+        request.user = UserFactory.create()
+
+        serializer = CoReviewerAssignmentSerializer(
+            instance=destruction_list,
+            data={
+                "add": [
+                    {
+                        "user": UserFactory.create(
+                            post__can_co_review_destruction=True
+                        ).pk
+                    }
+                ],
+                "remove": [
+                    {
+                        "user": assignees[0].user.pk,
+                    }
+                ],
+                "comment": "gh-561",
+            },
+            context={
+                "request": request,
+                "destruction_list": destruction_list,
+            },
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid())
