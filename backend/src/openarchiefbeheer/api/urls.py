@@ -11,6 +11,8 @@ from openarchiefbeheer.accounts.api.views import (
     ArchivistsView,
     CoReviewersView,
     MainReviewersView,
+    RecordManagersView,
+    UsersView,
     WhoAmIView,
 )
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
@@ -114,6 +116,16 @@ urlpatterns = [
         "v1/",
         include(
             [
+                path(
+                    "users/",
+                    UsersView.as_view(),
+                    name="users",
+                ),
+                path(
+                    "record-managers/",
+                    RecordManagersView.as_view(),
+                    name="record-managers",
+                ),
                 path("reviewers/", MainReviewersView.as_view(), name="reviewers"),
                 path("archivists/", ArchivistsView.as_view(), name="archivists"),
                 path("co-reviewers/", CoReviewersView.as_view(), name="co-reviewers"),
