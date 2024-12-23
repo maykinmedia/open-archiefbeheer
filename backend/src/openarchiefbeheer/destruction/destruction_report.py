@@ -54,8 +54,10 @@ class DestructionReportGenerator:
 
     def add_general_info_table(self, worksheet: Worksheet, start_row: int = 0) -> None:
         column_names = [
-            _("Date/Time of deletion"),
-            _("User who started the deletion"),
+            # When the record manager starts the deletion process
+            _("Date/Time starting destruction"),
+            _("Date/Time of destruction"),
+            _("User who started the destruction"),
             _("Groups"),
             _("Number of deleted cases"),
         ]
@@ -73,6 +75,7 @@ class DestructionReportGenerator:
         ).count()
 
         general_info_data = [
+            get_readable_timestamp(log.timestamp),
             get_readable_timestamp(self.destruction_list.end),
             format_user(log.extra_data["user"]) if log else "",
             format_user_groups(log.extra_data["user_groups"]) if log else "",
@@ -100,10 +103,10 @@ class DestructionReportGenerator:
         workbook = xlsxwriter.Workbook(file.name, options={"in_memory": False})
 
         worksheet_zaken = workbook.add_worksheet(name=_("Deleted zaken"))
-        worksheet_review_process = workbook.add_worksheet(name=_("Review process"))
+        worksheet_process_details = workbook.add_worksheet(name=_("Process details"))
 
-        self.add_general_info_table(worksheet_zaken)
-        self.add_zaken_table(worksheet_zaken, start_row=3)
-        self.add_review_process_table(worksheet_review_process)
+        self.add_zaken_table(worksheet_zaken)
+        self.add_general_info_table(worksheet_process_details)
+        self.add_review_process_table(worksheet_process_details, start_row=3)
 
         workbook.close()
