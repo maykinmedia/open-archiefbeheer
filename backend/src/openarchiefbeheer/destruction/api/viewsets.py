@@ -1,17 +1,23 @@
 from datetime import date, timedelta
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Case, OuterRef, QuerySet, Subquery, Value, When
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
+from requests.exceptions import HTTPError, RequestException, Timeout
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from slugify import slugify
+from zgw_consumers.client import build_client
+from zgw_consumers.models import Service
 
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
@@ -34,7 +40,7 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
-from ..utils import process_new_reviewer
+from ..utils import get_destruction_report_url, process_new_reviewer
 from .backends import NestedFilterBackend
 from .filtersets import (
     DestructionListCoReviewFilterset,
@@ -48,6 +54,7 @@ from .permissions import (
     CanAbortDestruction,
     CanCoReviewPermission,
     CanDeleteList,
+    CanDownloadReport,
     CanMarkAsReadyToReview,
     CanMarkListAsFinal,
     CanQueueDestruction,
@@ -253,6 +260,8 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
         elif self.action == "abort":
             permission_classes = [IsAuthenticated & CanAbortDestruction]
+        elif self.action == "download_report":
+            permission_classes = [IsAuthenticated & CanDownloadReport]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -389,6 +398,50 @@ class DestructionListViewSet(
         serializer.save()
 
         return Response()
+
+    @action(detail=True, methods=["get"], name="download_report")
+    def download_report(self, request, *args, **kwargs):
+        destruction_list = self.get_object()
+
+        # Get the URL of the document in Openzaak.
+        document_url = get_destruction_report_url(destruction_list)
+        if not document_url:
+            raise NotFound(_("No destruction report found for this destruction list"))
+
+        service = Service.get_service(document_url)
+        client = build_client(service)
+        with client:
+            response = client.get(
+                document_url, timeout=settings.REQUESTS_DEFAULT_TIMEOUT, stream=True
+            )
+            if response.status_code == 404:
+                raise NotFound(
+                    _("The requested report could not be found in Open Zaak.")
+                )
+
+            try:
+                response.raise_for_status()
+            except HTTPError:
+                return Response(
+                    {"detail": _("Error response received from Open Zaak.")}, status=502
+                )
+
+            try:
+                response = StreamingHttpResponse(
+                    response.iter_content(),
+                    content_type="application/vnd.ms-excel",
+                )
+                response["Content-Disposition"] = (
+                    f'attachment; filename="report_{slugify(destruction_list.name)}.xlsx"'
+                )
+                return response
+            except Timeout:
+                return Response({"detail": _("Open Zaak timed out.")}, status=504)
+            except RequestException:
+                return Response(
+                    {"detail": _("Open Zaak errored while retrieving the report.")},
+                    status=502,
+                )
 
 
 @extend_schema_view(
