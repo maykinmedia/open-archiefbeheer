@@ -137,3 +137,8 @@ export const canReassignDestructionList: DestructionListPermissionCheck = (
     canReviewDestructionList(user, destructionList)) &&
   (destructionList.status === "new" ||
     destructionList.status === "ready_to_review");
+
+export const canRenameDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => canStartDestructionList(user) && destructionList.status === "new";
