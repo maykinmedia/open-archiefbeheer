@@ -223,6 +223,12 @@ from .serializers import (
         request=AbortDestructionSerializer,
         responses={200: None},
     ),
+    download_report=extend_schema(
+        tags=["Destruction list"],
+        summary=_("Download destruction report"),
+        request=None,
+        responses={200: None},
+    ),
 )
 class DestructionListViewSet(
     mixins.RetrieveModelMixin,
