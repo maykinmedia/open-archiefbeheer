@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
-from openpyxl import load_workbook
 from privates.test import temp_private_root
 from requests import HTTPError
 from requests_mock import Mocker
@@ -461,69 +460,14 @@ class ProcessDeletingZakenTests(TestCase):
             ).exists()
         )
 
-        wb = load_workbook(filename=destruction_list.destruction_report.path)
-        sheet_deleted_zaken = wb[_("Deleted zaken")]
-        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
-
-        self.assertEqual(len(rows), 3)
-        self.assertEqual(
-            rows[1],
-            (
-                "111-111-111",
-                "Aangifte behandelen",
-                "ZAAKTYPE-01",
-                "ZAAK-01",
-                "2020-01-01",
-                "2022-01-01",
-                "Evaluatie uitvoeren",
-                "This is a result type",
-            ),
-        )
-        self.assertEqual(
-            rows[2],
-            (
-                "111-111-111",
-                "Aangifte behandelen",
-                "ZAAKTYPE-01",
-                "ZAAK-02",
-                "2020-01-02",
-                "2022-01-02",
-                "Evaluatie uitvoeren",
-                "This is a result type",
-            ),
-        )
-
-        sheet_process_details = wb[_("Process details")]
-        rows = list(sheet_process_details.iter_rows(values_only=True))
-
-        self.assertEqual(len(rows), 5)
-        self.assertEqual(
-            rows[0][:5],
-            (
-                _("Date/Time starting destruction"),
-                _("Date/Time of destruction"),
-                _("User who started the destruction"),
-                _("Groups"),
-                _("Number of deleted cases"),
-            ),
-        )
-        self.assertEqual(
-            rows[1][:5],
-            (
-                "2024-12-01 12:00+01:00",
-                "2024-12-02 12:00+01:00",
-                "John Doe (jdoe1)",
-                None,
-                2,
-            ),
-        )
-
         m_zaak.assert_called()
         m_eio.assert_called()
         m_zio.assert_called()
 
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
+        with self.assertRaises(ValueError):
+            destruction_list.destruction_report.file
 
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
@@ -679,62 +623,13 @@ class ProcessDeletingZakenTests(TestCase):
         self.assertEqual(destruction_list.status, ListStatus.deleted)
         self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
         self.assertEqual(
-            destruction_list.destruction_report.name,
-            "destruction_reports/2024/10/09/report_some-destruction-list.xlsx",
-        )
-        self.assertEqual(
             destruction_list.end.astimezone(
                 tz=timezone.get_default_timezone()
             ).isoformat(),
             "2024-10-09T12:00:00+02:00",
         )
-
-        wb = load_workbook(filename=destruction_list.destruction_report.path)
-        sheet_process_details = wb[_("Process details")]
-        rows = list(sheet_process_details.iter_rows(values_only=True))
-
-        self.assertEqual(len(rows), 5)
-        self.assertEqual(
-            rows[1][:5],
-            (
-                "2024-10-08 12:00+02:00",
-                "2024-10-09 12:00+02:00",
-                "John Doe (jdoe1)",
-                None,
-                1,
-            ),
-        )
-
-        sheet_deleted_zaken = wb[_("Deleted zaken")]
-        rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
-
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(
-            rows[0],
-            (
-                "Zaaktype UUID",
-                "Zaaktype Omschrijving",
-                "Zaaktype Identificatie",
-                "Zaak Identificatie",
-                "Zaak Startdatum",
-                "Zaak Einddatum",
-                "Selectielijst Procestype",
-                "Resultaat",
-            ),
-        )
-        self.assertEqual(
-            rows[1],
-            (
-                "111-111-111",
-                "Tralala zaaktype",
-                None,
-                "ZAAK-01",
-                "2020-01-01",
-                "2022-01-01",
-                "Evaluatie uitvoeren",
-                "Resulttype 0",
-            ),
-        )
+        with self.assertRaises(ValueError):
+            destruction_list.destruction_report.file
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_other_items_processed_if_one_fails(self):
