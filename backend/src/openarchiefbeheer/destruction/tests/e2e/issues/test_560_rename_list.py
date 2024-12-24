@@ -1,5 +1,4 @@
 # fmt: off
-import asyncio
 
 from django.test import tag
 
