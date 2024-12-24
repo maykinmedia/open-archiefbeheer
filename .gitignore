@@ -4,6 +4,7 @@
 .svn
 .idea/
 .vscode/
+vscode.env
 .sass-cache/
 *.db
 *.DS_Store
