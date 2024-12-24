@@ -1,8 +1,10 @@
+import os
 from datetime import date, datetime
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.translation import gettext
@@ -986,7 +988,15 @@ class DestructionListTest(TestCase):
         destruction_list = DestructionListFactory.create(
             processing_status=InternalStatus.succeeded,
             status=ListStatus.deleted,
+            destruction_report=ContentFile(
+                b"Hello I am a report.", name="report_test.txt"
+            ),
         )
+
+        path = destruction_list.destruction_report.path
+        self.assertIsNotNone(destruction_list.destruction_report)
+        self.assertTrue(os.path.isfile(path))
+
         item1 = DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
             destruction_list=destruction_list,
@@ -1033,6 +1043,9 @@ class DestructionListTest(TestCase):
 
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
+        with self.assertRaises(ValueError):
+            destruction_list.destruction_report.file
+        self.assertFalse(os.path.isfile(path))
 
 
 class DestructionListCoReviewTest(TestCase):
