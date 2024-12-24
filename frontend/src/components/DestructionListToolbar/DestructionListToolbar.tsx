@@ -2,25 +2,33 @@ import {
   AttributeTable,
   Badge,
   Body,
+  Button,
   Column,
   Grid,
   H2,
+  SerializedFormData,
+  Solid,
   Tab,
   Tabs,
   string2Title,
-  ucFirst,
+  useAlert,
+  useFormDialog,
 } from "@maykin-ui/admin-ui";
+import { useRevalidator } from "react-router-dom";
 
-import { useAuditLog, useLatestReviewResponse } from "../../hooks";
-import { DestructionList } from "../../lib/api/destructionLists";
+import { useAuditLog, useLatestReviewResponse, useWhoAmI } from "../../hooks";
+import {
+  DestructionList,
+  updateDestructionList,
+} from "../../lib/api/destructionLists";
 import { Review } from "../../lib/api/review";
+import { canRenameDestructionList } from "../../lib/auth/permissions";
 import { formatDate } from "../../lib/format/date";
+import { collectErrors } from "../../lib/format/error";
 import { formatUser } from "../../lib/format/user";
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
-  STATUS_LEVEL_MAPPING,
-  STATUS_MAPPING,
 } from "../../pages/constants";
 import {
   DestructionListAuditLogDetails,
@@ -49,6 +57,10 @@ export function DestructionListToolbar({
     "destruction_list_ready_for_first_review",
   );
   const reviewResponse = useLatestReviewResponse(review);
+  const formDialog = useFormDialog();
+  const alert = useAlert();
+  const user = useWhoAmI();
+  const revalidator = useRevalidator();
   const properties = (
     <Grid>
       {destructionList && (
@@ -117,15 +129,75 @@ export function DestructionListToolbar({
     </Grid>
   );
 
+  const fields = [
+    {
+      name: "name",
+      type: "string",
+      label: "Naam",
+      value: destructionList?.name,
+    },
+  ];
+
+  const handleSubmit = (data: SerializedFormData) => {
+    if (!destructionList) {
+      return;
+    }
+    updateDestructionList(destructionList.uuid, data)
+      .catch(async (e) => {
+        console.error(e);
+        try {
+          const data = await e.json();
+          const errors = collectErrors(data).join("\n");
+          alert("Foutmelding", data.detail || errors, "Ok");
+        } catch (e) {
+          alert(
+            "Foutmelding",
+            "Er is een fout opgetreden bij het bewerken van de naam van de vernietigingslijst.",
+            "Ok",
+          );
+          return;
+        }
+      })
+      .then(() => {
+        revalidator.revalidate();
+      });
+  };
+
   return (
     <Body>
-      {title ? (
-        <H2>{title}</H2>
-      ) : (
-        destructionList && (
-          <H2>{string2Title(destructionList.name, { unHyphen: false })}</H2>
-        )
-      )}
+      <H2>
+        {title
+          ? title
+          : destructionList &&
+            string2Title(destructionList.name, { unHyphen: false })}
+        {user &&
+          destructionList &&
+          canRenameDestructionList(user, destructionList) && (
+            <>
+              &nbsp;
+              <Button
+                aria-label="Naam bewerken"
+                //   disabled={state === "loading" || state === "submitting"}
+                size="xs"
+                variant="secondary"
+                onClick={() => {
+                  formDialog(
+                    "Naam bewerken",
+                    null,
+                    fields,
+                    "Opslaan",
+                    "Annuleren",
+                    handleSubmit,
+                    undefined,
+                    { allowClose: true },
+                  );
+                }}
+              >
+                <Solid.PencilIcon />
+              </Button>
+            </>
+          )}
+      </H2>
       <Tabs>
         <Tab id="gegevens" label="Gegevens">
           {properties}
