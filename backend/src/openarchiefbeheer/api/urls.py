@@ -7,14 +7,7 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
-from openarchiefbeheer.accounts.api.views import (
-    ArchivistsView,
-    CoReviewersView,
-    MainReviewersView,
-    RecordManagersView,
-    UsersView,
-    WhoAmIView,
-)
+from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView
 from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
@@ -121,14 +114,6 @@ urlpatterns = [
                     UsersView.as_view(),
                     name="users",
                 ),
-                path(
-                    "record-managers/",
-                    RecordManagersView.as_view(),
-                    name="record-managers",
-                ),
-                path("reviewers/", MainReviewersView.as_view(), name="reviewers"),
-                path("archivists/", ArchivistsView.as_view(), name="archivists"),
-                path("co-reviewers/", CoReviewersView.as_view(), name="co-reviewers"),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path(
                     "destruction-list-statuses/",
