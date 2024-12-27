@@ -1,13 +1,18 @@
+from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from openarchiefbeheer.accounts.api.constants import RoleFilterChoices
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
 
 class RoleEndpointTests(APITestCase):
     def test_user_not_logged_in(self):
-        response = self.client.get(reverse("api:reviewers"))
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.main_reviewer
+
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -30,7 +35,10 @@ class RoleEndpointTests(APITestCase):
         UserFactory.create_batch(2, post__can_start_destruction=False)
 
         self.client.force_authenticate(user=admin)
-        response = self.client.get(reverse("api:record-managers"))
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.record_manager
+
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -46,7 +54,10 @@ class RoleEndpointTests(APITestCase):
         UserFactory.create_batch(2, post__can_review_destruction=False)
 
         self.client.force_authenticate(user=admin)
-        response = self.client.get(reverse("api:reviewers"))
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.main_reviewer
+
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

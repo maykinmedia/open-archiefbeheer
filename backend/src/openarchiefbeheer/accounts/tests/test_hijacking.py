@@ -1,11 +1,15 @@
+from unittest import skipIf
+
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
+
+from openarchiefbeheer.conf.utils import config
 
 from .factories import UserFactory
 
 
 class HijackSecurityTests(TestCase):
-
+    @skipIf(config("DISABLE_2FA", False), "2FA is disabled")
     def test_cannot_hijack_without_second_factor(self):
         staff_user = UserFactory.create(is_staff=True)
         superuser = UserFactory.create(superuser=True)
