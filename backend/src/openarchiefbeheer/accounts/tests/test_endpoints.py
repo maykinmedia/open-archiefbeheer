@@ -1,7 +1,9 @@
+from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from ..api.constants import RoleFilterChoices
 from .factories import UserFactory
 
 
@@ -45,9 +47,10 @@ class WhoAmIViewTest(APITestCase):
 
 class ArchivistViewTest(APITestCase):
     def test_not_authenticated_cant_access(self):
-        endpoint = reverse("api:archivists")
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.archivist
 
-        response = self.client.get(endpoint)
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -58,7 +61,10 @@ class ArchivistViewTest(APITestCase):
         record_manager = UserFactory.create(post__can_start_destruction=True)
 
         self.client.force_login(record_manager)
-        response = self.client.get(reverse("api:archivists"))
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.archivist
+
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
@@ -66,9 +72,10 @@ class ArchivistViewTest(APITestCase):
 
 class CoReviewerViewTest(APITestCase):
     def test_not_authenticated_cant_access(self):
-        endpoint = reverse("api:co-reviewers")
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.co_reviewer
 
-        response = self.client.get(endpoint)
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -79,7 +86,10 @@ class CoReviewerViewTest(APITestCase):
         record_manager = UserFactory.create(post__can_start_destruction=True)
 
         self.client.force_login(record_manager)
-        response = self.client.get(reverse("api:co-reviewers"))
+        endpoint = furl(reverse("api:users"))
+        endpoint.args["role"] = RoleFilterChoices.co_reviewer
+
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
