@@ -7,7 +7,7 @@ import { request } from "./request";
  */
 export async function listRecordManagers() {
   return cacheMemo("listRecordManagers", async () => {
-    const response = await request("GET", "/record-managers/");
+    const response = await request("GET", "/users", { role: "record_manager" });
     const promise: Promise<User[]> = response.json();
     return promise;
   });

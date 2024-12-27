@@ -7,7 +7,7 @@ import { request } from "./request";
  */
 export async function listReviewers() {
   return cacheMemo("listReviewers", async () => {
-    const response = await request("GET", "/reviewers/");
+    const response = await request("GET", "/users", { role: "main_reviewer" });
     const promise: Promise<User[]> = response.json();
     return promise;
   });
@@ -18,7 +18,7 @@ export async function listReviewers() {
  */
 export async function listCoReviewers() {
   return cacheMemo("listCoReviewers", async () => {
-    const response = await request("GET", "/co-reviewers/");
+    const response = await request("GET", "/users", { role: "co_reviewer" });
     const promise: Promise<User[]> = response.json();
     return promise;
   });

@@ -117,19 +117,19 @@ export const MOCKS = {
     response: usersFactory(),
   },
   RECORD_MANAGERS: {
-    url: "http://localhost:8000/api/v1/record-managers/",
+    url: "http://localhost:8000/api/v1/users?role=record_manager",
     method: "GET",
     status: 200,
     response: [recordManagerFactory()],
   },
   REVIEWERS: {
-    url: "http://localhost:8000/api/v1/reviewers/",
+    url: "http://localhost:8000/api/v1/users?role=main_reviewer",
     method: "GET",
     status: 200,
     response: usersFactory(),
   },
   CO_REVIEWERS: {
-    url: "http://localhost:8000/api/v1/co-reviewers/",
+    url: "http://localhost:8000/api/v1/users?role=co_reviewer",
     method: "GET",
     status: 200,
     response: usersFactory(),
