@@ -1,11 +1,12 @@
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from openarchiefbeheer.accounts.models import User
-
+from ..models import User
+from .filtersets import UsersFilterset
 from .serializers import UserSerializer
 
 
@@ -19,77 +20,11 @@ from .serializers import UserSerializer
 )
 class UsersView(ListAPIView):
     serializer_class = UserSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = UsersFilterset
 
     def get_queryset(self) -> QuerySet[User]:
         return User.objects.all()
-
-
-@extend_schema(
-    tags=["Users"],
-    summary=_("Record managers list"),
-    description=_(
-        "List all the users that have the permission to create destruction lists."
-    ),
-    responses={
-        200: UserSerializer(many=True),
-    },
-)
-class RecordManagersView(ListAPIView):
-    serializer_class = UserSerializer
-
-    def get_queryset(self) -> QuerySet[User]:
-        return User.objects.record_managers()
-
-
-@extend_schema(
-    tags=["Users"],
-    summary=_("Main reviewers list"),
-    description=_(
-        "List all the users that have the permission to review draft destruction lists."
-    ),
-    responses={
-        200: UserSerializer(many=True),
-    },
-)
-class MainReviewersView(ListAPIView):
-    serializer_class = UserSerializer
-
-    def get_queryset(self) -> QuerySet[User]:
-        return User.objects.main_reviewers()
-
-
-@extend_schema(
-    tags=["Users"],
-    summary=_("Co-reviewers list"),
-    description=_(
-        "List all the users that have the permission to co-review draft destruction lists."
-    ),
-    responses={
-        200: UserSerializer(many=True),
-    },
-)
-class CoReviewersView(ListAPIView):
-    serializer_class = UserSerializer
-
-    def get_queryset(self) -> QuerySet[User]:
-        return User.objects.co_reviewers()
-
-
-@extend_schema(
-    tags=["Users"],
-    summary=_("Archivists list"),
-    description=_(
-        "List all the users that have the permission to review final destruction lists."
-    ),
-    responses={
-        200: UserSerializer(many=True),
-    },
-)
-class ArchivistsView(ListAPIView):
-    serializer_class = UserSerializer
-
-    def get_queryset(self) -> QuerySet[User]:
-        return User.objects.archivists()
 
 
 @extend_schema(
