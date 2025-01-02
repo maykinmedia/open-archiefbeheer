@@ -131,6 +131,20 @@ export async function listDestructionLists(
 }
 
 /**
+ * Delete a destruction list.
+ * @param uuid
+ * @returns
+ */
+export async function deleteDestructionList(uuid: string) {
+  const response = await request("DELETE", `/destruction-lists/${uuid}/`, {});
+  if (response.status === 204) {
+    return null;
+  }
+  const promise: Promise<unknown> = response.json();
+  return promise;
+}
+
+/**
  * Update destruction list.
  * @param uuid
  * @param data
@@ -150,7 +164,7 @@ export async function updateDestructionList(
 }
 
 /**
- * Mark destruction list as ready to reveiw.
+ * Mark destruction list as ready to review.
  * @param uuid
  */
 export async function markDestructionListAsReadyToReview(uuid: string) {
@@ -191,7 +205,7 @@ export async function markDestructionListAsFinal(
 }
 
 /**
- * Destroy destruction list
+ * Queue a background process that will delete the cases in the list from the case system.
  * @param uuid
  * @returns
  */

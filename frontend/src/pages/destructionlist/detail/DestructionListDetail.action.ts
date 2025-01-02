@@ -4,6 +4,7 @@ import { redirect } from "react-router-dom";
 import { JsonValue, TypedAction } from "../../../hooks";
 import {
   abort,
+  deleteDestructionList,
   destructionListQueueDestruction,
   markDestructionListAsFinal,
   markDestructionListAsReadyToReview,
@@ -16,6 +17,7 @@ import {
 import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
+  | "DELETE_LIST"
   | "QUEUE_DESTRUCTION"
   | "CANCEL_DESTROY"
   | "MAKE_FINAL"
@@ -36,6 +38,8 @@ export async function destructionListUpdateAction({
   const action = data as UpdateDestructionListAction<unknown>;
 
   switch (action.type) {
+    case "DELETE_LIST":
+      return await destructionListDeleteAction({ request, params });
     case "QUEUE_DESTRUCTION":
       return await destructionListQueueDestructionAction({ request, params });
     case "MAKE_FINAL":
@@ -54,6 +58,24 @@ export async function destructionListUpdateAction({
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
+}
+
+/**
+ * React Router action (user intents to DELETE THE DESTRUCTION LIST!).
+ */
+export async function destructionListDeleteAction({
+  request,
+}: ActionFunctionArgs) {
+  const { payload } = await request.json();
+  try {
+    await deleteDestructionList(payload.uuid);
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
+  return redirect("/");
 }
 
 /**

@@ -17,6 +17,7 @@ import { useSubmitAction } from "../../../../hooks";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
   DestructionListPermissionCheck,
+  canDeleteDestructionList,
   canMarkAsReadyToReview,
   canMarkListAsFinal,
   canTriggerDestruction,
@@ -42,7 +43,7 @@ type MakeFinalFormType = {
   comment: string;
 };
 
-type DestroyFormType = {
+type DestructionListNameFormType = {
   name: string;
 };
 
@@ -86,6 +87,55 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     return toolbarItem;
   };
 
+  const BUTTON_DELETE_LIST: ToolbarItem = {
+    children: (
+      <>
+        <Solid.DocumentMinusIcon />
+        Lijst verwijderen
+      </>
+    ),
+    pad: "h",
+    variant: "danger",
+    onClick: () =>
+      formDialog<DestructionListNameFormType>(
+        "Lijst verwijderen",
+        `Dit verwijdert de lijst maar niet de zaken die erop staan. Weet u zeker dat u de lijst "${destructionList.name}" wilt verwijderen?`,
+        [
+          {
+            label: "Type naam van de lijst ter bevestiging",
+            name: "name",
+            placeholder: "Naam van de vernietigingslijst",
+            required: true,
+          },
+        ],
+        `Lijst verwijderen`,
+        "Annuleren",
+        handleDeleteList,
+        undefined,
+        undefined,
+        {
+          buttonProps: {
+            variant: "danger",
+          },
+          validate: validateName,
+          validateOnChange: true,
+          role: "form",
+        },
+      ),
+  };
+
+  /**
+   * Dispatches action to DELETE THE DESTRUCTION LIST!
+   */
+  const handleDeleteList = async () => {
+    submitAction({
+      type: "DELETE_LIST",
+      payload: {
+        uuid: destructionList.uuid,
+      },
+    });
+  };
+
   const BUTTON_READY_TO_REVIEW: ToolbarItem = {
     children: (
       <>
@@ -94,6 +144,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       </>
     ),
     pad: "h",
+    variant: "primary",
     onClick: () =>
       confirm(
         "Ter beoordeling indienen",
@@ -282,7 +333,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     variant: "danger",
     pad: "h",
     onClick: () =>
-      formDialog<DestroyFormType>(
+      formDialog<DestructionListNameFormType>(
         "Zaken definitief vernietigen",
         `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
         [
@@ -295,21 +346,21 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         ],
         `${destructionListItems.count} zaken vernietigen`,
         "Annuleren",
-        handleDestroy,
+        handleQueueDestruction,
         undefined,
         undefined,
         {
           buttonProps: {
             variant: "danger",
           },
-          validate: validateDestroy,
+          validate: validateName,
           validateOnChange: true,
           role: "form",
         },
       ),
   };
 
-  const validateDestroy = ({ name }: DestroyFormType) => {
+  const validateName = ({ name }: DestructionListNameFormType) => {
     // Name can be undefined at a certain point and will crash the entire page
     if (
       (name as string | undefined)?.toLowerCase() ===
@@ -325,7 +376,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
   /**
    * Dispatches action to DESTROY ALL ZAKEN ON THE DESTRUCTION LIST!
    */
-  const handleDestroy = async () => {
+  const handleQueueDestruction = async () => {
     submitAction({
       type: "QUEUE_DESTRUCTION",
       payload: {
@@ -390,7 +441,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         destructionList={destructionList}
       />,
 
-      // Status: "ready_to_delete", badge and spacer
+      // Status: "ready_to_delete": badge and spacer
       getPermittedToolbarItem(
         <ProcessingStatusBadge
           key={destructionList.pk}
@@ -407,7 +458,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       // Right
       //
 
-      // Status: "new", "Ter beoordeling indienen"
+      // Status: "new": "Lijst verwijderen" and "Ter beoordeling indienen"
+      getPermittedToolbarItem(BUTTON_DELETE_LIST, canDeleteDestructionList),
       getPermittedToolbarItem(
         BUTTON_READY_TO_REVIEW,
         (user, destructionList) =>
@@ -420,7 +472,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         (user, destructionList) => destructionList.status !== "new",
       ),
 
-      // Status: "changes_requested", "Opnieuw indienen"
+      // Status: "changes_requested": "Opnieuw indienen"
       getPermittedToolbarItem(
         BUTTON_PROCESS_REVIEW,
         (user, destructionList) =>
@@ -428,10 +480,10 @@ export function useSecondaryNavigation(): ToolbarItem[] {
           destructionList.status === "changes_requested",
       ),
 
-      // Status: "internally_reviewed", "Markeren als definitief"
+      // Status: "internally_reviewed": "Markeren als definitief"
       getPermittedToolbarItem(BUTTON_MAKE_FINAL, canMarkListAsFinal),
 
-      // Status: "ready_to_delete" "Vernietigen starten"/"Vernietigen herstarten"
+      // Status: "ready_to_delete": "Vernietigen starten"/"Vernietigen herstarten"
       getPermittedToolbarItem(
         BUTTON_DESTROY,
         (user, destructionList) =>

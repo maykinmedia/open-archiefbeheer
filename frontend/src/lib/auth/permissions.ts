@@ -25,6 +25,21 @@ export const canStartDestructionList: PermissionCheck = (user) =>
   user.role.canStartDestruction;
 
 /**
+ * Returns whether `user` is allowed to delete `destructionList`.
+ * @param user
+ * @param destructionList
+ */
+export const canDeleteDestructionList: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
+  if (!user.role.canStartDestruction) {
+    return false;
+  }
+  return destructionList.status === "new";
+};
+
+/**
  * Returns whether `user` is allowed to mark `destructionList` as ready to review.
  * @param user
  * @param destructionList
