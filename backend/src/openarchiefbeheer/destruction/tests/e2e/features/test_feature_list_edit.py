@@ -49,7 +49,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "ZAAK-200")
 
             # Add "ZAAK-100"
-            await self.when.user_clicks_button(page, "Bewerken", 1)
+            await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
 
             await self.when.user_clicks_button(page, "2")
@@ -66,7 +66,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "ZAAK-100")
 
             # Remove "ZAAK-100"
-            await self.when.user_clicks_button(page, "Bewerken", 1)
+            await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
 
             await self.when.user_clicks_button(page, "2")
@@ -171,7 +171,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, self.destruction_list.name)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit")
-            await self.when.user_clicks_button(page, "Bewerken")
+            await self.when.user_clicks_button(page, "Bewerken", 1)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
             # Initially the filters are for all zaaktypes
             await self.then.zaaktype_filters_are(page, [
