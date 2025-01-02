@@ -264,6 +264,8 @@ class DestructionList(models.Model):
     def clear_local_metadata(self) -> None:
         self.items.update(extra_zaak_data={})
 
+        self.destruction_report.delete()
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(
