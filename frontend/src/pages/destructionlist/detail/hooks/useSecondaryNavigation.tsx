@@ -417,7 +417,9 @@ export function useSecondaryNavigation(): ToolbarItem[] {
 
       getPermittedToolbarItem(
         BUTTON_ABORT_PROCESS,
-        (user, destructionList) => destructionList.status !== "new",
+        (user, destructionList) =>
+          destructionList.status !== "new" &&
+          destructionList.status !== "deleted",
       ),
 
       // Status: "changes_requested", "Opnieuw indienen"
