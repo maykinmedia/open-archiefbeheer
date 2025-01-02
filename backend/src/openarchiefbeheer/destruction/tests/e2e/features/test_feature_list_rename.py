@@ -10,7 +10,7 @@ from ....constants import ListStatus
 
 @tag("e2e")
 @tag("gh-560")
-class Issue560RenameList(GherkinLikeTestCase):
+class FeatureListRenameTests(GherkinLikeTestCase):
     async def test_scenario_rename_list(self):
         async with browser_page() as page:
             record_manger = await self.given.record_manager_exists()
