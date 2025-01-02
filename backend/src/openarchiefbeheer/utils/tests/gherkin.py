@@ -471,7 +471,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             return InvertedThen(self)
 
         async def list_should_exist(self, page, name):
-            return await DestructionList.objects.aget(name=name)
+            try:
+                return await DestructionList.objects.aget(name=name)
+            except DestructionList.DoesNotExist:
+                raise AssertionError(
+                    f"Destruction list with name '{name}' does not exist."
+                )
 
         async def list_should_have_assignee(self, page, destruction_list, assignee):
             @sync_to_async()
