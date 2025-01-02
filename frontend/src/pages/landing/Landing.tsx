@@ -23,10 +23,13 @@ import { User } from "../../lib/api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,
   DestructionList,
+  DestructionListStatus,
 } from "../../lib/api/destructionLists";
 import { ProcessingStatus } from "../../lib/api/processingStatus";
+import { API_BASE_URL, API_URL } from "../../lib/api/request";
 import {
   canCoReviewDestructionList,
+  canDownloadReport,
   canMarkAsReadyToReview,
   canMarkListAsFinal,
   canReviewDestructionList,
@@ -47,6 +50,7 @@ export type LandingKanbanEntry = {
   disabled: boolean;
   plannedDestructionDate: string | null;
   processingStatus: ProcessingStatus;
+  status: DestructionListStatus;
   title: string;
   timeAgo: string;
   assignees: React.ReactNode;
@@ -163,6 +167,11 @@ export const Landing = () => {
           ? `/destruction-lists/${list.uuid}`
           : undefined;
 
+      case "deleted":
+        return canViewDestructionList(user, list)
+          ? API_BASE_URL + `/destruction-lists/${list.uuid}/download_report`
+          : undefined;
+
       default:
         return undefined;
     }
@@ -191,10 +200,12 @@ export const Landing = () => {
 
       return {
         key: list.name,
-        onClick: () => navigate(href),
+        onClick: () =>
+          href.startsWith("http") ? window.open(href) : navigate(href),
         disabled: !href,
         processingStatus: list.processingStatus,
         plannedDestructionDate: list.plannedDestructionDate,
+        status: list.status,
         title: list.name,
         timeAgo: timeAgo(list.created),
         assignees: otherAssignees.length ? (
@@ -354,7 +365,13 @@ export const Landing = () => {
             entry.processingStatus === "new" &&
             !entry.plannedDestructionDate
           ) {
-            return (
+            return canDownloadReport(user, {
+              status: entry.status,
+            } as DestructionList) ? (
+              <Badge level="success">
+                <Outline.CloudArrowDownIcon /> Download rapport
+              </Badge>
+            ) : (
               <Badge aria-label="opgesteld">
                 <Outline.DocumentPlusIcon />
                 {entry.timeAgo as string}

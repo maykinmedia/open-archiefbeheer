@@ -138,6 +138,16 @@ export const canReassignDestructionList: DestructionListPermissionCheck = (
   (destructionList.status === "new" ||
     destructionList.status === "ready_to_review");
 
+export const canDownloadReport: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
+  if (!user.role.canStartDestruction) {
+    return false;
+  }
+  return destructionList.status === "deleted";
+};
+
 export const canRenameDestructionList: DestructionListPermissionCheck = (
   user,
   destructionList,
