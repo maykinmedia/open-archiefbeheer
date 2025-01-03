@@ -1,4 +1,4 @@
-import pluginJs from "@eslint/js";
+import eslint from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import importPlugin from "eslint-plugin-import";
 import jsxA11y from "eslint-plugin-jsx-a11y";
@@ -11,13 +11,11 @@ import tseslint from "typescript-eslint";
 
 const config = [
   {
-    files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"],
-    ignores: [
-      "dist/**/*",
-      // '**/*.css',
-      // '**/*.scss',
-      // '**/*.md',
-    ],
+    name: "project:ignore build artifacts",
+    ignores: ["dist/**", "build/**"],
+  },
+  {
+    name: "project:environment",
     settings: {
       react: {
         version: "detect",
@@ -31,7 +29,7 @@ const config = [
     },
   },
   // Standard JS rules
-  pluginJs.configs.recommended,
+  eslint.configs.recommended,
   ...tseslint.configs.recommended,
   // Import/export linting
   {
@@ -56,20 +54,34 @@ const config = [
   },
   // React-specific linting
   jsxA11y.flatConfigs.recommended,
-  reactPlugin.configs.flat.recommended,
-  reactPlugin.configs.flat["jsx-runtime"],
+  {
+    name: "react/recommended",
+    ...reactPlugin.configs.flat.recommended,
+  },
+  {
+    name: "react/jsx-runtime",
+    ...reactPlugin.configs.flat["jsx-runtime"],
+  },
   // {
   //   plugins: { "react-hooks": hooksPlugin },
   //   rules: hooksPlugin.configs.recommended.rules,
   // },
-  prettierRecommended,
-  eslintConfigPrettier,
+  {
+    name: "prettier/recommended + config",
+    ...prettierRecommended,
+    plugins: {
+      ...prettierRecommended.plugins,
+      ...eslintConfigPrettier.plugins,
+    },
+  },
   // Storybook stories
   ...storybook.configs["flat/recommended"],
   {
+    name: "project:storybook:check-config",
     ignores: ["!.storybook"],
   },
   {
+    name: "project:storybook:test-runner",
     files: [".storybook/test-runner-jest.js"],
     languageOptions: {
       globals: globals.commonjs,
