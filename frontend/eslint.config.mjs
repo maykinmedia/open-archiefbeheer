@@ -4,7 +4,7 @@ import importPlugin from "eslint-plugin-import";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import reactPlugin from "eslint-plugin-react";
-import hooksPlugin from "eslint-plugin-react-hooks";
+// import hooksPlugin from "eslint-plugin-react-hooks";
 import storybook from "eslint-plugin-storybook";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -69,6 +69,12 @@ const config = [
   {
     ignores: ["!.storybook"],
   },
+  {
+    files: [".storybook/test-runner-jest.js"],
+    languageOptions: {
+      globals: globals.commonjs,
+    },
+  },
   // // Unit tests
   // {
   //   files: ["**/*.spec.{js,jsx}", "src/vitest.setup.mjs"],
@@ -81,6 +87,6 @@ const config = [
   // },
 ];
 
-console.log(config);
+// console.log(config);
 
 export default config;

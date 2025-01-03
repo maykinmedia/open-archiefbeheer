@@ -45,6 +45,6 @@ export const AuditLogDetails: StoryObj<typeof DestructionListAuditLogDetails> =
         canvas.getByText("31/12/2021", { exact: false }),
       ).toBeInTheDocument();
       expect(canvas.getByText("This is a comment")).toBeInTheDocument();
-      expect(canvas.getByText("10")).toBeInTheDocument;
+      expect(canvas.getByText("10")).toBeInTheDocument();
     },
   };

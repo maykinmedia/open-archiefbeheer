@@ -2,7 +2,6 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { ZaakSelectionContextProvider } from "../contexts";
 import { ZaakIdentifier } from "../lib/zaakSelection";
-import { Zaak } from "../types";
 import { useZaakSelection } from "./useZaakSelection";
 
 jest.mock("react-router-dom", () => ({

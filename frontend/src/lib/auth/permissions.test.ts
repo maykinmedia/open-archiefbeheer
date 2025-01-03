@@ -284,7 +284,6 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
   describe(`canUpdateDestructionList() with destruction list status: ${status}`, () => {
     let destructionList: DestructionList;
     let user: User;
-    let anotherUser: User;
 
     beforeEach(() => {
       user = userFactory({

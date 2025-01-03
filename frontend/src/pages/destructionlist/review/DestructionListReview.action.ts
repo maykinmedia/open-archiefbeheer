@@ -1,18 +1,13 @@
 import { ActionFunctionArgs, redirect } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
-import {
-  CoReview,
-  CoReviewBase,
-  createCoReview,
-} from "../../../lib/api/coReview";
+import { CoReviewBase, createCoReview } from "../../../lib/api/coReview";
 import {
   Review,
   ZaakReview,
   createDestructionListReview,
 } from "../../../lib/api/review";
-import { RestBackend } from "../../../lib/zaakSelection";
-import { clearZaakSelection } from "../../../lib/zaakSelection";
+import { RestBackend, clearZaakSelection } from "../../../lib/zaakSelection";
 import { getDestructionListReviewKey } from "./DestructionListReview";
 
 export type DestructionListReviewActionContext = {
