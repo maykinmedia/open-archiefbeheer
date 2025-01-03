@@ -1,0 +1,90 @@
+.. _manual_1-record-manager_1.1-vernietigingslijst-opstellen:
+
+============================
+Vernietigingslijst opstellen
+============================
+
+.. figure:: ../_assets/pages/vernietigingslijst-opstellen.png
+   :align: center
+   :alt: Vernietigingslijst opstellen schermafbeelding
+
+Deze handleiding beschrijft de stappen die een **record manager** kan volgen om een nieuwe vernietigingslijst aan te
+maken binnen de applicatie.
+
+Voorwaarden
+------------
+- De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- Er moeten zaken aanwezig zijn in de applicatie.
+- Een reviewer (beoordelaar) moet bestaan om toegewezen te worden aan de vernietigingslijst.
+
+Stappen
+-------
+
+
+1. **Inloggen als record manager**
+    - Open de applicatie en log in met je gebruikersnaam en wachtwoord of via je organisatie login.
+    - Na succesvol inloggen, wordt je automatisch doorgestuurd naar het overzicht van bestaande vernietigingslijsten.
+
+2. **Navigeren naar de pagina voor het aanmaken van een nieuwe lijst**
+    - Klik op de knop **“Vernietigingslijst opstellen”**. |vernietigingslijst_opstellen_link|
+    - Je wordt doorgestuurd naar de pagina **`/destruction-lists/create`**.
+
+3. **Selecteer zaken voor de vernietigingslijst**
+    - Op de pagina zie je een lijst van beschikbare zaken.
+    - Klik op de checkbox naast een zaak om deze te selecteren. |checkbox_zaak|
+    - Je kunt ook de checkboxen bovenaan gebruiken om alle zichtbare zaken, of alle pagina's in één keer te selecteren
+      of deselecteren. |checkbox_zaken|
+
+4. **Bevestig de selectie**
+    - Klik op de knop **“Vernietigingslijst opstellen”** om door te gaan met de geselecteerde zaken. |vernietigingslijst_opstellen_actie|
+
+5. **Vul de vereiste informatie in**
+    - Op het formulier dat verschijnt, vul je de volgende velden in:
+        - **Naam**: Geef een duidelijke en unieke naam voor de vernietigingslijst, bijvoorbeeld:
+            **“Mijn eerste vernietigingslijst”**.
+        - **Reviewer**: Kies een beoordelaar uit de lijst die je wilt toewijzen aan de vernietigingslijst.
+
+.. figure:: ../_assets/vernietigingslijst-opstellen-formulier.png
+   :align: center
+   :alt: Vernietigingslijst opstellen formulier
+   :height: 346px
+
+   Formulier voor het opstellen van een nieuwe vernietigingslijst met velden voor **"Naam"**, **"Reviewer"** en
+   **"Opmerking"**.
+
+6. **Bevestig de aanmaak van de lijst**
+    - Klik op de knop **“Vernietigingslijst opstellen”** om de lijst definitief aan te maken.
+
+7. **Controleer de aangemaakte lijst**
+    - Na bevestiging word je teruggeleid naar de pagina **`/destruction-lists`**.
+    - De vernietigingslijst verschijnt in het overzicht met de status *"Nieuw"*.
+
+Let op
+------
+- Controleer altijd of alle velden correct zijn ingevuld voordat je de lijst aanmaakt.
+- Indien je een fout hebt gemaakt, kun je de lijst later bewerken of verwijderen.
+
+Met deze stappen kun je een vernietigingslijst opstellen en een reviewer toewijzen. De lijst kan nog worden
+:ref:`aangepast<manual_1-record-manager_1.2-vernietigingslijst-bewerken>` voordat deze definitief wordt gemaakt en ter
+controle wordt :ref:`aangeboden aan de beoordelaar<manual_1-record-manager_1.3-vernietigingslijst-klaarzetten-voor-beoordeling>`.
+
+
+.. |vernietigingslijst_opstellen_link| image:: ../_assets/vernietigingslijst-opstellen-link.png
+    :alt: Vernietigingslijst opstellen knop
+    :height: 32px
+
+.. |checkbox_zaak| image:: ../_assets/checkbox-zaak.png
+    :alt: Checkbox voor enkele zaak
+    :height: 42px
+
+.. |checkbox_zaken| image:: ../_assets/checkbox-zaken.png
+    :alt: Checkbox voor alle zaken
+    :height: 40
+
+.. |vernietigingslijst_opstellen_actie| image:: ../_assets/vernietigingslijst-opstellen-actie.png
+    :alt: Vernietigingslijst opstellen actie knop
+    :height: 32px
+
+.. |vernietigingslijst_opstellen_formulier| image:: ../_assets/vernietigingslijst-opstellen-formulier.png
+    :alt: Vernietigingslijst opstellen formulier
+    :height: 346px
