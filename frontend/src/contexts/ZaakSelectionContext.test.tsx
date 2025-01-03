@@ -1,6 +1,5 @@
 import { render } from "@testing-library/react";
-import exp from "node:constants";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import {
   DEFAULT_ZAAK_SELECTION_CONTEXT,

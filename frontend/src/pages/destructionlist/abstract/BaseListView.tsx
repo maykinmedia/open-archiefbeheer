@@ -14,9 +14,12 @@ import { DestructionListToolbar } from "../../../components";
 import {
   ZaakSelectionDetailGetter,
   ZaakSelectionZaakFilter,
+  useFields,
+  useFilter,
+  usePage,
+  useSort,
   useZaakSelection,
 } from "../../../hooks";
-import { useFields, useFilter, usePage, useSort } from "../../../hooks";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";

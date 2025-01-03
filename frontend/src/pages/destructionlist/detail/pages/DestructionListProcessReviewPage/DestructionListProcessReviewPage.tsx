@@ -1,5 +1,5 @@
 import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
