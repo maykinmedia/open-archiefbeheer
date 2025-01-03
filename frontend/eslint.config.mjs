@@ -1,10 +1,8 @@
 import eslint from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier";
 import importPlugin from "eslint-plugin-import";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import reactPlugin from "eslint-plugin-react";
-// import hooksPlugin from "eslint-plugin-react-hooks";
 import storybook from "eslint-plugin-storybook";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -64,17 +62,9 @@ const config = [
     name: "react/jsx-runtime",
     ...reactPlugin.configs.flat["jsx-runtime"],
   },
-  // {
-  //   plugins: { "react-hooks": hooksPlugin },
-  //   rules: hooksPlugin.configs.recommended.rules,
-  // },
   {
-    name: "prettier/recommended + config",
+    name: "prettier/recommended",
     ...prettierRecommended,
-    plugins: {
-      ...prettierRecommended.plugins,
-      ...eslintConfigPrettier.plugins,
-    },
   },
   // Storybook stories
   ...storybook.configs["flat/recommended"],
