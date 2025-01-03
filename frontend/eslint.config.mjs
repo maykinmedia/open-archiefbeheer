@@ -11,8 +11,11 @@ import tseslint from "typescript-eslint";
 
 const config = [
   {
+    name: "project:ignore build artifacts",
+    ignores: ["build/**/*"],
+  },
+  {
     name: "project:environment",
-    files: ["src/**/*"],
     settings: {
       react: {
         version: "detect",
@@ -27,6 +30,7 @@ const config = [
   },
   // Standard JS rules
   eslint.configs.recommended,
+  // eslint-disable-next-line import/no-named-as-default-member
   ...tseslint.configs.recommended,
   // Import/export linting
   {
