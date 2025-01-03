@@ -225,6 +225,7 @@ export function DestructionListReviewer({
     user,
     destructionList,
     reviewers,
+    coReviewers,
     assignedCoReviewers,
     assignCoReviewersFormValuesState,
   ]);

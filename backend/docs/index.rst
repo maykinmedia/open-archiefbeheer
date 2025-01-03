@@ -15,3 +15,4 @@ Documentation
 
     configure/index
     developers/index
+    manual/index
