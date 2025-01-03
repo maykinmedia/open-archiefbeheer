@@ -289,7 +289,6 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
       user = userFactory({
         role: { canStartDestruction: true, canReviewDestruction: true },
       });
-      anotherUser = { ...user, pk: 2 };
       destructionList = destructionListFactory({
         status,
         assignee: user,
