@@ -11,11 +11,8 @@ import tseslint from "typescript-eslint";
 
 const config = [
   {
-    name: "project:ignore build artifacts",
-    ignores: ["dist/**", "build/**"],
-  },
-  {
     name: "project:environment",
+    files: ["src/**/*"],
     settings: {
       react: {
         version: "detect",
@@ -52,6 +49,7 @@ const config = [
       "import/no-webpack-loader-syntax": "error",
     },
   },
+  importPlugin.flatConfigs.typescript,
   // React-specific linting
   jsxA11y.flatConfigs.recommended,
   {
@@ -98,7 +96,5 @@ const config = [
   //   },
   // },
 ];
-
-// console.log(config);
 
 export default config;
