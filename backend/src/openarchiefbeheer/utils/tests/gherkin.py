@@ -482,6 +482,13 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             list_assignee = await get_assignee()
             self.testcase.assertEqual(list_assignee, assignee)
 
+        async def list_should_have_user_in_assignees(
+            self, page, destruction_list, assignee
+        ):
+            await destruction_list.arefresh_from_db()
+            list_assignee = destruction_list.assignees.aget(pk=assignee.pk)
+            self.testcase.assertTrue(list_assignee)
+
         async def list_should_have_status(self, page, destruction_list, status):
             await destruction_list.arefresh_from_db()
             self.testcase.assertEqual(destruction_list.status, status)
