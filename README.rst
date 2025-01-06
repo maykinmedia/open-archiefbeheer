@@ -50,9 +50,9 @@ commands.
 .. |python-versions| image:: https://img.shields.io/badge/python-3.12-blue.svg
     :alt: Supported Python versions
 
-.. |docker| image:: https://img.shields.io/docker/v/maykinmedia/open-archiefbeheer?sort=semver
+.. |docker| image:: https://img.shields.io/docker/v/maykinmedia/open-archiefbeheer
     :alt: Docker image
-    :target: https://hub.docker.com/r/maykinmedia/open-archiefbeheer
+    :target: https://hub.docker.com/r/maykinmedia/open-archiefbeheer/tags
 
 .. |docs| image:: https://readthedocs.org/projects/open-archiefbeheer/badge/?version=latest
     :alt: Read the docs image
