@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.3.3",
+    "@maykinmedia/eslint-config": "^1.0.0",
     "@playwright/test": "^1.48.0",
     "@storybook/addon-coverage": "^1.0.4",
     "@storybook/addon-essentials": "^8.0.10",
@@ -67,10 +68,14 @@
     "@testing-library/react": "^16.0.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-storybook": "^0.8.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-storybook": "^0.11.2",
+    "globals": "^15.14.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "3.2.5",
@@ -78,6 +83,7 @@
     "storybook": "^8.0.10",
     "storybook-addon-mock": "^5.0.0",
     "storybook-addon-module-mock": "^1.3.4",
+    "typescript-eslint": "^8.19.0",
     "webpack": "^5.91.0"
   },
   "jest": {
