@@ -12,6 +12,7 @@ import django
 
 sys.path.insert(0, os.path.abspath("../src"))
 os.environ["LOG_REQUESTS"] = "false"
+os.environ["DJANGO_SETTINGS_MODULE"] = "openarchiefbeheer.conf.ci"
 
 import openarchiefbeheer  # noqa isort:skip
 
