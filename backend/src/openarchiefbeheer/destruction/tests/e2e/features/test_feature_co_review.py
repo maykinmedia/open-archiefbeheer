@@ -8,6 +8,37 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 @tag("e2e")
 class FeatureCoReviewTests(GherkinLikeTestCase):
+    async def test_assign_co_reviewers(self):
+        async with browser_page() as page:
+            reviewer = await self.given.reviewer_exists()
+            co_reviewer1 = await self.given.co_reviewer_exists(username="co-reviewer1", first_name="Co", last_name="Reviewer")
+            co_reviewer2 = await self.given.co_reviewer_exists(username="co-reviewer2", first_name="Cor", last_name="Eviewer")
+
+            destruction_list = await self.given.list_exists(
+                assignee=reviewer,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to assign co-reviewers for",
+                status=ListStatus.ready_to_review,
+            )
+
+            await self.when.reviewer_logs_in(page)
+            await self.when.user_clicks_button(page, "Destruction list to assign co-reviewers for")
+            await self.when.user_clicks_button(page, "Beoordelaar bewerken")
+
+            await self.when.user_fills_form_field(page, "Medebeoordelaar 1", "Co Reviewer (co-reviewer1)")
+            await self.when.user_fills_form_field(page, "Medebeoordelaar 2", "Cor Eviewer (co-reviewer2)")
+            await self.when.user_fills_form_field(page, "Reden", "gh-448")
+            await self.when.user_clicks_button(page, "Toewijzen")
+
+            await self.then.not_.page_should_contain_text(page, "Beoordelaar toewijzen")
+            await self.then.page_should_contain_text(page, "Co Reviewer (co-reviewer1)")
+            await self.then.page_should_contain_text(page, "Cor Eviewer (co-reviewer2)")
+
+            await self.then.list_should_have_assignee(page, destruction_list, reviewer)
+            await self.then.list_should_have_user_in_assignees(page, destruction_list, reviewer)
+            await self.then.list_should_have_user_in_assignees(page, destruction_list, co_reviewer1)
+            await self.then.list_should_have_user_in_assignees(page, destruction_list, co_reviewer2)
+
     async def test_scenario_co_reviewer_select_zaken_visible_to_reviewer(self):
         async with browser_page() as page:
             reviewer = await self.given.reviewer_exists()
