@@ -8,8 +8,6 @@ from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from furl import furl
-from glom import glom
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -338,37 +336,3 @@ def prepopulate_selection_after_review_response(
         )
 
     SelectionItem.objects.bulk_create(other_selection_items_to_create)
-
-
-def get_destruction_report_url(destruction_list: "DestructionList") -> str | None:
-    if created_documents := glom(
-        destruction_list.internal_results,
-        "created_resources.enkelvoudiginformatieobjecten",
-        default=None,
-    ):
-        if not len(created_documents):
-            return
-
-        endpoint = furl(created_documents[0]) / "download"
-        return endpoint.url
-
-    if not destruction_list.zaak_destruction_report_url:
-        return
-
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
-    zrc_client = build_client(zrc_service)
-
-    with zrc_client:
-        response = zrc_client.get(
-            "zaakinformatieobjecten",
-            params={"zaak": destruction_list.zaak_destruction_report_url},
-        )
-        response.raise_for_status()
-
-        zios = response.json()
-
-        if len(zios) == 0:
-            return
-
-        endpoint = furl(zios[0]["informatieobject"]) / "download"
-        return endpoint.url

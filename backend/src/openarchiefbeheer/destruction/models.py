@@ -12,9 +12,14 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from furl import furl
+from glom import glom
 from privates.fields import PrivateMediaFileField
 from slugify import slugify
 from timeline_logger.models import TimelineLog
+from zgw_consumers.client import build_client
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
@@ -265,6 +270,39 @@ class DestructionList(models.Model):
         self.items.update(extra_zaak_data={})
 
         self.destruction_report.delete()
+
+    def get_destruction_report_url(self) -> str | None:
+        if created_documents := glom(
+            self.internal_results,
+            "created_resources.enkelvoudiginformatieobjecten",
+            default=None,
+        ):
+            if not len(created_documents):
+                return
+
+            endpoint = furl(created_documents[0]) / "download"
+            return endpoint.url
+
+        if not self.zaak_destruction_report_url:
+            return
+
+        zrc_service = Service.objects.get(api_type=APITypes.zrc)
+        zrc_client = build_client(zrc_service)
+
+        with zrc_client:
+            response = zrc_client.get(
+                "zaakinformatieobjecten",
+                params={"zaak": self.zaak_destruction_report_url},
+            )
+            response.raise_for_status()
+
+            zios = response.json()
+
+            if len(zios) == 0:
+                return
+
+            endpoint = furl(zios[0]["informatieobject"]) / "download"
+            return endpoint.url
 
 
 class DestructionListItem(models.Model):
