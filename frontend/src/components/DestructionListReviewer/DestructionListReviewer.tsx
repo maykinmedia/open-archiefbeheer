@@ -3,8 +3,8 @@ import {
   Button,
   FormField,
   P,
-  SerializedFormData,
   Solid,
+  TypedSerializedFormData,
   useAlert,
   useFormDialog,
   validateForm,
@@ -59,10 +59,14 @@ export function DestructionListReviewer({
   const assignedCoReviewers = useDestructionListCoReviewers(destructionList);
   const user = useWhoAmI();
 
-  const [
-    assignCoReviewersFormValuesState,
-    setAssignCoReviewersFormValuesState,
-  ] = useState<SerializedFormData>({});
+  const assignedMainReviewer = destructionList.assignees.find(
+    (assignee) => assignee.role === "main_reviewer",
+  );
+
+  const [assignReviewersFormState, setAssignReviewersFormState] = useState<{
+    reviewer: string;
+    coReviewer: string[];
+  }>({ reviewer: "", coReviewer: [] });
 
   /**
    * Pre-populates `assignCoReviewersFormValuesState` with the current
@@ -71,9 +75,10 @@ export function DestructionListReviewer({
   useEffect(() => {
     const coReviewerPks = assignedCoReviewers.map((r) => r.user.pk.toString());
 
-    setAssignCoReviewersFormValuesState({
-      ...assignCoReviewersFormValuesState,
+    setAssignReviewersFormState({
+      ...assignReviewersFormState,
       coReviewer: coReviewerPks,
+      reviewer: assignedMainReviewer?.user.pk.toString() || "",
     });
   }, [assignedCoReviewers.map((r) => r.user.pk).join()]);
 
@@ -85,12 +90,12 @@ export function DestructionListReviewer({
    * This allows `field` to use filtered options based on it's value.
    * @param values
    */
-  const handleValidate = (values: SerializedFormData) => {
+  const handleValidate = (values: TypedSerializedFormData) => {
     // Ignore first run.
     if (!Object.keys(values).length) {
       return;
     }
-    setAssignCoReviewersFormValuesState(values);
+    setAssignReviewersFormState(values as typeof assignReviewersFormState);
     return validateForm(values, fields);
   };
 
@@ -156,78 +161,75 @@ export function DestructionListReviewer({
     Promise.all(promises).then(() => revalidator.revalidate());
   };
 
-  const reviewer = destructionList.assignees.find(
-    (assignee) => assignee.role === "main_reviewer",
-  );
-
   /**
    * The fields to show in the form dialog, can be either for (re)assigning a
    * reviewer or for (re)assigning co-reviewers.
    */
   const fields = useMemo<FormField[]>(() => {
-    if (!user) return [];
-
-    const reviewer = {
+    const reviewerField = {
       label: "Beoordelaar",
       name: "reviewer",
       type: "string",
-      options: reviewers.map((user) => ({
-        label: formatUser(user),
-        value: user.pk,
+      options: reviewers.map((u) => ({
+        label: formatUser(u),
+        value: u.pk,
       })),
       required: true,
-      value: reviewers.find((r) => r.pk === user.pk)?.pk,
+      value: assignReviewersFormState.reviewer,
     };
 
-    const comment = {
+    const commentField = {
       autoFocus: true,
       label: "Reden",
       name: "comment",
       type: "text",
       required: true,
+      // value: assignReviewersFormState.comment,
     };
 
-    const activeCoReviewers =
-      (assignCoReviewersFormValuesState.coReviewer as string[]) || [];
+    const activeCoReviewerFields =
+      (assignReviewersFormState.coReviewer as string[]) || [];
 
-    if (canReviewDestructionList(user, destructionList)) {
-      const coReviewerFields = new Array(5).fill(null).map((f, i) => {
-        return {
-          ...f,
-          label: `Medebeoordelaar ${1 + i}`,
-          name: "coReviewer",
-          required: false,
-          type: "string",
-          value: activeCoReviewers?.[i],
-          options: coReviewers
-            // Don't show the co-reviewer as option if:
-            // - The co-reviewer is already selected AND
-            // - The co-reviewer is not selected as value for the current
-            //   field.
-            .filter((c) => {
-              const selectedIndex = activeCoReviewers.indexOf(c.pk.toString());
-              if (selectedIndex < 0 || selectedIndex === i) {
-                return true;
-              }
-              return false;
-            })
-            .map((user) => ({
-              label: formatUser(user),
-              value: user.pk,
-            })),
-        };
-      });
+    const coReviewerFields = new Array(5).fill(null).map((f, i) => {
+      return {
+        ...f,
+        label: `Medebeoordelaar ${1 + i}`,
+        name: "coReviewer",
+        required: false,
+        type: "string",
+        value: assignReviewersFormState.coReviewer[i],
+        options: coReviewers
+          // Don't show the co-reviewer as option if:
+          // - The co-reviewer is already selected AND
+          // - The co-reviewer is not selected as value for the current
+          //   field.
+          .filter((c) => {
+            const selectedIndex = activeCoReviewerFields.indexOf(
+              c.pk.toString(),
+            );
+            if (selectedIndex < 0 || selectedIndex === i) {
+              return true;
+            }
+            return false;
+          })
+          .map((u) => ({
+            label: formatUser(u),
+            value: u.pk,
+          })),
+      };
+    });
 
-      return [...coReviewerFields, comment];
+    if (!user || canReviewDestructionList(user, destructionList)) {
+      return [...coReviewerFields, commentField];
     }
-    return [reviewer, comment];
+    return [reviewerField, ...coReviewerFields, commentField];
   }, [
     user,
     destructionList,
     reviewers,
     coReviewers,
     assignedCoReviewers,
-    assignCoReviewersFormValuesState,
+    assignReviewersFormState,
   ]);
 
   /**
@@ -285,7 +287,7 @@ export function DestructionListReviewer({
 
   return (
     <>
-      {reviewer && (
+      {assignedMainReviewer && (
         <>
           <AttributeTable
             compact
@@ -294,7 +296,7 @@ export function DestructionListReviewer({
                 label: "Beoordelaar",
                 value: (
                   <P>
-                    {formatUser(reviewer.user)}
+                    {formatUser(assignedMainReviewer.user)}
                     {user &&
                       canReassignDestructionList(user, destructionList) && (
                         <>
