@@ -416,8 +416,12 @@ class DestructionListTest(TestCase):
                 "Resultaat",
             ),
         )
+
+        # We don't know the order in which the zaken are retrieved in the db (they are not sorted).
+        data_rows = sorted(rows[1:], key=lambda row: row[0])
+
         self.assertEqual(
-            rows[1],
+            data_rows[0],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -430,7 +434,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[2],
+            data_rows[1],
             (
                 "111-111-111",
                 "Tralala zaaktype",
@@ -443,7 +447,7 @@ class DestructionListTest(TestCase):
             ),
         )
         self.assertEqual(
-            rows[3],
+            data_rows[2],
             (
                 "111-111-222",
                 "Tralala zaaktype",
