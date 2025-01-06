@@ -40,7 +40,7 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
-from ..utils import get_destruction_report_url, process_new_reviewer
+from ..utils import process_new_reviewer
 from .backends import NestedFilterBackend
 from .filtersets import (
     DestructionListCoReviewFilterset,
@@ -417,7 +417,7 @@ class DestructionListViewSet(
         destruction_list = self.get_object()
 
         # Get the URL of the document in Openzaak.
-        document_url = get_destruction_report_url(destruction_list)
+        document_url = destruction_list.get_destruction_report_url()
         if not document_url:
             raise NotFound(_("No destruction report found for this destruction list"))
 
