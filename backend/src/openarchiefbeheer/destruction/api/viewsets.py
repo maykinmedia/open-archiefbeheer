@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
-from requests.exceptions import HTTPError, RequestException, Timeout
+from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
@@ -417,9 +417,15 @@ class DestructionListViewSet(
         service = Service.get_service(document_url)
         client = build_client(service)
         with client:
-            response = client.get(
-                document_url, timeout=settings.REQUESTS_DEFAULT_TIMEOUT, stream=True
-            )
+            try:
+                response = client.get(
+                    document_url, timeout=settings.REQUESTS_DEFAULT_TIMEOUT, stream=True
+                )
+            except ConnectionError:
+                return Response(
+                    {"detail": _("Could not connect to Open Zaak.")}, status=502
+                )
+
             if response.status_code == 404:
                 raise NotFound(
                     _("The requested report could not be found in Open Zaak.")
