@@ -1,5 +1,4 @@
 import {
-  FormProps,
   LoginTemplate,
   LoginTemplateProps,
   forceArray,

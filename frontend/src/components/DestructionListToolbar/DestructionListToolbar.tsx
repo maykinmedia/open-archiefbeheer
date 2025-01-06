@@ -149,7 +149,7 @@ export function DestructionListToolbar({
           const data = await e.json();
           const errors = collectErrors(data).join("\n");
           alert("Foutmelding", data.detail || errors, "Ok");
-        } catch (e) {
+        } catch {
           alert(
             "Foutmelding",
             "Er is een fout opgetreden bij het bewerken van de naam van de vernietigingslijst.",

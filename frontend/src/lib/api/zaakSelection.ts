@@ -12,6 +12,7 @@ export async function getSelection<DetailType = unknown>(
   signal?: AbortSignal,
 ) {
   const params = new URLSearchParams(exp as Record<string, string>);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   selectedOnly && params.set("selected", "true");
 
   const response = await request(
@@ -37,6 +38,7 @@ export async function getSelectionItems<DetailType = unknown>(
 ) {
   const items = zaken.map((zaak) => _getZaakUrl(zaak));
   const params = new URLSearchParams();
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   selectedOnly && params.set("selected", "true");
   const response = await request(
     "POST",

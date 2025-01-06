@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { CoReview, listCoReviews } from "../lib/api/coReview";
 import { DestructionList } from "../lib/api/destructionLists";

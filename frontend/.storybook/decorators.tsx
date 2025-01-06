@@ -1,5 +1,4 @@
 import { StoryContext, StoryFn } from "@storybook/react";
-import * as React from "react";
 import {
   RouterProvider,
   createBrowserRouter,

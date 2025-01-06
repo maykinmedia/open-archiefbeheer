@@ -106,6 +106,7 @@ export function timeAgo(
         result = `over ${intervalCount}${shortFormat ? "" : " "}${label}`;
       } else {
         // Special case to not include "geleden" for the short format
+        // eslint-disable-next-line max-depth
         if (shortFormat) {
           result = `${intervalCount}${shortFormat ? "" : " "}${label}`;
         } else {

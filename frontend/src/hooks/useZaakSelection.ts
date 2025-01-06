@@ -233,19 +233,6 @@ export function useZaakSelection<T = unknown>(
   };
 
   /**
-   * Converts selection to string for camparison.
-   * @param selection
-   */
-  const _serializeSelection = (selection: ZaakSelection): string => {
-    return Object.entries(selection)
-      .map(([url, { selected, detail }]) => {
-        const json = detail ? JSON.stringify(detail) : "";
-        return `${url}${selected}${json}`;
-      })
-      .join();
-  };
-
-  /**
    * @param size
    * @private
    */
@@ -315,6 +302,7 @@ export function useZaakSelection<T = unknown>(
       ? await Promise.all(detailPromises)
       : undefined;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     selected
       ? await addToZaakSelection(
           storageKey,
