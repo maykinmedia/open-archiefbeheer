@@ -7,7 +7,7 @@ Open Archiefbeheer
 :Keywords: ``open-archiefbeheer archiveren zaken``
 :PythonVersion: 3.12
 
-|build-status| |code-quality| |black| |coverage| |python-versions| |docker|
+|build-status| |code-quality| |black| |coverage| |python-versions| |docker| |docs|
 
 Open Archiefbeheer is an app to manage the archiving process of cases.
 
@@ -53,3 +53,7 @@ commands.
 .. |docker| image:: https://img.shields.io/docker/v/maykinmedia/open-archiefbeheer?sort=semver
     :alt: Docker image
     :target: https://hub.docker.com/r/maykinmedia/open-archiefbeheer
+
+.. |docs| image:: https://readthedocs.org/projects/open-archiefbeheer/badge/?version=latest
+    :alt: Read the docs image
+    :target: https://open-archiefbeheer.readthedocs.io/en/latest/
