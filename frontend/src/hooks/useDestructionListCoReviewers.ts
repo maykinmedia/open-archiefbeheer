@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import {
   DestructionList,
   DestructionListAssignee,
+  listDestructionListCoReviewers,
 } from "../lib/api/destructionLists";
-import { listDestructionListCoReviewers } from "../lib/api/destructionLists";
 import { useAlertOnError } from "./useAlertOnError";
 
 /**

@@ -176,7 +176,6 @@ export const clickCheckbox: PlayFunction<ReactRenderer> = async (context) => {
  */
 export const clickElement: PlayFunction<ReactRenderer> = async (context) => {
   const {
-    checked = false,
     elementIndex = 0,
     inTBody = false,
     role,
@@ -237,12 +236,13 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
         : fields[0]; // Exception if not found.
 
     switch (typeof value) {
-      case "boolean":
+      case "boolean": {
         const checkbox = field as HTMLInputElement;
         if (checkbox.checked !== value) {
           await userEvent.click(checkbox, { delay: 100 });
         }
         break;
+      }
       case "string":
         if ((field as HTMLSelectElement).options) {
           const select = field as HTMLSelectElement;

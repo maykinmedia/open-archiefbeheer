@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userEvent, within } from "@storybook/test";
 
 import {
   ClearSessionStorageDecorator,
@@ -12,11 +11,7 @@ import {
   fillForm,
 } from "../../../../.storybook/playFunctions";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
-import {
-  beoordelaarFactory,
-  recordManagerFactory,
-  usersFactory,
-} from "../../../fixtures/user";
+import { usersFactory } from "../../../fixtures/user";
 import { getZaakSelection } from "../../../lib/zaakSelection";
 import {
   DESTRUCTION_LIST_CREATE_KEY,
