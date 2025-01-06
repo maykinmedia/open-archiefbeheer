@@ -130,3 +130,30 @@ class DestructionListEndpointTest(VCRMixin, APITestCase):
         self.assertEqual(
             response.json()["detail"], _("Error response received from Open Zaak.")
         )
+
+    def test_openzaak_down(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="A deleted list",
+            status=ListStatus.deleted,
+            internal_results={
+                "created_resources": {
+                    "enkelvoudiginformatieobjecten": [
+                        "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/ac7ab173-3b1c-4ea9-8ccb-023c3814e3b3"
+                    ]
+                }
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(
+            reverse(
+                "api:destructionlist-download-report",
+                kwargs={"uuid": destruction_list.uuid},
+            ),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertEqual(
+            response.json()["detail"], _("Could not connect to Open Zaak.")
+        )
