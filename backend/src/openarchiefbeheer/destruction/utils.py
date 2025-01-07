@@ -16,6 +16,7 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
+from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
@@ -137,11 +138,29 @@ def process_new_reviewer(
 
 
 def resync_items_and_zaken() -> None:
+    # Using the _zaak_url field, link the item to the zaak again
     DestructionListItem.objects.filter(~Q(_zaak_url=""), zaak__isnull=True).update(
         zaak_id=Subquery(
             Zaak.objects.filter(url=OuterRef("_zaak_url")).values("pk")[:1]
         )
     )
+
+    # If the cases could not be linked again, the zaak does not exist anymore.
+    # We need to delete them and log the deletion from the destruction list
+    orphan_items = DestructionListItem.objects.filter(
+        ~Q(_zaak_url=""), zaak__isnull=True
+    )
+    destruction_lists = DestructionList.objects.filter(
+        pk__in=orphan_items.distinct("destruction_list").values_list(
+            "destruction_list", flat=True
+        )
+    )
+    for destruction_list in destruction_lists:
+        items_in_list = orphan_items.filter(destruction_list=destruction_list)
+
+        number_deleted_items, _ = items_in_list.delete()
+
+        logevent.destruction_list_items_deleted(destruction_list, number_deleted_items)
 
 
 def create_zaak_for_report(
