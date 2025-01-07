@@ -92,24 +92,19 @@ from .serializers import (
                 value={
                     "name": "An example list",
                     "containsSensitiveInfo": True,
-                    "assignees": [
-                        {
-                            "user": 1,
-                        },
-                        {
-                            "user": 2,
-                        },
-                    ],
+                    "reviewer": 1,
                     "add": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
-                            "extraZaakData": {},
                         },
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
-                            "extraZaakData": {},
                         },
                     ],
+                    "selectAll": True,
+                    "zaak_filters": {
+                        "zaaktype__omschrijving__icontains": "Some zaaktype omschrijving."
+                    },
                 },
             )
         ],
@@ -132,13 +127,11 @@ from .serializers import (
                     "add": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/111-111-111",
-                            "extraZaakData": {},
                         },
                     ],
                     "remove": [
                         {
                             "zaak": "http://some-zaken-api.nl/zaken/api/v1/zaken/222-222-222",
-                            "extraZaakData": {},
                         },
                     ],
                 },
