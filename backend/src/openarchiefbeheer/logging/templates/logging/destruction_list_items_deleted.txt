@@ -1,0 +1,9 @@
+{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name %}
+List "{{ list_name }}" has been updated after resyncing the cases with Open Zaak.
+{% endblocktranslate %}
+{% blocktranslate trimmed with number_deleted_items=log.extra_data.number_deleted_items count counter=log.extra_data.number_deleted_items %}
+One item was deleted.{% plural %}{{ number_deleted_items }} items were deleted.
+{% endblocktranslate %}
+{% blocktranslate trimmed with number_of_zaken=log.extra_data.number_of_zaken count counter=log.extra_data.number_of_zaken %}
+There is now one zaak on the list.{% plural %}There are now {{ number_of_zaken }} zaken on the list.
+{% endblocktranslate %}

@@ -252,6 +252,21 @@ def destruction_list_deletion_triggered(
     )
 
 
+def destruction_list_items_deleted(
+    destruction_list: DestructionList, number_deleted_items: int
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_items_deleted",
+        extra_data={
+            "number_deleted_items": number_deleted_items,
+            "number_of_zaken": destruction_list.items.filter(
+                status=ListItemStatus.suggested
+            ).count(),
+        },
+    )
+
+
 def resync_started() -> None:
     return TimelineLog.objects.create(
         template="logging/resync_started.txt",
