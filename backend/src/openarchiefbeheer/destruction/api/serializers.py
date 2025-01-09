@@ -61,7 +61,13 @@ class ReviewerAssigneeSerializer(serializers.ModelSerializer):
         if self.parent.instance:
             return attrs
 
-        author = self.parent.context["request"].user
+        if destruction_list := self.parent.context.get("destruction_list"):
+            # Case in which an existing reviewer is replaced
+            author = destruction_list.author
+        else:
+            # Case in which a new list is created
+            author = self.parent.context["request"].user
+
         if author.pk == attrs["user"].pk:
             raise ValidationError(
                 {"user": _("The author of a list cannot also be a reviewer.")}
