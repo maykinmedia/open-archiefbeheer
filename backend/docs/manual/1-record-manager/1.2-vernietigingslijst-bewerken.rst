@@ -81,3 +81,55 @@ en filters gebruiken om je selectie te verfijnen. De volgende stap is om de lijs
 .. |naam_bewerken| image:: ../_assets/naam-bewerken.png
     :alt: Naam bewerken knop
     :height: 22px
+
+=====================
+Beoordelaar bijwerken
+=====================
+
+Deze handleiding beschrijft hoe een **record manager** de beoordelaar van een vernietigingslijst kan bijwerken in de applicatie.
+
+Voorwaarden
+------------
+- De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De vernietigingslijst moet een status van **Klaar voor beoordeling** of **Nieuw** hebben.
+- Er moet een nieuwe beoordelaar beschikbaar zijn om toegewezen te worden.
+
+Stappen
+-------
+
+1. **Inloggen als record manager**
+    - Open de applicatie en log in met je gebruikersnaam en wachtwoord of via je organisatie login.
+    - Na succesvol inloggen word je automatisch doorgestuurd naar het overzicht van vernietigingslijsten.
+
+2. **Open de vernietigingslijst**
+    - Zoek in het overzicht naar de lijst waarvoor je de beoordelaar wilt bijwerken.
+    - Klik op de naam van de lijst, bijvoorbeeld **"Vernietigingslijst om beoordelaar bij te werken"**.
+    - Je wordt doorgestuurd naar de details van de lijst.
+
+3. **Start het proces om de beoordelaar bij te werken**
+    - Klik op de knop **"Beoordelaar bewerken"**. |beoordelaar_bewerken|
+    - Een formulier wordt geopend om de nieuwe beoordelaar of toe te wijzen.
+
+4. **Selecteer een nieuwe beoordelaar**
+    - Vul het veld **"Beoordelaar"** in door een naam te selecteren uit de lijst, bijvoorbeeld **"John Doe (reviewer)"**.
+    - Vul het veld **"Reden"** in met een korte toelichting, bijvoorbeeld **"Originele beoordelaar is op vakantie."**.
+
+5. **Bevestig de wijziging**
+    - Klik op de knop **"Toewijzen"** om de nieuwe beoordelaar toe te wijzen aan de lijst.
+
+6. **Controleer de wijzigingen**
+    - Controleer dat de vernietigingslijst nu de nieuwe beoordelaar weergeeft.
+    - Zorg ervoor dat de juiste informatie zichtbaar is in de lijstdetails.
+
+Let op
+------
+- Controleer altijd dat de juiste beoordelaar is toegewezen voordat je verdergaat.
+- Redenen voor wijzigingen worden vastgelegd en kunnen later geraadpleegd worden.
+- De status van de lijst blijft **Klaar voor beoordeling** totdat deze wordt beoordeeld door de nieuwe beoordelaar.
+- Als een gebruiker lid is van zowel de record manager- als beoordelaar-groep en is toegewezen als beoordelaar van een lijst, kan deze wel de beoordelaar wijzigen.
+
+Met deze stappen kun je de beoordelaar voor een vernietigingslijst bijwerken en de lijst klaarzetten voor beoordeling door de nieuwe beoordelaar.
+
+.. |beoordelaar_bewerken| image:: ../_assets/naam-bewerken.png
+    :alt: Beoordelaar bewerken knop
+    :height: 22px
