@@ -86,6 +86,10 @@ CACHES = {
     },
 }
 
+# Geospatial libraries
+GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", None)
+GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", None)
+
 
 #
 # APPLICATIONS enabled for this project
