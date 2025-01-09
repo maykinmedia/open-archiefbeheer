@@ -18,7 +18,6 @@ import {
 } from "../../fixtures/user";
 import * as hooksUseWhoAmI from "../../hooks";
 import * as libDestructionList from "../../lib/api/destructionLists";
-import { updateCoReviewers } from "../../lib/api/destructionLists";
 import * as libReviewers from "../../lib/api/reviewers";
 import { DestructionListReviewer as DestructionListReviewerComponent } from "./DestructionListReviewer";
 
@@ -88,99 +87,6 @@ const assertEditButton: PlayFunctionWithReturnValue<
   return editButton;
 };
 
-/**
- * Play function that asserts whether reviewer can be updated.
- */
-const assertEditReviewer: PlayFunction<ReactRenderer> = async (context) => {
-  const editButton = (await assertEditButton({
-    ...context,
-    parameters: { shouldBeVisible: true },
-  })) as HTMLButtonElement;
-  await userEvent.click(editButton);
-
-  const dialog = await within(context.canvasElement).findByRole("dialog");
-  // fixme: admin-ui dialog forms are not considered to be accessible due to no aria-label.
-  const form = dialog.querySelector("form");
-
-  await fillForm({
-    ...context,
-    parameters: {
-      fillForm: {
-        form: form,
-        formValues: {
-          Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
-          Reden: "Edit reviewer",
-        },
-        submitForm: true,
-      },
-    },
-  });
-  await waitFor(() => {
-    const reassignDestructionList = getMock(
-      context.parameters,
-      libDestructionList,
-      "reassignDestructionList",
-    );
-    expect(reassignDestructionList).toHaveBeenCalledOnce();
-    expect(updateCoReviewers).not.toHaveBeenCalled();
-  });
-};
-
-/**
- * Play function that asserts whether reviewer can be updated.
- */
-const assertEditCoReviewers: PlayFunction<ReactRenderer> = async (context) => {
-  const editButton = (await assertEditButton({
-    ...context,
-    parameters: { shouldBeVisible: true },
-  })) as HTMLButtonElement;
-  await userEvent.click(editButton);
-
-  const dialog = await within(context.canvasElement).findByRole("dialog");
-  // fixme: admin-ui dialog forms are not considered to be accessible due to no aria-label.
-  const form = dialog.querySelector("form");
-  const coReviewer1: HTMLInputElement = within(
-    form as HTMLFormElement,
-  ).getByLabelText("Medebeoordelaar 1");
-  const coReviewer2: HTMLInputElement = within(
-    form as HTMLFormElement,
-  ).getByLabelText("Medebeoordelaar 2");
-
-  await expect(coReviewer1.value).toBe(REVIEWER2.pk.toString());
-
-  await fillForm({
-    ...context,
-    parameters: {
-      fillForm: {
-        form: form,
-        formValues: {
-          "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
-          Reden: "Edit co-reviewers",
-        },
-        submitForm: true,
-      },
-    },
-  });
-
-  await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
-
-  await waitFor(() => {
-    const reassignDestructionList = getMock(
-      context.parameters,
-      libDestructionList,
-      "reassignDestructionList",
-    );
-    expect(reassignDestructionList).not.toHaveBeenCalled();
-
-    const updateCoReviewers = getMock(
-      context.parameters,
-      libDestructionList,
-      "updateCoReviewers",
-    );
-    expect(updateCoReviewers).toHaveBeenCalledOnce();
-  });
-};
-
 export const UserCannotReassignReviewer: Story = {
   args: { destructionList: destructionListFactory({ author: RECORD_MANAGER }) },
   play: async (context) => {
@@ -218,7 +124,124 @@ export const RecordManagerCanReassignReviewer: Story = {
     },
   },
   play: async (context) => {
-    await assertEditReviewer(context);
+    const editButton = (await assertEditButton({
+      ...context,
+      parameters: { shouldBeVisible: true },
+    })) as HTMLButtonElement;
+    await userEvent.click(editButton);
+
+    const dialog = await within(context.canvasElement).findByRole("dialog");
+    // fixme: admin-ui dialog forms are not considered to be accessible due to no aria-label.
+    const form = dialog.querySelector("form");
+
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          form: form,
+          formValues: {
+            Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
+            Reden: "Edit reviewer",
+          },
+          submitForm: true,
+        },
+      },
+    });
+    await waitFor(() => {
+      const reassignDestructionList = getMock(
+        context.parameters,
+        libDestructionList,
+        "reassignDestructionList",
+      );
+      expect(reassignDestructionList).toHaveBeenCalledOnce();
+    });
+  },
+};
+
+export const RecordManagerCanReassignCoReviewers: Story = {
+  args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
+  parameters: {
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
+
+        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
+        useCoReviewers.mockImplementation(() => [
+          REVIEWER2,
+          REVIEWER3,
+          REVIEWER4,
+        ]);
+
+        const useDestructionListCoReviewers = createMock(
+          hooksUseWhoAmI,
+          "useDestructionListCoReviewers",
+        );
+        useDestructionListCoReviewers.mockImplementation(() => [
+          { user: REVIEWER2, role: "co_reviewer" },
+        ]);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+      },
+    },
+  },
+  play: async (context) => {
+    const editButton = (await assertEditButton({
+      ...context,
+      parameters: { shouldBeVisible: true },
+    })) as HTMLButtonElement;
+    await userEvent.click(editButton);
+
+    const dialog = await within(context.canvasElement).findByRole("dialog");
+    // fixme: admin-ui dialog forms are not considered to be accessible due to no aria-label.
+    const form = dialog.querySelector("form");
+    const coReviewer1: HTMLInputElement = within(
+      form as HTMLFormElement,
+    ).getByLabelText("Medebeoordelaar 1");
+    const coReviewer2: HTMLInputElement = within(
+      form as HTMLFormElement,
+    ).getByLabelText("Medebeoordelaar 2");
+
+    await expect(coReviewer1.value).toBe(REVIEWER2.pk.toString());
+
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          form: form,
+          formValues: {
+            "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
+            Reden: "Edit co-reviewers",
+          },
+          submitForm: true,
+        },
+      },
+    });
+
+    await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
+
+    await waitFor(() => {
+      const updateCoReviewers = getMock(
+        context.parameters,
+        libDestructionList,
+        "updateCoReviewers",
+      );
+      expect(updateCoReviewers).toHaveBeenCalledOnce();
+    });
   },
 };
 
@@ -264,7 +287,55 @@ export const ReviewerCanReassignCoReviewers: Story = {
     },
   },
   play: async (context) => {
-    await assertEditCoReviewers(context);
+    const editButton = (await assertEditButton({
+      ...context,
+      parameters: { shouldBeVisible: true },
+    })) as HTMLButtonElement;
+    await userEvent.click(editButton);
+
+    const dialog = await within(context.canvasElement).findByRole("dialog");
+    // fixme: admin-ui dialog forms are not considered to be accessible due to no aria-label.
+    const form = dialog.querySelector("form");
+    const coReviewer1: HTMLInputElement = within(
+      form as HTMLFormElement,
+    ).getByLabelText("Medebeoordelaar 1");
+    const coReviewer2: HTMLInputElement = within(
+      form as HTMLFormElement,
+    ).getByLabelText("Medebeoordelaar 2");
+
+    await expect(coReviewer1.value).toBe(REVIEWER2.pk.toString());
+
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          form: form,
+          formValues: {
+            "Medebeoordelaar 2": "Co Reviewer (co-reviewer)",
+            Reden: "Edit co-reviewers",
+          },
+          submitForm: true,
+        },
+      },
+    });
+
+    await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
+
+    await waitFor(() => {
+      const reassignDestructionList = getMock(
+        context.parameters,
+        libDestructionList,
+        "reassignDestructionList",
+      );
+      expect(reassignDestructionList).not.toHaveBeenCalled();
+
+      const updateCoReviewers = getMock(
+        context.parameters,
+        libDestructionList,
+        "updateCoReviewers",
+      );
+      expect(updateCoReviewers).toHaveBeenCalledOnce();
+    });
   },
 };
 
@@ -389,7 +460,7 @@ export const UpdateCoReviewersErrorShowsErrorMessage: Story = {
 };
 
 export const ReassignDestructionListErrorShowsErrorMessage: Story = {
-  args: { destructionList: DESTRUCTION_LIST_NEW },
+  args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
     moduleMock: {
       mock: () => {
@@ -456,10 +527,10 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
 
     const beoordelaar = await canvas.findByLabelText("Beoordelaar");
     await userEvent.click(beoordelaar, { delay: 10 });
-    const option = await within(dialog).findByText(
+    const options = await within(dialog).findAllByText(
       "Beoor del Laar 2 (Beoor del Laar 2)",
     );
-    await userEvent.click(option, { delay: 10 });
+    await userEvent.click(options[0], { delay: 10 });
 
     const reden = await canvas.findByLabelText("Reden");
     const submit = await canvas.findByRole("button", { name: "Toewijzen" });
