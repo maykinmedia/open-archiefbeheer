@@ -26,7 +26,7 @@ import {
 } from "../../lib/api/destructionLists";
 import {
   canReassignDestructionList,
-  canReviewDestructionList,
+  canStartDestructionList,
 } from "../../lib/auth/permissions";
 import { collectErrors } from "../../lib/format/error";
 import { formatUser } from "../../lib/format/user";
@@ -219,7 +219,7 @@ export function DestructionListReviewer({
       };
     });
 
-    if (!user || canReviewDestructionList(user, destructionList)) {
+    if (!user || !canStartDestructionList(user)) {
       return [...coReviewerFields, commentField];
     }
     return [reviewerField, ...coReviewerFields, commentField];
