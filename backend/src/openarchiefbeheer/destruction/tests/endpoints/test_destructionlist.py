@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from requests_mock import Mocker
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -7,9 +9,9 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import ListStatus
+from ...constants import ListRole, ListStatus
 from ...models import DestructionList
-from ..factories import DestructionListFactory
+from ..factories import DestructionListAssigneeFactory, DestructionListFactory
 
 
 class DestructionListViewsetTests(APITestCase):
@@ -182,3 +184,43 @@ class DestructionListViewsetTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_assign_author_as_reviewer_when_logged_in_as_other_record_manager(self):
+        record_manager1 = UserFactory.create(
+            post__can_start_destruction=True, post__can_review_destruction=True
+        )
+        record_manager2 = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review,
+            author=record_manager1,  # First record manager is author
+            assignee=reviewer,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=record_manager1,
+            role=ListRole.author,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
+        )
+
+        # Second record manager tries to assign first record manager as reviewer
+        self.client.force_login(record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={"assignee": {"user": record_manager1.pk}, "comment": "Tralala"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["assignee"]["user"][0],
+            _("The author of a list cannot also be a reviewer."),
+        )
