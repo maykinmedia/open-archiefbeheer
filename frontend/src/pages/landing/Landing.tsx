@@ -23,10 +23,8 @@ import { User } from "../../lib/api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,
   DestructionList,
-  DestructionListStatus,
 } from "../../lib/api/destructionLists";
-import { ProcessingStatus } from "../../lib/api/processingStatus";
-import { API_BASE_URL, API_URL } from "../../lib/api/request";
+import { API_BASE_URL } from "../../lib/api/request";
 import {
   canCoReviewDestructionList,
   canDownloadReport,
@@ -46,57 +44,56 @@ import { LandingContext, getStatusMap } from "./Landing.loader";
 
 export type LandingKanbanEntry = {
   key: string;
-  onClick: () => void;
+  destructionList: DestructionList;
   disabled: boolean;
-  plannedDestructionDate: string | null;
-  processingStatus: ProcessingStatus;
-  status: DestructionListStatus;
   title: string;
   timeAgo: string;
-  assignees: React.ReactNode;
+  slotAssignees: React.ReactNode;
+  href?: string;
+  onClick?: () => void;
 };
 
 export const STATUSES: FieldSet<LandingKanbanEntry>[] = [
   [
     STATUS_MAPPING.new,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.changes_requested,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.ready_to_review,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.internally_reviewed,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.ready_for_archivist,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.ready_to_delete,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
   [
     STATUS_MAPPING.deleted,
     {
-      fields: ["assignees"],
+      fields: ["slotAssignees"],
     },
   ],
 ];
@@ -168,7 +165,7 @@ export const Landing = () => {
           : undefined;
 
       case "deleted":
-        return canViewDestructionList(user, list)
+        return canDownloadReport(user, list)
           ? API_BASE_URL + `/destruction-lists/${list.uuid}/download_report`
           : undefined;
 
@@ -178,10 +175,10 @@ export const Landing = () => {
   };
 
   const objectLists = Object.values(statusMap).map((lists: DestructionList[]) =>
-    lists.map<LandingKanbanEntry>((list) => {
-      const currentAssignee = list.assignee;
-      const otherAssignees = [...list.assignees].splice(1);
-      const href = constructHref(user, list) || "";
+    lists.map<LandingKanbanEntry>((destructionList) => {
+      const currentAssignee = destructionList.assignee;
+      const otherAssignees = [...destructionList.assignees].splice(1);
+      const href = constructHref(user, destructionList) || "";
 
       const footer = (
         <P muted size="xs">
@@ -199,16 +196,12 @@ export const Landing = () => {
       );
 
       return {
-        key: list.name,
-        onClick: () =>
-          href.startsWith("http") ? window.open(href) : navigate(href),
+        key: destructionList.name,
+        destructionList: destructionList,
         disabled: !href,
-        processingStatus: list.processingStatus,
-        plannedDestructionDate: list.plannedDestructionDate,
-        status: list.status,
-        title: list.name,
-        timeAgo: timeAgo(list.created),
-        assignees: otherAssignees.length ? (
+        title: destructionList.name,
+        timeAgo: timeAgo(destructionList.created),
+        slotAssignees: otherAssignees.length ? (
           <Tooltip
             content={otherAssignees.map((a) => formatUser(a.user)).join(", ")}
             placement="bottom"
@@ -218,6 +211,8 @@ export const Landing = () => {
         ) : (
           footer
         ),
+        href: href.startsWith("http") ? href : undefined,
+        onClick: () => (href.startsWith("http") ? undefined : navigate(href)),
       };
     }),
   );
@@ -238,6 +233,9 @@ export const Landing = () => {
       kanbanProps={{
         title: "Vernietigingslijsten",
         fieldsets: STATUSES,
+        buttonLinkProps: {
+          download: true,
+        },
         objectLists: objectLists,
         toolbarProps: {
           items: [
@@ -361,17 +359,18 @@ export const Landing = () => {
           ],
         },
         renderPreview: (entry) => {
-          if (
-            entry.processingStatus === "new" &&
-            !entry.plannedDestructionDate
-          ) {
-            return canDownloadReport(user, {
-              status: entry.status,
-            } as DestructionList) ? (
+          if (canDownloadReport(user, entry.destructionList)) {
+            return (
               <Badge level="success">
                 <Outline.CloudArrowDownIcon /> Download rapport
               </Badge>
-            ) : (
+            );
+          }
+          if (
+            entry.destructionList.processingStatus === "new" &&
+            !entry.destructionList.plannedDestructionDate
+          ) {
+            return (
               <Badge aria-label="opgesteld">
                 <Outline.DocumentPlusIcon />
                 {entry.timeAgo as string}
@@ -380,8 +379,10 @@ export const Landing = () => {
           }
           return (
             <ProcessingStatusBadge
-              processingStatus={entry.processingStatus}
-              plannedDestructionDate={entry.plannedDestructionDate}
+              processingStatus={entry.destructionList.processingStatus}
+              plannedDestructionDate={
+                entry.destructionList.plannedDestructionDate
+              }
             />
           );
         },
