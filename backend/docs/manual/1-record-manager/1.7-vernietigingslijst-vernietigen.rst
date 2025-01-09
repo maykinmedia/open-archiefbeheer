@@ -49,6 +49,10 @@ Stappen
     - Nadat je de vernietiging hebt gestart, wordt je teruggeleid naar het overzicht van de vernietigingslijsten.
     - De status van de lijst wordt bijgewerkt naar **"Vernietigd"** zodra de zaken succesvol zijn vernietigd en een
       verklaring van vernietiging is gegenereerd.
+    - Een vernietigingsrapport kan worden gedownload door op de knop van de vernietigingslijst te klikken op de
+      overzichtspagina.
+
+      |rapport_downloaden|
 
 Let op
 ------
@@ -68,3 +72,8 @@ vernietiging downloaden met gegevens van de vernietigde zaken en details van het
 .. |vernietigen_starten_formulier| image:: ../_assets/vernietigen-starten-formulier.png
     :alt: vernietigen starten formulier
     :height: 214px
+
+
+.. |rapport_downloaden| image:: ../_assets/rapport-downloaden.png
+    :alt: vernietigen starten formulier
+    :height: 117px
