@@ -52,7 +52,10 @@ export const LandingPage: StoryObj<typeof Landing> = {
       .map((d) => d.name);
     for (const name of destroyedNames) {
       const button = await within(canvasElement).findByTitle(name);
-      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute(
+        "href",
+        "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/download_report",
+      );
     }
   },
 };
