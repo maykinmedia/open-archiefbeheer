@@ -85,3 +85,29 @@ class TestReAddRoles(TestMigrations):
         self.assertEqual(users.get(username="r1").role.name, "Reviewer")
         self.assertEqual(users.get(username="a1").role.name, "Archivist")
         self.assertIsNone(users.get(username="no_role").role)
+
+
+class TestAddNewRoleToGroup(TestMigrations):
+    app = "accounts"
+    migrate_from = "0008_add_co_reviewer_group"
+    migrate_to = "0009_add_co_reviewer_permission_to_admin"
+
+    def setUpBeforeMigration(self, apps):
+        Group = apps.get_model("auth", "Group")
+
+        administrator, _ = Group.objects.get_or_create(
+            name="Administrator",
+        )
+
+    def test_administrator_has_co_reviewer_permission(self):
+        Group = self.apps.get_model("auth", "Group")
+
+        administrator, _ = Group.objects.get_or_create(
+            name="Administrator",
+        )
+
+        self.assertTrue(
+            administrator.permissions.filter(
+                codename="can_co_review_destruction"
+            ).exists()
+        )
