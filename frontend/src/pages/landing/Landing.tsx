@@ -238,6 +238,7 @@ export const Landing = () => {
         },
         objectLists: objectLists,
         toolbarProps: {
+          variant: "normal",
           items: [
             {
               icon: <Outline.MagnifyingGlassIcon />,
