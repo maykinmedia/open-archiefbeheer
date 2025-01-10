@@ -19,7 +19,7 @@ import {
   DestructionListReviewPage,
   Landing,
   LoginPage,
-  SettingsPage,
+  ShortProcedureSettingsPage,
   destructionListCreateAction,
   destructionListCreateLoader,
   destructionListDetailLoader,
@@ -29,8 +29,8 @@ import {
   landingLoader,
   loginAction,
   logoutLoader,
-  settingsAction,
-  settingsLoader,
+  shortProcedureSettingsPageAction,
+  shortProcedureSettingsPageLoader,
 } from "./pages";
 
 const router = createBrowserRouter([
@@ -148,9 +148,9 @@ const router = createBrowserRouter([
       },
       {
         path: "/settings",
-        element: <SettingsPage />,
-        loader: settingsLoader,
-        action: settingsAction,
+        element: <ShortProcedureSettingsPage />,
+        loader: shortProcedureSettingsPageLoader,
+        action: shortProcedureSettingsPageAction,
       },
       {
         path: "/login",

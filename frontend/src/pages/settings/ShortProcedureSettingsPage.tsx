@@ -3,9 +3,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../hooks";
-import "./Settings.css";
-import { UpdateSettingsAction } from "./settings.action";
-import { SettingsContext } from "./settings.loader";
+import { UpdateSettingsAction } from "./ShortProcedureSettingsPage.action";
+import { SettingsContext } from "./ShortProcedureSettingsPage.loader";
 
 interface ShortProcedureSetting {
   zaaktype: string;
@@ -14,9 +13,9 @@ interface ShortProcedureSetting {
 }
 
 /**
- * Settings page
+ * Allows for configuring zaaktype eligible for the short procedure.
  */
-export function SettingsPage() {
+export function ShortProcedureSettingsPage() {
   const { zaaktypesShortProcess, zaaktypeChoices } =
     useLoaderData() as SettingsContext;
   const submitAction = useSubmitAction<UpdateSettingsAction>();

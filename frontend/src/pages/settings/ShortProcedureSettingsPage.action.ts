@@ -14,7 +14,10 @@ export type UpdateSettingsAction<T = JsonValue> = TypedAction<
 /**
  * React Router action.
  */
-export async function settingsAction({ request, params }: ActionFunctionArgs) {
+export async function shortProcedureSettingsPageAction({
+  request,
+  params,
+}: ActionFunctionArgs) {
   const data = await request.clone().json();
   const action = data as UpdateSettingsAction<unknown>;
 
