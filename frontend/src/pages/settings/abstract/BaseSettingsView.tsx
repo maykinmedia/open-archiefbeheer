@@ -29,6 +29,12 @@ export function BaseSettingsView<T extends object>({
           onClick: () => navigate("/settings/short-procedure"),
           active: currentPathName === "/settings/short-procedure",
         },
+        {
+          children: "Vernietigingsrapport",
+          align: "start",
+          onClick: () => navigate("/settings/destruction-report"),
+          active: currentPathName === "/settings/destruction-report",
+        },
       ]}
       dataGridProps={dataGridProps}
     >
