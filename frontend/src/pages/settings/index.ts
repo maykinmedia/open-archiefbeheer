@@ -1,3 +1,3 @@
-export * from "./Settings";
-export * from "./settings.action";
-export * from "./settings.loader";
+export * from "./ShortProcedureSettingsPage";
+export * from "./ShortProcedureSettingsPage.action";
+export * from "./ShortProcedureSettingsPage.loader";

@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { ReactRouterDecorator } from "../../../.storybook/decorators";
 import { assertCheckboxSelection } from "../../../.storybook/playFunctions";
-import { SettingsPage } from "./Settings";
+import { ShortProcedureSettingsPage } from "./ShortProcedureSettingsPage";
 
-const meta: Meta<typeof SettingsPage> = {
+const meta: Meta<typeof ShortProcedureSettingsPage> = {
   title: "Pages/Settings",
-  component: SettingsPage,
+  component: ShortProcedureSettingsPage,
   decorators: [ReactRouterDecorator],
 };
 

@@ -13,7 +13,7 @@ export type SettingsContext = {
   zaaktypeChoices: ZaaktypeChoice[];
 };
 
-export const settingsLoader = loginRequired(
+export const shortProcedureSettingsPageLoader = loginRequired(
   canViewAndEditSettingsRequired(async (): Promise<SettingsContext> => {
     const archiveConfigPromise = getArchiveConfiguration();
     const zaaktypeChoicesPromise = listZaaktypeChoices();
