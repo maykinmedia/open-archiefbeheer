@@ -9,7 +9,7 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import { useSubmitAction } from "../../hooks";
+import { useSubmitAction } from "../../../hooks";
 import { UpdateSettingsAction } from "./ShortProcedureSettingsPage.action";
 import { SettingsContext } from "./ShortProcedureSettingsPage.loader";
 

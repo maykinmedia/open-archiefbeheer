@@ -1,10 +1,10 @@
 import { ActionFunctionArgs } from "react-router-dom";
 
-import { JsonValue, TypedAction } from "../../hooks";
+import { JsonValue, TypedAction } from "../../../hooks";
 import {
   ArchiveConfiguration,
   patchArchiveConfiguration,
-} from "../../lib/api/config";
+} from "../../../lib/api/config";
 
 export type UpdateSettingsAction<T = JsonValue> = TypedAction<
   "PATCH-ARCHIVE-CONFIG",

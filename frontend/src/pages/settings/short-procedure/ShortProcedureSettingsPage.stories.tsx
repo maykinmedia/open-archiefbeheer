@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ReactRouterDecorator } from "../../../.storybook/decorators";
-import { assertCheckboxSelection } from "../../../.storybook/playFunctions";
+import { ReactRouterDecorator } from "../../../../.storybook/decorators";
+import { assertCheckboxSelection } from "../../../../.storybook/playFunctions";
 import { ShortProcedureSettingsPage } from "./ShortProcedureSettingsPage";
 
 const meta: Meta<typeof ShortProcedureSettingsPage> = {
