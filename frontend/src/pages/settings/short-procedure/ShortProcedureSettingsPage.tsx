@@ -5,7 +5,7 @@ import { useLoaderData } from "react-router-dom";
 import { useSubmitAction } from "../../../hooks";
 import { BaseSettingsView } from "../abstract/BaseSettingsView";
 import { UpdateSettingsAction } from "./ShortProcedureSettingsPage.action";
-import { SettingsContext } from "./ShortProcedureSettingsPage.loader";
+import { ShortProcedureSettingsPageContext } from "./ShortProcedureSettingsPage.loader";
 
 interface ShortProcedureSetting {
   zaaktype: string;
@@ -18,7 +18,7 @@ interface ShortProcedureSetting {
  */
 export function ShortProcedureSettingsPage() {
   const { zaaktypesShortProcess, zaaktypeChoices } =
-    useLoaderData() as SettingsContext;
+    useLoaderData() as ShortProcedureSettingsPageContext;
   const submitAction = useSubmitAction<UpdateSettingsAction>();
   const alert = useAlert();
 
