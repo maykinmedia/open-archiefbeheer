@@ -32,6 +32,7 @@ import {
   shortProcedureSettingsPageAction,
   shortProcedureSettingsPageLoader,
 } from "./pages";
+import { SettingsPage } from "./pages/settings/Settings";
 
 const router = createBrowserRouter([
   {
@@ -148,9 +149,15 @@ const router = createBrowserRouter([
       },
       {
         path: "/settings",
-        element: <ShortProcedureSettingsPage />,
-        loader: shortProcedureSettingsPageLoader,
-        action: shortProcedureSettingsPageAction,
+        element: <SettingsPage />,
+        children: [
+          {
+            path: "short-procedure",
+            element: <ShortProcedureSettingsPage />,
+            loader: shortProcedureSettingsPageLoader,
+            action: shortProcedureSettingsPageAction,
+          },
+        ],
       },
       {
         path: "/login",
