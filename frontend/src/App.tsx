@@ -107,7 +107,7 @@ function App() {
             </>,
             {
               children: <Outline.CogIcon />,
-              title: "Settings",
+              title: "Instellingen",
               hidden: user ? !canChangeSettings(user) : true,
               // size: "xl",
               onClick: () => navigate("/settings"),
