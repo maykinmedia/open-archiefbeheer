@@ -1,2 +1,2 @@
-export * from "./DestructionListEditPage";
-export * from "./DestructionListProcessReviewPage";
+export * from "./edit";
+export * from "./process-review";

@@ -29,7 +29,7 @@ import {
   UpdateDestructionListProcessReviewAction,
 } from "../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../DestructionListDetail.loader";
-import { ProcessReviewAction } from "../pages/DestructionListProcessReviewPage/components";
+import { ProcessReviewAction } from "../pages/process-review/components";
 
 interface ProcessZaakReviewSelectionDetail {
   comment: string;
