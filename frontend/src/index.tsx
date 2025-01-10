@@ -31,7 +31,7 @@ import {
   landingLoader,
   loginAction,
   logoutLoader,
-  shortProcedureSettingsPageAction,
+  settingsAction,
   shortProcedureSettingsPageLoader,
 } from "./pages";
 import { SettingsPage } from "./pages/settings/Settings";
@@ -157,13 +157,13 @@ const router = createBrowserRouter([
             path: "short-procedure",
             element: <ShortProcedureSettingsPage />,
             loader: shortProcedureSettingsPageLoader,
-            action: shortProcedureSettingsPageAction,
+            action: settingsAction,
           },
           {
             path: "destruction-report",
             element: <DestructionReportSettingsPage />,
             loader: destructionReportSettingsPageLoader,
-            action: shortProcedureSettingsPageAction,
+            action: settingsAction,
           },
         ],
       },

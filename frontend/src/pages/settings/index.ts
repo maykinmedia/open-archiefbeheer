@@ -1,2 +1,2 @@
-export * from "./destruction-report";
-export * from "./short-procedure";
+export * from "./pages";
+export * from "./Settings.action";

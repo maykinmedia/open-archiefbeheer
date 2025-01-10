@@ -6,10 +6,61 @@ import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
 
-export type ZaaktypeChoice = Option & {
+export type ZaaktypeChoice = Option<string, string> & {
   /** A combination of the identification and the date on which the zaaktype will no longer be valid (if present). */
   extra: string;
 };
+
+/**
+ * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
+ * the field 'omschrijving'.
+ */
+export async function listInformatieObjectTypeChoices() {
+  return cacheMemo(
+    "listInformatieObjectTypeChoices",
+    async () => {
+      const response = await request("GET", "/_informatieobjecttype-choices/");
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [],
+  );
+}
+
+/**
+ * Retrieve statustypen from Open Zaak and return a value and a label per statustype. The label is the field
+ * 'omschrijving'.
+ */
+export async function listStatusTypeChoices() {
+  return cacheMemo(
+    "listStatusTypeChoices",
+    async () => {
+      const response = await request("GET", "/_statustype-choices/");
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [],
+  );
+}
+
+/**
+ * Retrieve resultaattypen from Open Zaak and return a value and a label per
+ * resultaattype. The label is the field 'omschrijving'.
+ */
+export async function listResultaatTypeChoices() {
+  return cacheMemo(
+    "listResultaatTypeChoices",
+    async () => {
+      const response = await request("GET", "/_resultaattype-choices/");
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [],
+  );
+}
 
 /**
  * This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves all the 'resultaten' possible for this

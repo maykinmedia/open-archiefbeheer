@@ -1,17 +1,15 @@
-import { auditLogFactory } from "../src/fixtures/auditLog";
-import { coReviewsFactory } from "../src/fixtures/coReview";
 import {
   FIXTURE_DESTRUCTION_LIST,
+  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+  auditLogFactory,
+  coReviewsFactory,
   destructionListAssigneesFactory,
   destructionListFactory,
-} from "../src/fixtures/destructionList";
-import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../src/fixtures/selectieLijstKlasseChoices";
-import {
   recordManagerFactory,
   userFactory,
   usersFactory,
-} from "../src/fixtures/user";
-import { zaaktypeChoicesFactory } from "../src/fixtures/zaaktypeChoices";
+  zaaktypeChoicesFactory,
+} from "../src/fixtures";
 
 export const MOCKS = {
   // READS
