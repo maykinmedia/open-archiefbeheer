@@ -1,12 +1,15 @@
 import {
   ArchiveConfiguration,
   getArchiveConfiguration,
-} from "../../../lib/api/config";
-import { ZaaktypeChoice, listZaaktypeChoices } from "../../../lib/api/private";
+} from "../../../../lib/api/config";
+import {
+  ZaaktypeChoice,
+  listZaaktypeChoices,
+} from "../../../../lib/api/private";
 import {
   canViewAndEditSettingsRequired,
   loginRequired,
-} from "../../../lib/auth/loaders";
+} from "../../../../lib/auth/loaders";
 
 export type ShortProcedureSettingsPageContext = {
   zaaktypesShortProcess: ArchiveConfiguration["zaaktypesShortProcess"];

@@ -1,10 +1,10 @@
 import { ActionFunctionArgs } from "react-router-dom";
 
-import { JsonValue, TypedAction } from "../../../hooks";
+import { JsonValue, TypedAction } from "../../hooks";
 import {
   ArchiveConfiguration,
   patchArchiveConfiguration,
-} from "../../../lib/api/config";
+} from "../../lib/api/config";
 
 export type UpdateSettingsAction<T = JsonValue> = TypedAction<
   "PATCH-ARCHIVE-CONFIG",
@@ -14,10 +14,7 @@ export type UpdateSettingsAction<T = JsonValue> = TypedAction<
 /**
  * React Router action.
  */
-export async function shortProcedureSettingsPageAction({
-  request,
-  params,
-}: ActionFunctionArgs) {
+export async function settingsAction({ request, params }: ActionFunctionArgs) {
   const data = await request.clone().json();
   const action = data as UpdateSettingsAction<unknown>;
 

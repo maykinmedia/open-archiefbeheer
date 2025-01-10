@@ -1,10 +1,15 @@
-import { DataGridProps, ListTemplate, ToolbarItem } from "@maykin-ui/admin-ui";
+import {
+  CardBaseTemplate,
+  DataGridProps,
+  ListTemplate,
+  ToolbarItem,
+} from "@maykin-ui/admin-ui";
 import React from "react";
 import { useMatches, useNavigate } from "react-router-dom";
 
 export type BaseSettingsPageProps<T extends object> = React.PropsWithChildren<{
-  dataGridProps: DataGridProps<T>;
-  secondaryNavigationItems: ToolbarItem[];
+  dataGridProps?: DataGridProps<T>;
+  secondaryNavigationItems?: ToolbarItem[];
 }>;
 
 /**
@@ -19,26 +24,39 @@ export function BaseSettingsView<T extends object>({
   const currentMatch = [...useMatches()].pop(); // Explicit clone.
   const currentPathName = currentMatch?.pathname;
 
+  const SIDEBAR_ITEMS: ToolbarItem[] = [
+    {
+      children: "Verkorte procedure",
+      align: "start",
+      onClick: () => navigate("/settings/short-procedure"),
+      active: currentPathName === "/settings/short-procedure",
+    },
+    {
+      children: "Vernietigingsrapport",
+      align: "start",
+      onClick: () => navigate("/settings/destruction-report"),
+      active: currentPathName === "/settings/destruction-report",
+    },
+  ];
+
+  if (dataGridProps) {
+    return (
+      <ListTemplate
+        secondaryNavigationItems={secondaryNavigationItems}
+        sidebarItems={SIDEBAR_ITEMS}
+        dataGridProps={dataGridProps}
+      >
+        {children}
+      </ListTemplate>
+    );
+  }
+
   return (
-    <ListTemplate<T>
+    <CardBaseTemplate
       secondaryNavigationItems={secondaryNavigationItems}
-      sidebarItems={[
-        {
-          children: "Verkorte procedure",
-          align: "start",
-          onClick: () => navigate("/settings/short-procedure"),
-          active: currentPathName === "/settings/short-procedure",
-        },
-        {
-          children: "Vernietigingsrapport",
-          align: "start",
-          onClick: () => navigate("/settings/destruction-report"),
-          active: currentPathName === "/settings/destruction-report",
-        },
-      ]}
-      dataGridProps={dataGridProps}
+      sidebarItems={SIDEBAR_ITEMS}
     >
       {children}
-    </ListTemplate>
+    </CardBaseTemplate>
   );
 }

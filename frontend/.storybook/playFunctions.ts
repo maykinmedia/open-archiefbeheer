@@ -218,8 +218,9 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
   const canvas = within(context.canvasElement);
 
   const {
-    form = (await canvas.queryByRole("form")) ||
-      (await canvas.findByRole("dialog")), // Fixme
+    form = await canvas
+      .findByRole("form")
+      .catch(async () => await canvas.findByRole("dialog")), // FIXME
     formValues = {},
     submitForm = true,
   } = context.parameters.fillForm as FillFormParameters;
@@ -251,6 +252,7 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
           await userEvent.click(option, { delay: 100 });
         } else {
           const input = field as HTMLInputElement;
+          await userEvent.clear(input);
           await userEvent.type(input, value, { delay: 10, skipClick: false });
         }
     }

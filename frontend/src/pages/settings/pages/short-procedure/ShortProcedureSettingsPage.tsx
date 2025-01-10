@@ -2,9 +2,9 @@ import { Body, H2, P, Solid, useAlert } from "@maykin-ui/admin-ui";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import { useSubmitAction } from "../../../hooks";
-import { BaseSettingsView } from "../abstract/BaseSettingsView";
-import { UpdateSettingsAction } from "./ShortProcedureSettingsPage.action";
+import { useSubmitAction } from "../../../../hooks";
+import { UpdateSettingsAction } from "../../Settings.action";
+import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { ShortProcedureSettingsPageContext } from "./ShortProcedureSettingsPage.loader";
 
 interface ShortProcedureSetting {
@@ -133,7 +133,8 @@ export function ShortProcedureSettingsPage() {
       <Body>
         <H2>Verkorte procedure</H2>
         <P>
-          Selecteer zaaktypen die in aanmerking komen voor de verkorte procedure
+          Selecteer zaaktypen die in aanmerking komen voor de verkorte
+          procedure.
         </P>
       </Body>
     </BaseSettingsView>
