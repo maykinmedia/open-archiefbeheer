@@ -1,4 +1,11 @@
-import { Body, H2, ListTemplate, Solid, useAlert } from "@maykin-ui/admin-ui";
+import {
+  Body,
+  H2,
+  ListTemplate,
+  P,
+  Solid,
+  useAlert,
+} from "@maykin-ui/admin-ui";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
@@ -108,13 +115,17 @@ export function ShortProcedureSettingsPage() {
             </>
           ),
           pad: "h",
+          variant: "primary",
           onClick: handleSave,
         },
       ]}
       dataGridProps={{
         boolProps: { explicit: true },
         objectList,
-        fields: [{ name: "zaaktype", type: "string" }],
+        fields: [
+          { name: "zaaktype", type: "string" },
+          { name: "verkorteProcedure", type: "boolean", filterable: false },
+        ],
         selectable: true,
         allowSelectAll: false,
         selected: selectedItems,
@@ -126,7 +137,10 @@ export function ShortProcedureSettingsPage() {
       }}
     >
       <Body>
-        <H2>Instellingen</H2>
+        <H2>Verkorte procedure</H2>
+        <P>
+          Selecteer zaaktypen die in aanmerking komen voor de verkorte procedure
+        </P>
       </Body>
     </ListTemplate>
   );
