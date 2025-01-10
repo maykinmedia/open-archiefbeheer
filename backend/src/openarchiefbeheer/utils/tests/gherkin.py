@@ -3,8 +3,11 @@ from typing import Callable
 
 from asgiref.sync import sync_to_async
 from playwright.async_api import TimeoutError, expect
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
@@ -91,6 +94,54 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
         async def data_exists(self, create_data_fn: Callable):
             await create_data_fn()
+
+        async def services_are_configured(
+            self, m, statustypen=[], resultaattypen=[], informatieobjecttypen=[]
+        ):
+            """
+            Mock Services implementation.
+
+            Args:
+                m: requests-mock adapter instance used to mock HTTP requests.
+            """
+            m.get(
+                "http://zaken.nl/catalogi/api/v1/statustypen",
+                json={"results": statustypen},
+            )
+            m.get(
+                "http://zaken.nl/catalogi/api/v1/resultaattypen",
+                json={"results": resultaattypen},
+            )
+            m.get(
+                "http://zaken.nl/catalogi/api/v1/informatieobjecttypen",
+                json={"results": informatieobjecttypen},
+            )
+
+            await self._get_or_create(
+                ServiceFactory,
+                api_root="http://zaken.nl/besluiten/api/v1/",
+                api_type=APITypes.brc,
+            )
+            await self._get_or_create(
+                ServiceFactory,
+                api_root="http://zaken.nl/documenten/api/v1/",
+                api_type=APITypes.drc,
+            )
+            await self._get_or_create(
+                ServiceFactory,
+                api_root="http://zaken.nl/api/v1/",
+                api_type=APITypes.orc,
+            )
+            await self._get_or_create(
+                ServiceFactory,
+                api_root="http://zaken.nl/zaken/api/v1/",
+                api_type=APITypes.zrc,
+            )
+            await self._get_or_create(
+                ServiceFactory,
+                api_root="http://zaken.nl/catalogi/api/v1/",
+                api_type=APITypes.ztc,
+            )
 
         async def assignee_exists(self, **kwargs):
             base_kwargs = {"user": await self.record_manager_exists()}
@@ -236,20 +287,117 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def review_item_response_exists(self, **kwargs):
             return await self._factory_create(ReviewItemResponseFactory, **kwargs)
 
+        async def informatieobjecttype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Informatie object type 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/informatieobjecttypen/b0b28783-052d-414a-867d-81cf52725506",
+                    },
+                    {
+                        "label": "Informatie object type 2",
+                        "value": "http://zaken.nl/catalogi/api/v1/informatieobjecttypen/3007e984-c529-4a07-b32e-555b4c882ce5",
+                    },
+                    {
+                        "label": "Informatie object type 3",
+                        "value": "http://zaken.nl/catalogi/api/v1/informatieobjecttypen/b25201a6-2d1e-42ca-bff6-417ce5b4cb4a",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_informatieobjecttype-choices/*", handle)
+
+        async def resultaattype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Resultaattype 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/resultaattypen/73c8a575-c75c-4c97-ba1f-42c3180ced04",
+                    },
+                    {
+                        "label": "Resultaattype 2",
+                        "value": "http://zaken.nl/catalogi/api/v1/resultaattypen/2af00ef7-d865-4166-9efc-19ab95fed618",
+                    },
+                    {
+                        "label": "Resultaattype 3",
+                        "value": "http://zaken.nl/catalogi/api/v1/resultaattypen/6436c0b9-156a-4e71-8aab-0e03cca85cc6",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_resultaattype-choices/*", handle)
+
         async def selectielijstklasse_choices_are_available(self, page):
             async def handle(route):
                 json = [
                     {
-                        "label": "11.1 - Verleend - vernietigen - P1Y",
-                        "value": "https://www.example.com",
-                        "extraData": {
-                            "bewaartermijn": "P5Y",
+                        "label": "1.1 - Ingericht - vernietigen - P10Y",
+                        "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
+                        "detail": {
+                            "bewaartermijn": "P10Y",
                         },
-                    }
+                    },
+                    {
+                        "label": "1.1.1 - Ingericht - blijvend_bewaren",
+                        "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
+                        "detail": {
+                            "bewaartermijn": None,
+                        },
+                    },
+                    {
+                        "label": "1.1.2 - Ingericht - blijvend_bewaren",
+                        "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/e84a06ac-1bdc-4e9c-9598-a22faa562459",
+                        "detail": {
+                            "bewaartermijn": None,
+                        },
+                    },
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_selectielijstklasse-choices/?zaak=*", handle)
+            await page.route("**/*/api/v1/_selectielijstklasse-choices/*", handle)
+
+        async def statustype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Statustype 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/statustypen/feedf256-ef74-4d5f-8fc9-6891f58a0d1e",
+                    },
+                    {
+                        "label": "Statustype 2",
+                        "value": "http://zaken.nl/catalogi/api/v1/statustypen/0b016f1a-e10a-4dad-9090-c06bac6ef7e7",
+                    },
+                    {
+                        "label": "Statustype 3",
+                        "value": "http://zaken.nl/catalogi/api/v1/statustypen/155d0b58-c97d-4451-ab0c-a1fdbe65317c",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_statustype-choices/*", handle)
+
+        async def zaaktype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Aangifte behandelen 1",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 2",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 3",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+                        "extra": "",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_zaaktypen-choices/*", handle)
 
         async def zaken_are_indexed(self, amount, **kwargs) -> list[Zaak]:
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
@@ -482,6 +630,20 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                     return inverted_method
 
             return InvertedThen(self)
+
+        async def archive_configuration_should_be(self, page, **kwargs):
+            # Add minor delay (0.1s) to allow the database to update.
+            await page.wait_for_timeout(100)
+
+            @sync_to_async()
+            def get_archive_config():
+                return ArchiveConfig.get_solo()
+
+            archive_config = await get_archive_config()
+            archive_config.arefresh_from_db()
+
+            for key, value in kwargs.items():
+                self.testcase.assertEqual(getattr(archive_config, key), value)
 
         async def list_should_exist(self, page, name):
             try:
