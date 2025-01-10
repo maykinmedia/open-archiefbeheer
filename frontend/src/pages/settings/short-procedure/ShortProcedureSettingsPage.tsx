@@ -1,15 +1,9 @@
-import {
-  Body,
-  H2,
-  ListTemplate,
-  P,
-  Solid,
-  useAlert,
-} from "@maykin-ui/admin-ui";
+import { Body, H2, P, Solid, useAlert } from "@maykin-ui/admin-ui";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import { useSubmitAction } from "../../../hooks";
+import { BaseSettingsView } from "../abstract/BaseSettingsView";
 import { UpdateSettingsAction } from "./ShortProcedureSettingsPage.action";
 import { SettingsContext } from "./ShortProcedureSettingsPage.loader";
 
@@ -105,7 +99,7 @@ export function ShortProcedureSettingsPage() {
   );
 
   return (
-    <ListTemplate<ShortProcedureSetting>
+    <BaseSettingsView<ShortProcedureSetting>
       secondaryNavigationItems={[
         {
           children: (
@@ -142,6 +136,6 @@ export function ShortProcedureSettingsPage() {
           Selecteer zaaktypen die in aanmerking komen voor de verkorte procedure
         </P>
       </Body>
-    </ListTemplate>
+    </BaseSettingsView>
   );
 }
