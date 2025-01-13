@@ -333,21 +333,21 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                     {
                         "label": "1.1 - Ingericht - vernietigen - P10Y",
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
-                        "detail": {
+                        "extraData": {
                             "bewaartermijn": "P10Y",
                         },
                     },
                     {
                         "label": "1.1.1 - Ingericht - blijvend_bewaren",
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
-                        "detail": {
+                        "extraData": {
                             "bewaartermijn": None,
                         },
                     },
                     {
                         "label": "1.1.2 - Ingericht - blijvend_bewaren",
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/e84a06ac-1bdc-4e9c-9598-a22faa562459",
-                        "detail": {
+                        "extraData": {
                             "bewaartermijn": None,
                         },
                     },
