@@ -144,7 +144,7 @@ export function canViewDestructionListRequired<
     if (!canViewDestructionList(user, destructionList)) {
       throw new Response("Not Permitted", {
         status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
+        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bekijken.`,
       });
     }
 
