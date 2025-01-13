@@ -637,6 +637,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             @sync_to_async()
             def get_archive_config():
+                ArchiveConfig.clear_cache()
                 return ArchiveConfig.get_solo()
 
             archive_config = await get_archive_config()
