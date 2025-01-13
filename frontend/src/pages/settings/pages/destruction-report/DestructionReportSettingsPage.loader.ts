@@ -5,7 +5,6 @@ import {
   getArchiveConfiguration,
 } from "../../../../lib/api/config";
 import {
-  ZaaktypeChoice,
   listInformatieObjectTypeChoices,
   listResultaatTypeChoices,
   listSelectielijstKlasseChoices,
@@ -23,7 +22,7 @@ export type DestructionReportSettingsPageContext = {
   resultaatTypeChoices: Option[];
   selectieLijstKlasseChoices: Option[];
   statusTypeChoices: Option[];
-  zaaktypeChoices: ZaaktypeChoice[];
+  zaaktypeChoices: Option[];
 };
 
 export const destructionReportSettingsPageLoader = loginRequired(
