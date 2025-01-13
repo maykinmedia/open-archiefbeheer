@@ -28,4 +28,12 @@ class SandboxedTemplates(DjangoTemplates):
 
 
 def get_sandboxed_backend() -> SandboxedTemplates:
-    return SandboxedTemplates({})
+    return SandboxedTemplates(
+        {
+            "OPTIONS": {
+                "builtins": [
+                    "openarchiefbeheer.destruction.templatetags.destruction_list_link",
+                ]
+            }
+        }
+    )

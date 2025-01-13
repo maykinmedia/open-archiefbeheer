@@ -82,7 +82,7 @@ def notify_author_positive_review(
         context={
             "user": user,
             "list": destruction_list,
-            "last_reviewer": last_reviewer,
+            "reviewer": last_reviewer,
             "current_reviewer": destruction_list.assignee,
         },
         recipients=[user.email],
