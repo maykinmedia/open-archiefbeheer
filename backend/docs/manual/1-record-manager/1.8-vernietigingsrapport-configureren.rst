@@ -1,0 +1,69 @@
+.. _manual_1-record-manager_1.8-vernietigingsrapport-configureren:
+
+=================================
+Vernietigingsrapport configureren
+=================================
+
+.. figure:: ../_assets/pages/vernietigingsrapport-configureren.png
+   :align: center
+   :alt: Vernietigingsrapport configureren schermafbeelding
+
+Deze handleiding beschrijft de stappen die een **record manager** kan volgen om een vernietigingsrapport te configureren.
+
+Voorwaarden
+------------
+- De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De volgende keuzes moeten beschikbaar zijn in het systeem:
+  - Informatieobjecttype
+  - Resultaattype
+  - Selectielijstklasse
+  - Statustype
+  - Zaaktype
+
+Stappen
+-------
+
+1. **Inloggen als record manager**
+    - Open de applicatie en log in met je gebruikersnaam en wachtwoord of via je organisatie login.
+    - Na succesvol inloggen word je automatisch doorgestuurd naar het overzicht van vernietigingslijsten.
+
+2. **Navigeer naar de instellingen voor het vernietigingsrapport**
+    - Klik op de knop **"Instellingen"** in het menu. |instellingen_knop|
+    - Klik op **"Vernietigingsrapport"** om naar de configuratiepagina te gaan. |vernietigingsrapport_knop|
+
+3. **Vul de vereiste velden in**
+    - Vul de benodigde gegevens in de bijbehorende velden:
+      - **Bronorganisatie**
+      - **Zaaktype**
+      - **Statustype**
+      - **Resultaattype**
+      - **Informatieobjecttype**
+      - **Selectielijstklasse**
+
+4. **Sla de instellingen op**
+    - Klik op de knop **"Opslaan"**. |vernietigingsrapport_opslaan_knop|
+    - Controleer of de melding **"De instellingen zijn succesvol opgeslagen"** verschijnt.
+
+5. **Controleer de configuratie**
+    - Nadat de configuratie van het vernietigingsrapport is opgeslagen staan de ingevulde gegevens in de bijbehorende
+      invoervelden.
+
+Let op
+------
+- Controleer zorgvuldig dat alle ingevoerde gegevens correct zijn voordat je ze opslaat.
+- Als een foutmelding verschijnt, controleer dan de ingevoerde waarden en probeer opnieuw.
+- Wijzigingen kunnen later opnieuw worden aangepast via de instellingen.
+
+Met deze stappen kun je de configuratie van het vernietigingsrapport voltooien. De volgende stap is om de vernietigingslijst te beheren of in te stellen voor gebruik.
+
+.. |instellingen_knop| image:: ../_assets/instellingen-knop.png
+   :alt: Instellingen knop
+   :height: 32px
+
+.. |vernietigingsrapport_knop| image:: ../_assets/vernietigingsrapport-knop.png
+   :alt: Vernietigingsrapport knop
+   :height: 42px
+
+.. |vernietigingsrapport_opslaan_knop| image:: ../_assets/vernietigingsrapport-opslaan-knop.png
+   :alt: Opslaan knop
+   :height: 26px
