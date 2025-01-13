@@ -1,11 +1,10 @@
+import { Option } from "@maykin-ui/admin-ui";
+
 import {
   ArchiveConfiguration,
   getArchiveConfiguration,
 } from "../../../../lib/api/config";
-import {
-  ZaaktypeChoice,
-  listZaaktypeChoices,
-} from "../../../../lib/api/private";
+import { listZaaktypeChoices } from "../../../../lib/api/private";
 import {
   canViewAndEditSettingsRequired,
   loginRequired,
@@ -13,7 +12,7 @@ import {
 
 export type ShortProcedureSettingsPageContext = {
   zaaktypesShortProcess: ArchiveConfiguration["zaaktypesShortProcess"];
-  zaaktypeChoices: ZaaktypeChoice[];
+  zaaktypeChoices: Option[];
 };
 
 export const shortProcedureSettingsPageLoader = loginRequired(

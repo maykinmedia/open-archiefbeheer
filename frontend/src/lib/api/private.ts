@@ -6,11 +6,6 @@ import { DestructionList } from "./destructionLists";
 import { request } from "./request";
 import { Review } from "./review";
 
-export type ZaaktypeChoice = Option<string, string> & {
-  /** A combination of the identification and the date on which the zaaktype will no longer be valid (if present). */
-  extra: string;
-};
-
 /**
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
  * the field 'omschrijving'.
@@ -123,7 +118,7 @@ export async function listZaaktypeChoices(
       }
 
       const response = await request("GET", "/_zaaktypen-choices/", params);
-      const promise: Promise<ZaaktypeChoice[]> = response.json();
+      const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
