@@ -1,0 +1,44 @@
+.. _manual_functioneel-beheerder_email-sjablonen:
+
+==========================================
+Email Sjablonen Configureren als Beheerder
+==========================================
+
+Deze handleiding beschrijft hoe een **functioneel beheerder** de sjablonen voor emails kan instellen 
+in de admin interface van de applicatie en welke sjabloonvariabelen beschikbaar zijn voor gebruik per template.
+
+Locatie van de Email Configuratie
+---------------------------------
+1. Log in op de admin pagina van de applicatie.
+2. Ga naar **Overige** > **Email Configuratie** of navigeer direct naar ``/admin/emails/emailconfig/``.
+   
+Hier kun je de onderwerpen en de emailteksten voor de emails die worden gestuurd naar:
+
+- De reviewer als een review wordt aangevraagd.
+- De reviewer als een herinnering voor een review nodig is.
+- De record manager als een reviewer een lijst heeft goedgekeurd.
+- De record manager als een reviewer aanpassingen heeft aangevraagd op een lijst.
+- De record manager en de reviewers als een lijst succesvol is vernietigd.
+
+Beschikbare Sjabloonvariabelen
+------------------------------
+
+In de tekst van de emailsjablonen is het mogelijk om variabelen en templatetags te gebruiken.
+Deze zijn de beschikbare templatetags:
+
+.. csv-table:: Templatetags emailsjablonen
+   :header: "Tag", "Beschrijving"
+   :widths: 1 1
+
+   "``{% destruction_list_link list 'edit' %}``", "Geeft de link naar een vernietigingslijst. Het is mogelijk om naar de 'edit', 'review', of 'process-review' pagina te linken."
+
+
+Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
+
+.. csv-table:: Variabelen emailsjablonen
+   :header: "Variabel", "Beschrijving"
+   :widths: 100, 70
+
+   "``{{ list }}``",   "Geeft de naam van de vernietigingslijst."
+   "``{{ user }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de persoon die de email ontvangt."
+   "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de reviewer van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de reviewer."

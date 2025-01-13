@@ -11,5 +11,6 @@ taken kunnen worden uitgevoerd.
     :maxdepth: 2
     :caption: Inhoudsopgave
 
+    0-administrator/index
     1-record-manager/index
     2-reviewer-archivaris/index
