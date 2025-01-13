@@ -348,7 +348,9 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
 
 
 @lru_cache
-def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
+def retrieve_paginated_type(
+    resource_path: str, query_params: HashableDict | None = None
+) -> list[DropDownChoice]:
     def format_choice(item: dict) -> DropDownChoice:
         return {"label": item["omschrijving"] or item["url"], "value": item["url"]}
 
@@ -356,7 +358,7 @@ def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
     ztc_client = build_client(ztc_service)
 
     with ztc_client:
-        response = ztc_client.get(resource_path)
+        response = ztc_client.get(resource_path, params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(ztc_client, response.json())
 

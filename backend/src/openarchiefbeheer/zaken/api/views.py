@@ -22,6 +22,7 @@ from ..utils import (
     retrieve_selectielijstklasse_choices,
 )
 from .filtersets import ZaakFilterSet
+from .mixins import FilterOnZaaktypeMixin
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
@@ -111,7 +112,7 @@ class SelectielijstklasseChoicesView(APIView):
         return Response(data=choices)
 
 
-class StatustypeChoicesView(APIView):
+class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -127,7 +128,8 @@ class StatustypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        results = retrieve_paginated_type("statustypen")
+        query_params = self.get_query_params(request)
+        results = retrieve_paginated_type("statustypen", query_params)
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
@@ -159,7 +161,7 @@ class InformatieobjecttypeChoicesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ResultaattypeChoicesView(APIView):
+class ResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -175,7 +177,8 @@ class ResultaattypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        results = retrieve_paginated_type("resultaattypen")
+        query_params = self.get_query_params(request)
+        results = retrieve_paginated_type("resultaattypen", query_params)
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
