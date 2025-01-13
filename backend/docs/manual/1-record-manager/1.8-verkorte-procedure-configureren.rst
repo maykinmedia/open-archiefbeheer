@@ -1,0 +1,63 @@
+.. _manual_1-record-manager_1.8-verkorte-procedure-configureren:
+
+===============================
+Verkorte procedure configureren
+===============================
+
+.. figure:: ../_assets/pages/korte-procedure-configureren.png
+   :align: center
+   :alt: Schermafbeelding van het configureren van de verkorte procedure
+
+Deze handleiding beschrijft de stappen die een **record manager** kan volgen om de zaaktypen te selecteren die in
+aanmerking komen voor de verkorte procedure.
+
+Voorwaarden
+------------
+- De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De zaaktype keuzes moeten beschikbaar zijn voor selectie.
+
+Stappen
+-------
+
+1. **Inloggen als record manager**
+    - Open de applicatie en log in met je gebruikersnaam en wachtwoord.
+    - Na succesvol inloggen, word je automatisch doorgestuurd naar de pagina van de vernietigingslijsten.
+
+2. **Navigeer naar de instellingen voor de verkorte procedure**
+    - Klik op de knop **"Instellingen"** in het menu. |instellingen_knop|
+    - Klik vervolgens op de knop **"Verkorte procedure"**. |verkorte_procedure_knop|
+
+3. **Selecteer zaaktypen voor de verkorte procedure**
+    - Klik op de checkbox naast een zaaktype om deze te selecteren. |checkbox_zaaktype|
+
+4. **Sla de instellingen op**
+    - Klik op de knop **"Opslaan"**. |opslaan_knop|
+    - Controleer of de melding **"De instellingen zijn succesvol opgeslagen"** verschijnt.
+
+5. **Controleer de configuratie**
+    - De zaaktype die in aanmerking komen voor de verkorte procedure zijn aangeduid met een groen vinkje. |boolean_true|
+
+Let op
+------
+- Zorg ervoor dat de zaaktypen correct zijn geselecteerd voordat je de instellingen opslaat.
+- Controleer altijd of de juiste zaaktypen aan de verkorte procedure zijn toegevoegd.
+
+.. |instellingen_knop| image:: ../_assets/instellingen-knop.png
+   :alt: Instellingen knop
+   :height: 32px
+
+.. |verkorte_procedure_knop| image:: ../_assets/verkorte-procedure-knop.png
+   :alt: Verkorte procedure knop
+   :height: 42px
+
+.. |checkbox_zaaktype| image:: ../_assets/checkbox-zaaktype.png
+    :alt: Checkbox voor zaaktype
+    :height: 42px
+
+.. |opslaan_knop| image:: ../_assets/opslaan-knop.png
+   :alt: Opslaan knop
+   :height: 26px
+
+.. |boolean_true| image:: ../_assets/boolean-true.png
+   :alt: Afbeelding met groen vinkje
+   :height: 26px
