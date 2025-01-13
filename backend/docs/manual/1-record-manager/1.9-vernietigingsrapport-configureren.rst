@@ -1,4 +1,4 @@
-.. _manual_1-record-manager_1.8-vernietigingsrapport-configureren:
+.. _manual_1-record-manager_1.9-vernietigingsrapport-configureren:
 
 =================================
 Vernietigingsrapport configureren
@@ -41,7 +41,7 @@ Stappen
       - **Selectielijstklasse**
 
 4. **Sla de instellingen op**
-    - Klik op de knop **"Opslaan"**. |vernietigingsrapport_opslaan_knop|
+    - Klik op de knop **"Opslaan"**. |opslaan_knop|
     - Controleer of de melding **"De instellingen zijn succesvol opgeslagen"** verschijnt.
 
 5. **Controleer de configuratie**
@@ -64,6 +64,6 @@ Met deze stappen kun je de configuratie van het vernietigingsrapport voltooien. 
    :alt: Vernietigingsrapport knop
    :height: 42px
 
-.. |vernietigingsrapport_opslaan_knop| image:: ../_assets/vernietigingsrapport-opslaan-knop.png
+.. |opslaan_knop| image:: ../_assets/opslaan-knop.png
    :alt: Opslaan knop
    :height: 26px
