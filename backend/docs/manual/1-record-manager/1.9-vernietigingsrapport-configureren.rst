@@ -13,12 +13,7 @@ Deze handleiding beschrijft de stappen die een **record manager** kan volgen om 
 Voorwaarden
 ------------
 - De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
-- De volgende keuzes moeten beschikbaar zijn in het systeem:
-  - Informatieobjecttype
-  - Resultaattype
-  - Selectielijstklasse
-  - Statustype
-  - Zaaktype
+- Externe services moeten zijn :ref:`geconfigureerd<configuration_services>`.
 
 Stappen
 -------
@@ -53,8 +48,6 @@ Let op
 - Controleer zorgvuldig dat alle ingevoerde gegevens correct zijn voordat je ze opslaat.
 - Als een foutmelding verschijnt, controleer dan de ingevoerde waarden en probeer opnieuw.
 - Wijzigingen kunnen later opnieuw worden aangepast via de instellingen.
-
-Met deze stappen kun je de configuratie van het vernietigingsrapport voltooien. De volgende stap is om de vernietigingslijst te beheren of in te stellen voor gebruik.
 
 .. |instellingen_knop| image:: ../_assets/instellingen-knop.png
    :alt: Instellingen knop
