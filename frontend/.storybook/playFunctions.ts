@@ -252,7 +252,12 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
           await userEvent.click(option, { delay: 100 });
         } else {
           const input = field as HTMLInputElement;
-          await userEvent.clear(input);
+          // eslint-disable-next-line max-depth
+          try {
+            await userEvent.clear(input);
+          } catch {
+            // Input can't be cleared.
+          }
           await userEvent.type(input, value, { delay: 10, skipClick: false });
         }
     }

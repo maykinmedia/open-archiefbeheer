@@ -330,6 +330,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
 
               <Column span={9}>
                 <Form<DestructionListProcessZaakReviewModalFormType>
+                  aria-label={`${zaak?.identificatie} muteren`}
                   autoComplete="off"
                   justify="stretch"
                   noValidate
