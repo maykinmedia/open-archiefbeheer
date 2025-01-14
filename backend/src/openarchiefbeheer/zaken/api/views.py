@@ -185,7 +185,7 @@ class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         # We cannot use the query-params directly, because in Openzaak the informatieobjecttypen endpoint
-        # does not support the zaaktype filter
+        # does not support the zaaktype filter (See https://github.com/open-zaak/open-zaak/issues/1855)
         results = retrieve_paginated_type("informatieobjecttypen")
 
         if zaaktype_url := query_params.get("zaaktype"):
