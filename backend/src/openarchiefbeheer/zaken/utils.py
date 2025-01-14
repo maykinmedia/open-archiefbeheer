@@ -374,3 +374,20 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
 
     serializer = ZaakMetadataSerializer(instance=zaak)
     return serializer.data
+
+
+@lru_cache
+def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
+    ztc_service = Service.objects.get(api_type=APITypes.ztc)
+    ztc_client = build_client(ztc_service)
+
+    with ztc_client:
+        response = ztc_client.get("zaaktypen", params=query_params)
+        response.raise_for_status()
+        data_iterator = pagination_helper(ztc_client, response.json())
+
+    results = []
+    for page in data_iterator:
+        results += page["results"]
+
+    return results

@@ -21,6 +21,7 @@ from ..utils import (
     get_resource,
     retrieve_paginated_type,
     retrieve_selectielijstklasse_choices,
+    retrieve_zaaktypen,
 )
 from .filtersets import ZaakFilterSet
 from .mixins import FilterOnZaaktypeMixin
@@ -44,7 +45,7 @@ class CacheZakenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ZaaktypenChoicesView(GenericAPIView):
+class InternalZaaktypenChoicesView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -53,9 +54,9 @@ class ZaaktypenChoicesView(GenericAPIView):
         return Zaak.objects.all()
 
     @extend_schema(
-        summary=_("Retrieve zaaktypen choices"),
+        summary=_("Retrieve local zaaktypen choices"),
         description=_(
-            "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
+            "Retrieve zaaktypen of the zaken stored in the OAB database and return a value and a label per zaaktype. "
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
@@ -82,6 +83,31 @@ class ZaaktypenChoicesView(GenericAPIView):
         serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ExternalZaaktypenChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve external zaaktypen choices"),
+        description=_(
+            "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
+            "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
+            "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
+            "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
+            "The response is cached for 15 minutes.\n"
+            "All the filters for the zaken are available to limit which zaaktypen should be returned."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        results = retrieve_zaaktypen()
+        zaaktypen_choices = format_zaaktype_choices(results)
+        return Response(zaaktypen_choices, status=status.HTTP_200_OK)
 
 
 class SelectielijstklasseChoicesView(APIView):
