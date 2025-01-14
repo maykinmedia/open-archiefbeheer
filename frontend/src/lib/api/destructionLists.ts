@@ -68,7 +68,7 @@ export type DestructionListMarkAsFinalData = {
  * @param name
  * @param zaken
  * @param assigneeId
- * @param zaakFilters
+ * @param zaakFilters FIXME: Must be a JSON object containing the filter data.
  * @param allZakenSelected
  * @param comment
  */
@@ -211,18 +211,13 @@ export async function markDestructionListAsFinal(
  * @returns
  */
 export async function destructionListQueueDestruction(uuid: string) {
-  const response = await request(
+  await request(
     "POST",
     `/destruction-lists/${uuid}/queue_destruction/`,
     {},
     { uuid },
   );
-  if (response.status === 200) {
-    return null;
-  }
-
-  const promise: Promise<DestructionList> = response.json();
-  return promise;
+  return null;
 }
 
 export type DestructionListReassignData = {
