@@ -47,7 +47,7 @@ def pagination_helper(
 
 
 @lru_cache
-def get_procestype(url: str) -> dict | None:
+def get_resource(url: str) -> dict | None:
     service = Service.get_service(url)
     if not service:
         return
@@ -68,7 +68,7 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
 
         extra_data = zaak["_expand"]
         if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
-            expanded_procestype = get_procestype(procestype_url)
+            expanded_procestype = get_resource(procestype_url)
             if expanded_procestype is not None:
                 extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 

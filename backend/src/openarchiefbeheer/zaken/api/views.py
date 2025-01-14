@@ -18,6 +18,7 @@ from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from ..utils import (
     format_zaaktype_choices,
+    get_resource,
     retrieve_paginated_type,
     retrieve_selectielijstklasse_choices,
 )
@@ -139,7 +140,7 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class InformatieobjecttypeChoicesView(APIView):
+class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -148,6 +149,7 @@ class InformatieobjecttypeChoicesView(APIView):
             "Retrieve informatieobjecttypen from Open Zaak and return a "
             "value and a label per informatieobjecttype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
@@ -155,7 +157,19 @@ class InformatieobjecttypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
+        query_params = self.get_query_params(request)
+        # We cannot use the query-params directly, because in Openzaak the informatieobjecttypen endpoint
+        # does not support the zaaktype filter
         results = retrieve_paginated_type("informatieobjecttypen")
+
+        if zaaktype_url := query_params.get("zaaktype"):
+            zaaktype = get_resource(zaaktype_url)
+            related_informatieobjecttypen = zaaktype.get("informatieobjecttypen", [])
+            results = [
+                result
+                for result in results
+                if result["value"] in related_informatieobjecttypen
+            ]
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
