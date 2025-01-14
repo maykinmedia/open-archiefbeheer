@@ -60,17 +60,33 @@ const FIXTURE_PROCES_EIGENAAR: User = {
   },
 };
 
+const FIXTURE_ARCHIVIST: User = {
+  pk: 3,
+  username: "Archivaris",
+  firstName: "Archi",
+  lastName: "Varis",
+  email: "archivaris@example.com",
+  role: {
+    canStartDestruction: false,
+    canReviewDestruction: true,
+    canCoReviewDestruction: false,
+    canReviewFinalList: true,
+  },
+};
+
 const userFactory = createObjectFactory<User>(FIXTURE_USER);
 const recordManagerFactory = createObjectFactory<User>(FIXTURE_RECORD_MANAGER);
 const beoordelaarFactory = createObjectFactory<User>(FIXTURE_BEOORDELAAR);
 const procesEigenaarFactory = createObjectFactory<User>(
   FIXTURE_PROCES_EIGENAAR,
 );
+const archivistFactory = createObjectFactory<User>(FIXTURE_ARCHIVIST);
 
 const defaultUsers: User[] = [
   recordManagerFactory(),
   beoordelaarFactory(),
   procesEigenaarFactory(),
+  archivistFactory(),
 ];
 
 const usersFactory = createArrayFactory(defaultUsers);
@@ -81,4 +97,5 @@ export {
   recordManagerFactory,
   userFactory,
   usersFactory,
+  archivistFactory,
 };
