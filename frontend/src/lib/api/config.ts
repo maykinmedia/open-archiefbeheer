@@ -29,11 +29,5 @@ export async function getArchiveConfiguration(): Promise<ArchiveConfiguration> {
 export async function patchArchiveConfiguration(
   archiveConfig: ArchiveConfiguration,
 ): Promise<void> {
-  const response = await request(
-    "PATCH",
-    "/archive-config",
-    undefined,
-    archiveConfig,
-  );
-  await response.json();
+  await request("PATCH", "/archive-config", undefined, archiveConfig);
 }
