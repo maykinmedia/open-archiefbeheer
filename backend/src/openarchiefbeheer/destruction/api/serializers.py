@@ -439,6 +439,10 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
     assignees = DestructionListAssigneeReadSerializer(many=True)
     author = UserSerializer(read_only=True)
     assignee = UserSerializer(read_only=True)
+    deletable_items_count = serializers.SerializerMethodField(
+        help_text=_("Number of items to be deleted"),
+        allow_null=True,
+    )
 
     class Meta:
         model = DestructionList
@@ -455,7 +459,15 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "created",
             "status_changed",
             "planned_destruction_date",
+            "deletable_items_count",
         )
+
+    def get_deletable_items_count(self, instance: DestructionList) -> int:
+        succeeded_count = instance.items.filter(
+            processing_status=InternalStatus.succeeded
+        ).count()
+        total_count = instance.items.filter(status=ListItemStatus.suggested).count()
+        return total_count - succeeded_count
 
 
 class ZakenReviewSerializer(serializers.Serializer):

@@ -64,7 +64,6 @@ export function useSecondaryNavigation(): ToolbarItem[] {
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
-
   const confirm = useConfirm();
   const prompt = usePrompt();
   const formDialog = useFormDialog();
@@ -335,7 +334,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     onClick: () =>
       formDialog<DestructionListNameFormType>(
         "Zaken definitief vernietigen",
-        `U staat op het punt om ${destructionListItems.count} zaken definitief te vernietigen`,
+        `U staat op het punt om ${destructionList.deletableItemsCount} zaken definitief te vernietigen`,
         [
           {
             label: "Type naam van de lijst ter bevestiging",

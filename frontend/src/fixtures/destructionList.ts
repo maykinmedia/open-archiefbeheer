@@ -20,6 +20,7 @@ export const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   assignee: defaultAssignees[0].user,
   created: "2024-07-11T16:57",
   statusChanged: "2024-07-11:16:57",
+  deletableItemsCount: 0,
 };
 
 export const destructionListFactory = createObjectFactory<DestructionList>(
