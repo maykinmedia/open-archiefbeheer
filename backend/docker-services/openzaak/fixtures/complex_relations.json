@@ -747,6 +747,16 @@
   }
 },
 {
+  "model": "catalogi.statustype",
+  "pk": 2,
+  "fields": {
+    "uuid": "9438e56a-5d78-4dc8-9d9a-2404781f818d",
+    "statustype_omschrijving": "Statustype Completed",
+    "statustypevolgnummer": 1,
+    "zaaktype": 1
+  }
+},
+{
   "model": "catalogi.resultaattype",
   "pk": 1,
   "fields": {
@@ -755,6 +765,17 @@
     "resultaattypeomschrijving": "Destruction report zaak",
     "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/1bb001e9-5eab-4f10-8940-8781e11f180f",
     "zaaktype": 2
+  }
+},
+{
+  "model": "catalogi.resultaattype",
+  "pk": 2,
+  "fields": {
+    "uuid": "12903100-b7a0-4441-9645-eda7df2ad106",
+    "omschrijving": "Successful",
+    "resultaattypeomschrijving": "Successful",
+    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+    "zaaktype": 1
   }
 }
 ]
