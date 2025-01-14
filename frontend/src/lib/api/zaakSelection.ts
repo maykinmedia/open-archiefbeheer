@@ -55,26 +55,6 @@ export async function getSelectionItems<DetailType = unknown>(
 /**
  * Partially update the selection for the given key.
  */
-export async function addSelection<DetailType = unknown>(
-  key: string,
-  data: ZaakSelection,
-  signal?: AbortSignal,
-) {
-  const response = await request(
-    "PATCH",
-    `/selections/${key}/`,
-    undefined,
-    data,
-    undefined,
-    signal,
-  );
-  const promise: Promise<ZaakSelection<DetailType>> = response.json();
-  return promise;
-}
-
-/**
- * Partially update the selection for the given key.
- */
 export async function updateSelection<DetailType = unknown>(
   key: string,
   data: ZaakSelection,
