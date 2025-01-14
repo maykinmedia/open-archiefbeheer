@@ -27,11 +27,12 @@ from openarchiefbeheer.selection.api.views import (
 )
 from openarchiefbeheer.zaken.api.views import (
     CacheZakenView,
+    ExternalZaaktypenChoicesView,
     InformatieobjecttypeChoicesView,
+    InternalZaaktypenChoicesView,
     ResultaattypeChoicesView,
     SelectielijstklasseChoicesView,
     StatustypeChoicesView,
-    ZaaktypenChoicesView,
 )
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
@@ -142,8 +143,13 @@ urlpatterns = [
                 ),
                 path(
                     "_zaaktypen-choices/",
-                    ZaaktypenChoicesView.as_view(),
+                    InternalZaaktypenChoicesView.as_view(),
                     name="retrieve-zaaktypen-choices",
+                ),
+                path(
+                    "_external-zaaktypen-choices/",
+                    ExternalZaaktypenChoicesView.as_view(),
+                    name="retrieve-external-zaaktypen-choices",
                 ),
                 path(
                     "_selectielijstklasse-choices/",

@@ -77,6 +77,13 @@ class SelectielijstklasseChoicesQueryParamSerializer(serializers.Serializer):
     )
 
 
+class ZaaktypeFilterSerializer(serializers.Serializer):
+    zaaktype = serializers.URLField(
+        required=False,
+        help_text=_("The URL of the zaaktype on which to filter."),
+    )
+
+
 # The structure of ZaakMetadataSerializer needs to remain in sync with ZAAK_METADATA_FIELDS_MAPPINGS
 # TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):

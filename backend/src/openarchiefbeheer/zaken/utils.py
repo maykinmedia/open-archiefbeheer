@@ -47,7 +47,7 @@ def pagination_helper(
 
 
 @lru_cache
-def get_procestype(url: str) -> dict | None:
+def get_resource(url: str) -> dict | None:
     service = Service.get_service(url)
     if not service:
         return
@@ -68,7 +68,7 @@ def process_expanded_data(zaken: list[dict]) -> list[dict]:
 
         extra_data = zaak["_expand"]
         if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
-            expanded_procestype = get_procestype(procestype_url)
+            expanded_procestype = get_resource(procestype_url)
             if expanded_procestype is not None:
                 extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 
@@ -348,7 +348,9 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
 
 
 @lru_cache
-def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
+def retrieve_paginated_type(
+    resource_path: str, query_params: HashableDict | None = None
+) -> list[DropDownChoice]:
     def format_choice(item: dict) -> DropDownChoice:
         return {"label": item["omschrijving"] or item["url"], "value": item["url"]}
 
@@ -356,7 +358,7 @@ def retrieve_paginated_type(resource_path: str) -> list[DropDownChoice]:
     ztc_client = build_client(ztc_service)
 
     with ztc_client:
-        response = ztc_client.get(resource_path)
+        response = ztc_client.get(resource_path, params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(ztc_client, response.json())
 
@@ -372,3 +374,20 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
 
     serializer = ZaakMetadataSerializer(instance=zaak)
     return serializer.data
+
+
+@lru_cache
+def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
+    ztc_service = Service.objects.get(api_type=APITypes.ztc)
+    ztc_client = build_client(ztc_service)
+
+    with ztc_client:
+        response = ztc_client.get("zaaktypen", params=query_params)
+        response.raise_for_status()
+        data_iterator = pagination_helper(ztc_client, response.json())
+
+    results = []
+    for page in data_iterator:
+        results += page["results"]
+
+    return results

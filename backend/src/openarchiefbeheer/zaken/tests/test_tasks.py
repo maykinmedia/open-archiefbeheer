@@ -16,7 +16,7 @@ from openarchiefbeheer.destruction.tests.factories import DestructionListItemFac
 
 from ..models import Zaak
 from ..tasks import resync_zaken, retrieve_and_cache_zaken_from_openzaak
-from ..utils import get_procestype
+from ..utils import get_resource
 from .factories import ZaakFactory
 
 PAGE_1 = {
@@ -354,7 +354,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(get_procestype.cache_clear)
+        self.addCleanup(get_resource.cache_clear)
 
     def test_expanded_correctly(self, m):
         ServiceFactory.create(

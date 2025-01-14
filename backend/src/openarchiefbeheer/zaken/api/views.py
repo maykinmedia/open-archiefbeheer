@@ -18,13 +18,17 @@ from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from ..utils import (
     format_zaaktype_choices,
+    get_resource,
     retrieve_paginated_type,
     retrieve_selectielijstklasse_choices,
+    retrieve_zaaktypen,
 )
 from .filtersets import ZaakFilterSet
+from .mixins import FilterOnZaaktypeMixin
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
+    ZaaktypeFilterSerializer,
 )
 
 
@@ -41,7 +45,7 @@ class CacheZakenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ZaaktypenChoicesView(GenericAPIView):
+class InternalZaaktypenChoicesView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -50,9 +54,9 @@ class ZaaktypenChoicesView(GenericAPIView):
         return Zaak.objects.all()
 
     @extend_schema(
-        summary=_("Retrieve zaaktypen choices"),
+        summary=_("Retrieve local zaaktypen choices"),
         description=_(
-            "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
+            "Retrieve zaaktypen of the zaken stored in the OAB database and return a value and a label per zaaktype. "
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
@@ -79,6 +83,31 @@ class ZaaktypenChoicesView(GenericAPIView):
         serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ExternalZaaktypenChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve external zaaktypen choices"),
+        description=_(
+            "Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. "
+            "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
+            "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
+            "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
+            "The response is cached for 15 minutes.\n"
+            "All the filters for the zaken are available to limit which zaaktypen should be returned."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        results = retrieve_zaaktypen()
+        zaaktypen_choices = format_zaaktype_choices(results)
+        return Response(zaaktypen_choices, status=status.HTTP_200_OK)
 
 
 class SelectielijstklasseChoicesView(APIView):
@@ -111,7 +140,7 @@ class SelectielijstklasseChoicesView(APIView):
         return Response(data=choices)
 
 
-class StatustypeChoicesView(APIView):
+class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -120,6 +149,7 @@ class StatustypeChoicesView(APIView):
             "Retrieve statustypen from Open Zaak and return a "
             "value and a label per statustype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
@@ -127,7 +157,8 @@ class StatustypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        results = retrieve_paginated_type("statustypen")
+        query_params = self.get_query_params(request)
+        results = retrieve_paginated_type("statustypen", query_params)
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
@@ -135,7 +166,7 @@ class StatustypeChoicesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class InformatieobjecttypeChoicesView(APIView):
+class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -144,6 +175,7 @@ class InformatieobjecttypeChoicesView(APIView):
             "Retrieve informatieobjecttypen from Open Zaak and return a "
             "value and a label per informatieobjecttype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
@@ -151,7 +183,19 @@ class InformatieobjecttypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
+        query_params = self.get_query_params(request)
+        # We cannot use the query-params directly, because in Openzaak the informatieobjecttypen endpoint
+        # does not support the zaaktype filter (See https://github.com/open-zaak/open-zaak/issues/1855)
         results = retrieve_paginated_type("informatieobjecttypen")
+
+        if zaaktype_url := query_params.get("zaaktype"):
+            zaaktype = get_resource(zaaktype_url)
+            related_informatieobjecttypen = zaaktype.get("informatieobjecttypen", [])
+            results = [
+                result
+                for result in results
+                if result["value"] in related_informatieobjecttypen
+            ]
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
@@ -159,7 +203,7 @@ class InformatieobjecttypeChoicesView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ResultaattypeChoicesView(APIView):
+class ResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -168,6 +212,7 @@ class ResultaattypeChoicesView(APIView):
             "Retrieve resultaattypen from Open Zaak and return a "
             "value and a label per resultaattype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
@@ -175,7 +220,8 @@ class ResultaattypeChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        results = retrieve_paginated_type("resultaattypen")
+        query_params = self.get_query_params(request)
+        results = retrieve_paginated_type("resultaattypen", query_params)
 
         serializer = ChoiceSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
