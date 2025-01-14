@@ -1,4 +1,4 @@
-.. _manual_functioneel-beheerder_email-sjablonen:
+.. _manual_3-administrator_3.1-email-templates:
 
 ==========================================
 Email Sjablonen Configureren als Beheerder

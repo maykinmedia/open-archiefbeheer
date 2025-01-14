@@ -1,4 +1,4 @@
-.. _manual_0-administrator:
+.. _manual_3-administrator:
 
 =============
 Administrator
@@ -8,5 +8,5 @@ Administrator
    :maxdepth: 1
    :caption: Inhoudsopgave
 
-   0.1-email-templates
+   3.1-email-templates
 
