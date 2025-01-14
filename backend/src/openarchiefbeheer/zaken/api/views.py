@@ -26,6 +26,7 @@ from .mixins import FilterOnZaaktypeMixin
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
+    ZaaktypeFilterSerializer,
 )
 
 
@@ -121,6 +122,7 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
             "Retrieve statustypen from Open Zaak and return a "
             "value and a label per statustype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
@@ -170,6 +172,7 @@ class ResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
             "Retrieve resultaattypen from Open Zaak and return a "
             "value and a label per resultaattype. The label is the field 'omschrijving'."
         ),
+        parameters=[ZaaktypeFilterSerializer],
         tags=["private"],
         responses={
             200: ChoiceSerializer(many=True),
