@@ -13,6 +13,5 @@ Documentation
 .. toctree::
     :maxdepth: 3
 
-    configure/index
     developers/index
     manual/index
