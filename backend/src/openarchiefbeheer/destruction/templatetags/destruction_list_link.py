@@ -12,9 +12,11 @@ register = template.Library()
 
 @register.simple_tag
 def destruction_list_link(
-    destruction_list: DestructionList,
+    destruction_list_name: str,
     page: Literal["review", "process-review", "edit"] | None = None,
 ) -> str:
+    destruction_list = DestructionList.objects.get(name=destruction_list_name)
+
     link = furl(settings.FRONTEND_URL)
     # This path needs to remain in sync with the path used in the frontend!
     link.path /= "destruction-lists"

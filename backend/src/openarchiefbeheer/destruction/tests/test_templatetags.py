@@ -11,9 +11,9 @@ class TestTemplateTags(TestCase):
         destruction_list = DestructionListFactory.create(name="Testing templates")
 
         backend = get_sandboxed_backend()
-        template = backend.from_string("{% destruction_list_link dl 'edit' %}")
+        template = backend.from_string("{% destruction_list_link list_name 'edit' %}")
 
-        formatted_body = template.render(context={"dl": destruction_list})
+        formatted_body = template.render(context={"list_name": destruction_list.name})
 
         self.assertEqual(
             formatted_body,

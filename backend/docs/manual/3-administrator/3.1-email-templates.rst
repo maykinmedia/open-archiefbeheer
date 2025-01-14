@@ -30,7 +30,7 @@ Deze zijn de beschikbare templatetags:
    :header: "Tag", "Beschrijving"
    :widths: 1 1
 
-   "``{% destruction_list_link list 'edit' %}``", "Geeft de link naar een vernietigingslijst. Het is mogelijk om naar de 'edit', 'review', of 'process-review' pagina te linken."
+   "``{% destruction_list_link list_name 'edit' %}``", "Geeft de link naar een vernietigingslijst. Het is mogelijk om naar de 'edit', 'review', of 'process-review' pagina te linken."
 
 
 Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
@@ -39,6 +39,6 @@ Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
    :header: "Variabel", "Beschrijving"
    :widths: 100, 70
 
-   "``{{ list }}``",   "Geeft de naam van de vernietigingslijst."
+   "``{{ list_name }}``",   "Geeft de naam van de vernietigingslijst."
    "``{{ user }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de persoon die de email ontvangt."
    "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de reviewer van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de reviewer."
