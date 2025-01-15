@@ -24,3 +24,16 @@
     </a>
 </li>
 {% endblock extra_recovery_options %}
+
+{% block autherrornote %}
+    <div class="errornote">
+        {% blocktranslate trimmed with username=request.user.get_username %}
+            You are authenticated as {{ username }}, but:
+            <ul>
+                <li>you may not be authorized to access this page</li>
+                <li>you may not have performed two factor authentication</li>
+            </ul> 
+            Please log in again or log in with a different account.
+        {% endblocktranslate %}
+    </div>
+{% endblock %}
