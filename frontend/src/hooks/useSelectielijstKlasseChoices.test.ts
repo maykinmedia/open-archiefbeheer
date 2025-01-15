@@ -32,6 +32,7 @@ describe("useSelectielijstKlasseChoices Hook", () => {
         "Foutmelding",
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
         "Ok",
+        undefined,
       );
     });
   });
