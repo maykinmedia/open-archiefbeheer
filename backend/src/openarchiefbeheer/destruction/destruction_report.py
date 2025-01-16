@@ -18,7 +18,7 @@ from openarchiefbeheer.utils.formatting import get_readable_timestamp
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
 from .constants import InternalStatus, ListItemStatus
-from .models import DestructionList
+from .models import DestructionList, DestructionListItem
 
 
 @dataclass
@@ -88,13 +88,16 @@ class DestructionReportGenerator:
             start_row, 0, [field["name"] for field in ZAAK_METADATA_FIELDS_MAPPINGS]
         )
 
+        def format_fn(field: dict, item: DestructionListItem) -> str:
+            return glom(item.extra_zaak_data, field["path"], default="")
+
         for row_count, item in enumerate(
             self.destruction_list.items.filter(
                 processing_status=InternalStatus.succeeded
             ).iterator(chunk_size=1000)
         ):
             data = [
-                glom(item.extra_zaak_data, field["path"], default="")
+                field.get("format", format_fn)(field, item)
                 for field in ZAAK_METADATA_FIELDS_MAPPINGS
             ]
             worksheet.write_row(start_row + row_count + 1, 0, data)
