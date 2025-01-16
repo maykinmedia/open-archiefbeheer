@@ -2,14 +2,38 @@ import "@maykin-ui/admin-ui/style";
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, within } from "@storybook/test";
 
-import { ReactRouterDecorator } from "../../../.storybook/decorators";
-import { OidcConfigContext } from "../../contexts/OidcConfigContext";
+import {
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../.storybook/decorators";
+import { MOCKS } from "../../../.storybook/mockData";
+import { fillForm } from "../../../.storybook/playFunctions";
+import { OidcConfigContext } from "../../contexts";
+import { userFactory } from "../../fixtures/user";
 import { LoginPage } from "./Login";
+import { loginAction } from "./Login.action";
 
 const meta: Meta<typeof LoginPage> = {
   title: "Pages/Login",
   component: LoginPage,
-  decorators: [ReactRouterDecorator],
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        action: loginAction,
+      },
+    },
+    mockData: [
+      MOCKS.WHOAMI,
+      MOCKS.OIDC_INFO,
+      {
+        url: "http://localhost:8000/api/v1/auth/login/?",
+        method: "POST",
+        status: 200,
+        response: userFactory(),
+      },
+    ],
+  },
 };
 
 export default meta;
@@ -18,6 +42,17 @@ type Story = StoryObj<typeof meta>;
 export const LoginPageStory: Story = {
   args: {
     children: "The quick brown fox jumps over the lazy dog.",
+  },
+  parameters: {
+    fillForm: {
+      formValues: {
+        Gebruikersnaam: "Record Manager",
+        Wachtwoord: "ANic3Password",
+      },
+    },
+  },
+  play: async (context) => {
+    await fillForm(context);
   },
 };
 

@@ -71,6 +71,7 @@ export function LoginPage({ ...props }: LoginProps) {
     <LoginTemplate<LoginFormType>
       slotPrimaryNavigation={<></>} // FIXME: Should be easier to override
       formProps={{
+        "aria-label": "Vul uw inloggegevens in",
         nonFieldErrors: nonFieldErrors || detail,
         errors,
         fields,
