@@ -360,7 +360,7 @@ lxml==5.2.1
     # via pyquery
 markupsafe==2.1.5
     # via jinja2
-maykin-2fa==1.0.0
+maykin-2fa==1.0.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
