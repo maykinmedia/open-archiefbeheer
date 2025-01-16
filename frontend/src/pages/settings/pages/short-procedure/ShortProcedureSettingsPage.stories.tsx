@@ -1,12 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ReactRouterDecorator } from "../../../../../.storybook/decorators";
+import {
+  ClearSessionStorageDecorator,
+  ReactRouterDecorator,
+} from "../../../../../.storybook/decorators";
 import { MOCKS } from "../../../../../.storybook/mockData";
-import { assertCheckboxSelection } from "../../../../../.storybook/playFunctions";
+import {
+  assertCheckboxSelection,
+  clickButton,
+} from "../../../../../.storybook/playFunctions";
 import {
   recordManagerFactory,
   zaaktypeChoicesFactory,
 } from "../../../../fixtures";
+import { settingsAction } from "../../Settings.action";
 import { ShortProcedureSettingsPage } from "./ShortProcedureSettingsPage";
 import {
   ShortProcedureSettingsPageContext,
@@ -21,7 +28,7 @@ const FIXTURE: ShortProcedureSettingsPageContext = {
 const meta: Meta<typeof ShortProcedureSettingsPage> = {
   title: "Pages/Settings",
   component: ShortProcedureSettingsPage,
-  decorators: [ReactRouterDecorator],
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     mockData: [
       MOCKS.OIDC_INFO,
@@ -34,6 +41,12 @@ const meta: Meta<typeof ShortProcedureSettingsPage> = {
       {
         url: "http://localhost:8000/api/v1/archive-config?",
         method: "GET",
+        status: 200,
+        response: FIXTURE,
+      },
+      {
+        url: "http://localhost:8000/api/v1/archive-config?",
+        method: "PATCH",
         status: 200,
         response: FIXTURE,
       },
@@ -55,10 +68,15 @@ export const UpdateShortProcedureSettings: Story = {
     reactRouterDecorator: {
       route: {
         loader: shortProcedureSettingsPageLoader,
+        action: settingsAction,
       },
+    },
+    clickButton: {
+      name: "Opslaan",
     },
   },
   play: async (context) => {
     await assertCheckboxSelection(context);
+    await clickButton(context);
   },
 };

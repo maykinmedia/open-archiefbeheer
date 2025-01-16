@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { within } from "@storybook/test";
 
 import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../../.storybook/decorators";
 import { MOCKS } from "../../../../../.storybook/mockData";
-import { fillForm } from "../../../../../.storybook/playFunctions";
+import { clickButton, fillForm } from "../../../../../.storybook/playFunctions";
 import {
   FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES,
   FIXTURE_RESULTAATTYPE_CHOICES,
@@ -19,6 +20,7 @@ import {
   statusTypeChoicesFactory,
   zaaktypeChoicesFactory,
 } from "../../../../fixtures";
+import { settingsAction } from "../../Settings.action";
 import { DestructionReportSettingsPage } from "./DestructionReportSettingsPage";
 import {
   DestructionReportSettingsPageContext,
@@ -55,6 +57,12 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
       {
         url: "http://localhost:8000/api/v1/archive-config?",
         method: "GET",
+        status: 200,
+        response: FIXTURE,
+      },
+      {
+        url: "http://localhost:8000/api/v1/archive-config?",
+        method: "PATCH",
         status: 200,
         response: FIXTURE,
       },
@@ -108,13 +116,19 @@ export const UpdateDestructionReportSettings: Story = {
       },
       submitForm: false,
     },
+    clickButton: {
+      name: "Opslaan",
+    },
     reactRouterDecorator: {
       route: {
         loader: destructionReportSettingsPageLoader,
+        action: settingsAction,
       },
     },
   },
   play: async (context) => {
     await fillForm(context);
+    await clickButton(context);
+    await within(context.canvasElement).findByText("Instellingen opgeslagen");
   },
 };

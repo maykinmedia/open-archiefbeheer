@@ -187,20 +187,19 @@ export const clickElement: PlayFunction<ReactRenderer> = async (context) => {
     'clickElement requires an element role be set using the "role" parameter!',
   );
 
-  const canvas = within(context.canvasElement);
-  const rowGroups = await canvas.findAllByRole("rowgroup");
+  let container = context.canvasElement;
+  if (inTBody) {
+    const canvas = within(context.canvasElement);
+    const rowGroups = await canvas.findAllByRole("rowgroup");
 
-  const tbody = rowGroups.find((rg) => {
-    return rg.tagName === "TBODY";
-  }) as HTMLTableSectionElement;
+    container = rowGroups.find((rg) => {
+      return rg.tagName === "TBODY";
+    }) as HTMLTableSectionElement;
+  }
 
-  const elements = await within(
-    inTBody ? tbody : context.canvasElement,
-    // @ts-expect-error - role now set.
-  ).findAllByRole(role, { name });
-
+  // @ts-expect-error - role now set.
+  const elements = await within(container).findAllByRole(role, { name });
   const element = elements[elementIndex];
-
   await userEvent.click(element, { delay: 10 });
 };
 
