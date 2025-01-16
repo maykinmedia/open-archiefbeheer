@@ -16,9 +16,9 @@ describe("getArchiveConfiguration", () => {
   });
 
   it("should return an ArchiveConfiguration on success", async () => {
-    const archiveConfiguration: ArchiveConfiguration = {
+    const archiveConfiguration = {
       zaaktypesShortProcess: ["http://zaken.nl"],
-    };
+    } as unknown as ArchiveConfiguration;
     fetchMock.mockResponseOnce(JSON.stringify(archiveConfiguration));
     await expect(getArchiveConfiguration()).resolves.toEqual(
       archiveConfiguration,
@@ -45,7 +45,7 @@ describe("patchArchiveConfiguration", () => {
     await expect(
       patchArchiveConfiguration({
         zaaktypesShortProcess: ["http://zaken.nl"],
-      }),
+      } as unknown as ArchiveConfiguration),
     ).resolves.toBeUndefined();
   });
 
@@ -54,7 +54,7 @@ describe("patchArchiveConfiguration", () => {
     await expect(
       patchArchiveConfiguration({
         zaaktypesShortProcess: ["http://zaken.nl"],
-      }),
+      } as unknown as ArchiveConfiguration),
     ).rejects.toThrow("Internal Server Error");
   });
 });
