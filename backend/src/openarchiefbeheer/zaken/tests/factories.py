@@ -45,6 +45,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                         "nummer": 1,
                         "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                         "naam": "Evaluatie uitvoeren",
+                        "jaar": 2024,
                     },
                     "omschrijving": "Aangifte behandelen",
                     "identificatie": "ZAAKTYPE-01",

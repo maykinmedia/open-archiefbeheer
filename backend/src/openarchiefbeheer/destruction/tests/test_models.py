@@ -3,6 +3,7 @@ from datetime import date, datetime
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.test import TestCase
@@ -40,6 +41,11 @@ from .factories import (
 
 
 class DestructionListItemTest(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+
     def test_set_status(self):
         destruction_list = DestructionListFactory.create()
 
@@ -54,6 +60,9 @@ class DestructionListItemTest(TestCase):
         )
 
     def test_process_deletion_zaak_not_found(self):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/api/v1/", label="Open Zaak - Zaken API"
+        )
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
@@ -66,6 +75,9 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(item.processing_status, InternalStatus.failed)
 
     def test_process_deletion(self):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/api/v1/", label="Open Zaak - Zaken API"
+        )
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
@@ -105,6 +117,9 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(item._zaak_url, "http://zaken.nl/1")
 
     def test_zaak_data_present_after_deletion(self):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/api/v1/", label="Open Zaak - Zaken API"
+        )
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
@@ -127,6 +142,9 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(
             item.extra_zaak_data["url"], "http://zaken.nl/api/v1/zaken/111-111-111"
         )
+        self.assertEqual(
+            item.extra_zaak_data["bronapplicatie"], "Open Zaak - Zaken API"
+        )
         self.assertEqual(item.extra_zaak_data["omschrijving"], "Test description")
         self.assertEqual(item.extra_zaak_data["identificatie"], "ZAAK-01")
         self.assertEqual(item.extra_zaak_data["startdatum"], "2020-01-01")
@@ -142,6 +160,7 @@ class DestructionListItemTest(TestCase):
                     "naam": "Evaluatie uitvoeren",
                     "nummer": 1,
                     "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "jaar": 2024,
                 },
             },
         )
@@ -321,6 +340,7 @@ class DestructionListTest(TestCase):
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             extra_zaak_data={
+                "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
                 "omschrijving": "Test description 1",
                 "identificatie": "ZAAK-01",
@@ -340,6 +360,8 @@ class DestructionListTest(TestCase):
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "naam": "Plannen opstellen",
+                        "nummer": 1.1,
+                        "jaar": 2020,
                     },
                 },
             },
@@ -349,6 +371,7 @@ class DestructionListTest(TestCase):
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             extra_zaak_data={
+                "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-222",
                 "omschrijving": "Test description 2",
                 "identificatie": "ZAAK-02",
@@ -369,6 +392,7 @@ class DestructionListTest(TestCase):
                     "selectielijst_procestype": {
                         "nummer": 1,
                         "naam": "Beleid en regelgeving opstellen",
+                        "jaar": 2024,
                     },
                 },
             },
@@ -377,6 +401,7 @@ class DestructionListTest(TestCase):
             processing_status=InternalStatus.succeeded,
             destruction_list=destruction_list,
             extra_zaak_data={
+                "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-333",
                 "omschrijving": "Test description 3",
                 "identificatie": "ZAAK-03",
@@ -389,6 +414,8 @@ class DestructionListTest(TestCase):
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "naam": "Instellen en inrichten organisatie",
+                        "nummer": 1.0,
+                        "jaar": 2022,
                     },
                 },
             },
@@ -406,14 +433,16 @@ class DestructionListTest(TestCase):
         self.assertEqual(
             rows[0],
             (
-                "Zaaktype UUID",
+                "Bronapplicatie",
                 "Zaaktype Omschrijving",
+                "Zaaktype UUID",
                 "Zaaktype Identificatie",
+                "Resultaat",
                 "Zaak Identificatie",
                 "Zaak Startdatum",
                 "Zaak Einddatum",
                 "Selectielijst Procestype",
-                "Resultaat",
+                "Selectielijst versie",
             ),
         )
 
@@ -423,40 +452,46 @@ class DestructionListTest(TestCase):
         self.assertEqual(
             data_rows[0],
             (
-                "111-111-111",
+                "Open Zaak",
                 "Tralala zaaktype",
+                "111-111-111",
                 None,  # pyopenxl reads empty values as None
+                "Resulttype 0",
                 "ZAAK-01",
                 "2020-01-01",
                 "2022-01-01",
-                "Plannen opstellen",
-                "Resulttype 0",
+                "1.1 - Plannen opstellen",
+                2020,
             ),
         )
         self.assertEqual(
             data_rows[1],
             (
-                "111-111-111",
+                "Open Zaak",
                 "Tralala zaaktype",
+                "111-111-111",
                 None,
+                "Resulttype 0",
                 "ZAAK-02",
                 "2020-01-02",
                 "2022-01-02",
-                "Beleid en regelgeving opstellen",
-                "Resulttype 0",
+                "1 - Beleid en regelgeving opstellen",
+                2024,
             ),
         )
         self.assertEqual(
             data_rows[2],
             (
-                "111-111-222",
+                "Open Zaak",
                 "Tralala zaaktype",
+                "111-111-222",
+                None,
                 None,
                 "ZAAK-03",
                 "2020-01-03",
                 "2022-01-03",
-                "Instellen en inrichten organisatie",
-                None,
+                "1.0 - Instellen en inrichten organisatie",
+                2022,
             ),
         )
 
@@ -496,6 +531,7 @@ class DestructionListTest(TestCase):
             status=ListItemStatus.suggested,
             destruction_list=destruction_list,
             extra_zaak_data={
+                "bronorganisatie": "Openzaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
                 "omschrijving": "Test description 3",
                 "identificatie": "ZAAK-01",
@@ -507,6 +543,8 @@ class DestructionListTest(TestCase):
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "naam": "Instellen en inrichten organisatie",
+                        "nummer": 1,
+                        "jaar": 2000,
                     },
                 },
             },
@@ -516,6 +554,7 @@ class DestructionListTest(TestCase):
             status=ListItemStatus.removed,  # Case no longer in destruction list
             destruction_list=destruction_list,
             extra_zaak_data={
+                "bronorganisatie": "Openzaak",
                 "url": "http://zaken.nl/api/v1/zaken/222-222-222",
                 "omschrijving": "Test description 3",
                 "identificatie": "ZAAK-02",
@@ -527,6 +566,8 @@ class DestructionListTest(TestCase):
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "naam": "Instellen en inrichten organisatie",
+                        "nummer": 1.2,
+                        "jaar": 2004,
                     },
                 },
             },
@@ -547,6 +588,8 @@ class DestructionListTest(TestCase):
                     "omschrijving": "Tralala zaaktype",
                     "selectielijst_procestype": {
                         "naam": "Instellen en inrichten organisatie",
+                        "nummer": 1.2,
+                        "jaar": 2004,
                     },
                 },
             },
@@ -565,17 +608,19 @@ class DestructionListTest(TestCase):
         self.assertEqual(
             rows[0],
             (
-                "Zaaktype UUID",
+                "Bronapplicatie",
                 "Zaaktype Omschrijving",
+                "Zaaktype UUID",
                 "Zaaktype Identificatie",
+                "Resultaat",
                 "Zaak Identificatie",
                 "Zaak Startdatum",
                 "Zaak Einddatum",
                 "Selectielijst Procestype",
-                "Resultaat",
+                "Selectielijst versie",
             ),
         )
-        deleted_zaken_ids = sorted([rows[1][3], rows[2][3]])
+        deleted_zaken_ids = sorted([rows[1][5], rows[2][5]])
         self.assertEqual(
             deleted_zaken_ids,
             ["ZAAK-01", "ZAAK-03"],

@@ -3,6 +3,7 @@ from datetime import date
 from unittest.mock import patch
 
 from django.core import mail
+from django.core.cache import cache
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
@@ -321,6 +322,11 @@ class ProcessReviewResponseTests(TestCase):
 
 @temp_private_root()
 class ProcessDeletingZakenTests(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+
     @log_capture(level=logging.INFO)
     def test_skips_if_already_succeeded(self, logs):
         destruction_list = DestructionListFactory.create(
@@ -363,6 +369,9 @@ class ProcessDeletingZakenTests(TestCase):
             last_name="Doe",
             username="jdoe1",
             post__can_start_destruction=True,
+        )
+        ServiceFactory.create(
+            api_root="http://zaken.nl/api/v1", label="Open Zaak - Zaken API"
         )
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete, author=record_manager
@@ -489,6 +498,9 @@ class ProcessDeletingZakenTests(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_processing_list_with_failed_item(self):
         author = UserFactory.create(post__can_start_destruction=True)
+        ServiceFactory.create(
+            api_root="http://zaak-test.nl/api/v1", label="Open Zaak - Zaken API"
+        )
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete,
             processing_status=InternalStatus.failed,
@@ -498,6 +510,7 @@ class ProcessDeletingZakenTests(TestCase):
 
         DestructionListItemFactory.create(
             with_zaak=True,
+            zaak__url="http://zaak-test.nl/api/v1/zaken/111-111-111",
             destruction_list=destruction_list,
             processing_status=InternalStatus.failed,
             internal_results={"traceback": "Some traceback"},
@@ -577,6 +590,7 @@ class ProcessDeletingZakenTests(TestCase):
                         "nummer": 1,
                         "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                         "naam": "Evaluatie uitvoeren",
+                        "jaar": 2000,
                     },
                 },
             },
@@ -685,15 +699,20 @@ class ProcessDeletingZakenTests(TestCase):
             author=record_manager,
             status=ListStatus.ready_to_delete,
         )
+
+        ServiceFactory.create(
+            api_root="http://zaak-test.nl/api/v1", label="Open Zaak - Zaken API"
+        )
         DestructionListItemFactory.create(
             with_zaak=True,
             zaak__archiefactiedatum=date(2025, 1, 1),
-            zaak__url="http://zaak-test.nl/zaken/111-111-111",
+            zaak__url="http://zaak-test.nl/api/v1/zaken/111-111-111",
             destruction_list=destruction_list,
         )
         DestructionListItemFactory.create(
             with_zaak=True,
             zaak__archiefactiedatum=date(2023, 1, 1),
+            zaak__url="http://zaak-test.nl/api/v1/zaken/222-222-222",
             destruction_list=destruction_list,
         )
 
@@ -714,7 +733,9 @@ class ProcessDeletingZakenTests(TestCase):
 
         self.assertEqual(items[0].processing_status, InternalStatus.failed)
         self.assertEqual(items[1].processing_status, InternalStatus.succeeded)
-        self.assertEqual(items[0]._zaak_url, "http://zaak-test.nl/zaken/111-111-111")
+        self.assertEqual(
+            items[0]._zaak_url, "http://zaak-test.nl/api/v1/zaken/111-111-111"
+        )
         self.assertEqual(items[1]._zaak_url, "")
 
     def test_queuing_lists_to_delete(self):
@@ -758,6 +779,9 @@ class ProcessDeletingZakenTests(TestCase):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
+        ServiceFactory.create(
+            api_root="http://zaak-test.nl/api/v1", label="Open Zaak - Zaken API"
+        )
         destruction_list = DestructionListFactory.create(
             name="A test list",
             author=record_manager,
@@ -766,7 +790,7 @@ class ProcessDeletingZakenTests(TestCase):
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__archiefactiedatum=date(2023, 1, 1),
-            zaak__url="http://zaak-test.nl/zaken/111-111-111",
+            zaak__url="http://zaak-test.nl/api/v1/zaken/111-111-111",
             destruction_list=destruction_list,
         )
 
