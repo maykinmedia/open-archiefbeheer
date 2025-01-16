@@ -103,6 +103,7 @@ jobs:
         with:
           working-directory: backend
           files: ./coverage.xml
+          flags: backend
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -139,11 +140,21 @@ jobs:
             "npx http-server storybook-static --port 6006" \
             "npx wait-on tcp:127.0.0.1:6006 && npm run test-storybook"
 
-      - name: Publish coverage report
+      - name: Publish coverage report (storybook)
         uses: codecov/codecov-action@v3.1.4
         with:
           working-directory: frontend/coverage
-          files: ./storybook/coverage-storybook.json,coverage-final.json
+          files: ./storybook/coverage-storybook.json
+          flags: storybook
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish coverage report (jest)
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          working-directory: frontend/coverage
+          files: ./coverage-final.json
+          flags: jest
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
