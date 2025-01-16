@@ -12,7 +12,14 @@ import {
 import { useCallback, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import { JsonValue, useSubmitAction } from "../../../../hooks";
+import {
+  JsonValue,
+  useInformatieObjectTypeChoices,
+  useResultaatTypeChoices,
+  useStatusTypeChoices,
+  useSubmitAction,
+} from "../../../../hooks";
+import { ArchiveConfiguration } from "../../../../lib/api/config";
 import { UpdateSettingsAction } from "../../Settings.action";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { DestructionReportSettingsPageContext } from "./DestructionReportSettingsPage.loader";
@@ -28,24 +35,27 @@ interface DestructionReportSetting {
  */
 export function DestructionReportSettingsPage() {
   const submit = useSubmitAction<UpdateSettingsAction>();
-  const {
-    archiveConfiguration,
-    informatieObjectTypeChoices,
-    resultaatTypeChoices,
-    selectieLijstKlasseChoices,
-    statusTypeChoices,
-    zaaktypeChoices,
-  } = useLoaderData() as DestructionReportSettingsPageContext;
-  const [valuesState, setValuesState] = useState<SerializedFormData | null>(
-    archiveConfiguration,
-  );
+  const { archiveConfiguration, selectieLijstKlasseChoices, zaaktypeChoices } =
+    useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
+
+  const [isValidState, setIsValidState] = useState(false);
+  const [valuesState, setValuesState] = useState<Record<string, string>>(
+    archiveConfiguration as Omit<ArchiveConfiguration, "zaaktypesShortProcess">,
+  );
+
+  // Choices based on selected zaaktype.
+  const statusTypeChoices = useStatusTypeChoices(valuesState?.zaaktype);
+  const resultaatTypeChoices = useResultaatTypeChoices(valuesState?.zaaktype);
+  const informatieObjectTypeChoices = useInformatieObjectTypeChoices(
+    valuesState?.zaaktype,
+  );
 
   const fields: FormField[] = [
     {
       label: "Bronorganisatie",
       name: "bronorganisatie",
-      value: archiveConfiguration.bronorganisatie,
+      value: valuesState.bronorganisatie,
       required: true,
       maxLength: 9,
     },
@@ -54,35 +64,35 @@ export function DestructionReportSettingsPage() {
       name: "zaaktype",
       required: true,
       options: zaaktypeChoices,
-      value: archiveConfiguration.zaaktype,
+      value: valuesState.zaaktype,
     },
     {
       label: "Statustype",
       name: "statustype",
       required: true,
       options: statusTypeChoices,
-      value: archiveConfiguration.statustype,
+      value: valuesState.statustype,
     },
     {
       label: "Resultaattype",
       name: "resultaattype",
       required: true,
       options: resultaatTypeChoices,
-      value: archiveConfiguration.resultaattype,
+      value: valuesState.resultaattype,
     },
     {
       label: "Informatieobjecttype",
       name: "informatieobjecttype",
       required: true,
       options: informatieObjectTypeChoices,
-      value: archiveConfiguration.informatieobjecttype,
+      value: valuesState.informatieobjecttype,
     },
     {
       label: "Selectielijstklasse",
       name: "selectielijstklasse",
       required: true,
       options: selectieLijstKlasseChoices,
-      value: archiveConfiguration.selectielijstklasse,
+      value: valuesState.selectielijstklasse,
     },
   ];
 
@@ -90,14 +100,16 @@ export function DestructionReportSettingsPage() {
     (values: SerializedFormData, fields: FormField[]) => {
       const errors = validateForm(values, fields);
       const isValid = Object.keys(errors).length === 0;
-      if (!isValid) {
-        setValuesState(null);
-      } else {
-        setValuesState(values);
-      }
+      const newValues = Object.assign({ ...valuesState }, values) as Omit<
+        ArchiveConfiguration,
+        "zaaktypesShortProcess"
+      >;
+
+      setIsValidState(isValid);
+      setValuesState(newValues);
       return errors;
     },
-    [],
+    [valuesState],
   );
 
   const handleSave = useCallback(() => {
@@ -122,7 +134,7 @@ export function DestructionReportSettingsPage() {
               Opslaan
             </>
           ),
-          disabled: !valuesState,
+          disabled: !isValidState,
           pad: "h",
           variant: "primary",
           onClick: handleSave,

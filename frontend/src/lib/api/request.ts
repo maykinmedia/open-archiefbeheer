@@ -21,13 +21,23 @@ export const API_BASE_URL = `${API_URL}${API_PATH}`;
 export async function request(
   method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT",
   endpoint: string,
-  params?: URLSearchParams | Record<string, string | number>,
+  params?: URLSearchParams | Record<string, string | number | undefined>,
   data?: Record<string, unknown>,
   headers?: Record<string, string>,
   signal?: AbortSignal,
 ) {
-  // @ts-expect-error - params can be number, ignoring...
-  const queryString = params ? new URLSearchParams(params).toString() : "";
+  // Filter undefined params.
+  let _params = params;
+  if (params && !(params instanceof URLSearchParams)) {
+    const obj = Object.fromEntries(
+      Object.entries(params)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => [k, (v || "").toString()]),
+    );
+    _params = new URLSearchParams(obj);
+  }
+
+  const queryString = _params?.toString() || "";
   const url = `${API_BASE_URL + endpoint}?${queryString}`;
   const csrfToken = getCookie("csrftoken");
 

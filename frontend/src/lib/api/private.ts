@@ -10,16 +10,18 @@ import { Review } from "./review";
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
  * the field 'omschrijving'.
  */
-export async function listInformatieObjectTypeChoices() {
+export async function listInformatieObjectTypeChoices(zaaktypeUrl?: string) {
   return cacheMemo(
     "listInformatieObjectTypeChoices",
     async () => {
-      const response = await request("GET", "/_informatieobjecttype-choices/");
+      const response = await request("GET", "/_informatieobjecttype-choices/", {
+        zaaktype: zaaktypeUrl,
+      });
       const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
-    [],
+    [zaaktypeUrl || ""],
   );
 }
 
@@ -27,16 +29,18 @@ export async function listInformatieObjectTypeChoices() {
  * Retrieve statustypen from Open Zaak and return a value and a label per statustype. The label is the field
  * 'omschrijving'.
  */
-export async function listStatusTypeChoices() {
+export async function listStatusTypeChoices(zaaktypeUrl?: string) {
   return cacheMemo(
     "listStatusTypeChoices",
     async () => {
-      const response = await request("GET", "/_statustype-choices/");
+      const response = await request("GET", "/_statustype-choices/", {
+        zaaktype: zaaktypeUrl,
+      });
       const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
-    [],
+    [zaaktypeUrl || ""],
   );
 }
 
@@ -44,16 +48,18 @@ export async function listStatusTypeChoices() {
  * Retrieve resultaattypen from Open Zaak and return a value and a label per
  * resultaattype. The label is the field 'omschrijving'.
  */
-export async function listResultaatTypeChoices() {
+export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
   return cacheMemo(
     "listResultaatTypeChoices",
     async () => {
-      const response = await request("GET", "/_resultaattype-choices/");
+      const response = await request("GET", "/_resultaattype-choices/", {
+        zaaktype: zaaktypeUrl,
+      });
       const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
-    [],
+    [zaaktypeUrl || ""],
   );
 }
 
