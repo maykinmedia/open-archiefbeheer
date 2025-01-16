@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
@@ -181,7 +181,8 @@ def create_zaak_for_report(
                 },
                 json={
                     "bronorganisatie": config.bronorganisatie,
-                    "omschrijving": _("Destruction report of list: %(list_name)s")
+                    "omschrijving": _("Destruction report"),
+                    "toelichting": _("Destruction report of list: %(list_name)s")
                     % {"list_name": destruction_list.name},
                     "zaaktype": config.zaaktype,
                     "vertrouwelijkheidaanduiding": "openbaar",
