@@ -13,13 +13,17 @@ import {
   FIXTURE_STATUSTYPE_CHOICES,
   FIXTURE_ZAAKTYPE_CHOICES,
   informatieObjectTypeChoicesFactory,
+  recordManagerFactory,
   resultaatTypeChoicesFactory,
   selectieLijstKlasseFactory,
   statusTypeChoicesFactory,
   zaaktypeChoicesFactory,
 } from "../../../../fixtures";
 import { DestructionReportSettingsPage } from "./DestructionReportSettingsPage";
-import { DestructionReportSettingsPageContext } from "./DestructionReportSettingsPage.loader";
+import {
+  DestructionReportSettingsPageContext,
+  destructionReportSettingsPageLoader,
+} from "./DestructionReportSettingsPage.loader";
 
 const FIXTURE: DestructionReportSettingsPageContext = {
   archiveConfiguration: {
@@ -41,8 +45,25 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     mockData: [
-      MOCKS.WHOAMI,
       MOCKS.OIDC_INFO,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: recordManagerFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/archive-config?",
+        method: "GET",
+        status: 200,
+        response: FIXTURE,
+      },
+      {
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?notInDestructionList=true",
+        method: "GET",
+        status: 200,
+        response: zaaktypeChoicesFactory(),
+      },
       {
         url: `http://localhost:8000/api/v1/_statustype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
         method: "GET",
@@ -60,6 +81,12 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         method: "GET",
         status: 200,
         response: informatieObjectTypeChoicesFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
+        method: "GET",
+        status: 200,
+        response: selectieLijstKlasseFactory(),
       },
     ],
   },
@@ -83,7 +110,7 @@ export const UpdateDestructionReportSettings: Story = {
     },
     reactRouterDecorator: {
       route: {
-        loader: async () => FIXTURE,
+        loader: destructionReportSettingsPageLoader,
       },
     },
   },
