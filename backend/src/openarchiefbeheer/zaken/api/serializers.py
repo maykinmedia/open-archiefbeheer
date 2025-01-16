@@ -1,9 +1,12 @@
+from functools import lru_cache
+
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
 from furl import furl
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
+from zgw_consumers.models import Service
 
 from ..models import Zaak
 
@@ -84,11 +87,17 @@ class ZaaktypeFilterSerializer(serializers.Serializer):
     )
 
 
+@lru_cache
+def get_service(url: str) -> Service | None:
+    return Service.get_service(url)
+
+
 # The structure of ZaakMetadataSerializer needs to remain in sync with ZAAK_METADATA_FIELDS_MAPPINGS
 # TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):
     zaaktype = serializers.SerializerMethodField()
     resultaat = serializers.SerializerMethodField()
+    bronapplicatie = serializers.SerializerMethodField()
 
     class Meta:
         model = Zaak
@@ -100,6 +109,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
             "omschrijving",
             "identificatie",
             "zaaktype",
+            "bronapplicatie",
         )
 
     @extend_schema_field(serializers.JSONField)
@@ -125,3 +135,13 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
                 "omschrijving": resultaattype["omschrijving"],
             },
         }
+
+    @extend_schema_field(serializers.CharField)
+    def get_bronapplicatie(self, zaak: Zaak) -> str:
+        # Remove the UUID from the url. In this way we query the database to
+        # get the service only once (since the base URL for the zaken endpoint doesn't change)
+        zaak_url = furl(zaak.url)
+        zaak_url.path.segments = zaak_url.path.segments[:-1]
+
+        service = get_service(zaak_url.url)
+        return service.label

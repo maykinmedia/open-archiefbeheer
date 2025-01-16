@@ -15,6 +15,7 @@ def format_selectielijstversie(field: dict, item: DestructionListItem) -> str:
 
 # The structure of ZAAK_METADATA_FIELDS_MAPPINGS needs to remain in sync with ZaakMetadataSerializer
 ZAAK_METADATA_FIELDS_MAPPINGS = [
+    {"name": "Bronapplicatie", "path": "bronapplicatie"},
     {"name": "Zaaktype UUID", "path": "zaaktype.uuid"},
     {"name": "Zaaktype Omschrijving", "path": "zaaktype.omschrijving"},
     {"name": "Zaaktype Identificatie", "path": "zaaktype.identificatie"},
