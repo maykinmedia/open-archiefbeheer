@@ -187,6 +187,6 @@ export function canViewAndEditSettingsRequired<T extends object>(
       });
     }
 
-    return await fn(loaderFunctionArgs, handlerCtx);
+    return fn(loaderFunctionArgs, handlerCtx);
   };
 }
