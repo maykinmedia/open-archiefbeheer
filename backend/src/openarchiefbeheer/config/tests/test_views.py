@@ -98,6 +98,31 @@ class ArchiveConfigViews(APITestCase):
 
         self.assertEqual(config.zaaktypes_short_process, [])
 
+    @override_settings(SOLO_CACHE=None)
+    def test_can_send_empty_statustype_and_resultaat_type(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+
+        config = ArchiveConfig.get_solo()
+        config.statustype = "http://bla.nl"
+        config.resultaattype = "http://bla.nl"
+        config.selectielijstklasse = "http://bla.nl"
+        config.save()
+
+        self.client.force_login(user)
+        response = self.client.patch(
+            reverse("api:archive-config"),
+            data={"statustype": "", "resultaattype": "", "selectielijstklasse": ""},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        config = ArchiveConfig.get_solo()
+
+        self.assertEqual(config.statustype, "")
+        self.assertEqual(config.resultaattype, "")
+        self.assertEqual(config.selectielijstklasse, "")
+
 
 class OIDCInfoViewTests(APITestCase):
     def test_oidc_info_view_not_enabled(self):

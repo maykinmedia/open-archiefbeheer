@@ -256,6 +256,13 @@ TEST_DATA_ARCHIVE_CONFIG = {
     "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
 }
 
+TEST_DATA_ARCHIVE_CONFIG_PARTIAL = {
+    "bronorganisatie": "000000000",
+    "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+    "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
+    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+}
+
 
 @temp_private_root()
 class DestructionListTest(TestCase):
@@ -795,6 +802,37 @@ class DestructionListTest(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.zaak_destruction_report_url, "")
+
+    @Mocker()
+    def test_no_statustype_resultaattype_configured(self, m):
+        destruction_list = DestructionListFactory.create()
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://zaken.nl/api/v1",
+        )
+
+        m.post(
+            "http://zaken.nl/api/v1/zaken",
+            json={"url": "http://zaken.nl/api/v1/zaken/111-111-111"},
+        )
+
+        with (
+            patch(
+                "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(**TEST_DATA_ARCHIVE_CONFIG_PARTIAL),
+            ),
+            patch("openarchiefbeheer.destruction.utils.create_eio_destruction_report"),
+            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak"),
+        ):
+            destruction_list.create_report_zaak()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(
+            destruction_list.zaak_destruction_report_url,
+            "http://zaken.nl/api/v1/zaken/111-111-111",
+        )
+        self.assertNotIn("created_resources", destruction_list.internal_results)
 
     @Mocker()
     def test_failure_result_creation(self, m):
