@@ -21,7 +21,7 @@ export async function listInformatieObjectTypeChoices(zaaktypeUrl?: string) {
 
       return promise;
     },
-    [zaaktypeUrl || ""],
+    [zaaktypeUrl],
   );
 }
 
@@ -40,7 +40,7 @@ export async function listStatusTypeChoices(zaaktypeUrl?: string) {
 
       return promise;
     },
-    [zaaktypeUrl || ""],
+    [zaaktypeUrl],
   );
 }
 
@@ -59,7 +59,7 @@ export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
 
       return promise;
     },
-    [zaaktypeUrl || ""],
+    [zaaktypeUrl],
   );
 }
 
