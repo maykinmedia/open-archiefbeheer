@@ -234,10 +234,9 @@ class DestructionListItemsViewSetTest(APITestCase):
         )
 
     def test_retrieve_items_with_review_responses(self):
-        record_manager = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
         review = DestructionListReviewFactory.create(
-            destruction_list__author=record_manager,
-            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__status=ListStatus.ready_to_review, author=reviewer
         )
         item_reviews = DestructionListItemReviewFactory.create_batch(
             3,
@@ -255,7 +254,7 @@ class DestructionListItemsViewSetTest(APITestCase):
             action_item=DestructionListItemAction.remove,
         )
 
-        self.client.force_authenticate(user=record_manager)
+        self.client.force_authenticate(user=reviewer)
         endpoint = furl(reverse("api:destruction-list-items-list"))
         endpoint.args["item-order_review_ignored"] = True
 
@@ -279,3 +278,41 @@ class DestructionListItemsViewSetTest(APITestCase):
             data["results"][2]["pk"], item_reviews[0].destruction_list_item.pk
         )
         self.assertIsNone(data["results"][2]["reviewAdviceIgnored"])
+
+    def test_no_review_advice_ignored_if_not_ready_to_review(self):
+        archivist = UserFactory.create(post__can_review_final_list=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__assignee=archivist,
+            destruction_list__status=ListStatus.ready_for_archivist,
+        )
+        item_reviews = DestructionListItemReviewFactory.create_batch(
+            3,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+        ReviewItemResponseFactory.create(
+            review_item=item_reviews[1],
+            review_item__review=review,
+            action_item=DestructionListItemAction.keep,
+        )
+        ReviewItemResponseFactory.create(
+            review_item=item_reviews[2],
+            review_item__review=review,
+            action_item=DestructionListItemAction.remove,
+        )
+
+        self.client.force_authenticate(user=archivist)
+        endpoint = furl(reverse("api:destruction-list-items-list"))
+        endpoint.args["item-order_review_ignored"] = True
+
+        response = self.client.get(
+            endpoint.url,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertTrue(
+            all([item["reviewAdviceIgnored"] is None for item in data["results"]])
+        )
