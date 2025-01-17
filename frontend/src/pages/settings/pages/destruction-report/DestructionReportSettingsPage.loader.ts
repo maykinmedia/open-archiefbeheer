@@ -29,7 +29,7 @@ export const destructionReportSettingsPageLoader = loginRequired(
       ] = await Promise.all([
         getArchiveConfiguration(),
         listSelectielijstKlasseChoices(),
-        listZaaktypeChoices(),
+        listZaaktypeChoices(undefined, undefined, undefined, true),
       ]);
 
       return {

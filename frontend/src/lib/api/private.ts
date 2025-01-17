@@ -101,6 +101,7 @@ export async function listZaaktypeChoices(
   destructionListUuid?: DestructionList["uuid"],
   reviewPk?: Review["pk"],
   searchParams?: URLSearchParams,
+  external = false,
 ) {
   const params = [destructionListUuid, reviewPk, searchParams]
     .filter((param) => !!param)
@@ -123,11 +124,15 @@ export async function listZaaktypeChoices(
         params.set("notInDestructionList", "true");
       }
 
-      const response = await request("GET", "/_zaaktypen-choices/", params);
+      const endpoint = external
+        ? "/_external-zaaktypen-choices/"
+        : "/_zaaktypen-choices/";
+
+      const response = await request("GET", endpoint, params);
       const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
-    params,
+    external ? [...params, "external"] : params,
   );
 }

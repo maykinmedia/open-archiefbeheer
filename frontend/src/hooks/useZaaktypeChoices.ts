@@ -11,11 +11,13 @@ import { useAlertOnError } from "./useAlertOnError";
  * @param destructionList
  * @param review
  * @param searchParams
+ * @param external
  */
 export function useZaaktypeChoices(
   destructionList?: DestructionList,
   review?: Review,
   searchParams?: URLSearchParams,
+  external = false,
 ): Option[] {
   const alertOnError = useAlertOnError(
     "Er is een fout opgetreden bij het ophalen van zaaktypen!",
@@ -25,7 +27,12 @@ export function useZaaktypeChoices(
     [],
   );
   useEffect(() => {
-    listZaaktypeChoices(destructionList?.uuid, review?.pk, searchParams)
+    listZaaktypeChoices(
+      destructionList?.uuid,
+      review?.pk,
+      searchParams,
+      external,
+    )
       .then((z) => setZaaktypeChoicesState(z))
       .catch(alertOnError);
   }, [destructionList?.uuid, review?.pk, searchParams?.toString()]);

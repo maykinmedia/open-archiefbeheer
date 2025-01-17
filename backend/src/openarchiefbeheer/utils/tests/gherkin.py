@@ -96,7 +96,12 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await create_data_fn()
 
         async def services_are_configured(
-            self, m, statustypen=[], resultaattypen=[], informatieobjecttypen=[]
+            self,
+            m,
+            zaaktypen=[],
+            statustypen=[],
+            resultaattypen=[],
+            informatieobjecttypen=[],
         ):
             """
             Mock Services implementation.
@@ -104,6 +109,10 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             Args:
                 m: requests-mock adapter instance used to mock HTTP requests.
             """
+            m.get(
+                "http://zaken.nl/catalogi/api/v1/zaaktypen",
+                json={"results": zaaktypen},
+            )
             m.get(
                 "http://zaken.nl/catalogi/api/v1/statustypen",
                 json={"results": statustypen},
@@ -398,6 +407,29 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 await route.fulfill(json=json)
 
             await page.route("**/*/api/v1/_zaaktypen-choices/*", handle)
+
+        async def external_zaaktype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Aangifte behandelen 1",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 2",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 3",
+                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+                        "extra": "",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route("**/*/api/v1/_external-zaaktypen-choices/*", handle)
 
         async def zaken_are_indexed(self, amount, **kwargs) -> list[Zaak]:
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
