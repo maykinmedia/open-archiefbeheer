@@ -14,7 +14,7 @@ const config: StorybookConfig = {
       name: "@storybook/addon-coverage",
       options: {
         istanbul: {
-          exclude: "**/fixtures/**",
+          exclude: ["**/.storybook/**", "**/fixtures/**"],
         },
       },
     },
