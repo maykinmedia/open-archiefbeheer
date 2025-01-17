@@ -199,7 +199,7 @@ def create_zaak_for_report(
             destruction_list.zaak_destruction_report_url = new_zaak["url"]
             destruction_list.save()
 
-        if not store.has_created_resource("resultaten"):
+        if config.resultaattype and not store.has_created_resource("resultaten"):
             response = zrc_client.post(
                 "resultaten",
                 json={
@@ -210,7 +210,7 @@ def create_zaak_for_report(
             response.raise_for_status()
             store.add_created_resource("resultaten", response.json()["url"])
 
-        if not store.has_created_resource("statussen"):
+        if config.statustype and not store.has_created_resource("statussen"):
             response = zrc_client.post(
                 "statussen",
                 json={
