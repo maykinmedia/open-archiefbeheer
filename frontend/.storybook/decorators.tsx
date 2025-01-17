@@ -1,3 +1,4 @@
+import { LoaderFunction } from "@remix-run/router/utils";
 import { StoryContext, StoryFn } from "@storybook/react";
 import {
   RouterProvider,
@@ -23,12 +24,30 @@ export const ClearSessionStorageDecorator = (Story: StoryFn) => {
 /**
  * Decorators providing React Router integration (RouterProvider), optionally: when using this decorator a parameter
  * "loader" can be specified providing React Router `LoaderFunction` for this `StoryFn`.
+ * @param parameters.reactRouterDecorator.route Route configuration to navigate to.
+ * @param parameters.reactRouterDecorator.params Router params to apply to route.
  */
 export const ReactRouterDecorator = (
   Story: StoryFn,
   { parameters }: StoryContext,
 ) => {
-  const { id, ...params } = parameters.reactRouterDecorator?.route || {};
+  const { route, params } = parameters?.reactRouterDecorator || {};
+
+  // The loader to use for the decorated Story.
+  const parameterizedLoader = route?.loader
+    ? ((async (context) => {
+        // Apply (route) params to original loader.
+        return route.loader({
+          request: context.request,
+          params: {
+            ...context.params,
+            ...params,
+          },
+        });
+      }) as LoaderFunction)
+    : undefined;
+
+  // Build router structure.
   const router = createBrowserRouter([
     {
       path: "",
@@ -39,10 +58,11 @@ export const ReactRouterDecorator = (
       },
       children: [
         {
-          id: id,
-          path: "/iframe.html",
+          id: route?.id,
+          path: "/iframe.html", // Storybook uses this URL.
           element: <Story />,
-          ...params,
+          ...(route || {}),
+          loader: parameterizedLoader,
         },
         {
           path: "*?", // On redirect.
