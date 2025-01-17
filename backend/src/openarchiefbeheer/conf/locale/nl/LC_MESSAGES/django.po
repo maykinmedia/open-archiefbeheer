@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-16 11:28+0100\n"
+"POT-Creation-Date: 2025-01-16 15:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -792,11 +792,11 @@ msgstr "Groepen"
 msgid "Number of deleted cases"
 msgstr "Aantal verwijderde zaken"
 
-#: openarchiefbeheer/destruction/destruction_report.py:105
+#: openarchiefbeheer/destruction/destruction_report.py:108
 msgid "Deleted zaken"
 msgstr "Verwijderde zaken"
 
-#: openarchiefbeheer/destruction/destruction_report.py:106
+#: openarchiefbeheer/destruction/destruction_report.py:109
 msgid "Process details"
 msgstr "Proces details"
 
@@ -1419,8 +1419,9 @@ msgstr[1] ""
 msgid ""
 "List \"%(list_name)s\" has been updated after resyncing the cases with Open "
 "Zaak."
-msgstr "Vernietigingslijst \"%(list_name)s\" is aangepast na het hersyncen van "
-"de zaken met Open Zaak."
+msgstr ""
+"Vernietigingslijst \"%(list_name)s\" is aangepast na het hersyncen van de "
+"zaken met Open Zaak."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_items_deleted.txt:4
 #, python-format
@@ -1722,9 +1723,9 @@ msgid ""
 "factor authentication</li> </ul> Please log in again or log in with a "
 "different account."
 msgstr ""
-"U bent als %(username)s ingelogd, maar mogelijk: <ul> <li>heeft u geen toegang "
-"tot deze pagina</li> <li>heeft u de 2FA niet voltooid.</li> </ul>"
-"Probeer opnieuw in te loggen of inloggen met een andere account."
+"U bent als %(username)s ingelogd, maar mogelijk: <ul> <li>heeft u geen "
+"toegang tot deze pagina</li> <li>heeft u de 2FA niet voltooid.</li> </"
+"ul>Probeer opnieuw in te loggen of inloggen met een andere account."
 
 #: openarchiefbeheer/templates/samples/pager.html:8
 #: openarchiefbeheer/templates/samples/pager.html:10
@@ -1819,24 +1820,24 @@ msgstr ""
 msgid "Filter on zaken that have received negative feedback in a review."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:63
+#: openarchiefbeheer/zaken/api/serializers.py:66
 msgid "The description field of the choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:64
+#: openarchiefbeheer/zaken/api/serializers.py:67
 msgid "The URL of the choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:66
+#: openarchiefbeheer/zaken/api/serializers.py:69
 msgid "Any extra information about this choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:75
+#: openarchiefbeheer/zaken/api/serializers.py:78
 msgid ""
 "The URL of the zaak for which the selectielijstklasse choices are needed."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:83
+#: openarchiefbeheer/zaken/api/serializers.py:86
 msgid "The URL of the zaaktype on which to filter."
 msgstr ""
 
