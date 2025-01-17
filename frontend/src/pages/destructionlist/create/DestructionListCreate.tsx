@@ -121,6 +121,7 @@ export function DestructionListCreatePage() {
       >
         <Body>
           <Form
+            aria-label="Vul vernietigingslijst eigenschappen in"
             fields={modalFormFields}
             justify="stretch"
             onSubmit={handleSubmit}
