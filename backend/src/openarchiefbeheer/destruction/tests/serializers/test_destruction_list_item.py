@@ -16,7 +16,7 @@ class TestDestructionListItemSerializer(TestCase):
         record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
-            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__status=ListStatus.ready_to_review,
         )
         item_reviews = DestructionListItemReviewFactory.create_batch(
             3,

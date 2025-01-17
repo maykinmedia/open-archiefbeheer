@@ -12,9 +12,12 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListItemFactory,
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
+    ReviewItemResponseFactory,
 )
 from openarchiefbeheer.selection.models import AllSelectedToggle, SelectionItem
+from openarchiefbeheer.selection.tests.factories import SelectionItemFactory
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
+from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
@@ -230,6 +233,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 **merged_kwargs,
             )
 
+        async def review_item_response_exists(self, **kwargs):
+            return await self._factory_create(ReviewItemResponseFactory, **kwargs)
+
         async def selectielijstklasse_choices_are_available(self, page):
             async def handle(route):
                 json = [
@@ -245,12 +251,19 @@ class GherkinLikeTestCase(PlaywrightTestCase):
 
             await page.route("**/*/api/v1/_selectielijstklasse-choices/?zaak=*", handle)
 
-        async def zaken_are_indexed(self, amount, **kwargs):
+        async def zaken_are_indexed(self, amount, **kwargs) -> list[Zaak]:
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
 
         async def zaak_selection_api_is_empty(self):
             await SelectionItem.objects.all().adelete()
             await AllSelectedToggle.objects.all().adelete()
+
+        async def zaak_selection_exists(
+            self, zaken_amount: int, **kwargs
+        ) -> list[SelectionItem]:
+            return await self._factory_create_batch(
+                SelectionItemFactory, zaken_amount, **kwargs
+            )
 
         @sync_to_async
         def _orm_filter(self, model, **kwargs):

@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Case, OuterRef, QuerySet, Subquery, Value, When
+from django.db.models import Case, OuterRef, Q, QuerySet, Subquery, Value, When
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -28,6 +28,7 @@ from ..constants import (
     DestructionListItemAction,
     InternalStatus,
     ListRole,
+    ListStatus,
 )
 from ..models import (
     DestructionList,
@@ -492,6 +493,10 @@ class DestructionListItemsViewSet(
             )
             .annotate(
                 review_advice_ignored=Case(
+                    When(
+                        ~Q(destruction_list__status=ListStatus.ready_to_review),
+                        then=Value(None),
+                    ),
                     When(
                         last_review_response_action_item=DestructionListItemAction.keep,
                         then=Value(True),
