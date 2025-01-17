@@ -276,6 +276,9 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         if hasattr(item, "review_advice_ignored"):
             return item.review_advice_ignored
 
+        if item.destruction_list.status != ListStatus.ready_to_review:
+            return None
+
         last_review_response = (
             ReviewItemResponse.objects.filter(review_item__destruction_list_item=item)
             .order_by("-created")
