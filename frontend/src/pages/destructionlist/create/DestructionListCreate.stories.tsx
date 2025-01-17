@@ -4,21 +4,19 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../.storybook/decorators";
+import { MOCKS } from "../../../../.storybook/mockData";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
   clickButton,
   fillForm,
 } from "../../../../.storybook/playFunctions";
+import { destructionListFactory } from "../../../fixtures/destructionList";
 import { paginatedZakenFactory } from "../../../fixtures/paginatedZaken";
-import { usersFactory } from "../../../fixtures/user";
-import { getZaakSelection } from "../../../lib/zaakSelection";
-import {
-  DESTRUCTION_LIST_CREATE_KEY,
-  DestructionListCreatePage,
-} from "./DestructionListCreate";
+import { recordManagerFactory, usersFactory } from "../../../fixtures/user";
+import { DestructionListCreatePage } from "./DestructionListCreate";
 import { destructionListCreateAction } from "./DestructionListCreate.action";
-import { DestructionListCreateContext } from "./DestructionListCreate.loader";
+import { destructionListCreateLoader } from "./DestructionListCreate.loader";
 
 const meta: Meta<typeof DestructionListCreatePage> = {
   title: "Pages/DestructionList/DestructionListCreatePage",
@@ -27,23 +25,44 @@ const meta: Meta<typeof DestructionListCreatePage> = {
   parameters: {
     reactRouterDecorator: {
       route: {
-        loader: async () => ({
-          ...FIXTURE,
-          zaakSelection: await getZaakSelection(DESTRUCTION_LIST_CREATE_KEY),
-        }),
+        loader: destructionListCreateLoader,
         action: destructionListCreateAction,
       },
     },
+    mockData: [
+      MOCKS.OIDC_INFO,
+      MOCKS.SELECTIE_LIJST_CHOICES,
+      MOCKS.ZAAKTYPE_CHOICES,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: recordManagerFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/zaken/?viewMode=story&id=pages-destructionlist-destructionlistcreatepage--checkbox-selection&not_in_destruction_list=true",
+        method: "GET",
+        status: 200,
+        response: paginatedZakenFactory(),
+      },
+      {
+        url: "hhttp://localhost:8000/api/v1/users?role=main_reviewer",
+        method: "GET",
+        status: 200,
+        response: usersFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/?",
+        method: "POST",
+        status: 201,
+        response: destructionListFactory(),
+      },
+    ],
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-const FIXTURE: DestructionListCreateContext = {
-  reviewers: usersFactory(),
-  paginatedZaken: paginatedZakenFactory(),
-};
 
 export const CheckboxSelection: Story = {
   play: assertCheckboxSelection,
@@ -56,7 +75,11 @@ export const ColumnSelection: Story = {
 export const CreateDestructionList: Story = {
   parameters: {
     assertCheckboxSelection: { direction: "forwards" },
-    clickButton: { name: "Vernietigingslijst opstellen" },
+    clickButton: {
+      name: "Vernietigingslijst opstellen",
+      inTBody: false,
+      elementIndex: 1,
+    },
     fillForm: {
       formValues: {
         Naam: "My First Destruction List",
