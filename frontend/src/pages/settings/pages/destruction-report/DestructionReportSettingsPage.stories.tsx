@@ -67,7 +67,7 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         response: FIXTURE,
       },
       {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?notInDestructionList=true",
+        url: "http://localhost:8000/api/v1/_external-zaaktypen-choices/?notInDestructionList=true",
         method: "GET",
         status: 200,
         response: zaaktypeChoicesFactory(),
