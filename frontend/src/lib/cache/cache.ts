@@ -64,7 +64,7 @@ export async function cacheDelete(key: string) {
 export async function cacheMemo<F extends (...args: never[]) => unknown>(
   key: string,
   factory: F,
-  params: Parameters<F> | string[] = [],
+  params: Parameters<F> | (string | undefined)[] = [],
 ): Promise<Awaited<ReturnType<F>>> {
   const _key = _getCompiledKey(key, params);
   const cached = await cacheGet<Awaited<ReturnType<F>>>(_key);
@@ -90,8 +90,9 @@ function _getComputedKey(key: string): string {
  * @param params Can only contain `boolean`, `number`, or `string` values.
  */
 function _getCompiledKey(key: string, params?: Array<unknown>): string {
-  if (!params || !params.length) {
+  const _params = params?.filter((v) => v);
+  if (!_params || !_params.length) {
     return key;
   }
-  return `${key}#${params.join(":")}`;
+  return `${key}#${_params.join(":")}`;
 }
