@@ -63,7 +63,7 @@ def notify_reviewer(
     notify(
         subject=config.subject_review_required,
         body=config.body_review_required,
-        context={"user": user, "list": destruction_list},
+        context={"user": user, "list_name": destruction_list.name},
         recipients=[user.email],
     )
 
@@ -81,8 +81,8 @@ def notify_author_positive_review(
         body=config.body_positive_review,
         context={
             "user": user,
-            "list": destruction_list,
-            "last_reviewer": last_reviewer,
+            "list_name": destruction_list.name,
+            "reviewer": last_reviewer,
             "current_reviewer": destruction_list.assignee,
         },
         recipients=[user.email],
@@ -98,7 +98,7 @@ def notify_author_changes_requested(
     notify(
         subject=config.subject_changes_requested,
         body=config.body_changes_requested,
-        context={"user": user, "list": destruction_list},
+        context={"user": user, "list_name": destruction_list.name},
         recipients=[user.email],
     )
 
@@ -111,7 +111,7 @@ def notify_assignees_successful_deletion(destruction_list: DestructionList) -> N
         subject=config.subject_successful_deletion,
         body=config.body_successful_deletion,
         context={
-            "list": destruction_list,
+            "list_name": destruction_list.name,
         },
         recipients=list(recipients),
     )

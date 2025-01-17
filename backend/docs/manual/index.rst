@@ -13,3 +13,4 @@ taken kunnen worden uitgevoerd.
 
     1-record-manager/index
     2-reviewer-archivaris/index
+    3-administrator/index
