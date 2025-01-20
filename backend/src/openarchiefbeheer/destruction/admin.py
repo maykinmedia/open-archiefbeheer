@@ -20,6 +20,7 @@ class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
     list_filter = ("status", "assignee")
     search_fields = ("name",)
     readonly_fields = ("uuid",)
+    exclude = ["destruction_report"]
 
 
 @admin.register(DestructionListItem)
