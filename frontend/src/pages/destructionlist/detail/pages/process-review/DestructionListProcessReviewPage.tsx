@@ -1,4 +1,10 @@
-import { Outline, Toolbar, TypedField } from "@maykin-ui/admin-ui";
+import {
+  Badge,
+  Outline,
+  Solid,
+  Toolbar,
+  TypedField,
+} from "@maykin-ui/admin-ui";
 import { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
@@ -9,7 +15,7 @@ import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
-import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
+import { useSecondaryNavigation } from "../../hooks";
 import {
   DestructionListProcessZaakReviewModal,
   ProcessReviewAction,
@@ -101,6 +107,7 @@ export function DestructionListProcessReviewPage() {
   // Whether extra fields should be rendered.
   const extraFields: TypedField[] = [
     { filterable: false, name: "Opmerking", type: "text" },
+    { filterable: false, name: "Mutatie", type: "text" },
     { filterable: false, name: "Acties", type: "text" },
   ];
 
@@ -109,6 +116,9 @@ export function DestructionListProcessReviewPage() {
     return zakenOnPage.map((z, i) => ({
       ...z,
       Opmerking: reviewItems?.[i]?.feedback,
+      Mutatie: getProcessReviewBadge(
+        processZaakReviewSelectionState?.[z.url as string]?.detail?.action,
+      ),
       Acties: (
         <Toolbar
           align="end"
@@ -136,6 +146,32 @@ export function DestructionListProcessReviewPage() {
       ),
     }));
   }, [reviewItems, zaakReviewStatuses]);
+
+  function getProcessReviewBadge(action?: ProcessReviewAction) {
+    if (!action) {
+      return (
+        // @ts-expect-error - style props not supported (yet?)
+        <Badge style={{ display: "block" }}>
+          <Solid.QuestionMarkCircleIcon />
+          Geen Mutatie
+        </Badge>
+      );
+    }
+
+    return action === "keep" ? (
+      // @ts-expect-error - style props not supported (yet?)
+      <Badge level="info" style={{ display: "block" }}>
+        <Solid.DocumentPlusIcon />
+        Voorstel afgewezen
+      </Badge>
+    ) : (
+      // @ts-expect-error - style props not supported (yet?)
+      <Badge level="danger" style={{ display: "block" }}>
+        <Solid.DocumentMinusIcon />
+        Uitgezonderd
+      </Badge>
+    );
+  }
 
   // DataGrid (paginated) results.
   const paginatedZaken = useMemo<PaginatedZaken>(() => {
