@@ -11,11 +11,18 @@ from zgw_consumers.models import Service
 from ..models import Zaak
 
 
+class ZaakListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        zaken_to_create = [Zaak(**item) for item in validated_data]
+        return Zaak.objects.bulk_create(zaken_to_create)
+
+
 class ZaakSerializer(serializers.ModelSerializer):
     zaakgeometrie = GeometryField(required=False, allow_null=True)
 
     class Meta:
         model = Zaak
+        list_serializer_class = ZaakListSerializer
         fields = (
             "uuid",
             "url",
