@@ -83,6 +83,10 @@ class RetrieveAndCacheZakenTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
         )
+        cls.selectielijst_service = ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/zaken/api/v1",
+        )
 
     def test_no_zaken_in_db(self, m):
         Zaak.objects.all().delete()
@@ -117,7 +121,15 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with freeze_time("2024-08-29T16:00:00+02:00"):
+        with (
+            freeze_time("2024-08-29T16:00:00+02:00"),
+            patch(
+                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+                return_value=APIConfig(
+                    selectielijst_api_service=self.selectielijst_service
+                ),
+            ),
+        ):
             retrieve_and_cache_zaken_from_openzaak()
 
         zaak_request = m.request_history[0]
@@ -161,7 +173,15 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with freeze_time("2024-08-29T16:00:00+02:00"):
+        with (
+            freeze_time("2024-08-29T16:00:00+02:00"),
+            patch(
+                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+                return_value=APIConfig(
+                    selectielijst_api_service=self.selectielijst_service
+                ),
+            ),
+        ):
             retrieve_and_cache_zaken_from_openzaak()
 
         zaak_request = m.request_history[0]
@@ -198,7 +218,15 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with freeze_time("2024-08-29T16:00:00+02:00"):
+        with (
+            freeze_time("2024-08-29T16:00:00+02:00"),
+            patch(
+                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+                return_value=APIConfig(
+                    selectielijst_api_service=self.selectielijst_service
+                ),
+            ),
+        ):
             retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.count(), 1)
@@ -216,7 +244,13 @@ class RetrieveAndCacheZakenTest(TestCase):
         m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_1)
         m.get("http://zaken-api.nl/zaken/api/v1/zaken/?page=2", json=PAGE_2)
 
-        retrieve_and_cache_zaken_from_openzaak()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(
+                selectielijst_api_service=self.selectielijst_service
+            ),
+        ):
+            retrieve_and_cache_zaken_from_openzaak()
 
         self.assertTrue(
             Zaak.objects.filter(
@@ -251,7 +285,13 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        retrieve_and_cache_zaken_from_openzaak()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(
+                selectielijst_api_service=self.selectielijst_service
+            ),
+        ):
+            retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.all().count(), 1)
 
@@ -281,7 +321,13 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        retrieve_and_cache_zaken_from_openzaak()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(
+                selectielijst_api_service=self.selectielijst_service
+            ),
+        ):
+            retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.all().count(), 1)
 
@@ -351,8 +397,17 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
     # removes the permissions created with the data migration from the db.
     fixtures = ["permissions.json"]
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
     def setUp(self):
         super().setUp()
+
+        self.selectielijst_service = ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/api/v1/",
+        )
 
         self.addCleanup(get_resource.cache_clear)
 
@@ -360,10 +415,6 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
-        )
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1/",
         )
 
         m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_WITH_EXPAND)
@@ -377,7 +428,9 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
 
         with patch(
             "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+            return_value=APIConfig(
+                selectielijst_api_service=self.selectielijst_service
+            ),
         ):
             retrieve_and_cache_zaken_from_openzaak()
 
@@ -447,7 +500,11 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        retrieve_and_cache_zaken_from_openzaak()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=None),
+        ):
+            retrieve_and_cache_zaken_from_openzaak()
 
         zaak = Zaak.objects.get(identificatie="ZAAK-01")
 
@@ -491,8 +548,26 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
                 ]
             },
         )
+        m.get(
+            "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            json={
+                "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "nummer": 1,
+                "jaar": 2017,
+                "naam": "Instellen en inrichten organisatie",
+                "omschrijving": "Instellen en inrichten organisatie",
+                "toelichting": "Dit procestype betreft het instellen van een nieuw organisatieonderdeel of een nieuwe orgaan waar het orgaan in deelneemt. Dit procestype betreft eveneens het inrichten van het eigen orgaan. Dit kan kleinschalig plaatsvinden bijvoorbeeld het wijzigen van de uitvoering van een wettelijke taak of grootschalig wanneer er een organisatiewijziging wordt doorgevoerd.",
+                "procesobject": "De vastgestelde organisatie inrichting",
+            },
+        )
 
-        resync_zaken()
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(
+                selectielijst_api_service=self.selectielijst_service
+            ),
+        ):
+            resync_zaken()
 
         item.refresh_from_db()
 
@@ -524,7 +599,15 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             exc=requests.exceptions.ConnectTimeout("Oh noes!"),
         )
 
-        with self.assertRaises(requests.exceptions.ConnectTimeout):
+        with (
+            self.assertRaises(requests.exceptions.ConnectTimeout),
+            patch(
+                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+                return_value=APIConfig(
+                    selectielijst_api_service=self.selectielijst_service
+                ),
+            ),
+        ):
             resync_zaken()
 
         logs = TimelineLog.objects.all()
