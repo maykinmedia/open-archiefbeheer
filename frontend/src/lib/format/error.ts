@@ -11,6 +11,6 @@ export function collectErrors(errors: string | object): string[] {
 
   const flatten = Object.values(errors || {})
     .flat()
-    .filter((error) => error !== "session_expired");
+    .filter((error) => !["key", "code"].includes(error));
   return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
 }
