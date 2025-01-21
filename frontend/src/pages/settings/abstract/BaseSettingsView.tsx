@@ -42,9 +42,9 @@ export function BaseSettingsView<T extends object>({
   if (dataGridProps) {
     return (
       <ListTemplate
+        dataGridProps={{ height: "fill-available-space", ...dataGridProps }}
         secondaryNavigationItems={secondaryNavigationItems}
         sidebarItems={SIDEBAR_ITEMS}
-        dataGridProps={dataGridProps}
       >
         {children}
       </ListTemplate>

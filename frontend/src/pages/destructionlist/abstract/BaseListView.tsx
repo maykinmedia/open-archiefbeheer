@@ -179,10 +179,6 @@ export function BaseListView<T extends Zaak = Zaak>({
     return [...dynamicItems, ...fixedItems];
   }, [selectable, hasSelection, selectedZakenOnPage, selectionActions]);
 
-  const hasVerticalOverflow =
-    document.documentElement.scrollHeight >
-    document.documentElement.clientHeight;
-
   return (
     <ListTemplate<T, FilterTransformData>
       errors={errors}
@@ -196,11 +192,7 @@ export function BaseListView<T extends Zaak = Zaak>({
             explicit: true,
           },
           fieldsSelectable: true,
-          // If no vertical scrolling is applied, used (slower) 100% height to
-          // push paginator down at bottom of page.
-          // This triggers a "stickyfill" behaviour which is slower than native
-          // sticky which is not compatible with the percentage value.
-          height: hasVerticalOverflow ? undefined : "100%",
+          height: "fill-available-space",
           pageSize: 100,
           showPaginator: true,
           selectable: selectable === true,

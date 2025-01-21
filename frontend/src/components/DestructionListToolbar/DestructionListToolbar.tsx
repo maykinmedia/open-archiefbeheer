@@ -14,6 +14,7 @@ import {
   useAlert,
   useFormDialog,
 } from "@maykin-ui/admin-ui";
+import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 
 import { useAuditLog, useLatestReviewResponse, useWhoAmI } from "../../hooks";
@@ -27,6 +28,10 @@ import { formatDate } from "../../lib/format/date";
 import { collectErrors } from "../../lib/format/error";
 import { formatUser } from "../../lib/format/user";
 import {
+  getPreference,
+  setPreference,
+} from "../../lib/preferences/preferences";
+import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
 } from "../../pages/constants";
@@ -37,8 +42,8 @@ import {
 import { DestructionListReviewer } from "../DestructionListReviewer";
 
 export type DestructionListToolbarProps = {
-  title?: string;
   destructionList?: DestructionList;
+  title?: string;
   review?: Review;
 };
 
@@ -61,6 +66,25 @@ export function DestructionListToolbar({
   const alert = useAlert();
   const user = useWhoAmI();
   const revalidator = useRevalidator();
+  const [tabIndexState, setTabIndexState] = useState(0);
+  const [collapsedState, setCollapsedState] = useState<boolean | null>(null);
+
+  // Get collapsed state from preferences
+  useEffect(() => {
+    getPreference<boolean>("destructionListToolbarCollapsed").then(
+      (collapsed) => setCollapsedState(Boolean(collapsed)),
+    );
+  }, []);
+
+  // Update collapsed state in preferences
+  useEffect(() => {
+    // Skip initial run.
+    if (typeof collapsedState !== "boolean") {
+      return;
+    }
+    setPreference<boolean>("destructionListToolbarCollapsed", collapsedState);
+  }, [collapsedState]);
+
   const properties = (
     <Grid>
       {destructionList && (
@@ -138,6 +162,15 @@ export function DestructionListToolbar({
     },
   ];
 
+  const handleTabChange = (newTabIndex: number) => {
+    if (!collapsedState && tabIndexState === newTabIndex) {
+      setCollapsedState(true);
+    } else {
+      setCollapsedState(false);
+    }
+    setTabIndexState(newTabIndex);
+  };
+
   const handleSubmit = (data: SerializedFormData) => {
     if (!destructionList) {
       return;
@@ -164,7 +197,7 @@ export function DestructionListToolbar({
   };
 
   return (
-    <Body>
+    <Body className="destruction-list-toolbar">
       <H2>
         {title
           ? title
@@ -198,20 +231,24 @@ export function DestructionListToolbar({
             </>
           )}
       </H2>
-      <Tabs>
+      <Tabs onTabChange={handleTabChange}>
         <Tab id="gegevens" label="Gegevens">
-          {properties}
+          {!collapsedState && properties}
         </Tab>
         {logItems?.length ? (
           <Tab id="geschiedenis" label="Geschiedenis">
-            <DestructionListAuditLogHistory logItems={logItems} />
+            {!collapsedState && (
+              <DestructionListAuditLogHistory logItems={logItems} />
+            )}
           </Tab>
         ) : null}
         {logItemsReadyForFirstReview?.length ? (
           <Tab id="details" label="Details">
-            <DestructionListAuditLogDetails
-              readyForFirstReviewLogItem={logItemsReadyForFirstReview[0]}
-            />
+            {!collapsedState && (
+              <DestructionListAuditLogDetails
+                readyForFirstReviewLogItem={logItemsReadyForFirstReview[0]}
+              />
+            )}
           </Tab>
         ) : null}
       </Tabs>
