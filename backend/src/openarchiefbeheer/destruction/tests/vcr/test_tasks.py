@@ -11,7 +11,7 @@ from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
 
-from ...constants import DestructionListItemAction, ListRole, ListStatus
+from ...constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
 from ...tasks import process_review_response
 from ..factories import (
     DestructionListAssigneeFactory,
@@ -92,3 +92,64 @@ class ProcessResponseTest(VCRMixin, TestCase):
         zaak_data = response.json()
 
         self.assertEqual(zaak_data["archiefactiedatum"], "2024-10-01")
+
+
+@tag("vcr")
+class DestructionTest(VCRMixin, TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        cls.zrc_service = ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+            client_id="test-vcr",
+            secret="test-vcr",
+        )
+        cls.drc_service = ServiceFactory.create(
+            api_type=APITypes.drc,
+            api_root="http://localhost:8003/documenten/api/v1",
+            client_id="test-vcr",
+            secret="test-vcr",
+        )
+        cls.drc_service = ServiceFactory.create(
+            api_type=APITypes.brc,
+            api_root="http://localhost:8003/besluiten/api/v1",
+            client_id="test-vcr",
+            secret="test-vcr",
+        )
+
+    @reload_openzaak_fixtures()
+    def test_document_deleted(self):
+        """
+        Issue 594: Test deletion race conditions
+
+        After a relation object (ZIO/BIO) is deleted by OAB and before the
+        corresponding EIO is deleted by OAB, someone deletes the EIO in OZ.
+        """
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete, processing_status=InternalStatus.failed
+        )
+        zaak = Zaak.objects.get(identificatie="ZAAK-01")
+        item = DestructionListItemFactory.create(
+            zaak=zaak,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
+            internal_results={
+                "resources_to_delete": {
+                    "enkelvoudiginformatieobjecten": [
+                        # Doesn't exist in OZ
+                        "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0"
+                    ]
+                }
+            },
+        )
+
+        item.process_deletion()
+
+        item.refresh_from_db()
+
+        self.assertEqual(item.processing_status, InternalStatus.succeeded)
