@@ -61,14 +61,26 @@ def get_resource(url: str) -> dict | None:
     return data
 
 
-def process_expanded_data(zaken: list[dict]) -> list[dict]:
+def get_resource_with_prebuilt_client(url: str, client: APIClient) -> dict | None:
+    response = client.get(url)
+    response.raise_for_status()
+    data = response.json()
+
+    return data
+
+
+def process_expanded_data(
+    zaken: list[dict], selectielijst_api_client: APIClient
+) -> list[dict]:
     def expand_procestype(zaak: dict) -> dict:
         if "_expand" not in zaak:
             return zaak
 
         extra_data = zaak["_expand"]
         if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
-            expanded_procestype = get_resource(procestype_url)
+            expanded_procestype = get_resource_with_prebuilt_client(
+                procestype_url, selectielijst_api_client
+            )
             if expanded_procestype is not None:
                 extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 
@@ -391,3 +403,11 @@ def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
         results += page["results"]
 
     return results
+
+
+class NoClient:
+    def __enter__(self):
+        return None
+
+    def __exit__(self, *args):
+        return None
