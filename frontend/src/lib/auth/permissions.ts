@@ -166,4 +166,7 @@ export const canDownloadReport: DestructionListPermissionCheck = (
 export const canRenameDestructionList: DestructionListPermissionCheck = (
   user,
   destructionList,
-) => canStartDestructionList(user) && destructionList.status === "new";
+) => {
+  console.log("canRenameDestructionList", user, destructionList);
+  return canStartDestructionList(user) && destructionList.status === "new";
+};
