@@ -156,6 +156,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "openarchiefbeheer.middleware.CsrfTokenMiddleware",
+    "openarchiefbeheer.middleware.SessionExpiredMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "maykin_2fa.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

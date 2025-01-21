@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import override_settings
 
 from rest_framework import status
@@ -19,11 +20,29 @@ class LoginTests(APITestCase):
         login_url = reverse("api:authentication:login")
 
         client = CSRFAPIClient()
-
+        # Preventing the edge case for this test. The edge case is:
+        # 1. No session cookie
+        # 2. API returns a 403 forbidden
+        # 3. API Will instead return a "session expired" message
+        # Setting the session cookie will prevent this edge case so we can actually test the CSRF
+        session_cookie_name = settings.SESSION_COOKIE_NAME
+        client.cookies[session_cookie_name] = "test"
         response = client.post(login_url, data={})
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.json()["detail"], "CSRF Failed: CSRF cookie not set.")
+
+    def test_no_session_cookie(self):
+        login_url = reverse("api:authentication:login")
+
+        client = CSRFAPIClient()
+
+        response = client.post(login_url, data={})
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.json()["detail"], "Your session has expired, please log in again."
+        )
 
     def test_no_credentials_given(self):
         login_url = reverse("api:authentication:login")
