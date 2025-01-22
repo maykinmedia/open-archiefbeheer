@@ -27,6 +27,10 @@ export const AuditLogDetails: StoryObj<typeof DestructionListAuditLogDetails> =
             { label: "Zaaktype 1", value: "1" },
             { label: "Zaaktype 2", value: "2" },
           ],
+          resultaten: [
+            { label: "Resultaat 1", value: "1" },
+            { label: "Resultaat 2", value: "2" },
+          ],
         },
         user: userFactory({
           username: "johndoe",
