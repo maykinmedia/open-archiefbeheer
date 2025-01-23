@@ -47,7 +47,8 @@ def notify_author_of_failure(sender: DestructionList, **kwargs):
 
     notify(
         subject=config.subject_error_during_deletion,
-        body=config.body_error_during_deletion,
+        body_html=config.body_error_during_deletion_html,
+        body_text=config.body_error_during_deletion_text,
         context={"list_name": sender.name},
         recipients=[sender.author.email],
     )
@@ -62,7 +63,8 @@ def notify_co_reviewers(sender: DestructionList, **kwargs):
     config = EmailConfig.get_solo()
     notify(
         subject=config.subject_co_review_request,
-        body=config.body_co_review_request,
+        body_html=config.body_co_review_request_html,
+        body_text=config.body_co_review_request_text,
         context={"list_name": sender.name},
         recipients=[co_reviewer["user"].email for co_reviewer in added_co_reviewers],
     )

@@ -2,7 +2,7 @@ from base64 import b64encode
 from typing import Protocol
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
@@ -36,22 +36,27 @@ from .models import (
 )
 
 
-def notify(subject: str, body: str, context: dict, recipients: list[str]) -> None:
-    if body == "" or subject == "" or len(recipients) == 0:
+def notify(
+    subject: str, body_html: str, body_text: str, context: dict, recipients: list[str]
+) -> None:
+    if body_text == "" or body_html == "" or subject == "" or len(recipients) == 0:
         return
 
     backend = get_sandboxed_backend()
 
-    template = backend.from_string(body)
-    formatted_body = template.render(context=context)
+    template_html = backend.from_string(body_html)
+    template_text = backend.from_string(body_text)
+    html_content = template_html.render(context=context)
+    text_content = template_text.render(context=context)
 
-    send_mail(
+    message = EmailMultiAlternatives(
         subject=subject,
-        message=formatted_body,
+        body=text_content,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=recipients,
-        fail_silently=False,
+        to=recipients,
     )
+    message.attach_alternative(html_content, "text/html")
+    message.send()
 
 
 def notify_reviewer(
@@ -62,7 +67,8 @@ def notify_reviewer(
 
     notify(
         subject=config.subject_review_required,
-        body=config.body_review_required,
+        body_text=config.body_review_required_text,
+        body_html=config.body_review_required_html,
         context={"user_name": user.get_full_name(), "list_name": destruction_list.name},
         recipients=[user.email],
     )
@@ -78,7 +84,8 @@ def notify_author_positive_review(
 
     notify(
         subject=config.subject_positive_review,
-        body=config.body_positive_review,
+        body_text=config.body_positive_review_text,
+        body_html=config.body_positive_review_html,
         context={
             "user_name": user.get_full_name(),
             "list_name": destruction_list.name,
@@ -97,7 +104,8 @@ def notify_author_changes_requested(
 
     notify(
         subject=config.subject_changes_requested,
-        body=config.body_changes_requested,
+        body_text=config.body_changes_requested_text,
+        body_html=config.body_changes_requested_html,
         context={"user_name": user.get_full_name(), "list_name": destruction_list.name},
         recipients=[user.email],
     )
@@ -109,7 +117,8 @@ def notify_assignees_successful_deletion(destruction_list: DestructionList) -> N
 
     notify(
         subject=config.subject_successful_deletion,
-        body=config.body_successful_deletion,
+        body_text=config.body_successful_deletion_text,
+        body_html=config.body_successful_deletion_html,
         context={
             "list_name": destruction_list.name,
         },
