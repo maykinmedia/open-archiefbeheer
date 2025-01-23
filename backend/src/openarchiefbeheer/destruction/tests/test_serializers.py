@@ -1292,6 +1292,10 @@ class CoReviewerAssignmentSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
+        )
 
         request = factory.put("/foo")
         request.user = UserFactory.create()
@@ -1325,6 +1329,10 @@ class CoReviewerAssignmentSerializerTests(TestCase):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
         )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
+        )
 
         request = factory.put("/foo")
         request.user = UserFactory.create()
@@ -1352,6 +1360,10 @@ class CoReviewerAssignmentSerializerTests(TestCase):
     def test_validate_max_co_reviewers_invalid_partial(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
         )
         DestructionListAssigneeFactory.create_batch(
             5, destruction_list=destruction_list, role=ListRole.co_reviewer
@@ -1389,6 +1401,10 @@ class CoReviewerAssignmentSerializerTests(TestCase):
     def test_validate_max_co_reviewers_valid_partial(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
         )
         assignees = DestructionListAssigneeFactory.create_batch(
             5, destruction_list=destruction_list, role=ListRole.co_reviewer
