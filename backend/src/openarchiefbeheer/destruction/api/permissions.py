@@ -117,10 +117,12 @@ class CanAbortDestruction(permissions.BasePermission):
 
 
 class CanUpdateCoReviewers(permissions.BasePermission):
-    message = _("You are not a main reviewer.")
+    message = _("You are not allowed to update the co-reviewers.")
 
     def has_permission(self, request, view):
-        return request.user.has_perm("accounts.can_review_destruction")
+        return request.user.has_perm(
+            "accounts.can_review_destruction"
+        ) or request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status == ListStatus.ready_to_review
