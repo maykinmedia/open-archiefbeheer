@@ -593,7 +593,9 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await element.click()
 
         async def user_fills_form_field(self, page, label, value, role=None, index=0):
-            selects = await page.query_selector_all(f'.mykn-select[title="{label}"]')
+            selects = await page.query_selector_all(
+                f'.mykn-select[aria-label="{label}"]'
+            )
             try:
                 select = selects[index]
 

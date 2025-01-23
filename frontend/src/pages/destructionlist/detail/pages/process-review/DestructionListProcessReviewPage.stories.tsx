@@ -87,7 +87,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            Actie: "Aanpassen van selectielijstklasse",
+            "Aanpassen van selectielijstklasse": true,
             Selectielijstklasse: "1.2 - Ingesteld - blijvend_bewaren",
             Reden: "ProcessReview",
           },
@@ -104,7 +104,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            Actie: "Afwijzen van het voorstel",
+            "Afwijzen van het voorstel": true,
             Reden: "ProcessReview",
           },
         },
@@ -120,7 +120,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            Actie: "Afwijzen van het voorstel",
+            "Afwijzen van het voorstel": true,
             Reden: "ProcessReview",
           },
         },
@@ -133,6 +133,7 @@ export const ProcessReview: Story = {
         clickButton: { name: "Opnieuw indienen" },
       },
     });
+
     await fillForm({
       ...context,
       parameters: {
