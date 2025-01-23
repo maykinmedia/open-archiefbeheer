@@ -737,7 +737,8 @@ class DestructionListViewSetTest(APITestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
+                    body_review_required_text="Please review the list",
+                    body_review_required_html="Please review the list",
                 ),
             ),
         ):

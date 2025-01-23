@@ -922,7 +922,8 @@ class DestructionListReviewSerializerTests(TestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_positive_review="Review accepted",
-                    body_positive_review="Yuppiii reviewer accepted!",
+                    body_positive_review_text="Yuppiii reviewer accepted!",
+                    body_positive_review_html="Yuppiii reviewer accepted!",
                 ),
             ),
         ):
