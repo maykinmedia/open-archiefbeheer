@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { expect, within } from "@storybook/test";
+import { expect, userEvent, within } from "@storybook/test";
 
 import {
   ClearSessionStorageDecorator,
@@ -57,5 +57,14 @@ export const LandingPage: StoryObj<typeof Landing> = {
         "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/download_report",
       );
     }
+    const searchInput = await within(canvasElement).findByTitle("Zoeken");
+    expect(searchInput).toBeInTheDocument();
+    await userEvent.type(searchInput, "test");
+    searchInput.blur();
+
+    const button = await within(canvasElement).findByText(
+      "Vernietigingslijst opstellen",
+    );
+    await userEvent.click(button);
   },
 };
