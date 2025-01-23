@@ -66,7 +66,8 @@ export function DestructionListReviewer({
   const [assignReviewersFormState, setAssignReviewersFormState] = useState<{
     reviewer: string;
     coReviewer: string[];
-  }>({ reviewer: "", coReviewer: [] });
+    comment: string;
+  }>({ reviewer: "", coReviewer: [], comment: "" });
 
   /**
    * Pre-populates `assignCoReviewersFormValuesState` with the current
@@ -91,12 +92,11 @@ export function DestructionListReviewer({
    * @param values
    */
   const handleValidate = (values: TypedSerializedFormData) => {
-    // Ignore first run.
-    if (!Object.keys(values).length) {
-      return;
+    const _values = Object.assign({ ...assignReviewersFormState }, values);
+    if (Object.keys(_values).length) {
+      setAssignReviewersFormState(_values as typeof assignReviewersFormState);
     }
-    setAssignReviewersFormState(values as typeof assignReviewersFormState);
-    return validateForm(values, fields);
+    return validateForm(_values, fields);
   };
 
   /**
@@ -184,7 +184,7 @@ export function DestructionListReviewer({
       name: "comment",
       type: "text",
       required: true,
-      // value: assignReviewersFormState.comment,
+      value: assignReviewersFormState.comment,
     };
 
     const activeCoReviewerFields =
@@ -197,7 +197,7 @@ export function DestructionListReviewer({
         name: "coReviewer",
         required: false,
         type: "string",
-        value: assignReviewersFormState.coReviewer[i],
+        value: assignReviewersFormState.coReviewer?.[i],
         options: coReviewers
           // Don't show the co-reviewer as option if:
           // - The co-reviewer is already selected AND
@@ -273,7 +273,7 @@ export function DestructionListReviewer({
       "Toewijzen",
       "Annuleren",
       handleSubmit,
-      undefined,
+      () => setAssignCoReviewerModalOpenState(false),
       {
         allowClose: true,
         open: assignCoReviewerModalOpenState,

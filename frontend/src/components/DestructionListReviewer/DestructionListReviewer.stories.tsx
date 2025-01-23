@@ -7,7 +7,7 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../.storybook/decorators";
-import { fillForm } from "../../../.storybook/playFunctions";
+import { clickButton, fillForm } from "../../../.storybook/playFunctions";
 import { coReviewFactory } from "../../fixtures/coReview";
 import { destructionListFactory } from "../../fixtures/destructionList";
 import {
@@ -540,5 +540,125 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
     await canvas.findByText(
       "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
     );
+  },
+};
+
+export const ReopeningModalPreservesState: Story = {
+  args: { destructionList: DESTRUCTION_LIST_NEW },
+  parameters: {
+    moduleMock: {
+      mock: () => {
+        const reassignDestructionList = createMock(
+          libDestructionList,
+          "reassignDestructionList",
+        );
+        reassignDestructionList.mockImplementation(
+          async () => ({}) as Response,
+        );
+
+        const updateCoReviewers = createMock(
+          libDestructionList,
+          "updateCoReviewers",
+        );
+        updateCoReviewers.mockImplementation(async () => ({}) as Response);
+
+        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
+        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
+
+        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+      },
+    },
+  },
+  play: async (context) => {
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: {
+          name: "Beoordelaar bewerken",
+        },
+      },
+    });
+
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            Beoordelaar: "Proces ei Genaar (Proces ei Genaar)",
+          },
+          submitForm: false,
+        },
+      },
+    });
+
+    await expect(
+      await within(context.canvasElement).findByRole("button", {
+        name: "Toewijzen",
+      }),
+    ).toBeDisabled();
+
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: {
+          name: "Annuleren",
+        },
+      },
+    });
+
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: {
+          name: "Beoordelaar bewerken",
+        },
+      },
+    });
+
+    await expect(
+      await within(context.canvasElement).findByRole("button", {
+        name: "Toewijzen",
+      }),
+    ).toBeDisabled();
+
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            Reden: "gh-636",
+          },
+          submitForm: false,
+        },
+      },
+    });
+
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: {
+          name: "Annuleren",
+        },
+      },
+    });
+
+    await clickButton({
+      ...context,
+      parameters: {
+        clickButton: {
+          name: "Beoordelaar bewerken",
+        },
+      },
+    });
+
+    await expect(
+      await within(context.canvasElement).findByLabelText("Reden"),
+    ).toHaveValue("gh-636");
+
+    await expect(
+      await within(context.canvasElement).findByRole("button", {
+        name: "Toewijzen",
+      }),
+    ).toBeEnabled();
   },
 };
