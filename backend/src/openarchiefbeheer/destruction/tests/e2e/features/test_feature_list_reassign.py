@@ -4,12 +4,11 @@ from django.test import tag
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
-from ....constants import ListStatus
+from openarchiefbeheer.destruction.constants import ListStatus
 
 
 @tag("e2e")
-@tag("gh-459")
-class Issue459UpdateReviewer(GherkinLikeTestCase):
+class FeatureListReassignTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_updates_reviewer(self):
         async with browser_page() as page:
             record_manger = await self.given.record_manager_exists()
