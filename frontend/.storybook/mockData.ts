@@ -97,6 +97,13 @@ export const MOCKS = {
         name: "My ninth destruction list",
         status: "deleted",
       }),
+      // No planned destruction date
+      destructionListFactory({
+        name: "My tenth destruction list",
+        status: "ready_to_delete",
+        processingStatus: "processing",
+        plannedDestructionDate: null,
+      }),
     ],
   },
   OIDC_INFO: {
