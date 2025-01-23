@@ -734,6 +734,36 @@ class GherkinLikeTestCase(PlaywrightTestCase):
         async def path_should_be(self, page, path):
             await self.url_should_be(page, self.testcase.live_server_url + path)
 
+        async def button_should_be_enabled(self, page, name, index=0):
+            element = page.get_by_role("button", name=name)
+            await expect(element).to_be_enabled()
+
+        async def button_should_be_disabled(self, page, name, index=0):
+            element = page.get_by_role("button", name=name)
+            await expect(element).to_be_disabled()
+
+        async def form_field_should_have_value(
+            self, page, label, value, role=None, index=0
+        ):
+            selects = await page.query_selector_all(
+                f'.mykn-select[aria-label="{label}"]'
+            )
+            try:
+                select = selects[index]
+
+                if select:  # has content so select?
+                    raise NotImplementedError("Selects are not supported yet")
+            except IndexError:
+                pass
+
+            if role:
+                locator = page.get_by_label(label).and_(page.get_by_role("textbox"))
+            else:
+                locator = page.get_by_label(label)
+
+            elements = await locator.all()
+            await expect(elements[index]).to_have_value(value)
+
         async def url_should_be(self, page, url):
             await expect(page).to_have_url(url)
 
