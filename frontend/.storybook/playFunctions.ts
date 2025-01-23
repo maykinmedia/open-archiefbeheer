@@ -227,8 +227,9 @@ export const fillForm: PlayFunction<ReactRenderer> = async (context) => {
   await waitFor(() => expect(form).toBeVisible());
 
   for (const [name, value] of Object.entries(formValues)) {
-    const fields: (HTMLInputElement | HTMLSelectElement)[] =
-      await within(form).findAllByLabelText(name);
+    const fields: (HTMLInputElement | HTMLSelectElement)[] = await within(
+      form,
+    ).findAllByLabelText(new RegExp(`${name}\\*?`));
 
     const field =
       fields.length > 1
