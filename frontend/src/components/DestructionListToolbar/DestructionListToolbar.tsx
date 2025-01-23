@@ -223,6 +223,7 @@ export function DestructionListToolbar({
                     handleSubmit,
                     undefined,
                     { allowClose: true },
+                    { showRequiredExplanation: false },
                   );
                 }}
               >

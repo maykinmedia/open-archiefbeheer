@@ -116,9 +116,10 @@ export function useSecondaryNavigation(): ToolbarItem[] {
           buttonProps: {
             variant: "danger",
           },
+          role: "form",
+          showRequiredExplanation: false,
           validate: validateName,
           validateOnChange: true,
-          role: "form",
         },
       ),
   };
@@ -298,6 +299,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         undefined,
         {
           role: "form",
+          showRequiredExplanation: false,
           validateOnChange: true,
         },
       ),
@@ -352,9 +354,10 @@ export function useSecondaryNavigation(): ToolbarItem[] {
           buttonProps: {
             variant: "danger",
           },
+          role: "form",
+          showRequiredExplanation: false,
           validate: validateName,
           validateOnChange: true,
-          role: "form",
         },
       ),
   };

@@ -332,14 +332,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
                 <Form<DestructionListProcessZaakReviewModalFormType>
                   aria-label={`${zaak?.identificatie} muteren`}
                   autoComplete="off"
-                  justify="stretch"
-                  noValidate
                   fields={getFields()}
-                  labelSubmit={`${zaak?.identificatie} muteren`}
-                  validateOnChange={true}
-                  validate={validate}
-                  onSubmit={handleSubmit}
                   initialValues={initialFormState}
+                  justify="stretch"
+                  labelSubmit={`${zaak?.identificatie} muteren`}
+                  noValidate
+                  validate={validate}
+                  validateOnChange={true}
+                  showRequiredExplanation={false}
+                  onSubmit={handleSubmit}
                 />
               </Column>
             </Grid>
