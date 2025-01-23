@@ -45,6 +45,8 @@ export function useFields<T extends Zaak = Zaak>(
   (
     filterData: Partial<TypedSerializedFormData<keyof T & string>>,
   ) => FilterTransformReturnType<T>,
+  Record<string, string>,
+  () => void,
 ] {
   const [fieldSelectionState, setFieldSelectionState] =
     useState<FieldSelection>();
@@ -53,7 +55,7 @@ export function useFields<T extends Zaak = Zaak>(
       setFieldSelectionState(fieldSelection),
     );
   }, []);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
   const zaaktypeChoices = useZaaktypeChoices(
     destructionList,
@@ -62,8 +64,9 @@ export function useFields<T extends Zaak = Zaak>(
   );
 
   // The raw, unfiltered configuration of the available base fields.
+  // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
-  const fields: TypedField<T>[] = [
+  const fields: (TypedField<T> & { filterLookups?: string[] })[] = [
     {
       name: "identificatie",
       filterLookup: "identificatie__icontains",
@@ -96,6 +99,7 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "startdatum",
       type: "daterange",
+      filterLookups: ["startdatum__gte", "startdatum__lte"],
       filterValue:
         searchParams.get("startdatum__gte") &&
         searchParams.get("startdatum__lte")
@@ -108,6 +112,7 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "einddatum",
       type: "daterange",
+      filterLookups: ["einddatum__gte", "einddatum__lte"],
       filterValue:
         searchParams.get("einddatum__gte") && searchParams.get("einddatum__lte")
           ? `${searchParams.get("einddatum__gte")}/${searchParams.get("einddatum__lte")}`
@@ -162,6 +167,7 @@ export function useFields<T extends Zaak = Zaak>(
       name: "archiefactiedatum",
       type: "daterange",
       width: "130px",
+      filterLookups: ["archiefactiedatum__gte", "archiefactiedatum__lte"],
       filterValue:
         searchParams.get("archiefactiedatum__gte") &&
         searchParams.get("archiefactiedatum__lte")
@@ -206,6 +212,17 @@ export function useFields<T extends Zaak = Zaak>(
     ...(extraFields || []),
   ];
 
+  const filterLookupValues = [
+    ...new Set(
+      fields
+        .flatMap((field) => [
+          field.filterLookup,
+          ...(field.filterLookups || []),
+        ])
+        .filter(Boolean),
+    ),
+  ];
+
   const getActiveFields = useCallback(() => {
     return fields.map((field) => {
       const isActiveFromStorage =
@@ -214,9 +231,37 @@ export function useFields<T extends Zaak = Zaak>(
         typeof isActiveFromStorage === "undefined"
           ? field.active !== false
           : isActiveFromStorage;
-      return { ...field, active: isActive } as TypedField;
+      return { ...field, active: isActive };
     });
   }, [fields, fieldSelectionState]);
+
+  /**
+   * Function to reset all the filters
+   * It will concat all the `filterLookup` and `filterLookups` values from the `fields` array and remove them from the searchParams
+   */
+  const resetFilters = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    filterLookupValues.forEach((filterLookup) => {
+      if (!filterLookup) return;
+      newSearchParams.delete(filterLookup);
+    });
+    setSearchParams(newSearchParams);
+  };
+
+  /**
+   * A function to return the current active filters
+   */
+  const getActiveFilters = () => {
+    const activeFilters: Record<string, string> = {};
+    filterLookupValues.forEach((filterLookup) => {
+      if (!filterLookup) return;
+      const value = searchParams.get(filterLookup);
+      if (value) {
+        activeFilters[filterLookup] = value;
+      }
+    });
+    return activeFilters;
+  };
 
   /**
    * Gets called when the fields selection is changed.
@@ -267,5 +312,11 @@ export function useFields<T extends Zaak = Zaak>(
     };
   };
 
-  return [getActiveFields(), setFields, filterTransform];
+  return [
+    getActiveFields(),
+    setFields,
+    filterTransform,
+    getActiveFilters(),
+    resetFilters,
+  ];
 }

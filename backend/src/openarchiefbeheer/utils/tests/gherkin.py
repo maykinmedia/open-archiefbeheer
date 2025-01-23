@@ -723,6 +723,14 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             element = page.locator(f"text={text}")
             await expect(element.nth(0)).to_be_visible(timeout=timeout)
 
+        async def page_should_not_contain_text(self, page, text, timeout=None):
+            if timeout is None:
+                timeout = 500 if self.is_inverted else 10000
+
+            # Check if the text is not present within the timeout
+            element = page.locator(f"text={text}")
+            await expect(element).to_have_count(0, timeout=timeout)
+
         async def page_should_contain_element_with_title(
             self, page, title, timeout=5000
         ):
@@ -771,3 +779,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             rows = await locator.locator("tbody").locator("tr").all()
 
             self.testcase.assertEqual(len(rows), number)
+
+        async def input_field_should_be_empty(self, page, placeholder):
+            locator = page.get_by_placeholder(placeholder)
+            await expect(locator).to_have_value("")
