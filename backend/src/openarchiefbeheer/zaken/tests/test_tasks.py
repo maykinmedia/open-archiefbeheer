@@ -1,6 +1,7 @@
 from datetime import date
 from unittest.mock import patch
 
+from django.core.cache import cache
 from django.test import TestCase, TransactionTestCase, tag
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +14,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.utils.tests.get_queries import executed_queries
 
 from ..models import Zaak
 from ..tasks import resync_zaken, retrieve_and_cache_zaken_from_openzaak
@@ -620,4 +622,46 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             logs[1].get_message(),
             _("Resyncing of the cases has failed with the following error: %(error)s")
             % {"error": "requests.exceptions.ConnectTimeout: Oh noes!\n"},
+        )
+
+
+class RetrieveCachedZakenQueryTest(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+
+    @Mocker()
+    def test_queries_retrieve_zaken(self, m):
+        ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/api/v1/",
+        )
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://zaken-api.nl/zaken/api/v1",
+        )
+
+        m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_WITH_EXPAND)
+        m.get(
+            "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            json={
+                "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "nummer": 1,
+            },
+        )
+
+        with executed_queries() as q:
+            resync_zaken()
+
+        queries = q.captured_queries
+
+        self.assertEqual(
+            1, len([q for q in queries if 'SELECT "zgw_consumers_service"' in q["sql"]])
+        )
+        self.assertEqual(
+            1, len([q for q in queries if 'SELECT "config_apiconfig"' in q["sql"]])
+        )
+        self.assertEqual(
+            1, len([q for q in queries if 'INSERT INTO "zaken_zaak"' in q["sql"]])
         )
