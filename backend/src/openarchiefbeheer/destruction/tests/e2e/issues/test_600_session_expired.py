@@ -8,9 +8,16 @@ from ....constants import ListStatus
 
 
 @tag("e2e")
-@override_settings(SESSION_COOKIE_AGE=1)
+@override_settings(SESSION_COOKIE_AGE=2)
 class Issue600SessionExpired(GherkinLikeTestCase):
     async def test_session_expired(self):
+        """Test error message on page with polling
+
+        If the session has expired, the polling will receive a 403 with
+        a specific error.
+        Note: the SESSION_COOKIE_AGE setting needs to give enough time to the 
+        test to reach the detail page of the destruction list.
+        """
         async with browser_page() as page:
             await self.given.list_exists(
                 name="Destruction list to click",
