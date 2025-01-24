@@ -21,6 +21,9 @@ docker
 # So for the tests we use openpyxl to check the created excel files.
 openpyxl 
 
+# For printing results of performance tests
+tabulate
+
 # Documentation
 sphinx
 sphinx_rtd_theme
