@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase, tag
 
 from playwright.async_api import async_playwright, expect
+from pytest import skip
 from tabulate import tabulate
 
 from openarchiefbeheer.utils.tests.gherkin import GerkinMixin
@@ -25,6 +26,7 @@ class PerformanceTest(GerkinMixin, TestCase):
         print(tabulate(results, headers=["Method", "URL", "Duration (ms)"]))
         results.clear()
 
+    @skip("Only used for performance tests")
     async def test_performance(self):
         expect.set_options(timeout=30_000)
 
