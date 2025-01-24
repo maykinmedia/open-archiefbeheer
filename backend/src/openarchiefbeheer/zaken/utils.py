@@ -10,6 +10,7 @@ from ape_pie import APIClient
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
 from furl import furl
+from glom import glom
 from requests import HTTPError
 from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
@@ -54,15 +55,21 @@ def get_resource(url: str) -> dict | None:
 
     client = build_client(service)
     with client:
-        response = client.get(url)
+        response = client.get(
+            url,
+            timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
+        )
         response.raise_for_status()
         data = response.json()
 
     return data
 
 
-def get_resource_with_prebuilt_client(url: str, client: APIClient) -> dict | None:
-    response = client.get(url)
+def get_resource_with_prebuilt_client(client: APIClient, url: str) -> dict | None:
+    response = client.get(
+        url,
+        timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
+    )
     response.raise_for_status()
     data = response.json()
 
@@ -72,22 +79,38 @@ def get_resource_with_prebuilt_client(url: str, client: APIClient) -> dict | Non
 def process_expanded_data(
     zaken: list[dict], selectielijst_api_client: APIClient
 ) -> list[dict]:
-    def expand_procestype(zaak: dict) -> dict:
+    def expand_procestype(retrieved_procestypen: dict, zaak: dict) -> dict:
         if "_expand" not in zaak:
             return zaak
 
         extra_data = zaak["_expand"]
         if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
-            expanded_procestype = get_resource_with_prebuilt_client(
-                procestype_url, selectielijst_api_client
-            )
-            if expanded_procestype is not None:
+            if (
+                expanded_procestype := retrieved_procestypen.get(procestype_url)
+            ) is not None:
                 extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 
         return zaak
 
+    procestypen_urls = set(
+        [
+            glom(zaak, "_expand.zaaktype.selectielijst_procestype")
+            for zaak in zaken
+            if glom(zaak, "_expand.zaaktype.selectielijst_procestype", default=None)
+        ]
+    )
+    retrieve_procestype_fn = partial(
+        get_resource_with_prebuilt_client, selectielijst_api_client
+    )
+
     with parallel() as executor:
-        processed_zaken = list(executor.map(expand_procestype, zaken))
+        procestypen = list(executor.map(retrieve_procestype_fn, procestypen_urls))
+        expand_procestype_fn = partial(
+            expand_procestype,
+            {procestype["url"]: procestype for procestype in procestypen},
+        )
+
+        processed_zaken = list(executor.map(expand_procestype_fn, zaken))
 
     return processed_zaken
 
