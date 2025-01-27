@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import Max
 
+from ape_pie import APIClient
+from requests.adapters import HTTPAdapter, Retry
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -22,9 +24,21 @@ from .utils import NoClient, pagination_helper, process_expanded_data
 logger = logging.getLogger(__name__)
 
 
+def configure_retry(client: APIClient) -> APIClient:
+    retries = Retry(
+        total=settings.RETRY_TOTAL,
+        backoff_factor=settings.RETRY_BACKOFF_FACTOR,
+        status_forcelist=settings.RETRY_STATUS_FORCELIST,
+    )
+    client.adapters["http://"] = HTTPAdapter(max_retries=retries)
+    client.adapters["https://"] = HTTPAdapter(max_retries=retries)
+    return client
+
+
 def retrieve_and_cache_zaken(is_full_resync=False):
     zrc_service = Service.objects.get(api_type=APITypes.zrc)
     zrc_client = build_client(zrc_service)
+    zrc_client = configure_retry(zrc_client)
 
     config = APIConfig.get_solo()
     service = config.selectielijst_api_service

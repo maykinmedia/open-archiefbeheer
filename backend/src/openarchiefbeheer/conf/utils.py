@@ -18,7 +18,10 @@ def config(option: str, default=undefined, *args, **kwargs):
     """
     if "split" in kwargs:
         kwargs.pop("split")
-        kwargs["cast"] = Csv()
+        csv_kwargs = {}
+        if csv_cast := kwargs.pop("csv_cast", None):
+            csv_kwargs.update({"cast": csv_cast})
+        kwargs["cast"] = Csv(**csv_kwargs)
         if default == []:
             default = ""
 
