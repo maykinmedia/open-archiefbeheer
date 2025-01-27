@@ -385,3 +385,44 @@ class CoReviewersViewSetTest(APITestCase):
         )
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    @tag("gh-637")
+    def test_record_manager_assigns_themselves(self):
+        record_manager = UserFactory.create(
+            username="record_manager",
+            post__can_start_destruction=True,
+            post__can_co_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review,
+            name="List to test assignement errors",
+            author=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.author,
+            user=record_manager,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        response = self.client.put(
+            reverse(
+                "api:co-reviewers-list",
+                kwargs={"destruction_list_uuid": destruction_list.uuid},
+            ),
+            data={
+                "comment": "test",
+                "add": [{"user": record_manager.pk}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["add"][0]["user"][0],
+            _("The author of a list cannot be assigned as a co-reviewer."),
+        )

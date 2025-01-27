@@ -94,10 +94,16 @@ class CoReviewerSerializer(serializers.ModelSerializer):
         if self.parent.instance:
             return attrs
 
-        main_reviewer = self.parent.context["request"].user
+        destruction_list = self.context["destruction_list"]
+        main_reviewer = destruction_list.assignees.get(role=ListRole.main_reviewer)
         if main_reviewer.pk == attrs["user"].pk:
             raise ValidationError(
                 {"user": _("The main reviewer cannot also be a co-reviewer.")}
+            )
+
+        if destruction_list.author.pk == attrs["user"].pk:
+            raise ValidationError(
+                {"user": _("The author of a list cannot be assigned as a co-reviewer.")}
             )
 
         return attrs
