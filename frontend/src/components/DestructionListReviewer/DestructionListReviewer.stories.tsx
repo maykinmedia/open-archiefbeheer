@@ -1,7 +1,7 @@
 import { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { PlayFunction } from "@storybook/types";
 import { createMock, getMock } from "storybook-addon-module-mock";
+import { PlayFunction } from "storybook/internal/types";
 
 import {
   ClearSessionStorageDecorator,
