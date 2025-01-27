@@ -221,6 +221,9 @@ def delete_object_and_store_result(
 ) -> None:
     try:
         response = callable(timeout=settings.REQUESTS_DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            # Could not be found, nothing to delete
+            return
         response.raise_for_status()
     except HTTPError as exc:
         if http_error_handler:
@@ -233,9 +236,13 @@ def delete_object_and_store_result(
 
 def handle_delete_with_pending_relations(exc: HTTPError) -> None:
     response = exc.response
-    if not response.status_code == status.HTTP_204_NO_CONTENT and not (
+    has_pending_relations = (
         response.status_code == status.HTTP_400_BAD_REQUEST
         and response.json()["invalidParams"][0]["code"] == "pending-relations"
+    )
+    if (
+        not response.status_code == status.HTTP_204_NO_CONTENT
+        and not has_pending_relations
     ):
         response.raise_for_status()
 
