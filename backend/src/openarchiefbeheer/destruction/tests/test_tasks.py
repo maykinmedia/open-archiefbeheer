@@ -131,7 +131,8 @@ class ProcessReviewResponseTests(TestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
+                    body_review_required_text="Please review the list",
+                    body_review_required_html="Please review the list",
                 ),
             ),
         ):
@@ -188,7 +189,8 @@ class ProcessReviewResponseTests(TestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
+                    body_review_required_text="Please review the list",
+                    body_review_required_html="Please review the list",
                 ),
             ),
         ):
@@ -615,7 +617,8 @@ class ProcessDeletingZakenTests(TestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_successful_deletion="DELETED!",
-                    body_successful_deletion="Wohoo deleted list",
+                    body_successful_deletion_text="Wohoo deleted list",
+                    body_successful_deletion_html="Wohoo deleted list",
                 ),
             ),
             patch("openarchiefbeheer.destruction.utils.create_zaak_for_report"),

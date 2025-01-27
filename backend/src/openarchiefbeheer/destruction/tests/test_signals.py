@@ -19,7 +19,8 @@ class SignalsTests(TestCase):
         "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
         return_value=EmailConfig(
             subject_changes_requested="Changes requested",
-            body_changes_requested="Changes requested",
+            body_changes_requested_text="Changes requested",
+            body_changes_requested_html="Changes requested",
         ),
     )
     def test_no_email_sent_if_not_review_created(self, m):
@@ -52,7 +53,8 @@ class SignalsTests(TestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_error_during_deletion="FAILURE!!",
-                    body_error_during_deletion="ERROR AAAh!",
+                    body_error_during_deletion_text="ERROR AAAh!",
+                    body_error_during_deletion_html="ERROR AAAh!",
                 ),
             ),
         ):

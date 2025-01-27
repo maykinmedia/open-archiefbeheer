@@ -20,6 +20,27 @@ Hier kun je de onderwerpen en de emailteksten voor de emails die worden gestuurd
 - De record manager als een reviewer aanpassingen heeft aangevraagd op een lijst.
 - De record manager en de reviewers als een lijst succesvol is vernietigd.
 
+Tekst en HTML sjablonen moeten geconfigureerd worden voor elke email. Een voorbeeld voor de email
+die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zou kunnen is:
+
+- Tekst:
+
+.. code:: 
+
+   Beste {{ user_name }},
+   
+   Uw accordering van een vernietigingslijst wordt gevraagd. 
+   U kunt hier {% destruction_list_link list_name 'review' %} de lijst bekijken om te controleren of de zaken op de lijst daadwerkelijk vernietigd kunnen worden.
+
+- HTML:
+
+.. code:: 
+
+   Beste {{ user_name }},
+   
+   Uw accordering van een vernietigingslijst wordt gevraagd. 
+   U kunt <a href="{% destruction_list_link list_name 'review' %}">hier</a> de lijst bekijken om te controleren of de zaken op de lijst daadwerkelijk vernietigd kunnen worden.
+
 Beschikbare Sjabloonvariabelen
 ------------------------------
 
@@ -40,5 +61,5 @@ Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
    :widths: 100, 70
 
    "``{{ list_name }}``",   "Geeft de naam van de vernietigingslijst."
-   "``{{ user }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de persoon die de email ontvangt."
+   "``{{ user_name }}``",   "Geeft de voornaam en de achternaam van de persoon die de email ontvangt."
    "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de reviewer van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de reviewer."

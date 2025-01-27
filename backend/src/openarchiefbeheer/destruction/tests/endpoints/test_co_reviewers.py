@@ -93,7 +93,8 @@ class CoReviewersViewSetTest(APITestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_co_review_request="Please co-review!",
-                    body_co_review_request="You have been invited to co-review.",
+                    body_co_review_request_text="You have been invited to co-review.",
+                    body_co_review_request_html="You have been invited to co-review.",
                 ),
             ),
         ):
@@ -208,7 +209,8 @@ class CoReviewersViewSetTest(APITestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_co_review_request="Please co-review!",
-                    body_co_review_request="You have been invited to co-review.",
+                    body_co_review_request_text="You have been invited to co-review.",
+                    body_co_review_request_html="You have been invited to co-review.",
                 ),
             ),
         ):

@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
@@ -706,6 +707,7 @@ class DestructionListViewSetTest(APITestCase):
             _("The chosen user does not have the permission to review a final list."),
         )
 
+    @override_settings(FRONTEND_URL="https://openarchiefbeheer.nl/")
     def test_mark_as_ready_to_review(self):
         record_manager = UserFactory.create(
             username="dolly123",
@@ -737,7 +739,8 @@ class DestructionListViewSetTest(APITestCase):
                 "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
                 return_value=EmailConfig(
                     subject_review_required="Destruction list review request",
-                    body_review_required="Please review the list",
+                    body_review_required_text="Please review the list here: {% destruction_list_link list_name 'review' %}",
+                    body_review_required_html="Please review the list <a href=\"{% destruction_list_link list_name 'review' %}\">here</a>.",
                 ),
             ),
         ):
@@ -759,6 +762,15 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(len(sent_mail), 1)
         self.assertEqual(sent_mail[0].subject, "Destruction list review request")
         self.assertEqual(sent_mail[0].recipients(), [reviewer.user.email])
+        self.assertEqual(
+            sent_mail[0].body,
+            f"Please review the list here: https://openarchiefbeheer.nl/destruction-lists/{destruction_list.uuid}/review",
+        )
+        self.assertEqual(
+            sent_mail[0].alternatives[0][0],
+            f'Please review the list <a href="https://openarchiefbeheer.nl/destruction-lists/{destruction_list.uuid}/review">here</a>.',
+        )
+        self.assertEqual(sent_mail[0].alternatives[0][1], "text/html")
 
         logs = TimelineLog.objects.for_object(destruction_list)
 
