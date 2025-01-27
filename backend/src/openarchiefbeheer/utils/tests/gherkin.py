@@ -593,9 +593,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             await element.click()
 
         async def user_fills_form_field(self, page, label, value, role=None, index=0):
-            selects = await page.query_selector_all(
-                f'.mykn-select[aria-label="{label}"]'
-            )
+            selects = await page.query_selector_all(f'.mykn-select[title="{label}"]')
             try:
                 select = selects[index]
 
@@ -675,7 +673,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
                 return ArchiveConfig.get_solo()
 
             archive_config = await get_archive_config()
-            archive_config.arefresh_from_db()
+            await archive_config.arefresh_from_db()
 
             for key, value in kwargs.items():
                 self.testcase.assertEqual(getattr(archive_config, key), value)
@@ -701,7 +699,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             self, page, destruction_list, assignee
         ):
             await destruction_list.arefresh_from_db()
-            list_assignee = destruction_list.assignees.aget(pk=assignee.pk)
+            list_assignee = await destruction_list.assignees.aget(pk=assignee.pk)
             self.testcase.assertTrue(list_assignee)
 
         async def list_should_have_status(self, page, destruction_list, status):
