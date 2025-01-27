@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../.storybook/decorators";
 import { MOCKS } from "../../../../.storybook/mockData";
+import { zaakFactory } from "../../../fixtures";
 import { auditLogFactory } from "../../../fixtures/auditLog";
 import {
   destructionListAssigneeFactory,
@@ -54,6 +55,7 @@ const CO_REVIEWER = destructionListAssigneeFactory({
 });
 
 const DESTRUCTION_LIST = destructionListFactory({
+  uuid: "00000000-0000-0000-0000-000000000000",
   status: "ready_to_review",
   assignee: REVIEWER.user,
   assignees: [
@@ -150,13 +152,23 @@ const meta: Meta<typeof DestructionListReviewPage> = {
         url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
         method: "POST",
         status: 200,
-        response: reviewFactory(),
+        response: {
+          [zaakFactory().url]: {
+            selected: true,
+            detail: { approved: true, comment: "test" },
+          },
+        },
       },
       {
         url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
         method: "PATCH",
         status: 200,
-        response: reviewFactory(),
+        response: {
+          [zaakFactory().url]: {
+            selected: true,
+            detail: { approved: true, comment: "test" },
+          },
+        },
       },
     ],
   },
@@ -314,5 +326,48 @@ export const CoReviewerCanCompleteCoReview: Story = {
     await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await expect(submit).toBeEnabled();
+  },
+};
+
+export const PollExternalChanges: Story = {
+  parameters: {
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
+        method: "POST",
+        status: 200,
+        response: {
+          [zaakFactory().url]: {
+            selected: true,
+            detail: { approved: false, comment: "test" },
+          },
+        },
+      },
+      {
+        url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
+        method: "PATCH",
+        status: 200,
+        response: {
+          [zaakFactory().url]: {
+            selected: true,
+            detail: { approved: true, comment: "test" },
+          },
+        },
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const approveButton = await canvas.findByRole("button", {
+      name: "Accorderen",
+    });
+    await userEvent.click(approveButton, { delay: 10 });
+    expect(canvas.queryByText("Uitgezonderd")).toBeNull();
+    await waitFor(
+      async () =>
+        expect(canvas.queryByText("Uitgezonderd")).toBeInTheDocument(),
+      { timeout: 5000 },
+    );
   },
 };
