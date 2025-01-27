@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Javascript
         run: |
-          npm ci --legacy-peer-deps
+          npm ci
           npm run lint
           CI=false npm run build
         env: 
