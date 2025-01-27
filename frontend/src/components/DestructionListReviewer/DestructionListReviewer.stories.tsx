@@ -525,7 +525,7 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
 
     const dialog = await canvas.findByRole("dialog");
 
-    const beoordelaar = await canvas.findByLabelText("Beoordelaar");
+    const beoordelaar = await canvas.findByLabelText("Beoordelaar*");
     await userEvent.click(beoordelaar, { delay: 10 });
     const options = await within(dialog).findAllByText(
       "Beoor del Laar 2 (Beoor del Laar 2)",

@@ -1,8 +1,6 @@
-import { expect } from "@storybook/test";
 import fetchMock from "jest-fetch-mock";
 
-import { coReviewFactory } from "../../fixtures/coReview";
-import { destructionListFactory } from "../../fixtures/destructionList";
+import { coReviewFactory, destructionListFactory } from "../../fixtures";
 import { createCoReview, listCoReviews } from "./coReview";
 
 describe("coReview", () => {

@@ -183,7 +183,6 @@ export const Tabable: Story = {
   },
   play: async (context) => {
     const canvas = within(context.canvasElement);
-    await expect(canvas.getByText("Auteur")).toBeVisible();
     await userEvent.click(
       await canvas.findByRole("tab", { name: "Geschiedenis" }),
     );

@@ -699,7 +699,7 @@ class GherkinLikeTestCase(PlaywrightTestCase):
             self, page, destruction_list, assignee
         ):
             await destruction_list.arefresh_from_db()
-            list_assignee = await destruction_list.assignees.aget(pk=assignee.pk)
+            list_assignee = await destruction_list.assignees.aget(user__pk=assignee.pk)
             self.testcase.assertTrue(list_assignee)
 
         async def list_should_have_status(self, page, destruction_list, status):
