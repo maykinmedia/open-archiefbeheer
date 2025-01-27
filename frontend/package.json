@@ -88,6 +88,9 @@
     "typescript-eslint": "^8.19.0",
     "webpack": "^5.91.0"
   },
+  "overrides": {
+    "react-refresh": "0.16.0"
+  },
   "jest": {
     "coveragePathIgnorePatterns": [
       "/node_modules/",
