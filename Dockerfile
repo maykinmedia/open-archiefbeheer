@@ -16,21 +16,7 @@ RUN pip install uv -U
 COPY ./backend/requirements /app/requirements
 RUN uv pip install --system -r requirements/production.txt
 
-# Stage 2 - Build JS of the backend (needed for admin styles)
-FROM node:20-bullseye-slim AS backend-js-build
-
-WORKDIR /app
-
-COPY ./backend/build /app/build/
-COPY ./backend/*.json ./backend/*.js /app/
-
-RUN npm ci
-
-COPY ./backend/src /app/src
-
-RUN npm run build
-
-# Stage 3 - Build the Front end
+# Stage 2 - Build the Front end
 FROM node:20-bullseye-slim AS frontend-build
 
 RUN mkdir /frontend
@@ -50,10 +36,10 @@ COPY ./frontend/.env.production.template ./.env.production
 
 RUN npm run build
 
-# Stage 4 - Build docker image suitable for production
+# Stage 3 - Build docker image suitable for production
 FROM python:3.12-slim-bullseye
 
-# Stage 4.1 - Set up the needed production dependencies
+# Stage 3.1 - Set up the needed production dependencies
 # install all the dependencies for GeoDjango
 RUN apt-get update && apt-get install -y --no-install-recommends \
         procps \
@@ -83,7 +69,6 @@ COPY --from=backend-build /usr/local/bin/celery /usr/local/bin/celery
 
 COPY ./backend/src /app/src
 
-COPY --from=backend-js-build /app/src/openarchiefbeheer/static/bundles /app/src/openarchiefbeheer/static/bundles
 COPY --from=frontend-build /frontend/build /app/src/openarchiefbeheer/static/frontend
 COPY --from=frontend-build /frontend/build/static/css /app/src/openarchiefbeheer/static/css
 COPY --from=frontend-build /frontend/build/static/js /app/src/openarchiefbeheer/static/js
