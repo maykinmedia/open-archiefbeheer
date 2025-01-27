@@ -407,6 +407,13 @@ ZAKEN_CHUNK_SIZE = config("ZAKEN_CHUNK_SIZE", 10)
 
 E2E_SERVE_FRONTEND = False
 
+RETRY_TOTAL = config("RETRY_TOTAL", 5)
+RETRY_BACKOFF_FACTOR = config("RETRY_BACKOFF_FACTOR", 5)
+RETRY_STATUS_FORCELIST = config(
+    "RETRY_STATUS_FORCELIST", "502,503,504", split=True, csv_cast=int
+)
+
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #
