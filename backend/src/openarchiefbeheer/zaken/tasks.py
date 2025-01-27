@@ -22,8 +22,7 @@ from .utils import NoClient, pagination_helper, process_expanded_data
 logger = logging.getLogger(__name__)
 
 
-@app.task
-def retrieve_and_cache_zaken_from_openzaak() -> None:
+def retrieve_and_cache_zaken(is_full_resync=False):
     zrc_service = Service.objects.get(api_type=APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
@@ -38,11 +37,15 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
         "einddatum__isnull": False,
         "einddatum__lt": today.isoformat(),
     }
-    if zaken_in_db := Zaak.objects.exists():
+
+    if not is_full_resync and Zaak.objects.exists():
         result = Zaak.objects.aggregate(Max("einddatum"))
         query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
 
-    with zrc_client:
+    with transaction.atomic(), zrc_client, selectielijst_api_client or NoClient():
+        if is_full_resync:
+            Zaak.objects.all().delete()
+
         response = zrc_client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
@@ -58,17 +61,13 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
 
-    with selectielijst_api_client or NoClient():
         for index, data in enumerate(data_iterator):
             logger.info("Retrieved page %s.", index + 1)
 
             zaken = data["results"]
-            if selectielijst_api_client:
-                zaken = process_expanded_data(zaken, selectielijst_api_client)
-
-            # Since before we indexed also zaken without einddatum, prevent
-            # crash when retrieving zaken.
-            if zaken_in_db:
+            if not is_full_resync:
+                # Check if we retrieved zaken that are already present in the DB.
+                # If yes, we keep the existing version
                 new_zaken = {zaak["url"]: zaak for zaak in zaken}
                 duplicates = Zaak.objects.filter(url__in=new_zaken.keys())
                 if duplicates.exists():
@@ -76,52 +75,6 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
                         del new_zaken[duplicate.url]
                 zaken = [zaak for zaak in new_zaken.values()]
 
-            serializer = ZaakSerializer(data=zaken, many=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-
-@app.task
-@log_errors(logevent.resync_failed)
-def resync_zaken():
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
-    zrc_client = build_client(zrc_service)
-
-    today = datetime.date.today()
-    query_params = {
-        "expand": "resultaat,resultaat.resultaattype,zaaktype,rollen",
-        "archiefnominatie": "vernietigen",
-        "einddatum__isnull": False,
-        "einddatum__lt": today.isoformat(),
-    }
-
-    config = APIConfig.get_solo()
-    service = config.selectielijst_api_service
-    selectielijst_api_client = build_client(service) if service else None
-
-    logevent.resync_started()
-    with transaction.atomic(), zrc_client, selectielijst_api_client or NoClient():
-        Zaak.objects.all().delete()
-
-        response = zrc_client.get(
-            "zaken",
-            headers={"Accept-Crs": "EPSG:4326"},
-            params=query_params,
-            timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
-        )
-        response.raise_for_status()
-
-        data_iterator = pagination_helper(
-            zrc_client,
-            response.json(),
-            headers={"Accept-Crs": "EPSG:4326"},
-            timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
-        )
-
-        for index, data in enumerate(data_iterator):
-            logger.info("Retrieved page %s.", index + 1)
-
-            zaken = data["results"]
             if selectielijst_api_client:
                 zaken = process_expanded_data(zaken, selectielijst_api_client)
 
@@ -129,7 +82,20 @@ def resync_zaken():
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        # Resync the destruction list items with the zaken
-        resync_items_and_zaken()
+        if is_full_resync:
+            resync_items_and_zaken()
+
+
+@app.task
+def retrieve_and_cache_zaken_from_openzaak() -> None:
+    retrieve_and_cache_zaken(is_full_resync=False)
+
+
+@app.task
+@log_errors(logevent.resync_failed)
+def resync_zaken():
+    logevent.resync_started()
+
+    retrieve_and_cache_zaken(is_full_resync=True)
 
     logevent.resync_successful()
