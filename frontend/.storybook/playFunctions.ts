@@ -1,6 +1,6 @@
 import { Parameters, ReactRenderer } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { PlayFunction } from "@storybook/types";
+import { PlayFunction } from "storybook/internal/types";
 
 //
 // Assertions
