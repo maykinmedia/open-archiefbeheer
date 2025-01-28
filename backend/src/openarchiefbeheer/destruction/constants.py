@@ -47,6 +47,3 @@ class InternalStatus(models.TextChoices):
     processing = "processing", _("processing")
     failed = "failed", _("failed")
     succeeded = "succeeded", _("succeeded")
-
-
-WAITING_PERIOD = 7  # Days

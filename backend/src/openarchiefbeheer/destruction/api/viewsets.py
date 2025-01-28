@@ -23,13 +23,7 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 
-from ..constants import (
-    WAITING_PERIOD,
-    DestructionListItemAction,
-    InternalStatus,
-    ListRole,
-    ListStatus,
-)
+from ..constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -296,7 +290,7 @@ class DestructionListViewSet(
         destruction_list = self.get_object()
 
         today = date.today()
-        destruction_date = today + timedelta(days=WAITING_PERIOD)
+        destruction_date = today + timedelta(days=settings.WAITING_PERIOD)
         if not destruction_list.all_items_can_be_deleted_by_date(destruction_date):
             raise ValidationError(
                 _(
@@ -323,7 +317,7 @@ class DestructionListViewSet(
 
         if destruction_list.processing_status == InternalStatus.new:
             destruction_list.planned_destruction_date = today + timedelta(
-                days=WAITING_PERIOD
+                days=settings.WAITING_PERIOD
             )
             destruction_list.save()
             return Response()
