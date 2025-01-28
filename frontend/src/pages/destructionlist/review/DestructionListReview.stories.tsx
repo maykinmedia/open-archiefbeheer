@@ -646,6 +646,132 @@ export const SelectionBehavior: Story = {
   },
 };
 
+export const DeselectExcludedZaakShowsConfirmationDialog: Story = {
+  parameters: {
+    // mockData: [
+    //   ...(meta.parameters?.mockData || []),
+    //   {
+    //     url: "http://localhost:8000/api/v1/destruction-list-items/?item-destruction_list=00000000-0000-0000-0000-000000000000&item-status=suggested&item-order_review_ignored=true&viewMode=story&id=pages-destructionlist-destructionlistreviewpage--reviewer-can-approve-zaak&destruction_list=00000000-0000-0000-0000-000000000000",
+    //     method: "GET",
+    //     status: 200,
+    //     response: paginatedDestructionListItemsFactory({ count: 3 }),
+    //   },
+    // ],
+    moduleMock: {
+      mock: () => {
+        const addToZaakSelection = createMock(
+          libZaakSelection,
+          "addToZaakSelection",
+        );
+        addToZaakSelection.mockImplementation(
+          async (key, zaken, detail, meta) =>
+            SessionStorageBackend.addToZaakSelection(key, zaken, detail, meta),
+        );
+
+        const removeFromZaakSelection = createMock(
+          libZaakSelection,
+          "removeFromZaakSelection",
+        );
+        removeFromZaakSelection.mockImplementation(async (key, zaken, meta) =>
+          SessionStorageBackend.removeFromZaakSelection(key, zaken, meta),
+        );
+
+        const clearZaakSelection = createMock(
+          libZaakSelection,
+          "clearZaakSelection",
+        );
+        clearZaakSelection.mockImplementation(async (key, meta) =>
+          SessionStorageBackend.clearZaakSelection(key, meta),
+        );
+
+        const getZaakSelectionItems = createMock(
+          libZaakSelection,
+          "getZaakSelectionItems",
+        );
+        getZaakSelectionItems.mockImplementation(
+          async (key, zaken, selectedOnly, meta) =>
+            SessionStorageBackend.getZaakSelectionItems(
+              key,
+              zaken,
+              selectedOnly,
+              meta,
+            ),
+        );
+
+        return [
+          addToZaakSelection,
+          removeFromZaakSelection,
+          clearZaakSelection,
+          getZaakSelectionItems,
+        ];
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Exclude a zaak
+    const excludes = await canvas.findAllByRole("button", {
+      name: "Uitzonderen",
+    });
+    const exclude = excludes[0];
+    await userEvent.click(exclude, { delay: 60 });
+
+    const reason = await canvas.findByLabelText("Reden");
+    const submitExclude = await canvas.findByRole("button", {
+      name: "Zaak uitzonderen",
+    });
+    await expect(submitExclude).toBeDisabled();
+    await userEvent.type(reason, "reden", { delay: 10, skipClick: false });
+    await expect(submitExclude).toBeEnabled();
+    await userEvent.click(submitExclude);
+
+    // Deselect excluded zaak then cancel
+    const checkboxes = await canvas.findAllByRole("checkbox");
+    const checkbox = checkboxes[1];
+    await userEvent.click(checkbox, { delay: 60 });
+
+    await expect(
+      await canvas.findByText(
+        "Weet je zeker dat je de beoordeling wilt verwijderen?",
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Annuleren" }),
+      {
+        delay: 60,
+      },
+    );
+
+    // Check state of exclusion
+    await expect(await canvas.findByText("Uitgezonderd")).toBeInTheDocument();
+    await expect(checkbox).toBeChecked();
+
+    // Deselect excluded zaak then confirm
+    await userEvent.click(checkbox, { delay: 60 });
+
+    await expect(
+      await canvas.findByText(
+        "Weet je zeker dat je de beoordeling wilt verwijderen?",
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Verwijderen" }),
+      {
+        delay: 60,
+      },
+    );
+
+    // Check state of exclusion
+    await expect(
+      await canvas.queryByText("Uitgezonderd"),
+    ).not.toBeInTheDocument();
+    await expect(checkbox).not.toBeChecked();
+  },
+};
+
 export const PollExternalChanges: Story = {
   parameters: {
     mockData: [
