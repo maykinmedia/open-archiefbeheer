@@ -135,6 +135,7 @@ export function DestructionListReviewPage() {
     uuid,
     destructionList.status,
   );
+
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
     zakenResults,
     {

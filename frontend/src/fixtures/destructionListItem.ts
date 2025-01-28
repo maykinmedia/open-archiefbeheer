@@ -2,6 +2,7 @@ import {
   DestructionListItem,
   PaginatedDestructionListItems,
 } from "../lib/api/destructionListsItem";
+import { RecursivePartial } from "../lib/types/utilities";
 import { createArrayFactory, createObjectFactory } from "./factory";
 import { zaakFactory } from "./zaak";
 
@@ -51,10 +52,31 @@ const FIXTURE_PAGINATED_DESTRUCTION_LIST_ITEMS = {
   results: destructionListItemsFactory(),
 };
 
-export const paginatedDestructionListItemsFactory =
-  createObjectFactory<PaginatedDestructionListItems>(
+export const paginatedDestructionListItemsFactory = (
+  overrides?: RecursivePartial<PaginatedDestructionListItems>,
+) => {
+  const data = createObjectFactory<PaginatedDestructionListItems>(
     FIXTURE_PAGINATED_DESTRUCTION_LIST_ITEMS,
-  );
+  )();
+  if (overrides?.count && overrides.count > 1) {
+    data.count = overrides.count;
+    data.results = new Array(overrides.count).fill(null).map((_, i) => {
+      const uuid = `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`.replaceAll(
+        "X",
+        i.toString(),
+      );
+      return destructionListItemFactory({
+        pk: i + 1,
+        zaak: zaakFactory({
+          identificatie: `ZAAK-${uuid}`,
+          url: `http://zaken.nl/api/v1/zaken/${uuid}/`,
+          uuid: uuid,
+        }),
+      });
+    });
+  }
+  return data;
+};
 
 const FIXTURE_PAGINATED_DESTRUCTION_LIST_ITEMS_FAILED = {
   count: 2,
