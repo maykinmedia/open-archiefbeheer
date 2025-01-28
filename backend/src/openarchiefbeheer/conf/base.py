@@ -413,6 +413,7 @@ RETRY_STATUS_FORCELIST = config(
     "RETRY_STATUS_FORCELIST", "502,503,504", split=True, csv_cast=int
 )
 
+WAITING_PERIOD = config("WAITING_PERIOD", 7)
 
 ##############################
 #                            #
