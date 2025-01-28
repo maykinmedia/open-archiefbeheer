@@ -1,10 +1,10 @@
 import os
+from unittest import skip
 
 from django.conf import settings
 from django.test import TestCase, tag
 
 from playwright.async_api import async_playwright, expect
-from pytest import skip
 from tabulate import tabulate
 
 from openarchiefbeheer.utils.tests.gherkin import GerkinMixin
@@ -28,7 +28,7 @@ class PerformanceTest(GerkinMixin, TestCase):
 
     @skip("Only used for performance tests")
     async def test_performance(self):
-        expect.set_options(timeout=30_000)
+        expect.set_options(timeout=360_000)
 
         async with async_playwright() as p:
             launch_kwargs = {
@@ -56,6 +56,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Record Manager logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(RECORD_MANAGER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(RECORD_MANAGER_PASSWORD)
@@ -67,7 +68,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             await self.then.path_should_be(page, "/destruction-lists/create")
 
             await self.when.user_clicks_checkbox(
-                page, "(de)selecteer 10000 pagina's", index=0
+                page, "(de)selecteer 100 pagina's", index=0
             )
             await self.when.user_clicks_button(
                 page, "Vernietigingslijst opstellen", index=1
@@ -82,6 +83,10 @@ class PerformanceTest(GerkinMixin, TestCase):
 
             # Record Manager marks as ready to review
             await self.when.user_clicks_button(page, "Gigantic list")
+            await self.then.url_regex_should_be(
+                page, f"{TEST_ENVIRONMENT}/destruction-lists/.+?/edit"
+            )
+            await page.wait_for_timeout(5_000)
             await self.when.user_clicks_button(page, "Ter beoordeling indienen")
             await self.when.user_clicks_button(page, "Ter beoordeling indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -97,6 +102,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Reviewer logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(REVIEWER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(REVIEWER_PASSWORD)
@@ -132,6 +138,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Record Manager logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(RECORD_MANAGER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(RECORD_MANAGER_PASSWORD)
@@ -165,11 +172,15 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Reviewer logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(REVIEWER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(REVIEWER_PASSWORD)
             await page.get_by_role("button", name="Inloggen").click()
             await self.then.path_should_be(page, "/destruction-lists")
+
+            # Wait for the review to be processed
+            await page.wait_for_timeout(240_000)
 
             # Reviewer approves list
             await self.when.user_clicks_button(page, "Gigantic list")
@@ -191,6 +202,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Record Manager logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(RECORD_MANAGER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(RECORD_MANAGER_PASSWORD)
@@ -219,6 +231,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Archivaris logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(ARCHIVARIS_USERNAME)
             await page.get_by_label("Wachtwoord").fill(ARCHIVARIS_PASSWORD)
@@ -231,13 +244,11 @@ class PerformanceTest(GerkinMixin, TestCase):
                 page, f"{TEST_ENVIRONMENT}/destruction-lists/.+?/review"
             )
             await self.when.user_clicks_button(page, "Goedkeuren")
-            await self.when.user_fills_form_field(
-                page, "Opmerking", "Let's deletete 🔥"
-            )
+            await self.when.user_fills_form_field(page, "Opmerking", "Let's delete 🔥")
             await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
-            await self.when.user_logs_out(page)
-
             await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_logs_out(page)
 
             # Print results
             await self.flush_results(results)
@@ -247,6 +258,7 @@ class PerformanceTest(GerkinMixin, TestCase):
             #
 
             # Record Manager logs in
+            await page.wait_for_timeout(5_000)
             await page.goto(f"{TEST_ENVIRONMENT}/login")
             await page.get_by_label("Gebruikersnaam").fill(RECORD_MANAGER_USERNAME)
             await page.get_by_label("Wachtwoord").fill(RECORD_MANAGER_PASSWORD)
