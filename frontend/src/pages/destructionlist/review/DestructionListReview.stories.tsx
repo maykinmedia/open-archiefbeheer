@@ -6,22 +6,18 @@ import {
   ReactRouterDecorator,
 } from "../../../../.storybook/decorators";
 import { MOCKS } from "../../../../.storybook/mockData";
-import { zaakFactory } from "../../../fixtures";
-import { auditLogFactory } from "../../../fixtures/auditLog";
 import {
+  auditLogFactory,
+  beoordelaarFactory,
   destructionListAssigneeFactory,
   destructionListFactory,
-} from "../../../fixtures/destructionList";
-import {
   destructionListItemsFactory,
   paginatedDestructionListItemsFactory,
-} from "../../../fixtures/destructionListItem";
-import { reviewFactory } from "../../../fixtures/review";
-import {
-  beoordelaarFactory,
+  reviewFactory,
   roleFactory,
   userFactory,
-} from "../../../fixtures/user";
+  zaakFactory,
+} from "../../../fixtures";
 import { DestructionListReviewPage } from "./DestructionListReview";
 import { destructionListReviewAction } from "./DestructionListReview.action";
 import { destructionListReviewLoader } from "./DestructionListReview.loader";
