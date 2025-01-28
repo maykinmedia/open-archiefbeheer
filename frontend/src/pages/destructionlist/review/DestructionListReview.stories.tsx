@@ -9,6 +9,7 @@ import { MOCKS } from "../../../../.storybook/mockData";
 import {
   auditLogFactory,
   beoordelaarFactory,
+  coReviewFactory,
   destructionListAssigneeFactory,
   destructionListFactory,
   destructionListItemsFactory,
@@ -209,6 +210,23 @@ export const ReviewerCanExcludeZaak: Story = {
 };
 
 export const ReviewerCanApproveDestructionList: Story = {
+  parameters: {
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-reviews/?",
+        method: "POST",
+        status: 201,
+        response: reviewFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
+        method: "DELETE",
+        status: 200,
+        response: {},
+      },
+    ],
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const approve = await canvas.findByText("Goedkeuren");
@@ -220,7 +238,7 @@ export const ReviewerCanApproveDestructionList: Story = {
     });
     await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
-    await expect(submit).toBeEnabled();
+    await userEvent.click(submit);
   },
 };
 
@@ -258,14 +276,21 @@ export const ReviewerCanRejectDestructionList: Story = {
             },
         },
       },
+
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-reviews/?",
+        method: "POST",
+        status: 201,
+        response: reviewFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
+        method: "DELETE",
+        status: 200,
+        response: {},
+      },
       ...(meta.parameters?.mockData || []),
     ],
-    reactRouterDecorator: {
-      route: {
-        destructionListReviewLoader,
-        action: destructionListReviewAction,
-      },
-    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -278,7 +303,7 @@ export const ReviewerCanRejectDestructionList: Story = {
     });
     await expect(submit).toBeDisabled();
     await userEvent.type(reason, "Reden", { delay: 10, skipClick: false });
-    await expect(submit).toBeEnabled();
+    await userEvent.click(submit);
   },
 };
 
@@ -307,6 +332,12 @@ export const CoReviewerCanCompleteCoReview: Story = {
           }),
         }),
       },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?",
+        method: "POST",
+        status: 201,
+        response: coReviewFactory(),
+      },
     ],
   },
   play: async ({ canvasElement }) => {
@@ -321,7 +352,7 @@ export const CoReviewerCanCompleteCoReview: Story = {
     });
     await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
-    await expect(submit).toBeEnabled();
+    await userEvent.click(submit);
   },
 };
 
