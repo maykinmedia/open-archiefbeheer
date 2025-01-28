@@ -72,6 +72,7 @@ class RecachingZakenTests(VCRMixin, TestCase):
     )
     def test_resync_zaken_retry_mechanism(self):
         with (
+            freeze_time("2025-01-27"),
             self.assertRaises(requests.exceptions.RetryError),
             patch(
                 "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
