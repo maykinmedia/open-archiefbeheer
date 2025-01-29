@@ -203,11 +203,15 @@ export function DestructionListReviewer({
           // - The co-reviewer is already selected AND
           // - The co-reviewer is not selected as value for the current
           //   field.
+          // - OR if the co-reviewer is equal to the author of the destruction list
           .filter((c) => {
             const selectedIndex = activeCoReviewerFields.indexOf(
               c.pk.toString(),
             );
-            if (selectedIndex < 0 || selectedIndex === i) {
+            if (
+              (selectedIndex < 0 || selectedIndex === i) &&
+              c.pk !== destructionList.author.pk
+            ) {
               return true;
             }
             return false;
