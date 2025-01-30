@@ -1,5 +1,6 @@
-import { Zaak } from "../../types";
-import { ZaakSelection, _getZaakUrl } from "../zaakSelection";
+import type { Zaak } from "../../types";
+import type { ZaakSelection } from "../zaakSelection/types";
+import { _getZaakUrl } from "../zaakSelection/utils";
 import { request } from "./request";
 
 /**
