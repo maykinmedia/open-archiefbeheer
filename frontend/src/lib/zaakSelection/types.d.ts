@@ -1,4 +1,4 @@
-import { Zaak } from "../../types";
+import type { Zaak } from "../../types";
 
 /**
  * A type describing an object with a `Zaak`'s url and optionally other `Zaak`

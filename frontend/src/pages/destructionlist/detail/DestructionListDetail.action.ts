@@ -14,7 +14,7 @@ import {
   ReviewResponse,
   createReviewResponse,
 } from "../../../lib/api/reviewResponse";
-import { clearZaakSelection } from "../../../lib/zaakSelection/zaakSelection";
+import { clearZaakSelection } from "../../../lib/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
   | "DELETE_LIST"

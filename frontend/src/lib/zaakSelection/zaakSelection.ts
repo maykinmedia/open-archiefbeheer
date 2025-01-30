@@ -1,5 +1,5 @@
 import { SessionStorageBackend, _getZaakSelection } from "./backends";
-import {
+import type {
   ZaakIdentifier,
   ZaakSelection,
   ZaakSelectionBackendMeta,

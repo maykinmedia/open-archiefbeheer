@@ -4,61 +4,84 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../../../.storybook/decorators";
+import { MOCK_BASE } from "../../../../../../.storybook/mockData";
 import {
   clickButton,
   clickCheckbox,
   fillForm,
 } from "../../../../../../.storybook/playFunctions";
-import { destructionListFactory } from "../../../../../fixtures/destructionList";
-import { paginatedDestructionListItemsFactory } from "../../../../../fixtures/destructionListItem";
-import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
-import { usersFactory } from "../../../../../fixtures/user";
-import { getZaakSelection } from "../../../../../lib/zaakSelection";
+import {
+  destructionListFactory,
+  paginatedDestructionListItemsFactory,
+  paginatedZakenFactory,
+  recordManagerFactory, // usersFactory,
+} from "../../../../../fixtures";
 import { destructionListUpdateAction } from "../../DestructionListDetail.action";
-import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
+import { destructionListDetailLoader } from "../../DestructionListDetail.loader";
 import { DestructionListEditPage } from "./DestructionListEditPage";
 
 const meta: Meta<typeof DestructionListEditPage> = {
   title: "Pages/DestructionList/DestructionListEditPage",
   component: DestructionListEditPage,
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
+  parameters: {
+    reactRouterDecorator: {
+      route: {
+        id: "destruction-list:detail",
+        loader: destructionListDetailLoader,
+        action: destructionListUpdateAction,
+      },
+      params: {
+        uuid: "00000000-0000-0000-0000-000000000000",
+      },
+    },
+    mockData: [
+      ...MOCK_BASE,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: recordManagerFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000&ordering=-created",
+        method: "GET",
+        status: 200,
+        response: [],
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-items/?item-destruction_list=00000000-0000-0000-0000-000000000000&item-status=suggested&viewMode=story&id=pages-destructionlist-destructionlisteditpage--edit-destruction-list&globals=",
+        method: "GET",
+        status: 200,
+        response: paginatedDestructionListItemsFactory(),
+      },
+      {
+        url: "http://localhost:8000/api/v1/zaken/?viewMode=story&id=pages-destructionlist-destructionlisteditpage--edit-destruction-list&globals=&not_in_destruction_list_except=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: paginatedZakenFactory(),
+      },
+    ],
+  },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const FIXTURE_BASE: DestructionListDetailContext = {
-  storageKey: "storybook-storage-key",
-
-  destructionList: destructionListFactory({ status: "new" }),
-  destructionListItems: paginatedDestructionListItemsFactory(),
-
-  zaakSelection: {},
-  selectableZaken: paginatedZakenFactory(),
-
-  archivists: usersFactory(),
-  user: usersFactory()[0],
-
-  review: null,
-  reviewItems: null,
-
-  selectieLijstKlasseChoicesMap: null,
-};
-
-const FIXTURE_EDIT = { ...FIXTURE_BASE };
-
 export const EditDestructionList: Story = {
   parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(FIXTURE_EDIT.storageKey);
-          return { ...FIXTURE_EDIT, zaakSelection };
-        },
-        action: destructionListUpdateAction,
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "new",
+        }),
       },
-    },
+    ],
   },
   play: async (context) => {
     await clickButton({
@@ -76,32 +99,57 @@ export const EditDestructionList: Story = {
   },
 };
 
-const FIXTURE_FINAL_DESTRUCTION: DestructionListDetailContext = {
-  ...FIXTURE_BASE,
-  destructionList: {
-    ...FIXTURE_BASE.destructionList,
-    status: "internally_reviewed",
+export const DeleteDestructionList: Story = {
+  parameters: {
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "new",
+        }),
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "DELETE",
+        status: 200,
+        response: {},
+      },
+    ],
+    clickButton: { name: "Lijst verwijderen" },
+    fillForm: {
+      formValues: {
+        "Type naam van de lijst ter bevestiging": "My first destruction list",
+      },
+    },
+  },
+  play: async (context) => {
+    await clickButton(context);
+    await fillForm(context);
   },
 };
 
 export const MarkDestructionListAsFinal: Story = {
   parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            FIXTURE_FINAL_DESTRUCTION.storageKey,
-          );
-          return { ...FIXTURE_FINAL_DESTRUCTION, zaakSelection };
-        },
-        action: destructionListUpdateAction,
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "internally_reviewed",
+        }),
       },
-    },
+    ],
     clickButton: { name: "Markeren als definitief" },
     fillForm: {
       formValues: {
-        Archivaris: "Proces ei Genaar (Proces ei Genaar)",
+        Archivaris: "Archi Varis (Archivaris)",
         Opmerking: "MarkDestructionListAsFinal",
       },
     },
@@ -112,29 +160,20 @@ export const MarkDestructionListAsFinal: Story = {
   },
 };
 
-const FIXTURE_DELETE: DestructionListDetailContext = {
-  ...FIXTURE_BASE,
-  destructionList: {
-    ...FIXTURE_BASE.destructionList,
-    status: "ready_to_delete",
-    processingStatus: "new",
-  },
-};
-
-export const DeleteDestructionList: Story = {
+export const QueueDestruction: Story = {
   parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            FIXTURE_DELETE.storageKey,
-          );
-          return { ...FIXTURE_DELETE, zaakSelection };
-        },
-        action: destructionListUpdateAction,
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "ready_to_delete",
+        }),
       },
-    },
+    ],
     clickButton: { name: "Vernietigen starten" },
     fillForm: {
       formValues: {
@@ -148,28 +187,21 @@ export const DeleteDestructionList: Story = {
   },
 };
 
-const FIXTURE_FAILED_DELETE: DestructionListDetailContext = {
-  ...FIXTURE_DELETE,
-  destructionList: {
-    ...FIXTURE_DELETE.destructionList,
-    processingStatus: "failed",
-  },
-};
-
-export const DeleteFailedDestructionList: Story = {
+export const QueueFailedDestructionList: Story = {
   parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            FIXTURE_FAILED_DELETE.storageKey,
-          );
-          return { ...FIXTURE_FAILED_DELETE, zaakSelection };
-        },
-        action: destructionListUpdateAction,
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "ready_to_delete",
+          processingStatus: "failed",
+        }),
       },
-    },
+    ],
     clickButton: { name: "Vernietigen herstarten" },
     fillForm: {
       formValues: {
@@ -177,39 +209,37 @@ export const DeleteFailedDestructionList: Story = {
       },
     },
   },
-  play: DeleteDestructionList.play,
-};
-
-const FIXTURE_PLANNED_DELETE: DestructionListDetailContext = {
-  ...FIXTURE_DELETE,
-  destructionList: {
-    ...FIXTURE_DELETE.destructionList,
-    status: "ready_to_delete",
-    processingStatus: "queued",
-    plannedDestructionDate: "2026-01-01T00:00:00Z",
+  play: async (context) => {
+    await clickButton(context);
+    await fillForm(context);
   },
 };
 
 export const CancelPlannedDestructionList: Story = {
   parameters: {
-    reactRouterDecorator: {
-      route: {
-        id: "destruction-list:detail",
-        loader: async () => {
-          const zaakSelection = await getZaakSelection(
-            FIXTURE_PLANNED_DELETE.storageKey,
-          );
-          return { ...FIXTURE_PLANNED_DELETE, zaakSelection };
-        },
-        action: destructionListUpdateAction,
+    mockData: [
+      ...(meta?.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/?",
+        method: "GET",
+        status: 200,
+        response: destructionListFactory({
+          uuid: "00000000-0000-0000-0000-000000000000",
+          status: "ready_to_delete",
+          processingStatus: "queued",
+          plannedDestructionDate: "2026-01-01T00:00:00Z",
+        }),
       },
-    },
+    ],
     clickButton: { name: "Proces afbreken" },
     fillForm: {
       formValues: {
-        Opmerking: "CancelPlannedDestructionList",
+        Opmerking: "My first destruction list",
       },
     },
   },
-  play: DeleteDestructionList.play,
+  play: async (context) => {
+    await clickButton(context);
+    await fillForm(context);
+  },
 };
