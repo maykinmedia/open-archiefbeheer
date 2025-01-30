@@ -1,0 +1,321 @@
+/*!********************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[0].use[2]!./src/openarchiefbeheer/scss/admin/admin_overrides.scss ***!
+  \********************************************************************************************************************************************************************************************************/
+/*
+Generic admin styling overrides.
+
+DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
+*/
+/* Colors */
+/* Dimensions */
+/* Responsive breakpoints used int the Django admin */
+:root {
+  --primary: #04a5bb;
+  --accent: #f3f3f3;
+  --secondary: #04a5bb;
+  --primary-fg: #fff;
+  --header-color: #fff;
+  --breadcrumbs-fg: #04a5bb;
+  --breadcrumbs-link-fg: var(--body-fg);
+  --breadcrumbs-bg: #f3f3f3;
+  --link-fg: #017092;
+  --link-hover-color: #051f31;
+  --link-selected-fg: #5b80b2;
+  --hairline-color: #ddd;
+  --button-fg: #fff;
+  --button-hover-bg: #017092;
+  --default-button-bg: #017092;
+  --default-button-hover-bg: #000;
+  --close-button-bg: #c3eaef;
+  --close-button-hover-bg: #333;
+  --object-tools-bg: #888;
+  --object-tools-hover-bg: #333;
+}
+
+/* Overrides */
+body.change-form {
+  line-height: 1.15;
+}
+
+/**
+ * Branding
+ */
+#branding h1 a:link,
+#branding h1 a:visited {
+  font-weight: bold;
+}
+
+#user-tools a {
+  border-bottom: none;
+  text-decoration: underline;
+}
+#user-tools a:focus, #user-tools a:hover {
+  color: var(--header-link-color);
+}
+
+div.breadcrumbs a:focus, div.breadcrumbs a:hover {
+  color: #000;
+}
+
+/* Important is used because Django templates include their own style, after ours */
+#changelist-filter a:focus,
+#changelist-filter a:hover {
+  color: var(--link-fg) !important;
+}
+#changelist-filter li.selected a {
+  color: var(--link-fg) !important;
+}
+#changelist-filter li.selected a:focus, #changelist-filter li.selected a:hover {
+  color: var(--primary) !important;
+}
+
+/* Calendar & time widget */
+.calendar caption,
+.calendarbox h2 {
+  background: #ddd !important;
+  color: #333 !important;
+}
+
+.calendar td a:focus, .calendar td a:hover,
+.timelist a:focus,
+.timelist a:hover {
+  background: #017092 !important;
+}
+
+.module.clockbox h2 {
+  /* Match the clock widget with the calendar widget */
+  background: #ddd !important;
+  color: #333 !important;
+  font-weight: bold !important;
+}
+
+/* Icons */
+.addlink {
+  background: url("../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.changelink,
+.inlinechangelink {
+  background: url("../img/admin/edit-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.deletelink {
+  background: url("../img/admin/trash-alt-regular.svg") 0 0/14px 14px no-repeat;
+}
+
+.datetimeshortcuts .clock-icon {
+  background: url("../img/admin/clock-regular.svg") 0 0/14px 14px no-repeat !important;
+}
+
+.datetimeshortcuts .date-icon {
+  background: url("../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
+}
+
+/* Footer */
+.version {
+  color: var(--body-fg);
+  padding: 0 30px;
+  font-size: smaller;
+  display: flex;
+  flex-direction: column;
+}
+
+/**
+ * Environment banner
+ */
+.env {
+  display: block;
+  line-height: 35px;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #f3f3f3;
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  height: 35px;
+  width: 300px;
+  left: 50%;
+  margin-left: -150px;
+  z-index: 1000001;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+/**
+ * Django form field lengths
+ */
+.change-form .vTextField {
+  width: 20em;
+}
+
+/**
+ * Django form related widget
+ */
+.related-widget-wrapper {
+  display: inline-block;
+}
+
+/**
+ * Help text mouseover
+ */
+div.help {
+  cursor: help;
+  width: 16px;
+  height: 16px;
+  background-image: url(../admin/img/icon-unknown.svg);
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  margin-left: 8px !important;
+  margin-top: 6px !important;
+  position: absolute;
+  text-indent: -9999px;
+}
+div.help:hover {
+  text-indent: inherit;
+  width: auto;
+  background-image: none;
+  background-color: #fffeaa;
+  border: 1px solid #f7f071;
+  color: #000;
+  padding: 5px 5px 3px 5px !important;
+  max-width: 300px;
+  height: auto !important;
+  margin-top: 2px !important;
+  z-index: 10;
+}
+
+.related-widget-wrapper ~ div.help {
+  margin-top: 8px !important;
+}
+.related-widget-wrapper ~ div.help:hover {
+  margin-top: 4px !important;
+}
+
+/* Overrides default Django CSS */
+.aligned label + p,
+.aligned label + div.readonly {
+  display: inline-block;
+  margin-left: inherit !important;
+}
+
+.aligned label + div.help {
+  margin-left: 2px !important;
+}
+
+/* Additional components seem to need the same behaviour */
+/* TODO: TinyMCE is different... */
+.aligned label + ul {
+  display: inline-block;
+  margin-left: inherit !important;
+}
+
+/*
+ Project/app specific overrides, coupled to the data model.
+
+ Generic overrides should go in _admin_theme.scss
+ */
+/* Colors */
+/* Dimensions */
+/* Responsive breakpoints used int the Django admin */
+/**
+ * DJANGO ADMIN INDEX
+ */
+body {
+  --djai-tab-bg: var(--primary);
+  --djai-tab-bg--active: var(--breadcrumbs-bg);
+  --djai-tab-bg--hover: #017092;
+  --djai-tab-fg--active: var(--secondary);
+  --djai-dropdown-bg--active: #017092;
+  --djai-dropdown-bg--hover: #017092;
+}
+
+.djai-dropdown-menu {
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
+  /* Added to attach to body/breadcrumbs */
+  border-bottom: 8px solid #f3f3f3;
+}
+@media all and (min-width: 768px) {
+  .djai-dropdown-menu {
+    margin-left: -30px;
+    margin-right: -30px;
+  }
+}
+@media all and (min-width: 1025px) {
+  .djai-dropdown-menu {
+    margin-left: -40px;
+    margin-right: -40px;
+  }
+}
+@media all and (min-width: 768px) {
+  .djai-dropdown-menu {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+@media all and (min-width: 1025px) {
+  .djai-dropdown-menu {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+.djai-dropdown-menu .djai-dropdown-menu__drop {
+  min-width: 250px !important;
+}
+#header + .breadcrumbs {
+  padding-top: 2px;
+  /* uncomment for sticky breadcrumbs. note that you probably want to tweak the 'top' value */
+}
+#header .djai-dropdown-menu .djai-dropdown-menu__item--active:link,
+#header .djai-dropdown-menu .djai-dropdown-menu__item--active:visited {
+  color: var(--djai-tab-fg--active);
+}
+#header .djai-dropdown-menu .djai-dropdown-menu__item--active:link:hover,
+#header .djai-dropdown-menu .djai-dropdown-menu__item--active:visited:hover {
+  color: var(--djai-tab-fg--hover);
+}
+
+/**
+ * DJANGO-BETTER-ADMIN-ARRAYFIELD
+ * Some elements are marked as !important because the style is loaded after
+ * this theme.
+ */
+.dynamic-array-widget {
+  /* Substitute with icon */
+}
+.dynamic-array-widget button {
+  background: #04a5bb !important;
+  color: #fff !important;
+  /* Substitute theme style above with icon. Solves translation string as well. */
+}
+.dynamic-array-widget button:hover {
+  background: #017092 !important;
+  /* border: 2px solid $color_dark !important; */
+}
+.dynamic-array-widget button.add-array-item {
+  background: url("../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat !important;
+  width: 14px;
+  line-height: 16px;
+  text-indent: -9999px;
+  white-space: nowrap;
+  margin: 0 0 5px 170px;
+  display: block;
+}
+.dynamic-array-widget button.add-array-item:focus {
+  outline-width: 0;
+}
+.dynamic-array-widget .remove {
+  background: url("../img/admin/trash-alt-regular.svg") 0 0/14px 14px no-repeat;
+  width: 14px;
+  line-height: 16px;
+}
+.dynamic-array-widget .remove .inline-deletelink {
+  display: none;
+}
+.dynamic-array-widget .array-item input {
+  width: 20em;
+}
