@@ -100,11 +100,8 @@ export function BaseListView<T extends Zaak = Zaak>({
   })) as unknown as T[];
 
   // Fields.
-  const [fields, setFields, filterTransform] = useFields<T>(
-    destructionList,
-    review,
-    extraFields,
-  );
+  const [fields, setFields, filterTransform, activeFilters, resetFilters] =
+    useFields<T>(destructionList, review, extraFields);
   type FilterTransformData = ReturnType<typeof filterTransform>;
 
   // Filter.
@@ -162,7 +159,7 @@ export function BaseListView<T extends Zaak = Zaak>({
         : { ...props, disabled: selectable && !hasSelection },
     );
     const fixedItems = disabled
-      ? ([
+      ? [
           {
             children: (
               <>
@@ -174,9 +171,27 @@ export function BaseListView<T extends Zaak = Zaak>({
             wrap: false,
             onClick: handleClearZaakSelection,
           },
-        ] as ButtonProps[])
+        ]
       : [];
-    return [...dynamicItems, ...fixedItems];
+    if (!Object.keys(activeFilters).length) {
+      return [...dynamicItems, ...fixedItems];
+    }
+
+    return [
+      ...dynamicItems,
+      ...fixedItems,
+      {
+        children: (
+          <>
+            <Solid.XCircleIcon />
+            Filters wissen
+          </>
+        ),
+        variant: "warning",
+        wrap: false,
+        onClick: resetFilters,
+      },
+    ];
   }, [selectable, hasSelection, selectedZakenOnPage, selectionActions]);
 
   return (
