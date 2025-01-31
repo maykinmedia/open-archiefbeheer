@@ -1,8 +1,10 @@
 import {
+  AttributeTable,
   Badge,
   Outline,
   Solid,
   Toolbar,
+  Tooltip,
   TypedField,
 } from "@maykin-ui/admin-ui";
 import { useMemo, useState } from "react";
@@ -78,7 +80,6 @@ export function DestructionListProcessReviewPage() {
     processZaakReviewSelectionState?.[
       processZaakReviewModalState.zaak?.url || ""
     ]?.detail;
-
   // The initially select items.
   const initiallySelectedZakenOnPage = useMemo(
     () =>
@@ -116,9 +117,7 @@ export function DestructionListProcessReviewPage() {
     return zakenOnPage.map((z, i) => ({
       ...z,
       Opmerking: reviewItems?.[i]?.feedback,
-      Mutatie: getProcessReviewBadge(
-        processZaakReviewSelectionState?.[z.url as string]?.detail?.action,
-      ),
+      Mutatie: getProcessReviewBadge(z),
       Acties: (
         <Toolbar
           align="end"
@@ -147,7 +146,14 @@ export function DestructionListProcessReviewPage() {
     }));
   }, [reviewItems, zaakReviewStatuses]);
 
-  function getProcessReviewBadge(action?: ProcessReviewAction) {
+  /**
+   * Get the process review badge for a zaak to know what mutation is proposed.
+   */
+  function getProcessReviewBadge(zaak: Zaak) {
+    const processZaakReviewDetail =
+      processZaakReviewSelectionState?.[zaak.url as string]?.detail;
+    const action = processZaakReviewDetail?.action;
+
     if (!action) {
       return (
         // @ts-expect-error - style props not supported (yet?)
@@ -158,18 +164,72 @@ export function DestructionListProcessReviewPage() {
       );
     }
 
-    return action === "keep" ? (
-      // @ts-expect-error - style props not supported (yet?)
-      <Badge level="info" style={{ display: "block" }}>
-        <Solid.DocumentPlusIcon />
-        Voorstel afgewezen
-      </Badge>
-    ) : (
-      // @ts-expect-error - style props not supported (yet?)
-      <Badge level="danger" style={{ display: "block" }}>
-        <Solid.DocumentMinusIcon />
-        Uitgezonderd
-      </Badge>
+    const { archiefactiedatum, selectielijstklasse, comment } =
+      processZaakReviewDetail;
+
+    const getLabel = (value: string | undefined) =>
+      selectieLijstKlasseChoicesMap?.[zaak.url]?.find(
+        (choice) => choice.value === value,
+      )?.label;
+
+    const tooltipData = {
+      archiefactiedatum,
+      oud_archiefactiedatum: zaak?.archiefactiedatum,
+      selectielijstklasse: getLabel(selectielijstklasse),
+      oud_selectielijstklasse: getLabel(zaak.selectielijstklasse),
+      opmerking: comment,
+    };
+
+    // Filtering logic:
+    // 1. Keep 'oud_' values only if the new value exists and is different.
+    // 2. Remove empty, null, or undefined values.
+    // 3. Remove duplicate values.
+    const filteredTooltipData = Object.fromEntries(
+      Object.entries(tooltipData).filter(([key, value], _, arr) => {
+        // 1.
+        if (key.startsWith("oud_")) {
+          const newKey = key.replace("oud_", "");
+          const newValue = tooltipData[newKey as keyof typeof tooltipData];
+
+          return (
+            newValue !== undefined && newValue !== "" && newValue !== value
+          );
+        }
+        // 2.
+        if (value == null || value === "") return false;
+
+        // 3.
+        return !arr.some(
+          ([otherKey, otherValue]) => otherKey !== key && otherValue === value,
+        );
+      }),
+    );
+
+    const tooltipContent =
+      Object.keys(filteredTooltipData).length > 0 ? (
+        <AttributeTable object={filteredTooltipData} />
+      ) : (
+        "Geen wijzigingen"
+      );
+
+    return (
+      <Tooltip content={tooltipContent} size="md">
+        <span>
+          {action === "keep" ? (
+            // @ts-expect-error - style props not supported (yet?)
+            <Badge level="info" style={{ display: "block" }}>
+              <Solid.DocumentPlusIcon />
+              Voorstel afgewezen
+            </Badge>
+          ) : (
+            // @ts-expect-error - style props not supported (yet?)
+            <Badge level="danger" style={{ display: "block" }}>
+              <Solid.DocumentMinusIcon />
+              Uitgezonderd
+            </Badge>
+          )}
+        </span>
+      </Tooltip>
     );
   }
 
