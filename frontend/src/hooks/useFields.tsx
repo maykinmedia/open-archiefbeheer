@@ -1,4 +1,8 @@
-import { TypedField, TypedSerializedFormData } from "@maykin-ui/admin-ui";
+import {
+  Placeholder,
+  TypedField,
+  TypedSerializedFormData,
+} from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -72,29 +76,33 @@ export function useFields<T extends Zaak = Zaak>(
       filterLookup: "identificatie__icontains",
       filterValue: searchParams.get("identificatie__icontains") || "",
       type: "string",
-      width: "300px",
+      width: "150px",
     },
     {
       name: "zaaktype",
       filterLookup: "zaaktype__in",
       filterValue: searchParams.get("zaaktype__in") || "",
+      valueTransform: (v) =>
+        zaaktypeChoices.find((c) => c.value === v.zaaktype)?.label || (
+          <Placeholder />
+        ),
       options: zaaktypeChoices,
       type: "string",
-      width: "300px",
+      width: "150px",
     },
     {
       name: "omschrijving",
       filterLookup: "omschrijving__icontains",
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
-      width: "300px",
+      width: "150px",
     },
     {
       active: false,
       name: "toelichting",
       type: "string",
       filterLookup: "toelichting__icontains",
-      width: "300px",
+      width: "150px",
     },
     {
       name: "startdatum",
@@ -107,7 +115,7 @@ export function useFields<T extends Zaak = Zaak>(
           : undefined,
       valueTransform: (rowData) =>
         rowData.startdatum ? formatDate(rowData.startdatum as string) : "",
-      width: "150px",
+      width: "230px",
     },
     {
       name: "einddatum",
@@ -119,7 +127,7 @@ export function useFields<T extends Zaak = Zaak>(
           : undefined,
       valueTransform: (rowData) =>
         rowData.einddatum ? formatDate(rowData.einddatum as string) : "",
-      width: "150px",
+      width: "230px",
     },
     {
       name: "Behandelende afdeling",
@@ -144,14 +152,18 @@ export function useFields<T extends Zaak = Zaak>(
         });
         return behandelendAfdeling.join(", ");
       },
-      width: "180px",
+      width: "150px",
     },
     {
       name: "selectielijstklasse",
       type: "string",
       // filterLookup: // TODO: Expand?
+      valueTransform: (v) =>
+        selectielijstKlasseChoices.find(
+          (c) => c.value === v.selectielijstklasse,
+        )?.label || <Placeholder />,
       options: selectielijstKlasseChoices,
-      width: "180px",
+      width: "150px",
     },
     {
       name: "resultaat",
@@ -161,12 +173,11 @@ export function useFields<T extends Zaak = Zaak>(
         "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
-      width: "180px",
+      width: "150px",
     },
     {
       name: "archiefactiedatum",
       type: "daterange",
-      width: "130px",
       filterLookups: ["archiefactiedatum__gte", "archiefactiedatum__lte"],
       filterValue:
         searchParams.get("archiefactiedatum__gte") &&
@@ -177,6 +188,7 @@ export function useFields<T extends Zaak = Zaak>(
         rowData.archiefactiedatum
           ? formatDate(rowData.archiefactiedatum as string)
           : "",
+      width: "230px",
     },
     {
       name: "archiefnominatie",
@@ -187,7 +199,7 @@ export function useFields<T extends Zaak = Zaak>(
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
         { label: "Vernietigen", value: "vernietigen" },
       ],
-      width: "180px",
+      width: "150px",
     },
     {
       active: false,
@@ -201,15 +213,16 @@ export function useFields<T extends Zaak = Zaak>(
         { value: "true", label: "Ja" },
         { value: "false", label: "Nee" },
       ],
+      width: "150px",
     },
     {
       name: "hoofdzaak",
       active: false,
       type: "string",
       // valueLookup: // TODO: Expand?
-      width: "180px",
+      width: "150px",
     },
-    ...(extraFields || []),
+    ...(extraFields || []).map((f) => ({ width: "150px", ...f })),
   ];
 
   const filterLookupValues = [
