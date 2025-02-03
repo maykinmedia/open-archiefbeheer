@@ -183,7 +183,6 @@ export function DestructionListEditPage() {
       secondaryNavigationItems={secondaryNavigationItems}
       selectable={editingState}
       selectionActions={selectionActions}
-      sortable={false}
       storageKey={storageKey}
     ></BaseListView>
   );

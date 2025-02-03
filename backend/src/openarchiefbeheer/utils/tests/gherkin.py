@@ -2,7 +2,7 @@ import re
 from typing import Callable
 
 from asgiref.sync import sync_to_async
-from playwright.async_api import TimeoutError, expect
+from playwright.async_api import Locator, Page, TimeoutError, expect
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -89,7 +89,7 @@ class GerkinMixin:
                 await self.given.record_manager_exists()
         """
 
-        def __init__(self, testcase):
+        def __init__(self, testcase: PlaywrightTestCase):
             self.testcase = testcase
 
         async def data_exists(self, create_data_fn: Callable):
@@ -510,7 +510,7 @@ class GerkinMixin:
                 await self.when.record_manager_logs_in(page)
         """
 
-        def __init__(self, testcase):
+        def __init__(self, testcase: PlaywrightTestCase):
             self.testcase = testcase
 
         async def user_logs_in(self, page, user):
@@ -636,7 +636,7 @@ class GerkinMixin:
         # This indicates that the test is inverted (not_), this can be used to optimize tests.
         is_inverted = False
 
-        def __init__(self, testcase):
+        def __init__(self, testcase: PlaywrightTestCase):
             self.testcase = testcase
 
         @property
@@ -712,6 +712,25 @@ class GerkinMixin:
             count = await destruction_list.items.acount()
             self.testcase.assertEqual(number_of_items, count)
 
+        async def zaken_should_have_order(self, page: Page, zaken: list[str]):
+            locators: list[Locator] = [
+                await self.page_should_contain_text(page, z) for z in zaken
+            ]
+            await self.locators_should_have_order(page, locators)
+
+        async def locators_should_have_order(self, page: Page, locators: list[Locator]):
+            for i in range(len(locators) - 1):
+                locator_a = locators[i]
+                locator_b = locators[i + 1]
+
+                bbox_a = await locator_a.bounding_box()
+                bbox_b = await locator_b.bounding_box()
+
+                ypos_a = bbox_a["y"]
+                ypos_b = bbox_b["y"]
+
+                self.testcase.assertLess(ypos_a, ypos_b)
+
         async def page_should_contain_text(self, page, text, timeout=None):
             if timeout is None:
                 timeout = 500 if self.is_inverted else 10000
@@ -720,8 +739,9 @@ class GerkinMixin:
             await page.wait_for_selector(f"text={text}", timeout=timeout)
 
             # Confirm the element with the text is visible
-            element = page.locator(f"text={text}")
-            await expect(element.nth(0)).to_be_visible(timeout=timeout)
+            element = page.locator(f"text={text}").nth(0)
+            await expect(element).to_be_visible(timeout=timeout)
+            return element
 
         async def page_should_not_contain_text(self, page, text, timeout=None):
             if timeout is None:
