@@ -182,6 +182,7 @@ export const ReviewerCanApproveZaak: Story = {
     const approves = await canvas.findAllByRole("button", {
       name: "Accorderen",
     });
+    expect(true).toBeFalsy();
     const approve = approves[0];
     await userEvent.click(approve);
     // Find all checkboxes
