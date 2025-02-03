@@ -113,6 +113,8 @@ def handle_processing_error(pk: int) -> None:
 
     deletion_failure.send(sender=destruction_list)
 
+    logevent.destruction_list_deletion_failed(destruction_list)
+
 
 @app.task
 def delete_destruction_list_item(pk: int) -> None:
