@@ -810,3 +810,15 @@ class ProcessDeletingZakenTests(TestCase):
 
         self.assertNotEqual(item.internal_results["traceback"], "")
         self.assertIn("HTTPError", item.internal_results["traceback"])
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+
+        message = logs[0].get_message()
+
+        self.assertIn(
+            _('The destruction of destruction list "%(list_name)s" failed.')
+            % {"list_name": destruction_list.name},
+            message,
+        )
