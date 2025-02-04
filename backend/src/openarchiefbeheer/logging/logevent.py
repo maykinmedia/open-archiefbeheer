@@ -252,6 +252,13 @@ def destruction_list_deletion_triggered(
     )
 
 
+def destruction_list_deletion_failed(destruction_list: DestructionList) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_deletion_failed",
+    )
+
+
 def destruction_list_items_deleted(
     destruction_list: DestructionList, number_deleted_items: int
 ) -> None:
