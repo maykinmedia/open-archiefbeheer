@@ -22,6 +22,7 @@ from zgw_consumers.models import Service
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
+from openarchiefbeheer.zaken.models import Zaak
 
 from ..constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
 from ..models import (
@@ -36,7 +37,7 @@ from ..models import (
 )
 from ..tasks import delete_destruction_list
 from ..utils import process_new_reviewer
-from .backends import NestedFilterBackend
+from .backends import NestedFilterBackend, NestedOrderingFilterBackend
 from .filtersets import (
     DestructionListCoReviewFilterset,
     DestructionListFilterset,
@@ -465,12 +466,17 @@ class DestructionListItemsViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListItemReadSerializer
-    filter_backends = (NestedFilterBackend,)
+    filter_backends = (NestedFilterBackend, NestedOrderingFilterBackend)
     filterset_class = DestructionListItemFilterset
     filterset_kwargs = {"prefix": "item"}
     nested_filterset_class = ZaakFilterSet
     nested_filterset_relation_field = "zaak"
     pagination_class = PageNumberPagination
+    ordering_fields = "__all__"
+    nested_ordering_fields = "__all__"
+    nested_ordering_model = Zaak
+    nested_ordering_relation_field = "zaak"
+    nested_ordering_prefix = "item"
 
     def get_queryset(self):
         review_response_items = ReviewItemResponse.objects.filter(
@@ -593,10 +599,15 @@ class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericVi
         "destruction_list_item__zaak"
     )
     filterset_class = DestructionListReviewItemFilterset
-    filter_backends = (NestedFilterBackend,)
+    filter_backends = (NestedFilterBackend, NestedOrderingFilterBackend)
     filterset_kwargs = {"prefix": "item-review"}
     nested_filterset_class = ZaakFilterSet
     nested_filterset_relation_field = "destruction_list_item__zaak"
+    ordering_fields = "__all__"
+    nested_ordering_fields = "__all__"
+    nested_ordering_model = Zaak
+    nested_ordering_relation_field = "destruction_list_item__zaak"
+    nested_ordering_prefix = "item-review"
 
 
 @extend_schema_view(
