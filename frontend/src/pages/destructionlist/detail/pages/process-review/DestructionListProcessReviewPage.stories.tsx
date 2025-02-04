@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { userEvent, within } from "@storybook/test";
 
 import { ReactRouterDecorator } from "../../../../../../.storybook/decorators";
 import {
@@ -127,6 +128,13 @@ export const ProcessReview: Story = {
       },
     });
 
+    // Hover over the tooltip badge (modify the selector based on your implementation)
+    const tooltipBadge = await within(context.canvasElement).findAllByText(
+      "Voorstel afgewezen",
+    );
+    await userEvent.hover(tooltipBadge[0]);
+
+    // Expect class `mykn-tooltip` to have `visible` attribute to be `true`
     await clickButton({
       ...context,
       parameters: {

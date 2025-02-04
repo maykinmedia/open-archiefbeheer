@@ -157,7 +157,7 @@ export function DestructionListProcessReviewPage() {
     if (!action) {
       return (
         // @ts-expect-error - style props not supported (yet?)
-        <Badge style={{ display: "block" }}>
+        <Badge style={{ display: "block" }} tabIndex={0}>
           <Solid.QuestionMarkCircleIcon />
           Geen Mutatie
         </Badge>
@@ -173,32 +173,31 @@ export function DestructionListProcessReviewPage() {
       )?.label;
 
     const tooltipData = {
-      archiefactiedatum,
-      oud_archiefactiedatum: zaak?.archiefactiedatum,
-      selectielijstklasse: getLabel(selectielijstklasse),
-      oud_selectielijstklasse: getLabel(zaak.selectielijstklasse),
-      opmerking: comment,
+      "Archiefactiedatum (nieuw)": archiefactiedatum,
+      "Archiefactiedatum (oud)": zaak?.archiefactiedatum,
+      "Selectielijstklasse (nieuw)": getLabel(selectielijstklasse),
+      "Selectielijstklasse (oud)": getLabel(zaak?.selectielijstklasse),
+      Opmerking: comment,
     };
 
     // Filtering logic:
-    // 1. Keep 'oud_' values only if the new value exists and is different.
+    // 1. Keep 'oud' values only if the new value exists and is different.
     // 2. Remove empty, null, or undefined values.
     // 3. Remove duplicate values.
     const filteredTooltipData = Object.fromEntries(
       Object.entries(tooltipData).filter(([key, value], _, arr) => {
-        // 1.
-        if (key.startsWith("oud_")) {
-          const newKey = key.replace("oud_", "");
+        // 1
+        if (key.includes("(oud)")) {
+          const newKey = key.replace("(oud)", "(nieuw)").trim();
           const newValue = tooltipData[newKey as keyof typeof tooltipData];
 
           return (
             newValue !== undefined && newValue !== "" && newValue !== value
           );
         }
-        // 2.
+        // 2
         if (value == null || value === "") return false;
-
-        // 3.
+        // 3
         return !arr.some(
           ([otherKey, otherValue]) => otherKey !== key && otherValue === value,
         );
@@ -207,7 +206,7 @@ export function DestructionListProcessReviewPage() {
 
     const tooltipContent =
       Object.keys(filteredTooltipData).length > 0 ? (
-        <AttributeTable object={filteredTooltipData} />
+        <AttributeTable object={filteredTooltipData} compact />
       ) : (
         "Geen wijzigingen"
       );
@@ -217,13 +216,13 @@ export function DestructionListProcessReviewPage() {
         <span>
           {action === "keep" ? (
             // @ts-expect-error - style props not supported (yet?)
-            <Badge level="info" style={{ display: "block" }}>
+            <Badge level="info" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentPlusIcon />
               Voorstel afgewezen
             </Badge>
           ) : (
             // @ts-expect-error - style props not supported (yet?)
-            <Badge level="danger" style={{ display: "block" }}>
+            <Badge level="danger" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentMinusIcon />
               Uitgezonderd
             </Badge>
