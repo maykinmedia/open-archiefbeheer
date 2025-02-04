@@ -426,3 +426,47 @@ class CoReviewersViewSetTest(APITestCase):
             response.json()["add"][0]["user"][0],
             _("The author of a list cannot be assigned as a co-reviewer."),
         )
+
+    @tag("gh-663")
+    def test_record_manager_assigns_themselves_to_new_list(self):
+        author = UserFactory.create(
+            username="record_manager",
+            post__can_start_destruction=True,
+        )
+        administrator = UserFactory.create(
+            username="administrator",
+            post__can_start_destruction=True,
+            post__can_co_review_destruction=True,
+        )
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.new, name="Test assignement to new list", author=author
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.author,
+            user=author,
+            destruction_list=destruction_list,
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer,
+            destruction_list=destruction_list,
+        )
+
+        self.client.force_authenticate(user=administrator)
+        response = self.client.put(
+            reverse(
+                "api:co-reviewers-list",
+                kwargs={"destruction_list_uuid": destruction_list.uuid},
+            ),
+            data={
+                "comment": "test",
+                "add": [{"user": administrator.pk}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        coreviewers = destruction_list.assignees.filter(role=ListRole.co_reviewer)
+
+        self.assertEqual(1, len(coreviewers))
+        self.assertEqual(coreviewers[0].user.pk, administrator.pk)

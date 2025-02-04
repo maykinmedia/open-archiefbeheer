@@ -125,7 +125,16 @@ class CanUpdateCoReviewers(permissions.BasePermission):
         ) or request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return destruction_list.status == ListStatus.ready_to_review
+        if request.user.has_perm("accounts.can_review_destruction"):
+            return destruction_list.status == ListStatus.ready_to_review
+
+        if request.user.has_perm("accounts.can_start_destruction"):
+            return destruction_list.status in [
+                ListStatus.ready_to_review,
+                ListStatus.new,
+            ]
+
+        return False
 
 
 class CanDownloadReport(permissions.BasePermission):
