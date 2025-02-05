@@ -11,6 +11,7 @@ export function collectErrors(errors: string | object): string[] {
 
   const flatten = Object.values(errors || {})
     .flat()
-    .filter((error) => !["key", "code"].includes(error));
+    .filter((error) => !(typeof error === "object" && "code" in error));
+
   return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
 }
