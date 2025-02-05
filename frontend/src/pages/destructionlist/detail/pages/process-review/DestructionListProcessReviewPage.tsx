@@ -172,41 +172,44 @@ export function DestructionListProcessReviewPage() {
         (choice) => choice.value === value,
       )?.label;
 
-    const tooltipData = {
-      "Archiefactiedatum (nieuw)": archiefactiedatum,
-      "Archiefactiedatum (oud)": zaak?.archiefactiedatum,
-      "Selectielijstklasse (nieuw)": getLabel(selectielijstklasse),
-      "Selectielijstklasse (oud)": getLabel(zaak?.selectielijstklasse),
-      Opmerking: comment,
-    };
+    const tooltipData: Record<string, string | undefined | number> = {};
 
-    // Filtering logic:
-    // 1. Keep 'oud' values only if the new value exists and is different.
-    // 2. Remove empty, null, or undefined values.
-    // 3. Remove duplicate values.
-    const filteredTooltipData = Object.fromEntries(
-      Object.entries(tooltipData).filter(([key, value], _, arr) => {
-        // 1
-        if (key.includes("(oud)")) {
-          const newKey = key.replace("(oud)", "(nieuw)").trim();
-          const newValue = tooltipData[newKey as keyof typeof tooltipData];
+    // Only add the new archiefactiedatum if it exists and is different from the old one.
+    // Additionally, include the old date if it was previously set.
+    if (archiefactiedatum && archiefactiedatum !== zaak.archiefactiedatum) {
+      tooltipData["Archiefactiedatum (nieuw)"] = archiefactiedatum;
 
-          return (
-            newValue !== undefined && newValue !== "" && newValue !== value
-          );
-        }
-        // 2
-        if (value == null || value === "") return false;
-        // 3
-        return !arr.some(
-          ([otherKey, otherValue]) => otherKey !== key && otherValue === value,
-        );
-      }),
-    );
+      // Include the old archiefactiedatum only if it is defined.
+      if (zaak.archiefactiedatum) {
+        tooltipData["Archiefactiedatum (oud)"] = zaak.archiefactiedatum;
+      }
+    }
+
+    const newSelectielijstklasse = getLabel(selectielijstklasse);
+    const oldSelectielijstklasse = getLabel(zaak?.selectielijstklasse);
+
+    // Only add the new selectielijstklasse if it exists and is different from the old one.
+    // Additionally, include the old selectielijstklasse if it was previously set.
+    if (
+      newSelectielijstklasse &&
+      newSelectielijstklasse !== oldSelectielijstklasse
+    ) {
+      tooltipData["Selectielijstklasse (nieuw)"] = newSelectielijstklasse;
+
+      // Include the old selection list class only if it is defined.
+      if (oldSelectielijstklasse) {
+        tooltipData["Selectielijstklasse (oud)"] = oldSelectielijstklasse;
+      }
+    }
+
+    // Always include the comment if it is defined.
+    if (comment) {
+      tooltipData["Opmerking"] = comment;
+    }
 
     const tooltipContent =
-      Object.keys(filteredTooltipData).length > 0 ? (
-        <AttributeTable object={filteredTooltipData} compact />
+      Object.keys(tooltipData).length > 0 ? (
+        <AttributeTable object={tooltipData} compact />
       ) : (
         "Geen wijzigingen"
       );
