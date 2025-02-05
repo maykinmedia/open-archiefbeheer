@@ -28,4 +28,4 @@ class Issue600SessionExpired(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.when.user_clicks_button(page, "Destruction list to click")
             await self.then.page_should_contain_text(page, "Zaak-")
-            await self.then.page_should_contain_text(page, "Your session has expired, please log in again.")
+            await self.then.page_should_contain_text(page, "Uw sessie is verlopen, log alstublieft opnieuw in.")
