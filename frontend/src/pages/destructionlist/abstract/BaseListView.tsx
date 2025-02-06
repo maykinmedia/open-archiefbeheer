@@ -28,6 +28,7 @@ import {
   ZaakSelectionBackend,
 } from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
+import "./BaseListView.css";
 
 /** The template used to format urls to an external application providing zaak details. */
 const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
