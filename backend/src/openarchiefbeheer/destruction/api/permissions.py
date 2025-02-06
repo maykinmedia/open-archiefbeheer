@@ -52,7 +52,20 @@ class CanCoReviewPermission(permissions.BasePermission):
         return request.user.has_perm("accounts.can_co_review_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return destruction_list.assignees.includes(request.user)
+        user_assignees = destruction_list.assignees.values_list("user__pk", flat=True)
+        user = request.user
+
+        # User is not assigned
+        if user.pk not in user_assignees:
+            return False
+
+        # User is not permitted based on role + status
+        if (
+            destruction_list.status == ListStatus.ready_to_review
+            and not user.has_perm("accounts.can_co_review_destruction")
+        ) or destruction_list.status != ListStatus.ready_to_review:
+            return False
+        return True
 
 
 class CanUpdateDestructionList(permissions.BasePermission):

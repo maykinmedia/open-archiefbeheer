@@ -46,6 +46,7 @@ from .filtersets import (
     DestructionListReviewItemFilterset,
     ReviewResponseFilterset,
 )
+from .mixins import DestructionListChecksMixin
 from .permissions import (
     CanAbortDestruction,
     CanCoReviewPermission,
@@ -532,6 +533,7 @@ class DestructionListItemsViewSet(
     ),
 )
 class DestructionListReviewViewSet(
+    DestructionListChecksMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
@@ -547,14 +549,6 @@ class DestructionListReviewViewSet(
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
-
-    def create(self, request, *args, **kwargs):
-        destruction_list = get_object_or_404(
-            DestructionList, uuid=request.data.get("destruction_list")
-        )
-        self.check_object_permissions(self.request, destruction_list)
-
-        return super().create(request, *args, **kwargs)
 
 
 @extend_schema_view(
@@ -575,6 +569,7 @@ class DestructionListReviewViewSet(
     ),
 )
 class DestructionListCoReviewViewSet(
+    DestructionListChecksMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
