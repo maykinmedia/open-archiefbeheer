@@ -9,9 +9,10 @@ export function collectErrors(errors: string | object): string[] {
     return [errors];
   }
 
-  const flatten = Object.values(errors || {})
-    .flat()
-    .filter((error) => !(typeof error === "object" && "code" in error));
+  const flatten = Object.entries(errors || {})
+    .filter(([key]) => !["key", "code"].includes(key))
+    .map(([, value]) => value)
+    .flat();
 
   return flatten.reduce((acc, val) => [...acc, ...collectErrors(val)], []);
 }
