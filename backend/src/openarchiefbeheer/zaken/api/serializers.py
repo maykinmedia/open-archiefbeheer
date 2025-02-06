@@ -8,6 +8,8 @@ from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 from zgw_consumers.models import Service
 
+from openarchiefbeheer.zaken.utils import get_selectielijstklasse_choices_dict
+
 from ..models import Zaak
 
 
@@ -105,6 +107,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
     zaaktype = serializers.SerializerMethodField()
     resultaat = serializers.SerializerMethodField()
     bronapplicatie = serializers.SerializerMethodField()
+    selectielijstklasse = serializers.SerializerMethodField()
 
     class Meta:
         model = Zaak
@@ -117,6 +120,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
             "identificatie",
             "zaaktype",
             "bronapplicatie",
+            "selectielijstklasse",
         )
 
     @extend_schema_field(serializers.JSONField)
@@ -152,3 +156,11 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
 
         service = get_service(zaak_url.url)
         return service.label
+
+    @extend_schema_field(serializers.CharField)
+    def get_selectielijstklasse(self, zaak: Zaak) -> str:
+        if not zaak.selectielijstklasse:
+            return ""
+
+        selectielijstklasse_choices_dict = get_selectielijstklasse_choices_dict()
+        return selectielijstklasse_choices_dict[zaak.selectielijstklasse]["label"]

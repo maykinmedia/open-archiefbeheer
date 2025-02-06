@@ -23,11 +23,7 @@ ZAAK_METADATA_FIELDS_MAPPINGS = [
     {"name": "Zaak Identificatie", "path": "identificatie"},
     {"name": "Zaak Startdatum", "path": "startdatum"},
     {"name": "Zaak Einddatum", "path": "einddatum"},
-    {
-        "name": "Selectielijst Procestype",
-        "path": "zaaktype.selectielijst_procestype",
-        "format": format_selectielijst,
-    },
+    {"name": "Selectielijstklasse", "path": "selectielijstklasse"},
     {
         "name": "Selectielijst versie",
         "path": "zaaktype.selectielijst_procestype",
