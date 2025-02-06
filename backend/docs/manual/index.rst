@@ -13,7 +13,7 @@ rollen en hun bijbehorende verantwoordelijkheden.
     :caption: Inhoudsopgave
 
     1-record-manager/index
-    2-reviewer-archivaris/index
+    2-beoordelaar-archivaris/index
     3-administrator/index
 
 Overkoepelend proces vernietiging
@@ -32,7 +32,7 @@ Het proces wordt uitgevoerd door verschillende rollen, waarbij elke rol specifie
     - De **record manager** is verantwoordelijk voor het aanmaken, beheren en voorbereiden van de vernietigingslijst.
     - De **record manager** is ook verantwoordelijk voor het doorsturen van de lijst naar de archivaris na goedkeuring
       door de beoordelaar.
-    - De **record manager** kan niet de **beoordelaar** van dezelfde vernietigingslijst zijn, maar kan zowel de rol van
+    - De **record manager** kan niet tegelijk de auteur en de **beoordelaar** van een vernietigingslijst zijn, maar kan zowel de rol van
       record manager als beoordelaar in het systeem vervullen, mits deze rollen betrekking hebben op verschillende
       lijsten.
 

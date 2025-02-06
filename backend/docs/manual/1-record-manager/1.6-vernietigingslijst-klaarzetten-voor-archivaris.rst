@@ -55,7 +55,7 @@ Let op
 - Nadat de lijst is gemarkeerd als definitief, zal de archivaris de lijst verder verwerken.
 
 Na het markeren van de lijst als definitief, wordt de lijst doorgestuurd naar de archivaris voor verdere verwerking. De
-archivaris voert een laatste :ref:`beoordeling<manual_2-reviewer-archivaris_2.1-vernietigingslijst-beoordelen>` uit en
+archivaris voert een laatste :ref:`beoordeling<manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen>` uit en
 kan de lijst goedkeuren of afwijzen. Indien de lijst wordt goedgekeurd zal de status worden bijgewerkt naar
 **"Klaar om te vernietigen"** en kan de vernietiging van de geselecteerde zaken worden
 :ref:`gestart<manual_1-record-manager_1.7-vernietigingslijst-vernietigen>`. Indien de lijst wordt afgekeurd, zal de status

@@ -1,8 +1,8 @@
-.. _manual_2-reviewer-archivaris_index:
+.. _manual_2-beoordelaar-archivaris_index:
 
-===================
-Reviewer/Archivaris
-===================
+======================
+Beoordelaar/Archivaris
+======================
 
 .. toctree::
    :maxdepth: 1

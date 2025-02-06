@@ -111,7 +111,7 @@ Stappen
     - Een formulier wordt geopend om de nieuwe beoordelaar of toe te wijzen.
 
 4. **Selecteer een nieuwe beoordelaar**
-    - Vul het veld **"Beoordelaar"** in door een naam te selecteren uit de lijst, bijvoorbeeld **"John Doe (reviewer)"**.
+    - Vul het veld **"Beoordelaar"** in door een naam te selecteren uit de lijst, bijvoorbeeld **"John Doe (beoordelaar)"**.
     - Vul het veld **"Reden"** in met een korte toelichting, bijvoorbeeld **"Originele beoordelaar is op vakantie."**.
 
 5. **Bevestig de wijziging**
