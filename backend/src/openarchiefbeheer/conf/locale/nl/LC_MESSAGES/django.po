@@ -1423,7 +1423,7 @@ msgstr[1] ""
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:9
 #, python-format
 msgid "They also removed these co-reviewers: %(removed_co_reviewers)s."
-msgstr "Zij hebben deze mede-beoordelaars ook verwijderd: %(removed_co_reviewers)s."
+msgstr "Hij/zij heeft ook deze medebeoordelaars verwijderd: %(removed_co_reviewers)s."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:14
 #, python-format
@@ -1444,7 +1444,7 @@ msgstr[1] ""
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:21
 #, python-format
 msgid "They added the comment: %(comment)s."
-msgstr "Zij hebben de opmerking toegevoegd: %(comment)s."
+msgstr "Hij/zij heeft de opmerking toegevoegd: %(comment)s."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_created.txt:1
 #, python-format
