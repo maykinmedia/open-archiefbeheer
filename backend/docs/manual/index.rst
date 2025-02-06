@@ -63,10 +63,12 @@ Processtappen
 
 1. **Voorbereiden van de lijst (door de record manager)**:
     - De **record manager** creëert de vernietigingslijst en past deze eventueel later nog aan.
-    - Zodra de lijst klaar is, kan de **record manager** de lijst naar de beoordelaar sturen.
+    - Zodra de lijst klaar is, kan de **record manager** de lijst naar de beoordelaar sturen en kan daarbij optioneel
+      ook medebeoordelaars toewijzen.
 
 2. **Beoordelen van de lijst (door de beoordelaar en mede-beoordelaars)**:
     - De **beoordelaar** opent de lijst en beoordeelt de zaken.
+    - De **beoordelaar** kan extra medebeoordelaars toewijzen om samen aan de beoordeling te werken.
     - De **mede-beoordelaar** heeft dezelfde beoordelingsverantwoordelijkheden als de **beoordelaar** en kan zaken
       goedkeuren, afwijzen of uitzonderen.
     - Alle beoordelaars (hoofdbeoordelaar en mede-beoordelaars) kunnen hun opmerkingen en beoordelingen zien, maar
