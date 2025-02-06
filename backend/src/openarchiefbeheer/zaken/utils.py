@@ -177,7 +177,9 @@ def format_resultaten_choices(resultaten: list[dict | None]) -> DropDownChoice:
 
 
 @lru_cache
-def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> list:
+def retrieve_selectielijstklasse_choices(
+    query_params: HashableDict | None = None,
+) -> list:
     config = APIConfig.get_solo()
     selectielijst_service = config.selectielijst_api_service
     if not selectielijst_service:
