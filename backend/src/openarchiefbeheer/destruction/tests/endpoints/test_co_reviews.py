@@ -186,15 +186,51 @@ class CoReviewsViewSetTest(APITestCase):
                 "list_feedback": "gh-497",
             },
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["author"],
-            [
-                _(
-                    "This user is not currently assigned to the destruction list, so they cannot create a co-review at this stage."
-                )
-            ],
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_if_list_in_wrong_status_cannot_be_reviewed(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=True,
         )
+        co_reviewer = assignees[2]
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_for_archivist
+        )
+        destruction_list.assignees.set(assignees)
+
+        self.client.force_login(co_reviewer.user)
+        url = reverse("api:destruction-list-co-reviews-list")
+        response = self.client.post(
+            url,
+            {
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_if_user_not_a_co_reviewer_cannot_create_review(self):
+        assignees = DestructionListAssigneeFactory.create_batch(
+            3,
+            user__post__can_co_review_destruction=False,
+        )
+        co_reviewer = assignees[2].user
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        destruction_list.assignees.set(assignees)
+
+        self.client.force_login(co_reviewer)
+        url = reverse("api:destruction-list-co-reviews-list")
+        response = self.client.post(
+            url,
+            {
+                "destruction_list": destruction_list.uuid,
+                "list_feedback": "gh-497",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_no_list_feedback(self):
         co_reviewer = DestructionListAssigneeFactory.create(role=ListRole.co_reviewer)
@@ -238,3 +274,26 @@ class CoReviewsViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(co_review.author, co_reviewer.user)
         self.assertEqual(co_review.list_feedback, "gh-497")
+
+    def test_destruction_list_does_not_exist(self):
+        co_reviewer = DestructionListAssigneeFactory.create(role=ListRole.co_reviewer)
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review
+        )
+        destruction_list.assignees.add(co_reviewer)
+
+        self.client.force_login(co_reviewer.user)
+        url = reverse("api:destruction-list-co-reviews-list")
+        response = self.client.post(
+            url,
+            {
+                "destruction_list": "7cf58293-cf87-48a1-9857-7dea3dba00e0",
+                "list_feedback": "Tralala",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["destructionList"],
+            _("The destruction list does not exist."),
+        )
