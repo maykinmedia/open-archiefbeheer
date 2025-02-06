@@ -74,12 +74,17 @@ Processtappen
     - Alle beoordelaars (hoofdbeoordelaar en mede-beoordelaars) kunnen hun opmerkingen en beoordelingen zien, maar
       alleen de **hoofdbeoordelaar** kan de lijst goedkeuren of afwijzen.
 
-3. **Doorsturen naar de archivaris (door de record manager)**:
+3. **Verwerken van een beoordeling (door de record manager)**:
+    - Indien een lijst is afgewezen kan de beoordeling door de **record manager** verwerkt worden door voor elke
+      uitgezonderde zaak de selectielijstklasse (en optioneel archiefactiedatum) aan te passen, of het voorstel tot
+      uitzonderen af te wijzen.
+
+4. **Doorsturen naar de archivaris (door de record manager)**:
     - Nadat de lijst is goedgekeurd door de beoordelaar, stuurt de **record manager** de lijst door naar de
       **archivaris**.
     - De **archivaris** heeft de laatste goedkeuring om de vernietiging in gang te zetten.
 
-4. **Vernietigen van de lijst (door de archivaris)**:
+5. **Vernietigen van de lijst (door de archivaris)**:
     - Na goedkeuring door de archivaris, worden de geselecteerde zaken definitief vernietigd.
     - Een vernietigingsrapport wordt gegenereerd door het systeem na afloop van de vernietiging, welke kan worden
       gedownload door de record manager.
