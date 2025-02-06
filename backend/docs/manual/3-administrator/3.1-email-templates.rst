@@ -14,11 +14,11 @@ Locatie van de Email Configuratie
    
 Hier kun je de onderwerpen en de emailteksten voor de emails die worden gestuurd naar:
 
-- De reviewer als een review wordt aangevraagd.
-- De reviewer als een herinnering voor een review nodig is.
-- De record manager als een reviewer een lijst heeft goedgekeurd.
-- De record manager als een reviewer aanpassingen heeft aangevraagd op een lijst.
-- De record manager en de reviewers als een lijst succesvol is vernietigd.
+- De beoordelaar als een review wordt aangevraagd.
+- De beoordelaar als een herinnering voor een review nodig is.
+- De record manager als een beoordelaar een lijst heeft goedgekeurd.
+- De record manager als een beoordelaar aanpassingen heeft aangevraagd op een lijst.
+- De record manager en de beoordelaars als een lijst succesvol is vernietigd.
 
 Tekst en HTML sjablonen moeten geconfigureerd worden voor elke email. Een voorbeeld voor de email
 die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zou kunnen is:
@@ -62,4 +62,4 @@ Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
 
    "``{{ list_name }}``",   "Geeft de naam van de vernietigingslijst."
    "``{{ user_name }}``",   "Geeft de voornaam en de achternaam van de persoon die de email ontvangt."
-   "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de reviewer van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de reviewer."
+   "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de beoordelaar van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de beoordelaar."

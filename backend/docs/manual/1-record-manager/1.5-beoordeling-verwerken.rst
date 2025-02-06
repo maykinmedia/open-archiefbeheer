@@ -79,7 +79,7 @@ Let op
 - Nadat de lijst opnieuw is ingediend, zal deze opnieuw beoordeeld moeten worden door een beoordelaar.
 
 Na het indienen kan de lijst door de beoordelaar opnieuw worden
-:ref:`bekeken<manual_2-reviewer-archivaris_2.1-vernietigingslijst-beoordelen>`. De beoordelaar kan de lijst goedkeuren
+:ref:`bekeken<manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen>`. De beoordelaar kan de lijst goedkeuren
 of verdere wijzigingen aanvragen.
 
 .. |muteren_knop| image:: ../_assets/muteren-knop.png

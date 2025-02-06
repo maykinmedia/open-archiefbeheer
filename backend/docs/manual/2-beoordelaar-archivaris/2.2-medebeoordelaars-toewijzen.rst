@@ -1,4 +1,4 @@
-.. _manual_2-reviewer-archivaris_2.2-medebeoordelaars-toewijzen:
+.. _manual_2-beoordelaar-archivaris_2.2-medebeoordelaars-toewijzen:
 
 
 ==========================
@@ -40,7 +40,7 @@ Stappen
     - Nadat je de medebeoordelaars hebt toegewezen, worden de medebeoordelaars weergegeven in de lijst met beoordelaars.
 
 Na het toewijzen kunnen de medebeoordelaars de lijst bekijken en
-:ref:`beoordelen<manual_2-reviewer-archivaris_2.1-vernietigingslijst-beoordelen>`. Beoordelingen van alle
+:ref:`beoordelen<manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen>`. Beoordelingen van alle
 (mede)beoordelaars zijn zichtbaar voor alle andere beoordelaars. Alleen de hoofdbeoordelaar kan de lijst goedkeuren of
 afwijzen.
 

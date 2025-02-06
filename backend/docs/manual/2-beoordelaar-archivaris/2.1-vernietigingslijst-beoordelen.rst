@@ -1,4 +1,4 @@
-.. _manual_2-reviewer-archivaris_2.1-vernietigingslijst-beoordelen:
+.. _manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen:
 
 =============================
 Vernietigingslijst beoordelen
