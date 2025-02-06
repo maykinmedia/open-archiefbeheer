@@ -1,0 +1,23 @@
+/*
+ * Override default (admin-ui) styling for datagrid cell that:
+ * - Is the last column
+ * - Contains a toolbar
+ *
+ * We assume this contains one or more actions to perform. Since these actions need to be in view all the time, we apply
+ * (sticky) styling to them.
+ */
+.mykn-datagrid .mykn-datagrid__cell--type-text:last-child:has(> .mykn-toolbar) {
+  position: sticky;
+  right: 0;
+
+  /* Buttons get shadow and rounded border (may be moved to admin-ui in the future). */
+  .mykn-button {
+    box-shadow: 0px 0px var(--spacing-h) var(--page-color-shadow);
+    border-radius: var(--spacing-v);
+  }
+
+  /* Single buttons get min-width. */
+  .mykn-button:first-child:last-child {
+    min-width: calc(150px - var(--spacing-h) * 2);
+  }
+}
