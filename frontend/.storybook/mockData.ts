@@ -5,6 +5,7 @@ import {
   coReviewsFactory,
   destructionListAssigneesFactory,
   destructionListFactory,
+  paginatedZakenFactory,
   recordManagerFactory,
   userFactory,
   usersFactory,
@@ -200,6 +201,13 @@ export const MOCKS = {
     method: "POST",
     status: "201",
     response: {},
+  },
+  // ZAKEN
+  ZAKEN_SEARCH: {
+    url: "http://localhost:8000/api/v1/zaken/search/",
+    method: "POST",
+    status: 200,
+    response: paginatedZakenFactory(),
   },
 };
 

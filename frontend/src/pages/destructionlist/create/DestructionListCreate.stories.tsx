@@ -33,6 +33,7 @@ const meta: Meta<typeof DestructionListCreatePage> = {
       MOCKS.OIDC_INFO,
       MOCKS.SELECTIE_LIJST_CHOICES,
       MOCKS.ZAAKTYPE_CHOICES,
+      MOCKS.ZAKEN_SEARCH,
       {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",
