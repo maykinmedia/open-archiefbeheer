@@ -124,11 +124,18 @@ export async function listZaaktypeChoices(
         params.set("notInDestructionList", "true");
       }
 
-      const endpoint = external
-        ? "/_external-zaaktypen-choices/"
-        : "/_zaaktypen-choices/";
+      let response;
+      if (external) {
+        response = await request(
+          "GET",
+          "/_external-zaaktypen-choices/",
+          params,
+        );
+      } else {
+        const filters = Object.fromEntries(params.entries());
+        response = await request("POST", "/_zaaktypen-choices/", {}, filters);
+      }
 
-      const response = await request("GET", endpoint, params);
       const promise: Promise<Option[]> = response.json();
 
       return promise;

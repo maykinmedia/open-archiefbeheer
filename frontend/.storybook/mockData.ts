@@ -50,6 +50,12 @@ export const MOCKS = {
     status: 200,
     response: zaaktypeChoicesFactory(),
   },
+  DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES: {
+    url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
+    method: "POST",
+    status: 200,
+    response: zaaktypeChoicesFactory(),
+  },
   DESTRUCTION_LISTS: {
     url: "http://localhost:8000/api/v1/destruction-lists/?ordering=-created",
     method: "GET",
