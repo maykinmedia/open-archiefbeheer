@@ -209,28 +209,54 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         DestructionListItemFactory.create_batch(2, with_zaak=True)
 
         self.client.force_authenticate(user=user)
-        endpoint = furl(reverse("api:retrieve-zaaktypen-choices"))
-        endpoint.args["in_destruction_list"] = destruction_list.uuid
+        url = reverse("api:retrieve-zaaktypen-choices")
 
-        response = self.client.get(endpoint.url)
+        with self.subTest("with GET"):
+            endpoint = furl(url)
+            endpoint.args["in_destruction_list"] = destruction_list.uuid
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.get(endpoint.url)
 
-        choices = sorted(response.json(), key=lambda choice: choice["label"])
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(len(choices), 2)
-        self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
-        self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
+            choices = sorted(response.json(), key=lambda choice: choice["label"])
 
-        values = choices[0]["value"].split(",")
+            self.assertEqual(len(choices), 2)
+            self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
+            self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
 
-        self.assertEqual(len(values), 2)
-        self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
-        self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
+            values = choices[0]["value"].split(",")
 
-        self.assertEqual(
-            choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
-        )
+            self.assertEqual(len(values), 2)
+            self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
+            self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
+
+            self.assertEqual(
+                choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
+            )
+
+        with self.subTest("with POST"):
+            response = self.client.post(
+                url, data={"in_destruction_list": destruction_list.uuid}
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            choices = sorted(response.json(), key=lambda choice: choice["label"])
+
+            self.assertEqual(len(choices), 2)
+            self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
+            self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
+
+            values = choices[0]["value"].split(",")
+
+            self.assertEqual(len(values), 2)
+            self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
+            self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
+
+            self.assertEqual(
+                choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
+            )
 
     @tag("gh-303")
     def test_retrieve_zaaktypen_choices_for_destruction_list_if_zaaktype_id_empty(self):
