@@ -8,10 +8,7 @@ import {
   roleFactory,
   userFactory,
 } from "../../fixtures/user";
-import {
-  STATUSES_ELIGIBLE_FOR_EDIT,
-  STATUSES_ELIGIBLE_FOR_REVIEW,
-} from "../../pages/constants";
+import { STATUSES_ELIGIBLE_FOR_EDIT } from "../../pages/constants";
 import { User } from "../api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,
@@ -151,7 +148,7 @@ describe("canReviewDestructionList()", () => {
     });
     const list2 = destructionListFactory({
       assignee: other,
-      status: "ready_to_review",
+      status: "ready_for_archivist",
     });
 
     expect(canReviewDestructionList(me, list1)).toBeTruthy();
@@ -264,7 +261,7 @@ DESTRUCTION_LIST_STATUSES.forEach((status) => {
     });
 
     test("should allow a user to review if they have the role and status is eligible", () => {
-      const isEligible = STATUSES_ELIGIBLE_FOR_REVIEW.includes(status);
+      const isEligible = status === "ready_to_review";
       expect(canReviewDestructionList(user, destructionList)).toBe(isEligible);
     });
 

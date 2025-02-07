@@ -1,7 +1,4 @@
-import {
-  STATUSES_ELIGIBLE_FOR_EDIT,
-  STATUSES_ELIGIBLE_FOR_REVIEW,
-} from "../../pages/constants";
+import { STATUSES_ELIGIBLE_FOR_EDIT } from "../../pages/constants";
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 
@@ -61,15 +58,24 @@ export const canReviewDestructionList: DestructionListPermissionCheck = (
   user,
   destructionList,
 ) => {
-  if (!(user.role.canReviewDestruction || user.role.canReviewFinalList)) {
+  if (user.pk !== destructionList.assignee.pk) {
     return false;
   }
 
-  if (!STATUSES_ELIGIBLE_FOR_REVIEW.includes(destructionList.status)) {
-    return false;
+  if (
+    user.role.canReviewDestruction &&
+    destructionList.status === "ready_to_review"
+  ) {
+    return true;
+  }
+  if (
+    user.role.canReviewFinalList &&
+    destructionList.status === "ready_for_archivist"
+  ) {
+    return true;
   }
 
-  return user.pk === destructionList.assignee.pk;
+  return false;
 };
 
 /**
@@ -85,14 +91,18 @@ export const canCoReviewDestructionList: DestructionListPermissionCheck = (
     return false;
   }
 
-  if (!STATUSES_ELIGIBLE_FOR_REVIEW.includes(destructionList.status)) {
+  if (destructionList.status !== "ready_to_review") {
     return false;
   }
 
-  return destructionList.assignees
+  const listAssignees = destructionList.assignees
     .filter((a) => a.role === "co_reviewer")
-    .map((a) => a.user.pk)
-    .includes(user.pk);
+    .map((a) => a.user.pk);
+  if (listAssignees.includes(user.pk)) {
+    return true;
+  }
+
+  return false;
 };
 
 /**
