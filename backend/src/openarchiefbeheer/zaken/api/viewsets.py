@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 
 from openarchiefbeheer.destruction.api.permissions import (
@@ -11,7 +10,10 @@ from openarchiefbeheer.destruction.api.permissions import (
     CanReviewPermission,
     CanStartDestructionPermission,
 )
-from openarchiefbeheer.utils.paginators import PageNumberPagination
+from openarchiefbeheer.utils.django_filters.backends import (
+    OrderingWithPostFilterBackend,
+)
+from openarchiefbeheer.utils.paginators import PageNumberPaginationWithPost
 
 from ..models import Zaak
 from .filtersets import ZaakFilterBackend, ZaakFilterSet
@@ -40,8 +42,8 @@ class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         IsAuthenticated
         & (CanStartDestructionPermission | CanReviewPermission | CanCoReviewPermission)
     ]
-    pagination_class = PageNumberPagination
-    filter_backends = (ZaakFilterBackend, OrderingFilter)
+    pagination_class = PageNumberPaginationWithPost
+    filter_backends = (ZaakFilterBackend, OrderingWithPostFilterBackend)
     filterset_class = ZaakFilterSet
     ordering_fields = "__all__"
 

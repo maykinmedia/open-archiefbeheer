@@ -1,6 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.utils import translate_validation
-from rest_framework.filters import OrderingFilter
+
+from openarchiefbeheer.utils.django_filters.backends import (
+    OrderingWithPostFilterBackend,
+)
 
 
 class NestedFilterBackend(DjangoFilterBackend):
@@ -38,7 +41,7 @@ class NestedFilterBackend(DjangoFilterBackend):
         return nested_filterset_class(**kwargs)
 
 
-class NestedOrderingFilterBackend(OrderingFilter):
+class NestedOrderingFilterBackend(OrderingWithPostFilterBackend):
     def get_valid_fields(self, queryset, view, context={}) -> list[tuple[str, str]]:
         valid_fields = getattr(
             view, context.get("ordering_fields_view_attr", "ordering_fields"), []
@@ -72,12 +75,13 @@ class NestedOrderingFilterBackend(OrderingFilter):
         return term in valid_fields
 
     def get_ordering(self, request, queryset, view) -> list[str]:
+        ordering_filters = self.get_ordering_filters(request)
         base_ordering_param = (
             f"{view.nested_ordering_prefix}-{self.ordering_param}"
             if view.nested_ordering_prefix
             else self.ordering_param
         )
-        base_params = request.query_params.get(base_ordering_param)
+        base_params = ordering_filters.get(base_ordering_param)
         formatted_fields = []
         if base_params:
             fields = [param.strip() for param in base_params.split(",")]
@@ -88,7 +92,7 @@ class NestedOrderingFilterBackend(OrderingFilter):
                 term for term in fields if self.is_term_valid(term, valid_fields)
             ]
 
-        nested_params = request.query_params.get(self.ordering_param)
+        nested_params = ordering_filters.get(self.ordering_param)
         if nested_params:
             fields = [param.strip() for param in nested_params.split(",")]
             nested_queryset = view.nested_ordering_model.objects.all()
