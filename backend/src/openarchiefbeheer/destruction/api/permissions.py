@@ -20,6 +20,25 @@ class CanReviewPermission(permissions.BasePermission):
             "accounts.can_review_destruction"
         ) or request.user.has_perm("accounts.can_review_final_list")
 
+    def has_object_permission(self, request, view, destruction_list):
+        user = request.user
+
+        # User is not assigned
+        if destruction_list.assignee != user:
+            return False
+
+        # User is not permitted based on role + status
+        if (
+            destruction_list.status == ListStatus.ready_to_review
+            and user.has_perm("accounts.can_review_destruction")
+        ) or (
+            destruction_list.status == ListStatus.ready_for_archivist
+            and user.has_perm("accounts.can_review_final_list")
+        ):
+            return True
+
+        return False
+
 
 class CanCoReviewPermission(permissions.BasePermission):
     message = _("You are not allowed to co-review a destruction list.")
@@ -28,7 +47,20 @@ class CanCoReviewPermission(permissions.BasePermission):
         return request.user.has_perm("accounts.can_co_review_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return destruction_list.assignees.includes(request.user)
+        user_assignees = destruction_list.assignees.values_list("user__pk", flat=True)
+        user = request.user
+
+        # User is not assigned
+        if user.pk not in user_assignees:
+            return False
+
+        # User is permitted based on role + status
+        if destruction_list.status == ListStatus.ready_to_review and user.has_perm(
+            "accounts.can_co_review_destruction"
+        ):
+            return True
+
+        return False
 
 
 class CanUpdateDestructionList(permissions.BasePermission):

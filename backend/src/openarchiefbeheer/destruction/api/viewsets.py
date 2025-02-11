@@ -46,6 +46,7 @@ from .filtersets import (
     DestructionListReviewItemFilterset,
     ReviewResponseFilterset,
 )
+from .mixins import DestructionListChecksMixin
 from .permissions import (
     CanAbortDestruction,
     CanCoReviewPermission,
@@ -532,6 +533,7 @@ class DestructionListItemsViewSet(
     ),
 )
 class DestructionListReviewViewSet(
+    DestructionListChecksMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
@@ -567,6 +569,7 @@ class DestructionListReviewViewSet(
     ),
 )
 class DestructionListCoReviewViewSet(
+    DestructionListChecksMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
