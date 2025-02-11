@@ -24,3 +24,8 @@ To do this, stop the Docker deamon and restart it as follows (more info https://
 
 Then the client will be configured using `client = docker.DockerClient(base_url='tcp://127.0.0.1:2375')` instead of
 `client = docker.from_env()`.
+
+Environment variables
+=====================
+
+- ``RECORDING_CASSETTES_VCR``: Defaults to ``False``. Set this to ``True`` if you are re-recording the cassettes. 
