@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.test import TestCase, tag
 
 from freezegun import freeze_time
@@ -7,6 +8,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
@@ -96,6 +98,13 @@ class ProcessResponseTest(VCRMixin, TestCase):
 
 @tag("vcr")
 class DestructionTest(VCRMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+
+        cache.clear()
+
+        self.addCleanup(cache.clear)
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -127,6 +136,15 @@ class DestructionTest(VCRMixin, TestCase):
         After a relation object (ZIO/BIO) is deleted by OAB and before the
         corresponding EIO is deleted by OAB, someone deletes the EIO in OZ.
         """
+        service = ServiceFactory(
+            slug="selectielijst",
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/api/v1/",
+        )
+        config = APIConfig.get_solo()
+        config.selectielijst_api_service = service
+        config.save()
+
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 

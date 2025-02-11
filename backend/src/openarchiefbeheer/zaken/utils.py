@@ -4,6 +4,7 @@ from functools import lru_cache, partial
 from typing import Callable, Generator, Iterable, Literal
 
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.translation import gettext as _
 
 from ape_pie import APIClient
@@ -176,7 +177,9 @@ def format_resultaten_choices(resultaten: list[dict | None]) -> DropDownChoice:
 
 
 @lru_cache
-def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> list:
+def retrieve_selectielijstklasse_choices(
+    query_params: HashableDict | None = None,
+) -> list:
     config = APIConfig.get_solo()
     selectielijst_service = config.selectielijst_api_service
     if not selectielijst_service:
@@ -194,6 +197,16 @@ def retrieve_selectielijstklasse_choices(query_params: HashableDict | None) -> l
             format_selectielijstklasse_choice(result) for result in page["results"]
         ]
 
+    return results
+
+
+def get_selectielijstklasse_choices_dict() -> dict[str, DropDownChoice]:
+    if selectielijstklasse_dict := cache.get("selectielijstklasse_dict"):
+        return selectielijstklasse_dict
+
+    results = retrieve_selectielijstklasse_choices()
+    results = {result["value"]: result for result in results}
+    cache.set("selectielijstklasse_dict", results)
     return results
 
 

@@ -371,6 +371,7 @@ class DestructionListTest(TestCase):
                         "jaar": 2020,
                     },
                 },
+                "selectielijstklasse": "3.2 - Niet vastgesteld - vernietigen",
             },
         )
         DestructionListItemFactory.create(
@@ -402,6 +403,7 @@ class DestructionListTest(TestCase):
                         "jaar": 2024,
                     },
                 },
+                "selectielijstklasse": "3.2 - Niet vastgesteld - vernietigen",
             },
         )
         DestructionListItemFactory.create(
@@ -425,6 +427,7 @@ class DestructionListTest(TestCase):
                         "jaar": 2022,
                     },
                 },
+                "selectielijstklasse": "1.1 - Ingericht - vernietigen",
             },
         )
 
@@ -448,7 +451,7 @@ class DestructionListTest(TestCase):
                 "Zaak Identificatie",
                 "Zaak Startdatum",
                 "Zaak Einddatum",
-                "Selectielijst Procestype",
+                "Selectielijstklasse",
                 "Selectielijst versie",
             ),
         )
@@ -467,7 +470,7 @@ class DestructionListTest(TestCase):
                 "ZAAK-01",
                 "2020-01-01",
                 "2022-01-01",
-                "1.1 - Plannen opstellen",
+                "3.2 - Niet vastgesteld - vernietigen",
                 2020,
             ),
         )
@@ -482,7 +485,7 @@ class DestructionListTest(TestCase):
                 "ZAAK-02",
                 "2020-01-02",
                 "2022-01-02",
-                "1 - Beleid en regelgeving opstellen",
+                "3.2 - Niet vastgesteld - vernietigen",
                 2024,
             ),
         )
@@ -497,7 +500,7 @@ class DestructionListTest(TestCase):
                 "ZAAK-03",
                 "2020-01-03",
                 "2022-01-03",
-                "1.0 - Instellen en inrichten organisatie",
+                "1.1 - Ingericht - vernietigen",
                 2022,
             ),
         )
@@ -623,7 +626,7 @@ class DestructionListTest(TestCase):
                 "Zaak Identificatie",
                 "Zaak Startdatum",
                 "Zaak Einddatum",
-                "Selectielijst Procestype",
+                "Selectielijstklasse",
                 "Selectielijst versie",
             ),
         )
