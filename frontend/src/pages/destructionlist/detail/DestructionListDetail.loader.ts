@@ -22,7 +22,7 @@ import {
   ReviewResponse,
   getLatestReviewResponse,
 } from "../../../lib/api/reviewResponse";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import { PaginatedZaken, searchZaken } from "../../../lib/api/zaken";
 import {
   canViewDestructionListRequired,
   loginRequired,
@@ -95,7 +95,7 @@ export const destructionListDetailLoader = loginRequired(
         async (): Promise<PaginatedDestructionListItems> => {
           const params = searchParams;
           if (isEditing) {
-            params["item-order_match_zaken"] = "true"; // Must be in sync with `listZaken()` ordering.
+            params["item-order_match_zaken"] = "true"; // Must be in sync with `searchZaken()` ordering.
           }
           return reviewItemsWithZaak
             ? {
@@ -158,7 +158,7 @@ export const destructionListDetailLoader = loginRequired(
               previous: null,
               results: [],
             } as PaginatedZaken)
-          : listZaken({
+          : searchZaken({
               ...searchParams,
               not_in_destruction_list_except: uuid,
             });
