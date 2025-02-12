@@ -1400,18 +1400,17 @@ msgstr ""
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:14
 #, python-format
 msgid ""
-"User %(user)s (member of group %(groups)s) has replaced all the co-reviewers "
-"of the list \"%(list_name)s\" with: %(added_co_reviewers)s."
+"User %(user)s (member of group %(groups)s) has added the following co-reviewers "
+"to the list \"%(list_name)s\": %(added_co_reviewers)s."
 msgid_plural ""
-"User %(user)s (member of groups %(groups)s) has replaced all the co-"
-"reviewers of the list \"%(list_name)s\" with: %(added_co_reviewers)s."
+"User %(user)s (member of groups %(groups)s) has added the following co-"
+"reviewers to the list \"%(list_name)s\": %(added_co_reviewers)s."
 msgstr[0] ""
-"Gebruiker %(user)s (lid van groep %(groups)s) heeft alle mede-beoordelaars "
-"van de lijst \"%(list_name)s\" vervangen door: %(added_co_reviewers)s."
+"Gebruiker %(user)s (lid van groep %(groups)s) heeft de volgende mede-"
+"beoordelaar toegevoegd aan de lijst \"%(list_name)s\": %(added_co_reviewers)s."
 msgstr[1] ""
-"Gebruiker %(user)s (lid van groepen %(groups)s)  heeft alle mede-"
-"beoordelaars van de lijst \"%(list_name)s\" vervangen door: "
-"%(added_co_reviewers)s."
+"Gebruiker %(user)s (lid van groepen %(groups)s) heeft de volgende mede-"
+"beoordelaars toegevoegd aan de lijst \"%(list_name)s\": %(added_co_reviewers)s."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:21
 #, python-format
