@@ -475,10 +475,14 @@ IPWARE_META_PRECEDENCE_ORDER = (
 # we run the admin site monkeypatch instead.
 TWO_FACTOR_PATCH_ADMIN = False
 # Relying Party name for WebAuthn (hardware tokens)
-TWO_FACTOR_WEBAUTHN_RP_NAME = "openarchiefbeheer"
+TWO_FACTOR_WEBAUTHN_RP_NAME = config(
+    "TWO_FACTOR_WEBAUTHN_RP_NAME", default="openarchiefbeheer"
+)
 # use platform for fingerprint readers etc., or remove the setting to allow any.
 # cross-platform would limit the options to devices like phones/yubikeys
-TWO_FACTOR_WEBAUTHN_AUTHENTICATOR_ATTACHMENT = "cross-platform"
+TWO_FACTOR_WEBAUTHN_AUTHENTICATOR_ATTACHMENT = config(
+    "TWO_FACTOR_WEBAUTHN_AUTHENTICATOR_ATTACHMENT", default="platform"
+)
 # add entries from AUTHENTICATION_BACKENDS that already enforce their own two-factor
 # auth, avoiding having some set up MFA again in the project.
 MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = [
