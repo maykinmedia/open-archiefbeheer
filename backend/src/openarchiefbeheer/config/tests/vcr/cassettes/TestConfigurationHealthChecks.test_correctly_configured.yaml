@@ -1,0 +1,234 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczOTQ1NTY2OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.3l3EfxRTKZGT-6W9-e4FFdwm-qvnmUx4XQLumIFCkCo
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/zaken/api/v1/
+  response:
+    body:
+      string: '{"zaken":"http://localhost:8003/zaken/api/v1/zaken","statussen":"http://localhost:8003/zaken/api/v1/statussen","zaakobjecten":"http://localhost:8003/zaken/api/v1/zaakobjecten","klantcontacten":"http://localhost:8003/zaken/api/v1/klantcontacten","rollen":"http://localhost:8003/zaken/api/v1/rollen","resultaten":"http://localhost:8003/zaken/api/v1/resultaten","zaakinformatieobjecten":"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten","zaakcontactmomenten":"http://localhost:8003/zaken/api/v1/zaakcontactmomenten","zaakverzoeken":"http://localhost:8003/zaken/api/v1/zaakverzoeken"}'
+    headers:
+      API-version:
+      - 1.5.1
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '590'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 13 Feb 2025 14:07:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.27.0
+      Vary:
+      - Accept, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczOTQ1NTY2OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.6W37BkMlWOPvcqd1RATkx2y8EPg_hE8V8gTqWL-h-9Q
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/documenten/api/v1/
+  response:
+    body:
+      string: '{"enkelvoudiginformatieobjecten":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten","gebruiksrechten":"http://localhost:8003/documenten/api/v1/gebruiksrechten","objectinformatieobjecten":"http://localhost:8003/documenten/api/v1/objectinformatieobjecten","verzendingen":"http://localhost:8003/documenten/api/v1/verzendingen"}'
+    headers:
+      API-version:
+      - 1.4.2
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '345'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 13 Feb 2025 14:07:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.27.0
+      Vary:
+      - Accept, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczOTQ1NTY2OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.6W37BkMlWOPvcqd1RATkx2y8EPg_hE8V8gTqWL-h-9Q
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/besluiten/api/v1/
+  response:
+    body:
+      string: '{"besluiten":"http://localhost:8003/besluiten/api/v1/besluiten","besluitinformatieobjecten":"http://localhost:8003/besluiten/api/v1/besluitinformatieobjecten"}'
+    headers:
+      API-version:
+      - 1.1.0
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '159'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 13 Feb 2025 14:07:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.27.0
+      Vary:
+      - Accept, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczOTQ1NTY2OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.6W37BkMlWOPvcqd1RATkx2y8EPg_hE8V8gTqWL-h-9Q
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8003/catalogi/api/v1/
+  response:
+    body:
+      string: '{"catalogussen":"http://localhost:8003/catalogi/api/v1/catalogussen","zaaktypen":"http://localhost:8003/catalogi/api/v1/zaaktypen","statustypen":"http://localhost:8003/catalogi/api/v1/statustypen","eigenschappen":"http://localhost:8003/catalogi/api/v1/eigenschappen","roltypen":"http://localhost:8003/catalogi/api/v1/roltypen","informatieobjecttypen":"http://localhost:8003/catalogi/api/v1/informatieobjecttypen","besluittypen":"http://localhost:8003/catalogi/api/v1/besluittypen","resultaattypen":"http://localhost:8003/catalogi/api/v1/resultaattypen","zaaktype-informatieobjecttypen":"http://localhost:8003/catalogi/api/v1/zaaktype-informatieobjecttypen","zaakobjecttypen":"http://localhost:8003/catalogi/api/v1/zaakobjecttypen"}'
+    headers:
+      API-version:
+      - 1.3.1
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '731'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Date:
+      - Thu, 13 Feb 2025 14:07:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.27.0
+      Vary:
+      - Accept, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3Mzk0NTU2NjksImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.uF6zoFRZT7ffUpde3q9HEmyCd1gcVRYbLVozof3fZ3g
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://selectielijst.openzaak.nl/api/v1/
+  response:
+    body:
+      string: '{"procestypen":"https://selectielijst.openzaak.nl/api/v1/procestypen","resultaten":"https://selectielijst.openzaak.nl/api/v1/resultaten","resultaattypeomschrijvingen":"https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen"}'
+    headers:
+      API-version:
+      - 1.0.0
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '238'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 13 Feb 2025 14:07:49 GMT
+      Feature-Policy:
+      - autoplay 'none'; camera 'none'
+      Referrer-Policy:
+      - same-origin
+      Strict-Transport-Security:
+      - max-age=63072000
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
