@@ -489,12 +489,8 @@ export function DestructionListReviewPage() {
       paginatedZaken={paginatedObjectList}
       secondaryNavigationItems={[getSubmitDestructionListButton()]}
       extraFields={[
-        {
-          filterable: false,
-          name: "Beoordeling",
-          type: "text",
-        },
-        { filterable: false, name: "Acties", type: "text", width: "230px" },
+        { name: "Beoordeling", type: "text" },
+        { name: "Acties", type: "text", width: "230px" },
       ]}
       dataGridProps={{
         labelSelect: "Markeren als (on)gezien",
