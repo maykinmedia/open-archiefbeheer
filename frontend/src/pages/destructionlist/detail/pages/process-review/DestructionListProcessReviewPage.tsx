@@ -107,9 +107,9 @@ export function DestructionListProcessReviewPage() {
 
   // Whether extra fields should be rendered.
   const extraFields: TypedField[] = [
-    { filterable: false, name: "Opmerking", type: "text" },
-    { filterable: false, name: "Mutatie", type: "text" },
-    { filterable: false, name: "Acties", type: "text" },
+    { name: "Opmerking", type: "text" },
+    { name: "Mutatie", type: "text" },
+    { name: "Acties", type: "text" },
   ];
 
   // The object list of the current page with review actions appended.

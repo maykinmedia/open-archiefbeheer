@@ -222,7 +222,12 @@ export function useFields<T extends Zaak = Zaak>(
       // valueLookup: // TODO: Expand?
       width: "150px",
     },
-    ...(extraFields || []).map((f) => ({ width: "150px", ...f })),
+    ...(extraFields || []).map((f) => ({
+      filterable: false,
+      sortable: false,
+      width: "150px",
+      ...f,
+    })),
   ];
 
   const filterLookupValues = [
