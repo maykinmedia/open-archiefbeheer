@@ -20,7 +20,7 @@ def reload_openzaak_fixtures():
         sudo dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375
         ```
         """
-        if settings.ENVIRONMENT == "CI":
+        if not settings.RECORDING_CASSETTES_VCR:
             return func
 
         try:

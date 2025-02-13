@@ -415,6 +415,8 @@ RETRY_STATUS_FORCELIST = config(
 
 WAITING_PERIOD = config("WAITING_PERIOD", 7)
 
+RECORDING_CASSETTES_VCR = config("RECORDING_CASSETTES_VCR", False)
+
 ##############################
 #                            #
 # 3RD PARTY LIBRARY SETTINGS #
