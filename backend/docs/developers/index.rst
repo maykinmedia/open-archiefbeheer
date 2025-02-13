@@ -17,5 +17,4 @@ Content
     gherkin-like-tests
     vcr-tests
     logic
-    deploying
     translations

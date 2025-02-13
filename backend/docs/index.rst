@@ -14,4 +14,5 @@ Documentation
     :maxdepth: 3
 
     developers/index
+    devops/index
     manual/index
