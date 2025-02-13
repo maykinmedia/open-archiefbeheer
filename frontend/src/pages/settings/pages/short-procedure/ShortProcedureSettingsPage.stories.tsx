@@ -32,6 +32,7 @@ const meta: Meta<typeof ShortProcedureSettingsPage> = {
   parameters: {
     mockData: [
       MOCKS.OIDC_INFO,
+      MOCKS.DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES,
       {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",

@@ -2,7 +2,7 @@ import { LoaderFunctionArgs } from "@remix-run/router/utils";
 
 import { User } from "../../../lib/api/auth";
 import { listReviewers } from "../../../lib/api/reviewers";
-import { PaginatedZaken, listZaken } from "../../../lib/api/zaken";
+import { PaginatedZaken, searchZaken } from "../../../lib/api/zaken";
 import {
   canStartDestructionListRequired,
   loginRequired,
@@ -22,19 +22,20 @@ export const destructionListCreateLoader = loginRequired(
     async ({
       request,
     }: LoaderFunctionArgs): Promise<DestructionListCreateContext> => {
+      const searchParams = new URL(request.url).searchParams;
+
       const searchParamsZakenEndpoint: Record<string, string> = {
         not_in_destruction_list: "true",
       };
-      const searchParams = new URL(request.url).searchParams;
 
-      // Update search params efficiently
-      Object.entries(searchParamsZakenEndpoint).forEach(([key, value]) =>
-        searchParams.set(key, value),
-      );
+      for (const [key, value] of searchParams) {
+        searchParamsZakenEndpoint[key] = value;
+      }
+      searchParams.set("not_in_destruction_list", "true");
 
       // Fetch reviewers, zaken, and choices concurrently
       const [zaken, reviewers] = await Promise.all([
-        listZaken(searchParams),
+        searchZaken(searchParamsZakenEndpoint),
         listReviewers(),
       ]);
 

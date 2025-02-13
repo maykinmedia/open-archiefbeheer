@@ -5,6 +5,7 @@ import {
   coReviewsFactory,
   destructionListAssigneesFactory,
   destructionListFactory,
+  paginatedZakenFactory,
   recordManagerFactory,
   userFactory,
   usersFactory,
@@ -46,6 +47,12 @@ export const MOCKS = {
   DESTRUCTION_LIST_ZAAKTYPE_CHOICES: {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inDestructionList=00000000-0000-0000-0000-000000000000",
     method: "GET",
+    status: 200,
+    response: zaaktypeChoicesFactory(),
+  },
+  DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES: {
+    url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
+    method: "POST",
     status: 200,
     response: zaaktypeChoicesFactory(),
   },
@@ -200,6 +207,13 @@ export const MOCKS = {
     method: "POST",
     status: "201",
     response: {},
+  },
+  // ZAKEN
+  ZAKEN_SEARCH: {
+    url: "http://localhost:8000/api/v1/zaken/search/",
+    method: "POST",
+    status: 200,
+    response: paginatedZakenFactory(),
   },
 };
 

@@ -53,6 +53,21 @@ class InternalZaaktypenChoicesView(GenericAPIView):
     def get_queryset(self):
         return Zaak.objects.all()
 
+    def _retrieve_zaaktypen(self, request):
+        filterset = ZaakFilterSet(data=request.query_params or request.data)
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
+
+        zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
+            "_expand__zaaktype", flat=True
+        )
+        zaaktypen_choices = format_zaaktype_choices(zaaktypen)
+
+        serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @extend_schema(
         summary=_("Retrieve local zaaktypen choices"),
         description=_(
@@ -70,19 +85,26 @@ class InternalZaaktypenChoicesView(GenericAPIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        filterset = ZaakFilterSet(data=request.query_params)
-        is_valid = filterset.is_valid()
-        if not is_valid:
-            raise ValidationError(filterset.errors)
+        return self._retrieve_zaaktypen(request)
 
-        zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
-            "_expand__zaaktype", flat=True
-        )
-        zaaktypen_choices = format_zaaktype_choices(zaaktypen)
-
-        serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    @extend_schema(
+        summary=_("Search local zaaktypen choices"),
+        description=_(
+            "Retrieve zaaktypen of the zaken stored in the OAB database and return a value and a label per zaaktype. "
+            "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
+            "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
+            "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
+            "The response is cached for 15 minutes.\n"
+            "All the filters for the zaken are available to limit which zaaktypen should be returned."
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def post(self, request, *args, **kwargs):
+        return self._retrieve_zaaktypen(request)
 
 
 class ExternalZaaktypenChoicesView(APIView):

@@ -22,6 +22,7 @@ from django_filters import (
     NumberFilter,
     UUIDFilter,
 )
+from django_filters.rest_framework import DjangoFilterBackend
 
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.models import (
@@ -282,3 +283,12 @@ class ZaakFilterSet(FilterSet):
         )
 
         return zaken_with_afdeling.filter(behandelend_afdeling__contains=value)
+
+
+class ZaakFilterBackend(DjangoFilterBackend):
+    def get_filterset_kwargs(self, request, queryset, view):
+        return {
+            "data": request.query_params or request.data,
+            "queryset": queryset,
+            "request": request,
+        }
