@@ -8,7 +8,11 @@ from drf_spectacular.views import (
 from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView
-from openarchiefbeheer.config.api.views import ArchiveConfigView, OIDCInfoView
+from openarchiefbeheer.config.api.views import (
+    ArchiveConfigView,
+    HealthCheckView,
+    OIDCInfoView,
+)
 from openarchiefbeheer.destruction.api.views import ListStatusesListView
 from openarchiefbeheer.destruction.api.viewsets import (
     CoReviewersViewSet,
@@ -125,6 +129,7 @@ urlpatterns = [
                     "archive-config", ArchiveConfigView.as_view(), name="archive-config"
                 ),
                 path("oidc-info", OIDCInfoView.as_view(), name="oidc-info"),
+                path("health-check", HealthCheckView.as_view(), name="health-check"),
                 path(
                     "selections/<str:key>/", SelectionView.as_view(), name="selections"
                 ),
