@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ..models import ArchiveConfig
+from ..models import APIConfig, ArchiveConfig
 
 
 class ArchiveConfigViews(APITestCase):
@@ -154,3 +154,39 @@ class OIDCInfoViewTests(APITestCase):
 
         self.assertTrue(data["enabled"])
         self.assertEqual(data["loginUrl"], "http://testserver/oidc/authenticate/")
+
+
+class HealthCheckViewTests(APITestCase):
+    def test_not_logged_in(self):
+        with (
+            patch(
+                "openarchiefbeheer.config.health_checks.APIConfig.get_solo",
+                return_value=APIConfig(),
+            ),
+            patch(
+                "openarchiefbeheer.config.health_checks.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(),
+            ),
+        ):
+            response = self.client.get(reverse("api:health-check"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_health_check(self):
+        user = UserFactory.create()
+        self.client.force_login(user)
+
+        with (
+            patch(
+                "openarchiefbeheer.config.health_checks.APIConfig.get_solo",
+                return_value=APIConfig(),
+            ),
+            patch(
+                "openarchiefbeheer.config.health_checks.ArchiveConfig.get_solo",
+                return_value=ArchiveConfig(),
+            ),
+        ):
+            response = self.client.get(reverse("api:health-check"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.json()["success"])
