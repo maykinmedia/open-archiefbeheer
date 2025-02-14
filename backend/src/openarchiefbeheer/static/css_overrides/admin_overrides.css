@@ -69,6 +69,70 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   color: var(--primary) !important;
 }
 
+.admin-sidebar {
+  float: right;
+  width: 260px;
+  position: relative;
+  margin-right: -300px;
+}
+
+.colSM .admin-sidebar {
+  float: left;
+  margin-right: 0;
+  margin-left: -300px;
+}
+
+.admin-sidebar .admin-sidebar-item {
+  background: var(--darkened-bg);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  margin-top: 0;
+}
+
+.admin-sidebar .admin-sidebar-item .config-error-list {
+  padding: 0 16px;
+  margin: 16px;
+}
+
+.admin-sidebar h2 {
+  background: none;
+  padding: 16px;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid var(--hairline-color);
+  font-size: 1.125rem;
+  color: var(--body-fg);
+  font-weight: 400;
+}
+
+.admin-sidebar h3 {
+  color: var(--body-quiet-color);
+  padding: 0 16px;
+  margin: 0 0 16px;
+}
+
+.admin-sidebar h4 {
+  font-size: 0.8125rem;
+}
+
+.admin-sidebar p {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.admin-sidebar .actionlist {
+  padding: 0;
+  margin: 16px;
+}
+
+.admin-sidebar .actionlist li {
+  line-height: 1.2;
+  margin-bottom: 10px;
+  padding-left: 18px;
+}
+
+
+
+
 /* Calendar & time widget */
 .calendar caption,
 .calendarbox h2 {
