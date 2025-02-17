@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczNjg1MjQ2NiwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.46OVmdMTOC-ESu-t3YwFWMyphI8y0udMhzCyZ_HwO00
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTczOTc5Nzc1NCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.yLGVdWLUP1fTlN1e_AGBtF8A_OS1Aon2Ky_t-rLb9eY
       Connection:
       - keep-alive
       User-Agent:
@@ -31,12 +31,19 @@ interactions:
       - keep-alive
       Content-Length:
       - '2049'
+      Content-Security-Policy:
+      - 'img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
+        object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
+        worker-src ''self'' blob:; form-action ''self''; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com; default-src ''self''; frame-src
+        ''self''; font-src ''self'' fonts.gstatic.com; frame-ancestors ''none''; connect-src
+        ''self'' raw.githubusercontent.com; base-uri ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Tue, 14 Jan 2025 11:01:06 GMT
+      - Mon, 17 Feb 2025 13:09:14 GMT
       Referrer-Policy:
       - same-origin
       Server:

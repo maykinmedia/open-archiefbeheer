@@ -13,4 +13,7 @@ We currently have 2 ways to deploy:
 
 Please see the respective (private) repositories mentioned above for more information on deployment.
 
+Open Zaak
+=========
 
+The minimum supported version of Open Zaak is ``1.18.0``.
