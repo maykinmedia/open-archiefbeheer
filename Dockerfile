@@ -12,9 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 RUN mkdir /app/src
 
+ARG ENVIRONMENT=production
+
 RUN pip install uv -U
 COPY ./backend/requirements /app/requirements
-RUN uv pip install --system -r requirements/production.txt
+RUN uv pip install --system -r requirements/${ENVIRONMENT}.txt
 
 # Stage 2 - Build the Front end
 FROM node:20-bullseye-slim AS frontend-build
@@ -82,13 +84,12 @@ USER maykin
 
 ARG COMMIT_HASH
 ARG RELEASE=latest
+ARG DJANGO_SETTINGS=docker
 
 ENV RELEASE=${RELEASE} \
     GIT_SHA=${COMMIT_HASH} \
     PYTHONUNBUFFERED=1 \
-    DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
-
-ARG SECRET_KEY=dummy
+    DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.${DJANGO_SETTINGS}
 
 LABEL org.label-schema.vcs-ref=$COMMIT_HASH \
       org.label-schema.vcs-url="https://github.com/maykinmedia/open-archiefbeheer" \
