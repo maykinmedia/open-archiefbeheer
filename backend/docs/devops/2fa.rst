@@ -13,4 +13,6 @@ When using the WebAuthn plugin to use hardware tokens, the following variables s
   application. So it should be application **and** instance specific. For example, ``openarchiefbeheer-maykin-test``.
 - ``TWO_FACTOR_WEBAUTHN_AUTHENTICATOR_ATTACHMENT``: Possible values: ``platform | cross-platform``. 
   With "platform" it is possible to use embedded fingerprint readers, while with "cross-platform" an external 
-  device needs to be used.
+  device needs to be used. See the `Mozilla docs`_ for more details.
+
+.. _Mozilla docs: https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential/authenticatorAttachment
