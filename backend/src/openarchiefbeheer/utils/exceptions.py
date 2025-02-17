@@ -1,0 +1,2 @@
+class NoServiceConfigured(Exception):
+    pass

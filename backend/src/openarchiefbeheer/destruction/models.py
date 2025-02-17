@@ -19,11 +19,11 @@ from slugify import slugify
 from timeline_logger.models import TimelineLog
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.zaken.utils import (
     delete_zaak_and_related_objects,
     get_zaak_metadata,
@@ -286,7 +286,7 @@ class DestructionList(models.Model):
         if not self.zaak_destruction_report_url:
             return
 
-        zrc_service = Service.objects.get(api_type=APITypes.zrc)
+        zrc_service = get_service(APITypes.zrc)
         zrc_client = build_client(zrc_service)
 
         with zrc_client:

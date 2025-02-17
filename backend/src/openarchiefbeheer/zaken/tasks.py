@@ -9,12 +9,12 @@ from ape_pie import APIClient
 from requests.adapters import HTTPAdapter, Retry
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openarchiefbeheer.celery import app
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.destruction.utils import resync_items_and_zaken
 from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.utils.services import get_service
 
 from .api.serializers import ZaakSerializer
 from .decorators import log_errors
@@ -36,7 +36,7 @@ def configure_retry(client: APIClient) -> APIClient:
 
 
 def retrieve_and_cache_zaken(is_full_resync=False):
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_service = get_service(APITypes.zrc)
     zrc_client = build_client(zrc_service)
     zrc_client = configure_retry(zrc_client)
 

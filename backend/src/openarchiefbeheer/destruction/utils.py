@@ -10,7 +10,6 @@ from django.utils.translation import gettext as _
 
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.config.models import ArchiveConfig
@@ -19,6 +18,7 @@ from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.zaken.models import Zaak
 
 from .constants import (
@@ -177,7 +177,7 @@ def create_zaak_for_report(
 ) -> None:
     config = ArchiveConfig.get_solo()
 
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_service = get_service(APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
     with zrc_client:
@@ -240,7 +240,7 @@ def create_eio_destruction_report(
 
     config = ArchiveConfig.get_solo()
 
-    drc_service = Service.objects.get(api_type=APITypes.drc)
+    drc_service = get_service(APITypes.drc)
     drc_client = build_client(drc_service)
 
     with drc_client, destruction_list.destruction_report.open("rb") as f_report:
@@ -271,7 +271,7 @@ def attach_report_to_zaak(
     if store.has_created_resource("zaakinformatieobjecten"):
         return
 
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_service = get_service(APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
     with zrc_client:
