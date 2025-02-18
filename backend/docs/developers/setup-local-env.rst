@@ -86,3 +86,17 @@ To check test coverage:
 
 The ``coverage.xml`` file can then, for example, be used in IDEs 
 like VSCode with extension ``Coverage Gutters`` with ``ctrl+shift+7``.
+
+Docker
+======
+
+It is possible to start up a development docker environment with the file ``docker-compose.dev.yaml`` file.
+This does not support autoreload yet.
+
+To start the environment:
+
+.. code:: bash
+
+   docker compose -f docker-compose.dev.yaml up
+
+   
