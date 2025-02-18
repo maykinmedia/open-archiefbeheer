@@ -89,7 +89,10 @@ ARG DJANGO_SETTINGS=docker
 ENV RELEASE=${RELEASE} \
     GIT_SHA=${COMMIT_HASH} \
     PYTHONUNBUFFERED=1 \
-    DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.${DJANGO_SETTINGS}
+    DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.${DJANGO_SETTINGS} 
+    
+# Needed otherwise the call to collectstatic fails
+ARG SECRET_KEY=dummy
 
 LABEL org.label-schema.vcs-ref=$COMMIT_HASH \
       org.label-schema.vcs-url="https://github.com/maykinmedia/open-archiefbeheer" \
