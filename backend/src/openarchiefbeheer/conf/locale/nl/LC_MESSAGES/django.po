@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-14 10:46+0100\n"
+"POT-Creation-Date: 2025-02-14 16:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1762,6 +1762,34 @@ msgstr "Wachtwoord wijzigen"
 msgid "Log out"
 msgstr "Afmelden"
 
+#: openarchiefbeheer/templates/admin/index.html:12
+msgid "Recent actions"
+msgstr "Recente acties"
+
+#: openarchiefbeheer/templates/admin/index.html:13
+msgid "My actions"
+msgstr "Mijn acties"
+
+#: openarchiefbeheer/templates/admin/index.html:17
+msgid "None available"
+msgstr "Geen beschikbaar"
+
+#: openarchiefbeheer/templates/admin/index.html:22
+msgid "Added:"
+msgstr "Toegevoegd:"
+
+#: openarchiefbeheer/templates/admin/index.html:22
+msgid "Changed:"
+msgstr "Gewijzigd:"
+
+#: openarchiefbeheer/templates/admin/index.html:22
+msgid "Deleted:"
+msgstr "Verwijderd:"
+
+#: openarchiefbeheer/templates/admin/index.html:32
+msgid "Unknown content"
+msgstr "Onbekende inhoud"
+
 #: openarchiefbeheer/templates/hijack/contrib/admin/button.html:6
 msgid "hijack"
 msgstr "overnemen"
@@ -2118,7 +2146,8 @@ msgstr "De selectielijst service ontbreekt in de API configuratie."
 #: openarchiefbeheer/config/health_checks.py:86
 msgid "No source organisation for the destruction report case configured."
 msgstr ""
-"Geen bronorganisatie is ingesteld voor de zaak van de verklaring van vernietiging."
+"Geen bronorganisatie is ingesteld voor de zaak van de verklaring van "
+"vernietiging."
 
 #: openarchiefbeheer/config/health_checks.py:92
 msgid "No zaaktype for the destruction report case configured."
@@ -2127,11 +2156,14 @@ msgstr ""
 
 #: openarchiefbeheer/config/health_checks.py:98
 msgid "No selectielijstklasse for the destruction report case configured."
-msgstr "Geen selectielijstklasse is ingesteld voor de zaak van de verklaring van vernietiging."
+msgstr ""
+"Geen selectielijstklasse is ingesteld voor de zaak van de verklaring van "
+"vernietiging."
 
 #: openarchiefbeheer/config/health_checks.py:105
 msgid "No informatieobjecttype for the destruction report document configured."
-msgstr "Geen informatieobjecttype is ingesteld voor de verklaring van vernietiging."
+msgstr ""
+"Geen informatieobjecttype is ingesteld voor de verklaring van vernietiging."
 
 #: openarchiefbeheer/config/models.py:11
 msgid "zaaktypes short process"
@@ -2201,3 +2233,23 @@ msgstr "API-configuratie"
 #: openarchiefbeheer/config/models.py:88
 msgid "API configurations"
 msgstr "API-configuraties"
+
+#: openarchiefbeheer/config/templates/configuration_health_check.html:5
+msgid "Configuration status"
+msgstr "Configuratie status"
+
+#: openarchiefbeheer/config/templates/configuration_health_check.html:8
+msgid "Configuration complete"
+msgstr "Configuratie voltooid"
+
+#: openarchiefbeheer/config/templates/configuration_health_check.html:10
+msgid "Configuration incomplete"
+msgstr "Configuratie onvoltooid"
+
+#: openarchiefbeheer/config/templates/configuration_health_check.html:14
+msgid "The configuration is complete."
+msgstr "De configuratie is voltooid."
+
+#: openarchiefbeheer/config/templates/configuration_health_check.html:16
+msgid "The following issues have been detected:"
+msgstr "De volgende problemen zijn ontdekt:"

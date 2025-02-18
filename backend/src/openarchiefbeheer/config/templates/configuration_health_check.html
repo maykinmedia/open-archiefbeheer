@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<div>
+    <h2>
+        {% translate 'Configuration status' %}
+        &nbsp;
+        {% if success %}
+            <img src="/static/admin/img/icon-yes.svg" alt="{% translate 'Configuration complete' %}">
+        {% else %}
+            <img src="/static/admin/img/icon-no.svg" alt="{% translate 'Configuration incomplete' %}">
+        {% endif %}
+    </h2>
+    {% if success %}
+    <p>{% translate 'The configuration is complete.' %}</p>
+    {% else %}
+    <p>{% translate 'The following issues have been detected:' %}</p>
+    <ul class="config-error-list">
+        {% for error in errors %}
+        <li>{{ error.message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
