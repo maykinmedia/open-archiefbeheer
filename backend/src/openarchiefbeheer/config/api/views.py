@@ -111,8 +111,9 @@ class HealthCheckView(APIView):
                             "message": serializers.CharField(
                                 help_text="A human readable error message."
                             ),
-                            "severity": serializers.CharField(
-                                help_text="Whether this is an error, warning or info."
+                            "severity": serializers.ChoiceField(
+                                help_text="Whether this is an error, warning or info.",
+                                choices=["error", "warning", "info"],
                             ),
                             "field": serializers.CharField(
                                 help_text="The field of a model that is not properly configured. Can be empty.",
