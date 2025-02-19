@@ -286,45 +286,24 @@ jobs:
        working-directory: open-archiefbeheer/backend/docs
 
   docker_build:
-    name: Build Docker image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    name: Build docker image
+    strategy:
+      matrix:
+        # KEEP IN SYNC WITH docker_push JOB
+        target:
+          - target_env: production
+            image_tag_suffix: ''
+            settings_module: docker
+          - target_env: dev
+            image_tag_suffix: '-dev'
+            settings_module: dev
 
-      - name: Set tag
-        id: vars
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name (if present at all)
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          # PRs result in version 'merge' -> transform that into 'latest'
-          [ "$VERSION" == "merge" ] && VERSION=latest
-
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
-          echo "git_hash=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-
-      - name: Build the production Docker image
-        run: |
-          docker build . \
-            --tag $IMAGE_NAME:$RELEASE_VERSION \
-            --build-arg COMMIT_HASH=${{ steps.vars.outputs.git_hash }} \
-            --build-arg RELEASE=${{ steps.vars.outputs.tag }} \
-        env:
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
-
-      - run: docker image save -o image.tar $IMAGE_NAME:${{ steps.vars.outputs.tag }}
-      - name: Store image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-image
-          path: image.tar
-          retention-days: 1
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image_name: maykinmedia/open-archiefbeheer
+      image_tag_suffix: ${{ matrix.target.image_tag_suffix }}
+      target_env: ${{ matrix.target.target_env }}
+      settings_module: ${{ matrix.target.settings_module }}
 
   docker_push:
     needs:
@@ -336,6 +315,14 @@ jobs:
     name: Push Docker image
     runs-on: ubuntu-latest
     if: github.event_name == 'push' # Exclude PRs
+    strategy:
+      matrix:
+        # KEEP IN SYNC WITH docker_build JOB
+        target:
+          - target_env: production
+            image_tag_suffix: ''
+          - target_env: dev
+            image_tag_suffix: '-dev'
 
     steps:
       - uses: actions/checkout@v4
@@ -343,21 +330,7 @@ jobs:
       - name: Download built image
         uses: actions/download-artifact@v4
         with:
-          name: docker-image
-
-      - name: Set tag
-        id: vars
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name (if present at all)
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          name: docker-image-${{ needs.docker_build.outputs.version }}${{ matrix.target.image_tag_suffix }}
 
       - name: Load image
         run: |
@@ -369,6 +342,4 @@ jobs:
           --password-stdin
 
       - name: Push the Docker image (production)
-        run: docker push $IMAGE_NAME:$RELEASE_VERSION
-        env:
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        run: docker push $IMAGE_NAME:${{ needs.docker_build.outputs.version }}${{ matrix.target.image_tag_suffix }}
