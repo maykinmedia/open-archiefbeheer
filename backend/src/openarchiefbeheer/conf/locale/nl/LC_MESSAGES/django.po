@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-14 16:03+0100\n"
+"POT-Creation-Date: 2025-02-19 16:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1400,17 +1400,19 @@ msgstr ""
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:14
 #, python-format
 msgid ""
-"User %(user)s (member of group %(groups)s) has added the following co-reviewers "
-"to the list \"%(list_name)s\": %(added_co_reviewers)s."
+"User %(user)s (member of group %(groups)s) has removed all the co-reviewers "
+"of the list \"%(list_name)s\" and has assigned: %(added_co_reviewers)s."
 msgid_plural ""
-"User %(user)s (member of groups %(groups)s) has added the following co-"
-"reviewers to the list \"%(list_name)s\": %(added_co_reviewers)s."
+"User %(user)s (member of groups %(groups)s) has removed all the co-reviewers "
+"of the list \"%(list_name)s\" and has assigned: %(added_co_reviewers)s."
 msgstr[0] ""
-"Gebruiker %(user)s (lid van groep %(groups)s) heeft de volgende mede-"
-"beoordelaar toegevoegd aan de lijst \"%(list_name)s\": %(added_co_reviewers)s."
+"Gebruiker %(user)s (lid van groep %(groups)s) heeft alle mede-beoordelaars "
+"van de lijst \"%(list_name)s\" verwijderd en heeft %(added_co_reviewers)s "
+"toegewezen."
 msgstr[1] ""
-"Gebruiker %(user)s (lid van groepen %(groups)s) heeft de volgende mede-"
-"beoordelaars toegevoegd aan de lijst \"%(list_name)s\": %(added_co_reviewers)s."
+"Gebruiker %(user)s (lid van groepen %(groups)s) heeft alle mede-beoordelaars "
+"van de lijst \"%(list_name)s\" verwijderd en heeft %(added_co_reviewers)s "
+"toegewezen."
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_co_reviewers_added.txt:21
 #, python-format
@@ -1420,11 +1422,11 @@ msgstr "Hij/zij heeft de opmerking toegevoegd: %(comment)s."
 #: openarchiefbeheer/logging/templates/logging/destruction_list_created.txt:1
 #, python-format
 msgid ""
-"User %(record_manager)s (member of group %(groups)s) has triggered the "
-"destruction of destruction list \"%(list_name)s\"."
+"User %(author)s (member of group %(groups)s) has created destruction list "
+"\"%(list_name)s\"."
 msgid_plural ""
-"User %(record_manager)s (member of groups %(groups)s) has triggered the "
-"destruction of destruction list \"%(list_name)s\"."
+"User %(author)s (member of groups %(groups)s) has created destruction list "
+"\"%(list_name)s\"."
 msgstr[0] ""
 "Gebruiker %(author)s (lid van groep %(groups)s) heeft de vernietigingslijst "
 "\"%(list_name)s\" aangemaakt."
@@ -1932,20 +1934,20 @@ msgstr ""
 msgid "The URL of the zaaktype on which to filter."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:39
+#: openarchiefbeheer/zaken/api/views.py:38
 msgid "Retrieve and cache zaken"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:40
+#: openarchiefbeheer/zaken/api/views.py:39
 msgid "Retrieve and cache zaken from OpenZaak in the background."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:72
+#: openarchiefbeheer/zaken/api/views.py:71
 msgid "Retrieve local zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:74
-#: openarchiefbeheer/zaken/api/views.py:93
+#: openarchiefbeheer/zaken/api/views.py:73
+#: openarchiefbeheer/zaken/api/views.py:92
 msgid ""
 "Retrieve zaaktypen of the zaken stored in the OAB database and return a "
 "value and a label per zaaktype. The label is the 'identificatie' field an "
@@ -1957,15 +1959,15 @@ msgid ""
 "be returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:91
+#: openarchiefbeheer/zaken/api/views.py:90
 msgid "Search local zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:114
+#: openarchiefbeheer/zaken/api/views.py:113
 msgid "Retrieve external zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:116
+#: openarchiefbeheer/zaken/api/views.py:115
 msgid ""
 "Retrieve zaaktypen from Open Zaak and return a value and a label per "
 "zaaktype. The label is the 'identificatie' field an the value is a string of "
@@ -1977,11 +1979,11 @@ msgid ""
 "be returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:139
+#: openarchiefbeheer/zaken/api/views.py:138
 msgid "Retrieve selectielijstklasse choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:141
+#: openarchiefbeheer/zaken/api/views.py:140
 msgid ""
 "Returns all the resultaten from the configured selectielijst API with a "
 "formatted label. If the parameter 'zaak' is provided, then it returns all "
@@ -1989,31 +1991,31 @@ msgid ""
 "'zaaktype' of the zaak."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:169
+#: openarchiefbeheer/zaken/api/views.py:168
 msgid "Retrieve statustypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:171
+#: openarchiefbeheer/zaken/api/views.py:170
 msgid ""
 "Retrieve statustypen from Open Zaak and return a value and a label per "
 "statustype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:195
+#: openarchiefbeheer/zaken/api/views.py:194
 msgid "Retrieve informatieobjecttypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:197
+#: openarchiefbeheer/zaken/api/views.py:196
 msgid ""
 "Retrieve informatieobjecttypen from Open Zaak and return a value and a label "
 "per informatieobjecttype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:232
+#: openarchiefbeheer/zaken/api/views.py:220
 msgid "Retrieve resultaattypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:234
+#: openarchiefbeheer/zaken/api/views.py:222
 msgid ""
 "Retrieve resultaattypen from Open Zaak and return a value and a label per "
 "resultaattype. The label is the field 'omschrijving'."
