@@ -327,10 +327,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract build args
+        id: build-args
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          # PRs result in version 'merge' -> transform that into 'latest'
+          [ "$VERSION" == "merge" ] && VERSION=latest
+
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Download built image
         uses: actions/download-artifact@v4
         with:
-          name: docker-image-${{ needs.docker_build.outputs.version }}${{ matrix.target.image_tag_suffix }}
+          name: docker-image-${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
 
       - name: Load image
         run: |
@@ -342,4 +356,4 @@ jobs:
           --password-stdin
 
       - name: Push the Docker image (production)
-        run: docker push $IMAGE_NAME:${{ needs.docker_build.outputs.version }}${{ matrix.target.image_tag_suffix }}
+        run: docker push $IMAGE_NAME:${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
