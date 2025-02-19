@@ -35,6 +35,10 @@ import {
   shortProcedureSettingsPageLoader,
 } from "./pages";
 import { SettingsPage } from "./pages/settings/Settings";
+import {
+  HealthCheckSettingsPage,
+  healthCheckSettingsLoader,
+} from "./pages/settings/pages/health-check";
 
 const router = createBrowserRouter([
   {
@@ -163,6 +167,12 @@ const router = createBrowserRouter([
             path: "destruction-report",
             element: <DestructionReportSettingsPage />,
             loader: destructionReportSettingsPageLoader,
+            action: settingsAction,
+          },
+          {
+            path: "health-check",
+            element: <HealthCheckSettingsPage />,
+            loader: healthCheckSettingsLoader,
             action: settingsAction,
           },
         ],

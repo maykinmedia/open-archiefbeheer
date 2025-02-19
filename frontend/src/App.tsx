@@ -1,4 +1,5 @@
 import {
+  Banner,
   Body,
   BreadcrumbItem,
   ButtonLink,
@@ -20,6 +21,7 @@ import {
 import { useState } from "react";
 import {
   Outlet,
+  useLocation,
   useMatches,
   useNavigate,
   useNavigation,
@@ -33,6 +35,7 @@ import {
   ZaakSelectionContextProvider,
 } from "./contexts";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
+import { HealthCheckResponse, getHealthCheck } from "./lib/api/health-check";
 import {
   canChangeSettings,
   canStartDestructionList,
@@ -41,6 +44,7 @@ import { formatUser } from "./lib/format/user";
 
 function App() {
   const { state } = useNavigation();
+  const location = useLocation();
   const navigate = useNavigate();
   const matches = useMatches();
   const match = matches[matches.length - 1];
@@ -51,6 +55,9 @@ function App() {
     enabled: false,
     loginUrl: "",
   });
+  const [healthCheck, setHealthCheck] = useState<HealthCheckResponse | null>(
+    null,
+  );
 
   useAsync(async () => {
     const user = await whoAmI();
@@ -62,6 +69,12 @@ function App() {
     setOidcInfo(info);
   }, [state]);
 
+  // TODO: remove `useAsync` and create a custom implementation
+  useAsync(async () => {
+    const healthCheck = await getHealthCheck();
+    setHealthCheck(healthCheck);
+  }, [state]);
+
   const breadcrumbItems = (
     (handle?.breadcrumbItems || []) as BreadcrumbItem[]
   ).map((b) => ({
@@ -71,6 +84,18 @@ function App() {
 
   return (
     <div className="App">
+      {healthCheck &&
+        !healthCheck.success &&
+        location?.pathname != "/settings/health-check" && (
+          <Banner
+            withIcon
+            variant="danger"
+            actionText="Oplossen"
+            onActionClick={() => navigate("/settings/health-check")}
+            title="We hebben problemen gevonden in je instellingen"
+            description="Sommige instellingen zijn niet goed geconfigureerd, wat invloed kan hebben op hoe de app werkt. Controleer de instellingen en volg de instructies om dit op te lossen."
+          />
+        )}
       <NavigationContext.Provider
         value={{
           breadcrumbItems,
