@@ -48,7 +48,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-cryptography==43.0.1
+cryptography==44.0.1
     # via
     #   django-simple-certmanager
     #   josepy
@@ -205,7 +205,7 @@ pydantic-settings==2.6.1
     # via django-setup-configuration
 pyjwt==2.8.0
     # via zgw-consumers
-pyopenssl==24.2.1
+pyopenssl==25.0.0
     # via
     #   josepy
     #   webauthn
@@ -265,6 +265,7 @@ typing-extensions==4.11.0
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
+    #   pyopenssl
     #   qrcode
     #   zgw-consumers
 tzdata==2024.1
