@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 from django.utils.translation import gettext_lazy as _
 
@@ -8,12 +8,12 @@ from zgw_consumers.models import Service
 from .models import APIConfig, ArchiveConfig
 
 
-class HealthCheckError(TypedDict):
+class HealthCheckError(TypedDict, total=False):
     model: str
     code: str
     message: str
-    severity: str = "error"
-    field: str = ""
+    severity: Literal["error", "warning", "info"]
+    field: str
 
 
 class HealthCheckResponse(TypedDict):
@@ -26,46 +26,55 @@ SERVICES_ERRORS = {
         model="zgw_consumers.models.Service",
         code="MISSING_ZRC_SERVICE",
         message=_("ZRC service is missing."),
+        severity="error",
     ),
     "MISSING_DRC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="MISSING_DRC_SERVICE",
         message=_("DRC service is missing."),
+        severity="error",
     ),
     "MISSING_BRC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="MISSING_BRC_SERVICE",
         message=_("BRC service is missing."),
+        severity="error",
     ),
     "MISSING_ZTC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="MISSING_ZTC_SERVICE",
         message=_("ZTC service is missing."),
+        severity="error",
     ),
     "IMPROPERLY_CONFIGURED_ZRC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="IMPROPERLY_CONFIGURED_ZRC_SERVICE",
         message=_("The ZRC service is improperly configured."),
+        severity="error",
     ),
     "IMPROPERLY_CONFIGURED_DRC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="IMPROPERLY_CONFIGURED_DRC_SERVICE",
         message=_("The DRC service is improperly configured."),
+        severity="error",
     ),
     "IMPROPERLY_CONFIGURED_BRC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="IMPROPERLY_CONFIGURED_BRC_SERVICE",
         message=_("The BRC service is improperly configured."),
+        severity="error",
     ),
     "IMPROPERLY_CONFIGURED_ZTC_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="IMPROPERLY_CONFIGURED_ZTC_SERVICE",
         message=_("The ZTC service is improperly configured."),
+        severity="error",
     ),
     "IMPROPERLY_CONFIGURED_SELECTIELIJST_SERVICE": HealthCheckError(
         model="zgw_consumers.models.Service",
         code="IMPROPERLY_CONFIGURED_SELECTIELIJST_SERVICE",
         message=_("The selectielijst service is improperly configured."),
+        severity="error",
     ),
 }
 
@@ -75,6 +84,7 @@ API_CONFIG_ERRORS = {
         field="selectielijst_api_service",
         code="MISSING_SELECTIELIJST_API",
         message=_("No selectielijst service selected in the API configuration."),
+        severity="error",
     )
 }
 
@@ -84,18 +94,21 @@ ARCHIVE_CONFIG_ERRORS = {
         field="bronorganisatie",
         code="MISSING_BRONORGANISATIE",
         message=_("No source organisation for the destruction report case configured."),
+        severity="error",
     ),
     "MISSING_ZAAKTYPE": HealthCheckError(
         model="openarchiefbeheer.config.ArchiveConfig",
         field="zaaktype",
         code="MISSING_ZAAKTYPE",
         message=_("No zaaktype for the destruction report case configured."),
+        severity="error",
     ),
     "MISSING_SELECTIELIJSTKLASSE": HealthCheckError(
         model="openarchiefbeheer.config.ArchiveConfig",
         field="selectielijstklasse",
         code="MISSING_SELECTIELIJSTKLASSE",
         message=_("No selectielijstklasse for the destruction report case configured."),
+        severity="error",
     ),
     "MISSING_INFORMATIEOBJECTTYPE": HealthCheckError(
         model="openarchiefbeheer.config.ArchiveConfig",
@@ -104,6 +117,7 @@ ARCHIVE_CONFIG_ERRORS = {
         message=_(
             "No informatieobjecttype for the destruction report document configured."
         ),
+        severity="error",
     ),
 }
 
