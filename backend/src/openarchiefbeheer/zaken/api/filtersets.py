@@ -106,9 +106,9 @@ class ZaakFilterSet(FilterSet):
         field_name="_expand__zaaktype__omschrijving", lookup_expr="icontains"
     )
 
-    resultaat__resultaattype__omschrijving__icontains = CharFilter(
-        field_name="_expand__resultaat___expand__resultaattype__omschrijving",
-        lookup_expr="icontains",
+    resultaat__resultaattype = CharFilter(
+        field_name="_expand__resultaat___expand__resultaattype__url",
+        help_text="Filter the zaken that have a resultaat of this resultaattype.",
     )
 
     resultaat__resultaattype__archiefactietermijn__icontains = CharFilter(
