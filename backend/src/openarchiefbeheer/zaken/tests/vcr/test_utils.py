@@ -4,11 +4,11 @@ from freezegun import freeze_time
 from vcr.unittest import VCRMixin
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 
 from ...models import Zaak
@@ -54,7 +54,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
 
         delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
 
-        zrc_service = Service.objects.get(api_type=APITypes.zrc)
+        zrc_service = get_service(APITypes.zrc)
         zrc_client = build_client(zrc_service)
 
         with zrc_client:
@@ -65,7 +65,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
 
             self.assertEqual(data["count"], 102)
 
-        drc_service = Service.objects.get(api_type=APITypes.drc)
+        drc_service = get_service(APITypes.drc)
         drc_client = build_client(drc_service)
         with drc_client:
             response = drc_client.get("enkelvoudiginformatieobjecten")
@@ -80,7 +80,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
             self.assertIn("DOCUMENT-01", identificaties)
             self.assertIn("DOCUMENT-03", identificaties)
 
-        brc_service = Service.objects.get(api_type=APITypes.brc)
+        brc_service = get_service(APITypes.brc)
         brc_client = build_client(brc_service)
         with brc_client:
             response = brc_client.get("besluiten")

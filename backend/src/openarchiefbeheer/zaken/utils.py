@@ -25,6 +25,7 @@ from openarchiefbeheer.config.exceptions import ServiceNotConfigured
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.services import get_service
 
 from .models import Zaak
 from .types import DropDownChoice
@@ -267,7 +268,7 @@ def delete_decisions_and_relation_objects(
 
     This automatically deletes ZaakBesluiten in the Zaken API.
     """
-    brc_service = Service.objects.get(api_type=APITypes.brc)
+    brc_service = get_service(APITypes.brc)
     brc_client = build_client(brc_service)
 
     with brc_client:
@@ -338,7 +339,7 @@ def delete_relation_object(
 
 
 def delete_documents(result_store: ResultStore) -> None:
-    drc_service = Service.objects.get(api_type=APITypes.drc)
+    drc_service = get_service(APITypes.drc)
     drc_client = build_client(drc_service)
 
     with drc_client:
@@ -393,7 +394,7 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     If an error occurs after deleting the ZIOs, we wouldn't know which documents
     should be deleted.
     """
-    zrc_service = Service.objects.get(api_type=APITypes.zrc)
+    zrc_service = get_service(APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
     delete_decisions_and_relation_objects(zaak, result_store)
@@ -409,7 +410,7 @@ def retrieve_paginated_type(
     def format_choice(item: dict) -> DropDownChoice:
         return {"label": item["omschrijving"] or item["url"], "value": item["url"]}
 
-    ztc_service = Service.objects.get(api_type=APITypes.ztc)
+    ztc_service = get_service(APITypes.ztc)
     ztc_client = build_client(ztc_service)
 
     with ztc_client:
@@ -433,7 +434,7 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
 
 @lru_cache
 def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
-    ztc_service = Service.objects.get(api_type=APITypes.ztc)
+    ztc_service = get_service(APITypes.ztc)
     ztc_client = build_client(ztc_service)
 
     with ztc_client:

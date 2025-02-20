@@ -5,7 +5,8 @@ from django.db import models
 
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+
+from openarchiefbeheer.utils.services import get_service
 
 
 class Zaak(models.Model):
@@ -112,7 +113,7 @@ class Zaak(models.Model):
     def update_data(self, data: dict) -> None:
         from .api.serializers import ZaakSerializer
 
-        zrc_service = Service.objects.get(api_type=APITypes.zrc)
+        zrc_service = get_service(APITypes.zrc)
         zrc_client = build_client(zrc_service)
 
         with zrc_client:
