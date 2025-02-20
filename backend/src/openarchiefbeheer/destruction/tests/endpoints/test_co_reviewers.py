@@ -135,8 +135,8 @@ class CoReviewersViewSetTest(APITestCase):
         message = logs[0].get_message().strip()
         self.assertIn(
             _(
-                "User %(user)s (member of group %(groups)s) has replaced all the co-reviewers "
-                'of the list "%(list_name)s" with: %(added_co_reviewers)s.'
+                "User %(user)s (member of group %(groups)s) has removed all the co-reviewers "
+                'of the list "%(list_name)s" and has assigned: %(added_co_reviewers)s.'
             )
             % {
                 "user": main_reviewer.user,

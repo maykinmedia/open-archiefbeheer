@@ -12,9 +12,9 @@ They also removed these co-reviewers: {{ removed_co_reviewers }}.
 {% endif %}
 {% else %}
 {% blocktranslate trimmed with list_name=log.content_object.name user=log.extra_data.user|format_user added_co_reviewers=added_co_reviewers groups=groups count counter=log.extra_data.user_groups|length %}
-User {{ user }} (member of group {{ groups }}) has replaced all the co-reviewers of the list "{{ list_name }}" with: {{ added_co_reviewers }}.
+User {{ user }} (member of group {{ groups }}) has removed all the co-reviewers of the list "{{ list_name }}" and has assigned: {{ added_co_reviewers }}.
 {% plural%}
-User {{ user }} (member of groups {{ groups }}) has replaced all the co-reviewers of the list "{{ list_name }}" with: {{ added_co_reviewers }}.
+User {{ user }} (member of groups {{ groups }}) has removed all the co-reviewers of the list "{{ list_name }}" and has assigned: {{ added_co_reviewers }}.
 {% endblocktranslate %}
 {% endif %}
 
