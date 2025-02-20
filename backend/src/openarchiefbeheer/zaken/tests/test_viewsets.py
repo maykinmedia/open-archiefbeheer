@@ -122,3 +122,38 @@ class ZakenViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 10)
+
+    def test_filter_zaken_on_resultaat(self):
+        zaken = ZaakFactory.create_batch(3)
+        zaken[0]._expand.update(
+            {
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/c81e0154-7d0f-4f1f-9264-06c45127d6a4",
+                    "uuid": "c81e0154-7d0f-4f1f-9264-06c45127d6a4",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/7759dcb7-de9a-4543-99e3-81472c488f32",
+                            "resultaattypeomschrijving": "Lopend",
+                        }
+                    },
+                    "toelichting": "Testing resultaattype",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/7759dcb7-de9a-4543-99e3-81472c488f32",
+                }
+            }
+        )
+        zaken[0].identificatie = "ZAAK-WITH-RESULTAAT"
+        zaken[0].save()
+
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
+
+        self.client.force_authenticate(user)
+        endpoint = furl(reverse("api:zaken-list"))
+        endpoint.args["resultaat__resultaattype"] = (
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/7759dcb7-de9a-4543-99e3-81472c488f32"
+        )
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["identificatie"], "ZAAK-WITH-RESULTAAT")
