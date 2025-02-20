@@ -22,13 +22,13 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "test": "DISABLE_ESLINT_PLUGIN=true react-scripts test",
     "test:coverage": "npm test -- --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "DISABLE_ESLINT_PLUGIN=true storybook dev -p 6006",
+    "build-storybook": "DISABLE_ESLINT_PLUGIN=true storybook build",
     "test-storybook": "test-storybook --coverage",
     "prepare": "cd .. && husky frontend/.husky",
     "lint": "eslint .",
