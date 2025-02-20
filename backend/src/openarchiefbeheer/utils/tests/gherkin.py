@@ -578,10 +578,11 @@ class GerkinMixin:
         async def user_clicks_radio(self, page, name, index=0):
             await self._user_clicks("radio", page, name, index=index)
 
-        async def user_selects_zaak(self, page, identificatie):
+        async def user_selects_zaak(self, page, identificatie, timeout=None):
             locator = page.get_by_role(
                 "row", name=f"(de)selecteer rij {identificatie}"
             ).get_by_label("(de)selecteer rij")
+            await locator.wait_for(timeout=timeout)
             await locator.click()
 
         async def _user_clicks(self, role, page, name, index=0):
