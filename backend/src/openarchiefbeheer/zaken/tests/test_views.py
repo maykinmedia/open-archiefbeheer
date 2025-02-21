@@ -114,7 +114,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.json(),
+            sorted(response.json(), key=lambda choice: choice["label"]),
             [
                 {
                     "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111,http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
@@ -685,7 +685,7 @@ class ResultaattypenChoicesViewTests(APITestCase):
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_not_authenticated(self):
-        endpoint = reverse("api:retrieve-resultaattype-choices")
+        endpoint = reverse("api:retrieve-external-resultaattype-choices")
 
         response = self.client.get(endpoint)
 
@@ -717,7 +717,9 @@ class ResultaattypenChoicesViewTests(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
-        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+        response = self.client.get(
+            reverse("api:retrieve-external-resultaattype-choices")
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -760,12 +762,16 @@ class ResultaattypenChoicesViewTests(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
-        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+        response = self.client.get(
+            reverse("api:retrieve-external-resultaattype-choices")
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Repeat request
-        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+        response = self.client.get(
+            reverse("api:retrieve-external-resultaattype-choices")
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -963,3 +969,136 @@ class StatustypenChoicesViewTests(APITestCase):
 
         # Only one call to openzaak
         self.assertEqual(len(m.request_history), 1)
+
+
+class InternalResultaattypeChoicesViewTest(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.addCleanup(cache.clear)
+
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-internal-resultaattype-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_all_choices(self):
+        user = UserFactory.create()
+
+        ZaakFactory.create(
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                            "omschrijving": "Afgehandeld",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                }
+            },
+        )
+        ZaakFactory.create(
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                            "omschrijving": "Lopend",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                }
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(
+            reverse("api:retrieve-internal-resultaattype-choices")
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(
+            [
+                {
+                    "value": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                    "label": "Afgehandeld",
+                },
+                {
+                    "value": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                    "label": "Lopend",
+                },
+            ],
+            sorted(data, key=lambda choice: choice["value"]),
+        )
+
+    def test_get_choices_with_filters(self):
+        user = UserFactory.create()
+
+        ZaakFactory.create(
+            identificatie="ZAAK-01",
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                            "omschrijving": "Afgehandeld",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                }
+            },
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-02",
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                            "omschrijving": "Lopend",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                }
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-internal-resultaattype-choices"))
+        endpoint.args["identificatie"] = "ZAAK-01"
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            [
+                {
+                    "value": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                    "label": "Afgehandeld",
+                },
+            ],
+            data,
+        )

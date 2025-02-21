@@ -98,7 +98,9 @@ class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
         user = UserFactory.create()
 
         self.client.force_authenticate(user=user)
-        response = self.client.get(reverse("api:retrieve-resultaattype-choices"))
+        response = self.client.get(
+            reverse("api:retrieve-external-resultaattype-choices")
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -120,7 +122,7 @@ class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
     def test_retrieve_choices_with_filters(self):
         user = UserFactory.create()
 
-        endpoint = furl(reverse("api:retrieve-resultaattype-choices"))
+        endpoint = furl(reverse("api:retrieve-external-resultaattype-choices"))
         endpoint.args["zaaktype"] = (
             "http://localhost:8003/catalogi/api/v1/zaaktypen/be210495-20b6-48ff-8d3d-3e44f74c43a4"
         )
