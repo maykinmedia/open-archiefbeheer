@@ -37,6 +37,12 @@ export function BaseSettingsView<T extends object>({
       onClick: () => navigate("/settings/destruction-report"),
       active: currentPathName === "/settings/destruction-report",
     },
+    {
+      children: "Health Check",
+      align: "start",
+      onClick: () => navigate("/settings/health-check"),
+      active: currentPathName === "/settings/health-check",
+    },
   ];
 
   if (dataGridProps) {
