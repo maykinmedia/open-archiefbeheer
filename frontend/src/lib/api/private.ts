@@ -52,9 +52,13 @@ export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
   return cacheMemo(
     "listResultaatTypeChoices",
     async () => {
-      const response = await request("GET", "/_resultaattype-choices/", {
-        zaaktype: zaaktypeUrl,
-      });
+      const response = await request(
+        "GET",
+        "/_external-resultaattype-choices/",
+        {
+          zaaktype: zaaktypeUrl,
+        },
+      );
       const promise: Promise<Option[]> = response.json();
 
       return promise;

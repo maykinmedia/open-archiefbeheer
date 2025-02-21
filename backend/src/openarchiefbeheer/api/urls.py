@@ -31,10 +31,10 @@ from openarchiefbeheer.selection.api.views import (
 )
 from openarchiefbeheer.zaken.api.views import (
     CacheZakenView,
+    ExternalResultaattypeChoicesView,
     ExternalZaaktypenChoicesView,
     InformatieobjecttypeChoicesView,
     InternalZaaktypenChoicesView,
-    ResultaattypeChoicesView,
     SelectielijstklasseChoicesView,
     StatustypeChoicesView,
 )
@@ -172,9 +172,14 @@ urlpatterns = [
                     name="retrieve-informatieobjecttype-choices",
                 ),
                 path(
-                    "_resultaattype-choices/",
-                    ResultaattypeChoicesView.as_view(),
-                    name="retrieve-resultaattype-choices",
+                    "_external-resultaattype-choices/",
+                    ExternalResultaattypeChoicesView.as_view(),
+                    name="retrieve-external-resultaattype-choices",
+                ),
+                path(
+                    "_internal-resultaattype-choices/",
+                    InternalResultaattypeChoicesView.as_view(),
+                    name="retrieve-internal-resultaattype-choices",
                 ),
                 path("", include(router.urls)),
                 path("", include(destruction_list_router.urls)),
