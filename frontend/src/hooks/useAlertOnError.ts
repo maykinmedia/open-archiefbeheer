@@ -10,15 +10,32 @@ import { collectErrors } from "../lib/format/error";
  */
 export const useAlertOnError = (defaultMessage: string) => {
   const alert = useAlert();
-  return async (e: unknown) => {
-    const errorJsonBody = e instanceof Response ? await e.json() : null;
+  return async (e: Error) => {
+    // Ignore if error is an AbortError.
+    if (e.name === "AbortError") {
+      return;
+    }
 
-    const { onConfirm, confirmLabel } = getAlertOptions(errorJsonBody);
-    const errors = e instanceof Response ? collectErrors(errorJsonBody) : [];
-    const message = errors.length ? errors.join(", ") : defaultMessage;
+    try {
+      const errorJsonBody = e instanceof Response ? await e.json() : null;
+      const { onConfirm, confirmLabel } = getAlertOptions(errorJsonBody);
+      const errors = e instanceof Response ? collectErrors(errorJsonBody) : [];
+      const message = errors.length ? errors.join(", ") : defaultMessage;
 
-    console.error(e, errors);
-    alert("Foutmelding", message, confirmLabel, onConfirm);
+      console.error(e, errors);
+      alert("Foutmelding", message, confirmLabel, onConfirm);
+    } catch {
+      console.error(e);
+
+      const { onConfirm, confirmLabel } = getAlertOptions();
+
+      alert(
+        "Foutmelding",
+        "Er is een onbekende fout opgetreden!",
+        confirmLabel,
+        onConfirm,
+      );
+    }
   };
 };
 
