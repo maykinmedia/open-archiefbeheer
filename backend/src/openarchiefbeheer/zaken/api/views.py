@@ -237,3 +237,44 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class InternalResultaattypeChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+    filter_backends = (NoModelFilterBackend,)
+    filterset_class = ZaakFilterSet
+
+    @extend_schema(
+        summary=_("Retrieve internal resultaattype choices"),
+        description=_("Retrieve the resultaattypen of the zaken in the database. "),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        filterset = ZaakFilterSet(data=request.query_params or request.data)
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
+
+        zaken_resultaattypen = filterset.qs.filter(
+            _expand__resultaat___expand__resultaattype__isnull=False
+        ).values_list("_expand__resultaat___expand__resultaattype", flat=True)
+
+        existing_resultaattypen = []
+        formatted_choices = []
+        for resultaattype in zaken_resultaattypen:
+            if resultaattype["url"] in existing_resultaattypen:
+                continue
+
+            existing_resultaattypen.append(resultaattype["url"])
+            formatted_choices.append(
+                {
+                    "label": resultaattype["omschrijving"],
+                    "value": resultaattype["url"],
+                }
+            )
+
+        return Response(formatted_choices, status=status.HTTP_200_OK)

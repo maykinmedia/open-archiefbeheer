@@ -34,6 +34,7 @@ from openarchiefbeheer.zaken.api.views import (
     ExternalResultaattypeChoicesView,
     ExternalZaaktypenChoicesView,
     InformatieobjecttypeChoicesView,
+    InternalResultaattypeChoicesView,
     InternalZaaktypenChoicesView,
     SelectielijstklasseChoicesView,
     StatustypeChoicesView,
