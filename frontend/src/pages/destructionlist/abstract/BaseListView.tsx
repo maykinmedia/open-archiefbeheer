@@ -54,6 +54,13 @@ export type BaseListViewProps<T extends Zaak = Zaak> = React.PropsWithChildren<{
   filterSelectionZaken?: ZaakSelectionZaakFilter;
   getSelectionDetail?: ZaakSelectionDetailGetter;
 
+  /**
+   * Allows restricting choices in filters to either:
+   *  - The destruction list or review (`list`).
+   *  - To zaken not already assigned to a destruction list (`unassigned`).
+   */
+  restrictFilterChoices?: false | "list" | "unassigned";
+
   dataGridProps?: Partial<DataGridProps<T>>;
 
   enableUseZaakSelection?: boolean;
@@ -81,6 +88,7 @@ export function BaseListView<T extends Zaak = Zaak>({
   extraFields,
   filterSelectionZaken,
   getSelectionDetail,
+  restrictFilterChoices,
 
   dataGridProps,
 
@@ -102,7 +110,7 @@ export function BaseListView<T extends Zaak = Zaak>({
 
   // Fields.
   const [fields, setFields, filterTransform, activeFilters, resetFilters] =
-    useFields<T>(destructionList, review, extraFields);
+    useFields<T>(destructionList, review, extraFields, restrictFilterChoices);
   type FilterTransformData = ReturnType<typeof filterTransform>;
 
   // Filter.
