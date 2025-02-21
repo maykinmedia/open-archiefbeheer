@@ -1,7 +1,7 @@
 import { User } from "../api/auth";
 import { formatUser } from "./user";
 
-describe("formatUser", () => {
+describe("formatUser()", () => {
   test("should return an empty string if the user is null or undefined", () => {
     // @ts-expect-error - testing untyped behavior.
     expect(formatUser(null)).toBe("");

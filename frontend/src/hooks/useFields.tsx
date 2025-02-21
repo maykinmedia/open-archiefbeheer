@@ -38,11 +38,20 @@ type FilterTransformReturnType<T> = Record<
 
 /**
  * Hook resolving the base fields for lists.
+ * s
+ * @param [destructionList] - The destruction list to return fields for.
+ * @param [review] - The destruction list to return fields for.
+ * @param [extraFields] - Additional fields to add.
+ * @param [restrictFilterChoices="list"] - Allows restricting choices in filters
+ *  to either:
+ *    - The destruction list or review (`list`).
+ *    - To zaken not already assigned to a destruction list (`unassigned`).
  */
 export function useFields<T extends Zaak = Zaak>(
   destructionList?: DestructionList,
   review?: Review,
   extraFields?: TypedField<T>[],
+  restrictFilterChoices: "list" | "unassigned" | false = "list",
 ): [
   TypedField<T>[],
   (fields: TypedField<T>[]) => void,
@@ -61,11 +70,27 @@ export function useFields<T extends Zaak = Zaak>(
   }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
-  const zaaktypeChoices = useZaaktypeChoices(
-    destructionList,
-    review,
-    searchParams,
-  );
+
+  // Fetch the zaaktype choices, if `restrictFilterChoices==="list"`:  only  zaaktype
+  // choices of zaken belonging to either the destruction list or review  are loaded.
+  // If `restrictFilterChoices==="unassigned"`: only zaaktype choices belonging to
+  // zaken not assigned to any destruction list are loaded. If `restrictFilterChoices==="false"`:
+  // all zaaktype choices are loaded.
+  const zaaktypeParams = new URLSearchParams(searchParams);
+  zaaktypeParams.delete("zaaktype");
+
+  if (restrictFilterChoices === "list") {
+    if (destructionList) {
+      zaaktypeParams.set("inDestructionList", destructionList.uuid);
+    }
+    if (review?.pk) {
+      zaaktypeParams.set("inReview", review.pk.toString());
+    }
+  }
+  if (restrictFilterChoices === "unassigned") {
+    zaaktypeParams.set("not_in_destruction_list", "true");
+  }
+  const zaaktypeChoices = useZaaktypeChoices(zaaktypeParams, false, null);
 
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
@@ -82,11 +107,26 @@ export function useFields<T extends Zaak = Zaak>(
       name: "zaaktype",
       filterLookup: "zaaktype",
       filterValue: searchParams.get("zaaktype") || "",
-      valueTransform: (v: ExpandZaak) =>
-        zaaktypeChoices.find(
-          (c) => c.value === v._expand?.zaaktype?.identificatie,
-        )?.label || <Placeholder />,
-      options: zaaktypeChoices,
+      valueTransform: (zaak) => {
+        const expandZaak = zaak as T & {
+          _expand: { zaaktype: { identificatie: string } };
+        };
+        const zaaktype = expandZaak._expand.zaaktype.identificatie;
+
+        // Zaaktype choices not yet loaded.
+        if (zaaktypeChoices === null) {
+          return <Placeholder />;
+        }
+
+        // Find label by zaaktype choice.
+        const zaaktypeChoice = zaaktypeChoices.find(
+          ({ value }) => value === zaaktype,
+        );
+
+        // Return label, or null.
+        return zaaktypeChoice?.label || zaaktype;
+      },
+      options: zaaktypeChoices || [],
       type: "string",
       width: "150px",
     },

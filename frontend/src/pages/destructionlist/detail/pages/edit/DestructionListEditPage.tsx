@@ -34,16 +34,19 @@ export function DestructionListEditPage() {
     ) as DestructionListDetailContext;
 
   const { state } = useNavigation();
-  const [urlSearchParams, setUrlSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const submitAction = useSubmitAction();
   const secondaryNavigationItems = useSecondaryNavigation();
+
+  // Whether the edit mode is active.
+  const isEditing = searchParams.get("is_editing")?.toLowerCase() === "true";
 
   // Whether the list is in edit mode.
   const editingState = useMemo(
     () =>
       destructionList.status === "new" &&
-      Boolean(urlSearchParams.get("is_editing")),
-    [destructionList.status, urlSearchParams],
+      Boolean(searchParams.get("is_editing")),
+    [destructionList.status, searchParams],
   );
 
   // The initially select items.
@@ -141,9 +144,9 @@ export function DestructionListEditPage() {
    * @param value
    */
   const handleSetEditing = (value: boolean) => {
-    urlSearchParams.set("page", "1");
-    urlSearchParams.set("is_editing", "true");
-    setUrlSearchParams(value ? urlSearchParams : {});
+    searchParams.set("page", "1");
+    searchParams.set("is_editing", "true");
+    setSearchParams(value ? searchParams : {});
   };
 
   /**
@@ -178,6 +181,7 @@ export function DestructionListEditPage() {
     <BaseListView<DestructionListEditData>
       destructionList={destructionList}
       extraFields={extraFields}
+      restrictFilterChoices={isEditing ? false : "list"}
       initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
       paginatedZaken={paginatedZaken}
       secondaryNavigationItems={secondaryNavigationItems}

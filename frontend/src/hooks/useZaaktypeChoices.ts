@@ -1,41 +1,40 @@
 import { Option } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
-import { DestructionList } from "../lib/api/destructionLists";
 import { listZaaktypeChoices } from "../lib/api/private";
-import { Review } from "../lib/api/review";
+import { params2CacheKey } from "../lib/format/params";
 import { useAlertOnError } from "./useAlertOnError";
 
 /**
  * Hook resolving zaaktype choices
- * @param destructionList
- * @param review
- * @param searchParams
+ * @param params
  * @param external
+ * @param initalData
  */
-export function useZaaktypeChoices(
-  destructionList?: DestructionList,
-  review?: Review,
-  searchParams?: URLSearchParams,
+export function useZaaktypeChoices<T = Option[]>(
+  params?: Parameters<typeof listZaaktypeChoices>[0],
   external = false,
-): Option[] {
+  initalData?: T,
+): T | Option[] {
+  const initial = typeof initalData === "undefined" ? [] : initalData;
   const alertOnError = useAlertOnError(
     "Er is een fout opgetreden bij het ophalen van zaaktypen!",
   );
 
-  const [zaaktypeChoicesState, setZaaktypeChoicesState] = useState<Option[]>(
-    [],
-  );
+  const [zaaktypeChoicesState, setZaaktypeChoicesState] = useState<
+    T | Option[]
+  >(initial);
+
   useEffect(() => {
-    listZaaktypeChoices(
-      destructionList?.uuid,
-      review?.pk,
-      searchParams,
-      external,
-    )
+    setZaaktypeChoicesState(initial);
+    const abortController = new AbortController();
+
+    listZaaktypeChoices(params, external, abortController.signal)
       .then((z) => setZaaktypeChoicesState(z))
       .catch(alertOnError);
-  }, [destructionList?.uuid, review?.pk, searchParams?.toString()]);
+
+    return () => abortController.abort();
+  }, [params2CacheKey(params || {}), external]);
 
   return zaaktypeChoicesState;
 }

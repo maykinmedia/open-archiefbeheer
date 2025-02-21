@@ -97,6 +97,7 @@ export function DestructionListCreatePage() {
         title="Vernietigingslijst opstellen"
         errors={errors}
         paginatedZaken={paginatedZaken}
+        restrictFilterChoices="unassigned"
         allowSelectAllPages={true}
         selectionActions={[
           {
