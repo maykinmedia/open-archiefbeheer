@@ -53,6 +53,7 @@ export type BaseListViewProps<T extends Zaak = Zaak> = React.PropsWithChildren<{
   extraFields?: TypedField<T>[];
   filterSelectionZaken?: ZaakSelectionZaakFilter;
   getSelectionDetail?: ZaakSelectionDetailGetter;
+  restrictFiltersToDestructionListAndReview?: boolean;
 
   dataGridProps?: Partial<DataGridProps<T>>;
 
@@ -81,6 +82,7 @@ export function BaseListView<T extends Zaak = Zaak>({
   extraFields,
   filterSelectionZaken,
   getSelectionDetail,
+  restrictFiltersToDestructionListAndReview,
 
   dataGridProps,
 
@@ -102,7 +104,12 @@ export function BaseListView<T extends Zaak = Zaak>({
 
   // Fields.
   const [fields, setFields, filterTransform, activeFilters, resetFilters] =
-    useFields<T>(destructionList, review, extraFields);
+    useFields<T>(
+      destructionList,
+      review,
+      extraFields,
+      restrictFiltersToDestructionListAndReview,
+    );
   type FilterTransformData = ReturnType<typeof filterTransform>;
 
   // Filter.

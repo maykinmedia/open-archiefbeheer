@@ -43,6 +43,7 @@ export function useFields<T extends Zaak = Zaak>(
   destructionList?: DestructionList,
   review?: Review,
   extraFields?: TypedField<T>[],
+  restrictFiltersToDestructionListAndReview = true,
 ): [
   TypedField<T>[],
   (fields: TypedField<T>[]) => void,
@@ -61,11 +62,27 @@ export function useFields<T extends Zaak = Zaak>(
   }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
-  const zaaktypeChoices = useZaaktypeChoices(
-    destructionList,
-    review,
-    searchParams,
-  );
+
+  // Fetch the zaaktype choices, if `restrictFiltersToDestructionListAndReview===true`
+  // only zaaktype choices belonging to either the destruction list or review are
+  // are loaded. If `restrictFiltersToDestructionListAndReview===false`: all zaaktype
+  // choices are loaded.
+  //
+  // In both cases additional filters are passed to the endpoints to allow the backend
+  // to respond with zaaktypen matching the current filters. The filter used for
+  // the zaaktype itself is not passed.
+  const zaaktypeParams = new URLSearchParams(searchParams);
+  zaaktypeParams.delete("zaaktype__in");
+
+  if (restrictFiltersToDestructionListAndReview) {
+    if (destructionList) {
+      zaaktypeParams.set("inDestructionList", destructionList.uuid);
+    }
+    if (review?.pk) {
+      zaaktypeParams.set("inReview", review.pk.toString());
+    }
+  }
+  const zaaktypeChoices = useZaaktypeChoices(zaaktypeParams, false, null);
 
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
@@ -82,11 +99,21 @@ export function useFields<T extends Zaak = Zaak>(
       name: "zaaktype",
       filterLookup: "zaaktype__in",
       filterValue: searchParams.get("zaaktype__in") || "",
-      valueTransform: (v) =>
-        zaaktypeChoices.find((c) => c.value === v.zaaktype)?.label || (
-          <Placeholder />
-        ),
-      options: zaaktypeChoices,
+      valueTransform: ({ zaaktype }) => {
+        // Zaaktype choices not yet loaded.
+        if (zaaktypeChoices === null) {
+          return <Placeholder />;
+        }
+
+        // Find label by zaaktype choice.
+        const zaaktypeChoice = zaaktypeChoices.find(
+          ({ value }) => value === zaaktype,
+        );
+
+        // Return label, or null.
+        return zaaktypeChoice?.label || zaaktype;
+      },
+      options: zaaktypeChoices || [],
       type: "string",
       width: "150px",
     },
