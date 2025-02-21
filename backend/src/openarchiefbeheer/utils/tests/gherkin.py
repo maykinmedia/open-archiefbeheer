@@ -334,7 +334,7 @@ class GerkinMixin:
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_resultaattype-choices/*", handle)
+            await page.route("**/*/api/v1/_external-resultaattype-choices/*", handle)
 
         async def selectielijstklasse_choices_are_available(self, page):
             async def handle(route):

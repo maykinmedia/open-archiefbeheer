@@ -79,7 +79,7 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         response: statusTypeChoicesFactory(),
       },
       {
-        url: `http://localhost:8000/api/v1/_resultaattype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
+        url: `http://localhost:8000/api/v1/_external-resultaattype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
         method: "GET",
         status: 200,
         response: resultaatTypeChoicesFactory(),

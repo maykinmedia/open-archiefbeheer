@@ -36,3 +36,12 @@ Some aspects about the selectielijst resources that can be confusing:
   Each selectielijstklasse is associated with a selectielijstprocestype. 
   The zaak can only be related to a selectielijstklasse whose procestype matches the procestype related to the zaaktype 
   of the zaak.
+
+Zaaktypen
+=========
+
+Facts to remember about the zaaktypen:
+
+- Published zaaktypen only have a unique constraint on the ``uuid`` in the database.
+- However, they should be unique within a ``catalogus`` on ``identificatie`` and begin/eind geldigheid.
+- This means that different version of a same zaaktype would have same identificatie but different begin/eind geldigheid. Their ``uuid`` would be different.
