@@ -2,9 +2,8 @@ import { Option } from "@maykin-ui/admin-ui";
 
 import { Zaak } from "../../types";
 import { cacheMemo } from "../cache/cache";
-import { DestructionList } from "./destructionLists";
+import { params2CacheKey, params2Object } from "../format/params";
 import { request } from "./request";
-import { Review } from "./review";
 
 /**
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
@@ -98,52 +97,56 @@ export async function listSelectielijstKlasseChoices(
 }
 
 /**
- * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype. The label is the 'omschrijving' field
- * an the value is the URL. The response is cached for 15 minutes.
+ * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype.
+ * The label is the 'omschrijving' field, and the value is the URL. The response is cached for 15 minutes.
+ * @param [params] - Additional search parameters for filtering (this keeps filters in sync with objects on page).
+ * @param [external=false] - Fetch zaaktypen from ZRC Service (Open Zaak) (slower/can't be combined with other filtering options).
+ * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.
+ * @returns {Promise<Option[]>} A promise resolving to an array of options with `value` and `label`.
  */
 export async function listZaaktypeChoices(
-  destructionListUuid?: DestructionList["uuid"],
-  reviewPk?: Review["pk"],
-  searchParams?: URLSearchParams,
+  params?:
+    | URLSearchParams
+    | {
+        inReview: string;
+        inDestructionList: string;
+        notInDestructionList: boolean;
+      },
   external = false,
+  signal?: AbortSignal,
 ) {
-  const params = [destructionListUuid, reviewPk, searchParams]
-    .filter((param) => !!param)
-    .map((param) => String(param));
+  const cacheParams = params2CacheKey(params || {});
 
   return cacheMemo(
     "listZaaktypeChoices",
     async () => {
-      if (!searchParams) searchParams = new URLSearchParams();
-
-      const params = new URLSearchParams({
-        ...Object.fromEntries(searchParams),
-      });
-
-      if (reviewPk) {
-        params.set("inReview", String(reviewPk));
-      } else if (destructionListUuid) {
-        params.set("inDestructionList", destructionListUuid);
-      } else {
-        params.set("notInDestructionList", "true");
-      }
-
+      const data = params2Object(params || {});
       let response;
+
       if (external) {
         response = await request(
           "GET",
           "/_external-zaaktypen-choices/",
-          params,
+          data,
+          undefined,
+          undefined,
+          signal,
         );
       } else {
-        const filters = Object.fromEntries(params.entries());
-        response = await request("POST", "/_zaaktypen-choices/", {}, filters);
+        response = await request(
+          "POST",
+          "/_zaaktypen-choices/",
+          {},
+          data,
+          undefined,
+          signal,
+        );
       }
 
       const promise: Promise<Option[]> = response.json();
 
       return promise;
     },
-    external ? [...params, "external"] : params,
+    external ? [cacheParams, "external"] : [cacheParams],
   );
 }

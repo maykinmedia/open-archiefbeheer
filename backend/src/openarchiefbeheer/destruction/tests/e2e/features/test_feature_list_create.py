@@ -109,6 +109,8 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                     }
                 }, 
             )
+
+            # This zaaktype should not be shown as its only zaak gets assigned to a destruction list.
             zaak = ZaakFactory.create(
                 identificatie="ZAAK-111-2",
                 post___expand={

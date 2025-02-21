@@ -1,6 +1,6 @@
 import { collectErrors } from "./error";
 
-describe("collectErrors", () => {
+describe("collectErrors()", () => {
   test("should return an array with a single string when the input is a string", () => {
     const errors = "This is an error";
     const result = collectErrors(errors);
