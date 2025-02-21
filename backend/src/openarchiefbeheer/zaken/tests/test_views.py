@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from django.core.cache import cache
 from django.test import tag
 from django.utils.translation import gettext_lazy as _
 
@@ -21,6 +20,7 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListItemReviewFactory,
     DestructionListReviewFactory,
 )
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.zaken.utils import retrieve_paginated_type
 
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
@@ -61,12 +61,7 @@ class ZakenViewsTestCase(APITestCase):
         m.assert_called_once()
 
 
-class ZaaktypenChoicesViewsTestCase(APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
-
+class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-zaaktypen-choices")
 
@@ -445,11 +440,7 @@ class ZaaktypenChoicesViewsTestCase(APITestCase):
         )
 
 
-class SelectielijstklasseChoicesViewTests(APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
+class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-selectielijstklasse-choices")
@@ -677,11 +668,10 @@ class SelectielijstklasseChoicesViewTests(APITestCase):
         self.assertEqual(len(m.request_history), 1)
 
 
-class ResultaattypenChoicesViewTests(APITestCase):
+class ResultaattypenChoicesViewTests(ClearCacheMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_not_authenticated(self):
@@ -779,11 +769,10 @@ class ResultaattypenChoicesViewTests(APITestCase):
         self.assertEqual(len(m.request_history), 1)
 
 
-class InformatieobjecttypenChoicesViewTests(APITestCase):
+class InformatieobjecttypenChoicesViewTests(ClearCacheMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_not_authenticated(self):
@@ -875,11 +864,10 @@ class InformatieobjecttypenChoicesViewTests(APITestCase):
         self.assertEqual(len(m.request_history), 1)
 
 
-class StatustypenChoicesViewTests(APITestCase):
+class StatustypenChoicesViewTests(ClearCacheMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_not_authenticated(self):
@@ -971,15 +959,10 @@ class StatustypenChoicesViewTests(APITestCase):
         self.assertEqual(len(m.request_history), 1)
 
 
-class InternalResultaattypeChoicesViewTest(APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
+class InternalResultaattypeChoicesViewTest(ClearCacheMixin, APITestCase):
 
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-internal-resultaattype-choices")
-
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -1083,6 +1066,7 @@ class InternalResultaattypeChoicesViewTest(APITestCase):
         )
 
         self.client.force_authenticate(user=user)
+
         endpoint = furl(reverse("api:retrieve-internal-resultaattype-choices"))
         endpoint.args["identificatie"] = "ZAAK-01"
 
@@ -1101,4 +1085,161 @@ class InternalResultaattypeChoicesViewTest(APITestCase):
                 },
             ],
             data,
+        )
+
+
+class BehandelendAfdelingInternalChoicesViewTests(ClearCacheMixin, APITestCase):
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-behandelend-afdeling-choices")
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_all_choices(self):
+        user = UserFactory.create()
+
+        ZaakFactory.create(
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Support Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/222-222-222",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Dev Afdeling",
+                    },
+                ]
+            },
+        )
+        ZaakFactory.create(
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/333-333-333",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Design Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
+                    },
+                ]
+            },
+        )
+        ZaakFactory.create(
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
+                    }
+                ]
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        response = self.client.get(reverse("api:retrieve-behandelend-afdeling-choices"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 3)
+        self.assertEqual(
+            sorted(data, key=lambda choice: choice["value"]),
+            [
+                {
+                    "value": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
+                    "label": "Maykin Support Afdeling",
+                },
+                {
+                    "value": "http://localhost:8003/zaken/api/v1/rollen/222-222-222",
+                    "label": "Maykin Dev Afdeling",
+                },
+                {
+                    "value": "http://localhost:8003/zaken/api/v1/rollen/333-333-333",
+                    "label": "Maykin Design Afdeling",
+                },
+            ],
+        )
+
+    def test_get_choices_with_filters(self):
+        user = UserFactory.create()
+
+        ZaakFactory.create(
+            identificatie="ZAAK-01",
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Support Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/222-222-222",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Dev Afdeling",
+                    },
+                ]
+            },
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-02",
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/333-333-333",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Design Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
+                    },
+                ]
+            },
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-03",
+            post___expand={
+                "rollen": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
+                    }
+                ]
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+
+        endpoint = furl(reverse("api:retrieve-behandelend-afdeling-choices"))
+        endpoint.args["identificatie"] = "ZAAK-01"
+
+        response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(len(data), 2)
+        self.assertEqual(
+            sorted(data, key=lambda choice: choice["value"]),
+            [
+                {
+                    "value": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
+                    "label": "Maykin Support Afdeling",
+                },
+                {
+                    "value": "http://localhost:8003/zaken/api/v1/rollen/222-222-222",
+                    "label": "Maykin Dev Afdeling",
+                },
+            ],
         )

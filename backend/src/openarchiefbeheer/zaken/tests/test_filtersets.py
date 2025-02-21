@@ -258,63 +258,71 @@ class FilterZakenTests(APITestCase):
         self.assertEqual(item.zaak.url, urls_zaken[0])
 
     def test_filter_behandelend_afdeling(self):
-        # Should NOT be returned: natuurlijk_persoon != organisatorische_eenheid
         ZaakFactory.create(
+            identificatie="ZAAK-01",
             post___expand={
                 "rollen": [
                     {
-                        "betrokkene_type": "natuurlijk_persoon",
-                        "betrokkene_identificatie": {"identificatie": "BLA1"},
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Support Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/222-222-222",
+                        "betrokkene_type": "organisatorische_eenheid",
+                        "omschrijving": "Maykin Dev Afdeling",
                     },
                 ]
-            }
+            },
         )
-        # Should be returned
         ZaakFactory.create(
+            identificatie="ZAAK-02",
             post___expand={
                 "rollen": [
                     {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/111-111-111",
                         "betrokkene_type": "organisatorische_eenheid",
-                        "betrokkene_identificatie": {"identificatie": "BLA1"},
+                        "omschrijving": "Maykin Support Afdeling",
                     },
                 ]
-            }
+            },
         )
-        # Should NOT be returned: identificatie does not contain BLA
         ZaakFactory.create(
+            identificatie="ZAAK-03",
             post___expand={
                 "rollen": [
                     {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/333-333-333",
                         "betrokkene_type": "organisatorische_eenheid",
-                        "betrokkene_identificatie": {"identificatie": "BLU1"},
+                        "omschrijving": "Maykin Design Afdeling",
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
                     },
                 ]
-            }
+            },
         )
-
-        # Should NOT be returned: no roles
-        ZaakFactory.create(_expand={"rollen": []})
-
-        # Should be returned
         ZaakFactory.create(
+            identificatie="ZAAK-04",
             post___expand={
                 "rollen": [
                     {
-                        "betrokkene_type": "organisatorische_eenheid",
-                        "betrokkene_identificatie": {"identificatie": "BLO1"},
-                    },
-                    {
-                        "betrokkene_type": "organisatorische_eenheid",
-                        "betrokkene_identificatie": {"identificatie": "BLA2"},
-                    },
+                        "url": "http://localhost:8003/zaken/api/v1/rollen/444-444-444",
+                        "betrokkene_type": "vestiging",
+                        "omschrijving": "Kantoor",
+                    }
                 ]
-            }
+            },
         )
 
         user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["behandelend_afdeling__icontains"] = "BLA"
+        endpoint.args["behandelend_afdeling"] = (
+            "http://localhost:8003/zaken/api/v1/rollen/111-111-111"
+        )
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)
@@ -322,6 +330,10 @@ class FilterZakenTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["count"], 2)
+
+        zaken_returned = [zaak["identificatie"] for zaak in data["results"]]
+        self.assertIn("ZAAK-01", zaken_returned)
+        self.assertIn("ZAAK-02", zaken_returned)
 
     def test_ordering(self):
         zaak_2 = ZaakFactory.create(identificatie="ZAAK-0000-0000000002")

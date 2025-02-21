@@ -2,8 +2,6 @@ from decimal import Decimal
 
 from django.db.models import (
     Case,
-    CharField,
-    F,
     Func,
     IntegerField,
     Q,
@@ -121,10 +119,10 @@ class ZaakFilterSet(FilterSet):
         lookup_expr="icontains",
     )
 
-    behandelend_afdeling__icontains = CharFilter(
-        field_name="behandelend_afdeling__icontains",
+    behandelend_afdeling = CharFilter(
+        field_name="behandelend_afdeling",
         method="filter_behandelend_afdeling",
-        help_text="The 'behandelend afdeling' is the 'betrokkeneIdentificatie.identificatie' field of the roles related to the case which have betrokkeneType = organisatorische_eenheid.",
+        help_text="Filter the zaken that contain in their `_expand.rollen` field the specified rol.",
     )
 
     class Meta:
@@ -265,24 +263,7 @@ class ZaakFilterSet(FilterSet):
     def filter_behandelend_afdeling(
         self, queryset: QuerySet[Zaak], name: str, value: str
     ) -> QuerySet[Zaak]:
-        zaken_with_afdeling = queryset.filter(
-            _expand__rollen__contains=[
-                {
-                    "betrokkene_type": "organisatorische_eenheid",
-                }
-            ]
-        )
-        json_path_expression = '$.rollen[*] ? (@.betrokkene_type == "organisatorische_eenheid").betrokkene_identificatie.identificatie'
-        zaken_with_afdeling = zaken_with_afdeling.annotate(
-            behandelend_afdeling=Func(
-                F("_expand"),
-                Value(json_path_expression),
-                function="jsonb_path_query_array",
-                output_field=CharField(),
-            )
-        )
-
-        return zaken_with_afdeling.filter(behandelend_afdeling__contains=value)
+        return queryset.filter(_expand__rollen__contains=[{"url": value}])
 
 
 class ZaakFilterBackend(DjangoFilterBackend):
