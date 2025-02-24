@@ -115,7 +115,7 @@ Stappen
     - Je wordt doorgestuurd naar de details van de lijst.
 
 3. **Start het proces om de beoordelaar bij te werken**
-    - Klik op de knop **"Beoordelaar bewerken"**. |beoordelaar_bewerken|
+    - Klik op de knop **"Beoordelaar bewerken"** naast de al gekozen beoordelaar om deze aan te passen. |beoordelaar_bewerken|
     - Een formulier wordt geopend om de nieuwe beoordelaar of toe te wijzen.
 
 4. **Selecteer een nieuwe beoordelaar**
