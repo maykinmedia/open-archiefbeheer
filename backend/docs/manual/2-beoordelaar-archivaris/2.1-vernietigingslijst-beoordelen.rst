@@ -64,6 +64,8 @@ Let op
   zichtbaar worden.
 - Alleen de hoofdbeoordelaar kan de lijst goedkeuren of afwijzen.
 
+Vervolgstappen
+--------------
 Na goedkeuring kan de lijst worden doorgestuurd naar de archivaris voor de laatste goedkeuring. Als de lijst wordt 
 afgekeurd, moet de record manager de aangevraagde wijzigingen
 :ref:`verwerken<manual_1-record-manager_1.5-beoordeling-verwerken>` voordat de lijst opnieuw kan worden
