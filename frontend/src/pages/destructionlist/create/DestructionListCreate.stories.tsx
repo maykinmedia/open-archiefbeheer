@@ -4,7 +4,7 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../.storybook/decorators";
-import { MOCKS } from "../../../../.storybook/mockData";
+import { MOCK_BASE } from "../../../../.storybook/mockData";
 import {
   assertCheckboxSelection,
   assertColumnSelection,
@@ -30,11 +30,7 @@ const meta: Meta<typeof DestructionListCreatePage> = {
       },
     },
     mockData: [
-      MOCKS.OIDC_INFO,
-      MOCKS.SELECTIE_LIJST_CHOICES,
-      MOCKS.ZAAKTYPE_CHOICES,
-      MOCKS.DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES,
-      MOCKS.ZAKEN_SEARCH,
+      ...MOCK_BASE,
       {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",

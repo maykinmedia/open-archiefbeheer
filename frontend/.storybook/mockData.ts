@@ -215,6 +215,15 @@ export const MOCKS = {
     status: 200,
     response: paginatedZakenFactory(),
   },
+  HEALTH_CHECK: {
+    url: "http://localhost:8000/api/v1/health-check",
+    method: "GET",
+    status: 200,
+    response: {
+      success: true,
+      errors: [],
+    },
+  },
 };
 
 export const MOCK_BASE = Object.values(MOCKS);
