@@ -276,5 +276,49 @@ class InternalResultaattypeChoicesView(APIView):
                     "value": resultaattype["url"],
                 }
             )
+        return Response(formatted_choices, status=status.HTTP_200_OK)
+
+
+class BehandelendAfdelingInternalChoicesView(APIView):
+    permission_classes = [IsAuthenticated]
+    filter_backends = (NoModelFilterBackend,)
+    filterset_class = ZaakFilterSet
+
+    @extend_schema(
+        summary=_("Retrieve behandelend afdeling choices"),
+        description=_(
+            "Retrieve the behandelend afdelingen the zaken in the database. "
+            'These have rollen with betrokkeneType equal to "organisatorische_eenheid".'
+        ),
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        filterset = ZaakFilterSet(data=request.query_params or request.data)
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
+
+        zaken_rollen = filterset.qs.filter(
+            _expand__rollen__contains=[{"betrokkene_type": "organisatorische_eenheid"}]
+        ).values_list("_expand__rollen", flat=True)
+
+        existing_rollen = []
+        formatted_choices = []
+        for zaak_rollen in zaken_rollen:
+            for rol in zaak_rollen:
+                if (
+                    rol["url"] in existing_rollen
+                    or rol["betrokkene_type"] != "organisatorische_eenheid"
+                ):
+                    continue
+
+                existing_rollen.append(rol["url"])
+                formatted_choices.append(
+                    {"label": rol.get("omschrijving", rol["url"]), "value": rol["url"]}
+                )
 
         return Response(formatted_choices, status=status.HTTP_200_OK)
