@@ -43,7 +43,7 @@ Stappen
 
       |uitzonderen_formulier|
 
-    - Klik op **"Afwijzen"** om de lijst af te wijzen. |afwijzen_knop|
+    - Klik op **"Afwijzen"** om de lijst af te wijzen wanneer je de volledige lijst hebt beoordeeld. |afwijzen_knop|
     - Vul een opmerking in indien nodig en bevestig de afwijzing door op **"Vernietigingslijst afwijzen"** te klikken.
 
         |afwijzen_formulier|
