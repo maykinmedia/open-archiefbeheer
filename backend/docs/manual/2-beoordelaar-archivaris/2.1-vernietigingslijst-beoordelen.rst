@@ -14,6 +14,7 @@ beoordelen binnen de applicatie.
 Voorwaarden
 ------------
 - De beoordelaar of archivaris moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De beoordelaar of archivaris moet zijn toegewezen aan de vernietigingslijst.
 - De vernietigingslijst moet de status **"Klaar voor beoordeling"** (beoordelaar) of **"Klaar voor archivaris"**
   (archivaris) hebben.
 
