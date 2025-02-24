@@ -58,7 +58,15 @@ class InternalZaaktypenChoicesView(GenericAPIView):
         if not is_valid:
             raise ValidationError(filterset.errors)
 
-        zaaktypen = filterset.qs.distinct("_expand__zaaktype__url").values_list(
+        # FIXME issue #712
+        # The filter not_in_destruction_list_except does an order_by on "in_exception_list" and "pk"
+        # However, we cannot combine a distinct and an order_by on different fields.
+        # So we add an order by on "_expand__zaaktype__url" as a bandaid fix until we fix the ordering in the filter
+        qs = filterset.qs
+        if filterset.data.get("not_in_destruction_list_except"):
+            qs = qs.order_by("_expand__zaaktype__url")
+
+        zaaktypen = qs.distinct("_expand__zaaktype__url").values_list(
             "_expand__zaaktype", flat=True
         )
         zaaktypen_choices = format_zaaktype_choices(zaaktypen)
