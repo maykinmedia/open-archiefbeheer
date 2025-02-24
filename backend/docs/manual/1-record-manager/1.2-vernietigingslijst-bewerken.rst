@@ -37,12 +37,12 @@ Stappen
 
 4. **Zaken toevoegen**
     - Navigeer naar de juiste pagina van de lijst indien deze meerdere pagina's bevat.
-    - Selecteer extra zaken door op de checkbox naast de gewenste zaken te klikken.
+    - Selecteer extra zaken door op het selectievak naast de gewenste zaken te klikken.
     - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan.
 
 5. **Zaken verwijderen**
     - Navigeer naar de juiste pagina van de lijst.
-    - Deselecteer zaken door op de checkbox naast de ongewenste zaken te klikken.
+    - Deselecteer zaken door op het selectievak naast de ongewenste zaken te klikken.
     - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan.
 
 6. **Filters gebruiken**
