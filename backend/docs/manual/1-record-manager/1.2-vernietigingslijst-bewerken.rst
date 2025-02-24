@@ -56,7 +56,8 @@ Stappen
     - Klik op de knop **"Opslaan"** om de naamwijziging door te voeren.
 
 8. **Controleer de wijzigingen**
-    - Na het opslaan van de aanpassingen word je teruggeleid naar de lijstweergave.
+    - Na het opslaan van de aanpassingen (via de knop **"Vernietigingslijst aanpassen"**) word je teruggeleid naar de
+      lijstweergave.
     - De zaken die je hebt toegevoegd of verwijderd, evenals de nieuwe naam van de lijst, worden voortaan weergegeven in de lijst.
 
 Let op
