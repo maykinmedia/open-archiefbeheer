@@ -63,6 +63,8 @@ Let op
 - Als er gebruik gemaakt wordt van mede-beoordelen kunnen er accorderingen/uitzonderingen van de mede-beoordelaar(s)
   zichtbaar worden.
 - Alleen de hoofdbeoordelaar kan de lijst goedkeuren of afwijzen.
+- Vernietigingslijsten zonder uitzonderingen kunnen enkel worden goedgekeurd, vernietigingslijsten met uitzonderingen
+  kunnen enkel worden afgewezen.
 
 Vervolgstappen
 --------------
