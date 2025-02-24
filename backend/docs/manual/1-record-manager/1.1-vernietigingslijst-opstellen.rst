@@ -31,8 +31,8 @@ Stappen
 
 3. **Selecteer zaken voor de vernietigingslijst**
     - Op de pagina zie je een lijst van beschikbare zaken.
-    - Klik op de checkbox naast een zaak om deze te selecteren. |checkbox_zaak|
-    - Je kunt ook de checkboxen bovenaan gebruiken om alle zichtbare zaken, of alle pagina's in één keer te selecteren
+    - Klik op het selectievak naast een zaak om deze te selecteren. |checkbox_zaak|
+    - Je kunt ook de selectievakken bovenaan gebruiken om alle zichtbare zaken, of alle pagina's in één keer te selecteren
       of deselecteren. |checkbox_zaken|
 
 4. **Bevestig de selectie**
@@ -74,11 +74,11 @@ controle wordt :ref:`aangeboden aan de beoordelaar<manual_1-record-manager_1.3-v
     :height: 32px
 
 .. |checkbox_zaak| image:: ../_assets/checkbox-zaak.png
-    :alt: Checkbox voor enkele zaak
+    :alt: Selectievak voor enkele zaak
     :height: 42px
 
 .. |checkbox_zaken| image:: ../_assets/checkbox-zaken.png
-    :alt: Checkbox voor alle zaken
+    :alt: Selectievak voor alle zaken
     :height: 40
 
 .. |vernietigingslijst_opstellen_actie| image:: ../_assets/vernietigingslijst-opstellen-actie.png
