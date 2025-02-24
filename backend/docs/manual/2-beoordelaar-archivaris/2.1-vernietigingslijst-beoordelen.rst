@@ -29,7 +29,7 @@ Stappen
     - Zoek de vernietigingslijst die je wilt beoordelen. Bijvoorbeeld **"Mijn eerste vernietigingslijst"**.
     - Klik op de naam van de lijst om de details van de lijst te openen.
 
-3. **Beoordeel de vernietigingslijst**
+3. **Goedkeuren van de lijst**
     - Bekijk de zaken in de lijst en controleer of alles voldoet aan de beoordelingscriteria, markeer zaken optioneel
       als accoord door op **"Accorderen"** te klikken. |accorderen|
     - Als alles correct is, klik op de knop **"Goedkeuren"** om de lijst goed te keuren. |goedkeuren_knop|
