@@ -46,7 +46,7 @@ Stappen
     - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan.
 
 6. **Filters gebruiken**
-    - Klik op het filtericoon en selecteer de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**.
+    - Klik op het filtericoon en selecteer de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**. |filters|
     - Pas filters toe om specifieke zaken te vinden en te beheren binnen de vernietigingslijst.
     - Voeg zaken toe of verwijder zaken zoals eerder beschreven.
 
@@ -76,6 +76,10 @@ en filters gebruiken om je selectie te verfijnen. De volgende stap is om de lijs
 
 .. |vernietigingslijst_bewerken| image:: ../_assets/vernietigingslijst-bewerken.png
     :alt: Vernietigingslijst bewerken knop
+    :height: 32px
+
+.. |filters| image:: ../_assets/filters.png
+    :alt: Filters
     :height: 32px
 
 .. |naam_bewerken| image:: ../_assets/naam-bewerken.png
