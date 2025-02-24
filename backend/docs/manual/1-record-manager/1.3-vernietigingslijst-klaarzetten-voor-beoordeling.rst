@@ -47,6 +47,8 @@ Let op
   bewerken moet eerst het beoordelingsproces worden
   :ref:`afgebroken<manual_1-record-manager_1.4-beoordelingsproces-afbreken>`.
 
+Vervolgstappen
+--------------
 Zodra de lijst is klaargezet voor beoordeling, kan de beoordelaar de lijst inzien en
 :ref:`beoordelen<manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen>` op basis van de geselecteerde zaken en
 informatie. De beoordelaar kan de lijst goedkeuren of afwijzen. Indien de lijst wordt goedgekeurd zal de status worden
