@@ -5,6 +5,8 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../../../.storybook/decorators";
+import { MOCK_BASE } from "../../../../../.storybook/mockData";
+import { recordManagerFactory } from "../../../../fixtures";
 import { settingsAction } from "../../Settings.action";
 import { HealthCheckSettingsPage } from "./HealthCheckSettingsPage";
 import { healthCheckSettingsLoader } from "./HealthCheckSettingsPage.loader";
@@ -47,7 +49,7 @@ const HEALTH_CHECK_FIXTURE = {
   ],
 };
 
-export const UpdateShortProcedureSettings: Story = {
+export const HealthCheck: Story = {
   parameters: {
     reactRouterDecorator: {
       route: {
@@ -56,6 +58,13 @@ export const UpdateShortProcedureSettings: Story = {
       },
     },
     mockData: [
+      ...MOCK_BASE,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: recordManagerFactory(),
+      },
       {
         url: "http://localhost:8000/api/v1/health-check",
         method: "GET",
