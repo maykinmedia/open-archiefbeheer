@@ -439,6 +439,22 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
             response.json()["inDestructionList"][0], _("Enter a valid UUID.")
         )
 
+    def test_retrieve_zaaktypen_choices_not_in_destruction_list_except(self):
+        user = UserFactory.create()
+
+        ZaakFactory.create()
+
+        destruction_list = DestructionListFactory.create()
+
+        self.client.force_authenticate(user=user)
+        url = reverse("api:retrieve-zaaktypen-choices")
+
+        response = self.client.post(
+            url, data={"not_in_destruction_list_except": destruction_list.uuid}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
