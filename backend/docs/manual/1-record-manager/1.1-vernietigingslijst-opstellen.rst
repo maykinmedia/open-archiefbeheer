@@ -27,7 +27,7 @@ Stappen
 
 2. **Navigeren naar de pagina voor het aanmaken van een nieuwe lijst**
     - Klik op de knop **“Vernietigingslijst opstellen”**. |vernietigingslijst_opstellen_link|
-    - Je wordt doorgestuurd naar de pagina **`/destruction-lists/create`**.
+    - Je wordt doorgestuurd naar de pagina **“Vernietigingslijst opstellen”**.
 
 3. **Selecteer zaken voor de vernietigingslijst**
     - Op de pagina zie je een lijst van beschikbare zaken.
@@ -56,7 +56,7 @@ Stappen
     - Klik op de knop **“Vernietigingslijst opstellen”** om de lijst definitief aan te maken.
 
 7. **Controleer de aangemaakte lijst**
-    - Na bevestiging word je teruggeleid naar de pagina **`/destruction-lists`**.
+    - Na bevestiging word je teruggeleid naar de pagina **"Vernietigingslijsten"**.
     - De vernietigingslijst verschijnt in het overzicht met de status *"Nieuw"*.
 
 Let op
