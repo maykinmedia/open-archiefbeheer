@@ -14,6 +14,7 @@ beoordelen binnen de applicatie.
 Voorwaarden
 ------------
 - De beoordelaar of archivaris moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De beoordelaar of archivaris moet zijn toegewezen aan de vernietigingslijst.
 - De vernietigingslijst moet de status **"Klaar voor beoordeling"** (beoordelaar) of **"Klaar voor archivaris"**
   (archivaris) hebben.
 
@@ -28,7 +29,7 @@ Stappen
     - Zoek de vernietigingslijst die je wilt beoordelen. Bijvoorbeeld **"Mijn eerste vernietigingslijst"**.
     - Klik op de naam van de lijst om de details van de lijst te openen.
 
-3. **Beoordeel de vernietigingslijst**
+3. **Goedkeuren van de lijst**
     - Bekijk de zaken in de lijst en controleer of alles voldoet aan de beoordelingscriteria, markeer zaken optioneel
       als accoord door op **"Accorderen"** te klikken. |accorderen|
     - Als alles correct is, klik op de knop **"Goedkeuren"** om de lijst goed te keuren. |goedkeuren_knop|
@@ -42,7 +43,7 @@ Stappen
 
       |uitzonderen_formulier|
 
-    - Klik op **"Afwijzen"** om de lijst af te wijzen. |afwijzen_knop|
+    - Klik op **"Afwijzen"** om de lijst af te wijzen wanneer je de volledige lijst hebt beoordeeld. |afwijzen_knop|
     - Vul een opmerking in indien nodig en bevestig de afwijzing door op **"Vernietigingslijst afwijzen"** te klikken.
 
         |afwijzen_formulier|
@@ -62,7 +63,11 @@ Let op
 - Als er gebruik gemaakt wordt van mede-beoordelen kunnen er accorderingen/uitzonderingen van de mede-beoordelaar(s)
   zichtbaar worden.
 - Alleen de hoofdbeoordelaar kan de lijst goedkeuren of afwijzen.
+- Vernietigingslijsten zonder uitzonderingen kunnen enkel worden goedgekeurd, vernietigingslijsten met uitzonderingen
+  kunnen enkel worden afgewezen.
 
+Vervolgstappen
+--------------
 Na goedkeuring kan de lijst worden doorgestuurd naar de archivaris voor de laatste goedkeuring. Als de lijst wordt 
 afgekeurd, moet de record manager de aangevraagde wijzigingen
 :ref:`verwerken<manual_1-record-manager_1.5-beoordeling-verwerken>` voordat de lijst opnieuw kan worden

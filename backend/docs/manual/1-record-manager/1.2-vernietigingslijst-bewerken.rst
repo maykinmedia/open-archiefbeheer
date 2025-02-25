@@ -37,16 +37,16 @@ Stappen
 
 4. **Zaken toevoegen**
     - Navigeer naar de juiste pagina van de lijst indien deze meerdere pagina's bevat.
-    - Selecteer extra zaken door op de checkbox naast de gewenste zaken te klikken.
-    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan.
+    - Selecteer extra zaken door op het selectievak naast de gewenste zaken te klikken.
+    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
 
 5. **Zaken verwijderen**
     - Navigeer naar de juiste pagina van de lijst.
-    - Deselecteer zaken door op de checkbox naast de ongewenste zaken te klikken.
-    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan.
+    - Deselecteer zaken door op het selectievak naast de ongewenste zaken te klikken.
+    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
 
 6. **Filters gebruiken**
-    - Klik op het filtericoon en selecteer de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**.
+    - Klik op het filtericoon en selecteer de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**. |filters|
     - Pas filters toe om specifieke zaken te vinden en te beheren binnen de vernietigingslijst.
     - Voeg zaken toe of verwijder zaken zoals eerder beschreven.
 
@@ -56,7 +56,8 @@ Stappen
     - Klik op de knop **"Opslaan"** om de naamwijziging door te voeren.
 
 8. **Controleer de wijzigingen**
-    - Na het opslaan van de aanpassingen word je teruggeleid naar de lijstweergave.
+    - Na het opslaan van de aanpassingen (via de knop **"Vernietigingslijst aanpassen"**) word je teruggeleid naar de
+      lijstweergave.
     - De zaken die je hebt toegevoegd of verwijderd, evenals de nieuwe naam van de lijst, worden voortaan weergegeven in de lijst.
 
 Let op
@@ -78,6 +79,14 @@ en filters gebruiken om je selectie te verfijnen. De volgende stap is om de lijs
     :alt: Vernietigingslijst bewerken knop
     :height: 32px
 
+.. |vernietigingslijst_opslaan| image:: ../_assets/vernietigingslijst-opslaan.png
+    :alt: Vernietigingslijst opslaan knop
+    :height: 32px
+
+.. |filters| image:: ../_assets/filters.png
+    :alt: Filters
+    :height: 32px
+
 .. |naam_bewerken| image:: ../_assets/naam-bewerken.png
     :alt: Naam bewerken knop
     :height: 22px
@@ -91,7 +100,6 @@ Deze handleiding beschrijft hoe een **record manager** de beoordelaar van een ve
 Voorwaarden
 ------------
 - De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
-- De vernietigingslijst moet een status van **Klaar voor beoordeling** of **Nieuw** hebben.
 - Er moet een nieuwe beoordelaar beschikbaar zijn om toegewezen te worden.
 
 Stappen
@@ -107,7 +115,7 @@ Stappen
     - Je wordt doorgestuurd naar de details van de lijst.
 
 3. **Start het proces om de beoordelaar bij te werken**
-    - Klik op de knop **"Beoordelaar bewerken"**. |beoordelaar_bewerken|
+    - Klik op de knop **"Beoordelaar bewerken"** naast de al gekozen beoordelaar om deze aan te passen. |beoordelaar_bewerken|
     - Een formulier wordt geopend om de nieuwe beoordelaar of toe te wijzen.
 
 4. **Selecteer een nieuwe beoordelaar**
@@ -125,8 +133,8 @@ Let op
 ------
 - Controleer altijd dat de juiste beoordelaar is toegewezen voordat je verdergaat.
 - Redenen voor wijzigingen worden vastgelegd en kunnen later geraadpleegd worden.
-- De status van de lijst blijft **Klaar voor beoordeling** totdat deze wordt beoordeeld door de nieuwe beoordelaar.
-- Als een gebruiker lid is van zowel de record manager- als beoordelaar-groep en is toegewezen als beoordelaar van een lijst, kan deze wel de beoordelaar wijzigen.
+- Als een gebruiker lid is van zowel de record manager- als beoordelaar-groep en is toegewezen als beoordelaar van een
+  lijst, kan deze wel de beoordelaar wijzigen.
 
 Met deze stappen kun je de beoordelaar voor een vernietigingslijst bijwerken en de lijst klaarzetten voor beoordeling door de nieuwe beoordelaar.
 

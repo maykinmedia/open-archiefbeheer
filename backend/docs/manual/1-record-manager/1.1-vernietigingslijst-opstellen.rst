@@ -27,18 +27,21 @@ Stappen
 
 2. **Navigeren naar de pagina voor het aanmaken van een nieuwe lijst**
     - Klik op de knop **“Vernietigingslijst opstellen”**. |vernietigingslijst_opstellen_link|
-    - Je wordt doorgestuurd naar de pagina **`/destruction-lists/create`**.
+    - Je wordt doorgestuurd naar de pagina **“Vernietigingslijst opstellen”**.
 
-3. **Selecteer zaken voor de vernietigingslijst**
+3. **Filters gebruiken**
+    - Gebruik de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype** om specifieke items te vinden. |filters|
+
+4. **Selecteer zaken voor de vernietigingslijst**
     - Op de pagina zie je een lijst van beschikbare zaken.
-    - Klik op de checkbox naast een zaak om deze te selecteren. |checkbox_zaak|
-    - Je kunt ook de checkboxen bovenaan gebruiken om alle zichtbare zaken, of alle pagina's in één keer te selecteren
+    - Klik op het selectievak naast een zaak om deze te selecteren. |checkbox_zaak|
+    - Je kunt ook de selectievakken bovenaan gebruiken om alle zichtbare zaken, of alle pagina's in één keer te selecteren
       of deselecteren. |checkbox_zaken|
 
-4. **Bevestig de selectie**
+5. **Bevestig de selectie**
     - Klik op de knop **“Vernietigingslijst opstellen”** om door te gaan met de geselecteerde zaken. |vernietigingslijst_opstellen_actie|
 
-5. **Vul de vereiste informatie in**
+6. **Vul de vereiste informatie in**
     - Op het formulier dat verschijnt, vul je de volgende velden in:
         - **Naam**: Geef een duidelijke en unieke naam voor de vernietigingslijst, bijvoorbeeld:
             **“Mijn eerste vernietigingslijst”**.
@@ -52,11 +55,11 @@ Stappen
    Formulier voor het opstellen van een nieuwe vernietigingslijst met velden voor **"Naam"**, **"Beoordelaar"** en
    **"Opmerking"**.
 
-6. **Bevestig de aanmaak van de lijst**
+7. **Bevestig de aanmaak van de lijst**
     - Klik op de knop **“Vernietigingslijst opstellen”** om de lijst definitief aan te maken.
 
-7. **Controleer de aangemaakte lijst**
-    - Na bevestiging word je teruggeleid naar de pagina **`/destruction-lists`**.
+8. **Controleer de aangemaakte lijst**
+    - Na bevestiging word je teruggeleid naar de pagina **"Vernietigingslijsten"**.
     - De vernietigingslijst verschijnt in het overzicht met de status *"Nieuw"*.
 
 Let op
@@ -73,12 +76,16 @@ controle wordt :ref:`aangeboden aan de beoordelaar<manual_1-record-manager_1.3-v
     :alt: Vernietigingslijst opstellen knop
     :height: 32px
 
+.. |filters| image:: ../_assets/filters.png
+    :alt: Filters
+    :height: 32px
+
 .. |checkbox_zaak| image:: ../_assets/checkbox-zaak.png
-    :alt: Checkbox voor enkele zaak
+    :alt: Selectievak voor enkele zaak
     :height: 42px
 
 .. |checkbox_zaken| image:: ../_assets/checkbox-zaken.png
-    :alt: Checkbox voor alle zaken
+    :alt: Selectievak voor alle zaken
     :height: 40
 
 .. |vernietigingslijst_opstellen_actie| image:: ../_assets/vernietigingslijst-opstellen-actie.png

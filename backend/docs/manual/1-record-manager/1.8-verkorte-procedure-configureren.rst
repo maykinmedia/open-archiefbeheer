@@ -28,7 +28,7 @@ Stappen
     - Klik vervolgens op de knop **"Verkorte procedure"**. |verkorte_procedure_knop|
 
 3. **Selecteer zaaktypen voor de verkorte procedure**
-    - Klik op de checkbox naast een zaaktype om deze te selecteren. |checkbox_zaaktype|
+    - Klik op het selectievak naast een zaaktype om deze te selecteren. |checkbox_zaaktype|
 
 4. **Sla de instellingen op**
     - Klik op de knop **"Opslaan"**. |opslaan_knop|
@@ -51,7 +51,7 @@ Let op
    :height: 42px
 
 .. |checkbox_zaaktype| image:: ../_assets/checkbox-zaaktype.png
-    :alt: Checkbox voor zaaktype
+    :alt: Selectievak voor zaaktype
     :height: 42px
 
 .. |opslaan_knop| image:: ../_assets/opslaan-knop.png
