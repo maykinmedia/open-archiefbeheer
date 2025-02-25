@@ -1,5 +1,11 @@
+/** Whether the (frontend) cache should be disabled. */
+const CACHE_DISABLED =
+  process.env.REACT_APP_CACHE_DISABLED?.toLowerCase() === "true" || false;
+
 /** The maximum default cache age. */
-export const DEFAULT_CACHE_MAX_AGE = 600000;
+export const CACHE_MAX_AGE = parseInt(
+  process.env.REACT_APP_CACHE_MAX_AGE || "600000",
+);
 
 /** Data written to session storage for every cache record. */
 export type CacheRecord<T = unknown> = {
@@ -13,6 +19,10 @@ export type CacheRecord<T = unknown> = {
  * @param key A key identifying the selection.
  */
 export async function cacheGet<T>(key: string): Promise<T | null> {
+  if (CACHE_DISABLED) {
+    return null;
+  }
+
   const computedKey = _getComputedKey(key);
   const json = sessionStorage.getItem(computedKey);
   if (json === null) {
@@ -22,7 +32,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
   const currentTimestamp = new Date().getTime();
   const record: CacheRecord = JSON.parse(json);
 
-  if (currentTimestamp - record.timestamp > DEFAULT_CACHE_MAX_AGE) {
+  if (currentTimestamp - record.timestamp > CACHE_MAX_AGE) {
     await cacheDelete(computedKey);
   }
 
@@ -36,6 +46,10 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
  * @param value THe value to cache.
  */
 export async function cacheSet(key: string, value: unknown) {
+  if (CACHE_DISABLED) {
+    return;
+  }
+
   const computedKey = _getComputedKey(key);
   const record: CacheRecord = {
     timestamp: new Date().getTime(),
