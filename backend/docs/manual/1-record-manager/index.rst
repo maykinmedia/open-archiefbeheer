@@ -17,3 +17,4 @@ Record manager
    1.7-vernietigingslijst-vernietigen
    1.8-verkorte-procedure-configureren
    1.9-vernietigingsrapport-configureren
+   2.0-audit-log-bekijken
