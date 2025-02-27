@@ -6,7 +6,6 @@ from django.views.decorators.cache import cache_page
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,7 +43,7 @@ class CacheZakenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class InternalZaaktypenChoicesView(GenericAPIView):
+class InternalZaaktypenChoicesView(APIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -58,16 +57,12 @@ class InternalZaaktypenChoicesView(GenericAPIView):
         if not is_valid:
             raise ValidationError(filterset.errors)
 
-        # FIXME issue #712
-        # The filter not_in_destruction_list_except does an order_by on "in_exception_list" and "pk"
-        # However, we cannot combine a distinct and an order_by on different fields.
-        # So we add an order by on "_expand__zaaktype__url" as a bandaid fix until we fix the ordering in the filter
-        qs = filterset.qs
-        if filterset.data.get("not_in_destruction_list_except"):
-            qs = qs.order_by("_expand__zaaktype__url")
-
-        zaaktypen = qs.distinct("_expand__zaaktype__url").values_list(
-            "_expand__zaaktype", flat=True
+        zaaktypen = (
+            filterset.qs.order_by(
+                "_expand__zaaktype__identificatie", "-_expand__zaaktype__versiedatum"
+            )
+            .distinct("_expand__zaaktype__identificatie")
+            .values_list("_expand__zaaktype", flat=True)
         )
         zaaktypen_choices = format_zaaktype_choices(zaaktypen)
 

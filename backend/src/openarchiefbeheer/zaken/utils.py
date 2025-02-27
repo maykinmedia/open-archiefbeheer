@@ -1,5 +1,3 @@
-from collections import defaultdict
-from datetime import date
 from functools import lru_cache, partial
 from typing import Callable, Generator, Iterable, Literal
 
@@ -118,34 +116,15 @@ def process_expanded_data(
 
 
 def format_zaaktype_choices(zaaktypen: Iterable[dict]) -> list[DropDownChoice]:
-    zaaktypen_per_version = defaultdict(list)
-    id_to_omschrijving_map = {}
-    for zaaktype in zaaktypen:
-        zaaktypen_per_version[zaaktype["identificatie"]].append(zaaktype["url"])
-        version_date = date.fromisoformat(zaaktype["versiedatum"])
-
-        if zaaktype["identificatie"] not in id_to_omschrijving_map:
-            id_to_omschrijving_map[zaaktype["identificatie"]] = {
-                "omschrijving": zaaktype["omschrijving"],
-                "versiedatum": version_date,
-            }
-            continue
-
-        latest_version_date = id_to_omschrijving_map[zaaktype["identificatie"]][
-            "versiedatum"
-        ]
-        if version_date > latest_version_date:
-            id_to_omschrijving_map[zaaktype["identificatie"]] = {
-                "omschrijving": zaaktype["omschrijving"],
-                "versiedatum": version_date,
-            }
-
     formatted_zaaktypen = []
-    for identificatie, urls in zaaktypen_per_version.items():
-        omschrijving = id_to_omschrijving_map[identificatie]["omschrijving"]
-        label = f"{omschrijving} ({identificatie or _("no identificatie")})"
-        value = ",".join(sorted(urls))
-        formatted_zaaktypen.append({"label": label, "value": value})
+    for zaaktype in zaaktypen:
+        omschrijving = zaaktype["omschrijving"]
+        label = (
+            f"{omschrijving} ({zaaktype.get("identificatie") or _("no identificatie")})"
+        )
+        formatted_zaaktypen.append(
+            {"label": label, "value": zaaktype.get("identificatie") or ""}
+        )
     formatted_zaaktypen = sorted(formatted_zaaktypen, key=lambda x: x["label"])
     return formatted_zaaktypen
 
