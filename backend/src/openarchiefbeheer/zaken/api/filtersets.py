@@ -82,10 +82,10 @@ class ZaakFilterSet(FilterSet):
         ),
     )
 
-    zaaktype__in = BaseInFilter(
-        field_name="zaaktype",
+    zaaktype = CharFilter(
+        field_name="_expand__zaaktype__identificatie",
         help_text=_(
-            "Filter all zaaktype that have a URL contained in the provided list."
+            "Filter on the zaaktype identificatie."
         ),
     )
 
