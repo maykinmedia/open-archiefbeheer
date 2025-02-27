@@ -485,8 +485,7 @@ class FilterZakenTests(APITestCase):
 
         self.client.force_authenticate(user)
         response = self.client.post(
-            reverse("api:zaken-search"),
-            data={"zaaktype": "ZAAKTYPE-01"}
+            reverse("api:zaken-search"), data={"zaaktype": "ZAAKTYPE-01"}
         )
         data = response.json()
 
