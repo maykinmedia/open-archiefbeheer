@@ -149,45 +149,6 @@ class DeletingZakenWithErrorsTests(TestCase):
 
 
 class FormatZaaktypeChoicesTests(TestCase):
-    def test_format_zaaktype_choices_with_multiple_versions(self):
-        # Test that the function picks the latest version of each zaaktype based on versiedatum
-        # And test that the output is sorted by label
-        zaaktypen = [
-            {
-                "identificatie": "ZKT-001",
-                "url": "http://localhost:8000/api/v1/zaaktypen/1",
-                "omschrijving": "Zaaktype 1",
-                "versiedatum": "2023-01-01",
-            },
-            {
-                "identificatie": "ZKT-001",
-                "url": "http://localhost:8000/api/v1/zaaktypen/2",
-                "omschrijving": "Zaaktype 1 Updated",
-                "versiedatum": "2023-06-01",
-            },
-            {
-                "identificatie": "ZKT-002",
-                "url": "http://localhost:8000/api/v1/zaaktypen/3",
-                "omschrijving": "Zaaktype 2",
-                "versiedatum": "2022-12-01",
-            },
-        ]
-
-        # Expecting the most recent version for each zaaktype, with URLs aggregated
-        expected_result = [
-            {
-                "label": "Zaaktype 1 Updated (ZKT-001)",
-                "value": "http://localhost:8000/api/v1/zaaktypen/1,http://localhost:8000/api/v1/zaaktypen/2",
-            },
-            {
-                "label": "Zaaktype 2 (ZKT-002)",
-                "value": "http://localhost:8000/api/v1/zaaktypen/3",
-            },
-        ]
-
-        result = format_zaaktype_choices(zaaktypen)
-        self.assertEqual(result, expected_result)
-
     def test_format_zaaktype_choices_with_no_identificatie(self):
         # Test how the function handles zaaktypen with no identificatie
         zaaktypen = [
@@ -203,7 +164,7 @@ class FormatZaaktypeChoicesTests(TestCase):
         expected_result = [
             {
                 "label": "Zaaktype without ID (no identificatie)",
-                "value": "http://localhost:8000/api/v1/zaaktypen/1",
+                "value": "",
             }
         ]
 

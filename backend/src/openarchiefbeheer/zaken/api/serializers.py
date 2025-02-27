@@ -73,7 +73,9 @@ class ZaakSerializer(serializers.ModelSerializer):
 
 class ChoiceSerializer(serializers.Serializer):
     label = serializers.CharField(help_text=_("The description field of the choice."))
-    value = serializers.CharField(help_text=_("The URL of the choice."))
+    value = serializers.CharField(
+        help_text=_("The URL of the choice."), allow_blank=True
+    )
     extra_data = serializers.JSONField(
         help_text=_("Any extra information about this choice."),
         required=False,

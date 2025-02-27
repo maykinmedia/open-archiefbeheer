@@ -80,12 +80,12 @@ export function useFields<T extends Zaak = Zaak>(
     },
     {
       name: "zaaktype",
-      filterLookup: "zaaktype__in",
-      filterValue: searchParams.get("zaaktype__in") || "",
-      valueTransform: (v) =>
-        zaaktypeChoices.find((c) => c.value === v.zaaktype)?.label || (
-          <Placeholder />
-        ),
+      filterLookup: "zaaktype",
+      filterValue: searchParams.get("zaaktype") || "",
+      valueTransform: (v: ExpandZaak) =>
+        zaaktypeChoices.find(
+          (c) => c.value === v._expand?.zaaktype?.identificatie,
+        )?.label || <Placeholder />,
       options: zaaktypeChoices,
       type: "string",
       width: "150px",

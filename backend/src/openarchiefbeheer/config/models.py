@@ -7,7 +7,7 @@ from solo.models import SingletonModel
 
 class ArchiveConfig(SingletonModel):
     zaaktypes_short_process = ArrayField(
-        models.URLField(max_length=1000),
+        models.CharField(max_length=1000),
         verbose_name=_("zaaktypes short process"),
         help_text=_(
             "If a destruction list only contains cases with types present in this field, "

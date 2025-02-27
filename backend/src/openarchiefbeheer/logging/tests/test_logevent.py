@@ -101,11 +101,11 @@ class LogEventTests(TestCase):
             [
                 {
                     "label": "ZAAKTYPE 1.1 (ZAAKTYPE-01)",
-                    "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111,http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+                    "value": "ZAAKTYPE-01",
                 },
                 {
                     "label": "ZAAKTYPE 2.0 (ZAAKTYPE-02)",
-                    "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "value": "ZAAKTYPE-02",
                 },
             ],
         )

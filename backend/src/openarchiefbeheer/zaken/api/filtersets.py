@@ -13,7 +13,6 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
-    BaseInFilter,
     BooleanFilter,
     CharFilter,
     FilterSet,
@@ -82,11 +81,9 @@ class ZaakFilterSet(FilterSet):
         ),
     )
 
-    zaaktype__in = BaseInFilter(
-        field_name="zaaktype",
-        help_text=_(
-            "Filter all zaaktype that have a URL contained in the provided list."
-        ),
+    zaaktype = CharFilter(
+        field_name="_expand__zaaktype__identificatie",
+        help_text=_("Filter on the zaaktype identificatie."),
     )
 
     in_review = NumberFilter(

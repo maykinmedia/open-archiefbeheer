@@ -67,9 +67,12 @@ def destruction_list_ready_for_first_review(
 
     extra_data = {
         "zaaktypen": format_zaaktype_choices(
-            destruction_list.items.distinct("zaak__zaaktype").values_list(
-                "zaak___expand__zaaktype", flat=True
+            destruction_list.items.order_by(
+                "zaak___expand__zaaktype__identificatie",
+                "-zaak___expand__zaaktype__versiedatum",
             )
+            .distinct("zaak___expand__zaaktype__identificatie")
+            .values_list("zaak___expand__zaaktype", flat=True)
         ),
         "resultaten": format_resultaten_choices(
             destruction_list.items.distinct("zaak__resultaat")

@@ -33,7 +33,7 @@ class ArchiveConfigViews(APITestCase):
         self.client.force_login(user)
         response = self.client.put(
             reverse("api:archive-config"),
-            data={"zaaktypesShortProcess": ["http://tralala.nl"]},
+            data={"zaaktypesShortProcess": ["ZAAKTYPE-TRALALA"]},
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -45,7 +45,7 @@ class ArchiveConfigViews(APITestCase):
         response = self.client.put(
             reverse("api:archive-config"),
             data={
-                "zaaktypesShortProcess": ["http://tralala.nl"],
+                "zaaktypesShortProcess": ["ZAAKTYPE-TRALALA"],
                 "bronorganisatie": "000000000",
                 "zaaktype": "http://bla.nl",
                 "statustype": "http://bla.nl",
@@ -59,7 +59,7 @@ class ArchiveConfigViews(APITestCase):
 
         config = ArchiveConfig.get_solo()
 
-        self.assertEqual(config.zaaktypes_short_process, ["http://tralala.nl"])
+        self.assertEqual(config.zaaktypes_short_process, ["ZAAKTYPE-TRALALA"])
 
     def test_record_manager_partial_update(self):
         user = UserFactory.create(post__can_start_destruction=True)
@@ -67,14 +67,14 @@ class ArchiveConfigViews(APITestCase):
         self.client.force_login(user)
         response = self.client.patch(
             reverse("api:archive-config"),
-            data={"zaaktypesShortProcess": ["http://tralala.nl"]},
+            data={"zaaktypesShortProcess": ["ZAAKTYPE-TRALALA"]},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         config = ArchiveConfig.get_solo()
 
-        self.assertEqual(config.zaaktypes_short_process, ["http://tralala.nl"])
+        self.assertEqual(config.zaaktypes_short_process, ["ZAAKTYPE-TRALALA"])
 
     @tag("gh-227")
     @override_settings(SOLO_CACHE=None)
@@ -82,7 +82,7 @@ class ArchiveConfigViews(APITestCase):
         user = UserFactory.create(post__can_start_destruction=True)
 
         config = ArchiveConfig.get_solo()
-        config.zaaktypes_short_process = ["http://tralala.nl"]
+        config.zaaktypes_short_process = ["ZAAKTYPE-TRALALA"]
         config.save()
 
         self.client.force_login(user)

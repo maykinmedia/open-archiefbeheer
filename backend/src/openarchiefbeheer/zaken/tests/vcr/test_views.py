@@ -237,10 +237,10 @@ class ExternalZaaktypenChoicesViewTests(VCRMixin, APITestCase):
         results = [zaaktype["value"] for zaaktype in data]
 
         self.assertIn(
-            "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+            "ZAAKTYPE-2018-0000000002",
             results,
         )
         self.assertIn(
-            "http://localhost:8003/catalogi/api/v1/zaaktypen/be210495-20b6-48ff-8d3d-3e44f74c43a4",
+            "ZAAKTYPE-2018-0000000001",
             results,
         )
