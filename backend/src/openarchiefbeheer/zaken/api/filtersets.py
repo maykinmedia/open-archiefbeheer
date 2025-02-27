@@ -13,7 +13,6 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import (
-    BaseInFilter,
     BooleanFilter,
     CharFilter,
     FilterSet,
