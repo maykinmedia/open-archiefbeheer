@@ -401,15 +401,41 @@ class FilterZakenTests(APITestCase):
         self.assertEqual(item.zaak.url, data["results"][0]["url"])
 
     def test_filter_on_zaaktype(self):
-        ZaakFactory.create_batch(3, identificatie="ZAAK-01")
-        zaken_2 = ZaakFactory.create_batch(2, identificatie="ZAAK-02")
+        zaak1 = ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.0",
+                    "versiedatum": "2024-01-01",
+                }
+            },
+        )
+        zaak2 = ZaakFactory.create(
+            post___expand={
+                "zaaktype": {  # Different version of the zaaktype above
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.1",
+                    "versiedatum": "2024-01-02",
+                }
+            },
+        )
+        ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE 2.0",
+                    "versiedatum": "2024-01-01",
+                }
+            },
+        )
 
         user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         endpoint = furl(reverse("api:zaken-list"))
-        endpoint.args["zaaktype__in"] = ",".join(
-            [zaken_2[0].zaaktype, zaken_2[1].zaaktype]
-        )
+        endpoint.args["zaaktype"] = "ZAAKTYPE-01"
 
         self.client.force_authenticate(user)
         response = self.client.get(endpoint.url)
@@ -420,19 +446,47 @@ class FilterZakenTests(APITestCase):
 
         urls_zaken = [zaak["url"] for zaak in data["results"]]
 
-        self.assertIn(zaken_2[0].url, urls_zaken)
-        self.assertIn(zaken_2[1].url, urls_zaken)
+        self.assertIn(zaak1.url, urls_zaken)
+        self.assertIn(zaak2.url, urls_zaken)
 
     def test_filter_on_zaaktype_with_post(self):
-        ZaakFactory.create_batch(3, identificatie="ZAAK-01")
-        zaken_2 = ZaakFactory.create_batch(2, identificatie="ZAAK-02")
+        zaak1 = ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.0",
+                    "versiedatum": "2024-01-01",
+                }
+            },
+        )
+        zaak2 = ZaakFactory.create(
+            post___expand={
+                "zaaktype": {  # Different version of the zaaktype above
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE 1.1",
+                    "versiedatum": "2024-01-02",
+                }
+            },
+        )
+        ZaakFactory.create(
+            post___expand={
+                "zaaktype": {
+                    "url": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE 2.0",
+                    "versiedatum": "2024-01-01",
+                }
+            },
+        )
 
         user = UserFactory(username="record_manager", post__can_start_destruction=True)
 
         self.client.force_authenticate(user)
         response = self.client.post(
             reverse("api:zaken-search"),
-            data={"zaaktype__in": ",".join([zaken_2[0].zaaktype, zaken_2[1].zaaktype])},
+            data={"zaaktype": "ZAAKTYPE-01"}
         )
         data = response.json()
 
@@ -441,5 +495,5 @@ class FilterZakenTests(APITestCase):
 
         urls_zaken = [zaak["url"] for zaak in data["results"]]
 
-        self.assertIn(zaken_2[0].url, urls_zaken)
-        self.assertIn(zaken_2[1].url, urls_zaken)
+        self.assertIn(zaak1.url, urls_zaken)
+        self.assertIn(zaak2.url, urls_zaken)
