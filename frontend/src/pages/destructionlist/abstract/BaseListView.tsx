@@ -99,6 +99,7 @@ export function BaseListView<T extends Zaak = Zaak>({
     ...zaak,
     href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
   })) as unknown as T[];
+  console.log(paginatedZaken.results);
 
   // Fields.
   const [fields, setFields, filterTransform, activeFilters, resetFilters] =

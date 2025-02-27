@@ -16,7 +16,9 @@ import {
 } from "../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../lib/format/date";
 import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
-import { ExpandZaak, Zaak } from "../types";
+import { Zaak } from "../types";
+import { useBehandelendAfdelingChoices } from "./useBehandelendAfdelingChoices";
+import { useInternalResultaatTypeChoices } from "./useListInternalResultaatTypeChoices";
 import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
 import { useZaaktypeChoices } from "./useZaaktypeChoices";
 
@@ -66,7 +68,9 @@ export function useFields<T extends Zaak = Zaak>(
     review,
     searchParams,
   );
-
+  const behandelenAfdelingChoices = useBehandelendAfdelingChoices();
+  const resultaattypeChoices = useInternalResultaatTypeChoices();
+  console.log(resultaattypeChoices);
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
@@ -133,25 +137,8 @@ export function useFields<T extends Zaak = Zaak>(
       name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling__icontains",
-      valueTransform: (rowData: object) => {
-        const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
-        if (!rollen.length) return "";
-        const behandelendAfdeling: string[] = [];
-        // TODO - Understand why the ExpandZaak type doesn't work
-        rollen.map((role) => {
-          if (
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneType === "organisatorische_eenheid" &&
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneIdentificatie?.identificatie
-          )
-            behandelendAfdeling.push(
-              // @ts-expect-error The type of role is 'never' for some reason
-              role.betrokkeneIdentificatie?.identificatie,
-            );
-        });
-        return behandelendAfdeling.join(", ");
-      },
+      valueLookup: "_expand.behandelend_afdeling",
+      options: behandelenAfdelingChoices,
       width: "150px",
     },
     {
@@ -167,11 +154,11 @@ export function useFields<T extends Zaak = Zaak>(
     },
     {
       name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
+      filterLookup: "resultaat__resultaattype__url__icontains",
       filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
-      valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
+        searchParams.get("resultaat__resultaattype__url__icontains") || "",
+      valueLookup: "_expand.resultaat._expand.resultaattype.url",
+      options: resultaattypeChoices,
       type: "string",
       width: "150px",
     },
