@@ -84,9 +84,7 @@ class ZaakFilterSet(FilterSet):
 
     zaaktype = CharFilter(
         field_name="_expand__zaaktype__identificatie",
-        help_text=_(
-            "Filter on the zaaktype identificatie."
-        ),
+        help_text=_("Filter on the zaaktype identificatie."),
     )
 
     in_review = NumberFilter(
