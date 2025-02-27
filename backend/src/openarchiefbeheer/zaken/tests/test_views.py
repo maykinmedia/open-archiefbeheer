@@ -112,11 +112,11 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
             sorted(response.json(), key=lambda choice: choice["label"]),
             [
                 {
-                    "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/111-111-111,http://catalogi-api.nl/catalogi/api/v1/zaakypen/222-222-222",
+                    "value": "ZAAKTYPE-01",
                     "label": "ZAAKTYPE 1.1 (ZAAKTYPE-01)",
                 },
                 {
-                    "value": "http://catalogi-api.nl/catalogi/api/v1/zaakypen/333-333-333",
+                    "value": "ZAAKTYPE-02",
                     "label": "ZAAKTYPE 2.0 (ZAAKTYPE-02)",
                 },
             ],
@@ -219,16 +219,8 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
             self.assertEqual(len(choices), 2)
             self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
             self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
-
-            values = choices[0]["value"].split(",")
-
-            self.assertEqual(len(values), 2)
-            self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
-            self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
-
-            self.assertEqual(
-                choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
-            )
+            self.assertEqual("ZAAKTYPE-1", choices[0]["value"])
+            self.assertEqual("ZAAKTYPE-2", choices[1]["value"])
 
         with self.subTest("with POST"):
             response = self.client.post(
@@ -242,16 +234,8 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
             self.assertEqual(len(choices), 2)
             self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
             self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
-
-            values = choices[0]["value"].split(",")
-
-            self.assertEqual(len(values), 2)
-            self.assertIn(items_in_list[0].zaak._expand["zaaktype"]["url"], values)
-            self.assertIn(items_in_list[1].zaak._expand["zaaktype"]["url"], values)
-
-            self.assertEqual(
-                choices[1]["value"], items_in_list[2].zaak._expand["zaaktype"]["url"]
-            )
+            self.assertEqual("ZAAKTYPE-1", choices[0]["value"])
+            self.assertEqual("ZAAKTYPE-2", choices[1]["value"])
 
     @tag("gh-303")
     def test_retrieve_zaaktypen_choices_for_destruction_list_if_zaaktype_id_empty(self):
@@ -280,6 +264,7 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
         choices = response.json()
 
         self.assertEqual(choices[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)"))
+        self.assertEqual(choices[0]["value"], "")
 
     def test_not_cached_if_query_param_chages(self):
         user = UserFactory.create()
@@ -408,22 +393,8 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
         self.assertEqual(choices[0]["label"], "ZAAKTYPE 1.1 (ZAAKTYPE-1)")
         self.assertEqual(choices[1]["label"], "ZAAKTYPE 2.0 (ZAAKTYPE-2)")
 
-        values = choices[0]["value"].split(",")
-
-        self.assertEqual(len(values), 2)
-        self.assertIn(
-            review_items[0].destruction_list_item.zaak._expand["zaaktype"]["url"],
-            values,
-        )
-        self.assertIn(
-            review_items[1].destruction_list_item.zaak._expand["zaaktype"]["url"],
-            values,
-        )
-
-        self.assertEqual(
-            choices[1]["value"],
-            review_items[2].destruction_list_item.zaak._expand["zaaktype"]["url"],
-        )
+        self.assertEqual("ZAAKTYPE-1", choices[0]["value"])
+        self.assertEqual("ZAAKTYPE-2", choices[1]["value"])
 
     def test_retrieve_zaaktypen_choices_invalid_filters(self):
         user = UserFactory.create()
