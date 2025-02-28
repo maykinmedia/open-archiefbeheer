@@ -392,6 +392,7 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
 
     const reden = await canvas.findByLabelText("Reden");
     const submit = await canvas.findByRole("button", { name: "Toewijzen" });
+    await userEvent.clear(reden); // Fixes a bug where input onChange isn't triggered when using userEvent.type
     await userEvent.type(reden, "example", { delay: 10 });
     await userEvent.click(submit, { delay: 10 });
 
