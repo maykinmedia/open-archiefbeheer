@@ -619,9 +619,22 @@ class GerkinMixin:
             elements = await locator.all()
             await elements[index].fill(value)
 
-        async def user_filters_zaken(self, page, name, value):
+        async def user_filters_zaken_on_text(self, page, name, value):
             locator = page.get_by_role("textbox", name=name)
             await locator.fill(value)
+
+        async def user_filters_zaken_on_dropdown(self, page, name, value):
+            select = page.get_by_label(f'filter veld "{name}"')
+            await select.click()
+
+            options = await page.query_selector_all(".mykn-option")
+
+            for option in options:
+                text_content = await option.text_content()
+                if not text_content == value:
+                    continue
+
+                return await option.click()
 
     class Then:
         """
@@ -829,10 +842,9 @@ class GerkinMixin:
             self.testcase.assertEqual(labels, expected_filters)
 
         async def this_number_of_zaken_should_be_visible(self, page, number):
-            locator = page.get_by_role("grid")
-            rows = await locator.locator("tbody").locator("tr").all()
+            locator = page.get_by_role("grid").locator("tbody").locator("tr")
 
-            self.testcase.assertEqual(len(rows), number)
+            await expect(locator).to_have_count(number)
 
         async def input_field_should_be_empty(self, page, placeholder):
             locator = page.get_by_placeholder(placeholder)

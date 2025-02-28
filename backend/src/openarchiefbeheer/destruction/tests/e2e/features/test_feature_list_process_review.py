@@ -192,7 +192,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
 
             # If filtering first on identificatie, the zaaktype filters change
-            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.when.user_filters_zaken_on_text(page, "identificatie", "ZAAK-000")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review?identificatie__icontains=ZAAK-000&page=1")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
