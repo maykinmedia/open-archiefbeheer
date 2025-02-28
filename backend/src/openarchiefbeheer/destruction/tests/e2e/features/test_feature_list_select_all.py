@@ -56,7 +56,7 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
             await self.then.path_should_be(page, "/destruction-lists/create")
 
-            await self.when.user_filters_zaken(page, "omschrijving", "Test 1")
+            await self.when.user_filters_zaken_on_text(page, "omschrijving", "Test 1")
             await self.then.page_should_contain_text(page, "(de)selecteer 5 rijen")
 
             await self.when.user_clicks_checkbox(page, "(de)selecteer 1 pagina's", index=0)
