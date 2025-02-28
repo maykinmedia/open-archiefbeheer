@@ -409,7 +409,7 @@ export type ExpandZaak = Zaak & {
     /** Indien geen status bekend is, dan is de waarde 'null' */
     status?: Status | null;
     /** URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is de waarde 'null' */
-    resultaat?: Resultaat | null;
+    resultaat?: ExpandResultaat | null;
     /** URL-referenties naar ROLLen. */
     rollen?: Rol[];
     /** URL-referenties naar ZAAKINFORMATIEOBJECTen. */
@@ -2157,6 +2157,32 @@ export interface RelevanteZaakRequest {
   aardRelatie: AardRelatieEnum;
 }
 
+export interface Resultaattype {
+  url?: string;
+  zaaktype: string;
+  catalogus?: string;
+  toelichting?: string;
+  beginObject?: string;
+  besluittypen?: string[],
+  eindeObject?: string;
+  omschrijving: string;
+  procestermijn?: string;
+  archiefnominatie?: string;
+  beginGeldigheid?: string;
+  eindeGeldigheid?: string;
+  procesobjectaard?: string;
+  archiefactietermijn?: string;
+  indicatieSpecifiek?: boolean;
+  selectielijstklasse: string;
+  informatieobjecttypen?: string[];
+  omschrijvingGeneriek?: string;
+  zaaktypeIdentificatie?: string;
+  besluittypeOmschrijving?: string[];
+  resultaattypeomschrijving: string;
+  brondatumArchiefprocedure?: object,
+  informatieobjecttypeOmschrijving?: string[];
+}
+
 export interface Resultaat {
   /**
    * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object.
@@ -2185,6 +2211,13 @@ export interface Resultaat {
    * @maxLength 1000
    */
   toelichting?: string;
+}
+
+export type ExpandResultaat = Resultaat & {
+  /** Display details of the linked resources requested in the `expand` parameter */
+  _expand?: {
+    resultaattype: Resultaattype;
+  }
 }
 
 export interface ResultaatRequest {

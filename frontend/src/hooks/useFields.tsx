@@ -198,10 +198,16 @@ export function useFields<T extends Zaak = Zaak>(
       name: "selectielijstklasse",
       type: "string",
       // filterLookup: // TODO: Expand?
-      valueTransform: (v) =>
-        selectielijstKlasseChoices.find(
-          (c) => c.value === v.selectielijstklasse,
-        )?.label || <Placeholder />,
+      valueTransform: (v: ExpandZaak) => {
+        const zaakSelectielijstklasse =
+          v.selectielijstklasse ||
+          v._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse;
+        return (
+          selectielijstKlasseChoices.find(
+            (c) => c.value === zaakSelectielijstklasse,
+          )?.label || <Placeholder />
+        );
+      },
       options: selectielijstKlasseChoices,
       width: "150px",
     },
