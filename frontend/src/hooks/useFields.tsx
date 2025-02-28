@@ -7,6 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
+import {
+  listSelectielijstKlasseChoices,
+  listZaaktypeChoices,
+} from "../lib/api/private";
 import { Review } from "../lib/api/review";
 import {
   FieldSelection,
@@ -17,8 +21,7 @@ import {
 import { formatDate } from "../lib/format/date";
 import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
 import { ExpandZaak, Zaak } from "../types";
-import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
-import { useZaaktypeChoices } from "./useZaaktypeChoices";
+import { useDataFetcher } from "./useDataFetcher";
 
 type FilterTransformReturnType<T> = Record<
   | "startdatum__gte"
@@ -60,11 +63,29 @@ export function useFields<T extends Zaak = Zaak>(
     );
   }, []);
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
-  const zaaktypeChoices = useZaaktypeChoices(
-    destructionList,
-    review,
-    searchParams,
+  const { data: selectielijstKlasseChoices } = useDataFetcher(
+    listSelectielijstKlasseChoices,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+      deps: [],
+      initialState: [],
+    },
+  );
+
+  const { data: zaaktypeChoices } = useDataFetcher(
+    () =>
+      listZaaktypeChoices(
+        destructionList?.uuid,
+        review?.pk,
+        searchParams,
+        false,
+      ),
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
+      deps: [destructionList?.uuid, review?.pk, searchParams?.toString()],
+      initialState: [],
+    },
   );
 
   // The raw, unfiltered configuration of the available base fields.
