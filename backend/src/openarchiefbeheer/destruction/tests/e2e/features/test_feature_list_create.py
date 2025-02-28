@@ -138,10 +138,82 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 "ZAAKTYPE-03 (ZAAKTYPE-03)"
             ])
 
-            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
+            await self.when.user_filters_zaken_on_text(page, "identificatie", "ZAAK-000")
             await self.then.path_should_be(page, "/destruction-lists/create?identificatie__icontains=ZAAK-000&page=1")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
             await self.then.zaaktype_filters_are(page, [
                 "ZAAKTYPE-01 (ZAAKTYPE-01)", 
                 "ZAAKTYPE-02 (ZAAKTYPE-02)" 
             ])
+
+    async def test_zaaktype_filters_on_selectielijstklasse_create_page(self):
+        @sync_to_async
+        def create_data():
+            ZaakFactory.create(
+                identificatie="ZAAK-1",
+                # The selectielijstklasse is set directly on the zaak
+                selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
+            )
+            ZaakFactory.create(
+                identificatie="ZAAK-2",
+                # The selectielijstklasse is NOT set on the zaak, so we look at the resultaat->resultaattype->selectielijstklasse
+                selectielijstklasse="",
+                post___expand={
+                    "resultaat": {
+                        "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "_expand": {
+                            "resultaattype": {
+                                "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
+                            }
+                        },
+                    }
+                },
+            )
+            ZaakFactory.create(
+                identificatie="ZAAK-3",
+                # The selectielijstklasse overwrites the selectielijstklasse of the resultaat->resultaattype->selectielijstklasse
+                selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/e84a06ac-1bdc-4e9c-9598-a22faa562459",
+                post___expand={
+                    "resultaat": {
+                        "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "_expand": {
+                            "resultaattype": {
+                                "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
+                            }
+                        },
+                    }
+                },
+            )
+        
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.given.record_manager_exists()
+            await self.given.selectielijstklasse_choices_are_available(page)
+
+            await self.when.record_manager_logs_in(page)
+
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
+
+            await self.then.path_should_be(page, "/destruction-lists/create")
+            await self.then.page_should_contain_text(page, "1.1 - Ingericht - vernietigen - P10Y")
+            await self.then.page_should_contain_text(page, "1.1.1 - Ingericht - blijvend_bewaren")
+            await self.then.page_should_contain_text(page, "1.1.2 - Ingericht - blijvend_bewaren")
+            
+            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
+
+            await self.then.this_number_of_zaken_should_be_visible(page, 1)
+            await self.then.page_should_contain_text(page, "ZAAK-1")
+
+            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1.1 - Ingericht - blijvend_bewaren")
+
+            await self.then.this_number_of_zaken_should_be_visible(page, 1)
+            await self.then.page_should_contain_text(page, "ZAAK-2")
+
+            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1.2 - Ingericht - blijvend_bewaren")
+
+            await self.then.this_number_of_zaken_should_be_visible(page, 1)
+            await self.then.page_should_contain_text(page, "ZAAK-3")
