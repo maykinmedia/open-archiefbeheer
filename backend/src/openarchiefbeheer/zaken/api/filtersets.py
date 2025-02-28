@@ -122,6 +122,15 @@ class ZaakFilterSet(FilterSet):
         help_text="Filter the zaken that contain in their `_expand.rollen` field the specified rol.",
     )
 
+    selectielijstklasse = CharFilter(
+        field_name="selectielijstklasse",
+        method="filter_selectielijstklasse",
+        help_text=(
+            "Filter the zaken on selectielijst klasse. If no selectielijstklasse is specified on the zaak, "
+            "look at the the selectielijstklasse of the resultaattype of the resultaat of the zaak."
+        ),
+    )
+
     class Meta:
         model = Zaak
         fields = {
@@ -145,7 +154,6 @@ class ZaakFilterSet(FilterSet):
             "betalingsindicatie": ["exact", "icontains"],
             "communicatiekanaal": ["exact", "icontains"],
             "laatste_betaaldatum": ["exact", "icontains"],
-            "selectielijstklasse": ["exact", "icontains"],
             "startdatum_bewaartermijn": ["exact", "icontains"],
             "betalingsindicatie_weergave": ["exact", "icontains"],
             "opdrachtgevende_organisatie": ["exact", "icontains"],
@@ -261,6 +269,17 @@ class ZaakFilterSet(FilterSet):
         self, queryset: QuerySet[Zaak], name: str, value: str
     ) -> QuerySet[Zaak]:
         return queryset.filter(_expand__rollen__contains=[{"url": value}])
+
+    def filter_selectielijstklasse(
+        self, queryset: QuerySet[Zaak], name: str, value: str
+    ) -> QuerySet[Zaak]:
+        return queryset.filter(
+            Q(selectielijstklasse=value)
+            | Q(
+                selectielijstklasse="",
+                _expand__resultaat___expand__resultaattype__selectielijstklasse=value,
+            )
+        )
 
 
 class ZaakFilterBackend(DjangoFilterBackend):
