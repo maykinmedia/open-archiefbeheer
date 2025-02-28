@@ -496,3 +496,85 @@ class FilterZakenTests(APITestCase):
 
         self.assertIn(zaak1.url, urls_zaken)
         self.assertIn(zaak2.url, urls_zaken)
+
+    def test_filters_with_zaken_with_overwritten_selectielijst(self):
+        ZaakFactory.create(
+            identificatie="ZAAK-1",
+            # The selectielijstklasse is set directly on the zaak
+            selectielijstklasse="http://selectielijst.api.bla/api/v1/resultaten/111-111-111",
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-2",
+            # The selectielijstklasse is NOT set on the zaak, so we look at the resultaat->resultaattype->selectielijstklasse
+            selectielijstklasse="",
+            post___expand={
+                "resultaat": {
+                    "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                            "selectielijstklasse": "http://selectielijst.api.bla/api/v1/resultaten/222-222-222",
+                        }
+                    },
+                }
+            },
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-3",
+            # The selectielijstklasse overwrites the selectielijstklasse of the resultaat->resultaattype->selectielijstklasse
+            selectielijstklasse="http://selectielijst.api.bla/api/v1/resultaten/333-333-333",
+            post___expand={
+                "resultaat": {
+                    "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                            "selectielijstklasse": "http://selectielijst.api.bla/api/v1/resultaten/222-222-222",
+                        }
+                    },
+                }
+            },
+        )
+
+        user = UserFactory(username="record_manager", post__can_start_destruction=True)
+
+        self.client.force_authenticate(user)
+
+        with self.subTest("Selectielijstklasse on zaak"):
+            response = self.client.post(
+                reverse("api:zaken-search"),
+                data={
+                    "selectielijstklasse": "http://selectielijst.api.bla/api/v1/resultaten/111-111-111"
+                },
+            )
+            data = response.json()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(data["results"]), 1)
+            self.assertEqual(data["results"][0]["identificatie"], "ZAAK-1")
+
+        with self.subTest("Selectielijstklasse deduced from resultaat"):
+            response = self.client.post(
+                reverse("api:zaken-search"),
+                data={
+                    "selectielijstklasse": "http://selectielijst.api.bla/api/v1/resultaten/222-222-222"
+                },
+            )
+            data = response.json()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(data["results"]), 1)
+            self.assertEqual(data["results"][0]["identificatie"], "ZAAK-2")
+
+        with self.subTest("Selectielijstklasse with overwrite"):
+            response = self.client.post(
+                reverse("api:zaken-search"),
+                data={
+                    "selectielijstklasse": "http://selectielijst.api.bla/api/v1/resultaten/333-333-333"
+                },
+            )
+            data = response.json()
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(data["results"]), 1)
+            self.assertEqual(data["results"][0]["identificatie"], "ZAAK-3")
