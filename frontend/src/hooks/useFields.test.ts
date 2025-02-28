@@ -2,14 +2,16 @@ import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
+import {
+  listSelectielijstKlasseChoices,
+  listZaaktypeChoices,
+} from "../lib/api/private";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
+import { useDataFetcher } from "./useDataFetcher";
 import { useFields } from "./useFields";
 
-jest.mock("./useSelectielijstKlasseChoices", () => ({
-  useSelectielijstKlasseChoices: () => mockSelectieLijstKlasseFactory(),
-}));
-jest.mock("./useZaaktypeChoices", () => ({
-  useZaaktypeChoices: () => [[], () => undefined],
+jest.mock("./useDataFetcher", () => ({
+  useDataFetcher: jest.fn(),
 }));
 
 let mockUrlSearchParams = new URLSearchParams();
@@ -25,8 +27,26 @@ jest.mock("react-router-dom", () => ({
 
 describe("useFields Hook", () => {
   beforeEach(() => {
-    // Reset all mocks before each test
     jest.clearAllMocks();
+
+    // Return different data based on the fetch function
+    (useDataFetcher as jest.Mock).mockImplementation((fetchFunction) => {
+      if (fetchFunction === listSelectielijstKlasseChoices) {
+        return {
+          data: mockSelectieLijstKlasseFactory(),
+          loading: false,
+          error: false,
+        };
+      }
+      if (fetchFunction === listZaaktypeChoices) {
+        return {
+          data: undefined,
+          loading: false,
+          error: false,
+        };
+      }
+      return { data: [], loading: false, error: false };
+    });
   });
 
   it("should initialize with default fields and handle field selection", async () => {
@@ -72,7 +92,6 @@ describe("useFields Hook", () => {
     expect(fieldSelection.addToFieldSelection).toHaveBeenCalled();
     expect(fieldSelection.removeFromFieldSelection).toHaveBeenCalled();
   });
-
   it("should apply search params to filter values", async () => {
     // Render the hook
     mockUrlSearchParams.set("identificatie__icontains", "test-id");

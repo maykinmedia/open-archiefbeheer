@@ -12,19 +12,18 @@ import { useMemo } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
 import { ProcessingStatusBadge } from "../../components/ProcessingStatusBadge";
-import {
-  useCombinedSearchParams,
-  useRecordManagers,
-  useReviewers,
-  useUsers,
-} from "../../hooks";
+import { useCombinedSearchParams } from "../../hooks";
+import { useDataFetcher } from "../../hooks/useDataFetcher";
 import { usePoll } from "../../hooks/usePoll";
 import { User } from "../../lib/api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,
   DestructionList,
 } from "../../lib/api/destructionLists";
+import { listRecordManagers } from "../../lib/api/recordManagers";
 import { API_BASE_URL } from "../../lib/api/request";
+import { listReviewers } from "../../lib/api/reviewers";
+import { listUsers } from "../../lib/api/users";
 import {
   canCoReviewDestructionList,
   canDownloadReport,
@@ -103,9 +102,31 @@ export const Landing = () => {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useCombinedSearchParams();
-  const recordManagers = useRecordManagers();
-  const reviewers = useReviewers();
-  const users = useUsers();
+  const { data: recordManagers } = useDataFetcher(
+    listRecordManagers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van record managers!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: reviewers } = useDataFetcher(
+    listReviewers,
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van reviewers!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: users } = useDataFetcher(
+    listUsers,
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van gebruikers!",
+      initialState: [],
+    },
+    [],
+  );
 
   usePoll(async () => {
     const _statusMap = await getStatusMap(searchParams);
