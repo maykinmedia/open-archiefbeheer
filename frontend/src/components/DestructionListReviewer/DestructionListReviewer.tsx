@@ -12,18 +12,16 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
-import {
-  useCoReviewers,
-  useCoReviews,
-  useDestructionListCoReviewers,
-  useReviewers,
-  useWhoAmI,
-} from "../../hooks";
+import { useDataFetcher } from "../../hooks/useDataFetcher";
+import { whoAmI } from "../../lib/api/auth";
+import { listCoReviews } from "../../lib/api/coReview";
 import {
   DestructionList,
+  listDestructionListCoReviewers,
   reassignDestructionList,
   updateCoReviewers,
 } from "../../lib/api/destructionLists";
+import { listCoReviewers, listReviewers } from "../../lib/api/reviewers";
 import {
   canReassignDestructionList,
   canStartDestructionList,
@@ -53,11 +51,54 @@ export function DestructionListReviewer({
   const revalidator = useRevalidator();
   const alert = useAlert();
   const formDialog = useFormDialog<DestructionListReviewerFormType>();
-  const coReviews = useCoReviews(destructionList);
-  const reviewers = useReviewers();
-  const coReviewers = useCoReviewers();
-  const assignedCoReviewers = useDestructionListCoReviewers(destructionList);
-  const user = useWhoAmI();
+  const { data: coReviews } = useDataFetcher(
+    () => listCoReviews({ destructionList__uuid: destructionList?.uuid }),
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de mede beoordelingen!",
+    },
+    [],
+  );
+  const { data: reviewers } = useDataFetcher(
+    listReviewers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van beoordelaars!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: coReviewers } = useDataFetcher(
+    listCoReviewers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
+      initialState: [],
+      pollInterval: 3000,
+    },
+    [],
+  );
+
+  const { data: assignedCoReviewers } = useDataFetcher(
+    () => listDestructionListCoReviewers(destructionList.uuid),
+    {
+      transform: (r) => r.filter((r) => r.role === "co_reviewer"), // Only list co-reviewers.
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
+      initialState: [],
+    },
+    [destructionList.uuid],
+  );
+  const { data: user } = useDataFetcher(
+    whoAmI,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
+      initialState: null,
+    },
+    [],
+  );
 
   const assignedMainReviewer = destructionList.assignees.find(
     (assignee) => assignee.role === "main_reviewer",

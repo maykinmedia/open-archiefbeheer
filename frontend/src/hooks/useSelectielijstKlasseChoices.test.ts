@@ -1,8 +1,20 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
 import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../fixtures/selectieLijstKlasseChoices";
-import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
+import { listSelectielijstKlasseChoices } from "../lib/api/private";
+import { useDataFetcher } from "./useDataFetcher";
 
+const MockSelectieLijstKlasseChoicesHook = () => {
+  return useDataFetcher(
+    listSelectielijstKlasseChoices,
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+    },
+    [],
+  );
+};
 const mockAlert = jest.fn();
 
 jest.mock("@maykin-ui/admin-ui", () => ({
@@ -25,7 +37,7 @@ describe("useSelectielijstKlasseChoices Hook", () => {
       } as Response),
     );
     error.mockImplementation(() => undefined);
-    renderHook(() => useSelectielijstKlasseChoices());
+    renderHook(() => MockSelectieLijstKlasseChoicesHook());
 
     await waitFor(() => {
       expect(mockAlert).toHaveBeenCalledWith(
@@ -46,11 +58,11 @@ describe("useSelectielijstKlasseChoices Hook", () => {
     );
     error.mockImplementation(() => undefined);
 
-    const { result } = renderHook(() => useSelectielijstKlasseChoices());
+    const { result } = renderHook(() => MockSelectieLijstKlasseChoicesHook());
 
     // const selectielijstKlasseChoices = result.current;
     await waitFor(() => {
-      const selectielijstKlasseChoices = result.current;
+      const selectielijstKlasseChoices = result.current.data;
       expect(selectielijstKlasseChoices).toEqual(
         FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
       );

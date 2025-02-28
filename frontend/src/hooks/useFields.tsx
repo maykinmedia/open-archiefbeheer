@@ -7,6 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
+import {
+  listSelectielijstKlasseChoices,
+  listZaaktypeChoices,
+} from "../lib/api/private";
 import { Review } from "../lib/api/review";
 import {
   FieldSelection,
@@ -15,10 +19,10 @@ import {
   removeFromFieldSelection,
 } from "../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../lib/format/date";
+import { params2CacheKey } from "../lib/format/params";
 import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
 import { ExpandZaak, Zaak } from "../types";
-import { useSelectielijstKlasseChoices } from "./useSelectielijstKlasseChoices";
-import { useZaaktypeChoices } from "./useZaaktypeChoices";
+import { useDataFetcher } from "./useDataFetcher";
 
 type FilterTransformReturnType<T> = Record<
   | "startdatum__gte"
@@ -69,7 +73,6 @@ export function useFields<T extends Zaak = Zaak>(
     );
   }, []);
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectielijstKlasseChoices = useSelectielijstKlasseChoices();
 
   // Fetch the zaaktype choices, if `restrictFilterChoices==="list"`:  only  zaaktype
   // choices of zaken belonging to either the destruction list or review  are loaded.
@@ -90,7 +93,25 @@ export function useFields<T extends Zaak = Zaak>(
   if (restrictFilterChoices === "unassigned") {
     zaaktypeParams.set("not_in_destruction_list", "true");
   }
-  const zaaktypeChoices = useZaaktypeChoices(zaaktypeParams, false, null);
+
+  const { data: selectielijstKlasseChoices } = useDataFetcher(
+    listSelectielijstKlasseChoices,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+      initialState: [],
+    },
+    [],
+  );
+
+  const { data: zaaktypeChoices } = useDataFetcher(
+    () => listZaaktypeChoices(zaaktypeParams),
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
+      initialState: [],
+    },
+    [params2CacheKey(zaaktypeParams || {})],
+  );
 
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.

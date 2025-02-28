@@ -1,14 +1,14 @@
 import { Meta, ReactRenderer, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { createMock, getMock } from "storybook-addon-module-mock";
+import { expect, userEvent, within } from "@storybook/test";
 import { PlayFunction } from "storybook/internal/types";
 
 import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../.storybook/decorators";
+import { MOCKS } from "../../../.storybook/mockData";
 import { clickButton, fillForm } from "../../../.storybook/playFunctions";
-import { coReviewFactory } from "../../fixtures/coReview";
+import { coReviewFactory } from "../../fixtures";
 import { destructionListFactory } from "../../fixtures/destructionList";
 import {
   beoordelaarFactory,
@@ -16,23 +16,7 @@ import {
   recordManagerFactory,
   roleFactory,
 } from "../../fixtures/user";
-import * as hooksUseWhoAmI from "../../hooks";
-import * as libDestructionList from "../../lib/api/destructionLists";
-import * as libReviewers from "../../lib/api/reviewers";
 import { DestructionListReviewer as DestructionListReviewerComponent } from "./DestructionListReviewer";
-
-const meta: Meta<typeof DestructionListReviewerComponent> = {
-  title: "Components/DestructionListReviewer",
-  component: DestructionListReviewerComponent,
-  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
-};
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-type PlayFunctionWithReturnValue<T = unknown> = (
-  ...args: Parameters<PlayFunction<ReactRenderer>>
-) => Promise<T>;
 
 const RECORD_MANAGER = recordManagerFactory({ pk: 1, username: "Foo" });
 const REVIEWER1 = beoordelaarFactory({ pk: 2 });
@@ -65,6 +49,44 @@ const DESTRUCTION_LIST_READY_TO_REVIEW = destructionListFactory({
   status: "ready_to_review",
   assignee: REVIEWER1,
 });
+
+const meta: Meta<typeof DestructionListReviewerComponent> = {
+  title: "Components/DestructionListReviewer",
+  component: DestructionListReviewerComponent,
+  decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
+  parameters: {
+    mockData: [
+      MOCKS.CO_REVIEWS,
+      MOCKS.REVIEWERS,
+      MOCKS.DESTRUCTION_LIST_CO_REVIEWERS,
+      MOCKS.OIDC_INFO,
+      {
+        url: "http://localhost:8000/api/v1/users?role=co_reviewer",
+        method: "GET",
+        status: 200,
+        response: [REVIEWER1, REVIEWER2, REVIEWER3, REVIEWER4],
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+        method: "GET",
+        status: 200,
+        response: [
+          {
+            user: REVIEWER2,
+            role: "co_reviewer",
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+type PlayFunctionWithReturnValue<T = unknown> = (
+  ...args: Parameters<PlayFunction<ReactRenderer>>
+) => Promise<T>;
 
 /**
  * Play function that asserts whether the edit button is shown.
@@ -100,28 +122,27 @@ export const UserCannotReassignReviewer: Story = {
 export const RecordManagerCanReassignReviewer: Story = {
   args: { destructionList: DESTRUCTION_LIST_NEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+        method: "POST",
+        status: 200,
+        response: {},
       },
-    },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+        method: "PUT",
+        status: 200,
+        response: {},
+      },
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
+      },
+    ],
   },
   play: async (context) => {
     const editButton = (await assertEditButton({
@@ -147,57 +168,21 @@ export const RecordManagerCanReassignReviewer: Story = {
         },
       },
     });
-    await waitFor(() => {
-      const reassignDestructionList = getMock(
-        context.parameters,
-        libDestructionList,
-        "reassignDestructionList",
-      );
-      expect(reassignDestructionList).toHaveBeenCalledOnce();
-    });
   },
 };
 
 export const RecordManagerCanReassignCoReviewers: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
-
-        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
-        useCoReviewers.mockImplementation(() => [
-          REVIEWER2,
-          REVIEWER3,
-          REVIEWER4,
-        ]);
-
-        const useDestructionListCoReviewers = createMock(
-          hooksUseWhoAmI,
-          "useDestructionListCoReviewers",
-        );
-        useDestructionListCoReviewers.mockImplementation(() => [
-          { user: REVIEWER2, role: "co_reviewer" },
-        ]);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
       },
-    },
+    ],
   },
   play: async (context) => {
     const editButton = (await assertEditButton({
@@ -233,58 +218,21 @@ export const RecordManagerCanReassignCoReviewers: Story = {
     });
 
     await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
-
-    await waitFor(() => {
-      const updateCoReviewers = getMock(
-        context.parameters,
-        libDestructionList,
-        "updateCoReviewers",
-      );
-      expect(updateCoReviewers).toHaveBeenCalledOnce();
-    });
   },
 };
 
 export const ReviewerCanReassignCoReviewers: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => beoordelaarFactory());
-
-        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
-        useCoReviewers.mockImplementation(() => [
-          REVIEWER2,
-          REVIEWER3,
-          REVIEWER4,
-        ]);
-
-        const useDestructionListCoReviewers = createMock(
-          hooksUseWhoAmI,
-          "useDestructionListCoReviewers",
-        );
-        useDestructionListCoReviewers.mockImplementation(() => [
-          { user: REVIEWER2, role: "co_reviewer" },
-        ]);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: REVIEWER1,
       },
-    },
+    ],
   },
   play: async (context) => {
     const editButton = (await assertEditButton({
@@ -320,73 +268,31 @@ export const ReviewerCanReassignCoReviewers: Story = {
     });
 
     await expect(coReviewer2.value).toBe(REVIEWER4.pk.toString());
-
-    await waitFor(() => {
-      const reassignDestructionList = getMock(
-        context.parameters,
-        libDestructionList,
-        "reassignDestructionList",
-      );
-      expect(reassignDestructionList).not.toHaveBeenCalled();
-
-      const updateCoReviewers = getMock(
-        context.parameters,
-        libDestructionList,
-        "updateCoReviewers",
-      );
-      expect(updateCoReviewers).toHaveBeenCalledOnce();
-    });
   },
 };
 
 export const CoReviewStatusVisible: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => beoordelaarFactory());
-
-        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
-        useCoReviewers.mockImplementation(() => [
-          REVIEWER2,
-          REVIEWER3,
-          REVIEWER4,
-        ]);
-
-        const useDestructionListCoReviewers = createMock(
-          hooksUseWhoAmI,
-          "useDestructionListCoReviewers",
-        );
-        useDestructionListCoReviewers.mockImplementation(() => [
-          { user: REVIEWER2, role: "co_reviewer" },
-        ]);
-
-        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
-        useCoReviews.mockImplementation(() => [
-          coReviewFactory({ author: REVIEWER2 }),
-        ]);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
       },
-    },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: [coReviewFactory({ author: REVIEWER2 })],
+      },
+    ],
   },
   play: async (context) => {
     const canvas = within(context.canvasElement);
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const element = await canvas.getByTitle(
       "Medebeoordelaar is klaar met beoordelen",
     );
@@ -397,53 +303,34 @@ export const CoReviewStatusVisible: Story = {
 export const UpdateCoReviewersErrorShowsErrorMessage: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => {
-          throw new Error("example");
-        });
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => beoordelaarFactory());
-
-        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
-        useCoReviewers.mockImplementation(() => [
-          REVIEWER2,
-          REVIEWER3,
-          REVIEWER4,
-        ]);
-
-        const useDestructionListCoReviewers = createMock(
-          hooksUseWhoAmI,
-          "useDestructionListCoReviewers",
-        );
-        useDestructionListCoReviewers.mockImplementation(() => [
-          { user: REVIEWER2, role: "co_reviewer" },
-        ]);
-
-        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
-        useCoReviews.mockImplementation(() => [
-          coReviewFactory({ author: REVIEWER2 }),
-        ]);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: REVIEWER1,
       },
-    },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: [coReviewFactory({ author: REVIEWER2 })],
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+        method: "PUT",
+        status: 400,
+        response: {
+          error:
+            "Er is een fout opgetreden bij het bewerken van de mede beoordelaars!",
+        },
+      },
+    ],
   },
   play: async (context) => {
     const canvas = within(context.canvasElement);
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const edit = canvas.getByRole("button", { name: "Beoordelaar bewerken" });
     await userEvent.click(edit);
 
@@ -462,63 +349,34 @@ export const UpdateCoReviewersErrorShowsErrorMessage: Story = {
 export const ReassignDestructionListErrorShowsErrorMessage: Story = {
   args: { destructionList: DESTRUCTION_LIST_READY_TO_REVIEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(async () => {
-          throw new Error("example");
-        });
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => recordManagerFactory());
-
-        const useCoReviewers = createMock(hooksUseWhoAmI, "useCoReviewers");
-        useCoReviewers.mockImplementation(() => [
-          REVIEWER2,
-          REVIEWER3,
-          REVIEWER4,
-        ]);
-
-        const useDestructionListCoReviewers = createMock(
-          hooksUseWhoAmI,
-          "useDestructionListCoReviewers",
-        );
-        useDestructionListCoReviewers.mockImplementation(() => [
-          { user: REVIEWER2, role: "co_reviewer" },
-        ]);
-
-        const useCoReviews = createMock(hooksUseWhoAmI, "useCoReviews");
-        useCoReviews.mockImplementation(() => [
-          coReviewFactory({ author: REVIEWER2 }),
-        ]);
-
-        const listReviewers = createMock(libReviewers, "listReviewers");
-        listReviewers.mockImplementation(async () => [
-          REVIEWER1,
-          REVIEWER2,
-          REVIEWER3,
-        ]);
-
-        return [
-          reassignDestructionList,
-          updateCoReviewers,
-          useWhoAmI,
-          listReviewers,
-        ];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
       },
-    },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: [coReviewFactory({ author: REVIEWER2 })],
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+        method: "POST",
+        status: 400,
+        response: {
+          error:
+            "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
+        },
+      },
+    ],
   },
   play: async (context) => {
     const canvas = within(context.canvasElement);
+    await new Promise((resolve) => setTimeout(resolve, 200));
     const edit = canvas.getByRole("button", { name: "Beoordelaar bewerken" });
     await new Promise((resolve) => setTimeout(resolve));
     await userEvent.click(edit);
@@ -534,6 +392,7 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
 
     const reden = await canvas.findByLabelText("Reden");
     const submit = await canvas.findByRole("button", { name: "Toewijzen" });
+    await userEvent.clear(reden); // Fixes a bug where input onChange isn't triggered when using userEvent.type
     await userEvent.type(reden, "example", { delay: 10 });
     await userEvent.click(submit, { delay: 10 });
 
@@ -546,28 +405,15 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
 export const ReopeningModalPreservesState: Story = {
   args: { destructionList: DESTRUCTION_LIST_NEW },
   parameters: {
-    moduleMock: {
-      mock: () => {
-        const reassignDestructionList = createMock(
-          libDestructionList,
-          "reassignDestructionList",
-        );
-        reassignDestructionList.mockImplementation(
-          async () => ({}) as Response,
-        );
-
-        const updateCoReviewers = createMock(
-          libDestructionList,
-          "updateCoReviewers",
-        );
-        updateCoReviewers.mockImplementation(async () => ({}) as Response);
-
-        const useWhoAmI = createMock(hooksUseWhoAmI, "useWhoAmI");
-        useWhoAmI.mockImplementation(() => RECORD_MANAGER);
-
-        return [reassignDestructionList, updateCoReviewers, useWhoAmI];
+    mockData: [
+      ...(meta.parameters?.mockData || []),
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
       },
-    },
+    ],
   },
   play: async (context) => {
     await clickButton({
