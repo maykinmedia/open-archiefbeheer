@@ -36,6 +36,9 @@ Some aspects about the selectielijst resources that can be confusing:
   Each selectielijstklasse is associated with a selectielijstprocestype. 
   The zaak can only be related to a selectielijstklasse whose procestype matches the procestype related to the zaaktype 
   of the zaak.
+- If no selectielijstklasse is directly specified on the zaak, it can be deduced by looking at the 
+  resultaat of the zaak. The resultaat has a ``resultaattype`` field, and the ``resultaattype`` has 
+  a field ``selectielijstklasse``.
 
 Zaaktypen
 =========
