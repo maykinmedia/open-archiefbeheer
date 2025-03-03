@@ -48,6 +48,7 @@ Let op
 - Controleer zorgvuldig dat alle ingevoerde gegevens correct zijn voordat je ze opslaat.
 - Als een foutmelding verschijnt, controleer dan de ingevoerde waarden en probeer opnieuw.
 - Wijzigingen kunnen later opnieuw worden aangepast via de instellingen.
+- Klik op de **Home** knop om terug te gaan de de **"Vernietigingslijsten"** pagina. |home|
 
 .. |instellingen_knop| image:: ../_assets/instellingen-knop.png
    :alt: Instellingen knop
@@ -60,3 +61,7 @@ Let op
 .. |opslaan_knop| image:: ../_assets/opslaan-knop.png
    :alt: Opslaan knop
    :height: 26px
+
+.. |home| image:: ../_assets/home.png
+    :alt: Home knop
+    :height: 32px
