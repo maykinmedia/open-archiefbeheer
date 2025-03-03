@@ -32,9 +32,8 @@ Het proces wordt uitgevoerd door verschillende rollen, waarbij elke rol specifie
     - De **record manager** is verantwoordelijk voor het aanmaken, beheren en voorbereiden van de vernietigingslijst.
     - De **record manager** is ook verantwoordelijk voor het doorsturen van de lijst naar de archivaris na goedkeuring
       door de beoordelaar.
-    - De **record manager** kan niet tegelijk de auteur en de **beoordelaar** van een vernietigingslijst zijn, maar kan zowel de rol van
-      record manager als beoordelaar in het systeem vervullen, mits deze rollen betrekking hebben op verschillende
-      lijsten.
+    - De **record manager** (mits hij ook de rol beoordelaar heeft), mag lijsten beoordelen waar hij zelf niet de auteur
+      van is.
 
 - **Beoordelaar**:
     - De **beoordelaar** beoordeelt de vernietigingslijst op basis van vooraf gedefinieerde criteria.
