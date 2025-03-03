@@ -99,18 +99,18 @@ export function useFields<T extends Zaak = Zaak>(
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
-      deps: [],
       initialState: [],
     },
+    [],
   );
 
   const { data: zaaktypeChoices } = useDataFetcher(
     () => listZaaktypeChoices(zaaktypeParams),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
-      deps: [params2CacheKey(zaaktypeParams || {})],
       initialState: null,
     },
+    [params2CacheKey(zaaktypeParams || {})],
   );
 
   // The raw, unfiltered configuration of the available base fields.

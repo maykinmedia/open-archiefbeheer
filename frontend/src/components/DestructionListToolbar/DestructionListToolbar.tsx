@@ -66,10 +66,10 @@ export function DestructionListToolbar({
     },
     {
       initialState: [],
-      deps: [destructionList?.uuid],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de audit log!",
     },
+    [destructionList?.uuid],
   );
 
   const { data: logItemsReadyForFirstReview } = useDataFetcher(
@@ -82,10 +82,10 @@ export function DestructionListToolbar({
     },
     {
       initialState: [],
-      deps: [destructionList?.uuid],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de audit log!",
     },
+    [destructionList?.uuid],
   );
 
   const { data: reviewResponse } = useDataFetcher(
@@ -94,21 +94,24 @@ export function DestructionListToolbar({
       return getLatestReviewResponse({ review: review.pk });
     },
     {
-      deps: [review],
       initialState: null,
       transform: (d) => d || null,
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
     },
+    [review],
   );
   const formDialog = useFormDialog();
   const alert = useAlert();
-  const { data: user } = useDataFetcher(whoAmI, {
-    deps: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
-    initialState: null,
-  });
+  const { data: user } = useDataFetcher(
+    whoAmI,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
+      initialState: null,
+    },
+    [],
+  );
   const revalidator = useRevalidator();
   const [tabIndexState, setTabIndexState] = useState(0);
   const [collapsedState, setCollapsedState] = useState<boolean | null>(null);

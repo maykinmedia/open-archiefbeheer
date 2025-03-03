@@ -57,43 +57,48 @@ export function DestructionListReviewer({
       initialState: [],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de mede beoordelingen!",
-      deps: [destructionList?.uuid],
     },
+    [],
   );
-  const { data: reviewers } = useDataFetcher(listReviewers, {
-    deps: [],
-    errorMessage: "Er is een fout opgetreden bij het ophalen van beoordelaars!",
-    initialState: [],
-  });
-  const { data: coReviewers } = useDataFetcher(listCoReviewers, {
-    deps: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
-    initialState: [],
-  });
-  //   useEffect(() => {
-  //     listDestructionListCoReviewers(destructionList.uuid)
-  //       .then(
-  //         (r) => setCoReviewersState(r.filter((r) => r.role === "co_reviewer")), // Only list co-reviewers.
-  //       )
-  //       .catch(alertOnError);
-  //   }, [destructionList]);
+  const { data: reviewers } = useDataFetcher(
+    listReviewers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van beoordelaars!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: coReviewers } = useDataFetcher(
+    listCoReviewers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
+      initialState: [],
+      pollInterval: 3000,
+    },
+    [],
+  );
+
   const { data: assignedCoReviewers } = useDataFetcher(
     () => listDestructionListCoReviewers(destructionList.uuid),
     {
       transform: (r) => r.filter((r) => r.role === "co_reviewer"), // Only list co-reviewers.
-      deps: [destructionList.uuid],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
       initialState: [],
     },
+    [destructionList.uuid],
   );
-  const { data: user } = useDataFetcher(whoAmI, {
-    deps: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
-    initialState: null,
-  });
+  const { data: user } = useDataFetcher(
+    whoAmI,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
+      initialState: null,
+    },
+    [],
+  );
 
   const assignedMainReviewer = destructionList.assignees.find(
     (assignee) => assignee.role === "main_reviewer",

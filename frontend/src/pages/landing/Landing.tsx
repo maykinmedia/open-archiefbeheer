@@ -102,22 +102,31 @@ export const Landing = () => {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useCombinedSearchParams();
-  const { data: recordManagers } = useDataFetcher(listRecordManagers, {
-    deps: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van record managers!",
-    initialState: [],
-  });
-  const { data: reviewers } = useDataFetcher(listReviewers, {
-    deps: [],
-    errorMessage: "Er is een fout opgetreden bij het ophalen van reviewers!",
-    initialState: [],
-  });
-  const { data: users } = useDataFetcher(listUsers, {
-    deps: [],
-    errorMessage: "Er is een fout opgetreden bij het ophalen van gebruikers!",
-    initialState: [],
-  });
+  const { data: recordManagers } = useDataFetcher(
+    listRecordManagers,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van record managers!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: reviewers } = useDataFetcher(
+    listReviewers,
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van reviewers!",
+      initialState: [],
+    },
+    [],
+  );
+  const { data: users } = useDataFetcher(
+    listUsers,
+    {
+      errorMessage: "Er is een fout opgetreden bij het ophalen van gebruikers!",
+      initialState: [],
+    },
+    [],
+  );
 
   usePoll(async () => {
     const _statusMap = await getStatusMap(searchParams);

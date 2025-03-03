@@ -5,12 +5,15 @@ import { listSelectielijstKlasseChoices } from "../lib/api/private";
 import { useDataFetcher } from "./useDataFetcher";
 
 const MockSelectieLijstKlasseChoicesHook = () => {
-  return useDataFetcher(listSelectielijstKlasseChoices, {
-    initialState: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
-    deps: [],
-  });
+  return useDataFetcher(
+    listSelectielijstKlasseChoices,
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
+    },
+    [],
+  );
 };
 const mockAlert = jest.fn();
 

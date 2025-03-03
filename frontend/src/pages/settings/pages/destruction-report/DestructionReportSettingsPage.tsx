@@ -49,28 +49,28 @@ export function DestructionReportSettingsPage() {
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de statustypen!",
-      deps: [valuesState?.zaaktype],
       initialState: [],
     },
+    [valuesState?.zaaktype],
   );
 
   const { data: resultaatTypeChoices } = useDataFetcher(
     () => listResultaatTypeChoices(valuesState?.zaaktype),
     {
       initialState: [],
-      deps: [valuesState.zaaktype],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de resultaattypen!",
     },
+    [valuesState.zaaktype],
   );
   const { data: informatieObjectTypeChoices } = useDataFetcher(
     () => listInformatieObjectTypeChoices(valuesState.zaakType),
     {
       initialState: [],
-      deps: [valuesState.zaaktype],
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de informatie objecttypen!",
     },
+    [valuesState.zaaktype],
   );
 
   const fields: FormField[] = [

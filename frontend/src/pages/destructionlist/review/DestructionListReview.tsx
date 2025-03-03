@@ -65,12 +65,15 @@ export function DestructionListReviewPage() {
     .map((zaak) => zaak.zaak)
     .filter((zaak) => zaak !== null) as Zaak[];
 
-  const { data: user } = useDataFetcher(whoAmI, {
-    deps: [],
-    errorMessage:
-      "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
-    initialState: null,
-  });
+  const { data: user } = useDataFetcher(
+    whoAmI,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
+      initialState: null,
+    },
+    [],
+  );
 
   // Don't use the BaseListView zaak selection due to conflicting requirements, use custom implementation instead.
   const [, handleSelect, { zaakSelectionOnPage, revalidateZaakSelection }] =
