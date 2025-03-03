@@ -41,6 +41,8 @@ Let op
 - Zorg ervoor dat je een opmerking toevoegt bij het afbreken van het proces, zodat de reden duidelijk is.
 - Het afbreken van het proces zet de status van de lijst terug naar **"Nieuw"**, wat betekent dat het proces opnieuw kan 
   worden gestart.
+- Klik op de **Home** knop om terug te gaan de de **"Vernietigingslijsten"** pagina. |home|
+
 
 Na het afbreken van het proces kan de lijst opnieuw worden
 :ref:`bewerkt<manual_1-record-manager_1.2-vernietigingslijst-bewerken>` en verder worden verwerkt. Het proces kan later
@@ -49,3 +51,7 @@ opnieuw worden gestart of aangepast om verder te gaan met de beoordeling.
 .. |proces_afbreken| image:: ../_assets/proces-afbreken.png
     :alt: ter beoordeling indienen knop
     :height: 26px
+
+.. |home| image:: ../_assets/home.png
+    :alt: Home knop
+    :height: 32px

@@ -41,6 +41,7 @@ Let op
 ------
 - Zorg ervoor dat de zaaktypen correct zijn geselecteerd voordat je de instellingen opslaat.
 - Controleer altijd of de juiste zaaktypen aan de verkorte procedure zijn toegevoegd.
+- Klik op de **Home** knop om terug te gaan de de **"Vernietigingslijsten"** pagina. |home|
 
 .. |instellingen_knop| image:: ../_assets/instellingen-knop.png
    :alt: Instellingen knop
@@ -61,3 +62,7 @@ Let op
 .. |boolean_true| image:: ../_assets/boolean-true.png
    :alt: Afbeelding met groen vinkje
    :height: 26px
+
+.. |home| image:: ../_assets/home.png
+    :alt: Home knop
+    :height: 32px
