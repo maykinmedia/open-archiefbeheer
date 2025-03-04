@@ -99,7 +99,7 @@ export function DestructionListToolbar({
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
     },
-    [review],
+    [review?.pk],
   );
   const formDialog = useFormDialog();
   const alert = useAlert();

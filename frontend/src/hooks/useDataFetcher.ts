@@ -3,8 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useAlertOnError } from "./useAlertOnError";
 import { usePoll } from "./usePoll";
 
-// Import usePoll
-
 /**
  * A generic  hook for fetching data asynchronously with TypeScript type inference.
  *
@@ -25,7 +23,7 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     errorMessage = "Er is een fout opgetreden!",
     initialState,
     transform,
-    pollInterval, // Polling interval (optional)
+    pollInterval,
   } = config ?? {};
 
   const alertOnError = useAlertOnError(errorMessage);
@@ -43,10 +41,7 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     setError(false);
 
     try {
-      const result =
-        fetchFunction.length === 1
-          ? (fetchFunction as (signal?: AbortSignal) => Promise<T>)(signal)
-          : (fetchFunction as () => Promise<T>)();
+      const result = fetchFunction(signal);
 
       const response = await result;
 
