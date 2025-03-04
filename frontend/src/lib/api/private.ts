@@ -68,6 +68,47 @@ export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
 }
 
 /**
+ * Retrieve resultaattypen from Open Zaak and return a value and a label per
+ * resultaattype. The label is the field 'omschrijving'.
+ */
+export async function listInternalResultaatTypeChoices(zaaktypeUrl?: string) {
+  return cacheMemo(
+    "listInternalResultaatTypeChoices",
+    async () => {
+      const response = await request(
+        "GET",
+        "/_internal-resultaattype-choices/",
+        {
+          zaaktype: zaaktypeUrl,
+        },
+      );
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [zaaktypeUrl],
+  );
+}
+
+export async function listBehandelendAfdelingChoices(
+  params?:
+    | URLSearchParams
+    | {
+        zaak?: Zaak["url"];
+      },
+) {
+  return cacheMemo("listBehandelendAfdelingChoices", async () => {
+    const response = await request(
+      "GET",
+      "/_retrieve-behandelend-afdeling-choices-choices/",
+      params,
+    );
+    const promise: Promise<Option[]> = response.json();
+    return promise;
+  });
+}
+
+/**
  * This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves all the 'resultaten' possible for this
  * 'procestype' from the selectielijst API.
  */
