@@ -17,12 +17,15 @@ import {
 import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 
-import { useAuditLog, useLatestReviewResponse, useWhoAmI } from "../../hooks";
+import { useDataFetcher } from "../../hooks/useDataFetcher";
+import { listAuditLog } from "../../lib/api/auditLog";
+import { whoAmI } from "../../lib/api/auth";
 import {
   DestructionList,
   updateDestructionList,
 } from "../../lib/api/destructionLists";
 import { Review } from "../../lib/api/review";
+import { getLatestReviewResponse } from "../../lib/api/reviewResponse";
 import { canRenameDestructionList } from "../../lib/auth/permissions";
 import { formatDate } from "../../lib/format/date";
 import { collectErrors } from "../../lib/format/error";
@@ -56,15 +59,59 @@ export function DestructionListToolbar({
   destructionList,
   review,
 }: DestructionListToolbarProps) {
-  const logItems = useAuditLog(destructionList);
-  const logItemsReadyForFirstReview = useAuditLog(
-    destructionList,
-    "destruction_list_ready_for_first_review",
+  const { data: logItems } = useDataFetcher(
+    () => {
+      if (!destructionList) return Promise.resolve([]);
+      return listAuditLog(destructionList.uuid);
+    },
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de audit log!",
+    },
+    [destructionList?.uuid],
   );
-  const reviewResponse = useLatestReviewResponse(review);
+
+  const { data: logItemsReadyForFirstReview } = useDataFetcher(
+    () => {
+      if (!destructionList) return Promise.resolve([]);
+      return listAuditLog(
+        destructionList.uuid,
+        "destruction_list_ready_for_first_review",
+      );
+    },
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de audit log!",
+    },
+    [destructionList?.uuid],
+  );
+
+  const { data: reviewResponse } = useDataFetcher(
+    () => {
+      if (!review) return Promise.resolve(null);
+      return getLatestReviewResponse({ review: review.pk });
+    },
+    {
+      initialState: null,
+      transform: (d) => d || null,
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de verwerkte beoordeling!",
+    },
+    [review?.pk],
+  );
   const formDialog = useFormDialog();
   const alert = useAlert();
-  const user = useWhoAmI();
+  const { data: user } = useDataFetcher(
+    whoAmI,
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
+      initialState: null,
+    },
+    [],
+  );
   const revalidator = useRevalidator();
   const [tabIndexState, setTabIndexState] = useState(0);
   const [collapsedState, setCollapsedState] = useState<boolean | null>(null);

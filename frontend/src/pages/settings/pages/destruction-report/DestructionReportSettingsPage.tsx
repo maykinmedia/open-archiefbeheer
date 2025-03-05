@@ -12,14 +12,14 @@ import {
 import { useCallback, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import {
-  JsonValue,
-  useInformatieObjectTypeChoices,
-  useResultaatTypeChoices,
-  useStatusTypeChoices,
-  useSubmitAction,
-} from "../../../../hooks";
+import { JsonValue, useSubmitAction } from "../../../../hooks";
+import { useDataFetcher } from "../../../../hooks/useDataFetcher";
 import { ArchiveConfiguration } from "../../../../lib/api/config";
+import {
+  listInformatieObjectTypeChoices,
+  listResultaatTypeChoices,
+  listStatusTypeChoices,
+} from "../../../../lib/api/private";
 import { UpdateSettingsAction } from "../../Settings.action";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { DestructionReportSettingsPageContext } from "./DestructionReportSettingsPage.loader";
@@ -44,11 +44,33 @@ export function DestructionReportSettingsPage() {
     archiveConfiguration as Omit<ArchiveConfiguration, "zaaktypesShortProcess">,
   );
 
-  // Choices based on selected zaaktype.
-  const statusTypeChoices = useStatusTypeChoices(valuesState?.zaaktype);
-  const resultaatTypeChoices = useResultaatTypeChoices(valuesState?.zaaktype);
-  const informatieObjectTypeChoices = useInformatieObjectTypeChoices(
-    valuesState?.zaaktype,
+  const { data: statusTypeChoices } = useDataFetcher(
+    () => listStatusTypeChoices(valuesState?.zaaktype),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de statustypen!",
+      initialState: [],
+    },
+    [valuesState?.zaaktype],
+  );
+
+  const { data: resultaatTypeChoices } = useDataFetcher(
+    () => listResultaatTypeChoices(valuesState?.zaaktype),
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de resultaattypen!",
+    },
+    [valuesState.zaaktype],
+  );
+  const { data: informatieObjectTypeChoices } = useDataFetcher(
+    () => listInformatieObjectTypeChoices(valuesState.zaakType),
+    {
+      initialState: [],
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de informatie objecttypen!",
+    },
+    [valuesState.zaaktype],
   );
 
   const fields: FormField[] = [

@@ -7,7 +7,6 @@ import {
   ZaakSelection,
   ZaakSelectionBackend,
   addToZaakSelection,
-  compareZaakSelection,
   getAllZakenSelected,
   getZaakSelectionItems,
   getZaakSelectionSize,
@@ -210,15 +209,7 @@ export function useZaakSelection<T = unknown>(
       return;
     }
 
-    // Update state.
-    const hasChanged = !compareZaakSelection(
-      pageSpecificZaakSelection,
-      newState,
-    );
-
-    if (hasChanged) {
-      setPageSpecificZaakSelection(newState);
-    }
+    setPageSpecificZaakSelection(newState);
   };
 
   /**

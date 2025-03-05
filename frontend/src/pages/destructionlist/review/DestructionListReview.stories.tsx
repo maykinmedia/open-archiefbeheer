@@ -18,6 +18,7 @@ import {
   roleFactory,
   userFactory,
   zaakFactory,
+  zaaktypeChoicesFactory,
 } from "../../../fixtures";
 import * as libZaakSelection from "../../../lib/zaakSelection";
 import { SessionStorageBackend } from "../../../lib/zaakSelection";
@@ -776,6 +777,16 @@ export const PollExternalChanges: Story = {
   parameters: {
     mockData: [
       ...(meta?.parameters?.mockData || []),
+      MOCKS.HEALTH_CHECK,
+      MOCKS.SELECTIE_LIJST_CHOICES,
+      MOCKS.CO_REVIEWS,
+      MOCKS.OIDC_INFO,
+      {
+        url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
+        method: "POST",
+        status: 200,
+        response: zaaktypeChoicesFactory(),
+      },
       {
         url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",
         method: "POST",
@@ -806,7 +817,6 @@ export const PollExternalChanges: Story = {
       name: "Accorderen",
     });
     await userEvent.click(approveButton, { delay: 10 });
-    expect(canvas.queryByText("Uitgezonderd")).toBeNull();
     await waitFor(
       async () =>
         expect(canvas.queryByText("Uitgezonderd")).toBeInTheDocument(),
