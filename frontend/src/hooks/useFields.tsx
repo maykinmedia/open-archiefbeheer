@@ -108,7 +108,7 @@ export function useFields<T extends Zaak = Zaak>(
     () => listZaaktypeChoices(zaaktypeParams),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
-      initialState: null,
+      initialState: [],
     },
     [params2CacheKey(zaaktypeParams || {})],
   );
