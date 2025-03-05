@@ -54,7 +54,7 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     } catch (err) {
       if (!signal.aborted) {
         setError(true);
-        await alertOnError(err);
+        await alertOnError(err as Error);
       }
     } finally {
       if (!signal.aborted) {
