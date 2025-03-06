@@ -5,7 +5,7 @@ import { SetURLSearchParams, useSearchParams } from "react-router-dom";
  * Wraps `useSearchParams()`, combines instead of replaces current URLSearchParams.
  */
 export function useCombinedSearchParams(): ReturnType<typeof useSearchParams> {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout>(undefined);
   const [searchParams, setSearchParams] = useSearchParams();
 
   /**
