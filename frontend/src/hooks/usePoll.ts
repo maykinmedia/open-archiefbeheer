@@ -14,10 +14,10 @@ export function usePoll<T = unknown>(
     timeout?: number;
   },
 ) {
-  useEffect(() => {
-    let active = true;
-    let ref: number;
+  let active = true;
+  let ref: number;
 
+  useEffect(() => {
     /** Performs single "tick", awaits`fn()`, then calls `poll()` to reschedule. */
     const tick = async () => {
       await fn();
