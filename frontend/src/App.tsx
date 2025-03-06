@@ -5,6 +5,7 @@ import {
   ButtonLink,
   Card,
   Column,
+  ConfigContext,
   Dropdown,
   Grid,
   H3,
@@ -96,110 +97,118 @@ function App() {
             description="Sommige instellingen zijn niet goed geconfigureerd, wat invloed kan hebben op hoe de app werkt. Controleer de instellingen en volg de instructies om dit op te lossen."
           />
         )}
-      <NavigationContext.Provider
+      <ConfigContext.Provider
         value={{
-          breadcrumbItems,
-          primaryNavigationItems: [
-            <Logo key="logo" />,
-            {
-              children: <Solid.HomeIcon />,
-              title: "Home",
-              // size: "xl",
-              onClick: () => navigate("/destruction-lists"),
-            },
-            {
-              children: <Solid.DocumentPlusIcon />,
-              title: "Vernietigingslijst opstellen",
-              hidden: user ? !canStartDestructionList(user) : true,
-              // size: "xl",
-              onClick: () => navigate("/destruction-lists/create"),
-            },
-            "spacer",
-            <>
-              {state !== "idle" ? (
-                <P title="Bezig met laden...">
-                  <Solid.ArrowPathIcon
-                    spin
-                    stroke="var(--button-color-text-primary)"
-                  />
-                </P>
-              ) : undefined}
-            </>,
-            {
-              children: <Outline.CogIcon />,
-              title: "Instellingen",
-              hidden: user ? !canChangeSettings(user) : true,
-              // size: "xl",
-              onClick: () => navigate("/settings"),
-            },
-            <Dropdown
-              aria-label="Profiel"
-              key="account"
-              label={
-                <IconInitials
-                  name={
-                    user
-                      ? formatUser(user as User, { showUsername: false })
-                      : ""
-                  }
-                />
-              }
-              pad="v"
-              variant="transparent"
-            >
-              <Body>
-                <Card>
-                  <H3>Account</H3>
-                  <Hr />
-                  <Grid>
-                    <Column containerType="normal" span={2}>
-                      <IconInitials
-                        name={
-                          user
-                            ? formatUser(user as User, { showUsername: false })
-                            : ""
-                        }
-                      />
-                    </Column>
-                    <Column span={8}>
-                      <Grid gutter={false}>
-                        <Column span={12}>
-                          <P bold>
-                            {user?.firstName} {user?.lastName}
-                          </P>
-                        </Column>
-                        <Column span={12}>
-                          <P muted>{user?.email}</P>
-                        </Column>
-                      </Grid>
-                    </Column>
-                    <Hr />
-                    <Column span={6} />
-                    <Column span={6}>
-                      <ButtonLink
-                        href={"/logout"}
-                        variant="outline"
-                        wrap={false}
-                      >
-                        <Solid.ArrowRightEndOnRectangleIcon />
-                        Uitloggen
-                      </ButtonLink>
-                    </Column>
-                  </Grid>
-                </Card>
-              </Body>
-            </Dropdown>,
-          ],
+          logo: <Logo />,
         }}
       >
-        <OidcConfigContext.Provider value={oidcInfo}>
-          <ZaakSelectionContextProvider>
-            <ModalService>
-              <Outlet />
-            </ModalService>
-          </ZaakSelectionContextProvider>
-        </OidcConfigContext.Provider>
-      </NavigationContext.Provider>
+        <NavigationContext.Provider
+          value={{
+            breadcrumbItems,
+            primaryNavigationItems: [
+              <Logo key="logo" width={32} />,
+              {
+                children: <Solid.HomeIcon />,
+                title: "Home",
+                // size: "xl",
+                onClick: () => navigate("/destruction-lists"),
+              },
+              {
+                children: <Solid.DocumentPlusIcon />,
+                title: "Vernietigingslijst opstellen",
+                hidden: user ? !canStartDestructionList(user) : true,
+                // size: "xl",
+                onClick: () => navigate("/destruction-lists/create"),
+              },
+              "spacer",
+              <>
+                {state !== "idle" ? (
+                  <P title="Bezig met laden...">
+                    <Solid.ArrowPathIcon
+                      spin
+                      stroke="var(--button-color-text-primary)"
+                    />
+                  </P>
+                ) : undefined}
+              </>,
+              {
+                children: <Outline.CogIcon />,
+                title: "Instellingen",
+                hidden: user ? !canChangeSettings(user) : true,
+                // size: "xl",
+                onClick: () => navigate("/settings"),
+              },
+              <Dropdown
+                aria-label="Profiel"
+                key="account"
+                label={
+                  <IconInitials
+                    name={
+                      user
+                        ? formatUser(user as User, { showUsername: false })
+                        : ""
+                    }
+                  />
+                }
+                pad="v"
+                variant="transparent"
+              >
+                <Body>
+                  <Card>
+                    <H3>Account</H3>
+                    <Hr />
+                    <Grid>
+                      <Column containerType="normal" span={2}>
+                        <IconInitials
+                          name={
+                            user
+                              ? formatUser(user as User, {
+                                  showUsername: false,
+                                })
+                              : ""
+                          }
+                        />
+                      </Column>
+                      <Column span={8}>
+                        <Grid gutter={false}>
+                          <Column span={12}>
+                            <P bold>
+                              {user?.firstName} {user?.lastName}
+                            </P>
+                          </Column>
+                          <Column span={12}>
+                            <P muted>{user?.email}</P>
+                          </Column>
+                        </Grid>
+                      </Column>
+                      <Hr />
+                      <Column span={6} />
+                      <Column span={6}>
+                        <ButtonLink
+                          href={"/logout"}
+                          variant="outline"
+                          wrap={false}
+                        >
+                          <Solid.ArrowRightEndOnRectangleIcon />
+                          Uitloggen
+                        </ButtonLink>
+                      </Column>
+                    </Grid>
+                  </Card>
+                </Body>
+              </Dropdown>,
+            ],
+          }}
+        >
+          <OidcConfigContext.Provider value={oidcInfo}>
+            <ZaakSelectionContextProvider>
+              <ModalService>
+                <Outlet />
+              </ModalService>
+            </ZaakSelectionContextProvider>
+          </OidcConfigContext.Provider>
+        </NavigationContext.Provider>
+      </ConfigContext.Provider>
     </div>
   );
 }
