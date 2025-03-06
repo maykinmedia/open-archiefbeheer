@@ -10,7 +10,6 @@ import {
   H3,
   Hr,
   IconInitials,
-  Logo,
   ModalService,
   NavigationContext,
   Outline,
@@ -29,6 +28,7 @@ import {
 import { useAsync } from "react-use";
 
 import "./App.css";
+import { Logo } from "./components/Logo";
 import {
   OidcConfigContext,
   OidcConfigContextType,
@@ -100,12 +100,7 @@ function App() {
         value={{
           breadcrumbItems,
           primaryNavigationItems: [
-            <Logo
-              href="https://www.maykinmedia.nl"
-              key="logo"
-              abbreviated={true}
-              variant="contrast"
-            />,
+            <Logo key="logo" />,
             {
               children: <Solid.HomeIcon />,
               title: "Home",
