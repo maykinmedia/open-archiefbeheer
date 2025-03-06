@@ -12,7 +12,7 @@ export function HealthCheckSettingsPage() {
   const sortedErrors = errors.sort((a, b) => a.model.localeCompare(b.model));
   const getSeverityBadge = (
     severity: HealthCheckSettingsPageContext["errors"][0]["severity"],
-  ): JSX.Element => {
+  ) => {
     switch (severity) {
       case "error":
         return (
