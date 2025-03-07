@@ -2,14 +2,14 @@ import React, { createContext, useState } from "react";
 
 import { ZaakSelection } from "../lib/zaakSelection";
 
-export type ZaakSelectionContextType = {
+export type ZaakSelectionContextType<T = unknown> = {
   allPagesSelected: boolean;
   setAllPagesSelected: (allPagesSelected: boolean) => void;
   selectionSize: number;
   setSelectionSize: (selectionSize: number) => void;
-  pageSpecificZaakSelection: ZaakSelection;
+  pageSpecificZaakSelection: ZaakSelection<T>;
   setPageSpecificZaakSelection: (
-    pageSpecificZaakSelection: ZaakSelection,
+    pageSpecificZaakSelection: ZaakSelection<T>,
   ) => void;
 };
 

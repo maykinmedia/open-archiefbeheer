@@ -58,7 +58,11 @@ export function DestructionListProcessReviewPage() {
   const secondaryNavigationItems = useSecondaryNavigation();
 
   const [, handleSelect, { zaakSelectionOnPage }] = useZaakSelection<{
-    approved: boolean;
+    approved?: boolean;
+    action?: ProcessReviewAction;
+    selectielijstklasse?: string;
+    archiefactiedatum?: string;
+    comment?: string;
   }>(storageKey, zakenOnPage);
   const zaakReviewStatuses = useZaakReviewStatuses(
     zakenOnPage,

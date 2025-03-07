@@ -1,6 +1,14 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import {
+  Context,
+  startTransition,
+  useContext,
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useState,
+} from "react";
 
-import { ZaakSelectionContext } from "../contexts";
+import { ZaakSelectionContext, ZaakSelectionContextType } from "../contexts";
 import {
   SessionStorageBackend,
   ZaakIdentifier,
@@ -17,10 +25,10 @@ import {
 
 export type ZaakSelectionClearer = () => Promise<void>;
 
-export type ZaakSelectionSelectHandler = (
+export type ZaakSelectionSelectHandler<T = unknown> = (
   zaken: ZaakIdentifier[],
   selected: boolean,
-  detail?: object,
+  detail?: T,
 ) => Promise<void>;
 
 export type ZaakSelectionSelectAllPagesHandler = (
@@ -61,7 +69,7 @@ export function useZaakSelection<T = unknown>(
   backend: ZaakSelectionBackend | null = SessionStorageBackend,
 ): [
   selectedZakenOnPage: ZaakIdentifier[],
-  handleSelect: ZaakSelectionSelectHandler,
+  handleSelect: ZaakSelectionSelectHandler<T>,
   extra: {
     hasSelection: boolean;
     allPagesSelected: boolean;
@@ -73,6 +81,7 @@ export function useZaakSelection<T = unknown>(
     revalidateZaakSelection: () => void;
   },
 ] {
+  // Context state machines.
   const {
     allPagesSelected,
     setAllPagesSelected,
@@ -80,7 +89,9 @@ export function useZaakSelection<T = unknown>(
     setSelectionSize,
     pageSpecificZaakSelection,
     setPageSpecificZaakSelection,
-  } = useContext(ZaakSelectionContext);
+  } = useContext<ZaakSelectionContextType<T>>(
+    ZaakSelectionContext as Context<ZaakSelectionContextType<T>>,
+  );
 
   // extra.revalidateZaakSelection implementation.
   //
@@ -91,8 +102,187 @@ export function useZaakSelection<T = unknown>(
   // update `ZaakSelectionContext`.
   const [revalidateCount, setRevalidateCount] = useState(0);
 
-  // URL of the all zaken on (on page).
-  const urls = zakenOnPage.map((z) => z.url as string).join();
+  // Optimistic selection state management:
+  //
+  // `optimisticSelection` represents the current selection state, including pending updates
+  // that may not yet be confirmed by the backend, ensuring a responsive UI experience.
+  //
+  // `optimisticSelectionUpdate` should be used within a transition to update the selection state
+  // optimistically. The backend update must be triggered explicitly within the same transition.
+  //
+  // Behavior:
+  // - The transition action is an **asynchronous function** executed inside `startTransition`.
+  // - If the action completes (i.e., promise resolves), the optimistic state is replaced with the actual state.
+  // - If the backend update succeeds (and the actual state is updated), the optimistic value typically remains unchanged.
+  // - If the backend update fails (the promise rejects and the actual state is not updated), the optimistic value is rolled back to the previous state.
+  //
+  // Usage:
+  // - The selection state is stored per `zaak.url`.
+  // - Each `zaak` can have a `selected` status and an optional `detail`.
+  // - Updates are applied optimistically to ensure UI responsiveness while awaiting backend confirmation.
+  // - The backend update should be manually triggered within the transition to keep state in sync.
+  // - Error handling should be implemented to revert or correct the state if the action fails.
+  //
+  // Example:
+  // ```tsx
+  // startTransition(async () => {
+  //   optimisticSelectionUpdate({ zaken, selected, detail });
+  //   optimisticSelectionSizeUpdate({ selected });
+  //
+  //   try {
+  //     await persist(zaken, selected, detail);
+  //     await _updatePageSpecificZaakSelectionState();
+  //     await _updateSelectionSizeState();
+  //   } catch (e) {
+  //     // On failure, the optimistic updates are rolled back to the previous state.
+  //     console.warn(e);
+  //   }
+  // });
+  // ```
+
+  // Action type for use `UpdateSelectionAction`.
+  type ZaakSelectionAction = {
+    zaken: ZaakIdentifier[];
+    selected: boolean;
+    detail?: T;
+  };
+
+  // Action type for use `UpdateSelectionSizeAction`.
+  type SelectionAction = {
+    selected: boolean;
+  };
+
+  // `optimisticSelection` logic`.
+  const [optimisticSelection, optimisticSelectionUpdate] = useOptimistic(
+    pageSpecificZaakSelection,
+    (state, { zaken, selected, detail }: ZaakSelectionAction) => {
+      return zaken.reduce(
+        (selection, zaak) => ({
+          ...selection,
+          [zaak.url as string]: { selected, detail },
+        }),
+        state,
+      );
+    },
+  );
+
+  // `optimisticSelectionSize` logic.
+  const [optimisticSelectionSize, optimisticSelectionSizeUpdate] =
+    useOptimistic(selectionSize, (state, { selected }: SelectionAction) =>
+      selected ? selectionSize + 1 : selectionSize - 1,
+    );
+
+  // `optimisticSelectAll` logic.
+  const [optimisticAllPagesSelected, optimisticAllPagesSelectedUpdate] =
+    useOptimistic(
+      allPagesSelected,
+      (_, { selected }: SelectionAction) => selected,
+    );
+
+  /**
+   * Select handler, pass this to `onSelect` of a DataGrid component.
+   *
+   * @param zaken - The user selected zaken.
+   * @param selected - Whether `zaken` should be selected.
+   * @param detail - If called directly (not as callback for DataGrid): `detail`
+   *   can be passed directly, use `getSelectionDetail` otherwise.
+   */
+  const onSelect = async (
+    zaken: ZaakIdentifier[],
+    selected: boolean,
+    detail?: T,
+  ) => {
+    if (!backend) return;
+
+    startTransition(async () => {
+      optimisticSelectionUpdate({ zaken, selected, detail });
+      optimisticSelectionSizeUpdate({ selected });
+
+      try {
+        await persist(zaken, selected, detail);
+        await _updatePageSpecificZaakSelectionState();
+        await _updateSelectionSizeState();
+      } catch (e) {
+        // If the transition fails (i.e. the backend update rejects), the actual state remains unchanged.
+        // This causes the optimistic updates to be overridden (rolled back) by the actual state.
+        // We only log the error here without showing any user-facing error messages.
+        console.warn(e);
+      }
+    });
+  };
+
+  /**
+   * Persists the zaak selection to the backend.
+   *
+   * @param zaken - The user selected zaken.
+   * @param selected - Whether `zaken` should be selected.
+   * @param detail - If called directly (not as callback for DataGrid): `detail`
+   *   can be passed directly, use ``getSelectionDetail` otherwise.
+   */
+  const persist = async (
+    zaken: ZaakIdentifier[],
+    selected: boolean,
+    detail?: T,
+  ) => {
+    if (!backend) return;
+
+    const filteredZaken = await getFilteredZaken(zaken, selected);
+
+    if (selected) {
+      const detailArray = await getDetailArray(filteredZaken, detail);
+      await addToZaakSelection(storageKey, filteredZaken, detailArray, backend);
+    } else {
+      await removeFromZaakSelection(storageKey, filteredZaken, backend);
+    }
+  };
+
+  /**
+   * Filters the zaak selection using an optionally passed filter.
+   *
+   * @param zaken - The user selected zaken.
+   * @param selected - Whether `zaken` should be selected.
+   */
+  const getFilteredZaken = async (
+    zaken: ZaakIdentifier[],
+    selected: boolean,
+  ) => {
+    if (!filterSelectionZaken) {
+      return zaken.length ? zaken : zakenOnPage;
+    }
+
+    // If no zaken are passed, and no selection is made, default to `zakenOnPage` (deselect all).
+    const zakenToFilter = zaken.length || selected ? zaken : zakenOnPage;
+
+    return await filterSelectionZaken(
+      zakenToFilter,
+      selected,
+      pageSpecificZaakSelection,
+    );
+  };
+
+  /**
+   * Returns a `Promise<T[]>` for detail objects for `filtered` zaken.
+   *
+   * @param filteredZaken - Filtered zaken (using `getFilteredZaken`).
+   * @param detail - If passed: return `detail` directly (as array).
+   */
+  const getDetailArray = async (
+    filteredZaken: ZaakIdentifier[],
+    detail?: T,
+  ): Promise<T[] | undefined> => {
+    // Us provided detail.
+    if (detail) {
+      return [detail];
+    }
+
+    // Use provided getter.
+    if (getSelectionDetail) {
+      const promises = filteredZaken.map((z) =>
+        getSelectionDetail(z, pageSpecificZaakSelection),
+      );
+      return await Promise.all(promises);
+    }
+  };
 
   // Get all zaken selected and zaak selection size.
   useEffect(() => {
@@ -104,7 +294,7 @@ export function useZaakSelection<T = unknown>(
       signal: getAllZakenSelectedAbortController.signal,
     })
       .then((selected) => {
-        if (selected !== allPagesSelected) {
+        if (selected !== optimisticAllPagesSelected) {
           setAllPagesSelected(selected);
         }
       })
@@ -116,7 +306,7 @@ export function useZaakSelection<T = unknown>(
       signal: getZaakSelectionSizeAbortController.signal,
     })
       .then((size) => {
-        if (size !== selectionSize) {
+        if (size !== optimisticSelectionSize) {
           setSelectionSize(size);
         }
       })
@@ -133,15 +323,17 @@ export function useZaakSelection<T = unknown>(
       getZaakSelectionSizeAbortController.abort();
       getZaakSelectionItemsAbortController.abort();
     };
-  }, [storageKey, urls, revalidateCount]);
+  }, [
+    storageKey,
+    revalidateCount,
+    zakenOnPage.map((z) => z.url as string).join(),
+  ]);
 
   // Memoize selected zaken on page.
   const selectedZakenOnPage = useMemo(
     () =>
-      zakenOnPage.filter(
-        (z) => pageSpecificZaakSelection[z.url as string]?.selected,
-      ),
-    [zakenOnPage, pageSpecificZaakSelection],
+      zakenOnPage.filter((z) => optimisticSelection[z.url as string]?.selected),
+    [zakenOnPage, optimisticSelection],
   );
 
   // Memoize deselected zaken on page.
@@ -154,36 +346,13 @@ export function useZaakSelection<T = unknown>(
   );
 
   /**
-   * @param selected
-   * @private
-   */
-  const _optimisticallyUpdateAllPagesSelectedState = (selected: boolean) => {
-    setAllPagesSelected(selected);
-  };
-
-  /**
-   * @param selected
+   * @param selected - Whether `zaken` should be selected.
    * @private
    */
   const _updateAllPagesSelectedState = async (selected: boolean) => {
     await setAllZakenSelected(storageKey, selected);
     const _selected = await getAllZakenSelected(storageKey);
     setAllPagesSelected(_selected);
-  };
-
-  /**
-   * @param zaken
-   * @param selected
-   * @private
-   */
-  const _optimisticallyUpdatePageSpecificZaakSelectionState = (
-    zaken: ZaakIdentifier[],
-    selected: boolean,
-  ) => {
-    const optimisticSelection = zaken.reduce((selection, zaak) => {
-      return { ...selection, [zaak.url as string]: { selected } };
-    }, pageSpecificZaakSelection);
-    setPageSpecificZaakSelection(optimisticSelection);
   };
 
   /**
@@ -224,14 +393,6 @@ export function useZaakSelection<T = unknown>(
   };
 
   /**
-   * @param size
-   * @private
-   */
-  const _optimisticallyUpdateSelectionSizeState = (size: number) => {
-    setSelectionSize(size);
-  };
-
-  /**
    * @private
    */
   const _updateSelectionSizeState = async () => {
@@ -240,87 +401,20 @@ export function useZaakSelection<T = unknown>(
   };
 
   /**
-   * Pass this to `onSelect` of a DataGrid component.
-   * @param zaken
-   * @param selected
-   * @param detail If called directly (not as callback for DataGrid), `detail`
-   *   can be passed directly, use `getSelectionDetail` otherwise.
-   */
-  const onSelect = async (
-    zaken: ZaakIdentifier[],
-    selected: boolean,
-    detail?: object,
-  ) => {
-    if (!backend) return;
-
-    _optimisticallyUpdatePageSpecificZaakSelectionState(zaken, selected);
-    _optimisticallyUpdateSelectionSizeState(
-      selected ? selectionSize + 1 : selectionSize - 1,
-    );
-
-    const filter = filterSelectionZaken
-      ? filterSelectionZaken
-      : (zaken: ZaakIdentifier[]) => {
-          return zaken;
-        };
-
-    const filteredZaken = selected
-      ? await filter(
-          zaken,
-          selected,
-          pageSpecificZaakSelection as ZaakSelection<T>,
-        )
-      : zaken.length
-        ? await filter(
-            zaken,
-            selected,
-            pageSpecificZaakSelection as ZaakSelection<T>,
-          )
-        : await filter(
-            zakenOnPage,
-            selected,
-            pageSpecificZaakSelection as ZaakSelection<T>,
-          );
-
-    const detailPromises = detail
-      ? [detail]
-      : getSelectionDetail
-        ? filteredZaken.map((z) =>
-            getSelectionDetail(z, pageSpecificZaakSelection),
-          )
-        : undefined;
-    const detailArray = detailPromises
-      ? await Promise.all(detailPromises)
-      : undefined;
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    selected
-      ? await addToZaakSelection(
-          storageKey,
-          filteredZaken,
-          detailArray,
-          backend,
-        )
-      : await removeFromZaakSelection(storageKey, filteredZaken, backend);
-
-    await _updatePageSpecificZaakSelectionState();
-    await _updateSelectionSizeState();
-  };
-
-  /**
    * Pass this to `onSelectAll` of a DataGrid component.
-   * @param selected
+   * @param selected - Whether `zaken` should be selected.
    */
   const onSelectAllPages = async (selected: boolean) => {
     if (!backend) return;
 
-    _optimisticallyUpdatePageSpecificZaakSelectionState(zakenOnPage, selected);
-    _optimisticallyUpdateAllPagesSelectedState(selected);
+    startTransition(async () => {
+      optimisticSelectionUpdate({ zaken: zakenOnPage, selected });
+      optimisticAllPagesSelectedUpdate({ selected });
 
-    await setAllZakenSelected(storageKey, selected, backend);
-
-    _updatePageSpecificZaakSelectionState();
-    await _updateAllPagesSelectedState(selected);
+      await setAllZakenSelected(storageKey, selected, backend);
+      _updatePageSpecificZaakSelectionState();
+      await _updateAllPagesSelectedState(selected);
+    });
   };
 
   /**
@@ -335,15 +429,32 @@ export function useZaakSelection<T = unknown>(
     setSelectionSize(0);
   };
 
+  if (!backend) {
+    return [
+      [],
+      async () => undefined,
+      {
+        hasSelection: false,
+        allPagesSelected: false,
+        selectionSize: 0,
+        deSelectedZakenOnPage: [],
+        zaakSelectionOnPage: {},
+        handleSelectAllPages: async () => undefined,
+        clearZaakSelection: async () => undefined,
+        revalidateZaakSelection: () => undefined,
+      },
+    ];
+  }
+
   return [
     selectedZakenOnPage,
     onSelect,
     {
-      hasSelection: Boolean(selectionSize || allPagesSelected),
-      allPagesSelected: Boolean(allPagesSelected),
-      selectionSize: selectionSize,
+      hasSelection: Boolean(selectionSize || optimisticAllPagesSelected),
+      allPagesSelected: Boolean(optimisticAllPagesSelected),
+      selectionSize: optimisticSelectionSize,
       deSelectedZakenOnPage,
-      zaakSelectionOnPage: pageSpecificZaakSelection as ZaakSelection<T>,
+      zaakSelectionOnPage: optimisticSelection as ZaakSelection<T>,
       handleSelectAllPages: onSelectAllPages,
       clearZaakSelection: clearZaakSelection,
       revalidateZaakSelection: () => setRevalidateCount(revalidateCount + 1),
