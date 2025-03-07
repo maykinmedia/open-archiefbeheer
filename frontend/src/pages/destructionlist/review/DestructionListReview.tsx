@@ -417,9 +417,9 @@ export function DestructionListReviewPage() {
       ),
     );
 
-    // Zaken selected, allow all zaken except already excluded.
+    // All zaken selected, allow all zaken except already excluded.
     // NOTE: approval status is retrieved via `getSelectionDetail()`.
-    if (selected) {
+    if (selected && selectAll) {
       return zaken.filter((z) => {
         const url = z.url as string;
         return !(url in excludedZaakSelection);
@@ -429,7 +429,6 @@ export function DestructionListReviewPage() {
     // All zaken on page deselected, only deselect approved zaken.
     if (!selected && selectAll) {
       const excludedUrls = Object.keys(excludedZaakSelection);
-
       return zaken.filter((z) => !excludedUrls.includes(z.url as string));
     }
 
@@ -478,12 +477,14 @@ export function DestructionListReviewPage() {
 
     // 1 Zaak deselected, allow deselecting excluded zaak.
     // Multiple zaken deselected, prevent deselecting excluded zaak.
-    return zaken.length <= 1
-      ? zaken
-      : zaken.filter((z) => {
-          const url = z.url as string;
-          return !(url in excludedZaakSelection);
-        });
+    if (zaken.length > 1) {
+      return zaken.filter((z) => {
+        const url = z.url as string;
+        return !(url in excludedZaakSelection);
+      });
+    }
+
+    return zaken;
   }
 
   /**
