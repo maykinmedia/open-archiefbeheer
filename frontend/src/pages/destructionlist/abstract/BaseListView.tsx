@@ -152,10 +152,15 @@ export function BaseListView<T extends Zaak = Zaak>({
   ]);
 
   // Merge `hasSelection`.
-  const hasSelection = _hasSelection || selectedZakenOnPage.length > 0;
+  const hasSelection =
+    _hasSelection ||
+    selectedZakenOnPage.length > 0 ||
+    (dataGridProps?.selected?.length || 0) > 0;
 
   const handleClearZaakSelection = () => {
-    clearZaakSelection();
+    if (selectionBackend) {
+      clearZaakSelection();
+    }
     onClearZaakSelection?.();
   };
 

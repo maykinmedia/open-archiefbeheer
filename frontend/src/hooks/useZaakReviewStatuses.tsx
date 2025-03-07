@@ -12,7 +12,7 @@ export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;
  */
 export function useZaakReviewStatuses(
   zakenOnPage: Zaak[],
-  reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
+  reviewedZaakSelectionOnPage: ZaakSelection<{ approved?: boolean }>,
 ): Record<string, ZAAK_REVIEW_STATUS_ENUM> {
   // Page specific approved zaken.
   const approvedZaakUrlsOnPage = useMemo(() => {

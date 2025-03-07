@@ -76,17 +76,20 @@ export function DestructionListReviewPage() {
   );
 
   // Don't use the BaseListView zaak selection due to conflicting requirements, use custom implementation instead.
-  const [, handleSelect, { zaakSelectionOnPage, revalidateZaakSelection }] =
-    useZaakSelection<{
-      approved: boolean;
-      comment: string;
-    }>(
-      storageKey,
-      zakenResults,
-      filterSelectionZaken,
-      getSelectionDetail,
-      RestBackend,
-    );
+  const [
+    selectedZakenOnPage,
+    handleSelect,
+    { zaakSelectionOnPage, clearZaakSelection, revalidateZaakSelection },
+  ] = useZaakSelection<{
+    approved: boolean;
+    comment: string;
+  }>(
+    storageKey,
+    zakenResults,
+    filterSelectionZaken,
+    getSelectionDetail,
+    RestBackend,
+  );
 
   // Poll for changes, update selection if a (remote) change has been made (by
   // another reviewer).
@@ -288,6 +291,7 @@ export function DestructionListReviewPage() {
   async function handleApproveClick(zaak: Zaak) {
     return handleSelect([zaak], true, {
       approved: true,
+      comment: "",
     });
   }
 
@@ -505,8 +509,10 @@ export function DestructionListReviewPage() {
         labelSelect: "Markeren als (on)gezien",
         labelSelectAll: "Alles als (on)gezien markeren",
         onSelect: handleSelect,
+        selected: selectedZakenOnPage as Zaak[],
       }}
-      selectionBackend={RestBackend}
+      selectionBackend={null}
+      onClearZaakSelection={clearZaakSelection}
     ></BaseListView>
   );
 }
