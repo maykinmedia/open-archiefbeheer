@@ -6,6 +6,19 @@
  * We assume this contains one or more actions to perform. Since these actions need to be in view all the time, we apply
  * (sticky) styling to them.
  */
+
+.mykn-datagrid:has(.mykn-datagrid__cell--type-text:last-child > .mykn-toolbar)
+  .mykn-datagrid__cell--header:last-child,
+.mykn-datagrid:has(.mykn-datagrid__cell--type-text:last-child > .mykn-toolbar)
+  .mykn-datagrid__cell--filter:last-child {
+  position: sticky;
+  right: 0;
+}
+.mykn-datagrid:has(.mykn-datagrid__cell--type-text:last-child > .mykn-toolbar)
+  .mykn-datagrid__cell--header:last-child {
+  background: var(--typography-color-background);
+}
+
 .mykn-datagrid .mykn-datagrid__cell--type-text:last-child:has(> .mykn-toolbar) {
   position: sticky;
   right: 0;
