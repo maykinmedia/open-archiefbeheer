@@ -1,10 +1,10 @@
 /** Whether the (frontend) cache should be disabled. */
 const CACHE_DISABLED =
-  process.env.REACT_APP_CACHE_DISABLED?.toLowerCase() === "true" || false;
+  import.meta.env.OAB_CACHE_DISABLED?.toLowerCase() === "true" || false;
 
 /** The maximum default cache age. */
 export const CACHE_MAX_AGE = parseInt(
-  process.env.REACT_APP_CACHE_MAX_AGE || "600000",
+  import.meta.env.OAB_CACHE_MAX_AGE || "600000",
 );
 
 /** Data written to session storage for every cache record. */
