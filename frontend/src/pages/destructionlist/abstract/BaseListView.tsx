@@ -31,7 +31,7 @@ import { Zaak } from "../../../types";
 import "./BaseListView.css";
 
 /** The template used to format urls to an external application providing zaak details. */
-const REACT_APP_ZAAK_URL_TEMPLATE = process.env.REACT_APP_ZAAK_URL_TEMPLATE;
+const OAB_ZAAK_URL_TEMPLATE = import.meta.env.OAB_ZAAK_URL_TEMPLATE;
 
 export type BaseListViewProps<T extends Zaak = Zaak> = React.PropsWithChildren<{
   storageKey: string;
@@ -105,7 +105,7 @@ export function BaseListView<T extends Zaak = Zaak>({
   // Object list.
   const objectList = paginatedZaken.results.map((zaak) => ({
     ...zaak,
-    href: formatMessage(REACT_APP_ZAAK_URL_TEMPLATE || "", zaak),
+    href: formatMessage(OAB_ZAAK_URL_TEMPLATE || "", zaak),
   })) as unknown as T[];
 
   // Fields.
