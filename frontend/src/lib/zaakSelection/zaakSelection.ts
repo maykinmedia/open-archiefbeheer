@@ -188,7 +188,7 @@ export function compareZaakSelection(a: ZaakSelection, b: ZaakSelection) {
  * @deprecated public use outside  `zaakSelection.ts` is deprecated due to performance concerns.
  */
 export async function getZaakSelection<DetailType = unknown>(key: string) {
-  if (process.env.NODE_ENV === "development") {
+  if (import.meta.env.DEV) {
     console.warn(
       "public use of _getZaakSelection is deprecated, and is only available on SessionStorageBackend.",
     );
