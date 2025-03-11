@@ -1,52 +1,40 @@
-import React from "react";
+import { renderHook } from "@testing-library/react";
 
 import { usePoll } from "./usePoll";
 
-jest.mock("react", () => ({
-  ...jest.requireActual("react"),
-  useEffect: (fn: React.EffectCallback) => fn(),
-}));
-
 describe("usePoll()", () => {
-  beforeEach(() => {
-    // Reset all mocks before each test
-    jest.clearAllMocks();
-  });
-
   test("usePoll() schedules `fn` ", async () => {
-    const spy = jest.fn();
-    usePoll(spy, [], { timeout: 300 });
-    _delay(() => expect(spy).toBeCalledTimes(1), 300);
+    const spy = vi.fn();
+    renderHook(() => usePoll(spy, [], { timeout: 300 }));
+    await _delay(() => expect(spy).toBeCalledTimes(1), 300);
   });
 
   test("usePoll() reschedules `fn` after completion", async () => {
-    const spy = jest.fn(() => _delay(() => undefined, 300));
-    usePoll(spy, [], { timeout: 300 });
-    _delay(() => expect(spy).toBeCalledTimes(2), 1000);
+    const spy = vi.fn(() => _delay(() => undefined, 300));
+    renderHook(() => usePoll(spy, [], { timeout: 300 }));
+    await _delay(() => expect(spy).toBeCalledTimes(2), 1000);
   });
 
   test("usePoll() delays first `fn` call", async () => {
-    const spy = jest.fn();
-    usePoll(spy, [], { timeout: 300 });
-    _delay(() => expect(spy).toBeCalledTimes(0), 0);
+    const spy = vi.fn();
+    renderHook(() => usePoll(spy, [], { timeout: 300 }));
+    await _delay(() => expect(spy).toBeCalledTimes(0), 0);
   });
 
   test("usePoll() has a default timeout", async () => {
-    const spy = jest.fn();
-    usePoll(spy);
-    _delay(() => expect(spy).toBeCalledTimes(1), 3000);
+    const spy = vi.fn();
+    renderHook(() => usePoll(spy));
+    await _delay(() => expect(spy).toBeCalledTimes(1), 3000);
   });
 
   test("usePoll() returns a cancel function", async () => {
-    let cancelFn: ReturnType<React.EffectCallback> = () => undefined;
-    jest
-      .spyOn(React, "useEffect")
-      .mockImplementation((fn) => (cancelFn = fn()));
-    const spy = jest.fn();
+    const spy = vi.fn();
+    const {
+      result: { current: cancelFn },
+    } = renderHook(() => usePoll(spy, [], { timeout: 300 }));
 
-    usePoll(spy, [], { timeout: 300 });
     cancelFn();
-    _delay(() => expect(spy).toBeCalledTimes(0), 300);
+    await _delay(() => expect(spy).toBeCalledTimes(0), 300);
   });
 });
 

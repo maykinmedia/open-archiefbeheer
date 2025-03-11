@@ -1,7 +1,12 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../fixtures/selectieLijstKlasseChoices";
+import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES } from "../fixtures";
 import { listSelectielijstKlasseChoices } from "../lib/api/private";
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../lib/test/mockResponse";
 import { useDataFetcher } from "./useDataFetcher";
 
 const MockSelectieLijstKlasseChoicesHook = () => {
@@ -15,28 +20,25 @@ const MockSelectieLijstKlasseChoicesHook = () => {
     [],
   );
 };
-const mockAlert = jest.fn();
+const mockAlert = vi.fn();
 
-jest.mock("@maykin-ui/admin-ui", () => ({
+vi.mock("@maykin-ui/admin-ui", () => ({
   useAlert: () => mockAlert,
 }));
 
-const fetch = jest.spyOn(window, "fetch");
-const error = jest.spyOn(console, "error");
-
 describe("useSelectielijstKlasseChoices Hook", () => {
   beforeEach(() => {
-    // Reset all mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    resetMocks();
   });
 
   it("should show an error message when fetching selectielijst klasse has failed", async () => {
-    fetch.mockReturnValue(
-      Promise.resolve({
-        ok: false,
-      } as Response),
+    mockRejectOnce(
+      "get",
+      "http://localhost:8000/api/v1/_selectielijstklasse-choices/",
     );
-    error.mockImplementation(() => undefined);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
     renderHook(() => MockSelectieLijstKlasseChoicesHook());
 
     await waitFor(() => {
@@ -50,22 +52,16 @@ describe("useSelectielijstKlasseChoices Hook", () => {
   });
 
   it("return the selectielijst klasse choices when fetching is successful", async () => {
-    fetch.mockReturnValue(
-      Promise.resolve({
-        ok: true,
-        json: async () => FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-      } as Response),
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/_selectielijstklasse-choices/",
+      FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
     );
-    error.mockImplementation(() => undefined);
 
     const { result } = renderHook(() => MockSelectieLijstKlasseChoicesHook());
 
-    // const selectielijstKlasseChoices = result.current;
     await waitFor(() => {
-      const selectielijstKlasseChoices = result.current.data;
-      expect(selectielijstKlasseChoices).toEqual(
-        FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-      );
+      expect(result.current.data).toEqual(FIXTURE_SELECTIELIJSTKLASSE_CHOICES);
     });
   });
 });

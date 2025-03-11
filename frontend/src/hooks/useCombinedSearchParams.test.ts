@@ -1,16 +1,17 @@
 import { act, renderHook } from "@testing-library/react";
 import { useSearchParams } from "react-router-dom";
+import { Mock, vi } from "vitest";
 
 import { useCombinedSearchParams } from "./useCombinedSearchParams";
 
 // Mock the useSearchParams from react-router-dom
-jest.mock("react-router-dom", () => ({
-  useSearchParams: jest.fn(),
+vi.mock("react-router-dom", () => ({
+  useSearchParams: vi.fn(),
 }));
 
 describe("useCombinedSearchParams", () => {
-  let mockSearchParams;
-  let mockSetSearchParams: jest.Mock;
+  let mockSearchParams: URLSearchParams;
+  let mockSetSearchParams: Mock;
 
   beforeEach(() => {
     // Set up the default mock behavior
@@ -18,15 +19,15 @@ describe("useCombinedSearchParams", () => {
       key1: "value1",
       key2: "value2",
     });
-    mockSetSearchParams = jest.fn();
-    (useSearchParams as jest.Mock).mockReturnValue([
+    mockSetSearchParams = vi.fn();
+    (useSearchParams as Mock).mockReturnValue([
       mockSearchParams,
       mockSetSearchParams,
     ]);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return the current searchParams", () => {
@@ -39,7 +40,7 @@ describe("useCombinedSearchParams", () => {
     });
   });
 
-  it("should update the searchParams without removing existing params", () => {
+  it("should update the searchParams without removing existing params", async () => {
     const { result } = renderHook(() => useCombinedSearchParams());
 
     act(() => {
@@ -47,19 +48,18 @@ describe("useCombinedSearchParams", () => {
       setCombinedSearchParams({ key2: "newValue2", key3: "value3" });
     });
 
-    // Wait for the timeout and check the result
-    setTimeout(() => {
-      expect(mockSetSearchParams).toHaveBeenCalledWith(
-        new URLSearchParams({
-          key1: "value1",
-          key2: "newValue2",
-          key3: "value3",
-        }),
-      );
-    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      new URLSearchParams({
+        key1: "value1",
+        key2: "newValue2",
+        key3: "value3",
+      }),
+    );
   });
 
-  it("should remove parameters with empty values", () => {
+  it("should remove parameters with empty values", async () => {
     const { result } = renderHook(() => useCombinedSearchParams());
 
     act(() => {
@@ -67,17 +67,17 @@ describe("useCombinedSearchParams", () => {
       setCombinedSearchParams({ key2: "", key3: "value3" });
     });
 
-    setTimeout(() => {
-      expect(mockSetSearchParams).toHaveBeenCalledWith(
-        new URLSearchParams({
-          key1: "value1",
-          key3: "value3",
-        }),
-      );
-    }, 100);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      new URLSearchParams({
+        key1: "value1",
+        key3: "value3",
+      }),
+    );
   });
 
-  it("should debounce the updates", () => {
+  it("should debounce the updates", async () => {
     const { result } = renderHook(() => useCombinedSearchParams());
 
     act(() => {
@@ -86,16 +86,16 @@ describe("useCombinedSearchParams", () => {
       setCombinedSearchParams({ key4: "value4" });
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // Expect only the last update to take effect after debounce
-    setTimeout(() => {
-      expect(mockSetSearchParams).toHaveBeenCalledTimes(1);
-      expect(mockSetSearchParams).toHaveBeenCalledWith(
-        new URLSearchParams({
-          key1: "value1",
-          key2: "value2",
-          key4: "value4",
-        }),
-      );
-    }, 100);
+    expect(mockSetSearchParams).toHaveBeenCalledTimes(1);
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      new URLSearchParams({
+        key1: "value1",
+        key2: "value2",
+        key4: "value4",
+      }),
+    );
   });
 });

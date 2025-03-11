@@ -1,10 +1,9 @@
 import { appLoader } from "./App.loader";
 import { cacheDelete } from "./lib/cache/cache";
 
-jest.mock("./lib/cache/cache", () => ({
-  cacheDelete: jest.fn(),
+vi.mock("./lib/cache/cache", () => ({
+  cacheDelete: vi.fn(),
 }));
-
 describe("appLoader", () => {
   it("calls app and redirects to login", async () => {
     await appLoader({

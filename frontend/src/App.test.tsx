@@ -10,5 +10,11 @@ test("renders app", () => {
       element: <App />,
     },
   ]);
-  render(<RouterProvider router={router} />);
+  render(
+    <RouterProvider
+      // @ts-expect-error - v7_relativeSplatPath not in type
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      router={router}
+    />,
+  );
 });
