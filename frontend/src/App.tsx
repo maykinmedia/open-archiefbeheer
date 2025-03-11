@@ -29,7 +29,7 @@ import {
 import { useAsync } from "react-use";
 
 import "./App.css";
-import { Logo } from "./components/Logo";
+import { Logo, LogoDialog } from "./components/Logo";
 import {
   OidcConfigContext,
   OidcConfigContextType,
@@ -106,7 +106,7 @@ function App() {
           value={{
             breadcrumbItems,
             primaryNavigationItems: [
-              <Logo key="logo" width={32} />,
+              <LogoDialog key="logo" width={32} />,
               {
                 children: <Solid.HomeIcon />,
                 title: "Home",
