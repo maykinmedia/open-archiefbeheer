@@ -123,9 +123,7 @@ class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
         user = UserFactory.create()
 
         endpoint = furl(reverse("api:retrieve-external-resultaattype-choices"))
-        endpoint.args["zaaktype"] = (
-            "http://localhost:8003/catalogi/api/v1/zaaktypen/be210495-20b6-48ff-8d3d-3e44f74c43a4"
-        )
+        endpoint.args["zaaktypeIdentificatie"] = "ZAAKTYPE-2018-0000000001"
 
         self.client.force_authenticate(user=user)
         response = self.client.get(endpoint.url)
@@ -186,9 +184,7 @@ class InformatieobjecttypenChoicesViewTests(VCRMixin, APITestCase):
         user = UserFactory.create()
 
         endpoint = furl(reverse("api:retrieve-informatieobjecttype-choices"))
-        endpoint.args["zaaktype"] = (
-            "http://localhost:8003/catalogi/api/v1/zaaktypen/be210495-20b6-48ff-8d3d-3e44f74c43a4"
-        )
+        endpoint.args["zaaktypeIdentificatie"] = "ZAAKTYPE-2018-0000000001"
 
         self.client.force_authenticate(user=user)
         response = self.client.get(endpoint.url)
