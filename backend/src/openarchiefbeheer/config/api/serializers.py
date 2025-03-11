@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
@@ -52,3 +53,26 @@ class OIDCInfoSerializer(serializers.ModelSerializer):
 
         request = self.context.get("request")
         return reverse("oidc_authentication_init", request=request)
+
+
+class ApplicationInfoSerializer(serializers.Serializer):
+    release = serializers.SerializerMethodField(
+        label=_("Application version"),
+        help_text=_(
+            "This uses the git tag if one is present, otherwise it defaults to the git commit hash. "
+            "If the commit hash cannot be resolved, it will be empty."
+        ),
+    )
+    git_sha = serializers.SerializerMethodField(
+        label=_("Application git commit hash"),
+        help_text=_(
+            "This returns the git commit hash if it can be resolved. "
+            "Otherwise, it will be empty."
+        ),
+    )
+
+    def get_release(self, data) -> str:
+        return settings.RELEASE
+
+    def get_git_sha(self, data) -> str:
+        return settings.GIT_SHA

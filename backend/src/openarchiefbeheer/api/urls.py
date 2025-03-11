@@ -9,6 +9,7 @@ from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView
 from openarchiefbeheer.config.api.views import (
+    ApplicationInfoView,
     ArchiveConfigView,
     HealthCheckView,
     OIDCInfoView,
@@ -123,6 +124,7 @@ urlpatterns = [
                     name="users",
                 ),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
+                path("app-info/", ApplicationInfoView.as_view(), name="app-info"),
                 path(
                     "destruction-list-statuses/",
                     ListStatusesListView.as_view(),
