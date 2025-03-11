@@ -71,9 +71,7 @@ COPY --from=backend-build /usr/local/bin/celery /usr/local/bin/celery
 
 COPY ./backend/src /app/src
 
-COPY --from=frontend-build /frontend/build /app/src/openarchiefbeheer/static/frontend
-COPY --from=frontend-build /frontend/build/static/css /app/src/openarchiefbeheer/static/css
-COPY --from=frontend-build /frontend/build/static/js /app/src/openarchiefbeheer/static/js
+COPY --from=frontend-build /frontend/dist /app/src/openarchiefbeheer/static/frontend
 
 RUN useradd -M -u 1000 maykin && chown -R maykin:maykin /app
 

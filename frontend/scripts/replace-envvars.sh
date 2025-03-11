@@ -2,7 +2,7 @@
 
 set -eux -o pipefail
 
-for file in /app/static/js/*.js;
+for file in /app/static/frontend/assets/*.js;
 do
   sed -i 's|REACT_APP_API_URL_PLACEHOLDER|'${REACT_APP_API_URL}'|g' $file
   sed -i 's|REACT_APP_API_PATH_PLACEHOLDER|'${REACT_APP_API_PATH}'|g' $file
