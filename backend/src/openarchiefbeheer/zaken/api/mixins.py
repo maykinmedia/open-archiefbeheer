@@ -10,6 +10,6 @@ class FilterOnZaaktypeMixin:
         serializer = ZaaktypeFilterSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         query_params = HashableDict()
-        query_params.update(serializer.validated_data)
+        query_params.update(serializer.data)
 
         return query_params

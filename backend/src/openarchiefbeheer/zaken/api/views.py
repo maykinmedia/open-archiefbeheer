@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -192,6 +193,37 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
 
 class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
+
+    # TODO
+    # Remove once https://github.com/open-zaak/open-zaak/issues/1939 is fixed
+    def get_query_params(self, request: Request) -> HashableDict:
+        """
+        We need to filter the informatieobjecttypen on zaaktype URL, but we only have the identificatie.
+        The identificatie can represent multiple versions of the zaaktype (multiple URLs).
+        As a bandaid fix, we use the URL of the latest version (highest begin_geldigheid field).
+        """
+        query_params = HashableDict()
+        if not request.GET.get("zaaktype_identificatie"):
+            return query_params
+
+        serializer = ZaaktypeFilterSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+
+        zaaktypen_query_params = HashableDict()
+        zaaktypen_query_params.update(
+            {"identificatie": serializer.validated_data["zaaktype_identificatie"]}
+        )
+        zaaktypen = retrieve_zaaktypen(zaaktypen_query_params)
+        if not zaaktypen:
+            return query_params
+
+        # Sort in descending order, so that the zaaktype with the most recent begin date is first. (Latest zaaktype version)
+        zaaktypen = sorted(
+            zaaktypen, key=lambda zaaktype: zaaktype["begin_geldigheid"], reverse=True
+        )
+        query_params.update({"zaaktype": zaaktypen[0]["url"]})
+
+        return query_params
 
     @extend_schema(
         summary=_("Retrieve informatieobjecttypen choices"),

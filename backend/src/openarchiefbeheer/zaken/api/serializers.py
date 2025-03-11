@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from django.utils.translation import gettext_lazy as _
 
+from djangorestframework_camel_case.util import camelize
 from drf_spectacular.utils import extend_schema_field
 from furl import furl
 from rest_framework import serializers
@@ -96,6 +97,13 @@ class ZaaktypeFilterSerializer(serializers.Serializer):
         required=False,
         help_text=_("The URL of the zaaktype on which to filter."),
     )
+    zaaktype_identificatie = serializers.CharField(
+        required=False,
+        help_text=_("The identificatie of the zaaktype on which to filter."),
+    )
+
+    def to_representation(self, instance):
+        return camelize(instance)
 
 
 @lru_cache
