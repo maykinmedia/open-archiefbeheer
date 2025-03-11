@@ -1,31 +1,34 @@
-import { Body, Card, Dropdown, H3, Hr } from "@maykin-ui/admin-ui";
+import { Button, Card, H3, Hr, useDialog } from "@maykin-ui/admin-ui";
+import { useCallback } from "react";
 
 export type LogoProps = {
   width?: number;
+  withDialog?: boolean;
 };
 
-export function Logo({ width }: LogoProps) {
+function LogoImage({ width }: { width: number }) {
   return <img src="/logo.svg" alt="Open Archiefbeheer Logo" width={width} />;
 }
 
-export function LogoDropdown({ width = 128 }: LogoProps) {
-  return (
-    <Dropdown
-      aria-label="Versie"
-      label={<Logo width={width} />}
-      pad="v"
-      variant="transparent"
-      placement="right"
-      activateOnHover={false}
-    >
-      <Body>
-        <Card>
-          <Logo width={128} />
-          <H3>Versies</H3>
-          <Hr />
-          {/* TODO: Version info */}
-        </Card>
-      </Body>
-    </Dropdown>
+export function Logo({ width = 128, withDialog = false }: LogoProps) {
+  const dialog = useDialog();
+
+  const onClick = useCallback(() => {
+    dialog(
+      "Versie",
+      <Card>
+        <LogoImage width={128} />
+        <H3>Versie</H3>
+        <Hr />
+      </Card>,
+    );
+  }, [dialog]);
+
+  return withDialog ? (
+    <Button variant="transparent" onClick={onClick} pad={false}>
+      <LogoImage width={width} />
+    </Button>
+  ) : (
+    <LogoImage width={width} />
   );
 }
