@@ -1,25 +1,24 @@
-import fetchMock from "jest-fetch-mock";
-
 import { archivistFactory } from "../../fixtures/user";
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import { listArchivists } from "./archivist";
 
 describe("listArchivists", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return a list of users on success", async () => {
     const archivists = [archivistFactory()];
-    fetchMock.mockResponseOnce(JSON.stringify(archivists));
+    mockResponseOnce("get", "http://localhost:8000/api/v1/users", archivists);
     await expect(listArchivists()).resolves.toEqual(archivists);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(listArchivists()).rejects.toThrow("Internal Server Error");
+    mockRejectOnce("get", "http://localhost:8000/api/v1/users");
+    await expect(listArchivists()).rejects.toThrow();
   });
 });

@@ -37,8 +37,9 @@ export async function request(
     _params = new URLSearchParams(obj);
   }
 
+  const base = API_BASE_URL + endpoint;
   const queryString = _params?.toString() || "";
-  const url = `${API_BASE_URL + endpoint}?${queryString}`;
+  const url = queryString ? `${base}?${queryString}` : base;
   const csrfToken = getCookie("csrftoken");
 
   const response = await fetch(url, {
