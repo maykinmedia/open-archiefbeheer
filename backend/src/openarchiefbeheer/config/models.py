@@ -24,12 +24,12 @@ class ArchiveConfig(SingletonModel):
         blank=True,
         help_text=_("Source organisation RSIN"),
     )
-    zaaktype = models.URLField(
+    zaaktype = models.CharField(
         "zaaktype",
         blank=True,
         max_length=1000,
         help_text=_(
-            "The case type URL to use when creating the case for the destruction list deletion."
+            "The identificatie of the zaaktype to use when creating the case for the destruction list deletion."
         ),
     )
     statustype = models.URLField(
