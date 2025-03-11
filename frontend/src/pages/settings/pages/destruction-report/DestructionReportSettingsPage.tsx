@@ -64,7 +64,7 @@ export function DestructionReportSettingsPage() {
     [valuesState.zaaktype],
   );
   const { data: informatieObjectTypeChoices } = useDataFetcher(
-    (signal) => listInformatieObjectTypeChoices(valuesState.zaakType, signal),
+    (signal) => listInformatieObjectTypeChoices(valuesState.zaaktype, signal),
     {
       initialState: [],
       errorMessage:
