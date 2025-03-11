@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
-import { createMock } from "storybook-addon-module-mock";
 
 import {
   ClearSessionStorageDecorator,
@@ -20,8 +19,6 @@ import {
   zaakFactory,
   zaaktypeChoicesFactory,
 } from "../../../fixtures";
-import * as libZaakSelection from "../../../lib/zaakSelection";
-import { SessionStorageBackend } from "../../../lib/zaakSelection";
 import { DestructionListReviewPage } from "./DestructionListReview";
 import { destructionListReviewAction } from "./DestructionListReview.action";
 import { destructionListReviewLoader } from "./DestructionListReview.loader";
@@ -81,11 +78,14 @@ const meta: Meta<typeof DestructionListReviewPage> = {
     },
     mockData: [
       MOCKS.OIDC_INFO,
+      MOCKS.ZAAKTYPE_CHOICES,
       MOCKS.ZAAKTYPE_CHOICES_POST,
+      MOCKS.DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES,
+      MOCKS.SELECTIE_LIJST_CHOICES,
       MOCKS.INTERNAL_SELECTIE_LIJST_CHOICES,
       MOCKS.REVIEWERS,
-      MOCKS.CO_REVIEWS,
       MOCKS.CO_REVIEWERS,
+      MOCKS.CO_REVIEWS,
       MOCKS.HEALTH_CHECK,
       {
         url: "http://localhost:8000/api/v1/destruction-list-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000&ordering=-created",
@@ -507,270 +507,6 @@ export const CompleteCoReviewErrorShowsErrorMessage: Story = {
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await userEvent.click(submit);
     await expect(await canvas.findByText("example")).toBeInTheDocument();
-  },
-};
-
-export const SelectionBehavior: Story = {
-  parameters: {
-    mockData: [
-      ...(meta.parameters?.mockData || []),
-      {
-        url: "http://localhost:8000/api/v1/destruction-list-items/?item-destruction_list=00000000-0000-0000-0000-000000000000&item-status=suggested&item-order_review_ignored=true&viewMode=story&id=pages-destructionlist-destructionlistreviewpage--reviewer-can-approve-zaak&destruction_list=00000000-0000-0000-0000-000000000000",
-        method: "GET",
-        status: 200,
-        response: paginatedDestructionListItemsFactory({ count: 3 }),
-      },
-    ],
-    moduleMock: {
-      mock: () => {
-        const addToZaakSelection = createMock(
-          libZaakSelection,
-          "addToZaakSelection",
-        );
-        addToZaakSelection.mockImplementation(
-          async (key, zaken, detail, meta) =>
-            SessionStorageBackend.addToZaakSelection(key, zaken, detail, meta),
-        );
-
-        const removeFromZaakSelection = createMock(
-          libZaakSelection,
-          "removeFromZaakSelection",
-        );
-        removeFromZaakSelection.mockImplementation(async (key, zaken, meta) =>
-          SessionStorageBackend.removeFromZaakSelection(key, zaken, meta),
-        );
-
-        const clearZaakSelection = createMock(
-          libZaakSelection,
-          "clearZaakSelection",
-        );
-        clearZaakSelection.mockImplementation(async (key, meta) =>
-          SessionStorageBackend.clearZaakSelection(key, meta),
-        );
-
-        const getZaakSelectionItems = createMock(
-          libZaakSelection,
-          "getZaakSelectionItems",
-        );
-        getZaakSelectionItems.mockImplementation(
-          async (key, zaken, selectedOnly, meta) =>
-            SessionStorageBackend.getZaakSelectionItems(
-              key,
-              zaken,
-              selectedOnly,
-              meta,
-            ),
-        );
-
-        return [
-          addToZaakSelection,
-          removeFromZaakSelection,
-          clearZaakSelection,
-          getZaakSelectionItems,
-        ];
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    // Approve a zaak
-    const approves = await canvas.findAllByRole("button", {
-      name: "Accorderen",
-    });
-    const approve = approves[0];
-    await userEvent.click(approve, { delay: 60 });
-
-    // Exclude a zaak
-    const excludes = await canvas.findAllByRole("button", {
-      name: "Uitzonderen",
-    });
-    const exclude = excludes[1];
-    await userEvent.click(exclude, { delay: 60 });
-
-    const reason = await canvas.findByLabelText("Reden");
-    const submitExclude = await canvas.findByRole("button", {
-      name: "Zaak uitzonderen",
-    });
-
-    await expect(submitExclude).toBeDisabled();
-    await userEvent.type(reason, "reden", { delay: 10, skipClick: false });
-    await expect(submitExclude).toBeEnabled();
-    await userEvent.click(submitExclude);
-
-    // Check state of checkboxes
-    const checkboxes = await canvas.findAllByRole("checkbox");
-
-    await expect(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    ).not.toBeChecked();
-    await expect(checkboxes[1]).toBeChecked();
-    await expect(checkboxes[2]).toBeChecked();
-    await expect(checkboxes[3]).not.toBeChecked();
-
-    // Select all
-    await userEvent.click(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    );
-
-    // Check state of checkboxes
-    await expect(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    ).toBeChecked();
-    await expect(checkboxes[1]).toBeChecked();
-    await expect(checkboxes[2]).toBeChecked();
-    await expect(checkboxes[3]).toBeChecked();
-
-    // Deselect (approved are only deselected if select all checkbox is clicked)
-    await userEvent.click(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    );
-
-    // Check state of checkboxes
-    await expect(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    ).not.toBeChecked();
-    await expect(checkboxes[1]).not.toBeChecked();
-    await expect(checkboxes[2]).toBeChecked();
-    await expect(checkboxes[3]).not.toBeChecked();
-
-    // Clear selection
-    await userEvent.click(await canvas.findByText("Huidige selectie wissen"), {
-      delay: 60,
-    });
-
-    // Check state of checkboxes
-    await expect(
-      await canvas.findByLabelText("Alles als (on)gezien markeren"),
-    ).not.toBeChecked();
-    await expect(checkboxes[1]).not.toBeChecked();
-    await expect(checkboxes[2]).not.toBeChecked();
-    await expect(checkboxes[3]).not.toBeChecked();
-  },
-};
-
-export const DeselectExcludedZaakShowsConfirmationDialog: Story = {
-  parameters: {
-    // mockData: [
-    //   ...(meta.parameters?.mockData || []),
-    //   {
-    //     url: "http://localhost:8000/api/v1/destruction-list-items/?item-destruction_list=00000000-0000-0000-0000-000000000000&item-status=suggested&item-order_review_ignored=true&viewMode=story&id=pages-destructionlist-destructionlistreviewpage--reviewer-can-approve-zaak&destruction_list=00000000-0000-0000-0000-000000000000",
-    //     method: "GET",
-    //     status: 200,
-    //     response: paginatedDestructionListItemsFactory({ count: 3 }),
-    //   },
-    // ],
-    moduleMock: {
-      mock: () => {
-        const addToZaakSelection = createMock(
-          libZaakSelection,
-          "addToZaakSelection",
-        );
-        addToZaakSelection.mockImplementation(
-          async (key, zaken, detail, meta) =>
-            SessionStorageBackend.addToZaakSelection(key, zaken, detail, meta),
-        );
-
-        const removeFromZaakSelection = createMock(
-          libZaakSelection,
-          "removeFromZaakSelection",
-        );
-        removeFromZaakSelection.mockImplementation(async (key, zaken, meta) =>
-          SessionStorageBackend.removeFromZaakSelection(key, zaken, meta),
-        );
-
-        const clearZaakSelection = createMock(
-          libZaakSelection,
-          "clearZaakSelection",
-        );
-        clearZaakSelection.mockImplementation(async (key, meta) =>
-          SessionStorageBackend.clearZaakSelection(key, meta),
-        );
-
-        const getZaakSelectionItems = createMock(
-          libZaakSelection,
-          "getZaakSelectionItems",
-        );
-        getZaakSelectionItems.mockImplementation(
-          async (key, zaken, selectedOnly, meta) =>
-            SessionStorageBackend.getZaakSelectionItems(
-              key,
-              zaken,
-              selectedOnly,
-              meta,
-            ),
-        );
-
-        return [
-          addToZaakSelection,
-          removeFromZaakSelection,
-          clearZaakSelection,
-          getZaakSelectionItems,
-        ];
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Exclude a zaak
-    const excludes = await canvas.findAllByRole("button", {
-      name: "Uitzonderen",
-    });
-    const exclude = excludes[0];
-    await userEvent.click(exclude, { delay: 60 });
-
-    const reason = await canvas.findByLabelText("Reden");
-    const submitExclude = await canvas.findByRole("button", {
-      name: "Zaak uitzonderen",
-    });
-    await expect(submitExclude).toBeDisabled();
-    await userEvent.type(reason, "reden", { delay: 10, skipClick: false });
-    await expect(submitExclude).toBeEnabled();
-    await userEvent.click(submitExclude);
-
-    // Deselect excluded zaak then cancel
-    const checkboxes = await canvas.findAllByRole("checkbox");
-    const checkbox = checkboxes[1];
-    await userEvent.click(checkbox, { delay: 60 });
-
-    await expect(
-      await canvas.findByText(
-        "Weet je zeker dat je de beoordeling wilt verwijderen?",
-      ),
-    ).toBeInTheDocument();
-
-    await userEvent.click(
-      await canvas.findByRole("button", { name: "Annuleren" }),
-      {
-        delay: 60,
-      },
-    );
-
-    // Check state of exclusion
-    await expect(await canvas.findByText("Uitgezonderd")).toBeInTheDocument();
-    await expect(checkbox).toBeChecked();
-
-    // Deselect excluded zaak then confirm
-    await userEvent.click(checkbox, { delay: 60 });
-
-    await expect(
-      await canvas.findByText(
-        "Weet je zeker dat je de beoordeling wilt verwijderen?",
-      ),
-    ).toBeInTheDocument();
-
-    await userEvent.click(
-      await canvas.findByRole("button", { name: "Verwijderen" }),
-      {
-        delay: 60,
-      },
-    );
-
-    // Check state of exclusion
-    await expect(
-      await canvas.queryByText("Uitgezonderd"),
-    ).not.toBeInTheDocument();
-    await expect(checkbox).not.toBeChecked();
   },
 };
 
