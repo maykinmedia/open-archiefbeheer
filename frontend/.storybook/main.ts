@@ -1,15 +1,13 @@
-import type { StorybookConfig } from "@storybook/react-webpack5";
+import type { StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
-    "@storybook/preset-create-react-app",
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@chromatic-com/storybook",
     "@storybook/addon-interactions",
     "storybook-addon-mock",
-    "storybook-addon-module-mock",
     {
       name: "@storybook/addon-coverage",
       options: {
@@ -20,13 +18,13 @@ const config: StorybookConfig = {
     },
   ],
   framework: {
-    name: "@storybook/react-webpack5",
+    name: "@storybook/react-vite",
     options: {},
   },
   core: {
     disableTelemetry: true, // 👈 Disables telemetry
   },
   docs: {},
-  staticDirs: ["../public"],
 };
+
 export default config;
