@@ -1,5 +1,8 @@
-import fetchMock from "jest-fetch-mock";
-
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import {
   ArchiveConfiguration,
   getArchiveConfiguration,
@@ -7,41 +10,37 @@ import {
 } from "./config";
 
 describe("getArchiveConfiguration", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return an ArchiveConfiguration on success", async () => {
     const archiveConfiguration = {
       zaaktypesShortProcess: ["http://zaken.nl"],
-    } as unknown as ArchiveConfiguration;
-    fetchMock.mockResponseOnce(JSON.stringify(archiveConfiguration));
+    };
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/archive-config",
+      archiveConfiguration,
+    );
     await expect(getArchiveConfiguration()).resolves.toEqual(
       archiveConfiguration,
     );
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(getArchiveConfiguration()).rejects.toThrow(
-      "Internal Server Error",
-    );
+    mockRejectOnce("get", "http://localhost:8000/api/v1/archive-config");
+    await expect(getArchiveConfiguration()).rejects.toThrow();
   });
 });
 
 describe("patchArchiveConfiguration", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
-  beforeEach(() => {
-    fetchMock.resetMocks();
-  });
   it("should return undefined on success", async () => {
+    mockResponseOnce("patch", "http://localhost:8000/api/v1/archive-config");
     await expect(
       patchArchiveConfiguration({
         zaaktypesShortProcess: ["http://zaken.nl"],
@@ -50,11 +49,11 @@ describe("patchArchiveConfiguration", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce("patch", "http://localhost:8000/api/v1/archive-config");
     await expect(
       patchArchiveConfiguration({
         zaaktypesShortProcess: ["http://zaken.nl"],
       } as unknown as ArchiveConfiguration),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });

@@ -1,10 +1,13 @@
-import fetchMock from "jest-fetch-mock";
-
 import {
   destructionListAssigneesFactory,
   destructionListFactory,
 } from "../../fixtures/destructionList";
 import { zaakFactory, zakenFactory } from "../../fixtures/zaak";
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import {
   abort,
   createDestructionList,
@@ -21,12 +24,8 @@ import {
 } from "./destructionLists";
 
 describe("createDestructionList", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return a data on success", async () => {
@@ -71,7 +70,13 @@ describe("createDestructionList", () => {
       selectAll: true,
       zaakFilters: null,
     };
-    fetchMock.mockResponseOnce(JSON.stringify(fixture));
+
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/",
+      fixture,
+    );
+
     await expect(
       createDestructionList(
         "My first destruction list",
@@ -85,7 +90,7 @@ describe("createDestructionList", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce("post", "http://localhost:8000/api/v1/destruction-lists/");
     await expect(
       createDestructionList(
         "My first destruction list",
@@ -95,82 +100,89 @@ describe("createDestructionList", () => {
         false,
         "",
       ),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("getDestructionList", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return a destruction list on success", async () => {
+    resetMocks();
     const destructionList = destructionListFactory();
-    fetchMock.mockResponseOnce(JSON.stringify(destructionList));
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/",
+      destructionList,
+    );
+
     await expect(
       getDestructionList("00000000-0000-0000-0000-000000000000"),
     ).resolves.toEqual(destructionList);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/",
+    );
+
     await expect(
       getDestructionList("00000000-0000-0000-0000-000000000000"),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("listDestructionLists", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return destruction lists on success", async () => {
     const destructionLists = [destructionListFactory()];
-    fetchMock.mockResponseOnce(JSON.stringify(destructionLists));
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-lists/",
+      destructionLists,
+    );
+
     await expect(listDestructionLists()).resolves.toEqual(destructionLists);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(listDestructionLists()).rejects.toThrow(
-      "Internal Server Error",
-    );
+    mockRejectOnce("get", "http://localhost:8000/api/v1/destruction-lists/");
+    await expect(listDestructionLists()).rejects.toThrow();
   });
 });
 
 describe("deleteDestructionList", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return null on success", async () => {
-    fetchMock.mockResponse(async () => ({
-      status: 204,
-    }));
+    mockResponseOnce(
+      "delete",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000",
+      null,
+    );
+
     await expect(
       deleteDestructionList("00000000-0000-0000-0000-000000000000"),
     ).resolves.toBeNull();
   });
 
   it("should return details on graceful failure", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify({
+    mockResponseOnce(
+      "delete",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000",
+      {
         error: "Something Went Wrong",
-      }),
+      },
     );
+
     await expect(
       deleteDestructionList("00000000-0000-0000-0000-000000000000"),
     ).resolves.toEqual({
@@ -179,20 +191,20 @@ describe("deleteDestructionList", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "delete",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000",
+    );
+
     await expect(
       deleteDestructionList("00000000-0000-0000-0000-000000000000"),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("updateDestructionList", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return data on success", async () => {
@@ -237,7 +249,13 @@ describe("updateDestructionList", () => {
       selectAll: true,
       zaakFilters: null,
     };
-    fetchMock.mockResponseOnce(JSON.stringify(fixture));
+
+    mockResponseOnce(
+      "patch",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/",
+      fixture,
+    );
+
     await expect(
       updateDestructionList("00000000-0000-0000-0000-000000000000", {
         assignees: [{ user: 2 }],
@@ -249,7 +267,11 @@ describe("updateDestructionList", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "patch",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/",
+    );
+
     await expect(
       updateDestructionList("00000000-0000-0000-0000-000000000000", {
         assignees: [{ user: 2 }],
@@ -257,23 +279,22 @@ describe("updateDestructionList", () => {
         remove: [],
         comment: "",
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("markDestructionListAsReadyToReview", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return null on success", async () => {
-    fetchMock.mockResponse(async () => ({
-      status: 201,
-    }));
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/mark_ready_review/",
+      null,
+    );
+
     await expect(
       markDestructionListAsReadyToReview(
         "00000000-0000-0000-0000-000000000000",
@@ -282,11 +303,14 @@ describe("markDestructionListAsReadyToReview", () => {
   });
 
   it("should return details on graceful failure", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify({
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/mark_ready_review/",
+      {
         error: "Something Went Wrong",
-      }),
+      },
     );
+
     await expect(
       markDestructionListAsReadyToReview(
         "00000000-0000-0000-0000-000000000000",
@@ -297,28 +321,30 @@ describe("markDestructionListAsReadyToReview", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/mark_ready_review/",
+    );
     await expect(
       markDestructionListAsReadyToReview(
         "00000000-0000-0000-0000-000000000000",
       ),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("markDestructionListAsFinal", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return null on success", async () => {
-    fetchMock.mockResponse(async () => ({
-      status: 201,
-    }));
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final/",
+      null,
+    );
+
     await expect(
       markDestructionListAsFinal("00000000-0000-0000-0000-000000000000", {
         user: 3,
@@ -328,11 +354,14 @@ describe("markDestructionListAsFinal", () => {
   });
 
   it("should return details on graceful failure", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify({
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final/",
+      {
         error: "Something Went Wrong",
-      }),
+      },
     );
+
     await expect(
       markDestructionListAsFinal("00000000-0000-0000-0000-000000000000", {
         user: 3,
@@ -344,50 +373,61 @@ describe("markDestructionListAsFinal", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/make_final/",
+    );
+
     await expect(
       markDestructionListAsFinal("00000000-0000-0000-0000-000000000000", {
         user: 3,
         comment: "",
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("destructionListQueueDestruction", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return null on success", async () => {
-    fetchMock.mockResponseOnce("");
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/queue_destruction/",
+      null,
+    );
+
     await expect(
       destructionListQueueDestruction("00000000-0000-0000-0000-000000000000"),
     ).resolves.toBeNull();
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/queue_destruction/",
+    );
+
     await expect(
       destructionListQueueDestruction("00000000-0000-0000-0000-000000000000"),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("reassignDestructionList", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return response on success", async () => {
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+      {},
+    );
+
     await expect(
       reassignDestructionList("00000000-0000-0000-0000-000000000000", {
         assignee: { user: 2 },
@@ -397,54 +437,61 @@ describe("reassignDestructionList", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+    );
+
     await expect(
       reassignDestructionList("00000000-0000-0000-0000-000000000000", {
         assignee: { user: 2 },
         comment: "",
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("listDestructionListCoReviewers", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return co reviewers on success", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify(
-        destructionListAssigneesFactory([{ role: "co_reviewer" }]),
-      ),
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+      destructionListAssigneesFactory([{ role: "co_reviewer" }]),
     );
+
     await expect(
       listDestructionListCoReviewers("00000000-0000-0000-0000-000000000000"),
     ).resolves.toBeTruthy();
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+    );
+
     await expect(
       listDestructionListCoReviewers("00000000-0000-0000-0000-000000000000"),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("updateCoReviewers", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return response on success", async () => {
+    mockResponseOnce(
+      "put",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+      {},
+    );
+
     await expect(
       updateCoReviewers("00000000-0000-0000-0000-000000000000", {
         add: [{ user: 4 }],
@@ -454,26 +501,32 @@ describe("updateCoReviewers", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "put",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+    );
+
     await expect(
       updateCoReviewers("00000000-0000-0000-0000-000000000000", {
         add: [{ user: 4 }],
         comment: "",
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("abort", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return response on success", async () => {
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/abort/",
+      {},
+    );
+
     await expect(
       abort("00000000-0000-0000-0000-000000000000", {
         comment: "",
@@ -482,11 +535,15 @@ describe("abort", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/abort/",
+    );
+
     await expect(
       abort("00000000-0000-0000-0000-000000000000", {
         comment: "",
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });

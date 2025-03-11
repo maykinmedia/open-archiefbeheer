@@ -4,11 +4,11 @@ import { useDataFetcher } from "./useDataFetcher";
 
 describe("useDataFetcher", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("fetches data successfully and updates state", async () => {
-    const mockFetchFunction = jest.fn(() => Promise.resolve("Mock Data"));
+    const mockFetchFunction = vi.fn(() => Promise.resolve("Mock Data"));
 
     const { result } = renderHook(() =>
       useDataFetcher(mockFetchFunction, {}, []),
@@ -24,7 +24,7 @@ describe("useDataFetcher", () => {
   });
 
   it("cancels previous request when dependencies change", async () => {
-    const mockFetchFunction = jest.fn((signal) => {
+    const mockFetchFunction = vi.fn((signal) => {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           if (signal.aborted) {
@@ -62,9 +62,7 @@ describe("useDataFetcher", () => {
   });
 
   it("applies the transform function correctly", async () => {
-    const mockFetchFunction = jest.fn(() =>
-      Promise.resolve(["item1", "item2"]),
-    );
+    const mockFetchFunction = vi.fn(() => Promise.resolve(["item1", "item2"]));
 
     const transformFunction = (data: string[]) =>
       data.map((item) => item.toUpperCase());
@@ -82,7 +80,7 @@ describe("useDataFetcher", () => {
   });
 
   it("sets initial state before fetching", async () => {
-    const mockFetchFunction = jest.fn(() => Promise.resolve("Fetched Data"));
+    const mockFetchFunction = vi.fn(() => Promise.resolve("Fetched Data"));
 
     const { result } = renderHook(() =>
       useDataFetcher(mockFetchFunction, { initialState: "Initial Data" }, []),

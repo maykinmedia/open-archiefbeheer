@@ -1,18 +1,12 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
-import { useDataFetcher } from "./useDataFetcher";
 import { useFields } from "./useFields";
-
-jest.mock("./useDataFetcher", () => ({
-  useDataFetcher: jest.fn(),
-}));
 
 let mockUrlSearchParams = new URLSearchParams();
 
-jest.mock("react-router-dom", () => ({
+vi.mock("react-router-dom", () => ({
   useSearchParams: () => [
     mockUrlSearchParams,
     (params: Record<string, string>) => {
@@ -22,14 +16,6 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("useFields Hook", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    (useDataFetcher as jest.Mock).mockImplementation(() => {
-      return { data: [], loading: false, error: false };
-    });
-  });
-
   it("should initialize with default fields and handle field selection", async () => {
     // Render the hook
     const { result } = renderHook(() => useFields());
@@ -55,8 +41,8 @@ describe("useFields Hook", () => {
     const { result } = renderHook(() => useFields());
     const [fields, setFields] = result.current;
 
-    jest.spyOn(fieldSelection, "addToFieldSelection");
-    jest.spyOn(fieldSelection, "removeFromFieldSelection");
+    vi.spyOn(fieldSelection, "addToFieldSelection");
+    vi.spyOn(fieldSelection, "removeFromFieldSelection");
 
     const updatedFields = [...fields];
     const firstActive = updatedFields?.find((f) => f.active) as TypedField;
@@ -73,6 +59,7 @@ describe("useFields Hook", () => {
     expect(fieldSelection.addToFieldSelection).toHaveBeenCalled();
     expect(fieldSelection.removeFromFieldSelection).toHaveBeenCalled();
   });
+
   it("should apply search params to filter values", async () => {
     // Render the hook
     mockUrlSearchParams.set("identificatie__icontains", "test-id");
@@ -107,25 +94,15 @@ describe("useFields Hook", () => {
       expect(transformedData.einddatum__lte).toBe("2023-02-28");
     });
   });
-});
 
-describe("useFields Hook", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    (useDataFetcher as jest.Mock).mockImplementation(() => {
-      return {
-        data: mockSelectieLijstKlasseFactory(),
+  it("should provide selectielijst klasse options to selectielijst klasse field", async () => {
+    vi.mock("./useDataFetcher", () => ({
+      useDataFetcher: vi.fn().mockReturnValue({
+        data: [{ value: "https://" }],
         loading: false,
         error: false,
-      };
-    });
-  });
-
-  it.only("should provide selectielijst klasse options to selectielijst klasse field", async () => {
-    (useDataFetcher as jest.Mock).mockImplementation(() => {
-      return { data: [{ value: "https://" }], loading: false, error: false };
-    });
+      }),
+    }));
 
     const { result } = await act(async () => renderHook(() => useFields()));
     const [fields] = result.current;

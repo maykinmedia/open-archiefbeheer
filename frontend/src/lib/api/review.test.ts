@@ -1,7 +1,9 @@
-import fetchMock from "jest-fetch-mock";
-
-import { reviewFactory } from "../../fixtures/review";
-import { reviewItemsFactory } from "../../fixtures/reviewItem";
+import { reviewFactory, reviewItemsFactory } from "../../fixtures";
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import {
   createDestructionListReview,
   getLatestReview,
@@ -9,12 +11,8 @@ import {
 } from "./review";
 
 describe("createDestructionListReview", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return data on success", async () => {
@@ -44,7 +42,11 @@ describe("createDestructionListReview", () => {
       ],
       created: "2019-08-24T14:15:22Z",
     };
-    fetchMock.mockResponseOnce(JSON.stringify(fixture));
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-list-reviews",
+      fixture,
+    );
     await expect(
       createDestructionListReview({
         destructionList: "00000000-0000-0000-0000-000000000000",
@@ -61,7 +63,10 @@ describe("createDestructionListReview", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-list-reviews/",
+    );
     await expect(
       createDestructionListReview({
         destructionList: "00000000-0000-0000-0000-000000000000",
@@ -74,43 +79,46 @@ describe("createDestructionListReview", () => {
           },
         ],
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
 
 describe("getLatestReview", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return a list of users on success", async () => {
     const review = [reviewFactory()];
-    fetchMock.mockResponseOnce(JSON.stringify(review));
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-list-reviews/",
+      review,
+    );
     await expect(getLatestReview()).resolves.toEqual(review[0]);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(getLatestReview()).rejects.toThrow("Internal Server Error");
+    mockRejectOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-list-reviews/",
+    );
+    await expect(getLatestReview()).rejects.toThrow();
   });
 });
 
 describe("listReviewItems", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should return a list of users on success", async () => {
     const reviewItems = reviewItemsFactory();
-    fetchMock.mockResponseOnce(JSON.stringify(reviewItems));
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/review-items/",
+      reviewItems,
+    );
     await expect(
       listReviewItems({
         "item-review-review": 0,
@@ -119,11 +127,11 @@ describe("listReviewItems", () => {
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
+    mockRejectOnce("get", "http://localhost:8000/api/v1/review-items/");
     await expect(
       listReviewItems({
         "item-review-review": 0,
       }),
-    ).rejects.toThrow("Internal Server Error");
+    ).rejects.toThrow();
   });
 });
