@@ -48,3 +48,38 @@ def get_sentry_integrations() -> list:
         extra.append(celery.CeleryIntegration())
 
     return [*default, *extra]
+
+
+def get_git_sha() -> str:
+    from git import InvalidGitRepositoryError, Repo
+
+    try:
+        # in docker (build) context, there is no .git directory
+        repo = Repo(search_parent_directories=True)
+    except InvalidGitRepositoryError:
+        return ""
+
+    try:
+        return repo.head.object.hexsha
+    except (
+        ValueError
+    ):  # on startproject initial runs before any git commits have been made
+        return repo.active_branch.name
+
+
+def get_release() -> str:
+    from git import InvalidGitRepositoryError, Repo
+
+    try:
+        # in docker (build) context, there is no .git directory
+        repo = Repo(search_parent_directories=True)
+    except InvalidGitRepositoryError:
+        return ""
+
+    if not len(repo.tags):
+        return ""
+
+    current_tag = next(
+        (tag for tag in repo.tags if tag.commit == repo.head.commit), None
+    )
+    return current_tag.name if current_tag else ""
