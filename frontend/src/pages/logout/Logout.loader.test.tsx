@@ -1,14 +1,15 @@
 import { redirect } from "react-router-dom";
+import { describe, expect, it, vi } from "vitest";
 
 import { logout } from "../../lib/api/auth";
 import { logoutLoader } from "./Logout.loader";
 
-jest.mock("../../lib/api/auth", () => ({
-  logout: jest.fn(),
+vi.mock("../../lib/api/auth", () => ({
+  logout: vi.fn(),
 }));
 
-jest.mock("react-router-dom", () => ({
-  redirect: jest.fn(),
+vi.mock("react-router-dom", () => ({
+  redirect: vi.fn(),
 }));
 
 describe("logoutLoader", () => {

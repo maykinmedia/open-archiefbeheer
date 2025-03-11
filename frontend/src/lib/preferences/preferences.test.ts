@@ -111,7 +111,7 @@ describe("setPreference", () => {
   });
 });
 
-describe.only("clearPreference", () => {
+describe("clearPreference", () => {
   beforeEach(() => {
     sessionStorage.clear();
   });

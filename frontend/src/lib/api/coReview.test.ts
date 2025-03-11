@@ -1,21 +1,23 @@
-import fetchMock from "jest-fetch-mock";
-
 import { coReviewFactory, destructionListFactory } from "../../fixtures";
+import {
+  getInterceptedRequest,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import { createCoReview, listCoReviews } from "./coReview";
 
 describe("coReview", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   test("listCoReviews() GETs co-reviews ", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify([coReviewFactory({ listFeedback: "gh-497" })]),
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/destruction-list-co-reviews/",
+      [coReviewFactory({ listFeedback: "gh-497" })],
     );
+
     const coReviews = await listCoReviews();
     expect(coReviews.length).toBe(1);
     expect(coReviews[0].listFeedback).toBe("gh-497");
@@ -27,12 +29,15 @@ describe("coReview", () => {
       destructionList: uuid,
       listFeedback: "gh-497",
     };
-    fetchMock.mockResponseOnce(JSON.stringify(fixture));
-    await createCoReview(fixture);
 
-    const requestInit = fetchMock.mock.calls[0][1];
-    const data = JSON.parse(requestInit?.body as string);
-    expect(data.destructionList).toBe(uuid);
-    expect(data.listFeedback).toBe("gh-497");
+    mockResponseOnce(
+      "post",
+      "http://localhost:8000/api/v1/destruction-list-co-reviews/",
+      {},
+    );
+
+    await createCoReview(fixture);
+    const payload = await getInterceptedRequest()[0].json();
+    expect(payload).toStrictEqual(fixture);
   });
 });

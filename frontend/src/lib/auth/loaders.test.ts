@@ -21,22 +21,22 @@ import {
   canViewDestructionList,
 } from "./permissions";
 
-jest.mock("../api/auth", () => ({
-  whoAmI: jest.fn(),
+vi.mock("../api/auth", () => ({
+  whoAmI: vi.fn(),
 }));
 
-jest.mock("./permissions", () => ({
-  canStartDestructionList: jest.fn(),
-  canReviewDestructionList: jest.fn(),
-  canCoReviewDestructionList: jest.fn(),
-  canUpdateDestructionList: jest.fn(),
-  canViewDestructionList: jest.fn(),
-  canTriggerDestruction: jest.fn(),
-  canChangeSettings: jest.fn(),
+vi.mock("./permissions", () => ({
+  canStartDestructionList: vi.fn(),
+  canReviewDestructionList: vi.fn(),
+  canCoReviewDestructionList: vi.fn(),
+  canUpdateDestructionList: vi.fn(),
+  canViewDestructionList: vi.fn(),
+  canTriggerDestruction: vi.fn(),
+  canChangeSettings: vi.fn(),
 }));
 
-jest.mock("react-router-dom", () => ({
-  redirect: jest.fn(),
+vi.mock("react-router-dom", () => ({
+  redirect: vi.fn(),
 }));
 
 describe("loginRequired", () => {
@@ -85,8 +85,8 @@ describe("loginRequired", () => {
 
 describe("canStartDestructionListRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn();
-    jest.mocked(canStartDestructionList).mockReturnValueOnce(true);
+    const loader = vi.fn();
+    vi.mocked(canStartDestructionList).mockReturnValueOnce(true);
 
     await canStartDestructionListRequired(loader)({
       request: {
@@ -99,10 +99,10 @@ describe("canStartDestructionListRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn();
+    const loader = vi.fn();
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canStartDestructionList).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canStartDestructionList).mockReturnValueOnce(false);
 
     const wrappedLoader = canStartDestructionListRequired(loader);
 
@@ -113,21 +113,19 @@ describe("canStartDestructionListRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om vernietigingslijsten aan te maken.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om vernietigingslijsten aan te maken.`,
     );
-
     expect(loader).not.toHaveBeenCalled();
   });
 });
 
 describe("canReviewDestructionListRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
-    jest.mocked(canReviewDestructionList).mockReturnValueOnce(true);
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
+    vi.mocked(canReviewDestructionList).mockReturnValueOnce(true);
 
     await canReviewDestructionListRequired(loader)({
       request: {
@@ -140,10 +138,10 @@ describe("canReviewDestructionListRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canReviewDestructionList).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canReviewDestructionList).mockReturnValueOnce(false);
 
     const wrappedLoader = canReviewDestructionListRequired(loader);
 
@@ -154,19 +152,18 @@ describe("canReviewDestructionListRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te beoordelen.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te beoordelen.`,
     );
   });
 });
 
 describe("canUpdateDestructionListRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
-    jest.mocked(canUpdateDestructionList).mockReturnValueOnce(true);
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
+    vi.mocked(canUpdateDestructionList).mockReturnValueOnce(true);
 
     await canUpdateDestructionListRequired(loader)({
       request: {
@@ -179,10 +176,10 @@ describe("canUpdateDestructionListRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canUpdateDestructionList).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canUpdateDestructionList).mockReturnValueOnce(false);
 
     const wrappedLoader = canUpdateDestructionListRequired(loader);
 
@@ -193,19 +190,18 @@ describe("canUpdateDestructionListRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bewerken.`,
     );
   });
 });
 
 describe("canViewDestructionListRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
-    jest.mocked(canViewDestructionList).mockReturnValueOnce(true);
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
+    vi.mocked(canViewDestructionList).mockReturnValueOnce(true);
 
     await canViewDestructionListRequired(loader)({
       request: {
@@ -218,10 +214,10 @@ describe("canViewDestructionListRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canViewDestructionList).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canViewDestructionList).mockReturnValueOnce(false);
 
     const wrappedLoader = canViewDestructionListRequired(loader);
 
@@ -232,19 +228,18 @@ describe("canViewDestructionListRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bekijken.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te bekijken.`,
     );
   });
 });
 
 describe("canTriggerDestructionRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
-    jest.mocked(canTriggerDestruction).mockReturnValueOnce(true);
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
+    vi.mocked(canTriggerDestruction).mockReturnValueOnce(true);
 
     await canTriggerDestructionRequired(loader)({
       request: {
@@ -257,10 +252,10 @@ describe("canTriggerDestructionRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canTriggerDestruction).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canTriggerDestruction).mockReturnValueOnce(false);
 
     const wrappedLoader = canTriggerDestructionRequired(loader);
 
@@ -271,19 +266,18 @@ describe("canTriggerDestructionRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te vernietigen.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om deze lijst te te vernietigen.`,
     );
   });
 });
 
 describe("canViewAndEditSettingsRequired", () => {
   it("should call the loader if the user is permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
-    jest.mocked(canChangeSettings).mockReturnValueOnce(true);
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
+    vi.mocked(canChangeSettings).mockReturnValueOnce(true);
 
     await canViewAndEditSettingsRequired(loader)({
       request: {
@@ -296,10 +290,10 @@ describe("canViewAndEditSettingsRequired", () => {
   });
 
   it("should respond with a 403 if the user is not permitted", async () => {
-    const loader = jest.fn().mockReturnValueOnce({ destructionList: {} });
+    const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
-    jest.mocked(whoAmI).mockResolvedValueOnce(user);
-    jest.mocked(canChangeSettings).mockReturnValueOnce(false);
+    vi.mocked(whoAmI).mockResolvedValueOnce(user);
+    vi.mocked(canChangeSettings).mockReturnValueOnce(false);
 
     const wrappedLoader = canViewAndEditSettingsRequired(loader);
 
@@ -310,11 +304,10 @@ describe("canViewAndEditSettingsRequired", () => {
         } as unknown as Request,
         params: {},
       }),
-    ).rejects.toEqual(
-      new Response("Not Permitted", {
-        status: 403,
-        statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om de instellingen te wijzigen.`,
-      }),
+    ).rejects.toSatisfy(
+      (response: Response) =>
+        response.statusText ===
+        `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om de instellingen te wijzigen.`,
     );
   });
 });

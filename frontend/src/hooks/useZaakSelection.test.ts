@@ -1,13 +1,19 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ZaakSelectionContextProvider } from "../contexts";
 import { ZaakIdentifier } from "../lib/zaakSelection";
 import { useZaakSelection } from "./useZaakSelection";
 
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
-  useRevalidator: () => ({ revalidate: () => undefined }),
-}));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useRevalidator: () => ({
+      revalidate: vi.fn(), // Zorg dat deze functie correct gemockt wordt
+    }),
+  };
+});
 
 describe("useZaakSelection hook", () => {
   const zaken: ZaakIdentifier[] = [
@@ -17,7 +23,8 @@ describe("useZaakSelection hook", () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    localStorage.clear(); // Voorkom dat eerdere selecties de test beïnvloeden
   });
 
   it("should initialize with no selection", async () => {
@@ -29,7 +36,7 @@ describe("useZaakSelection hook", () => {
       const [selectedZakenOnPage, , { hasSelection, allPagesSelected }] =
         result.current;
 
-      expect(selectedZakenOnPage).toEqual([]); // selectedZakenOnPage is empty
+      expect(selectedZakenOnPage).toEqual([]);
       expect(hasSelection).toBe(false);
       expect(allPagesSelected).toBe(false);
     });
@@ -40,16 +47,15 @@ describe("useZaakSelection hook", () => {
       wrapper: ZaakSelectionContextProvider,
     });
 
-    // Select items
     await act(async () => {
       const [, handleSelect] = result.current;
-      await handleSelect([{ url: "zaak-1" }], true);
+      handleSelect([{ url: "zaak-1" }], true);
     });
 
     await waitFor(() => {
       const [selectedZakenOnPage, , { selectionSize }] = result.current;
-      expect(selectedZakenOnPage).toEqual([{ url: "zaak-1" }]); // zaak-1 should now be selected
-      expect(selectionSize).toEqual(1); // 1 zaak should now be selected
+      expect(selectedZakenOnPage).toEqual([{ url: "zaak-1" }]);
+      expect(selectionSize).toEqual(1);
     });
   });
 
@@ -58,15 +64,14 @@ describe("useZaakSelection hook", () => {
       wrapper: ZaakSelectionContextProvider,
     });
 
-    // Deselect items
     await act(async () => {
       const [, handleSelect] = result.current;
-      await handleSelect([{ url: "zaak-1" }], false);
+      handleSelect([{ url: "zaak-1" }], false);
     });
 
     await waitFor(() => {
       const [zaakSelection] = result.current;
-      expect(zaakSelection).toEqual([]); // No items selected now
+      expect(zaakSelection).toEqual([]);
     });
   });
 
@@ -75,10 +80,9 @@ describe("useZaakSelection hook", () => {
       wrapper: ZaakSelectionContextProvider,
     });
 
-    // Select all pages
     await act(async () => {
       const [, , { handleSelectAllPages }] = result.current;
-      await handleSelectAllPages(true);
+      handleSelectAllPages(true);
     });
 
     await waitFor(() => {
@@ -92,15 +96,13 @@ describe("useZaakSelection hook", () => {
       wrapper: ZaakSelectionContextProvider,
     });
 
-    // Clear selection
     await act(async () => {
       const [, , { clearZaakSelection }] = result.current;
-      await clearZaakSelection();
+      clearZaakSelection();
     });
 
     await waitFor(() => {
-      const selectedZakenOnPage = result.current[0];
-      expect(selectedZakenOnPage).toEqual([]); // selectedZakenOnPage is empty
+      expect(result.current[0]).toEqual([]);
     });
   });
 });

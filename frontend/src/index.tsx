@@ -192,6 +192,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider
+      // @ts-expect-error - v7_relativeSplatPath not in type
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      router={router}
+    />
   </React.StrictMode>,
 );

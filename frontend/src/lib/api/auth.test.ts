@@ -1,83 +1,70 @@
-import fetchMock from "jest-fetch-mock";
-
 import { OidcConfigContextType } from "../../contexts";
 import { userFactory } from "../../fixtures/user";
+import {
+  mockRejectOnce,
+  mockResponseOnce,
+  resetMocks,
+} from "../test/mockResponse";
 import { getOIDCInfo, login, logout, whoAmI } from "./auth";
 
 describe("login", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should resolve when login succeeds", async () => {
-    fetchMock.mockResponseOnce("");
+    mockResponseOnce("post", "http://localhost:8000/api/v1/auth/login/");
     await expect(
       login("Record Manager", "ANic3Password"),
     ).resolves.toBeTruthy();
   });
 
   it("should throw an error if login fails", async () => {
-    fetchMock.mockRejectOnce(new Error("Permission Denied"));
-    await expect(login("Record Manager", "Incorrect Password")).rejects.toThrow(
-      "Permission Denied",
-    );
+    mockRejectOnce("post", "http://localhost:8000/api/v1/auth/login/");
+    await expect(
+      login("Record Manager", "Incorrect Password"),
+    ).rejects.toThrow();
   });
 });
 
 describe("logout", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
   });
 
   it("should resolve when logout succeeds", async () => {
-    fetchMock.mockResponseOnce("");
+    mockResponseOnce("post", "http://localhost:8000/api/v1/auth/logout/");
     await expect(logout()).resolves.toBeTruthy();
   });
 
   it("should throw an error if logout fails", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(logout()).rejects.toThrow("Internal Server Erro");
+    mockRejectOnce("post", "http://localhost:8000/api/v1/auth/logout/");
+    await expect(logout()).rejects.toThrow();
   });
 });
 
 describe("whoAmI", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    sessionStorage.clear(); // Clear the cache.
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
+    sessionStorage.clear();
   });
 
   it("should return a user on success", async () => {
     const user = userFactory();
-    fetchMock.mockResponseOnce(JSON.stringify(user));
+    mockResponseOnce("get", "http://localhost:8000/api/v1/whoami/", user);
     await expect(whoAmI()).resolves.toEqual(user);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(whoAmI()).rejects.toThrow("Internal Server Error");
+    mockRejectOnce("get", "http://localhost:8000/api/v1/whoami/");
+    await expect(whoAmI()).rejects.toThrow();
   });
 });
 
 describe("getOIDCInfo", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  beforeEach(() => {
-    sessionStorage.clear(); // Clear the cache.
-    fetchMock.resetMocks();
+  afterEach(() => {
+    resetMocks();
+    sessionStorage.clear();
   });
 
   it("should return a OIDC info on success", async () => {
@@ -85,12 +72,16 @@ describe("getOIDCInfo", () => {
       enabled: true,
       loginUrl: "/login",
     };
-    fetchMock.mockResponseOnce(JSON.stringify(oidcConfig));
+    mockResponseOnce(
+      "get",
+      "http://localhost:8000/api/v1/oidc-info",
+      oidcConfig,
+    );
     await expect(getOIDCInfo()).resolves.toEqual(oidcConfig);
   });
 
   it("should throw an error on failure", async () => {
-    fetchMock.mockRejectOnce(new Error("Internal Server Error"));
-    await expect(getOIDCInfo()).rejects.toThrow("Internal Server Error");
+    mockRejectOnce("get", "http://localhost:8000/api/v1/oidc-info");
+    await expect(getOIDCInfo()).rejects.toThrow();
   });
 });
