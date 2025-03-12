@@ -95,7 +95,7 @@ export function useFields<T extends Zaak = Zaak>(
   }
 
   const { data: selectielijstKlasseChoices } = useDataFetcher(
-    listSelectielijstKlasseChoices,
+    (signal) => listSelectielijstKlasseChoices(undefined, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
@@ -105,7 +105,7 @@ export function useFields<T extends Zaak = Zaak>(
   );
 
   const { data: zaaktypeChoices } = useDataFetcher(
-    () => listZaaktypeChoices(zaaktypeParams),
+    (signal) => listZaaktypeChoices(zaaktypeParams, false, signal),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
       initialState: [],

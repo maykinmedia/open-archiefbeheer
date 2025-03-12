@@ -54,7 +54,8 @@ export function canStartDestructionListRequired<T extends object>(
   fn: LoaderFunction,
 ): LoaderFunction<T | Response> {
   return async (loaderFunctionArgs, handlerCtx) => {
-    const user = await whoAmI();
+    const abortController = new AbortController();
+    const user = await whoAmI(abortController.signal);
     if (!canStartDestructionList(user)) {
       throw new Response("Not Permitted", {
         status: 403,
@@ -77,6 +78,7 @@ export function canReviewDestructionListRequired<
   T extends { destructionList: DestructionList },
 >(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
   return async (loaderFunctionArgs, handlerCtx) => {
+    const abortController = new AbortController();
     const data = await fn(loaderFunctionArgs, handlerCtx);
 
     const destructionList = data.destructionList;
@@ -84,7 +86,7 @@ export function canReviewDestructionListRequired<
       throw new Response("Not Found", { status: 404 });
     }
 
-    const user = await whoAmI();
+    const user = await whoAmI(abortController.signal);
     if (
       !canReviewDestructionList(user, destructionList) &&
       !canCoReviewDestructionList(user, destructionList)
@@ -110,6 +112,7 @@ export function canUpdateDestructionListRequired<
   T extends { destructionList: DestructionList },
 >(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
   return async (loaderFunctionArgs, handlerCtx) => {
+    const abortController = new AbortController();
     const data = await fn(loaderFunctionArgs, handlerCtx);
 
     const destructionList = data.destructionList;
@@ -117,7 +120,7 @@ export function canUpdateDestructionListRequired<
       throw new Response("Not Found", { status: 404 });
     }
 
-    const user = await whoAmI();
+    const user = await whoAmI(abortController.signal);
     if (!canUpdateDestructionList(user, destructionList)) {
       throw new Response("Not Permitted", {
         status: 403,
@@ -133,6 +136,7 @@ export function canViewDestructionListRequired<
   T extends { destructionList: DestructionList },
 >(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
   return async (loaderFunctionArgs, handlerCtx) => {
+    const abortController = new AbortController();
     const data = await fn(loaderFunctionArgs, handlerCtx);
 
     const destructionList = data.destructionList;
@@ -140,7 +144,7 @@ export function canViewDestructionListRequired<
       throw new Response("Not Found", { status: 404 });
     }
 
-    const user = await whoAmI();
+    const user = await whoAmI(abortController.signal);
     if (!canViewDestructionList(user, destructionList)) {
       throw new Response("Not Permitted", {
         status: 403,
@@ -156,6 +160,7 @@ export function canTriggerDestructionRequired<
   T extends { destructionList: DestructionList },
 >(fn: ContextLoaderFunction<T>): ContextLoaderFunction<T> {
   return async (loaderFunctionArgs, handlerCtx) => {
+    const abortController = new AbortController();
     const data = await fn(loaderFunctionArgs, handlerCtx);
 
     const destructionList = data.destructionList;
@@ -163,7 +168,7 @@ export function canTriggerDestructionRequired<
       throw new Response("Not Found", { status: 404 });
     }
 
-    const user = await whoAmI();
+    const user = await whoAmI(abortController.signal);
     if (!canTriggerDestruction(user, destructionList)) {
       throw new Response("Not Permitted", {
         status: 403,
@@ -179,7 +184,8 @@ export function canViewAndEditSettingsRequired<T extends object>(
   fn: LoaderFunction,
 ): LoaderFunction<T | Response> {
   return async (loaderFunctionArgs, handlerCtx) => {
-    const user = await whoAmI();
+    const abortController = new AbortController();
+    const user = await whoAmI(abortController.signal);
     if (!canChangeSettings(user)) {
       throw new Response("Not Permitted", {
         status: 403,

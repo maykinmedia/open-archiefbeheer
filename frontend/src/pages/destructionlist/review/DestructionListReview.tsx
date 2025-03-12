@@ -66,7 +66,7 @@ export function DestructionListReviewPage() {
     .filter((zaak) => zaak !== null) as Zaak[];
 
   const { data: user } = useDataFetcher(
-    whoAmI,
+    (signal) => whoAmI(signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",

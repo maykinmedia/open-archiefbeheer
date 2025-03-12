@@ -72,6 +72,7 @@ export const destructionListReviewAction = async ({
 export async function destructionListApproveListAction({
   request,
 }: ActionFunctionArgs) {
+  const abortController = new AbortController();
   const { payload } = await request.json();
   const { comment, destructionList, status } =
     payload as ReviewDestructionListApproveActionPayLoad;
@@ -84,7 +85,7 @@ export async function destructionListApproveListAction({
 
   try {
     await Promise.all([
-      await createDestructionListReview(data),
+      await createDestructionListReview(data, abortController.signal),
       // The selection is cleared to prevent clashes, since the backend
       // can pre-populate it for future reviews (see github issue #498).
       await clearZaakSelection(
@@ -109,6 +110,7 @@ export async function destructionListApproveListAction({
 export async function destructionListRejectListAction({
   request,
 }: ActionFunctionArgs) {
+  const abortController = new AbortController();
   const { payload } = await request.json();
   const { comment, destructionList, status, zaakReviews } =
     payload as ReviewDestructionListRejectActionPayLoad;
@@ -122,7 +124,7 @@ export async function destructionListRejectListAction({
 
   try {
     await Promise.all([
-      createDestructionListReview(data),
+      createDestructionListReview(data, abortController.signal),
       // The selection is cleared to prevent clashes, since the backend
       // can pre-populate it for future reviews (see github issue #498).
       clearZaakSelection(
@@ -147,6 +149,7 @@ export async function destructionListRejectListAction({
 export async function destructionListCompleteCoReviewAction({
   request,
 }: ActionFunctionArgs) {
+  const abortController = new AbortController();
   const { payload } = await request.json();
   const { comment, destructionList } =
     payload as ReviewDestructionListCompleteCoReviewPayload;
@@ -157,7 +160,7 @@ export async function destructionListCompleteCoReviewAction({
   };
 
   try {
-    await createCoReview(data);
+    await createCoReview(data, abortController.signal);
   } catch (e: unknown) {
     if (e instanceof Response) {
       return await (e as Response).json();

@@ -126,12 +126,17 @@ export type UpdateDestructionListProcessReviewActionPayload = {
 export async function destructionListProcessReviewAction({
   request,
 }: ActionFunctionArgs) {
+  const abortController = new AbortController();
   const data = await request.json();
   const { storageKey, reviewResponse } =
     data.payload as UpdateDestructionListProcessReviewActionPayload;
 
   try {
-    await createReviewResponse(reviewResponse);
+    await createReviewResponse(
+      reviewResponse,
+      undefined,
+      abortController.signal,
+    );
     await clearZaakSelection(storageKey);
   } catch (e: unknown) {
     if (e instanceof Response) {

@@ -38,12 +38,24 @@ export type AuditLogItem = {
  * Retrieve the audit log for this destruction list.
  * @param uuid
  * @param event
+ * @param signal
  */
-export async function listAuditLog(uuid: string, event?: string) {
-  const response = await request("GET", "/logs/", {
-    destruction_list: uuid,
-    ...(event && { event }),
-  });
+export async function listAuditLog(
+  uuid: string,
+  event?: string,
+  signal?: AbortSignal,
+) {
+  const response = await request(
+    "GET",
+    "/logs/",
+    {
+      destruction_list: uuid,
+      ...(event && { event }),
+    },
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: AuditLogItem[] = await response.json();
   return promise;
 }

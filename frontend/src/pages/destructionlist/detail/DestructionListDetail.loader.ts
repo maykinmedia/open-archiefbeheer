@@ -58,6 +58,9 @@ export const destructionListDetailLoader = loginRequired(
       request,
       params,
     }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
+      const controller = new AbortController();
+      const abortSignal = controller.signal;
+
       const uuid = params.uuid as string;
       const searchParams = Object.fromEntries(
         new URL(request.url).searchParams,
@@ -69,16 +72,22 @@ export const destructionListDetailLoader = loginRequired(
       const isEditing = searchParams.is_editing;
       const isInReview = destructionList.status === "changes_requested";
       // If status indicates review: collect it.
-      const review = await getLatestReview({
-        destructionList__uuid: uuid,
-      });
+      const review = await getLatestReview(
+        {
+          destructionList__uuid: uuid,
+        },
+        abortSignal,
+      );
 
       // If review collected: collect items.
       const reviewItems = isInReview
-        ? await listReviewItems({
-            ...searchParams,
-            "item-review-review": review?.pk,
-          })
+        ? await listReviewItems(
+            {
+              ...searchParams,
+              "item-review-review": review?.pk,
+            },
+            abortSignal,
+          )
         : null;
 
       // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
@@ -107,6 +116,7 @@ export const destructionListDetailLoader = loginRequired(
             : await listDestructionListItems(
                 uuid,
                 params as unknown as URLSearchParams,
+                abortSignal,
               ).catch((e) => {
                 // This happens when the user is browsing selectable zaken and exceeds
                 // the last page of the destruction list items.
@@ -138,9 +148,12 @@ export const destructionListDetailLoader = loginRequired(
                 Object.fromEntries(
                   await Promise.all(
                     reviewItemsWithZaak.map(async (ri) => {
-                      const choices = await listSelectielijstKlasseChoices({
-                        zaak: ri.zaak.url,
-                      });
+                      const choices = await listSelectielijstKlasseChoices(
+                        {
+                          zaak: ri.zaak.url,
+                        },
+                        abortSignal,
+                      );
                       return [ri.zaak.url, choices];
                     }),
                   ),
@@ -158,10 +171,13 @@ export const destructionListDetailLoader = loginRequired(
               previous: null,
               results: [],
             } as PaginatedZaken)
-          : searchZaken({
-              ...searchParams,
-              not_in_destruction_list_except: uuid,
-            });
+          : searchZaken(
+              {
+                ...searchParams,
+                not_in_destruction_list_except: uuid,
+              },
+              abortSignal,
+            );
 
       const [
         destructionListItems,
@@ -174,13 +190,16 @@ export const destructionListDetailLoader = loginRequired(
       ] = await Promise.all([
         getDestructionListItems(),
         review &&
-          getLatestReviewResponse({
-            review: review.pk,
-          }),
+          getLatestReviewResponse(
+            {
+              review: review.pk,
+            },
+            abortSignal,
+          ),
         review ? getZaakSelection(storageKey) : undefined,
         getSelectableZaken(),
-        listArchivists(),
-        whoAmI(),
+        listArchivists(abortSignal),
+        whoAmI(abortSignal),
         getReviewItems(),
       ]);
 

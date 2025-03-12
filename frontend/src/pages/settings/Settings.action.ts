@@ -27,11 +27,12 @@ export async function settingsAction({ request, params }: ActionFunctionArgs) {
 }
 
 async function patchArchiveConfigAction({ request }: ActionFunctionArgs) {
+  const abortController = new AbortController();
   const { payload } = await request.json();
   const _payload = payload as ArchiveConfiguration;
 
   try {
-    await patchArchiveConfiguration(_payload);
+    await patchArchiveConfiguration(_payload, abortController.signal);
   } catch (e: unknown) {
     if (e instanceof Response) {
       return await (e as Response).json();

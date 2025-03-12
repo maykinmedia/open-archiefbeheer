@@ -103,7 +103,7 @@ export const Landing = () => {
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useCombinedSearchParams();
   const { data: recordManagers } = useDataFetcher(
-    listRecordManagers,
+    (signal) => listRecordManagers(signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van record managers!",
@@ -120,7 +120,7 @@ export const Landing = () => {
     [],
   );
   const { data: users } = useDataFetcher(
-    listUsers,
+    (signal) => listUsers(signal),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van gebruikers!",
       initialState: [],

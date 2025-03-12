@@ -36,6 +36,7 @@ export async function listDestructionListItems(
         "item-status"?: DestructionListItemStatus;
         "item-order_review_ignored"?: string | boolean;
       },
+  signal?: AbortSignal,
 ) {
   if (params && !(params instanceof URLSearchParams)) {
     if (typeof params["item-order_review_ignored"] === "boolean") {
@@ -46,11 +47,18 @@ export async function listDestructionListItems(
   }
 
   // Use the params object directly in the request
-  const response = await request("GET", "/destruction-list-items/", {
-    "item-destruction_list": destructionListUuid,
-    "item-status": "suggested",
-    ...((params as Record<string, string>) || {}),
-  });
+  const response = await request(
+    "GET",
+    "/destruction-list-items/",
+    {
+      "item-destruction_list": destructionListUuid,
+      "item-status": "suggested",
+      ...((params as Record<string, string>) || {}),
+    },
+    undefined,
+    undefined,
+    signal,
+  );
 
   const promise: Promise<PaginatedDestructionListItems> = response.json();
   return promise;

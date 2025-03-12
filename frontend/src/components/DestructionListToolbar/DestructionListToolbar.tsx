@@ -60,9 +60,9 @@ export function DestructionListToolbar({
   review,
 }: DestructionListToolbarProps) {
   const { data: logItems } = useDataFetcher(
-    () => {
+    (signal) => {
       if (!destructionList) return Promise.resolve([]);
-      return listAuditLog(destructionList.uuid);
+      return listAuditLog(destructionList.uuid, undefined, signal);
     },
     {
       initialState: [],
@@ -73,11 +73,12 @@ export function DestructionListToolbar({
   );
 
   const { data: logItemsReadyForFirstReview } = useDataFetcher(
-    () => {
+    (signal) => {
       if (!destructionList) return Promise.resolve([]);
       return listAuditLog(
         destructionList.uuid,
         "destruction_list_ready_for_first_review",
+        signal,
       );
     },
     {
@@ -89,9 +90,9 @@ export function DestructionListToolbar({
   );
 
   const { data: reviewResponse } = useDataFetcher(
-    () => {
+    (signal) => {
       if (!review) return Promise.resolve(null);
-      return getLatestReviewResponse({ review: review.pk });
+      return getLatestReviewResponse({ review: review.pk }, signal);
     },
     {
       initialState: null,
@@ -104,7 +105,7 @@ export function DestructionListToolbar({
   const formDialog = useFormDialog();
   const alert = useAlert();
   const { data: user } = useDataFetcher(
-    whoAmI,
+    (signal) => whoAmI(signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",

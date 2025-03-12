@@ -6,6 +6,7 @@ import { logout } from "../../lib/api/auth";
  * React Router loader.
  */
 export const logoutLoader = async () => {
-  await logout();
+  const abortController = new AbortController();
+  await logout(abortController.signal);
   return redirect("/login");
 };

@@ -15,10 +15,11 @@ export interface LandingContext {
 
 export const landingLoader = loginRequired(
   async ({ request }): Promise<LandingContext> => {
+    const abortController = new AbortController();
     const url = new URL(request.url);
     const urlSearchParams = url.searchParams;
     const statusMap = await getStatusMap(urlSearchParams);
-    const user = await whoAmI();
+    const user = await whoAmI(abortController.signal);
 
     return {
       statusMap,
