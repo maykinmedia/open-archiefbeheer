@@ -21,9 +21,9 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListReviewFactory,
 )
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
-from openarchiefbeheer.zaken.utils import retrieve_paginated_type
 
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
+from ..utils import retrieve_paginated_type, retrieve_selectielijstklasse_choices
 from .factories import ZaakFactory
 
 
@@ -653,6 +653,214 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             self.client.get(endpoint.url)
 
         self.assertEqual(len(m.request_history), 1)
+
+
+class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        retrieve_selectielijstklasse_choices.cache_clear()
+
+        self.addCleanup(retrieve_selectielijstklasse_choices.cache_clear)
+
+    def test_not_authenticated(self):
+        endpoint = reverse("api:retrieve-internal-selectielijstklasse-choices")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @Mocker()
+    def test_retrieve_internal_choices(self, m):
+        """
+        Test that only the selectielijstklassen of the zaken in the database are returned.
+
+        We have:
+
+        - A zaak with selectielijstklasse specified on the zaak
+        - A zaak with selectielijstklasse derived from resultaat -> resultaattype -> selectielijstklasse
+        - A zaak without selectielijstklasse
+
+        We mock the selectielijstklasse API endpoint to return 3 resultaten, two of which are referenced in the zaken
+        in the db. So the internal selectielijstklasse choices endpoint should only return 2 choices.
+        """
+        selectielist_service = ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="http://selectielijst.nl/api/v1",
+        )
+        user = UserFactory.create(post__can_start_destruction=True)
+        ZaakFactory.create(
+            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                            "omschrijving": "Afgehandeld",
+                            "selectielijstklasse": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
+                }
+            },
+        )
+        ZaakFactory.create(
+            selectielijstklasse="",
+            post___expand={
+                "resultaat": {
+                    "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+                    "_expand": {
+                        "resultaattype": {
+                            "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                            "omschrijving": "Lopend",
+                            "selectielijstklasse": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        }
+                    },
+                    "toelichting": "Testing resultaten",
+                    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
+                }
+            },
+        )
+        ZaakFactory.create(selectielijstklasse="", post___expand={})
+
+        m.get(
+            "http://selectielijst.nl/api/v1/resultaten",
+            json={
+                "count": 3,
+                "results": [
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "nummer": 1,
+                        "volledigNummer": "11.1",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P1Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "nummer": 1,
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P2Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "nummer": 2,
+                        "volledigNummer": "11.1.2",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-internal-selectielijstklasse-choices"))
+
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "extraData": {
+                        "bewaartermijn": "P2Y",
+                    },
+                },
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                    "label": "11.1.2 - Verleend - vernietigen",
+                    "extraData": {
+                        "bewaartermijn": None,
+                    },
+                },
+            ],
+        )
+
+    @Mocker()
+    def test_retrieve_internal_choices_with_filters(self, m):
+        """
+        Test that only the selectielijstklassen of the filtered zaken in the database are returned.
+        """
+        selectielist_service = ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="http://selectielijst.nl/api/v1",
+        )
+        user = UserFactory.create(post__can_start_destruction=True)
+        ZaakFactory.create(
+            identificatie="ZAAK-1",
+            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+        )
+        ZaakFactory.create(
+            identificatie="ZAAK-2",
+            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+        )
+
+        m.get(
+            "http://selectielijst.nl/api/v1/resultaten",
+            json={
+                "count": 3,
+                "results": [
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "nummer": 1,
+                        "volledigNummer": "11.1",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P1Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "nummer": 1,
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                        "bewaartermijn": "P2Y",
+                    },
+                    {
+                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "nummer": 2,
+                        "volledigNummer": "11.1.2",
+                        "naam": "Verleend",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-internal-selectielijstklasse-choices"))
+        endpoint.args["identificatie"] = "ZAAK-1"
+
+        with patch(
+            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
+            return_value=APIConfig(selectielijst_api_service=selectielist_service),
+        ):
+            response = self.client.get(endpoint.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "extraData": {
+                        "bewaartermijn": "P2Y",
+                    },
+                }
+            ],
+        )
 
 
 class ResultaattypenChoicesViewTests(ClearCacheMixin, APITestCase):
