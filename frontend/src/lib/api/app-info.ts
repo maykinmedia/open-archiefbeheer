@@ -6,7 +6,7 @@ export type AppInfo = {
 };
 
 /**
- * List all the users that have the permission to archive destruction lists.
+ * Get app info data for the git version
  */
 export async function getAppInfo(signal?: AbortSignal) {
   const response = await request(
