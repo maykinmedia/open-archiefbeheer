@@ -108,7 +108,7 @@ function App() {
           value={{
             breadcrumbItems,
             primaryNavigationItems: [
-              <Logo key="logo" withDialog width={32} />,
+              <Logo key="logo" width={32} withDialog />,
               {
                 children: <Solid.HomeIcon />,
                 title: "Home",
