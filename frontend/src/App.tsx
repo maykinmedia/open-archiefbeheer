@@ -99,14 +99,14 @@ function App() {
         )}
       <ConfigContext.Provider
         value={{
-          logo: <Logo />,
+          logo: <Logo width="100%" />,
         }}
       >
         <NavigationContext.Provider
           value={{
             breadcrumbItems,
             primaryNavigationItems: [
-              <Logo key="logo" width={32} />,
+              <Logo key="logo" withDialog width={32} />,
               {
                 children: <Solid.HomeIcon />,
                 title: "Home",
