@@ -1,6 +1,8 @@
-import { Button, Card, useDialog } from "@maykin-ui/admin-ui";
+import { AttributeList, Button, Card, P, useDialog } from "@maykin-ui/admin-ui";
 import { useCallback } from "react";
 
+import { useDataFetcher } from "../../hooks/useDataFetcher";
+import { getAppInfo } from "../../lib/api/app-info";
 // eslint-disable-next-line import/no-unresolved
 import logoUrl from "/logo.svg";
 
@@ -16,14 +18,7 @@ export function Logo({ width = 128, withDialog = false }: LogoProps) {
   const dialog = useDialog();
 
   const onClick = useCallback(() => {
-    dialog(
-      "Over",
-      <Card>
-        <LogoImage width={"100%"} />
-      </Card>,
-      undefined,
-      { size: "s" },
-    );
+    dialog("Over", <DialogBody />, undefined, { size: "s" });
   }, [dialog]);
 
   return withDialog ? (
@@ -32,6 +27,29 @@ export function Logo({ width = 128, withDialog = false }: LogoProps) {
     </Button>
   ) : (
     <LogoImage width={width} />
+  );
+}
+
+function DialogBody() {
+  const { data: appInfo } = useDataFetcher(
+    (signal) => getAppInfo(signal),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van de versieinfo!",
+    },
+    [],
+  );
+
+  return (
+    <Card>
+      <LogoImage width={"100%"} />
+      <AttributeList
+        object={{
+          Versie: <P size="xs">{appInfo?.release}</P>,
+          "Git SHA": <P size="xs">{appInfo?.gitSha}</P>,
+        }}
+      />
+    </Card>
   );
 }
 
