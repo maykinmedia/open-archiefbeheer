@@ -102,17 +102,19 @@ export async function listSelectielijstKlasseChoices(
     | {
         zaak?: Zaak["url"];
       },
+  external = false,
   signal?: AbortSignal,
 ) {
-  // @ts-expect-error - check
-  const zaak = params?.zaak as string | undefined;
-
+  const cacheParams = params2CacheKey(params || {});
   return cacheMemo(
     "listSelectielijstKlasseChoices",
     async () => {
+      const endpoint = external
+        ? "/_selectielijstklasse-choices/"
+        : "/_internal-selectielijstklasse-choices/";
       const response = await request(
-        "GET",
-        "/_selectielijstklasse-choices/",
+        "GET", 
+        endpoint, 
         params,
         undefined,
         undefined,
@@ -122,7 +124,7 @@ export async function listSelectielijstKlasseChoices(
 
       return promise;
     },
-    zaak ? [zaak] : undefined,
+    external ? [cacheParams, "external"] : [cacheParams],
   );
 }
 
