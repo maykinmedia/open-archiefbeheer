@@ -6,7 +6,7 @@ import { useDataFetcher } from "./useDataFetcher";
 
 const MockSelectieLijstKlasseChoicesHook = () => {
   return useDataFetcher(
-    (signal) => listSelectielijstKlasseChoices(undefined, signal),
+    (signal) => listSelectielijstKlasseChoices(undefined, true, signal),
     {
       initialState: [],
       errorMessage:

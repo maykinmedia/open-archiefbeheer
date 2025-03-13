@@ -113,8 +113,8 @@ export async function listSelectielijstKlasseChoices(
         ? "/_selectielijstklasse-choices/"
         : "/_internal-selectielijstklasse-choices/";
       const response = await request(
-        "GET", 
-        endpoint, 
+        "GET",
+        endpoint,
         params,
         undefined,
         undefined,

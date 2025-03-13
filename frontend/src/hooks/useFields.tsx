@@ -100,7 +100,8 @@ export function useFields<T extends Zaak = Zaak>(
 
   const selectielijstklasseParams = getZaakFilterParams("selectielijstklasse");
   const { data: selectielijstKlasseChoices } = useDataFetcher(
-    (signal) => listSelectielijstKlasseChoices(selectielijstklasseParams, false, signal),
+    (signal) =>
+      listSelectielijstKlasseChoices(selectielijstklasseParams, false, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
