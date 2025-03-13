@@ -22,28 +22,54 @@ export type Role = {
  * API call for login.
  * @param username
  * @param password
+ * @param signal
  */
-export async function login(username: string, password: string) {
-  return request("POST", "/auth/login/", undefined, {
-    username,
-    password,
-  });
+export async function login(
+  username: string,
+  password: string,
+  signal?: AbortSignal,
+) {
+  return request(
+    "POST",
+    "/auth/login/",
+    undefined,
+    {
+      username,
+      password,
+    },
+    undefined,
+    signal,
+  );
 }
 
 /**
  * API call for logout.
  */
-export async function logout() {
+export async function logout(signal?: AbortSignal) {
   await cacheDelete("whoAmI");
-  return request("POST", "/auth/logout/");
+  return request(
+    "POST",
+    "/auth/logout/",
+    undefined,
+    undefined,
+    undefined,
+    signal,
+  );
 }
 
 /**
  * API call to get the current logged-in user.
  */
-export async function whoAmI() {
+export async function whoAmI(signal?: AbortSignal) {
   return cacheMemo("whoAmI", async () => {
-    const response = await request("GET", "/whoami/");
+    const response = await request(
+      "GET",
+      "/whoami/",
+      undefined,
+      undefined,
+      undefined,
+      signal,
+    );
     const promise: Promise<User> = response.json();
     return promise;
   });
@@ -52,9 +78,16 @@ export async function whoAmI() {
 /**
  * API call to get info about OIDC.
  */
-export async function getOIDCInfo() {
+export async function getOIDCInfo(signal?: AbortSignal) {
   return cacheMemo("getOIDCInfo", async () => {
-    const response = await request("GET", "/oidc-info");
+    const response = await request(
+      "GET",
+      "/oidc-info",
+      undefined,
+      undefined,
+      undefined,
+      signal,
+    );
     const promise: Promise<OidcConfigContextType> = response.json();
     return promise;
   });

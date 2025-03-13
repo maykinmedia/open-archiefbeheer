@@ -52,30 +52,41 @@ export const destructionListReviewLoader = loginRequired(
       request,
       params,
     }: ActionFunctionArgs): Promise<DestructionListReviewContext> => {
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
       const searchParams = new URL(request.url).searchParams;
       const uuid = params.uuid as string;
 
       searchParams.set("destruction_list", uuid);
       const objParams = Object.fromEntries(searchParams);
 
-      const latestReview = await getLatestReview({
-        destructionList__uuid: uuid,
-      });
+      const latestReview = await getLatestReview(
+        {
+          destructionList__uuid: uuid,
+        },
+        abortSignal,
+      );
 
       const reviewItemsPromise = latestReview
-        ? listReviewItems({ "item-review-review": latestReview.pk })
+        ? listReviewItems(
+            { "item-review-review": latestReview.pk },
+            abortSignal,
+          )
         : undefined;
 
       const reviewResponsePromise = latestReview
-        ? getLatestReviewResponse({
-            review: latestReview.pk,
-          })
+        ? getLatestReviewResponse(
+            {
+              review: latestReview.pk,
+            },
+            abortSignal,
+          )
         : undefined;
 
       const [list, logItems, reviewItems, reviewResponse, reviewers, zaken] =
         await Promise.all([
           getDestructionList(uuid),
-          listAuditLog(uuid),
+          listAuditLog(uuid, undefined, abortSignal),
           reviewItemsPromise,
           reviewResponsePromise,
           listReviewers(),
@@ -83,6 +94,7 @@ export const destructionListReviewLoader = loginRequired(
             "item-order_review_ignored": true,
             ...objParams,
           }),
+          abortSignal,
         ]);
 
       const storageKey = getDestructionListReviewKey(uuid, list.status);

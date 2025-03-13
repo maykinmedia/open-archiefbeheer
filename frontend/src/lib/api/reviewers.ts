@@ -5,9 +5,16 @@ import { request } from "./request";
 /**
  * List all the users that have the permission to review destruction lists.
  */
-export async function listReviewers() {
+export async function listReviewers(signal?: AbortSignal) {
   return cacheMemo("listReviewers", async () => {
-    const response = await request("GET", "/users", { role: "main_reviewer" });
+    const response = await request(
+      "GET",
+      "/users",
+      { role: "main_reviewer" },
+      undefined,
+      undefined,
+      signal,
+    );
     const promise: Promise<User[]> = response.json();
     return promise;
   });
@@ -16,9 +23,16 @@ export async function listReviewers() {
 /**
  * List all the users that have the permission to review destruction lists.
  */
-export async function listCoReviewers() {
+export async function listCoReviewers(signal?: AbortSignal) {
   return cacheMemo("listCoReviewers", async () => {
-    const response = await request("GET", "/users", { role: "co_reviewer" });
+    const response = await request(
+      "GET",
+      "/users",
+      { role: "co_reviewer" },
+      undefined,
+      undefined,
+      signal,
+    );
     const promise: Promise<User[]> = response.json();
     return promise;
   });

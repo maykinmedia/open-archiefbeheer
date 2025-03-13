@@ -71,6 +71,7 @@ export type DestructionListMarkAsFinalData = {
  * @param zaakFilters FIXME: Must be a JSON object containing the filter data.
  * @param allZakenSelected
  * @param comment
+ * @param signal
  */
 export async function createDestructionList(
   name: string,
@@ -79,6 +80,7 @@ export async function createDestructionList(
   zaakFilters: string,
   allZakenSelected: boolean,
   comment?: string,
+  signal?: AbortSignal,
 ) {
   const urls = zaken.map((zaak) => (isPrimitive(zaak) ? zaak : zaak.url));
 
@@ -96,6 +98,8 @@ export async function createDestructionList(
     "/destruction-lists/",
     {},
     destructionList,
+    undefined,
+    signal,
   );
   const promise: Promise<DestructionList> = response.json();
   return promise;

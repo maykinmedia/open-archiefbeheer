@@ -9,13 +9,23 @@ import { request } from "./request";
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
  * the field 'omschrijving'.
  */
-export async function listInformatieObjectTypeChoices(zaaktypeUrl?: string) {
+export async function listInformatieObjectTypeChoices(
+  zaaktypeUrl?: string,
+  signal?: AbortSignal,
+) {
   return cacheMemo(
     "listInformatieObjectTypeChoices",
     async () => {
-      const response = await request("GET", "/_informatieobjecttype-choices/", {
-        zaaktype: zaaktypeUrl,
-      });
+      const response = await request(
+        "GET",
+        "/_informatieobjecttype-choices/",
+        {
+          zaaktype: zaaktypeUrl,
+        },
+        undefined,
+        undefined,
+        signal,
+      );
       const promise: Promise<Option[]> = response.json();
 
       return promise;
@@ -28,13 +38,23 @@ export async function listInformatieObjectTypeChoices(zaaktypeUrl?: string) {
  * Retrieve statustypen from Open Zaak and return a value and a label per statustype. The label is the field
  * 'omschrijving'.
  */
-export async function listStatusTypeChoices(zaaktypeUrl?: string) {
+export async function listStatusTypeChoices(
+  zaaktypeUrl?: string,
+  signal?: AbortSignal,
+) {
   return cacheMemo(
     "listStatusTypeChoices",
     async () => {
-      const response = await request("GET", "/_statustype-choices/", {
-        zaaktype: zaaktypeUrl,
-      });
+      const response = await request(
+        "GET",
+        "/_statustype-choices/",
+        {
+          zaaktype: zaaktypeUrl,
+        },
+        undefined,
+        undefined,
+        signal,
+      );
       const promise: Promise<Option[]> = response.json();
 
       return promise;
@@ -47,7 +67,10 @@ export async function listStatusTypeChoices(zaaktypeUrl?: string) {
  * Retrieve resultaattypen from Open Zaak and return a value and a label per
  * resultaattype. The label is the field 'omschrijving'.
  */
-export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
+export async function listResultaatTypeChoices(
+  zaaktypeUrl?: string,
+  signal?: AbortSignal,
+) {
   return cacheMemo(
     "listResultaatTypeChoices",
     async () => {
@@ -57,6 +80,9 @@ export async function listResultaatTypeChoices(zaaktypeUrl?: string) {
         {
           zaaktype: zaaktypeUrl,
         },
+        undefined,
+        undefined,
+        signal,
       );
       const promise: Promise<Option[]> = response.json();
 
@@ -76,6 +102,7 @@ export async function listSelectielijstKlasseChoices(
     | {
         zaak?: Zaak["url"];
       },
+  signal?: AbortSignal,
 ) {
   // @ts-expect-error - check
   const zaak = params?.zaak as string | undefined;
@@ -87,6 +114,9 @@ export async function listSelectielijstKlasseChoices(
         "GET",
         "/_selectielijstklasse-choices/",
         params,
+        undefined,
+        undefined,
+        signal,
       );
       const promise: Promise<Option[]> = response.json();
 

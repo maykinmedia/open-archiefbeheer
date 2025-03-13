@@ -22,14 +22,16 @@ export type DestructionReportSettingsPageContext = {
 export const destructionReportSettingsPageLoader = loginRequired(
   canViewAndEditSettingsRequired(
     async (): Promise<DestructionReportSettingsPageContext> => {
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
       const [
         archiveConfiguration,
         selectieLijstKlasseChoices,
         zaaktypeChoices,
       ] = await Promise.all([
-        getArchiveConfiguration(),
-        listSelectielijstKlasseChoices(),
-        listZaaktypeChoices(undefined, true),
+        getArchiveConfiguration(abortSignal),
+        listSelectielijstKlasseChoices(undefined, abortSignal),
+        listZaaktypeChoices(undefined, true, abortSignal),
       ]);
 
       return {

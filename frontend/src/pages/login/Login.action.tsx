@@ -13,10 +13,15 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const username = formData.get("username");
   const password = formData.get("password");
+  const loginAbortController = new AbortController();
 
   try {
     await cacheDelete("whoAmI");
-    await login(username as string, password as string);
+    await login(
+      username as string,
+      password as string,
+      loginAbortController.signal,
+    );
     const url = new URL(request.url);
     const next = url.searchParams.get("next") || "/";
     const nextPath = new URL(next, window.location.origin).pathname;

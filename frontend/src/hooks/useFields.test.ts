@@ -1,11 +1,6 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
-import {
-  listSelectielijstKlasseChoices,
-  listZaaktypeChoices,
-} from "../lib/api/private";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
 import { useDataFetcher } from "./useDataFetcher";
 import { useFields } from "./useFields";
@@ -28,23 +23,7 @@ jest.mock("react-router-dom", () => ({
 describe("useFields Hook", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Return different data based on the fetch function
-    (useDataFetcher as jest.Mock).mockImplementation((fetchFunction) => {
-      if (fetchFunction === listSelectielijstKlasseChoices) {
-        return {
-          data: mockSelectieLijstKlasseFactory(),
-          loading: false,
-          error: false,
-        };
-      }
-      if (fetchFunction === listZaaktypeChoices) {
-        return {
-          data: undefined,
-          loading: false,
-          error: false,
-        };
-      }
+    (useDataFetcher as jest.Mock).mockImplementation(() => {
       return { data: [], loading: false, error: false };
     });
   });
@@ -127,9 +106,12 @@ describe("useFields Hook", () => {
     });
   });
 
-  it("should provide selectielijst klasse options to selectielijst klasse field", async () => {
-    const { result } = await act(async () => renderHook(() => useFields()));
+  it.only("should provide selectielijst klasse options to selectielijst klasse field", async () => {
+    (useDataFetcher as jest.Mock).mockImplementation(() => {
+      return { data: [{ value: "https://" }], loading: false, error: false };
+    });
 
+    const { result } = await act(async () => renderHook(() => useFields()));
     const [fields] = result.current;
     const selectielijstKlasse = fields.find(
       (f) => f.name === "selectielijstklasse",

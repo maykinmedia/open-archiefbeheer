@@ -22,6 +22,7 @@ export const destructionListCreateLoader = loginRequired(
     async ({
       request,
     }: LoaderFunctionArgs): Promise<DestructionListCreateContext> => {
+      const abortController = new AbortController();
       const searchParams = new URL(request.url).searchParams;
 
       const searchParamsZakenEndpoint: Record<string, string> = {
@@ -35,8 +36,8 @@ export const destructionListCreateLoader = loginRequired(
 
       // Fetch reviewers, zaken, and choices concurrently
       const [zaken, reviewers] = await Promise.all([
-        searchZaken(searchParamsZakenEndpoint),
-        listReviewers(),
+        searchZaken(searchParamsZakenEndpoint, abortController.signal),
+        listReviewers(abortController.signal),
       ]);
 
       return {

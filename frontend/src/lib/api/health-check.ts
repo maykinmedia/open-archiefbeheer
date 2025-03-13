@@ -16,8 +16,17 @@ export interface HealthCheckResponse {
 /**
  * List destruction lists.
  */
-export async function getHealthCheck(): Promise<HealthCheckResponse> {
-  const response = await request("GET", "/health-check");
+export async function getHealthCheck(
+  signal?: AbortSignal,
+): Promise<HealthCheckResponse> {
+  const response = await request(
+    "GET",
+    "/health-check",
+    undefined,
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: Promise<HealthCheckResponse> = response.json();
   return promise;
 }

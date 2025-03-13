@@ -33,7 +33,10 @@ export type ReviewItemWithZaak = {
 /**
  * Create a new destruction list review
  */
-export async function createDestructionListReview({ ...data }: Review) {
+export async function createDestructionListReview(
+  { ...data }: Review,
+  signal?: AbortSignal,
+) {
   const response = await request(
     "POST",
     "/destruction-list-reviews/",
@@ -41,6 +44,8 @@ export async function createDestructionListReview({ ...data }: Review) {
     {
       ...data,
     },
+    undefined,
+    signal,
   );
   const promise: Promise<unknown> = response.json();
   return promise;
@@ -57,8 +62,12 @@ export async function getLatestReview(
         destructionList?: DestructionList["pk"];
         destructionList__uuid?: DestructionList["uuid"];
       },
+  signal?: AbortSignal,
 ) {
-  const reviews = await listReviews({ ...params, ordering: "-created" });
+  const reviews = await listReviews(
+    { ...params, ordering: "-created" },
+    signal,
+  );
   return reviews[0];
 }
 
@@ -74,8 +83,16 @@ export async function listReviews(
         destructionList__uuid?: DestructionList["uuid"];
         ordering?: "-created" | "created";
       },
+  signal?: AbortSignal,
 ) {
-  const response = await request("GET", "/destruction-list-reviews/", params);
+  const response = await request(
+    "GET",
+    "/destruction-list-reviews/",
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: Promise<Review[]> = response.json();
   return promise;
 }
@@ -89,8 +106,16 @@ export async function listReviewItems(
     | {
         "item-review-review"?: Review["pk"];
       },
+  signal?: AbortSignal,
 ) {
-  const response = await request("GET", "/review-items/", params);
+  const response = await request(
+    "GET",
+    "/review-items/",
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: Promise<ReviewItem[]> = response.json();
   return promise;
 }

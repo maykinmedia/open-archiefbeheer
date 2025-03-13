@@ -36,6 +36,7 @@ export const destructionListCreateAction = async ({
 }: ActionFunctionArgs): Promise<
   Response | DestructionListCreateActionResponseData
 > => {
+  const abortController = new AbortController();
   const { payload } = await request.json();
   const { name, assigneeId, comment, zaakFilters } =
     payload as DestructionListCreateActionPayload;
@@ -52,6 +53,7 @@ export const destructionListCreateAction = async ({
       zaakFilters,
       allPagesSelected,
       comment,
+      abortController.signal,
     );
   } catch (e: unknown) {
     if (e instanceof Response) {

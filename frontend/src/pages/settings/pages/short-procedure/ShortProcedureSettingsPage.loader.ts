@@ -18,8 +18,14 @@ export type ShortProcedureSettingsPageContext = {
 export const shortProcedureSettingsPageLoader = loginRequired(
   canViewAndEditSettingsRequired(
     async (): Promise<ShortProcedureSettingsPageContext> => {
-      const archiveConfigPromise = getArchiveConfiguration();
-      const zaaktypeChoicesPromise = listZaaktypeChoices();
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
+      const archiveConfigPromise = getArchiveConfiguration(abortSignal);
+      const zaaktypeChoicesPromise = listZaaktypeChoices(
+        undefined,
+        false,
+        abortSignal,
+      );
 
       const [archiveConfig, zaaktypeChoices] = await Promise.all([
         archiveConfigPromise,

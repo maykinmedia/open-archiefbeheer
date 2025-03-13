@@ -45,7 +45,7 @@ export function DestructionReportSettingsPage() {
   );
 
   const { data: statusTypeChoices } = useDataFetcher(
-    () => listStatusTypeChoices(valuesState?.zaaktype),
+    (signal) => listStatusTypeChoices(valuesState?.zaaktype, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de statustypen!",
@@ -55,7 +55,7 @@ export function DestructionReportSettingsPage() {
   );
 
   const { data: resultaatTypeChoices } = useDataFetcher(
-    () => listResultaatTypeChoices(valuesState?.zaaktype),
+    (signal) => listResultaatTypeChoices(valuesState?.zaaktype, signal),
     {
       initialState: [],
       errorMessage:
@@ -64,7 +64,7 @@ export function DestructionReportSettingsPage() {
     [valuesState.zaaktype],
   );
   const { data: informatieObjectTypeChoices } = useDataFetcher(
-    () => listInformatieObjectTypeChoices(valuesState.zaakType),
+    (signal) => listInformatieObjectTypeChoices(valuesState.zaakType, signal),
     {
       initialState: [],
       errorMessage:

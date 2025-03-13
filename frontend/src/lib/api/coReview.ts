@@ -16,7 +16,7 @@ export type CoReview = CoReviewBase & {
 /**
  * Create a new co-review.
  */
-export async function createCoReview(data: CoReviewBase) {
+export async function createCoReview(data: CoReviewBase, signal?: AbortSignal) {
   const response = await request(
     "POST",
     "/destruction-list-co-reviews/",
@@ -24,6 +24,8 @@ export async function createCoReview(data: CoReviewBase) {
     {
       ...data,
     },
+    undefined,
+    signal,
   );
   const promise: Promise<unknown> = response.json();
   return promise;
@@ -39,11 +41,15 @@ export async function listCoReviews(
         destructionList__uuid?: DestructionList["uuid"];
         ordering?: "-created" | "created";
       },
+  signal?: AbortSignal,
 ) {
   const response = await request(
     "GET",
     "/destruction-list-co-reviews/",
     params,
+    undefined,
+    undefined,
+    signal,
   );
   const promise: Promise<CoReview[]> = response.json();
   return promise;

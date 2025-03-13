@@ -61,12 +61,14 @@ function App() {
   );
 
   useAsync(async () => {
-    const user = await whoAmI();
+    const abortController = new AbortController();
+    const user = await whoAmI(abortController.signal);
     setUser(user);
   }, [state]);
 
   useAsync(async () => {
-    const info = await getOIDCInfo();
+    const abortController = new AbortController();
+    const info = await getOIDCInfo(abortController.signal);
     setOidcInfo(info);
   }, [state]);
 

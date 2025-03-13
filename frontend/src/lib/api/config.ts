@@ -50,8 +50,17 @@ export type ArchiveConfiguration = {
  * const archiveConfig = await getArchiveConfig();
  * console.log(archiveConfig);
  */
-export async function getArchiveConfiguration(): Promise<ArchiveConfiguration> {
-  const response = await request("GET", "/archive-config");
+export async function getArchiveConfiguration(
+  signal?: AbortSignal,
+): Promise<ArchiveConfiguration> {
+  const response = await request(
+    "GET",
+    "/archive-config",
+    undefined,
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: Promise<ArchiveConfiguration> = response.json();
   return promise;
 }
@@ -59,6 +68,7 @@ export async function getArchiveConfiguration(): Promise<ArchiveConfiguration> {
 /**
  * API call to PATCH the archive configuration
  * @param {ArchiveConfiguration } archiveConfig The archive configuration
+ * @param signal
  * @returns {Promise<void>} The archive configuration
  * @throws {Error} If the request fails
  * @example
@@ -67,6 +77,14 @@ export async function getArchiveConfiguration(): Promise<ArchiveConfiguration> {
  */
 export async function patchArchiveConfiguration(
   archiveConfig: ArchiveConfiguration,
+  signal?: AbortSignal,
 ): Promise<void> {
-  await request("PATCH", "/archive-config", undefined, archiveConfig);
+  await request(
+    "PATCH",
+    "/archive-config",
+    undefined,
+    archiveConfig,
+    undefined,
+    signal,
+  );
 }

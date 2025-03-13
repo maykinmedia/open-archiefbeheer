@@ -35,8 +35,16 @@ export async function createReviewResponse(
     | {
         review?: Review["pk"];
       },
+  signal?: AbortSignal,
 ) {
-  const response = await request("POST", "/review-responses/", params, data);
+  const response = await request(
+    "POST",
+    "/review-responses/",
+    params,
+    data,
+    undefined,
+    signal,
+  );
   const promise: Promise<ReviewResponse> = response.json();
   return promise;
 }
@@ -50,10 +58,14 @@ export async function getLatestReviewResponse(
     | {
         review?: Review["pk"];
       },
+  signal?: AbortSignal,
 ): Promise<ReviewResponse | undefined> {
-  const reviews = await listReviewResponses({
-    ...params,
-  });
+  const reviews = await listReviewResponses(
+    {
+      ...params,
+    },
+    signal,
+  );
   return reviews[0];
 }
 
@@ -66,8 +78,16 @@ export async function listReviewResponses(
     | {
         review?: Review["pk"];
       },
+  signal?: AbortSignal,
 ) {
-  const response = await request("GET", "/review-responses/", params);
+  const response = await request(
+    "GET",
+    "/review-responses/",
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
   const promise: Promise<ReviewResponse[]> = response.json();
   return promise;
 }

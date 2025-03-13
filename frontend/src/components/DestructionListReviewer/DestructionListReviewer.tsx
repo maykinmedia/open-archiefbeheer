@@ -52,7 +52,8 @@ export function DestructionListReviewer({
   const alert = useAlert();
   const formDialog = useFormDialog<DestructionListReviewerFormType>();
   const { data: coReviews } = useDataFetcher(
-    () => listCoReviews({ destructionList__uuid: destructionList?.uuid }),
+    (signal) =>
+      listCoReviews({ destructionList__uuid: destructionList?.uuid }, signal),
     {
       initialState: [],
       errorMessage:
@@ -91,7 +92,7 @@ export function DestructionListReviewer({
     [destructionList.uuid],
   );
   const { data: user } = useDataFetcher(
-    whoAmI,
+    (signal) => whoAmI(signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
