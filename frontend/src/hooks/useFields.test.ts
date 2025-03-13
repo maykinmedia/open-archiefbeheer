@@ -1,6 +1,7 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
+import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
 import { useDataFetcher } from "./useDataFetcher";
 import { useFields } from "./useFields";
@@ -23,6 +24,7 @@ jest.mock("react-router-dom", () => ({
 describe("useFields Hook", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
     (useDataFetcher as jest.Mock).mockImplementation(() => {
       return { data: [], loading: false, error: false };
     });
@@ -103,6 +105,20 @@ describe("useFields Hook", () => {
       expect(transformedData.startdatum__lte).toBe("2023-01-31");
       expect(transformedData.einddatum__gte).toBe("2023-02-01");
       expect(transformedData.einddatum__lte).toBe("2023-02-28");
+    });
+  });
+});
+
+describe("useFields Hook", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    (useDataFetcher as jest.Mock).mockImplementation(() => {
+      return {
+        data: mockSelectieLijstKlasseFactory(),
+        loading: false,
+        error: false,
+      };
     });
   });
 

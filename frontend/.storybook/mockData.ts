@@ -158,6 +158,12 @@ export const MOCKS = {
     status: 200,
     response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   },
+  INTERNAL_SELECTIE_LIJST_CHOICES: {
+    url: "http://localhost:8000/api/v1/_internal-selectielijstklasse-choices/",
+    method: "GET",
+    status: 200,
+    response: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+  },
   WHOAMI: {
     url: "http://localhost:8000/api/v1/whoami/",
     method: "GET",
@@ -165,8 +171,14 @@ export const MOCKS = {
     response: userFactory(),
   },
   ZAAKTYPE_CHOICES: {
-    url: "http://localhost:8000/api/v1/_zaaktypen-choices",
+    url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
     method: "GET",
+    status: 200,
+    response: zaaktypeChoicesFactory(),
+  },
+  ZAAKTYPE_CHOICES_POST: {
+    url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
+    method: "POST",
     status: 200,
     response: zaaktypeChoicesFactory(),
   },

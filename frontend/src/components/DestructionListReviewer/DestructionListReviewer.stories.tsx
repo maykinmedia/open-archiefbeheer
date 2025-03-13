@@ -60,6 +60,7 @@ const meta: Meta<typeof DestructionListReviewerComponent> = {
       MOCKS.REVIEWERS,
       MOCKS.DESTRUCTION_LIST_CO_REVIEWERS,
       MOCKS.OIDC_INFO,
+      MOCKS.INTERNAL_SELECTIE_LIJST_CHOICES,
       {
         url: "http://localhost:8000/api/v1/users?role=co_reviewer",
         method: "GET",
