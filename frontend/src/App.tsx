@@ -99,7 +99,7 @@ function App() {
         )}
       <ConfigContext.Provider
         value={{
-          logo: <Logo />,
+          logo: <Logo width="100%" />,
         }}
       >
         <NavigationContext.Provider
