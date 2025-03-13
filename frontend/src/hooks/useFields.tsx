@@ -74,36 +74,42 @@ export function useFields<T extends Zaak = Zaak>(
   }, []);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Fetch the zaaktype choices, if `restrictFilterChoices==="list"`:  only  zaaktype
-  // choices of zaken belonging to either the destruction list or review  are loaded.
-  // If `restrictFilterChoices==="unassigned"`: only zaaktype choices belonging to
-  // zaken not assigned to any destruction list are loaded. If `restrictFilterChoices==="false"`:
-  // all zaaktype choices are loaded.
-  const zaaktypeParams = new URLSearchParams(searchParams);
-  zaaktypeParams.delete("zaaktype");
+  const getZaakFilterParams = (clearField: string) => {
+    // Fetch the zaaktype choices, if `restrictFilterChoices==="list"`:  only  zaaktype
+    // choices of zaken belonging to either the destruction list or review  are loaded.
+    // If `restrictFilterChoices==="unassigned"`: only zaaktype choices belonging to
+    // zaken not assigned to any destruction list are loaded. If `restrictFilterChoices==="false"`:
+    // all zaaktype choices are loaded.
+    const zaakFilterParams = new URLSearchParams(searchParams);
 
-  if (restrictFilterChoices === "list") {
-    if (destructionList) {
-      zaaktypeParams.set("inDestructionList", destructionList.uuid);
+    if (restrictFilterChoices === "list") {
+      if (destructionList) {
+        zaakFilterParams.set("inDestructionList", destructionList.uuid);
+      }
+      if (review?.pk) {
+        zaakFilterParams.set("inReview", review.pk.toString());
+      }
     }
-    if (review?.pk) {
-      zaaktypeParams.set("inReview", review.pk.toString());
+    if (restrictFilterChoices === "unassigned") {
+      zaakFilterParams.set("not_in_destruction_list", "true");
     }
-  }
-  if (restrictFilterChoices === "unassigned") {
-    zaaktypeParams.set("not_in_destruction_list", "true");
-  }
 
+    zaakFilterParams.delete(clearField);
+    return zaakFilterParams;
+  };
+
+  const selectielijstklasseParams = getZaakFilterParams("selectielijstklasse");
   const { data: selectielijstKlasseChoices } = useDataFetcher(
-    (signal) => listSelectielijstKlasseChoices(undefined, signal),
+    (signal) => listSelectielijstKlasseChoices(selectielijstklasseParams, false, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",
       initialState: [],
     },
-    [],
+    [params2CacheKey(selectielijstklasseParams || {})],
   );
 
+  const zaaktypeParams = getZaakFilterParams("zaaktype");
   const { data: zaaktypeChoices } = useDataFetcher(
     (signal) => listZaaktypeChoices(zaaktypeParams, false, signal),
     {
@@ -218,8 +224,14 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "selectielijstklasse",
       type: "string",
+      filterValue: searchParams.get("selectielijstklasse") || "",
       // filterLookup: // TODO: Expand?
       valueTransform: (v: ExpandZaak) => {
+        // selectielijstklasse choices not yet loaded.
+        if (selectielijstKlasseChoices === null) {
+          return <Placeholder />;
+        }
+
         const zaakSelectielijstklasse =
           v.selectielijstklasse ||
           v._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse;
@@ -229,7 +241,7 @@ export function useFields<T extends Zaak = Zaak>(
           )?.label || <Placeholder />
         );
       },
-      options: selectielijstKlasseChoices,
+      options: selectielijstKlasseChoices || [],
       width: "150px",
     },
     {
