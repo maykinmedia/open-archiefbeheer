@@ -2,26 +2,21 @@ import re
 from typing import Callable
 
 from asgiref.sync import sync_to_async
-from playwright.async_api import Locator, Page, TimeoutError, expect
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
-
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
-    DestructionListAssigneeFactory,
-    DestructionListFactory,
-    DestructionListItemFactory,
-    DestructionListItemReviewFactory,
-    DestructionListReviewFactory,
-    ReviewItemResponseFactory,
-)
+    DestructionListAssigneeFactory, DestructionListFactory,
+    DestructionListItemFactory, DestructionListItemReviewFactory,
+    DestructionListReviewFactory, ReviewItemResponseFactory)
 from openarchiefbeheer.selection.models import AllSelectedToggle, SelectionItem
 from openarchiefbeheer.selection.tests.factories import SelectionItemFactory
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+from playwright.async_api import Locator, Page, TimeoutError, expect
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 
 class GerkinMixin:
@@ -867,6 +862,10 @@ class GerkinMixin:
             locator = page.get_by_placeholder(placeholder)
             await expect(locator).to_have_value("")
 
+        async def dropdown_should_be_empty(self, page, name):
+            select = page.get_by_label(f'filter veld "{name}"')
+            value = await select.get_attribute("value")
+            self.testcase.assertEqual(value, None)
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
     pass

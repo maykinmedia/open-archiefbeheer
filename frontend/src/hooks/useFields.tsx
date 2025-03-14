@@ -1,22 +1,22 @@
 import {
-  Placeholder,
-  TypedField,
-  TypedSerializedFormData,
+    Placeholder,
+    TypedField,
+    TypedSerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import {
-  listSelectielijstKlasseChoices,
-  listZaaktypeChoices,
+    listSelectielijstKlasseChoices,
+    listZaaktypeChoices,
 } from "../lib/api/private";
 import { Review } from "../lib/api/review";
 import {
-  FieldSelection,
-  addToFieldSelection,
-  getFieldSelection,
-  removeFromFieldSelection,
+    FieldSelection,
+    addToFieldSelection,
+    getFieldSelection,
+    removeFromFieldSelection,
 } from "../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../lib/format/date";
 import { params2CacheKey } from "../lib/format/params";
@@ -201,6 +201,7 @@ export function useFields<T extends Zaak = Zaak>(
       name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling__icontains",
+      filterValue: searchParams.get("behandelend_afdeling__icontains") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
@@ -225,8 +226,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "selectielijstklasse",
       type: "string",
+      filterLookup: "selectielijstklasse",
       filterValue: searchParams.get("selectielijstklasse") || "",
-      // filterLookup: // TODO: Expand?
       valueTransform: (v: ExpandZaak) => {
         // selectielijstklasse choices not yet loaded.
         if (selectielijstKlasseChoices === null) {
