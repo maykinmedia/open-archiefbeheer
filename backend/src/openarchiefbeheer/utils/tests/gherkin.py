@@ -617,13 +617,14 @@ class GerkinMixin:
             elements = await locator.all()
             await elements[index].fill(value)
 
-        async def user_filters_zaken_on_text(self, page, name, value):
-            locator = page.get_by_role("textbox", name=name)
-            await locator.fill(value)
+        async def user_filters_zaken(self, page, name, value):
+            locator = page.get_by_label(f'filter veld "{name}"')
+            # Check if it is a dropdown
+            element_role = await locator.get_attribute("role")
+            if element_role == "combobox":
+                await locator.click()
 
-        async def user_filters_zaken_on_dropdown(self, page, name, value):
-            select = page.get_by_label(f'filter veld "{name}"')
-            await select.click()
+                options = await page.query_selector_all(".mykn-option")
 
             options = await page.query_selector_all(".mykn-option")
             for option in options:
@@ -631,7 +632,8 @@ class GerkinMixin:
                 if not text_content == value:
                     continue
 
-                return await option.click()
+            # It's not a dropdown, it's a textbox then
+            return await locator.fill(value)
 
     class Then:
         """

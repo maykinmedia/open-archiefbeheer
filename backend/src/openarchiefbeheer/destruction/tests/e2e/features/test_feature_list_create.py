@@ -138,7 +138,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 "ZAAKTYPE-03 (ZAAKTYPE-03)"
             ])
 
-            await self.when.user_filters_zaken_on_text(page, "identificatie", "ZAAK-000")
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
             await self.then.path_should_be(page, "/destruction-lists/create?identificatie__icontains=ZAAK-000&page=1")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
             await self.then.zaaktype_filters_are(page, [
@@ -203,17 +203,17 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "1.1.1 - Ingericht - blijvend_bewaren")
             await self.then.page_should_contain_text(page, "1.1.2 - Ingericht - blijvend_bewaren")
             
-            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
+            await self.when.user_filters_zaken(page, "selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
 
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.page_should_contain_text(page, "ZAAK-1")
 
-            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1.1 - Ingericht - blijvend_bewaren")
+            await self.when.user_filters_zaken(page, "selectielijstklasse", "1.1.1 - Ingericht - blijvend_bewaren")
 
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.page_should_contain_text(page, "ZAAK-2")
 
-            await self.when.user_filters_zaken_on_dropdown(page, "selectielijstklasse", "1.1.2 - Ingericht - blijvend_bewaren")
+            await self.when.user_filters_zaken(page, "selectielijstklasse", "1.1.2 - Ingericht - blijvend_bewaren")
 
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.page_should_contain_text(page, "ZAAK-3")
