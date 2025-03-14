@@ -1,7 +1,6 @@
 import { TypedField } from "@maykin-ui/admin-ui";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { selectieLijstKlasseFactory as mockSelectieLijstKlasseFactory } from "../fixtures/selectieLijstKlasseChoices";
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
 import { useFields } from "./useFields";
 
