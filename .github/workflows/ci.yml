@@ -38,7 +38,7 @@ jobs:
           npm run lint
           CI=false npm run build
         env: 
-          REACT_APP_API_URL: "http://localhost:8000"
+          OAB_API_URL: "http://localhost:8000"
 
       - uses: actions/upload-artifact@v4
         with:
