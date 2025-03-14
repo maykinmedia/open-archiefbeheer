@@ -81,11 +81,12 @@ const meta: Meta<typeof DestructionListReviewPage> = {
     },
     mockData: [
       MOCKS.OIDC_INFO,
-      MOCKS.ZAAKTYPE_CHOICES,
-      MOCKS.SELECTIE_LIJST_CHOICES,
+      MOCKS.ZAAKTYPE_CHOICES_POST,
+      MOCKS.INTERNAL_SELECTIE_LIJST_CHOICES,
       MOCKS.REVIEWERS,
       MOCKS.CO_REVIEWS,
       MOCKS.CO_REVIEWERS,
+      MOCKS.HEALTH_CHECK,
       {
         url: "http://localhost:8000/api/v1/destruction-list-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000&ordering=-created",
         method: "GET",

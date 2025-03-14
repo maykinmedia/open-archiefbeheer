@@ -364,6 +364,9 @@ class GerkinMixin:
                 await route.fulfill(json=json)
 
             await page.route("**/*/api/v1/_selectielijstklasse-choices/*", handle)
+            await page.route(
+                "**/*/api/v1/_internal-selectielijstklasse-choices/*", handle
+            )
 
         async def statustype_choices_are_available(self, page):
             async def handle(route):

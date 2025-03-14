@@ -1,3 +1,6 @@
+from django.db.models import Case, F, Q, URLField, When
+from django.db.models.fields.json import KT
+from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -134,7 +137,7 @@ class ExternalZaaktypenChoicesView(APIView):
         return Response(zaaktypen_choices, status=status.HTTP_200_OK)
 
 
-class SelectielijstklasseChoicesView(APIView):
+class ExternalSelectielijstklasseChoicesView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -162,6 +165,63 @@ class SelectielijstklasseChoicesView(APIView):
 
         choices = retrieve_selectielijstklasse_choices(query_params)
         return Response(data=choices)
+
+
+class InternalSelectielijstklasseChoicesView(FilterOnZaaktypeMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Retrieve internal selectielijstklasse choices"),
+        description=_(
+            "Retrieve the selectielijstklasse choices for zaken in the database. "
+            "Note: if a zaak does not have a selectielijstklasse specified, it is deduced from the "
+            "resultaat -> resultaattype -> selectielijstklasse."
+        ),
+        parameters=[ZaaktypeFilterSerializer],
+        tags=["private"],
+        responses={
+            200: ChoiceSerializer(many=True),
+        },
+    )
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        filterset = ZaakFilterSet(data=request.query_params or request.data)
+        is_valid = filterset.is_valid()
+        if not is_valid:
+            raise ValidationError(filterset.errors)
+
+        zaken_selectielijstklasse = (
+            filterset.qs.annotate(
+                resolved_selectielijstklasse=Case(
+                    When(~Q(selectielijstklasse=""), then=F("selectielijstklasse")),
+                    When(
+                        selectielijstklasse="",
+                        then=Cast(
+                            # KT is needed otherwise we get '"http://bla.bla"' (extra quotes)
+                            KT(
+                                "_expand__resultaat___expand__resultaattype__selectielijstklasse"
+                            ),
+                            output_field=URLField(),
+                        ),
+                    ),
+                )
+            )
+            .distinct("resolved_selectielijstklasse")
+            .order_by("resolved_selectielijstklasse")
+            .values_list("resolved_selectielijstklasse", flat=True)
+        )
+
+        all_selectielijstklasse_choices = {
+            choice["value"]: choice for choice in retrieve_selectielijstklasse_choices()
+        }
+
+        formatted_choices = []
+        for item in zaken_selectielijstklasse:
+            formatted_choice = all_selectielijstklasse_choices.get(item)
+            if formatted_choice:
+                formatted_choices.append(formatted_choice)
+
+        return Response(formatted_choices, status=status.HTTP_200_OK)
 
 
 class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):

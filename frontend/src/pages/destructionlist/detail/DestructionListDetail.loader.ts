@@ -152,6 +152,7 @@ export const destructionListDetailLoader = loginRequired(
                         {
                           zaak: ri.zaak.url,
                         },
+                        true,
                         abortSignal,
                       );
                       return [ri.zaak.url, choices];
