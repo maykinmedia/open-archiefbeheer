@@ -239,9 +239,8 @@ jobs:
       - name: Run tests
         working-directory: backend
         run: |
-          ln -s ${{ github.workspace }}/frontend/build/static/css ${{ github.workspace }}/backend/src/openarchiefbeheer/static/css
-          ln -s ${{ github.workspace }}/frontend/build/static/js ${{ github.workspace }}/backend/src/openarchiefbeheer/static/js
-          ln -s ${{ github.workspace }}/frontend/build/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
+          ln -s ${{ github.workspace }}/frontend/dist/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
+          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
           python src/manage.py test openarchiefbeheer --tag=e2e
