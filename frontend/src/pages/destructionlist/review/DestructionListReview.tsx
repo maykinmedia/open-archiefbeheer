@@ -45,6 +45,11 @@ import { DestructionListReviewContext } from "./DestructionListReview.loader";
 export const getDestructionListReviewKey = (id: string, status: string) =>
   `destruction-list-review-${id}-${status}`;
 
+/** The maximum default cache age. */
+export const CO_REVIEW_POLL_INTERVAL = parseInt(
+  import.meta.env.OAB_CO_REVIEW_POLL_INTERVAL || 3000,
+);
+
 /**
  * Review-destruction-list page
  */
@@ -93,25 +98,30 @@ export function DestructionListReviewPage() {
 
   // Poll for changes, update selection if a (remote) change has been made (by
   // another reviewer).
-  usePoll(async () => {
-    const pollZaakSelection = await getZaakSelectionItems<{
-      approved: boolean;
-      comment: string;
-    }>(
-      storageKey,
-      zakenResults.map((zaak) => zaak.url as string),
-      true,
-      RestBackend,
-    );
+  usePoll(
+    async () => {
+      const pollZaakSelection = await getZaakSelectionItems<{
+        approved: boolean;
+        comment: string;
+      }>(
+        storageKey,
+        zakenResults.map((zaak) => zaak.url as string),
+        true,
+        RestBackend,
+      );
 
-    const hasChanged = !compareZaakSelection(
-      pollZaakSelection,
-      zaakSelectionOnPage,
-    );
-    if (hasChanged) {
-      revalidateZaakSelection();
-    }
-  });
+      const hasChanged = !compareZaakSelection(
+        pollZaakSelection,
+        zaakSelectionOnPage,
+      );
+
+      if (hasChanged) {
+        revalidateZaakSelection();
+      }
+    },
+    [zaakSelectionOnPage],
+    { timeout: CO_REVIEW_POLL_INTERVAL },
+  );
 
   // Get zaak selection for approved zaken.
   const approvedZaakSelection: ZaakSelection<{
