@@ -29,7 +29,7 @@
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook --coverage",
     "prepare": "cd .. && husky frontend/.husky",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "lint:fix": "eslint --fix src"
   },
   "browserslist": {
