@@ -1,6 +1,9 @@
 import { Button, Card, useDialog } from "@maykin-ui/admin-ui";
 import { useCallback } from "react";
 
+// eslint-disable-next-line import/no-unresolved
+import logoUrl from "/logo.svg";
+
 export type LogoProps = {
   width?: number | string;
   withDialog?: boolean;
@@ -36,5 +39,5 @@ export function Logo({ width = 128, withDialog = false }: LogoProps) {
  * Purely the image of the logo, without any interactivity.
  */
 function LogoImage({ width }: { width: number | string }) {
-  return <img src="/logo.svg" alt="Open Archiefbeheer Logo" width={width} />;
+  return <img src={logoUrl} alt="Open Archiefbeheer Logo" width={width} />;
 }
