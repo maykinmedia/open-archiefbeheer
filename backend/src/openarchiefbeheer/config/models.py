@@ -42,7 +42,7 @@ class ArchiveConfig(SingletonModel):
     )
     resultaattype = models.URLField(
         "resultaattype",
-        blank=True,
+        blank=False,
         max_length=1000,
         help_text=_(
             "The result type URL to use when creating the case for the destruction list deletion."
@@ -54,14 +54,6 @@ class ArchiveConfig(SingletonModel):
         max_length=1000,
         help_text=_(
             "The document type URL to use when creating the case for the destruction list deletion."
-        ),
-    )
-    selectielijstklasse = models.URLField(
-        "selectielijstklasse",
-        blank=True,
-        max_length=1000,
-        help_text=_(
-            "The selectielijstklasse URL to use when creating the case for the destruction list deletion."
         ),
     )
 

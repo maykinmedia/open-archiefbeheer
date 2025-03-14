@@ -34,12 +34,6 @@ export type ArchiveConfiguration = {
    * destruction list deletion.
    */
   informatieobjecttype: string;
-
-  /**
-   * The selectielijstklasse URL to use when creating the case for the
-   * destruction list deletion.
-   */
-  selectielijstklasse: string;
 };
 
 /**

@@ -103,11 +103,11 @@ ARCHIVE_CONFIG_ERRORS = {
         message=_("No zaaktype for the destruction report case configured."),
         severity="error",
     ),
-    "MISSING_SELECTIELIJSTKLASSE": HealthCheckError(
+    "MISSING_RESULTAATTYPE": HealthCheckError(
         model="openarchiefbeheer.config.ArchiveConfig",
-        field="selectielijstklasse",
-        code="MISSING_SELECTIELIJSTKLASSE",
-        message=_("No selectielijstklasse for the destruction report case configured."),
+        field="resultaattype",
+        code="MISSING_RESULTAATTYPE",
+        message=_("No resultaattype for the destruction report case configured."),
         severity="error",
     ),
     "MISSING_INFORMATIEOBJECTTYPE": HealthCheckError(
@@ -160,8 +160,8 @@ def is_configuration_complete() -> HealthCheckResponse:
         errors.append(ARCHIVE_CONFIG_ERRORS["MISSING_BRONORGANISATIE"])
     if not archive_config.zaaktype:
         errors.append(ARCHIVE_CONFIG_ERRORS["MISSING_ZAAKTYPE"])
-    if not archive_config.selectielijstklasse:
-        errors.append(ARCHIVE_CONFIG_ERRORS["MISSING_SELECTIELIJSTKLASSE"])
+    if not archive_config.resultaattype:
+        errors.append(ARCHIVE_CONFIG_ERRORS["MISSING_RESULTAATTYPE"])
     if not archive_config.informatieobjecttype:
         errors.append(ARCHIVE_CONFIG_ERRORS["MISSING_INFORMATIEOBJECTTYPE"])
 

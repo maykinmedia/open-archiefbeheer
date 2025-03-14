@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
+from requests.exceptions import ConnectionError
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -133,7 +134,13 @@ class ExternalZaaktypenChoicesView(APIView):
     )
     @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
-        results = retrieve_zaaktypen()
+        try:
+            results = retrieve_zaaktypen()
+        except ConnectionError:
+            return Response(
+                {"detail": _("Could not connect to Open Zaak.")}, status=502
+            )
+        
         zaaktypen_choices = format_zaaktype_choices(results)
         return Response(zaaktypen_choices, status=status.HTTP_200_OK)
 

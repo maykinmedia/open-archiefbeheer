@@ -10,13 +10,11 @@ import { clickButton, fillForm } from "../../../../../.storybook/playFunctions";
 import {
   FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES,
   FIXTURE_RESULTAATTYPE_CHOICES,
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
   FIXTURE_STATUSTYPE_CHOICES,
   FIXTURE_ZAAKTYPE_CHOICES,
   informatieObjectTypeChoicesFactory,
   recordManagerFactory,
   resultaatTypeChoicesFactory,
-  selectieLijstKlasseFactory,
   statusTypeChoicesFactory,
   zaaktypeChoicesFactory,
 } from "../../../../fixtures";
@@ -32,12 +30,10 @@ const FIXTURE: DestructionReportSettingsPageContext = {
     bronorganisatie: "000000000",
     informatieobjecttype: FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES[0].value,
     resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[0].value,
-    selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[0].value,
     statustype: FIXTURE_STATUSTYPE_CHOICES[0].value,
     zaaktype: FIXTURE_ZAAKTYPE_CHOICES[0].value as string,
     zaaktypesShortProcess: [],
   },
-  selectieLijstKlasseChoices: selectieLijstKlasseFactory(),
   zaaktypeChoices: zaaktypeChoicesFactory(),
 };
 
@@ -90,12 +86,6 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         status: 200,
         response: informatieObjectTypeChoicesFactory(),
       },
-      {
-        url: "http://localhost:8000/api/v1/_selectielijstklasse-choices/?",
-        method: "GET",
-        status: 200,
-        response: selectieLijstKlasseFactory(),
-      },
     ],
   },
 };
@@ -112,7 +102,6 @@ export const UpdateDestructionReportSettings: Story = {
         Statustype: FIXTURE_STATUSTYPE_CHOICES[1].label,
         Resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[1].label,
         Informatieobjecttype: FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES[1].label,
-        Selectielijstklasse: FIXTURE_SELECTIELIJSTKLASSE_CHOICES[1].label,
       },
       submitForm: false,
     },

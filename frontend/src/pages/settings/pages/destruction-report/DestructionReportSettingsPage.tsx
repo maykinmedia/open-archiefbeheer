@@ -35,7 +35,7 @@ interface DestructionReportSetting {
  */
 export function DestructionReportSettingsPage() {
   const submit = useSubmitAction<UpdateSettingsAction>();
-  const { archiveConfiguration, selectieLijstKlasseChoices, zaaktypeChoices } =
+  const { archiveConfiguration, zaaktypeChoices } =
     useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
 
@@ -109,13 +109,6 @@ export function DestructionReportSettingsPage() {
       options: resultaatTypeChoices,
       value: valuesState.resultaattype,
     },
-    {
-      label: "Selectielijstklasse",
-      name: "selectielijstklasse",
-      required: false,
-      options: selectieLijstKlasseChoices,
-      value: valuesState.selectielijstklasse,
-    },
   ];
 
   const handleValidate = useCallback(
@@ -166,8 +159,14 @@ export function DestructionReportSettingsPage() {
       <Body>
         <H2>Vernietigingsrapport</H2>
         <P>
-          Configureer de eigenschappen voor de aangemaakte zaak van
-          vernietigingsrapport.
+          Na het vernietigen van een vernietigingslijst wordt een zaak
+          aangemaakt met de verklaring van vernietiging. Op deze pagina kunt u
+          de zaaktype, statustype, resultaattype en de bronorganisatie instellen
+          die zullen worden gebruikt voor het aanmaken van deze zaak. U kunt ook
+          de informatieobjecttype instellen die gebruikt zal worden voor het
+          aanmaken van de verklaring van vernietiging. Let op: de zaaktype,
+          statustype, resultaattype en informatieobjecttype moeten bestaan in
+          Open Zaak.
         </P>
 
         <Form
