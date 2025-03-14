@@ -172,6 +172,7 @@ export function BaseListView<T extends Zaak = Zaak>({
         ? props
         : { ...props, disabled: selectable && !hasSelection },
     );
+    console.log(activeFilters);
     const fixedItems = disabled
       ? [
           {
