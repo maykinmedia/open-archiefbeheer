@@ -11,7 +11,11 @@ from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPer
 
 from ..health_checks import is_configuration_complete
 from ..models import ArchiveConfig
-from .serializers import ArchiveConfigSerializer, OIDCInfoSerializer
+from .serializers import (
+    ApplicationInfoSerializer,
+    ArchiveConfigSerializer,
+    OIDCInfoSerializer,
+)
 
 
 class ArchiveConfigView(APIView):
@@ -128,3 +132,19 @@ class HealthCheckView(APIView):
     def get(self, request: Request, *args, **kwargs):
         results = is_configuration_complete()
         return Response(results)
+
+
+@extend_schema(
+    tags=["Configuration"],
+    summary=_("App info"),
+    description=_("Returns information about the application."),
+    responses={
+        200: ApplicationInfoSerializer(),
+    },
+)
+class ApplicationInfoView(APIView):
+    def get(self, request: Request, *args, **kwargs):
+        serializer = ApplicationInfoSerializer(data={})
+        serializer.is_valid()
+
+        return Response(serializer.data)

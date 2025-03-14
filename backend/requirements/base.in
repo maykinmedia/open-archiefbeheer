@@ -40,3 +40,4 @@ zgw-consumers[setup-configuration]
 furl
 python-slugify
 XlsxWriter
+GitPython

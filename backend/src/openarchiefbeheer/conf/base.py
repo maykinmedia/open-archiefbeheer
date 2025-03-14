@@ -8,7 +8,7 @@ import sentry_sdk
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 
-from .utils import config, get_sentry_integrations
+from .utils import config, get_git_sha, get_release, get_sentry_integrations
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
@@ -378,26 +378,17 @@ ENABLE_ADMIN_NAV_SIDEBAR = config("ENABLE_ADMIN_NAV_SIDEBAR", default=False)
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
 
+
 if "GIT_SHA" in os.environ:
     GIT_SHA = config("GIT_SHA", "")
-# in docker (build) context, there is no .git directory
-elif (BASE_DIR / ".git").exists():
-    try:
-        import git
-    except ImportError:
-        GIT_SHA = None
-    else:
-        repo = git.Repo(search_parent_directories=True)
-        try:
-            GIT_SHA = repo.head.object.hexsha
-        except (
-            ValueError
-        ):  # on startproject initial runs before any git commits have been made
-            GIT_SHA = repo.active_branch.name
 else:
-    GIT_SHA = None
+    GIT_SHA = get_git_sha()
 
-RELEASE = config("RELEASE", GIT_SHA)
+if "RELEASE" in os.environ:
+    RELEASE = config("RELEASE", "")
+else:
+    RELEASE = get_release() or GIT_SHA
+
 
 REQUESTS_READ_TIMEOUT = config("REQUESTS_READ_TIMEOUT", 30)
 # Default (connection timeout, read timeout) for the requests library (in seconds)

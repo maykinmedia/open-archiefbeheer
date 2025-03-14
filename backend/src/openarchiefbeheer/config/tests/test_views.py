@@ -190,3 +190,24 @@ class HealthCheckViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.json()["success"])
+
+
+@override_settings(RELEASE="1.0.0", GIT_SHA="123")
+class ApplicationInfoTests(APITestCase):
+    def test_not_logged_in(self):
+        response = self.client.get(reverse("api:app-info"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_app_info(self):
+        user = UserFactory.create()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("api:app-info"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["release"], "1.0.0")
+        self.assertEqual(data["gitSha"], "123")
