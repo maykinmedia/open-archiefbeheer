@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useAlertOnError } from "./useAlertOnError";
-import { usePoll } from "./usePoll";
 
 /**
  * A generic  hook for fetching data asynchronously with TypeScript type inference.
@@ -15,7 +14,7 @@ import { usePoll } from "./usePoll";
  * @returns `{ data, loading, error }`
  */
 export function useDataFetcher<T, R = T extends undefined ? never : T>(
-  fetchFunction: ((signal?: AbortSignal) => Promise<T>) | (() => Promise<T>),
+  fetchFunction: (signal?: AbortSignal) => T | Promise<T>,
   config?: Omit<UseDataFetcherConfig<T, R | T>, "deps">,
   deps: unknown[] = [],
 ): { data: R | T; loading: boolean; error: boolean } {
@@ -23,7 +22,6 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     errorMessage = "Er is een fout opgetreden!",
     initialState,
     transform,
-    pollInterval,
   } = config ?? {};
 
   const alertOnError = useAlertOnError(errorMessage);
@@ -62,10 +60,6 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     fetchData(controller.signal);
     return () => controller.abort();
   }, [fetchData]);
-
-  // If polling is enabled, use `usePoll`
-  const controller = new AbortController();
-  usePoll(() => fetchData(controller.signal), deps, { timeout: pollInterval });
 
   return { data, loading, error };
 }
@@ -112,10 +106,4 @@ export interface UseDataFetcherConfig<T, R = T> {
    * Defaults to no transformation, returning the raw data.
    */
   transform?: (data: T) => R;
-
-  /**
-   * Polling interval in milliseconds.
-   * if provided, the hook will automatically refetch data at the specified interval.
-   */
-  pollInterval?: number;
 }
