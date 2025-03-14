@@ -41,6 +41,11 @@ die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zo
    Uw accordering van een vernietigingslijst wordt gevraagd. 
    U kunt <a href="{% destruction_list_link list_name 'review' %}">hier</a> de lijst bekijken om te controleren of de zaken op de lijst daadwerkelijk vernietigd kunnen worden.
 
+.. warning::
+
+   In het geval dat een email sjanbloon of het onderwerp niet geconfigureerd zijn, 
+   dan wordt de email niet gestuurd.
+
 Beschikbare Sjabloonvariabelen
 ------------------------------
 
