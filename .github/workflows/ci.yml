@@ -38,12 +38,12 @@ jobs:
           npm run lint
           CI=false npm run build
         env: 
-          REACT_APP_API_URL: "http://localhost:8000"
+          OAB_API_URL: "http://localhost:8000"
 
       - uses: actions/upload-artifact@v4
         with:
           name: build
-          path: ${{ github.workspace }}/frontend/build/
+          path: ${{ github.workspace }}/frontend/dist/
           retention-days: 1
           if-no-files-found: error
 
@@ -234,14 +234,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-          path: ${{ github.workspace }}/frontend/build
+          path: ${{ github.workspace }}/frontend/dist
 
       - name: Run tests
         working-directory: backend
         run: |
-          ln -s ${{ github.workspace }}/frontend/build/static/css ${{ github.workspace }}/backend/src/openarchiefbeheer/static/css
-          ln -s ${{ github.workspace }}/frontend/build/static/js ${{ github.workspace }}/backend/src/openarchiefbeheer/static/js
-          ln -s ${{ github.workspace }}/frontend/build/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
+          ln -s ${{ github.workspace }}/frontend/dist/static/* ${{ github.workspace }}/backend/src/openarchiefbeheer/static/
+          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
           python src/manage.py test openarchiefbeheer --tag=e2e
