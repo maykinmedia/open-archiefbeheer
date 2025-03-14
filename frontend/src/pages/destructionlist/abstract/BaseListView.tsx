@@ -5,7 +5,6 @@ import {
   ListTemplateProps,
   Solid,
   TypedField,
-  formatMessage,
 } from "@maykin-ui/admin-ui";
 import React, { useCallback, useMemo } from "react";
 import { useNavigation } from "react-router-dom";
@@ -23,6 +22,7 @@ import {
 import { DestructionList } from "../../../lib/api/destructionLists";
 import { Review } from "../../../lib/api/review";
 import { PaginatedZaken } from "../../../lib/api/zaken";
+import { formatMessage } from "../../../lib/format/string";
 import {
   SessionStorageBackend,
   ZaakSelectionBackend,

@@ -16,7 +16,6 @@ import {
   Outline,
   P,
   Solid,
-  formatMessage,
 } from "@maykin-ui/admin-ui";
 import { useState } from "react";
 import {
@@ -41,6 +40,7 @@ import {
   canChangeSettings,
   canStartDestructionList,
 } from "./lib/auth/permissions";
+import { formatMessage } from "./lib/format/string";
 import { formatUser } from "./lib/format/user";
 
 function App() {
