@@ -217,8 +217,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "Behandelende afdeling",
       type: "string",
-      filterLookup: "behandelend_afdeling",
-      filterValue: searchParams.get("behandelend_afdeling") || "",
+      filterLookup: "behandelend_afdeling__icontains",
+      filterValue: searchParams.get("behandelend_afdeling__icontains") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
@@ -240,8 +240,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "selectielijstklasse",
       type: "string",
+      filterLookup: "selectielijstklasse",
       filterValue: searchParams.get("selectielijstklasse") || "",
-      // filterLookup: // TODO: Expand?
       valueTransform: (value: ExpandZaak) =>
         valueOrSkeleton(
           value.selectielijstklasse ||
@@ -254,8 +254,10 @@ export function useFields<T extends Zaak = Zaak>(
     },
     {
       name: "resultaat",
-      filterLookup: "resultaat__resultaattype",
-      filterValue: searchParams.get("resultaat__resultaattype") || "",
+      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
+      filterValue:
+        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
+        "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
       options: resultaatTypeChoices,

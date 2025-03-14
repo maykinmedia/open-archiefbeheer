@@ -368,6 +368,28 @@ class GerkinMixin:
                 "**/*/api/v1/_internal-selectielijstklasse-choices/*", handle
             )
 
+        async def behandelende_afdeling_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Afdeling 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/behandelende-afdelingen/0e4f8c3e-2d9f-4a7b-b5d3-4d6b5a0f8b9c",
+                    },
+                    {
+                        "label": "Afdeling 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/behandelende-afdelingen/0e4f8c3e-2d9f-4a7b-b5d3-4d6b5a0f8b9c",
+                    },
+                    {
+                        "label": "Afdeling 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/behandelende-afdelingen/0e4f8c3e-2d9f-4a7b-b5d3-4d6b5a0f8b9c",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route(
+                "**/*/api/v1/_retrieve-behandelend-afdeling-choices-choices/*", handle
+            )
+
         async def statustype_choices_are_available(self, page):
             async def handle(route):
                 json = [
@@ -866,6 +888,11 @@ class GerkinMixin:
         async def input_field_should_be_empty(self, page, placeholder):
             locator = page.get_by_placeholder(placeholder)
             await expect(locator).to_have_value("")
+
+        async def dropdown_should_be_empty(self, page, name):
+            select = page.get_by_label(f'filter veld "{name}"')
+            value = await select.get_attribute("value")
+            self.testcase.assertEqual(value, None)
 
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):

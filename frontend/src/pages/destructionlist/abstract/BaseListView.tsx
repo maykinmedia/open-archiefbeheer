@@ -6,7 +6,7 @@ import {
   Solid,
   TypedField,
 } from "@maykin-ui/admin-ui";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useNavigation } from "react-router-dom";
 
 import { DestructionListToolbar } from "../../../components";
@@ -113,6 +113,12 @@ export function BaseListView<T extends Zaak = Zaak>({
     useFields<T>(destructionList, review, extraFields, restrictFilterChoices);
   type FilterTransformData = ReturnType<typeof filterTransform>;
 
+  /**
+   * (gh-635) Edge-case: Upon first render of the page, when setting a filter and immediately resetting it afterward
+   * A race condition can occur in which the internal (maykin-ui) debounce will reset the filter's values even though the searchParams are empty
+   */
+  const resetRef = useRef<boolean>(false);
+
   // Filter.
   const [, setFilterField] = useFilter<FilterTransformData>();
 
@@ -203,7 +209,11 @@ export function BaseListView<T extends Zaak = Zaak>({
         ),
         variant: "warning",
         wrap: false,
-        onClick: resetFilters,
+        onClick: () => {
+          // (gh-635) Edge-case: We register that we have reset the filters
+          resetRef.current = true;
+          resetFilters();
+        },
       },
     ];
   }, [selectable, hasSelection, selectedZakenOnPage, selectionActions]);
@@ -247,9 +257,15 @@ export function BaseListView<T extends Zaak = Zaak>({
               ] as T[])
             : [],
           selectionActions: getSelectionActions(),
-
           onFieldsChange: setFields,
-          onFilter: setFilterField,
+          onFilter: (rowData) => {
+            // (gh-635) Edge-case: If filters have NOT been reset yet, we set the filter field
+            if (!resetRef.current) {
+              setFilterField(rowData);
+            } else {
+              resetRef.current = false;
+            }
+          },
           onPageChange: setPage,
           onSelect: handleSelect,
           onSelectAllPages: handleSelectAllPages,
