@@ -33,7 +33,7 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Volgende")
             await self.then.url_should_contain_text(page, "page=2")
             await self.then.page_should_not_contain_text(page, "Filters wissen")
-            await self.when.user_filters_zaken_on_text(page, "omschrijving", "some text")
+            await self.when.user_filters_zaken(page, "omschrijving", "some text")
             await self.then.url_should_contain_text(page, "omschrijving__icontains=")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Omschrijving")

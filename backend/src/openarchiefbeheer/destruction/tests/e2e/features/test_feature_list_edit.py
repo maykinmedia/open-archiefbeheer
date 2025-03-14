@@ -181,7 +181,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
                 "ZAAKTYPE-04 (ZAAKTYPE-04)",
             ])
             # If filtering first on identificatie, the zaaktype filters change
-            await self.when.user_filters_zaken_on_text(page, "identificatie", "ZAAK-000")
+            await self.when.user_filters_zaken(page, "identificatie", "ZAAK-000")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&identificatie__icontains=ZAAK-000")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
             await self.then.zaaktype_filters_are(page, [
