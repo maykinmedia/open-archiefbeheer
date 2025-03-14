@@ -6,4 +6,7 @@ export default defineConfig({
   base: "/",
   envPrefix: "OAB",
   plugins: [react()],
+  build: {
+    assetsDir: "static/assets",
+  },
 });
