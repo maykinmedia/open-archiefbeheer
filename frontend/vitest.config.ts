@@ -12,9 +12,9 @@ export default defineConfig({
       include: ["src/**/*"],
       exclude: [
         "/node_modules/",
-        "/fixtures/",
-        ".*\\.test\\.tsx?",
-        ".*\\.stories\\.tsx?",
+        "/**/fixtures/*",
+        "/**/*.test.tsx",
+        "/**/*.stories.tsx",
       ],
     },
   },
