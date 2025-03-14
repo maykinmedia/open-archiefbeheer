@@ -23,11 +23,11 @@ export async function listReviewers(signal?: AbortSignal) {
 /**
  * List all the users that have the permission to review destruction lists.
  */
-export async function listCoReviewers(signal?: AbortSignal) {
-  return cacheMemo("listCoReviewers", async () => {
+export async function listCoReviewers(signal?: AbortSignal, cache = true) {
+  const fn = async () => {
     const response = await request(
       "GET",
-      "/users",
+      "/users/",
       { role: "co_reviewer" },
       undefined,
       undefined,
@@ -35,5 +35,6 @@ export async function listCoReviewers(signal?: AbortSignal) {
     );
     const promise: Promise<User[]> = response.json();
     return promise;
-  });
+  };
+  return cache ? cacheMemo("listCoReviewers", fn) : fn();
 }
