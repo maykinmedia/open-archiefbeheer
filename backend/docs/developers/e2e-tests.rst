@@ -23,7 +23,7 @@ Then, you need to build the frontend. You can do this in the folder ``frontend/`
    npm ci
    npm run build
 
-Note that the value of the ``REACT_APP_API_URL`` environment variable is important. The live Django server started 
+Note that the value of the ``OAB_API_URL`` environment variable is important. The live Django server started 
 by the  ``StaticLiveServerTestCase`` needs to have the same url. The class ``PlaywrightTestCase`` in the file 
 ``backend/src/openarchiefbeheer/utils/tests/e2e.py`` is a wrapper for ``StaticLiveServerTestCase`` and specifies 
 on which port the live server will run during the tests.
