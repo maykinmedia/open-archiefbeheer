@@ -8,7 +8,7 @@ import { useCallback, useEffect } from "react";
  * @param deps
  */
 export function usePoll<T = unknown>(
-  fn: () => T | Promise<T>,
+  fn: (signal?: AbortSignal) => T | Promise<T>,
   deps?: unknown[],
   options?: {
     timeout?: number;
@@ -23,9 +23,10 @@ export function usePoll<T = unknown>(
   }, [active, ref, ...(deps || [])]);
 
   useEffect(() => {
+    const controller = new AbortController();
     /** Performs single "tick", awaits`fn()`, then calls `poll()` to reschedule. */
     const tick = async () => {
-      await fn();
+      await fn(controller.signal);
       poll();
     };
 
@@ -43,7 +44,10 @@ export function usePoll<T = unknown>(
     poll();
 
     // Return a function that clears the scheduled `tick()`.
-    return cancel;
+    return () => {
+      controller.abort();
+      cancel();
+    };
   }, deps);
 
   // Return a function that clears the scheduled `tick()`.

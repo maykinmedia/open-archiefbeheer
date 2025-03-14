@@ -457,7 +457,9 @@ export function useZaakSelection<T = unknown>(
       zaakSelectionOnPage: optimisticSelection as ZaakSelection<T>,
       handleSelectAllPages: onSelectAllPages,
       clearZaakSelection: clearZaakSelection,
-      revalidateZaakSelection: () => setRevalidateCount(revalidateCount + 1),
+      revalidateZaakSelection: () => {
+        setRevalidateCount(revalidateCount + 1);
+      },
     },
   ];
 }

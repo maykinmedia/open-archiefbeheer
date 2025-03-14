@@ -12,8 +12,9 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useNavigation, useRevalidator } from "react-router-dom";
 
+import { usePoll } from "../../hooks";
 import { useDataFetcher } from "../../hooks/useDataFetcher";
-import { whoAmI } from "../../lib/api/auth";
+import { User, whoAmI } from "../../lib/api/auth";
 import { listCoReviews } from "../../lib/api/coReview";
 import {
   DestructionList,
@@ -51,6 +52,33 @@ export function DestructionListReviewer({
   const revalidator = useRevalidator();
   const alert = useAlert();
   const formDialog = useFormDialog<DestructionListReviewerFormType>();
+
+  // Poll logic for co reviewers.
+  const [coReviewersState, setCoReviewersState] = useState<User[]>([]);
+  usePoll(
+    async (signal) => {
+      try {
+        const coReviewers = await listCoReviewers(signal, false);
+        const currentKey = coReviewersState.map((c) => c.pk).join();
+        const newKey = coReviewers.map((c) => c.pk).join();
+        const changed = currentKey !== newKey;
+
+        if (changed) {
+          setCoReviewersState(coReviewers);
+        }
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") {
+          return;
+        }
+        throw e;
+      }
+    },
+    [],
+    {
+      timeout: 10000,
+    },
+  );
+
   const { data: coReviews } = useDataFetcher(
     (signal) =>
       listCoReviews({ destructionList__uuid: destructionList?.uuid }, signal),
@@ -61,22 +89,13 @@ export function DestructionListReviewer({
     },
     [],
   );
+
   const { data: reviewers } = useDataFetcher(
     listReviewers,
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van beoordelaars!",
       initialState: [],
-    },
-    [],
-  );
-  const { data: coReviewers } = useDataFetcher(
-    listCoReviewers,
-    {
-      errorMessage:
-        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
-      initialState: [],
-      pollInterval: 3000,
     },
     [],
   );
@@ -240,7 +259,7 @@ export function DestructionListReviewer({
         required: false,
         type: "string",
         value: assignReviewersFormState.coReviewer?.[i],
-        options: coReviewers
+        options: coReviewersState
           // Don't show the co-reviewer as option if:
           // - The co-reviewer is already selected AND
           // - The co-reviewer is not selected as value for the current
@@ -273,7 +292,7 @@ export function DestructionListReviewer({
     user,
     destructionList,
     reviewers,
-    coReviewers,
+    coReviewersState,
     assignedCoReviewers,
     assignReviewersFormState,
   ]);
