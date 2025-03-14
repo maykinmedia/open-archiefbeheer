@@ -15,7 +15,7 @@ vi.mock("react-router-dom", () => ({
   ],
 }));
 
-describe.only("useFields Hook", () => {
+describe("useFields Hook", () => {
   it("should initialize with default fields and handle field selection", async () => {
     // Render the hook
     const { result } = renderHook(() => useFields());
@@ -97,7 +97,7 @@ describe.only("useFields Hook", () => {
 });
 
 describe("useFields Hook", () => {
-  it.only("should provide selectielijstklasse options to selectielijstklasse field", async () => {
+  it("should provide selectielijstklasse options to selectielijstklasse field", async () => {
     vi.mock("./useDataFetcher", () => ({
       useDataFetcher: vi.fn().mockReturnValue({
         data: [{ value: "https://" }],
