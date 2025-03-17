@@ -15,10 +15,10 @@ describe("usePoll()", () => {
     await _delay(() => expect(spy).toBeCalledTimes(2), 1000);
   });
 
-  test("usePoll() delays first `fn` call", async () => {
+  test("usePoll() immediately initiates `fn` call", async () => {
     const spy = vi.fn();
-    renderHook(() => usePoll(spy, [], { timeout: 300 }));
-    await _delay(() => expect(spy).toBeCalledTimes(0), 0);
+    renderHook(() => usePoll(spy));
+    expect(spy).toBeCalledTimes(1);
   });
 
   test("usePoll() has a default timeout", async () => {
@@ -34,7 +34,7 @@ describe("usePoll()", () => {
     } = renderHook(() => usePoll(spy, [], { timeout: 300 }));
 
     cancelFn();
-    await _delay(() => expect(spy).toBeCalledTimes(0), 300);
+    await _delay(() => expect(spy).toBeCalledTimes(1), 301);
   });
 });
 

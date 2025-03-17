@@ -119,7 +119,7 @@ export function DestructionListReviewPage() {
         revalidateZaakSelection();
       }
     },
-    [zaakSelectionOnPage],
+    [],
     { timeout: CO_REVIEW_POLL_INTERVAL },
   );
 

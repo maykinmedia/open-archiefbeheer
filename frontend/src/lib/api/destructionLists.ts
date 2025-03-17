@@ -244,12 +244,19 @@ export async function reassignDestructionList(
 /**
  * List all the co-reviewers assigned to a destruction list.
  * @param uuid
- * @param data
+ * @param signal
  */
-export async function listDestructionListCoReviewers(uuid: string) {
+export async function listDestructionListCoReviewers(
+  uuid: string,
+  signal?: AbortSignal,
+) {
   const response = await request(
     "GET",
     `/destruction-lists/${uuid}/co-reviewers/`,
+    undefined,
+    undefined,
+    undefined,
+    signal,
   );
   const promise: Promise<DestructionListAssignee[]> = response.json();
   return promise;
