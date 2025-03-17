@@ -105,7 +105,9 @@ class AssignementLogicTest(TestCase):
 
         with patch(
             "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(zaaktypes_short_process=[item.zaak.zaaktype]),
+            return_value=ArchiveConfig(
+                zaaktypes_short_process=[item.zaak._expand["zaaktype"]["identificatie"]]
+            ),
         ):
             destruction_list.assign_next()
 
