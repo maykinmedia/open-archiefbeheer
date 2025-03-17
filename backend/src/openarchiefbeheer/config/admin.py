@@ -24,7 +24,6 @@ class ArchiveConfigAdmin(SingletonModelAdmin):
                     "statustype",
                     "resultaattype",
                     "informatieobjecttype",
-                    "selectielijstklasse",
                 ],
             },
         ),
