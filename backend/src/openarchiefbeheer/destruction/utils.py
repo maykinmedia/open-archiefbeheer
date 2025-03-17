@@ -1,4 +1,5 @@
 from base64 import b64encode
+from functools import lru_cache
 from typing import Protocol
 
 from django.conf import settings
@@ -172,6 +173,19 @@ def resync_items_and_zaken() -> None:
         logevent.destruction_list_items_deleted(destruction_list, number_deleted_items)
 
 
+@lru_cache
+def get_selectielijstklasse(resultaattype_url: str) -> str:
+    ztc_service = get_service(APITypes.ztc)
+    ztc_client = build_client(ztc_service)
+
+    with ztc_client:
+        response = ztc_client.get(resultaattype_url)
+        response.raise_for_status()
+        resultaattype = response.json()
+
+    return resultaattype["selectielijstklasse"]
+
+
 def create_zaak_for_report(
     destruction_list: DestructionList, store: ResultStore
 ) -> None:
@@ -198,7 +212,9 @@ def create_zaak_for_report(
                     "startdatum": timezone.now().date().isoformat(),
                     "verantwoordelijkeOrganisatie": config.bronorganisatie,
                     "archiefnominatie": "blijvend_bewaren",
-                    "selectielijstklasse": config.selectielijstklasse,
+                    "selectielijstklasse": get_selectielijstklasse(
+                        config.resultaattype
+                    ),
                 },
                 timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
             )
