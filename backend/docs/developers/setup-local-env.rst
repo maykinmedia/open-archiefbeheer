@@ -99,4 +99,126 @@ To start the environment:
 
    docker compose -f docker-compose.dev.yaml up
 
-   
+Open Zaak
+=========
+
+It is also possible to start a local Open Zaak instance. 
+
+In the folder ``backend/docker-services/openzaak`` run:
+
+.. code:: bash
+
+   docker compose up
+
+This loads fixtures (located in ``backend/docker-services/openzaak/fixtures``).
+To get your local openarchiefbeheer environment to talk to this Open Zaak instance, 
+use this fixture (you may need to update the primary key field ``pk``):
+
+.. code:: json
+
+   [
+      {
+         "model": "zgw_consumers.service",
+         "pk": 1,
+         "fields": {
+            "label": "Open Zaak - Zaken API",
+            "oas": "http://localhost:8003/zaken/api/v1/schema/openapi.yaml",
+            "oas_file": "",
+            "uuid": "73d10dfb-d17b-45ad-b8ac-9a1041b08f1e",
+            "slug": "open-zaak-zaken-api",
+            "api_type": "zrc",
+            "api_root": "http://localhost:8003/zaken/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "test-vcr",
+            "secret": "test-vcr",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      }
+      {
+         "model": "zgw_consumers.service",
+         "pk": 2,
+         "fields": {
+            "label": "Open Zaak - Catalogi API",
+            "oas": "http://localhost:8003/catalogi/api/v1/schema/openapi.json",
+            "oas_file": "",
+            "uuid": "24ef5de1-5fcc-4716-a295-6ebdd5e9425c",
+            "slug": "open-zaak-catalogi-api",
+            "api_type": "ztc",
+            "api_root": "http://localhost:8003/catalogi/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "test-vcr",
+            "secret": "test-vcr",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      },
+      {
+         "model": "zgw_consumers.service",
+         "pk": 3,
+         "fields": {
+            "label": "Open Zaak - Besluiten API",
+            "oas": "http://localhost:8003/besluiten/api/v1/schema/openapi.yaml",
+            "oas_file": "",
+            "uuid": "b0eebf57-7f1b-49ef-8e2e-de53a28f1056",
+            "slug": "open-zaak-besluiten-api",
+            "api_type": "brc",
+            "api_root": "http://localhost:8003/besluiten/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "test-vcr",
+            "secret": "test-vcr",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      },
+      {
+         "model": "zgw_consumers.service",
+         "pk": 4,
+         "fields": {
+            "label": "Open Zaak - Documenten API",
+            "oas": "http://localhost:8003/documenten/api/v1/schema/openapi.yaml",
+            "oas_file": "",
+            "uuid": "037c1de8-4749-483b-916d-dfa0aa95fa00",
+            "slug": "open-zaak-documenten-api",
+            "api_type": "drc",
+            "api_root": "http://localhost:8003/documenten/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "test-vcr",
+            "secret": "test-vcr",
+            "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      }
+   ]
+
+.. note::
+
+   This Open Zaak instance and these fixtures have been used to record the VCR cassettes!
