@@ -14,6 +14,8 @@ Voorwaarden
 ------------
 - De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
 - Externe services moeten zijn :ref:`geconfigureerd<manual_3-administrator_3.2-external-apis>`.
+- Een zaaktype, informatieobjecttype, resultaattype en een statustype (optioneel) moeten geconfigureerd zijn in Open Zaak.
+  De zaaktype moet gerelateerd zijn an één resultaattype en één informatieobjecttype.
 
 Stappen
 -------
@@ -28,12 +30,16 @@ Stappen
 
 3. **Vul de vereiste velden in**
     - Vul de benodigde gegevens in de bijbehorende velden:
+    
       - **Bronorganisatie**
       - **Zaaktype**
-      - **Statustype**
+      - **Statustype** (optioneel)
       - **Resultaattype**
       - **Informatieobjecttype**
-      - **Selectielijstklasse**
+
+    Als de verklaring van vernietiging aagemaakt wordt, zal een zaak aangemaakt worden met de geconfigureerde zaaktype. De zaak zal een resultaat hebben 
+    met de geconfigureerd resultaattype en de selectielijstklasse wordt afgeleid van de resultaattype. De verklaring van vernietiging wordt opgeslagen als
+    enkelvoudiginformatieobject met de geconfigureerde informatieobjecttype. De zaak en de enkelvoudiginformatieobject worden met elkaar gerelateerd.
 
 4. **Sla de instellingen op**
     - Klik op de knop **"Opslaan"**. |opslaan_knop|
