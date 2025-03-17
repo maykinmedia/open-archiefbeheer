@@ -56,6 +56,7 @@ const meta: Meta<typeof DestructionListReviewerComponent> = {
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     mockData: [
+      MOCKS.HEALTH_CHECK,
       MOCKS.CO_REVIEWS,
       MOCKS.REVIEWERS,
       MOCKS.DESTRUCTION_LIST_CO_REVIEWERS,
@@ -373,6 +374,15 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
             "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
         },
       },
+      {
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/co-reviewers/",
+        method: "PUT",
+        status: 400,
+        response: {
+          error:
+            "Er is een fout opgetreden bij het bewerken van de mede beoordelaars!",
+        },
+      },
     ],
   },
   play: async (context) => {
@@ -396,7 +406,6 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
     await userEvent.clear(reden); // Fixes a bug where input onChange isn't triggered when using userEvent.type
     await userEvent.type(reden, "example", { delay: 10 });
     await userEvent.click(submit, { delay: 10 });
-
     await canvas.findByText(
       "Er is een fout opgetreden bij het bewerken van de beoordelaar!",
     );

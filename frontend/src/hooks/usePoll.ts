@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from "react";
 
+import { useAlertOnError } from "./useAlertOnError";
+
 /**
  * Polls `fn` every [`options.timeout=30000`]ms.
  * Reschedules after `fn` resolution to prevent flooding.
@@ -12,8 +14,12 @@ export function usePoll<T = unknown>(
   deps?: unknown[],
   options?: {
     timeout?: number;
+    errormessage?: string;
   },
 ) {
+  const alertOnError = useAlertOnError(
+    options?.errormessage || "Er is een fout opgetreden!",
+  );
   let active = true;
   let ref: number = -1;
 
@@ -26,8 +32,18 @@ export function usePoll<T = unknown>(
     const controller = new AbortController();
     /** Performs single "tick", awaits`fn()`, then calls `poll()` to reschedule. */
     const tick = async () => {
-      await fn(controller.signal);
-      poll();
+      try {
+        // Call fn().
+        await fn(controller.signal);
+      } catch (e) {
+        // Show error on failure.
+        if (!controller.signal.aborted) {
+          await alertOnError(e as Error);
+        }
+      } finally {
+        // Reschedule next tick.
+        poll();
+      }
     };
 
     /** Sets a timeout of `[options.timeout=3000]` to schedule `tick()`. */

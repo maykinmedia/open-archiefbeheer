@@ -15,9 +15,10 @@ import { useNavigation, useRevalidator } from "react-router-dom";
 import { usePoll } from "../../hooks";
 import { useDataFetcher } from "../../hooks/useDataFetcher";
 import { User, whoAmI } from "../../lib/api/auth";
-import { listCoReviews } from "../../lib/api/coReview";
+import { CoReview, listCoReviews } from "../../lib/api/coReview";
 import {
   DestructionList,
+  DestructionListAssignee,
   listDestructionListCoReviewers,
   reassignDestructionList,
   updateCoReviewers,
@@ -55,39 +56,52 @@ export function DestructionListReviewer({
 
   // Poll logic for co reviewers.
   const [coReviewersState, setCoReviewersState] = useState<User[]>([]);
+  usePoll(async (signal) => {
+    const coReviewers = await listCoReviewers(signal, false);
+    const currentKey = coReviewersState.map((c) => c.pk).join();
+    const newKey = coReviewers.map((c) => c.pk).join();
+    const changed = currentKey !== newKey;
+
+    if (changed) {
+      setCoReviewersState(coReviewers);
+    }
+  }, []);
+
+  // Poll logic for assigned co reviewers.
+  const [assignedCoReviewersState, setAssignedCoReviewersState] = useState<
+    DestructionListAssignee[]
+  >([]);
   usePoll(
     async (signal) => {
-      try {
-        const coReviewers = await listCoReviewers(signal, false);
-        const currentKey = coReviewersState.map((c) => c.pk).join();
-        const newKey = coReviewers.map((c) => c.pk).join();
-        const changed = currentKey !== newKey;
-
-        if (changed) {
-          setCoReviewersState(coReviewers);
-        }
-      } catch (e) {
-        if (e instanceof Error && e.name === "AbortError") {
-          return;
-        }
-        throw e;
-      }
+      const assignedCoReviewers = (
+        await listDestructionListCoReviewers(destructionList.uuid, signal)
+      ).filter((r) => r.role === "co_reviewer");
+      setAssignedCoReviewersState(assignedCoReviewers);
     },
-    [],
+
+    [destructionList.uuid],
     {
-      timeout: 10000,
+      errormessage:
+        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
     },
   );
 
-  const { data: coReviews } = useDataFetcher(
-    (signal) =>
-      listCoReviews({ destructionList__uuid: destructionList?.uuid }, signal),
+  // Poll logic for assigned co reviews.
+  const [coReviewsState, setCoReviewsState] = useState<CoReview[]>([]);
+  usePoll(
+    async (signal) => {
+      const coReviews = await listCoReviews(
+        { destructionList__uuid: destructionList?.uuid },
+        signal,
+      );
+      setCoReviewsState(coReviews);
+    },
+
+    [destructionList.uuid],
     {
-      initialState: [],
-      errorMessage:
+      errormessage:
         "Er is een fout opgetreden bij het ophalen van de mede beoordelingen!",
     },
-    [],
   );
 
   const { data: reviewers } = useDataFetcher(
@@ -100,16 +114,6 @@ export function DestructionListReviewer({
     [],
   );
 
-  const { data: assignedCoReviewers } = useDataFetcher(
-    () => listDestructionListCoReviewers(destructionList.uuid),
-    {
-      transform: (r) => r.filter((r) => r.role === "co_reviewer"), // Only list co-reviewers.
-      errorMessage:
-        "Er is een fout opgetreden bij het ophalen van de mede beoordelaars!",
-      initialState: [],
-    },
-    [destructionList.uuid],
-  );
   const { data: user } = useDataFetcher(
     (signal) => whoAmI(signal),
     {
@@ -135,14 +139,16 @@ export function DestructionListReviewer({
    * co-reviewers.
    */
   useEffect(() => {
-    const coReviewerPks = assignedCoReviewers.map((r) => r.user.pk.toString());
+    const coReviewerPks = assignedCoReviewersState.map((r) =>
+      r.user.pk.toString(),
+    );
 
     setAssignReviewersFormState({
       ...assignReviewersFormState,
       coReviewer: coReviewerPks,
       reviewer: assignedMainReviewer?.user.pk.toString() || "",
     });
-  }, [assignedCoReviewers.map((r) => r.user.pk).join()]);
+  }, [assignedCoReviewersState.map((r) => r.user.pk).join()]);
 
   const [assignCoReviewerModalOpenState, setAssignCoReviewerModalOpenState] =
     useState(false);
@@ -289,12 +295,9 @@ export function DestructionListReviewer({
     }
     return [reviewerField, ...coReviewerFields, commentField];
   }, [
-    user,
-    destructionList,
-    reviewers,
-    coReviewersState,
-    assignedCoReviewers,
-    assignReviewersFormState,
+    assignCoReviewerModalOpenState,
+    assignReviewersFormState.reviewer,
+    assignReviewersFormState.coReviewer.join(),
   ]);
 
   /**
@@ -303,9 +306,9 @@ export function DestructionListReviewer({
    */
   const coReviewerItems = useMemo(
     () =>
-      assignedCoReviewers.reduce((acc, coReviewer, i) => {
+      assignedCoReviewersState.reduce((acc, coReviewer, i) => {
         const key = `Medebeoordelaar ${1 + i}`;
-        const hasReview = coReviews.find(
+        const hasReview = coReviewsState.find(
           (coReview) => coReview.author?.pk === coReviewer.user.pk,
         );
         const icon = hasReview && <Solid.CheckCircleIcon />;
@@ -324,7 +327,7 @@ export function DestructionListReviewer({
           },
         };
       }, {}),
-    [assignedCoReviewers, coReviews],
+    [assignedCoReviewersState, coReviewersState, coReviewsState],
   );
 
   /**
