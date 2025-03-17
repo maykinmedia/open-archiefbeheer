@@ -19,7 +19,6 @@ class ArchiveConfigSerializer(serializers.ModelSerializer):
             "statustype",
             "resultaattype",
             "informatieobjecttype",
-            "selectielijstklasse",
         )
         extra_kwargs = {
             "bronorganisatie": {"required": True, "allow_null": False},
@@ -27,7 +26,6 @@ class ArchiveConfigSerializer(serializers.ModelSerializer):
             "statustype": {"required": True, "allow_null": False},
             "resultaattype": {"required": True, "allow_null": False},
             "informatieobjecttype": {"required": True, "allow_null": False},
-            "selectielijstklasse": {"required": True, "allow_null": False},
         }
 
 
