@@ -300,25 +300,49 @@ class DestructionListTest(TestCase):
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/1",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/1",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/2",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/222-222-222",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE-02",
+                    "versiedatum": "2024-01-02",
+                    "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                }
+            },
         )
 
         with patch(
             "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
             return_value=ArchiveConfig(
                 zaaktypes_short_process=[
-                    "http://catalogi-api.nl/zaaktype/1",
-                    "http://catalogi-api.nl/zaaktype/2",
+                    "ZAAKTYPE-01",
+                    "ZAAKTYPE-02",
                 ]
             ),
         ):

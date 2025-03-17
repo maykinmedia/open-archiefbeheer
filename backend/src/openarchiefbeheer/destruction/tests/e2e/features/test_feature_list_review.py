@@ -320,3 +320,39 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
             await self.then.page_should_contain_text(page, "Accorderen")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
+
+    async def test_reviewer_approves_list_with_short_process(self):
+        async with browser_page() as page:
+            record_manager = await self.given.record_manager_exists()
+            reviewer = await self.given.reviewer_exists()
+
+            assignees = [
+                await self.given.assignee_exists(user=record_manager, role=ListRole.author),
+                await self.given.assignee_exists(user=reviewer, role=ListRole.main_reviewer),
+            ]
+
+            zaken = await self.given.zaken_are_indexed(1, post___expand__zaaktype__identificatie="ZAAKTYPE-01")
+            destruction_list = await self.given.list_exists(
+                assignee=reviewer,
+                assignees=assignees,
+                uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to review",
+                status=ListStatus.ready_to_review,
+                zaken=zaken,
+            )
+
+            await self.given.configuration_short_procedure_exists(["ZAAKTYPE-01"])
+
+            await self.when.reviewer_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Destruction list to review")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
+
+            await self.when.user_clicks_button(page, "Goedkeuren")
+            await self.when.user_fills_form_field(page, "Opmerking", "Looks good to me👍🏻")
+            await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
+
+            await self.then.path_should_be(page, "/destruction-lists")
+            await self.then.page_should_contain_text(page, "Destruction list to review")
+            await self.then.list_should_have_status(page, destruction_list, ListStatus.ready_to_delete)

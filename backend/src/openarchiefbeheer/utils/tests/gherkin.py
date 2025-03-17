@@ -388,17 +388,17 @@ class GerkinMixin:
                 json = [
                     {
                         "label": "Aangifte behandelen 1",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+                        "value": "ZAAKTYPE-01",
                         "extra": "",
                     },
                     {
                         "label": "Aangifte behandelen 2",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+                        "value": "ZAAKTYPE-02",
                         "extra": "",
                     },
                     {
                         "label": "Aangifte behandelen 3",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+                        "value": "ZAAKTYPE-03",
                         "extra": "",
                     },
                 ]
@@ -411,17 +411,17 @@ class GerkinMixin:
                 json = [
                     {
                         "label": "Aangifte behandelen 1",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/64c98539-076e-4fbf-8fec-fa86c560fb24",
+                        "value": "ZAAKTYPE-01",
                         "extra": "",
                     },
                     {
                         "label": "Aangifte behandelen 2",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+                        "value": "ZAAKTYPE-02",
                         "extra": "",
                     },
                     {
                         "label": "Aangifte behandelen 3",
-                        "value": "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+                        "value": "ZAAKTYPE-03",
                         "extra": "",
                     },
                 ]
@@ -442,6 +442,18 @@ class GerkinMixin:
             return await self._factory_create_batch(
                 SelectionItemFactory, zaken_amount, **kwargs
             )
+
+        async def configuration_short_procedure_exists(
+            self, zaaktypen_short_procedure: list[str]
+        ) -> None:
+            @sync_to_async()
+            def set_short_procedure_zaaktypen(zaaktypen: list[str]) -> None:
+                ArchiveConfig.clear_cache()
+                config = ArchiveConfig.get_solo()
+                config.zaaktypes_short_process = zaaktypen
+                config.save()
+
+            await set_short_procedure_zaaktypen(zaaktypen_short_procedure)
 
         @sync_to_async
         def _orm_filter(self, model, **kwargs):
@@ -479,7 +491,7 @@ class GerkinMixin:
             orm_params = {
                 key: value
                 for key, value in kwargs.items()
-                if key not in factory._meta.parameters
+                if key not in factory._meta.parameters and not key.startswith("post__")
             }
 
             if recreate:
