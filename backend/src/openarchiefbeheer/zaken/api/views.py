@@ -205,7 +205,7 @@ class InternalSelectielijstklasseChoicesView(FilterOnZaaktypeMixin, APIView):
                             output_field=URLField(),
                         ),
                     ),
-                )
+                ),
             )
             .distinct("resolved_selectielijstklasse")
             .order_by("resolved_selectielijstklasse")
