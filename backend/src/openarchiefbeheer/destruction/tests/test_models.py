@@ -253,14 +253,13 @@ TEST_DATA_ARCHIVE_CONFIG = {
     "statustype": "http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
     "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
     "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
-    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
 }
 
 TEST_DATA_ARCHIVE_CONFIG_PARTIAL = {
     "bronorganisatie": "000000000",
     "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
     "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
-    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+    "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
 }
 
 
@@ -790,7 +789,18 @@ class DestructionListTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://localhost:8003/zaken/api/v1",
         )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post("http://localhost:8003/zaken/api/v1/zaken", status_code=500)
 
         with (
@@ -807,16 +817,31 @@ class DestructionListTest(TestCase):
         self.assertEqual(destruction_list.zaak_destruction_report_url, "")
 
     @Mocker()
-    def test_no_statustype_resultaattype_configured(self, m):
+    def test_no_statustype_configured(self, m):
         destruction_list = DestructionListFactory.create()
         ServiceFactory.create(
             api_type=APITypes.zrc,
-            api_root="http://zaken.nl/api/v1",
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
         )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post(
-            "http://zaken.nl/api/v1/zaken",
-            json={"url": "http://zaken.nl/api/v1/zaken/111-111-111"},
+            "http://localhost:8003/zaken/api/v1/zaken",
+            json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
+        )
+        m.post(
+            "http://localhost:8003/zaken/api/v1/resultaten",
+            json={"url": "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"},
         )
 
         with (
@@ -833,9 +858,16 @@ class DestructionListTest(TestCase):
 
         self.assertEqual(
             destruction_list.zaak_destruction_report_url,
-            "http://zaken.nl/api/v1/zaken/111-111-111",
+            "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
         )
-        self.assertNotIn("created_resources", destruction_list.internal_results)
+        self.assertEqual(
+            destruction_list.internal_results["created_resources"],
+            {
+                "resultaten": [
+                    "http://localhost:8003/zaken/api/v1/resultaten/111-111-111"
+                ]
+            },
+        )
 
     @Mocker()
     def test_failure_result_creation(self, m):
@@ -844,7 +876,18 @@ class DestructionListTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://localhost:8003/zaken/api/v1",
         )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaken",
             json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
@@ -874,7 +917,18 @@ class DestructionListTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://localhost:8003/zaken/api/v1",
         )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaken",
             json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
@@ -909,6 +963,10 @@ class DestructionListTest(TestCase):
     def test_failure_document_creation(self, m):
         destruction_list = DestructionListFactory.create(with_report=True)
         ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
+        ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://localhost:8003/zaken/api/v1",
         )
@@ -916,7 +974,13 @@ class DestructionListTest(TestCase):
             api_type=APITypes.drc,
             api_root="http://localhost:8003/documenten/api/v1",
         )
-
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaken",
             json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
@@ -969,7 +1033,18 @@ class DestructionListTest(TestCase):
             api_type=APITypes.drc,
             api_root="http://localhost:8003/documenten/api/v1",
         )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            json={
+                "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+                "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaken",
             json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
