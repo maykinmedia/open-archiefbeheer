@@ -46,5 +46,5 @@ class ZaakSerialisersTests(VCRMixin, TestCase):
 
         self.assertEqual(
             serialiser.data["selectielijstklasse"],
-            "1.1 - Ingericht - vernietigen - P10Y",
+            "1.1 - Ingericht - vernietigen - P10Y (2017)",
         )
