@@ -440,38 +440,55 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
     def test_retrieve_choices(self, m):
         selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
-            api_root="http://selectielijst.nl/api/v1",
+            api_root="https://selectielijst.openzaak.nl/api/v1",
         )
         user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 
         m.get(
-            f"http://selectielijst.nl/api/v1/resultaten?procesType={process_type_url}",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen",
+            json=[
+                {
+                    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "nummer": 11,
+                    "jaar": 2020,
+                    "naam": "Toestemming verlenen",
+                    "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                    "toelichting": "",
+                    "procesobject": "De verleende toestemming",
+                },
+            ],
+        )
+        m.get(
+            f"https://selectielijst.openzaak.nl/api/v1/resultaten?procesType={process_type_url}",
             json={
                 "count": 3,
                 "results": [
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         "nummer": 1,
                         "volledigNummer": "11.1",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P1Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                         "nummer": 1,
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P2Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         "nummer": 2,
                         "volledigNummer": "11.1.2",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                 ],
             },
@@ -492,22 +509,22 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             response.json(),
             [
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
-                    "label": "11.1 - Verleend - vernietigen - P1Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                    "label": "11.1 - Verleend - vernietigen - P1Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P1Y",
                     },
                 },
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
-                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
                     },
                 },
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
-                    "label": "11.1.2 - Verleend - vernietigen",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                    "label": "11.1.2 - Verleend - vernietigen (2020)",
                     "extraData": {
                         "bewaartermijn": None,
                     },
@@ -517,42 +534,56 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
     @Mocker()
     def test_retrieve_choices_without_zaak(self, m):
-        # Create a mock service
         selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
-            api_root="http://selectielijst.nl/api/v1",
+            api_root="https://selectielijst.openzaak.nl/api/v1",
         )
 
-        # Create a user with the appropriate role
         user = UserFactory.create(post__can_start_destruction=True)
 
-        # Mock the response from the external API
         m.get(
-            "http://selectielijst.nl/api/v1/resultaten",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen",
+            json=[
+                {
+                    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "nummer": 11,
+                    "jaar": 2020,
+                    "naam": "Toestemming verlenen",
+                    "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                    "toelichting": "",
+                    "procesobject": "De verleende toestemming",
+                },
+            ],
+        )
+        m.get(
+            "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={
                 "count": 3,
                 "results": [
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         "nummer": 1,
                         "volledigNummer": "11.1",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P1Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                         "nummer": 1,
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P2Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         "nummer": 2,
                         "volledigNummer": "11.1.2",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                 ],
             },
@@ -577,22 +608,22 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             response.json(),
             [
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
-                    "label": "11.1 - Verleend - vernietigen - P1Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                    "label": "11.1 - Verleend - vernietigen - P1Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P1Y",
                     },
                 },
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
-                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
                     },
                 },
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
-                    "label": "11.1.2 - Verleend - vernietigen",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                    "label": "11.1.2 - Verleend - vernietigen (2020)",
                     "extraData": {
                         "bewaartermijn": None,
                     },
@@ -604,38 +635,55 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
     def test_response_cached(self, m):
         selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
-            api_root="http://selectielijst.nl/api/v1",
+            api_root="https://selectielijst.openzaak.nl/api/v1",
         )
         user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
 
         m.get(
-            f"http://selectielijst.nl/api/v1/resultaten?procesType={process_type_url}",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen",
+            json=[
+                {
+                    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "nummer": 11,
+                    "jaar": 2020,
+                    "naam": "Toestemming verlenen",
+                    "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                    "toelichting": "",
+                    "procesobject": "De verleende toestemming",
+                },
+            ],
+        )
+        m.get(
+            f"https://selectielijst.openzaak.nl/api/v1/resultaten?procesType={process_type_url}",
             json={
                 "count": 3,
                 "results": [
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         "nummer": 1,
                         "volledigNummer": "11.1",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P1Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                         "nummer": 1,
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P2Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         "nummer": 2,
                         "volledigNummer": "11.1.2",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                 ],
             },
@@ -652,7 +700,8 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             self.client.get(endpoint.url)
             self.client.get(endpoint.url)
 
-        self.assertEqual(len(m.request_history), 1)
+        # One request for the selectielijstklasse, one for the processtypen
+        self.assertEqual(len(m.request_history), 2)
 
 
 class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
@@ -686,11 +735,11 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         """
         selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
-            api_root="http://selectielijst.nl/api/v1",
+            api_root="https://selectielijst.openzaak.nl/api/v1",
         )
         user = UserFactory.create(post__can_start_destruction=True)
         ZaakFactory.create(
-            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+            selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
             post___expand={
                 "resultaat": {
                     "url": "http://localhost:8003/zaken/api/v1/resultaten/821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
@@ -699,7 +748,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                         "resultaattype": {
                             "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/111-111-111",
                             "omschrijving": "Afgehandeld",
-                            "selectielijstklasse": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         }
                     },
                     "toelichting": "Testing resultaten",
@@ -717,7 +766,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                         "resultaattype": {
                             "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/222-222-222",
                             "omschrijving": "Lopend",
-                            "selectielijstklasse": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         }
                     },
                     "toelichting": "Testing resultaten",
@@ -728,31 +777,48 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         ZaakFactory.create(selectielijstklasse="", post___expand={})
 
         m.get(
-            "http://selectielijst.nl/api/v1/resultaten",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen",
+            json=[
+                {
+                    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "nummer": 11,
+                    "jaar": 2020,
+                    "naam": "Toestemming verlenen",
+                    "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                    "toelichting": "",
+                    "procesobject": "De verleende toestemming",
+                },
+            ],
+        )
+        m.get(
+            "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={
                 "count": 3,
                 "results": [
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         "nummer": 1,
                         "volledigNummer": "11.1",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P1Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                         "nummer": 1,
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P2Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         "nummer": 2,
                         "volledigNummer": "11.1.2",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                 ],
             },
@@ -772,15 +838,15 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             response.json(),
             [
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
-                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
                     },
                 },
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
-                    "label": "11.1.2 - Verleend - vernietigen",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                    "label": "11.1.2 - Verleend - vernietigen (2020)",
                     "extraData": {
                         "bewaartermijn": None,
                     },
@@ -795,44 +861,61 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         """
         selectielist_service = ServiceFactory.create(
             api_type=APITypes.orc,
-            api_root="http://selectielijst.nl/api/v1",
+            api_root="https://selectielijst.openzaak.nl/api/v1",
         )
         user = UserFactory.create(post__can_start_destruction=True)
         ZaakFactory.create(
             identificatie="ZAAK-1",
-            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+            selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
         )
         ZaakFactory.create(
             identificatie="ZAAK-2",
-            selectielijstklasse="http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+            selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
         )
 
         m.get(
-            "http://selectielijst.nl/api/v1/resultaten",
+            "https://selectielijst.openzaak.nl/api/v1/procestypen",
+            json=[
+                {
+                    "url": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
+                    "nummer": 11,
+                    "jaar": 2020,
+                    "naam": "Toestemming verlenen",
+                    "omschrijving": "Het door het orgaan behandelen van een aanvraag, melding of verzoek om toestemming voor het doen of laten van een derde waar het orgaan bevoegd is om over te beslissen",
+                    "toelichting": "",
+                    "procesobject": "De verleende toestemming",
+                },
+            ],
+        )
+        m.get(
+            "https://selectielijst.openzaak.nl/api/v1/resultaten",
             json={
                 "count": 3,
                 "results": [
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                         "nummer": 1,
                         "volledigNummer": "11.1",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P1Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                         "nummer": 1,
                         "naam": "Verleend",
                         "waardering": "vernietigen",
                         "bewaartermijn": "P2Y",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                     {
-                        "url": "http://selectielijst.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
+                        "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                         "nummer": 2,
                         "volledigNummer": "11.1.2",
                         "naam": "Verleend",
                         "waardering": "vernietigen",
+                        "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                     },
                 ],
             },
@@ -853,8 +936,8 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             response.json(),
             [
                 {
-                    "value": "http://selectielijst.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
-                    "label": "1 - Verleend - vernietigen - P2Y",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
+                    "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
                     },
