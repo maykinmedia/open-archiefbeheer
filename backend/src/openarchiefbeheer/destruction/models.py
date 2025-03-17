@@ -195,17 +195,20 @@ class DestructionList(models.Model):
         STATE_MANAGER[self.status].reassign(self)
 
     def has_short_review_process(self) -> bool:
-        zaaktypes_urls = (
+        zaaktypes_identificaties = (
             self.items.all()
             .select_related("zaak")
-            .values_list("zaak__zaaktype", flat=True)
+            .values_list("zaak___expand__zaaktype__identificatie", flat=True)
             .distinct()
         )
 
         config = ArchiveConfig.get_solo()
 
         return all(
-            [zaaktype in config.zaaktypes_short_process for zaaktype in zaaktypes_urls]
+            [
+                zaaktype in config.zaaktypes_short_process
+                for zaaktype in zaaktypes_identificaties
+            ]
         )
 
     def has_failures(self) -> bool:
