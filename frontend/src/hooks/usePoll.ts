@@ -41,7 +41,7 @@ export function usePoll<T = unknown>(
     };
 
     // Schedule first run.
-    poll();
+    tick();
 
     // Return a function that clears the scheduled `tick()`.
     return () => {
