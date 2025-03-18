@@ -1,16 +1,14 @@
-/** Whether the (frontend) cache should be disabled. */
-const CACHE_DISABLED =
-  import.meta.env.OAB_CACHE_DISABLED?.toLowerCase() === "true" || false;
-
-/** The maximum default cache age. */
-export const CACHE_MAX_AGE = parseInt(
-  import.meta.env.OAB_CACHE_MAX_AGE || "600000",
-);
-
 /** Data written to session storage for every cache record. */
 export type CacheRecord<T = unknown> = {
   timestamp: number;
   value: T;
+};
+
+/** The cache configuration */
+export const CACHE_CONFIG = {
+  DISABLED: import.meta.env.OAB_DISABLED?.toLowerCase() === "true" || false,
+  KEY_PREFIX: import.meta.env.OAB_CACHE_PREFIX || "oab.lib.cache",
+  MAX_AGE: parseInt(import.meta.env.OAB_CACHE_MAX_AGE || "600000"),
 };
 
 /**
@@ -19,7 +17,7 @@ export type CacheRecord<T = unknown> = {
  * @param key A key identifying the selection.
  */
 export async function cacheGet<T>(key: string): Promise<T | null> {
-  if (CACHE_DISABLED) {
+  if (CACHE_CONFIG.DISABLED) {
     return null;
   }
 
@@ -32,7 +30,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
   const currentTimestamp = new Date().getTime();
   const record: CacheRecord = JSON.parse(json);
 
-  if (currentTimestamp - record.timestamp > CACHE_MAX_AGE) {
+  if (currentTimestamp - record.timestamp > CACHE_CONFIG.MAX_AGE) {
     await cacheDelete(computedKey);
   }
 
@@ -46,7 +44,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
  * @param value THe value to cache.
  */
 export async function cacheSet(key: string, value: unknown) {
-  if (CACHE_DISABLED) {
+  if (CACHE_CONFIG.DISABLED) {
     return;
   }
 
@@ -95,7 +93,7 @@ export async function cacheMemo<F extends (...args: never[]) => unknown>(
  * @param key A key identifying the selection.
  */
 function _getComputedKey(key: string): string {
-  return `oab.lib.cache.${key}`;
+  return `${CACHE_CONFIG.KEY_PREFIX}.${key}`;
 }
 
 /**
