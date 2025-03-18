@@ -62,10 +62,23 @@ export async function cacheSet(key: string, value: unknown) {
  * Removes item from cache.
  * Note: This function is async to accommodate possible future refactors.
  * @param key A key identifying the selection.
+ * @param startsWith Whether to remove cache records with a key that starts with `
+ *  key` (including parameterized records).
  */
-export async function cacheDelete(key: string) {
+export async function cacheDelete(key: string, startsWith = false) {
   const computedKey = _getComputedKey(key);
   sessionStorage.removeItem(computedKey);
+
+  if (!startsWith) {
+    return;
+  }
+
+  // Clear related keys.
+  for (const storageKey in sessionStorage) {
+    if (storageKey.startsWith(computedKey)) {
+      sessionStorage.removeItem(storageKey);
+    }
+  }
 }
 
 /**

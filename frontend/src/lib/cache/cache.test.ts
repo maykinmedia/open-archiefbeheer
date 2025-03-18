@@ -154,6 +154,42 @@ describe("cacheDelete", () => {
       sessionStorage.getItem("test.cache_config.key_prefix.foo"),
     ).toBeNull();
   });
+
+  test("should not remove parameterized cache record if startsWith=false", async () => {
+    const record: CacheRecord = {
+      timestamp: 0,
+      value: "bar",
+    };
+
+    sessionStorage.setItem(
+      "test.cache_config.key_prefix.foo#bar",
+      JSON.stringify(record),
+    );
+
+    await cacheDelete("foo", false);
+    const resolveRecord: CacheRecord = JSON.parse(
+      sessionStorage.getItem("test.cache_config.key_prefix.foo#bar") as string,
+    );
+
+    expect(resolveRecord.value).toBe("bar");
+  });
+
+  test("should remove parameterized cache record if startsWith=true", async () => {
+    const record: CacheRecord = {
+      timestamp: 0,
+      value: "bar",
+    };
+
+    sessionStorage.setItem(
+      "test.cache_config.key_prefix.foo#bar",
+      JSON.stringify(record),
+    );
+
+    await cacheDelete("foo", true);
+    expect(
+      sessionStorage.getItem("test.cache_config.key_prefix.foo#bar"),
+    ).toBeNull();
+  });
 });
 
 describe("cacheMemo", () => {

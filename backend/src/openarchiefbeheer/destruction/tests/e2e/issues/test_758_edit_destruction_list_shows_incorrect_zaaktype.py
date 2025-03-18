@@ -19,7 +19,6 @@ class Issue758EditDestructionListShowsIncorrectZaaktype(GherkinLikeTestCase):
                 status=ListStatus.new,
                 uuid="00000000-0000-0000-0000-000000000000",
                 zaken=[zaken[0]]
-
             )
 
             await self.when.record_manager_logs_in(page)
