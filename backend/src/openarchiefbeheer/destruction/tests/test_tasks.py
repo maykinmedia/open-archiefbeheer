@@ -219,10 +219,7 @@ class ProcessReviewResponseTests(TestCase):
         message = logs[0].get_message()
 
         self.assertIn(
-            _(
-                'The review response of destruction list "%(list_name)s" has been processed.'
-            )
-            % {"list_name": review_response.review.destruction_list.name},
+            _("The action(s) from the review response have been processed."),
             message,
         )
         self.assertIn(_("There is now one zaak on the list."), message)
@@ -305,10 +302,7 @@ class ProcessReviewResponseTests(TestCase):
         message = logs[0].get_message()
 
         self.assertIn(
-            _(
-                'The review response of destruction list "%(list_name)s" has been processed.'
-            )
-            % {"list_name": review_response.review.destruction_list.name},
+            _("The action(s) from the review response have been processed."),
             message,
         )
         self.assertIn(
@@ -832,7 +826,6 @@ class ProcessDeletingZakenTests(TestCase):
         message = logs[0].get_message()
 
         self.assertIn(
-            _('The destruction of destruction list "%(list_name)s" failed.')
-            % {"list_name": destruction_list.name},
+            _("The destruction failed."),
             message,
         )

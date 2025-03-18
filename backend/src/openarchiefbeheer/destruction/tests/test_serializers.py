@@ -118,15 +118,7 @@ class DestructionListSerializerTests(TestCase):
         message = logs[0].get_message()
         self.assertEqual(
             message,
-            _(
-                "User %(author)s (member of group %(groups)s) has created "
-                'destruction list "%(list_name)s".'
-            )
-            % {
-                "list_name": "A test list",
-                "author": "Jeffrey Jones (record_manager)",
-                "groups": "Record Manager",
-            },
+            _("Destruction list created."),
         )
 
     def test_zaak_already_included_in_other_list(self):
@@ -281,15 +273,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertEqual(
             message.strip(),
-            _(
-                "User %(user)s (member of group %(groups)s) has updated destruction list "
-                '"%(list_name)s".'
-            )
-            % {
-                "list_name": "An updated test list",
-                "user": record_manager,
-                "groups": "Record Manager",
-            },
+            _("The destruction list was updated."),
         )
 
     def test_partial_list_update(self):
@@ -818,7 +802,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, reviewer)
         self.assertTrue(logs[0].extra_data["approved"])
-        self.assertIn(_("The destruction list was approved."), logs[0].get_message())
+        self.assertIn(_("It was approved."), logs[0].get_message())
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
@@ -949,14 +933,10 @@ class DestructionListReviewSerializerTests(TestCase):
 
         message = logs[0].get_message()
         self.assertIn(
-            _(
-                "User %(user)s (member of group %(groups)s) has reviewed the list "
-                '"%(list_name)s".'
-            )
-            % {"list_name": "Test list", "user": reviewer, "groups": "Reviewer"},
+            _("The destruction list was reviewed."),
             message,
         )
-        self.assertIn(_("The destruction list was rejected."), message)
+        self.assertIn(_("It was rejected."), message)
 
     def test_reviewing_cases_not_in_destruction_list(self):
         reviewer = UserFactory.create(
@@ -1076,15 +1056,7 @@ class DestructionListCoReviewSerializerTests(TestCase):
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, co_reviewer)
         self.assertIn(
-            _(
-                "User %(user)s (member of group %(groups)s) has co-reviewed the list "
-                '"%(list_name)s".'
-            )
-            % {
-                "list_name": "Test list",
-                "user": co_reviewer,
-                "groups": "Co-Reviewers",
-            },
+            _("Co-review completed."),
             message,
         )
 

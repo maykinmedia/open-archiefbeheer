@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.contrib.auth.models import Group
-from django.utils.translation import gettext_lazy as _, ngettext
+from django.utils.translation import gettext_lazy as _
 
 import freezegun
 from rest_framework import status
@@ -129,16 +129,9 @@ class DestructionListAbortEndpointTest(APITestCase):
 
         self.assertEqual(
             message,
-            ngettext(
-                'User %(record_manager)s (member of group %(groups)s) has aborted the review process of destruction list "%(list_name)s" with reason: %(comment)s.',
-                'User %(record_manager)s (member of groups %(groups)s) has aborted the review process of destruction list "%(list_name)s" with reason: %(comment)s.',
-                2,
-            )
+            _('The review process has been aborted with comment: "%(comment)s"')
             % {
-                "list_name": "A test list",
-                "record_manager": str(record_manager),
                 "comment": "PANIC! ABORT!",
-                "groups": "Administrator, Record Manager",
             },
         )
 
@@ -187,15 +180,8 @@ class DestructionListAbortEndpointTest(APITestCase):
 
         self.assertEqual(
             message,
-            ngettext(
-                'User %(record_manager)s (member of group %(groups)s) has aborted the destruction of destruction list "%(list_name)s" with reason: %(comment)s.',
-                'User %(record_manager)s (member of groups %(groups)s) has aborted the destruction of destruction list "%(list_name)s" with reason: %(comment)s.',
-                2,
-            )
+            _('The destruction process has been aborted with comment: "%(comment)s"')
             % {
-                "list_name": "A test list",
-                "record_manager": str(record_manager),
                 "comment": "PANIC! ABORT!",
-                "groups": "Administrator, Record Manager",
             },
         )
