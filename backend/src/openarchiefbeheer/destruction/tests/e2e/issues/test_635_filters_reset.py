@@ -30,40 +30,38 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.page_should_not_contain_text(page, "Filters wissen")
 
             # Testing `Identificatie` filter
-            await self.when.user_filters_zaken_on_text(page, "Identificatie", "some text")
+            await self.when.user_filters_zaken(page, "Identificatie", "some text")
             await self.then.url_should_contain_text(page, "identificatie__icontains")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Identificatie")
 
             # Testing `Zaaktype` filter
-            await self.when.user_filters_zaken_on_dropdown(page, "Zaaktype", "Aangifte behandelen (ZAAKTYPE-01)")
+            await self.when.user_filters_zaken(page, "Zaaktype", "Aangifte behandelen (ZAAKTYPE-01)")
             await self.then.url_should_contain_text(page, "zaaktype")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.dropdown_should_be_empty(page, "Zaaktype")
 
             # Testing `Omschrijving` filter
-            await self.when.user_filters_zaken_on_text(page, "omschrijving", "some text")
+            await self.when.user_filters_zaken(page, "omschrijving", "some text")
             await self.then.url_should_contain_text(page, "omschrijving__icontains")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Omschrijving")
 
             # Testing `Behandelende afdeling` filter
-            # TODO: Fix, FAULTY -> Value stays in the input field after filtering
-            await self.when.user_filters_zaken_on_text(page, "Behandelende afdeling", "Afdeling 1")
+            await self.when.user_filters_zaken(page, "Behandelende afdeling", "Afdeling 1")
             await self.then.url_should_contain_text(page, "behandelend_afdeling__icontains")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Behandelende afdeling")
 
             # Testing `Selectielijstklasse` filter
-            # TODO: Fix, FAULTY -> No Filters Wissen is present after filter value is set
-            await self.when.user_filters_zaken_on_dropdown(page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
+            await self.when.user_filters_zaken(page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
             await self.then.url_should_contain_text(page, "selectielijstklasse")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.dropdown_should_be_empty(page, "Selectielijstklasse")
             
 
             # Testing `Resultaat` filter 
-            await self.when.user_filters_zaken_on_text(page, "Resultaat", "some text")
+            await self.when.user_filters_zaken(page, "Resultaat", "some text")
             await self.then.url_should_contain_text(page, "resultaat__resultaattype__omschrijving__icontains")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Resultaat")
