@@ -1,3 +1,1 @@
-{% load i18n format_user %}{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " record_manager=log.extra_data.user|format_user count counter=log.extra_data.user_groups|length %}
-User {{ record_manager }} (member of group {{ groups }}) has triggered the destruction of destruction list "{{ list_name }}".{% plural %}User {{ record_manager }} (member of groups {{ groups }}) has triggered the destruction of destruction list "{{ list_name }}".
-{% endblocktranslate %}
+{% load i18n %}{% translate "The destruction of the list was triggered." %}
