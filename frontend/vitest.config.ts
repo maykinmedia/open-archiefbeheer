@@ -10,12 +10,7 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["text", "json", "html"],
       include: ["src/**/*"],
-      exclude: [
-        "/node_modules/",
-        "/**/fixtures/*",
-        "/**/*.test.tsx",
-        "/**/*.stories.tsx",
-      ],
+      exclude: ["*/fixtures", "/**/*.test.tsx", "/**/*.stories.tsx"],
     },
   },
 });
