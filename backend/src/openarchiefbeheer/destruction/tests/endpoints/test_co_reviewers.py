@@ -133,32 +133,12 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertEqual(len(logs), 1)
 
         message = logs[0].get_message().strip()
-        self.assertIn(
+        self.assertEqual(
             _(
-                "User %(user)s (member of group %(groups)s) has removed all the co-reviewers "
-                'of the list "%(list_name)s" and has assigned: %(added_co_reviewers)s.'
+                "The co-reviewers were updated. The co-reviewers are now: %(co_reviewers)s."
             )
             % {
-                "user": main_reviewer.user,
-                "list_name": "A beautiful list",
-                "added_co_reviewers": ", ".join(
-                    [str(user) for user in new_co_reviewers]
-                ),
-                "groups": "Reviewer",
-            },
-            message,
-        )
-        self.assertIn(
-            _("They added the comment: %(comment)s.")
-            % {
-                "comment": "test",
-            },
-            message,
-        )
-        self.assertNotIn(
-            _("They also removed these co-reviewers: %(removed_co_reviewers)s.")
-            % {
-                "removed_co_reviewers": "",
+                "co_reviewers": ", ".join([str(user) for user in new_co_reviewers]),
             },
             message,
         )
@@ -252,32 +232,14 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertEqual(len(logs), 1)
 
         message = logs[0].get_message()
-        self.assertIn(
+        self.assertEqual(
             _(
-                "User %(user)s (member of group %(groups)s) has added these users as co-"
-                'reviewers to the list "%(list_name)s": %(added_co_reviewers)s.'
+                "The co-reviewers were updated. The co-reviewers are now: %(co_reviewers)s."
             )
             % {
-                "user": main_reviewer.user,
-                "list_name": "A beautiful list",
-                "groups": "Reviewer",
-                "added_co_reviewers": ", ".join(
-                    [str(user) for user in new_co_reviewers]
+                "co_reviewers": ", ".join(
+                    [str(user) for user in [initial_assignee2.user, *new_co_reviewers]]
                 ),
-            },
-            message,
-        )
-        self.assertIn(
-            _("They added the comment: %(comment)s.")
-            % {
-                "comment": "test",
-            },
-            message,
-        )
-        self.assertIn(
-            _("They also removed these co-reviewers: %(removed_co_reviewers)s.")
-            % {
-                "removed_co_reviewers": initial_assignee1.user,
             },
             message,
         )
