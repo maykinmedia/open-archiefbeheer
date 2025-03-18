@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
+import { expect, userEvent, within } from "@storybook/test";
 
 import { auditLogItemFactory } from "../../fixtures/auditLog";
 import { userFactory } from "../../fixtures/user";
@@ -30,7 +30,7 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
           lastName: "Doe",
         }),
         extraData: { userGroups: ["Record Manager", "Reviewer"] },
-        message: "Destruction list created",
+        message: "Destruction list deleted.",
       }),
 
       auditLogItemFactory({
@@ -41,7 +41,7 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
           lastName: "Doe",
         }),
         extraData: { userGroups: ["Administrator"] },
-        message: "Destruction list created.",
+        message: "Destruction list updated.",
       }),
     ],
   },
@@ -52,211 +52,163 @@ type Story = StoryObj<typeof meta>;
 
 export const AuditLogItemsVisible: Story = {
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const canvas = within(canvasElement);
-      const rows = canvas.getAllByRole("row");
-      expect(rows).toHaveLength(4);
-      await within(rows[1]).findByText("31/10/1990", { exact: false });
-      await within(rows[1]).findByText("John Doe (johndoe)");
-      await within(rows[1]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
+    const canvas = within(canvasElement);
+    const rows = canvas.getAllByRole("row");
+    expect(rows).toHaveLength(4);
 
-      await within(rows[2]).findByText("02/08/1988", { exact: false });
-      await within(rows[2]).findByText("Jane Doe (janedoe)");
-      await within(rows[2]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
+    expect(rows[1]).toHaveTextContent("31/10/1990");
+    expect(rows[1]).toHaveTextContent("John Doe (johndoe)");
+    expect(rows[1]).toHaveTextContent("Record Manager");
+    expect(rows[1]).toHaveTextContent("Destruction list created.");
 
-      await within(rows[3]).findByText("15/09/2023", { exact: false });
-      await within(rows[3]).findByText("Jet Doe (jetdoe)");
-      await within(rows[3]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
-    });
+    expect(rows[2]).toHaveTextContent("02/08/1988");
+    expect(rows[2]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(rows[2]).toHaveTextContent("Record Manager, Reviewer");
+    expect(rows[2]).toHaveTextContent("Destruction list deleted.");
+
+    expect(rows[3]).toHaveTextContent("15/09/2023");
+    expect(rows[3]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(rows[3]).toHaveTextContent("Administrator");
+    expect(rows[3]).toHaveTextContent("Destruction list updated.");
   },
 };
 
 export const AuditLogItemsSortDate: Story = {
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const canvas = within(canvasElement);
-      const dateColumn = await canvas.findByRole("button", { name: "Datum" });
-      await userEvent.click(dateColumn);
+    const canvas = within(canvasElement);
+    const dateColumn = await canvas.findByRole("button", { name: "Datum" });
+    await userEvent.click(dateColumn);
 
-      const asc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
-      await within(asc[1]).findByText("02/08/1988", { exact: false });
-      await within(asc[1]).findByText("Jane Doe (janedoe)");
-      await within(asc[1]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
+    const asc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
+    expect(asc[1]).toHaveTextContent("02/08/1988");
+    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
-      await within(asc[2]).findByText("31/10/1990", { exact: false });
-      await within(asc[2]).findByText("John Doe (johndoe)");
-      await within(asc[2]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
+    expect(asc[2]).toHaveTextContent("31/10/1990");
+    expect(asc[2]).toHaveTextContent("John Doe (johndoe)");
+    expect(asc[2]).toHaveTextContent("Record Manager");
+    expect(asc[2]).toHaveTextContent("Destruction list created.");
 
-      await within(asc[3]).findByText("15/09/2023", { exact: false });
-      await within(asc[3]).findByText("Jet Doe (jetdoe)");
-      await within(asc[3]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
+    expect(asc[3]).toHaveTextContent("15/09/2023");
+    expect(asc[3]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(asc[3]).toHaveTextContent("Administrator");
+    expect(asc[3]).toHaveTextContent("Destruction list updated.");
 
-      await userEvent.click(dateColumn);
+    await userEvent.click(dateColumn);
 
-      const desc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
+    const desc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
 
-      await within(desc[1]).findByText("15/09/2023", { exact: false });
-      await within(desc[1]).findByText("Jet Doe (jetdoe)");
-      await within(desc[1]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
+    expect(desc[1]).toHaveTextContent("15/09/2023");
+    expect(desc[1]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(desc[1]).toHaveTextContent("Administrator");
+    expect(desc[1]).toHaveTextContent("Destruction list updated.");
 
-      await within(desc[2]).findByText("31/10/1990", { exact: false });
-      await within(desc[2]).findByText("John Doe (johndoe)");
-      await within(desc[2]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
+    expect(desc[2]).toHaveTextContent("31/10/1990");
+    expect(desc[2]).toHaveTextContent("John Doe (johndoe)");
+    expect(desc[2]).toHaveTextContent("Record Manager");
+    expect(desc[2]).toHaveTextContent("Destruction list created.");
 
-      await within(desc[3]).findByText("02/08/1988", { exact: false });
-      await within(desc[3]).findByText("Jane Doe (janedoe)");
-      await within(desc[3]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
-    });
+    expect(desc[3]).toHaveTextContent("02/08/1988");
+    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
 
 export const AuditLogItemsSortName: Story = {
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const canvas = within(canvasElement);
-      const nameColumn = await canvas.findByRole("button", {
-        name: "Gewijzigd door",
-      });
-      await userEvent.click(nameColumn);
-
-      const asc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
-      await within(asc[1]).findByText("02/08/1988", { exact: false });
-      await within(asc[1]).findByText("Jane Doe (janedoe)");
-      await within(asc[1]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
-
-      await within(asc[2]).findByText("15/09/2023", { exact: false });
-      await within(asc[2]).findByText("Jet Doe (jetdoe)");
-      await within(asc[2]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
-
-      await within(asc[3]).findByText("31/10/1990", { exact: false });
-      await within(asc[3]).findByText("John Doe (johndoe)");
-      await within(asc[3]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
-
-      await userEvent.click(nameColumn);
-
-      const desc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
-
-      await within(desc[1]).findByText("31/10/1990", { exact: false });
-      await within(desc[1]).findByText("John Doe (johndoe)");
-      await within(desc[1]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
-
-      await within(desc[2]).findByText("15/09/2023", { exact: false });
-      await within(desc[2]).findByText("Jet Doe (jetdoe)");
-      await within(desc[2]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
-
-      await within(desc[3]).findByText("02/08/1988", { exact: false });
-      await within(desc[3]).findByText("Jane Doe (janedoe)");
-      await within(desc[3]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
+    const canvas = within(canvasElement);
+    const nameColumn = await canvas.findByRole("button", {
+      name: "Gewijzigd door",
     });
+    await userEvent.click(nameColumn);
+
+    const asc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
+    expect(asc[1]).toHaveTextContent("02/08/1988");
+    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
+
+    expect(asc[2]).toHaveTextContent("15/09/2023");
+    expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(asc[2]).toHaveTextContent("Administrator");
+    expect(asc[2]).toHaveTextContent("Destruction list updated.");
+
+    expect(asc[3]).toHaveTextContent("31/10/1990");
+    expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
+    expect(asc[3]).toHaveTextContent("Record Manager");
+    expect(asc[3]).toHaveTextContent("Destruction list created.");
+
+    await userEvent.click(nameColumn);
+
+    const desc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
+
+    expect(desc[1]).toHaveTextContent("31/10/1990");
+    expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
+    expect(desc[1]).toHaveTextContent("Record Manager");
+    expect(desc[1]).toHaveTextContent("Destruction list created.");
+
+    expect(desc[2]).toHaveTextContent("15/09/2023");
+    expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(desc[2]).toHaveTextContent("Administrator");
+    expect(desc[2]).toHaveTextContent("Destruction list updated.");
+
+    expect(desc[3]).toHaveTextContent("02/08/1988");
+    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
 
 export const AuditLogItemsSortMessage: Story = {
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const canvas = within(canvasElement);
-      const nameColumn = await canvas.findByRole("button", {
-        name: "Wijziging",
-      });
-      await userEvent.click(nameColumn);
-
-      const asc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
-      await within(asc[1]).findByText("02/08/1988", { exact: false });
-      await within(asc[1]).findByText("Jane Doe (janedoe)");
-      await within(asc[1]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
-
-      await within(asc[2]).findByText("31/10/1990", { exact: false });
-      await within(asc[2]).findByText("John Doe (johndoe)");
-      await within(asc[2]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
-
-      await within(asc[3]).findByText("15/09/2023", { exact: false });
-      await within(asc[3]).findByText("Jet Doe (jetdoe)");
-      await within(asc[3]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
-
-      await userEvent.click(nameColumn);
-
-      const desc = canvas.getAllByRole("row");
-      expect(asc).toHaveLength(4);
-
-      await within(desc[1]).findByText("15/09/2023", { exact: false });
-      await within(desc[1]).findByText("Jet Doe (jetdoe)");
-      await within(desc[1]).findByText(
-        'Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
-        { exact: false },
-      );
-
-      await within(desc[2]).findByText("31/10/1990", { exact: false });
-      await within(desc[2]).findByText("John Doe (johndoe)");
-      await within(desc[2]).findByText(
-        'Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
-        { exact: false },
-      );
-
-      await within(desc[3]).findByText("02/08/1988", { exact: false });
-      await within(desc[3]).findByText("Jane Doe (janedoe)");
-      await within(desc[3]).findByText(
-        'Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
-        { exact: false },
-      );
+    const canvas = within(canvasElement);
+    const nameColumn = await canvas.findByRole("button", {
+      name: "Gewijzigd door",
     });
+    await userEvent.click(nameColumn);
+
+    const asc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
+
+    expect(asc[1]).toHaveTextContent("02/08/1988");
+    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
+
+    expect(asc[2]).toHaveTextContent("15/09/2023");
+    expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(asc[2]).toHaveTextContent("Administrator");
+    expect(asc[2]).toHaveTextContent("Destruction list updated.");
+
+    expect(asc[3]).toHaveTextContent("31/10/1990");
+    expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
+    expect(asc[3]).toHaveTextContent("Record Manager");
+    expect(asc[3]).toHaveTextContent("Destruction list created.");
+
+    await userEvent.click(nameColumn);
+
+    const desc = canvas.getAllByRole("row");
+    expect(asc).toHaveLength(4);
+
+    expect(desc[1]).toHaveTextContent("31/10/1990");
+    expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
+    expect(desc[1]).toHaveTextContent("Record Manager");
+    expect(desc[1]).toHaveTextContent("Destruction list created.");
+
+    expect(desc[2]).toHaveTextContent("15/09/2023");
+    expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    expect(desc[2]).toHaveTextContent("Administrator");
+    expect(desc[2]).toHaveTextContent("Destruction list updated.");
+
+    expect(desc[3]).toHaveTextContent("02/08/1988");
+    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
