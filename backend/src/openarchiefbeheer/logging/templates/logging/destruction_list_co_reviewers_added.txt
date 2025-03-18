@@ -1,25 +1,3 @@
-{% load i18n format_user %}{% with added_co_reviewers=log.extra_data.added_co_reviewers|join:", " removed_co_reviewers=log.extra_data.removed_co_reviewers|join:", " groups=log.extra_data.user_groups|join:", " %}
-{% if log.extra_data.partial %}
-{% blocktranslate trimmed with list_name=log.content_object.name user=log.extra_data.user|format_user added_co_reviewers=added_co_reviewers groups=groups count counter=log.extra_data.user_groups|length %}
-User {{ user }} (member of group {{ groups }}) has added these users as co-reviewers to the list "{{ list_name }}": {{ added_co_reviewers }}.
-{% plural%}
-User {{ user }} (member of groups {{ groups }}) has added these users as co-reviewers to the list "{{ list_name }}": {{ added_co_reviewers }}.
+{% load i18n %}{% blocktranslate trimmed with co_reviewers=log.extra_data.co_reviewers|join:", " %}
+The co-reviewers were updated. The co-reviewers are now: {{ co_reviewers }}.
 {% endblocktranslate %}
-{% if removed_co_reviewers %}
-{% blocktranslate trimmed with removed_co_reviewers=removed_co_reviewers %}
-They also removed these co-reviewers: {{ removed_co_reviewers }}.
-{% endblocktranslate %}
-{% endif %}
-{% else %}
-{% blocktranslate trimmed with list_name=log.content_object.name user=log.extra_data.user|format_user added_co_reviewers=added_co_reviewers groups=groups count counter=log.extra_data.user_groups|length %}
-User {{ user }} (member of group {{ groups }}) has removed all the co-reviewers of the list "{{ list_name }}" and has assigned: {{ added_co_reviewers }}.
-{% plural%}
-User {{ user }} (member of groups {{ groups }}) has removed all the co-reviewers of the list "{{ list_name }}" and has assigned: {{ added_co_reviewers }}.
-{% endblocktranslate %}
-{% endif %}
-
-{% blocktranslate trimmed with comment=log.extra_data.comment %}
-They added the comment: {{ comment }}.
-{% endblocktranslate %}
-{% endwith %}
-
