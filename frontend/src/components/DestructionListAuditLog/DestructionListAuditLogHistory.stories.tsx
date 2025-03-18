@@ -18,8 +18,8 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
           firstName: "John",
           lastName: "Doe",
         }),
-        message:
-          '[1990-10-31T00:00:00+01:00]: Destruction list "My Second Destruction List" created by user John Doe (johndoe).',
+        extraData: { userGroups: ["Record Manager"] },
+        message: "Destruction list created.",
       }),
 
       auditLogItemFactory({
@@ -29,8 +29,8 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
           firstName: "Jane",
           lastName: "Doe",
         }),
-        message:
-          '[1988-08-02T00:00:00+01:00]: Destruction list "My First Destruction List" created by user Jane Doe (janedoe).',
+        extraData: { userGroups: ["Record Manager", "Reviewer"] },
+        message: "Destruction list created",
       }),
 
       auditLogItemFactory({
@@ -40,8 +40,8 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
           firstName: "Jet",
           lastName: "Doe",
         }),
-        message:
-          '[2023-09-15T00:00:00+01:00]: Destruction list "My Third Destruction List" created by user Jet Doe (jetdoe).',
+        extraData: { userGroups: ["Administrator"] },
+        message: "Destruction list created.",
       }),
     ],
   },
