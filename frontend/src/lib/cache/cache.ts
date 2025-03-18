@@ -31,7 +31,8 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
   const record: CacheRecord = JSON.parse(json);
 
   if (currentTimestamp - record.timestamp > CACHE_CONFIG.MAX_AGE) {
-    await cacheDelete(computedKey);
+    await cacheDelete(key);
+    return null;
   }
 
   return JSON.parse(json).value as T;
@@ -78,7 +79,7 @@ export async function cacheMemo<F extends (...args: never[]) => unknown>(
   factory: F,
   params: Parameters<F> | (string | undefined)[] = [],
 ): Promise<Awaited<ReturnType<F>>> {
-  const _key = _getCompiledKey(key, params);
+  const _key = _getParameterizedKey(key, params);
   const cached = await cacheGet<Awaited<ReturnType<F>>>(_key);
   if (cached !== null) {
     return cached;
@@ -89,7 +90,7 @@ export async function cacheMemo<F extends (...args: never[]) => unknown>(
 }
 
 /**
- * Computes the prefixed cache key.
+ * Computes the prefixed cache key including the prefix.
  * @param key A key identifying the selection.
  */
 function _getComputedKey(key: string): string {
@@ -97,11 +98,11 @@ function _getComputedKey(key: string): string {
 }
 
 /**
- * Returns a key (not computed key) containing both `key` and `params`.
+ * Returns a key (not fully computed key) containing both `key` and `params`.
  * @param key
  * @param params Can only contain `boolean`, `number`, or `string` values.
  */
-function _getCompiledKey(key: string, params?: Array<unknown>): string {
+function _getParameterizedKey(key: string, params?: Array<unknown>): string {
   const _params = params?.filter((v) => v);
   if (!_params || !_params.length) {
     return key;
