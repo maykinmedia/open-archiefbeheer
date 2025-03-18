@@ -5,6 +5,7 @@ from uuid import uuid4
 import factory
 from factory import post_generation
 from factory.fuzzy import FuzzyAttribute, FuzzyDate
+from faker import Faker
 
 from ..models import Zaak
 
@@ -40,15 +41,18 @@ class ZaakFactory(factory.django.DjangoModelFactory):
         expand = copy.deepcopy(
             {
                 "zaaktype": {
-                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                    "url": obj.zaaktype,
                     "selectielijst_procestype": {
                         "nummer": 1,
                         "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
                         "naam": "Evaluatie uitvoeren",
                         "jaar": 2024,
                     },
-                    "omschrijving": "Aangifte behandelen",
-                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": Faker().sentence(),
+                    "identificatie": kwargs.get(
+                        "_expand__zaaktype__identificatie",
+                        obj.identificatie.replace("ZAAK", "ZAAKTYPE"),
+                    ),
                     "versiedatum": "2024-01-01",
                 },
                 "resultaat": {

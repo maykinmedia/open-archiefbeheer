@@ -149,21 +149,20 @@ class DestructionListItemTest(TestCase):
         self.assertEqual(item.extra_zaak_data["identificatie"], "ZAAK-01")
         self.assertEqual(item.extra_zaak_data["startdatum"], "2020-01-01")
         self.assertEqual(item.extra_zaak_data["einddatum"], "2022-01-01")
+
+        self.assertEqual(item.extra_zaak_data["zaaktype"]["uuid"], "111-111-111")
         self.assertEqual(
-            item.extra_zaak_data["zaaktype"],
-            {
-                "uuid": "111-111-111",
-                "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
-                "identificatie": "ZAAKTYPE-01",
-                "omschrijving": "Aangifte behandelen",
-                "selectielijst_procestype": {
-                    "naam": "Evaluatie uitvoeren",
-                    "nummer": 1,
-                    "url": "https://selectielijst.nl/api/v1/procestypen/7ff2b005-4d84-47fe-983a-732bfa958ff5",
-                    "jaar": 2024,
-                },
-            },
+            item.extra_zaak_data["zaaktype"]["url"],
+            "http://catalogi.nl/api/v1/zaaktypen/111-111-111",
         )
+        self.assertEqual(
+            item.extra_zaak_data["zaaktype"]["identificatie"], "ZAAKTYPE-01"
+        )
+        self.assertEqual(
+            item.extra_zaak_data["zaaktype"]["selectielijst_procestype"]["naam"],
+            "Evaluatie uitvoeren",
+        )
+
         self.assertEqual(
             item.extra_zaak_data["resultaat"],
             {
