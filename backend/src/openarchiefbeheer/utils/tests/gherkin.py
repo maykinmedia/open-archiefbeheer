@@ -6,9 +6,13 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
-    DestructionListAssigneeFactory, DestructionListFactory,
-    DestructionListItemFactory, DestructionListItemReviewFactory,
-    DestructionListReviewFactory, ReviewItemResponseFactory)
+    DestructionListAssigneeFactory,
+    DestructionListFactory,
+    DestructionListItemFactory,
+    DestructionListItemReviewFactory,
+    DestructionListReviewFactory,
+    ReviewItemResponseFactory,
+)
 from openarchiefbeheer.selection.models import AllSelectedToggle, SelectionItem
 from openarchiefbeheer.selection.tests.factories import SelectionItemFactory
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
@@ -866,6 +870,7 @@ class GerkinMixin:
             select = page.get_by_label(f'filter veld "{name}"')
             value = await select.get_attribute("value")
             self.testcase.assertEqual(value, None)
+
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
     pass

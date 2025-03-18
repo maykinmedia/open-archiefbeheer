@@ -1,22 +1,22 @@
 import {
-    Placeholder,
-    TypedField,
-    TypedSerializedFormData,
+  Placeholder,
+  TypedField,
+  TypedSerializedFormData,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import {
-    listSelectielijstKlasseChoices,
-    listZaaktypeChoices,
+  listSelectielijstKlasseChoices,
+  listZaaktypeChoices,
 } from "../lib/api/private";
 import { Review } from "../lib/api/review";
 import {
-    FieldSelection,
-    addToFieldSelection,
-    getFieldSelection,
-    removeFromFieldSelection,
+  FieldSelection,
+  addToFieldSelection,
+  getFieldSelection,
+  removeFromFieldSelection,
 } from "../lib/fieldSelection/fieldSelection";
 import { formatDate } from "../lib/format/date";
 import { params2CacheKey } from "../lib/format/params";

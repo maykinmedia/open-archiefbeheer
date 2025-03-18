@@ -1,4 +1,3 @@
-# fmt: off
 from django.test import tag
 from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
@@ -22,7 +21,9 @@ class Issue635FiltersReset(GherkinLikeTestCase):
 
             await self.when.user_logs_in(page, record_manager)
             await self.then.path_should_be(page, "/destruction-lists")
-            await self.when.user_clicks_button(page, "Destruction list to reset filters for")
+            await self.when.user_clicks_button(
+                page, "Destruction list to reset filters for"
+            )
             await self.then.url_should_contain_text(page, "destruction-lists/")
             initial_url_with_page = page.url + "?page=1"
             await self.when.user_clicks_button(page, "Volgende")
@@ -36,7 +37,9 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.input_field_should_be_empty(page, "Identificatie")
 
             # Testing `Zaaktype` filter
-            await self.when.user_filters_zaken(page, "Zaaktype", "Aangifte behandelen (ZAAKTYPE-01)")
+            await self.when.user_filters_zaken(
+                page, "Zaaktype", "Aangifte behandelen (ZAAKTYPE-01)"
+            )
             await self.then.url_should_contain_text(page, "zaaktype")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.dropdown_should_be_empty(page, "Zaaktype")
@@ -48,21 +51,28 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.input_field_should_be_empty(page, "Omschrijving")
 
             # Testing `Behandelende afdeling` filter
-            await self.when.user_filters_zaken(page, "Behandelende afdeling", "Afdeling 1")
-            await self.then.url_should_contain_text(page, "behandelend_afdeling__icontains")
+            await self.when.user_filters_zaken(
+                page, "Behandelende afdeling", "Afdeling 1"
+            )
+            await self.then.url_should_contain_text(
+                page, "behandelend_afdeling__icontains"
+            )
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Behandelende afdeling")
 
             # Testing `Selectielijstklasse` filter
-            await self.when.user_filters_zaken(page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
+            await self.when.user_filters_zaken(
+                page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y"
+            )
             await self.then.url_should_contain_text(page, "selectielijstklasse")
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.dropdown_should_be_empty(page, "Selectielijstklasse")
-            
 
-            # Testing `Resultaat` filter 
+            # Testing `Resultaat` filter
             await self.when.user_filters_zaken(page, "Resultaat", "some text")
-            await self.then.url_should_contain_text(page, "resultaat__resultaattype__omschrijving__icontains")
+            await self.then.url_should_contain_text(
+                page, "resultaat__resultaattype__omschrijving__icontains"
+            )
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Resultaat")
 
@@ -79,20 +89,27 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await type_in_date(page, "startdatum", "Einddatum", "01", "01", "2021")
             await type_in_date(page, "einddatum", "Einddatum", "01", "01", "2022")
             await self.when.user_clicks_button(page, "Filters wissen")
-            await page.wait_for_timeout(1000) # Needed due to it taking a little bit for the inputs to be cleared
+            await page.wait_for_timeout(
+                1000
+            )  # Needed due to it taking a little bit for the inputs to be cleared
             await date_field_should_be_empty(page, "startdatum", "Einddatum")
             await date_field_should_be_empty(page, "einddatum", "Einddatum")
 
             # Testing `Archiefactiedatum` Filter
-            await type_in_date(page, "startdatum", "Archiefactiedatum", "01", "01", "2021")
-            await type_in_date(page, "einddatum", "Archiefactiedatum", "01", "01", "2022")
+            await type_in_date(
+                page, "startdatum", "Archiefactiedatum", "01", "01", "2021"
+            )
+            await type_in_date(
+                page, "einddatum", "Archiefactiedatum", "01", "01", "2022"
+            )
             await self.when.user_clicks_button(page, "Filters wissen")
-            await page.wait_for_timeout(1000) # Needed due to it taking a little bit for the inputs to be cleared
+            await page.wait_for_timeout(
+                1000
+            )  # Needed due to it taking a little bit for the inputs to be cleared
             await date_field_should_be_empty(page, "startdatum", "Archiefactiedatum")
             await date_field_should_be_empty(page, "einddatum", "Archiefactiedatum")
 
             await self.then.url_should_be(page, initial_url_with_page)
-
 
 
 async def type_in_date(page, title, placeholder, dd, mm, jjjj):
@@ -110,11 +127,12 @@ async def type_in_date(page, title, placeholder, dd, mm, jjjj):
             await dd_f.type(dd)
             await mm_f.type(mm)
             await jjjj_f.type(jjjj)
-            await jjjj_f.press('Tab') # To blur the input field
+            await jjjj_f.press("Tab")  # To blur the input field
             return  # Once we find and fill the inputs, we can exit the loop
 
-    raise ValueError(f"No div with title '{title}' and first input placeholder '{placeholder}' found.")
-
+    raise ValueError(
+        f"No div with title '{title}' and first input placeholder '{placeholder}' found."
+    )
 
 
 async def date_field_should_be_empty(page, title, placeholder):
@@ -128,5 +146,7 @@ async def date_field_should_be_empty(page, title, placeholder):
             value = await first_input.get_attribute("value")
             assert value == "", f"Expected empty date field, got '{value}' instead."
             return
-        
-    raise ValueError(f"No div with title '{title}' and first input placeholder '{placeholder}' found.")
+
+    raise ValueError(
+        f"No div with title '{title}' and first input placeholder '{placeholder}' found."
+    )
