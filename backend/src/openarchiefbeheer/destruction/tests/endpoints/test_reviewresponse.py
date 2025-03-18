@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 import freezegun
 from furl import furl
@@ -145,15 +145,7 @@ class ReviewResponsesViewSetTests(APITestCase):
         message = logs[0].get_message()
 
         self.assertIn(
-            _(
-                "User %(author)s (member of group %(groups)s) has processed the feedback on "
-                'destruction list "%(list_name)s".'
-            )
-            % {
-                "author": str(record_manager),
-                "groups": "Record Manager",
-                "list_name": review.destruction_list.name,
-            },
+            _("The review feedback has been processed."),
             message,
         )
 
@@ -257,16 +249,7 @@ class ReviewResponsesViewSetTests(APITestCase):
             "2023-09-15T21:36:00+02:00",
         )
         self.assertEqual(
-            data[0]["message"].strip(),
-            _(
-                "User %(user)s (member of group %(groups)s) has reassigned destruction list "
-                '"%(list_name)s".'
-            )
-            % {
-                "list_name": "Test audittrail",
-                "user": record_manager,
-                "groups": "Record Manager",
-            },
+            data[0]["message"].strip(), _("The destruction list was reassigned.")
         )
         self.assertEqual(
             data[0]["extra_data"]["assignee"]["user"],
