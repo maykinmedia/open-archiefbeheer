@@ -129,10 +129,15 @@ def format_zaaktype_choices(zaaktypen: Iterable[dict]) -> list[DropDownChoice]:
     return formatted_zaaktypen
 
 
-def format_selectielijstklasse_choice(resultaat: Resultaat) -> DropDownChoice:
+def format_selectielijstklasse_choice(
+    resultaat: Resultaat, procestypen: dict
+) -> DropDownChoice:
     description = f"{resultaat.get('volledig_nummer', resultaat['nummer'])} - {resultaat['naam']} - {resultaat['waardering']}"
     if resultaat.get("bewaartermijn"):
         description = description + f" - {resultaat['bewaartermijn']}"
+
+    selectielijstjaar = procestypen[resultaat["proces_type"]]["jaar"]
+    description += f" ({selectielijstjaar})"
 
     return {
         "label": description,
@@ -165,17 +170,29 @@ def retrieve_selectielijstklasse_choices(
     if not selectielijst_service:
         return []
 
+    def _retrieve_processtypen(client: APIClient) -> list[dict]:
+        response = client.get("procestypen")
+        response.raise_for_status()
+
+        return response.json()
+
     client = build_client(selectielijst_service)
     with client:
         response = client.get("resultaten", params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
 
-    results = []
-    for page in data_iterator:
-        results += [
-            format_selectielijstklasse_choice(result) for result in page["results"]
-        ]
+        procestypen = {
+            procestype["url"]: procestype
+            for procestype in _retrieve_processtypen(client)
+        }
+
+        results = []
+        for page in data_iterator:
+            results += [
+                format_selectielijstklasse_choice(result, procestypen)
+                for result in page["results"]
+            ]
 
     return results
 
