@@ -38,7 +38,7 @@ class FeatureConfigureDestructionReport(GherkinLikeTestCase):
                 await self.then.archive_configuration_should_be(
                     page,
                     bronorganisatie="000000001",
-                    zaaktype="http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
+                    zaaktype="ZAAKTYPE-02",
                     statustype="http://zaken.nl/catalogi/api/v1/statustypen/0b016f1a-e10a-4dad-9090-c06bac6ef7e7",
                     resultaattype="http://zaken.nl/catalogi/api/v1/resultaattypen/2af00ef7-d865-4166-9efc-19ab95fed618",
                     informatieobjecttype="http://zaken.nl/catalogi/api/v1/informatieobjecttypen/3007e984-c529-4a07-b32e-555b4c882ce5",

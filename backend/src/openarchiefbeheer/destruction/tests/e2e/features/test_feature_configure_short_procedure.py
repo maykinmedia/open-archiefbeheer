@@ -28,7 +28,7 @@ class FeatureConfigureShortProcedure(GherkinLikeTestCase):
             await self.then.archive_configuration_should_be(
                 page,
                 zaaktypes_short_process=[
-                    "http://localhost:8000/catalogi/api/v1/zaaktypen/927eb71c-d99b-4c5d-b3e2-94a07ce85923",
-                    "http://localhost:8000/catalogi/api/v1/zaaktypen/684b9c68-a36f-4c72-b044-fa9cdcb17ec9",
+                    "ZAAKTYPE-02",
+                    "ZAAKTYPE-03",
                 ],
             )
