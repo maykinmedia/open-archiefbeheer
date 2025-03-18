@@ -1,3 +1,1 @@
-{% load i18n %}{% blocktranslate trimmed %}
-   Resyncing of the cases has completed successfully.
-{% endblocktranslate %}
+{% load i18n %}{% translate "Resyncing of the cases has completed successfully." %}

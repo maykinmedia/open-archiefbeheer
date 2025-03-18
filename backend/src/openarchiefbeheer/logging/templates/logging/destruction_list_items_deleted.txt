@@ -1,6 +1,5 @@
-{% load i18n %}{% blocktranslate trimmed with list_name=log.content_object.name %}
-List "{{ list_name }}" has been updated after resyncing the cases with Open Zaak.
-{% endblocktranslate %}
+{% load i18n %}
+{% translate "The destruction list has been updated after resyncing the cases with Open Zaak." %}
 {% blocktranslate trimmed with number_deleted_items=log.extra_data.number_deleted_items count counter=log.extra_data.number_deleted_items %}
 One item was deleted.{% plural %}{{ number_deleted_items }} items were deleted.
 {% endblocktranslate %}

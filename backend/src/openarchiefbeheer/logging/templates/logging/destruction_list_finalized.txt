@@ -1,5 +1,3 @@
-{% load i18n format_user %}{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " user=log.extra_data.user|format_user record_manager=log.extra_data.user|format_user archivist=log.extra_data.archivist.username count counter=log.extra_data.user_groups|length %}
-User {{ user }} (member of group {{ groups }}) has made destruction list "{{ list_name }}" final and assigned it to the archivist "{{ archivist }}".
-{% plural %}
-User {{ user }} (member of groups {{ groups }}) has made destruction list "{{ list_name }}" final and assigned it to the archivist "{{ archivist }}".
+{% load i18n format_user %}{% blocktranslate trimmed with archivist=log.extra_data.archivist|format_user %}
+The destruction list was made final and assigned to the archivist {{ archivist }}.
 {% endblocktranslate %}
