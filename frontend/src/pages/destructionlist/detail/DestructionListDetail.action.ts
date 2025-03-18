@@ -14,6 +14,7 @@ import {
   ReviewResponse,
   createReviewResponse,
 } from "../../../lib/api/reviewResponse";
+import { cacheDelete } from "../../../lib/cache/cache";
 import { clearZaakSelection } from "../../../lib/zaakSelection";
 
 export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
@@ -192,6 +193,7 @@ export async function destructionListUpdateZakenAction({
     throw e;
   }
   await clearZaakSelection(storageKey);
+  await cacheDelete("listZaaktypeChoices", true); // Remove possibly outdated zaaktype cache.
   return redirect(`/destruction-lists/${params.uuid}`);
 }
 
