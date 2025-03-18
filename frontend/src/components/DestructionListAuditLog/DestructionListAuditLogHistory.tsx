@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { AuditLogItem } from "../../lib/api/auditLog";
 import { formatDateAndTime } from "../../lib/format/date";
-import { formatUser } from "../../lib/format/user";
+import { formatGroups, formatUser } from "../../lib/format/user";
 
 type DestructionListAuditLogHistoryItem = {
   Datum: string;
@@ -25,6 +25,7 @@ export function DestructionListAuditLogHistory({
       (logItem) => ({
         Datum: formatDateAndTime(logItem.timestamp),
         "Gewijzigd door": formatUser(logItem.user),
+        Rol: formatGroups(logItem.extraData?.userGroups),
         Wijziging: logItem.message,
       }),
     );

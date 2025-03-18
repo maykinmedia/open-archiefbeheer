@@ -21,3 +21,9 @@ export function formatUser(user: User, { showUsername = true } = {}) {
 
   return displayName.trim();
 }
+
+export function formatGroups(groups?: string[]) {
+  if (!groups || groups.length === 0) return "-";
+
+  return groups.join(", ");
+}
