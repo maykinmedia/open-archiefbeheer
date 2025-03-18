@@ -158,8 +158,7 @@ def destruction_list_reassigned(
 
 def destruction_list_co_reviewers_added(
     destruction_list: DestructionList,
-    added_co_reviewers: list[dict],
-    removed_co_reviewers: list[dict],
+    co_reviewers: list[DestructionListAssignee],
     partial: bool,
     comment: str,
     user: User,
@@ -169,13 +168,9 @@ def destruction_list_co_reviewers_added(
         event="destruction_list_co_reviewers_added",
         user=user,
         extra_data={
-            "added_co_reviewers": [
-                co_reviewer["user"].get_name_with_username()
-                for co_reviewer in added_co_reviewers
-            ],
-            "removed_co_reviewers": [
-                co_reviewer["user"].get_name_with_username()
-                for co_reviewer in removed_co_reviewers
+            "co_reviewers": [
+                co_reviewer.user.get_name_with_username()
+                for co_reviewer in co_reviewers
             ],
             "partial": partial,
             "comment": comment,
