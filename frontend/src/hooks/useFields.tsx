@@ -201,6 +201,7 @@ export function useFields<T extends Zaak = Zaak>(
       name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling__icontains",
+      filterValue: searchParams.get("behandelend_afdeling__icontains") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
@@ -225,8 +226,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "selectielijstklasse",
       type: "string",
+      filterLookup: "selectielijstklasse",
       filterValue: searchParams.get("selectielijstklasse") || "",
-      // filterLookup: // TODO: Expand?
       valueTransform: (v: ExpandZaak) => {
         // selectielijstklasse choices not yet loaded.
         if (selectielijstKlasseChoices === null) {
@@ -279,27 +280,6 @@ export function useFields<T extends Zaak = Zaak>(
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
         { label: "Vernietigen", value: "vernietigen" },
       ],
-      width: "150px",
-    },
-    {
-      active: false,
-      name: "relaties",
-      filterLookup: "heeft_relaties",
-      valueTransform: (rowData: object) =>
-        Boolean((rowData as Zaak)?.relevanteAndereZaken?.length),
-      filterValue: searchParams.get("heeft_relaties") || "",
-      type: "boolean",
-      options: [
-        { value: "true", label: "Ja" },
-        { value: "false", label: "Nee" },
-      ],
-      width: "150px",
-    },
-    {
-      name: "hoofdzaak",
-      active: false,
-      type: "string",
-      // valueLookup: // TODO: Expand?
       width: "150px",
     },
     ...(extraFields || []).map((f) => ({
