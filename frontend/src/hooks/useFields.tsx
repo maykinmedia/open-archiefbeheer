@@ -139,10 +139,10 @@ export function useFields<T extends Zaak = Zaak>(
         const expandZaak = zaak as T & {
           _expand: { zaaktype: { identificatie: string } };
         };
-        const zaaktype = expandZaak._expand.zaaktype.identificatie;
+        const zaaktype = expandZaak._expand?.zaaktype.identificatie;
 
         // Zaaktype choices not yet loaded.
-        if (zaaktypeChoices === null) {
+        if (zaaktypeChoices === null && zaaktype !== undefined) {
           return <Placeholder />;
         }
 
@@ -236,10 +236,10 @@ export function useFields<T extends Zaak = Zaak>(
         const zaakSelectielijstklasse =
           v.selectielijstklasse ||
           v._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse;
-        return (
-          selectielijstKlasseChoices.find(
-            (c) => c.value === zaakSelectielijstklasse,
-          )?.label || <Placeholder />
+        return selectielijstKlasseChoices.find(
+          (c) => c.value === zaakSelectielijstklasse,
+        )?.label || v._expand === undefined ? null : (
+          <Placeholder />
         );
       },
       options: selectielijstKlasseChoices || [],

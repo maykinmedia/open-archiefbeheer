@@ -188,7 +188,10 @@ export const Landing = () => {
       case "deleted":
         return canDownloadReport(user, list)
           ? API_BASE_URL + `/destruction-lists/${list.uuid}/download_report`
-          : undefined;
+          : list.processingStatus === "failed" &&
+              canViewDestructionList(user, list)
+            ? `/destruction-lists/${list.uuid}`
+            : undefined;
 
       default:
         return undefined;

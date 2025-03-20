@@ -1,4 +1,4 @@
-import { ButtonProps, Solid, TypedField } from "@maykin-ui/admin-ui";
+import { Banner, ButtonProps, Solid, TypedField } from "@maykin-ui/admin-ui";
 import { useMemo } from "react";
 import {
   useNavigation,
@@ -8,9 +8,9 @@ import {
 
 import { ProcessingStatusBadge } from "../../../../../components";
 import { useSubmitAction } from "../../../../../hooks";
-import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { paginatedDestructionListItems2paginatedZaken } from "../../../../../lib/format/destructionList";
 import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
@@ -35,7 +35,7 @@ export function DestructionListEditPage() {
 
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const submitAction = useSubmitAction();
+  const submitAction = useSubmitAction<UpdateDestructionListAction>();
   const secondaryNavigationItems = useSecondaryNavigation();
 
   // Whether the edit mode is active.
@@ -178,31 +178,35 @@ export function DestructionListEditPage() {
   };
 
   return (
-    <BaseListView<DestructionListEditData>
-      destructionList={destructionList}
-      extraFields={extraFields}
-      restrictFilterChoices={isEditing ? false : "list"}
-      initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
-      paginatedZaken={paginatedZaken}
-      secondaryNavigationItems={secondaryNavigationItems}
-      selectable={editingState}
-      selectionActions={selectionActions}
-      storageKey={storageKey}
-    ></BaseListView>
+    <>
+      {destructionList.status === "deleted" &&
+        destructionList.processingStatus === "failed" && (
+          <Banner
+            actionText="Opnieuw proberen"
+            title="Er is een fout opgetreden tijdens het aanmaken van het vernietigingsrapport"
+            withIcon
+            variant="danger"
+            onActionClick={() =>
+              submitAction({
+                type: "QUEUE_DESTRUCTION",
+                payload: {
+                  uuid: destructionList.uuid,
+                },
+              })
+            }
+          />
+        )}
+      <BaseListView<DestructionListEditData>
+        destructionList={destructionList}
+        extraFields={extraFields}
+        restrictFilterChoices={isEditing ? false : "list"}
+        initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
+        paginatedZaken={paginatedZaken}
+        secondaryNavigationItems={secondaryNavigationItems}
+        selectable={editingState}
+        selectionActions={selectionActions}
+        storageKey={storageKey}
+      ></BaseListView>
+    </>
   );
-}
-
-/**
- * Converts `PaginatedDestructionListItems` to `PaginatedZaken`.
- */
-function paginatedDestructionListItems2paginatedZaken(
-  paginatedDestructionListItems: PaginatedDestructionListItems,
-): PaginatedZaken {
-  return {
-    ...paginatedDestructionListItems,
-    results: paginatedDestructionListItems.results
-      .map((dli) => ({ ...dli.zaak, processingStatus: dli.processingStatus }))
-      // @ts-expect-error - FIXME: Adding "processingStatus" to zaak.
-      .filter((v): v is Zaak => Boolean(v)) as Zaak[],
-  };
 }
