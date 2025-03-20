@@ -27,6 +27,7 @@ import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
 import { ExpandZaak, Zaak } from "../types";
 import { useDataFetcher } from "./useDataFetcher";
 
+
 type FilterTransformReturnType<T> = Record<
   | "startdatum__gte"
   | "startdatum__lte"
@@ -146,6 +147,11 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(zaaktypeParams || {})],
   );
 
+  const overflowRowData = (data?: string) => {
+    if (!data) return data;
+    return <OverflowText text={data} />;
+  };
+
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
@@ -214,6 +220,7 @@ export function useFields<T extends Zaak = Zaak>(
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
+        const behandelendAfdeling: string[] = [];
         // TODO - Understand why the ExpandZaak type doesn't work
         return (
           rollen
@@ -277,6 +284,27 @@ export function useFields<T extends Zaak = Zaak>(
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
         { label: "Vernietigen", value: "vernietigen" },
       ],
+      width: "150px",
+    },
+    {
+      active: false,
+      name: "relaties",
+      filterLookup: "heeft_relaties",
+      valueTransform: (rowData: object) =>
+        Boolean((rowData as Zaak)?.relevanteAndereZaken?.length),
+      filterValue: searchParams.get("heeft_relaties") || "",
+      type: "boolean",
+      options: [
+        { value: "true", label: "Ja" },
+        { value: "false", label: "Nee" },
+      ],
+      width: "150px",
+    },
+    {
+      name: "hoofdzaak",
+      active: false,
+      type: "string",
+      // valueLookup: // TODO: Expand?
       width: "150px",
     },
     ...(extraFields || []).map((f) => ({
