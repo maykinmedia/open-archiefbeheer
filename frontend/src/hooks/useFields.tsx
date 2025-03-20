@@ -1,9 +1,13 @@
 import {
+  Button,
+  Outline,
+  P,
   Placeholder,
   TypedField,
   TypedSerializedFormData,
+  useDialog,
 } from "@maykin-ui/admin-ui";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
@@ -120,6 +124,11 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(zaaktypeParams || {})],
   );
 
+  const overflowRowData = (data?: string) => {
+    if (!data) return data;
+    return <OverflowText text={data} />;
+  };
+
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
@@ -164,6 +173,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
       width: "150px",
+      valueTransform: (rd) => overflowRowData(rd.omschrijving),
     },
     {
       active: false,
@@ -171,6 +181,7 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterLookup: "toelichting__icontains",
       width: "150px",
+      valueTransform: (rd) => overflowRowData(rd.toelichting),
     },
     {
       name: "startdatum",
@@ -418,3 +429,72 @@ export function useFields<T extends Zaak = Zaak>(
     resetFilters,
   ];
 }
+
+const OverflowText = ({ text }: { text: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const dialog = useDialog();
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (containerRef.current) {
+        setIsOverflowing(
+          containerRef.current.scrollWidth > containerRef.current.clientWidth,
+        );
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkOverflow();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    checkOverflow();
+
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div style={{ overflow: "hidden" }}>
+      <P
+        ref={containerRef}
+        // We override the textOverflow style, since we implement our own overflow handling.
+        style={{
+          textOverflow: "unset",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          width: "calc(100% - 12px)",
+          WebkitMaskImage:
+            "linear-gradient(to left, transparent, var(--typography-color-background) 10%)",
+          maskImage:
+            "linear-gradient(to left, transparent, var(--typography-color-background) 10%)",
+        }}
+      >
+        {text}
+      </P>
+      {isOverflowing && (
+        <Button
+          style={{
+            display: "inline-block",
+            position: "absolute",
+            right: -5,
+            top: -2,
+          }}
+          variant="transparent"
+          aria-label="Toelichting"
+          onClick={() => dialog("Toelichting", text)}
+          className=""
+        >
+          <Outline.ChatBubbleLeftEllipsisIcon />
+        </Button>
+      )}
+    </div>
+  );
+};
