@@ -10,9 +10,9 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 class Issue635FiltersReset(GherkinLikeTestCase):
     async def test_scenario_reset_button_works(self):
         async with browser_page() as page:
+            await self.given.selectielijstklasse_choices_are_available(page)
             zaken = await self.given.zaken_are_indexed(amount=500)
             record_manager = await self.given.record_manager_exists()
-            await self.given.selectielijstklasse_choices_are_available(page)
 
             await self.given.list_exists(
                 name="Destruction list to reset filters for",
@@ -38,8 +38,8 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.input_field_should_be_empty(page, "Identificatie")
 
             # Testing `Zaaktype` filter
-            await self.when.user_filters_zaken(
-                page, "Zaaktype", "Aangifte behandelen (ZAAKTYPE-01)"
+            await self.when.user_selects_filter_dropdown_by_index(
+                page, "Zaaktype", 0
             )
             await self.then.url_should_contain_text(page, "zaaktype")
             await self.when.user_clicks_button(page, "Filters wissen")

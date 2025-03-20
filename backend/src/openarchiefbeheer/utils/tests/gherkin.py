@@ -2,10 +2,6 @@ import re
 from typing import Callable
 
 from asgiref.sync import sync_to_async
-from playwright.async_api import Locator, Page, TimeoutError, expect
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
-
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.models import DestructionList
@@ -22,6 +18,9 @@ from openarchiefbeheer.selection.tests.factories import SelectionItemFactory
 from openarchiefbeheer.utils.tests.e2e import PlaywrightTestCase
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
+from playwright.async_api import Locator, Page, TimeoutError, expect
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 
 class GerkinMixin:
@@ -652,6 +651,17 @@ class GerkinMixin:
 
             # It's not a dropdown, it's a textbox then
             return await locator.fill(value)
+
+        # Select a option by index in a dropdown
+        async def user_selects_filter_dropdown_by_index(self, page, name, index):
+            locator = page.get_by_label(f'filter veld "{name}"')
+            await locator.click()
+            options = await page.query_selector_all(".mykn-option")
+            for option in options:
+                if options.index(option) == index:
+                    return await option.click()
+                return None
+            return None
 
     class Then:
         """
