@@ -6,7 +6,7 @@ import {
   Solid,
   TypedField,
 } from "@maykin-ui/admin-ui";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useNavigation } from "react-router-dom";
 
 import { DestructionListToolbar } from "../../../components";
@@ -112,7 +112,7 @@ export function BaseListView<T extends Zaak = Zaak>({
   const [fields, setFields, filterTransform, activeFilters, resetFilters] =
     useFields<T>(destructionList, review, extraFields, restrictFilterChoices);
   type FilterTransformData = ReturnType<typeof filterTransform>;
-
+  const resetRef = useRef<boolean>(false);
   // Filter.
   const [, setFilterField] = useFilter<FilterTransformData>();
 
@@ -204,7 +204,10 @@ export function BaseListView<T extends Zaak = Zaak>({
         ),
         variant: "warning",
         wrap: false,
-        onClick: resetFilters,
+        onClick: () => {
+          resetRef.current = true;
+          resetFilters();
+        },
       },
     ];
   }, [selectable, hasSelection, selectedZakenOnPage, selectionActions]);
@@ -248,9 +251,14 @@ export function BaseListView<T extends Zaak = Zaak>({
               ] as T[])
             : [],
           selectionActions: getSelectionActions(),
-
           onFieldsChange: setFields,
-          onFilter: setFilterField,
+          onFilter: (rowData) => {
+            if (!resetRef.current) {
+              setFilterField(rowData);
+            } else {
+              resetRef.current = false;
+            }
+          },
           onPageChange: setPage,
           onSelect: handleSelect,
           onSelectAllPages: handleSelectAllPages,

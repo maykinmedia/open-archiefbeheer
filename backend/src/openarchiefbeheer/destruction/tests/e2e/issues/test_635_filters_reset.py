@@ -68,14 +68,14 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Filters wissen")
             await self.then.input_field_should_be_empty(page, "Resultaat")
 
-            # # Testing `Startdatum` Filter
-            # # TODO -> Fix, FAULTY -> Value seems to be a little buggy and "re-appears" after clearing
-            # await type_in_date(page, "startdatum", "Startdatum", "01", "01", "2021")
-            # await type_in_date(page, "einddatum", "Startdatum", "01", "01", "2022")
-            # await self.when.user_clicks_button(page, "Filters wissen")
-            # await page.wait_for_timeout(1000) # Needed due to it taking a little bit for the inputs to be cleared
-            # await date_field_should_be_empty(page, "startdatum", "Startdatum")
-            # await date_field_should_be_empty(page, "einddatum", "Startdatum")
+            # Testing `Startdatum` Filter
+            # TODO -> Fix, FAULTY -> Value seems to be a little buggy and "re-appears" after clearing
+            await type_in_date(page, "startdatum", "Startdatum", "01", "01", "2021")
+            await type_in_date(page, "einddatum", "Startdatum", "01", "01", "2022")
+            await self.when.user_clicks_button(page, "Filters wissen")
+            await page.wait_for_timeout(1000) # Needed due to it taking a little bit for the inputs to be cleared
+            await date_field_should_be_empty(page, "startdatum", "Startdatum")
+            await date_field_should_be_empty(page, "einddatum", "Startdatum")
 
             # Testing `Einddatum` Filter
             await type_in_date(page, "startdatum", "Einddatum", "01", "01", "2021")
