@@ -11,8 +11,8 @@ import { useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
-import { PaginatedDestructionListItems } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { paginatedDestructionListItems2paginatedZaken } from "../../../../../lib/format/destructionList";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
@@ -93,21 +93,6 @@ export function DestructionListProcessReviewPage() {
             .results,
     [selectionClearedState, destructionListItems],
   );
-
-  /**
-   * Converts `PaginatedDestructionListItems` to `PaginatedZaken`.
-   */
-  function paginatedDestructionListItems2paginatedZaken(
-    paginatedDestructionListItems: PaginatedDestructionListItems,
-  ): PaginatedZaken {
-    return {
-      ...paginatedDestructionListItems,
-      results: paginatedDestructionListItems.results
-        .map((dli) => ({ ...dli.zaak, processingStatus: dli.processingStatus }))
-        // @ts-expect-error - FIXME: Adding "processingStatus" to zaak.
-        .filter((v): v is Zaak => Boolean(v)) as Zaak[],
-    };
-  }
 
   // Whether extra fields should be rendered.
   const extraFields: TypedField[] = [
