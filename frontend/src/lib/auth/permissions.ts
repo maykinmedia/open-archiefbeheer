@@ -170,7 +170,10 @@ export const canDownloadReport: DestructionListPermissionCheck = (
   if (!user.role.canStartDestruction) {
     return false;
   }
-  return destructionList.status === "deleted";
+  return (
+    destructionList.status === "deleted" &&
+    destructionList.processingStatus === "succeeded"
+  );
 };
 
 export const canRenameDestructionList: DestructionListPermissionCheck = (
