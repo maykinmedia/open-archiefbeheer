@@ -1,11 +1,8 @@
-{% load i18n format_user %}
-{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " user=log.extra_data.user|format_user count counter=log.extra_data.user_groups|length %}
-User {{ user }} (member of group {{ groups }}) has reviewed the list "{{ list_name }}".
-{% plural %}
-User {{ user }} (member of groups {{ groups }}) has reviewed the list "{{ list_name }}".
-{% endblocktranslate %}
+{% load i18n %}{% spaceless %}
+{% translate "The destruction list was reviewed. " %}
 {% if log.extra_data.approved %}
-    {% translate "The destruction list was approved." %}
+    {% translate "It was approved." %}
 {% else %}
-    {% translate "The destruction list was rejected." %}
+    {% translate "It was rejected." %}
 {% endif %}
+{% endspaceless %}

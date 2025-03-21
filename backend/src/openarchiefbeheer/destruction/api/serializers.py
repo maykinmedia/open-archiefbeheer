@@ -178,17 +178,30 @@ class CoReviewerAssignmentSerializer(serializers.Serializer):
     def save(self, **kwargs):
         instance = super().save(**kwargs)
 
-        params = {
+        common_params = {
             "destruction_list": self.context["destruction_list"],
             "partial": self.partial,
-            "added_co_reviewers": self.validated_data["add"],
-            "removed_co_reviewers": self.validated_data.get("remove", []),
             "user": self.context["request"].user,
             "comment": self.validated_data["comment"],
         }
 
-        co_reviewers_added.send(sender=self.context["destruction_list"], **params)
-        logevent.destruction_list_co_reviewers_added(**params)
+        co_reviewers_added.send(
+            sender=self.context["destruction_list"],
+            **{
+                **common_params,
+                "added_co_reviewers": self.validated_data["add"],
+            },
+        )
+        logevent.destruction_list_co_reviewers_added(
+            **{
+                **common_params,
+                "co_reviewers": (
+                    self.context["destruction_list"]
+                    .assignees.filter(role=ListRole.co_reviewer)
+                    .order_by("user__username")
+                ),
+            }
+        )
 
         return instance
 

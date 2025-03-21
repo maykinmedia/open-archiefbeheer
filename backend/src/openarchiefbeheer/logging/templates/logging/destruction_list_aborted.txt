@@ -1,11 +1,11 @@
-{% load i18n format_user %}{% spaceless %}
+{% load i18n %}{% spaceless %}
 {% if log.extra_data.abort_destruction %}
-{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " record_manager=log.extra_data.user|format_user comment=log.extra_data.comment count counter=log.extra_data.user_groups|length %}
-User {{ record_manager }} (member of group {{ groups }}) has aborted the destruction of destruction list "{{ list_name }}" with reason: {{ comment }}.{% plural %}User {{ record_manager }} (member of groups {{ groups }}) has aborted the destruction of destruction list "{{ list_name }}" with reason: {{ comment }}.
+{% blocktranslate trimmed with comment=log.extra_data.comment %}
+The destruction process has been aborted with comment: "{{ comment }}"
 {% endblocktranslate %}
 {% else %}
-{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " record_manager=log.extra_data.user|format_user comment=log.extra_data.comment count counter=log.extra_data.user_groups|length %}
-User {{ record_manager }} (member of group {{ groups }}) has aborted the review process of destruction list "{{ list_name }}" with reason: {{ comment }}.{% plural %}User {{ record_manager }} (member of groups {{ groups }}) has aborted the review process of destruction list "{{ list_name }}" with reason: {{ comment }}.
+{% blocktranslate trimmed with comment=log.extra_data.comment %}
+The review process has been aborted with comment: "{{ comment }}"
 {% endblocktranslate %}
 {% endif %}
 {% endspaceless %}

@@ -1,3 +1,1 @@
-{% load i18n format_user %}{% blocktranslate trimmed with list_name=log.content_object.name groups=log.extra_data.user_groups|join:", " record_manager=log.extra_data.user|format_user comment=log.extra_data.comment count counter=log.extra_data.user_groups|length %}
-User {{ record_manager }} (member of group {{ groups }}) has marked the destruction list "{{ list_name }}" as ready to review.{% plural %}User {{ record_manager }} (member of groups {{ groups }}) has marked the destruction list "{{ list_name }}" as ready to review.
-{% endblocktranslate %}
+{% load i18n %}{% translate "The destruction list was marked as ready to review." %}

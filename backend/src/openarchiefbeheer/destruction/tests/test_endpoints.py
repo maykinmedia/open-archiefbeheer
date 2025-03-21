@@ -599,13 +599,10 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             message.strip(),
             _(
-                "User %(user)s (member of group %(groups)s) has made destruction list "
-                '"%(list_name)s" final and assigned it to the archivist "%(archivist)s".'
+                "The destruction list was made final and assigned to the archivist "
+                "%(archivist)s."
             )
             % {
-                "user": record_manager,
-                "groups": "Record Manager",
-                "list_name": "A test list",
                 "archivist": "archivist",
             },
         )
@@ -777,15 +774,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(logs.count(), 1)
         self.assertEqual(
             logs[0].get_message(),
-            _(
-                "User %(record_manager)s (member of group %(groups)s) has marked the "
-                'destruction list "%(list_name)s" as ready to review.'
-            )
-            % {
-                "record_manager": "Dolly Sheep (dolly123)",
-                "groups": "Record Manager",
-                "list_name": "A test list",
-            },
+            _("The destruction list was marked as ready to review."),
         )
 
     def test_cannot_mark_as_ready_to_review_if_not_authenticated(self):
