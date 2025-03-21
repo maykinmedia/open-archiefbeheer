@@ -1,4 +1,5 @@
 import {
+  Option,
   Placeholder,
   TypedField,
   TypedSerializedFormData,
@@ -8,6 +9,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import {
+  listBehandelendAfdelingChoices,
+  listResultaatTypeChoices,
   listSelectielijstKlasseChoices,
   listZaaktypeChoices,
 } from "../lib/api/private";
@@ -98,6 +101,18 @@ export function useFields<T extends Zaak = Zaak>(
     return zaakFilterParams;
   };
 
+  const behandelendAfdelingParams = getZaakFilterParams("behandelendAfdeling");
+  const { data: behandelendAfdelingChoices } = useDataFetcher(
+    (signal) =>
+      listBehandelendAfdelingChoices(behandelendAfdelingParams, signal),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van behandelend afdeling keuzes!",
+      initialState: [],
+    },
+    [params2CacheKey(behandelendAfdelingParams || {})],
+  );
+
   const selectielijstklasseParams = getZaakFilterParams("selectielijstklasse");
   const { data: selectielijstKlasseChoices } = useDataFetcher(
     (signal) =>
@@ -108,6 +123,17 @@ export function useFields<T extends Zaak = Zaak>(
       initialState: [],
     },
     [params2CacheKey(selectielijstklasseParams || {})],
+  );
+
+  const resultaatTypeParams = getZaakFilterParams("resultaatType");
+  const { data: resultaatTypeChoices } = useDataFetcher(
+    (signal) => listResultaatTypeChoices(resultaatTypeParams, false, signal),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van resultaattypen!",
+      initialState: [],
+    },
+    [params2CacheKey(resultaatTypeParams || {})],
   );
 
   const zaaktypeParams = getZaakFilterParams("zaaktype");
@@ -135,25 +161,8 @@ export function useFields<T extends Zaak = Zaak>(
       name: "zaaktype",
       filterLookup: "zaaktype",
       filterValue: searchParams.get("zaaktype") || "",
-      valueTransform: (zaak) => {
-        const expandZaak = zaak as T & {
-          _expand: { zaaktype: { identificatie: string } };
-        };
-        const zaaktype = expandZaak._expand.zaaktype.identificatie;
-
-        // Zaaktype choices not yet loaded.
-        if (zaaktypeChoices === null) {
-          return <Placeholder />;
-        }
-
-        // Find label by zaaktype choice.
-        const zaaktypeChoice = zaaktypeChoices.find(
-          ({ value }) => value === zaaktype,
-        );
-
-        // Return label, or null.
-        return zaaktypeChoice?.label || zaaktype;
-      },
+      valueTransform: (value: ExpandZaak) =>
+        valueOrSkeleton(value._expand?.zaaktype.identificatie, zaaktypeChoices),
       options: zaaktypeChoices || [],
       type: "string",
       width: "150px",
@@ -200,26 +209,24 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "Behandelende afdeling",
       type: "string",
-      filterLookup: "behandelend_afdeling__icontains",
+      filterLookup: "behandelend_afdeling",
+      filterValue: searchParams.get("behandelend_afdeling") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
-        const behandelendAfdeling: string[] = [];
         // TODO - Understand why the ExpandZaak type doesn't work
-        rollen.map((role) => {
-          if (
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneType === "organisatorische_eenheid" &&
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneIdentificatie?.identificatie
-          )
-            behandelendAfdeling.push(
+        return (
+          rollen
+            .filter(
               // @ts-expect-error The type of role is 'never' for some reason
-              role.betrokkeneIdentificatie?.identificatie,
-            );
-        });
-        return behandelendAfdeling.join(", ");
+              (role) => role.betrokkeneType === "organisatorische_eenheid",
+            )
+            // @ts-expect-error The type of role is 'never' for some reason
+            .map((role) => role.omschrijving)
+            .join(", ")
+        );
       },
+      options: behandelendAfdelingChoices,
       width: "150px",
     },
     {
@@ -227,32 +234,23 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterValue: searchParams.get("selectielijstklasse") || "",
       // filterLookup: // TODO: Expand?
-      valueTransform: (v: ExpandZaak) => {
-        // selectielijstklasse choices not yet loaded.
-        if (selectielijstKlasseChoices === null) {
-          return <Placeholder />;
-        }
-
-        const zaakSelectielijstklasse =
-          v.selectielijstklasse ||
-          v._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse;
-        return (
-          selectielijstKlasseChoices.find(
-            (c) => c.value === zaakSelectielijstklasse,
-          )?.label || <Placeholder />
-        );
-      },
+      valueTransform: (value: ExpandZaak) =>
+        valueOrSkeleton(
+          value.selectielijstklasse ||
+            value._expand?.resultaat?._expand?.resultaattype
+              ?.selectielijstklasse,
+          selectielijstKlasseChoices,
+        ),
       options: selectielijstKlasseChoices || [],
       width: "150px",
     },
     {
       name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
+      filterLookup: "resultaat__resultaattype",
+      filterValue: searchParams.get("resultaat__resultaattype") || "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
+      options: resultaatTypeChoices,
       width: "150px",
     },
     {
@@ -288,6 +286,25 @@ export function useFields<T extends Zaak = Zaak>(
       ...f,
     })),
   ];
+
+  /**
+   * Returns a value or a skeleton when the value is not yet available due to
+   * choices fetching.
+   * @param val
+   * @param choices
+   */
+  const valueOrSkeleton = (val: unknown, choices: Option[] = []) => {
+    // Return skeleton.
+    if (choices === null) {
+      return <Placeholder />;
+    }
+
+    // Find label by choice.
+    const choice = choices.find(({ value }) => value === val);
+
+    // Return label
+    return choice?.label || <Placeholder />;
+  };
 
   const filterLookupValues = [
     ...new Set(

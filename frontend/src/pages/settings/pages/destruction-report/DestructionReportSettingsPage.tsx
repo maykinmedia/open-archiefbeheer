@@ -55,7 +55,12 @@ export function DestructionReportSettingsPage() {
   );
 
   const { data: resultaatTypeChoices } = useDataFetcher(
-    (signal) => listResultaatTypeChoices(valuesState?.zaaktype, signal),
+    (signal) =>
+      listResultaatTypeChoices(
+        { zaaktypeIdentificatie: valuesState?.zaaktype },
+        true,
+        signal,
+      ),
     {
       initialState: [],
       errorMessage:

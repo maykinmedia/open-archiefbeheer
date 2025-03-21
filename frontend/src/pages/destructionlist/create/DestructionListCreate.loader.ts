@@ -41,7 +41,14 @@ export const destructionListCreateLoader = loginRequired(
       ]);
 
       return {
-        paginatedZaken: zaken,
+        paginatedZaken: {
+          ...zaken,
+          results: zaken.results.map((z) => ({
+            ...z,
+            omschrijving:
+              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Vestibulum dolorum.",
+          })),
+        },
         reviewers,
       };
     },
