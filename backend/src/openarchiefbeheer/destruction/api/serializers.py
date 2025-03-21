@@ -265,6 +265,13 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         ),
         allow_null=True,
     )
+    review_response_comment = serializers.SerializerMethodField(
+        help_text=_(
+            "Specifies the reason why the record manager went against"
+            " the advice of a reviewer when processing the last review."
+        ),
+        allow_null=True,
+    )
 
     class Meta:
         model = DestructionListItem
@@ -275,6 +282,7 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
             "zaak",
             "processing_status",
             "review_advice_ignored",
+            "review_response_comment",
         )
 
     @extend_schema_field(build_basic_type(OpenApiTypes.BOOL))
@@ -294,6 +302,24 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
             return
 
         return last_review_response.action_item == DestructionListItemAction.keep
+
+    @extend_schema_field(build_basic_type(OpenApiTypes.STR))
+    def get_review_response_comment(self, item: DestructionListItem) -> str:
+        if hasattr(item, "last_review_comment"):
+            return item.last_review_comment
+
+        if item.destruction_list.status != ListStatus.ready_to_review:
+            return ""
+
+        last_review_response = (
+            ReviewItemResponse.objects.filter(review_item__destruction_list_item=item)
+            .order_by("-created")
+            .last()
+        )
+        if last_review_response is None:
+            return ""
+
+        return last_review_response.comment
 
 
 class DestructionListWriteSerializer(serializers.ModelSerializer):

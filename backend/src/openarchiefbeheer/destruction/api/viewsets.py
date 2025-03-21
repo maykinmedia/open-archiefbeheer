@@ -488,9 +488,12 @@ class DestructionListItemsViewSet(
             DestructionListItem.objects.all()
             .select_related("zaak")
             .annotate(
+                last_review_comment=Subquery(
+                    review_response_items.values("comment")[:1]
+                ),
                 last_review_response_action_item=Subquery(
                     review_response_items.values("action_item")[:1]
-                )
+                ),
             )
             .annotate(
                 review_advice_ignored=Case(

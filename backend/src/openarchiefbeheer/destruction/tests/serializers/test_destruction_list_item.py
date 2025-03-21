@@ -27,11 +27,13 @@ class TestDestructionListItemSerializer(TestCase):
             review_item=item_reviews[1],
             review_item__review=review,
             action_item=DestructionListItemAction.keep,
+            comment="I like this zaak. Keep it.",
         )
         ReviewItemResponseFactory.create(
             review_item=item_reviews[2],
             review_item__review=review,
             action_item=DestructionListItemAction.remove,
+            comment="Bohoo I will remove this zaak.",
         )
 
         with self.subTest("Accepted item"):
@@ -47,6 +49,9 @@ class TestDestructionListItemSerializer(TestCase):
             )
 
             self.assertTrue(serialiser.data["review_advice_ignored"])
+            self.assertEqual(
+                serialiser.data["review_response_comment"], "I like this zaak. Keep it."
+            )
 
         with self.subTest("Item with accepted feedback"):
             serialiser = DestructionListItemReadSerializer(
@@ -54,3 +59,7 @@ class TestDestructionListItemSerializer(TestCase):
             )
 
             self.assertFalse(serialiser.data["review_advice_ignored"])
+            self.assertEqual(
+                serialiser.data["review_response_comment"],
+                "Bohoo I will remove this zaak.",
+            )
