@@ -40,8 +40,6 @@ export const destructionListCreateLoader = loginRequired(
         listReviewers(abortController.signal),
       ]);
 
-      // in zaken add in `toelichting` field a hardcoded value
-
       return {
         paginatedZaken: zaken,
         reviewers,
