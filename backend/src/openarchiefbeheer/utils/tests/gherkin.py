@@ -652,17 +652,6 @@ class GerkinMixin:
             # It's not a dropdown, it's a textbox then
             return await locator.fill(value)
 
-        # Select a option by index in a dropdown
-        async def user_selects_filter_dropdown_by_index(self, page, name, index):
-            locator = page.get_by_label(f'filter veld "{name}"')
-            await locator.click()
-            options = await page.query_selector_all(".mykn-option")
-            for option in options:
-                if options.index(option) == index:
-                    return await option.click()
-                return None
-            return None
-
     class Then:
         """
         The "Then" steps specify the expected outcomes or results.
