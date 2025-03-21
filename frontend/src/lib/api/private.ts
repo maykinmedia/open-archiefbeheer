@@ -6,6 +6,35 @@ import { params2CacheKey, params2Object } from "../format/params";
 import { request } from "./request";
 
 /**
+ * Retrieve the behandelend afdelingen the zaken in the database. These have rollen
+ * with betrokkeneType equal to "organisatorische_eenheid".
+ * @param params
+ * @param signal
+ */
+export async function listBehandelendAfdelingChoices(
+  params?: URLSearchParams | Record<string, string | number | undefined>,
+  signal?: AbortSignal,
+): Promise<Option[]> {
+  return cacheMemo(
+    "listBehandelendAfdelingChoices",
+    async () => {
+      const response = await request(
+        "GET",
+        "/_retrieve-behandelend-afdeling-choices-choices/",
+        params || {},
+        undefined,
+        undefined,
+        signal,
+      );
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [JSON.stringify(params)],
+  );
+}
+
+/**
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
  * the field 'omschrijving'.
  */

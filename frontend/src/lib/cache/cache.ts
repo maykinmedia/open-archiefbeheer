@@ -4,7 +4,6 @@ export type CacheRecord<T = unknown> = {
   value: T;
 };
 
-console.log(import.meta.env.OAB_CACHE_DISABLED);
 /** The cache configuration */
 export const CACHE_CONFIG = {
   DISABLED:
