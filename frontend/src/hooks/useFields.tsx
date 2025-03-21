@@ -124,9 +124,9 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(zaaktypeParams || {})],
   );
 
-  const overflowRowData = (data?: string) => {
+  const overflowRowData = (fieldName: string, data?: string) => {
     if (!data) return data;
-    return <OverflowText text={data} />;
+    return <OverflowText text={data} fieldName={fieldName} />;
   };
 
   // The raw, unfiltered configuration of the available base fields.
@@ -173,7 +173,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
       width: "150px",
-      valueTransform: (rd) => overflowRowData(rd.omschrijving),
+      valueTransform: (rd) => overflowRowData("Omschrijving", rd.omschrijving),
     },
     {
       active: false,
@@ -181,7 +181,7 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterLookup: "toelichting__icontains",
       width: "150px",
-      valueTransform: (rd) => overflowRowData(rd.toelichting),
+      valueTransform: (rd) => overflowRowData("Toelichting", rd.toelichting),
     },
     {
       name: "startdatum",
@@ -430,7 +430,13 @@ export function useFields<T extends Zaak = Zaak>(
   ];
 }
 
-const OverflowText = ({ text }: { text: string }) => {
+const OverflowText = ({
+  text,
+  fieldName,
+}: {
+  text: string;
+  fieldName: string;
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const dialog = useDialog();
@@ -471,10 +477,12 @@ const OverflowText = ({ text }: { text: string }) => {
           whiteSpace: "nowrap",
           overflow: "hidden",
           width: "calc(100% - 12px)",
-          WebkitMaskImage:
-            "linear-gradient(to left, transparent, var(--typography-color-background) 10%)",
-          maskImage:
-            "linear-gradient(to left, transparent, var(--typography-color-background) 10%)",
+          WebkitMaskImage: isOverflowing
+            ? "linear-gradient(to left, transparent, var(--typography-color-background) 10%)"
+            : "unset",
+          maskImage: isOverflowing
+            ? "linear-gradient(to left, transparent, var(--typography-color-background) 10%)"
+            : "unset",
         }}
       >
         {text}
@@ -488,8 +496,8 @@ const OverflowText = ({ text }: { text: string }) => {
             top: -2,
           }}
           variant="transparent"
-          aria-label="Toelichting"
-          onClick={() => dialog("Toelichting", text)}
+          aria-label={fieldName}
+          onClick={() => dialog(fieldName, text)}
           className=""
         >
           <Outline.ChatBubbleLeftEllipsisIcon />
