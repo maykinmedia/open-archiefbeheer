@@ -44,6 +44,18 @@ export const MOCKS = {
     status: 200,
     response: destructionListAssigneesFactory(),
   },
+  DESTRUCTION_LIST_BEHANDELEND_AFDELING_CHOICES: {
+    url: "http://localhost:8000/api/v1/_retrieve-behandelend-afdeling-choices-choices/",
+    method: "GET",
+    status: 200,
+    response: [],
+  },
+  DESTRUCTION_LIST_RESULTAATTYPE_CHOICES: {
+    url: "http://localhost:8000/api/v1/_internal-resultaattype-choices/",
+    method: "GET",
+    status: 200,
+    response: [],
+  },
   DESTRUCTION_LIST_ZAAKTYPE_CHOICES: {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inDestructionList=00000000-0000-0000-0000-000000000000",
     method: "GET",
