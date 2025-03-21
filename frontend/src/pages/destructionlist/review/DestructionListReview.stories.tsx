@@ -77,6 +77,8 @@ const meta: Meta<typeof DestructionListReviewPage> = {
       },
     },
     mockData: [
+      MOCKS.DESTRUCTION_LIST_BEHANDELEND_AFDELING_CHOICES,
+      MOCKS.DESTRUCTION_LIST_RESULTAATTYPE_CHOICES,
       MOCKS.OIDC_INFO,
       MOCKS.ZAAKTYPE_CHOICES_POST,
       MOCKS.ZAAKTYPE_CHOICES,
