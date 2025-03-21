@@ -51,7 +51,7 @@ class CreateDestructionReportTest(VCRMixin, TestCase):
             "openarchiefbeheer.destruction.utils.ArchiveConfig.get_solo",
             return_value=ArchiveConfig(
                 bronorganisatie="000000000",
-                zaaktype="http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+                zaaktype="ZAAKTYPE-2018-0000000002",
                 statustype="http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
                 resultaattype="http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
                 informatieobjecttype="http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
@@ -63,7 +63,7 @@ class CreateDestructionReportTest(VCRMixin, TestCase):
 
         self.assertEqual(
             destruction_list.zaak_destruction_report_url,
-            "http://localhost:8003/zaken/api/v1/zaken/4e91dd93-84f5-44db-be32-7de6ca64f0e2",
+            "http://localhost:8003/zaken/api/v1/zaken/b57802b1-69be-422f-b73a-62e171580fa8",
         )
 
         store = ResultStore(destruction_list)
@@ -71,24 +71,24 @@ class CreateDestructionReportTest(VCRMixin, TestCase):
         self.assertEqual(
             store.get_created_resources("resultaten"),
             [
-                "http://localhost:8003/zaken/api/v1/resultaten/c5d999ce-fe49-467a-9470-461734066375"
+                "http://localhost:8003/zaken/api/v1/resultaten/756d8a14-18c8-4e89-9e54-63da7007ae67"
             ],
         )
         self.assertEqual(
             store.get_created_resources("statussen"),
             [
-                "http://localhost:8003/zaken/api/v1/statussen/8a859b89-b998-49a1-8349-8e8f60f45aef"
+                "http://localhost:8003/zaken/api/v1/statussen/24ba0810-c24f-4291-bb63-4c9eb16aab8e"
             ],
         )
         self.assertEqual(
             store.get_created_resources("enkelvoudiginformatieobjecten"),
             [
-                "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/536a0dd3-998b-48c8-a7ee-c19eb0b6cd4d"
+                "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/758ebbe8-2378-4c5f-99af-b60372c0a01f"
             ],
         )
         self.assertEqual(
             store.get_created_resources("zaakinformatieobjecten"),
             [
-                "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/9a5861e6-74bd-4157-97db-726dcac75cb3"
+                "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/927c7776-953a-4409-b8ff-f8c0f72fe08f"
             ],
         )

@@ -684,7 +684,7 @@
   "pk": 2,
   "fields": {
     "uuid": "835af306-c038-42f5-8225-008628b6e3f8",
-    "zaaktype": 2,
+    "zaaktype": 4,
     "informatieobjecttype": 2,
     "volgnummer": 1,
     "richting": "inkomend",
@@ -696,9 +696,54 @@
   "pk": 2,
   "fields": {
     "datum_begin_geldigheid": "2018-01-01",
-    "datum_einde_geldigheid": null,
+    "datum_einde_geldigheid": "2025-03-20",
     "concept": false,
     "uuid": "ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+    "identificatie": "ZAAKTYPE-2018-0000000002",
+    "zaaktype_omschrijving": "Destruction confirmation type",
+    "zaaktype_omschrijving_generiek": "",
+    "vertrouwelijkheidaanduiding": "",
+    "doel": "To confirm that a destruction list has been correctly processed.",
+    "aanleiding": "When a destructio list is processed by Open Archiefbeheer",
+    "toelichting": "",
+    "indicatie_intern_of_extern": "extern",
+    "handeling_initiator": "indienen",
+    "onderwerp": "Destruction",
+    "handeling_behandelaar": "uitvoeren",
+    "doorlooptijd_behandeling": "P30D",
+    "servicenorm_behandeling": null,
+    "opschorting_en_aanhouding_mogelijk": true,
+    "verlenging_mogelijk": false,
+    "verlengingstermijn": null,
+    "trefwoorden": "[]",
+    "publicatie_indicatie": true,
+    "publicatietekst": "",
+    "verantwoordingsrelatie": "[]",
+    "versiedatum": "2018-01-01",
+    "verantwoordelijke": "100000000",
+    "producten_of_diensten": "[\"https://example.com/product/123\"]",
+    "selectielijst_procestype": "https://selectielijst.openzaak.nl/api/v1/procestypen/c844637e-6393-4202-b030-e1bffb08a9b0",
+    "selectielijst_procestype_jaar": 2020,
+    "referentieproces_naam": "ReferentieProces 0",
+    "referentieproces_link": "",
+    "broncatalogus_url": "",
+    "broncatalogus_domein": "",
+    "broncatalogus_rsin": "",
+    "bronzaaktype_url": "",
+    "bronzaaktype_identificatie": "",
+    "bronzaaktype_omschrijving": "",
+    "catalogus": 1,
+    "deelzaaktypen": []
+  }
+},
+{
+  "model": "catalogi.zaaktype",
+  "pk": 4,
+  "fields": {
+    "datum_begin_geldigheid": "2025-03-21",
+    "datum_einde_geldigheid": null,
+    "concept": false,
+    "uuid": "ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
     "identificatie": "ZAAKTYPE-2018-0000000002",
     "zaaktype_omschrijving": "Destruction confirmation type",
     "zaaktype_omschrijving_generiek": "",
@@ -743,7 +788,7 @@
     "uuid": "835a2a13-f52f-4339-83e5-b7250e5ad016",
     "statustype_omschrijving": "Statustype for destruction report zaak",
     "statustypevolgnummer": 1,
-    "zaaktype": 2
+    "zaaktype": 4
   }
 },
 {
@@ -764,7 +809,7 @@
     "omschrijving": "Afgehandeld",
     "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
     "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/1bb001e9-5eab-4f10-8940-8781e11f180f",
-    "zaaktype": 2
+    "zaaktype": 4
   }
 },
 {

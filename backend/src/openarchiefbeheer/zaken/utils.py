@@ -451,3 +451,15 @@ class NoClient:
 
     def __exit__(self, *args):
         return None
+
+
+@lru_cache
+def get_zaaktype(identificatie: str) -> dict:
+    """Get the latest version of the zaaktype with this identificatie"""
+    params = HashableDict({"identificatie": identificatie})
+    zaaktypen = retrieve_zaaktypen(params)
+
+    zaaktypen = sorted(
+        zaaktypen, key=lambda zaaktype: zaaktype["begin_geldigheid"], reverse=True
+    )
+    return zaaktypen[0]

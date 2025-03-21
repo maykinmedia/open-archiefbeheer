@@ -248,7 +248,7 @@ class ReviewResponseTests(TestCase):
 
 TEST_DATA_ARCHIVE_CONFIG = {
     "bronorganisatie": "000000000",
-    "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+    "zaaktype": "ZAAKTYPE-2018-0000000002",
     "statustype": "http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
     "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
     "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
@@ -256,7 +256,7 @@ TEST_DATA_ARCHIVE_CONFIG = {
 
 TEST_DATA_ARCHIVE_CONFIG_PARTIAL = {
     "bronorganisatie": "000000000",
-    "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/ecd08880-5081-4d7a-afc3-ade1d6e6346f",
+    "zaaktype": "ZAAKTYPE-2018-0000000002",
     "informatieobjecttype": "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
     "resultaattype": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
 }
@@ -270,24 +270,46 @@ class DestructionListTest(TestCase):
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/2",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/222-222-222",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE-02",
+                    "versiedatum": "2024-01-02",
+                    "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                }
+            },
         )
 
         with patch(
             "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(
-                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/1"]
-            ),
+            return_value=ArchiveConfig(zaaktypes_short_process=["ZAAKTYPE-01"]),
         ):
             has_short_review_process = destruction_list.has_short_review_process()
 
@@ -824,6 +846,20 @@ class DestructionListTest(TestCase):
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
             },
         )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
+            },
+        )
         m.post("http://localhost:8003/zaken/api/v1/zaken", status_code=500)
 
         with (
@@ -856,6 +892,20 @@ class DestructionListTest(TestCase):
             json={
                 "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
             },
         )
         m.post(
@@ -911,6 +961,20 @@ class DestructionListTest(TestCase):
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
             },
         )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaken",
             json={"url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"},
@@ -950,6 +1014,20 @@ class DestructionListTest(TestCase):
             json={
                 "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
             },
         )
         m.post(
@@ -1002,6 +1080,20 @@ class DestructionListTest(TestCase):
             json={
                 "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
             },
         )
         m.post(
@@ -1066,6 +1158,20 @@ class DestructionListTest(TestCase):
             json={
                 "url": "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/e939c1ad-32e4-409b-a716-6d7d6e7df892",
+            },
+        )
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
             },
         )
         m.post(
@@ -1148,7 +1254,25 @@ class DestructionListTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://localhost:8003/zaken/api/v1",
         )
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+        )
 
+        m.get(
+            "http://localhost:8003/catalogi/api/v1/zaaktypen?identificatie=ZAAKTYPE-2018-0000000002",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+                        "identificatie": "ZAAKTYPE-2018-0000000002",
+                        "omschrijving": "Destruction confirmation type",
+                        "beginGeldigheid": "2025-03-21",
+                    },
+                ],
+            },
+        )
         m.post(
             "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten",
             json={

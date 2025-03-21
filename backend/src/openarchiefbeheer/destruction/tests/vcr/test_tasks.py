@@ -1,20 +1,21 @@
 from django.core.cache import cache
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from freezegun import freeze_time
+from timeline_logger.models import TimelineLog
 from vcr.unittest import VCRMixin
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.models import APIConfig, ArchiveConfig
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
 
 from ...constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
-from ...tasks import process_review_response
+from ...tasks import delete_destruction_list, process_review_response
 from ..factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -115,6 +116,12 @@ class DestructionTest(VCRMixin, TestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
+        cls.ztc_service = ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://localhost:8003/catalogi/api/v1",
+            client_id="test-vcr",
+            secret="test-vcr",
+        )
         cls.drc_service = ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="http://localhost:8003/documenten/api/v1",
@@ -127,6 +134,11 @@ class DestructionTest(VCRMixin, TestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
+        cls.selectielijst_service = ServiceFactory(
+            slug="selectielijst",
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/api/v1/",
+        )
 
     @reload_openzaak_fixtures()
     def test_document_deleted(self):
@@ -136,13 +148,8 @@ class DestructionTest(VCRMixin, TestCase):
         After a relation object (ZIO/BIO) is deleted by OAB and before the
         corresponding EIO is deleted by OAB, someone deletes the EIO in OZ.
         """
-        service = ServiceFactory(
-            slug="selectielijst",
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1/",
-        )
         config = APIConfig.get_solo()
-        config.selectielijst_api_service = service
+        config.selectielijst_api_service = self.selectielijst_service
         config.save()
 
         with freeze_time("2024-08-29T16:00:00+02:00"):
@@ -171,3 +178,49 @@ class DestructionTest(VCRMixin, TestCase):
         item.refresh_from_db()
 
         self.assertEqual(item.processing_status, InternalStatus.succeeded)
+
+    @reload_openzaak_fixtures()
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_delete_list(self):
+        """
+        Issue 770: the zaaktype is an identificatie instead of a URL
+        """
+        config = APIConfig.get_solo()
+        config.selectielijst_api_service = self.selectielijst_service
+        config.save()
+
+        with freeze_time("2024-08-29T16:00:00+02:00"):
+            retrieve_and_cache_zaken_from_openzaak()
+
+        zaak = Zaak.objects.get(identificatie="ZAAK-01")
+
+        record_manager = UserFactory.create()
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete
+        )
+        DestructionListItemFactory.create(zaak=zaak, destruction_list=destruction_list)
+
+        TimelineLog.objects.create(
+            content_object=destruction_list,
+            template="logging/destruction_list_deletion_triggered.txt",
+            extra_data={
+                "user": {"username": record_manager.username},
+                "user_groups": [],
+            },
+            user=record_manager,
+        )
+
+        config = ArchiveConfig.get_solo()
+        config.bronorganisatie = "000000000"
+        config.zaaktype = "ZAAKTYPE-2018-0000000002"
+        config.statustype = "http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016"
+        config.resultaattype = "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e"
+        config.informatieobjecttype = "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485"
+        config.save()
+
+        delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.status, ListStatus.deleted)
+        self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)

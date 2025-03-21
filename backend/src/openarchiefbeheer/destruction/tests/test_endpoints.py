@@ -1091,17 +1091,41 @@ class DestructionListReviewViewSetTest(APITestCase):
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-01",
+                    "omschrijving": "ZAAKTYPE-01",
+                    "versiedatum": "2024-01-01",
+                    "url": "http://catalogue-api.nl/zaaktypen/111-111-111",
+                }
+            },
         )
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktype/2",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/222-222-222",
+            zaak__post___expand={
+                "zaaktype": {
+                    "identificatie": "ZAAKTYPE-02",
+                    "omschrijving": "ZAAKTYPE-02",
+                    "versiedatum": "2024-01-02",
+                    "url": "http://catalogue-api.nl/zaaktypen/222-222-222",
+                }
+            },
         )
         DestructionListAssigneeFactory.create(
             user=destruction_list.author,
@@ -1123,9 +1147,7 @@ class DestructionListReviewViewSetTest(APITestCase):
 
         with patch(
             "openarchiefbeheer.destruction.models.ArchiveConfig.get_solo",
-            return_value=ArchiveConfig(
-                zaaktypes_short_process=["http://catalogi-api.nl/zaaktype/1"]
-            ),
+            return_value=ArchiveConfig(zaaktypes_short_process=["ZAAKTYPE-01"]),
         ):
             response = self.client.post(
                 reverse("api:destruction-list-reviews-list"), data=data, format="json"
@@ -1150,7 +1172,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
             zaak__post___expand={
                 "zaaktype": {
                     "identificatie": "ZAAKTYPE-01",
@@ -1163,7 +1185,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         DestructionListItemFactory.create(
             destruction_list=destruction_list,
             with_zaak=True,
-            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/1",
+            zaak__zaaktype="http://catalogi-api.nl/zaaktypen/111-111-111",
             zaak__post___expand={
                 "zaaktype": {
                     "identificatie": "ZAAKTYPE-01",
