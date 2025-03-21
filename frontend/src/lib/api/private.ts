@@ -68,18 +68,37 @@ export async function listStatusTypeChoices(
  * resultaattype. The label is the field 'omschrijving'.
  */
 export async function listResultaatTypeChoices(
-  zaaktypeIdentificatie?: string,
+  params: {
+    zaaktypeIdentificatie: string;
+  },
+  external: true,
   signal?: AbortSignal,
-) {
+): Promise<Option[]>;
+export async function listResultaatTypeChoices(
+  params?: URLSearchParams | Record<string, string | number | undefined>,
+  external?: false,
+  signal?: AbortSignal,
+): Promise<Option[]>;
+export async function listResultaatTypeChoices(
+  params?:
+    | {
+        zaaktypeIdentificatie: string;
+      }
+    | URLSearchParams
+    | Record<string, string | number | undefined>,
+  external: boolean = false,
+  signal?: AbortSignal,
+): Promise<Option[]> {
   return cacheMemo(
     "listResultaatTypeChoices",
     async () => {
+      const endpoint = external
+        ? "/_external-resultaattype-choices/"
+        : "/_internal-resultaattype-choices/";
       const response = await request(
         "GET",
-        "/_external-resultaattype-choices/",
-        {
-          zaaktypeIdentificatie: zaaktypeIdentificatie,
-        },
+        endpoint,
+        params || {},
         undefined,
         undefined,
         signal,
@@ -88,7 +107,7 @@ export async function listResultaatTypeChoices(
 
       return promise;
     },
-    [zaaktypeIdentificatie],
+    [JSON.stringify(params)],
   );
 }
 
@@ -130,7 +149,7 @@ export async function listSelectielijstKlasseChoices(
 
 /**
  * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype.
- * The label is the 'omschrijving' field, and the value is the identificatie. The response is cached for 15 minutes.
+ * The label is the 'omschrijving' field, and the value is the identificatie. The response may be cached.
  * @param [params] - Additional search parameters for filtering (this keeps filters in sync with objects on page).
  * @param [external=false] - Fetch zaaktypen from ZRC Service (Open Zaak) (slower/can't be combined with other filtering options).
  * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.

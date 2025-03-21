@@ -1,4 +1,5 @@
 import {
+  Option,
   Placeholder,
   TypedField,
   TypedSerializedFormData,
@@ -8,6 +9,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import {
+  listResultaatTypeChoices,
   listSelectielijstKlasseChoices,
   listZaaktypeChoices,
 } from "../lib/api/private";
@@ -110,6 +112,17 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(selectielijstklasseParams || {})],
   );
 
+  const resultaatTypeParams = getZaakFilterParams("resultaatType");
+  const { data: resultaatTypeChoices } = useDataFetcher(
+    (signal) => listResultaatTypeChoices(resultaatTypeParams, false, signal),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van resultaattypen!",
+      initialState: [],
+    },
+    [params2CacheKey(resultaatTypeParams || {})],
+  );
+
   const zaaktypeParams = getZaakFilterParams("zaaktype");
   const { data: zaaktypeChoices } = useDataFetcher(
     (signal) => listZaaktypeChoices(zaaktypeParams, false, signal),
@@ -135,25 +148,8 @@ export function useFields<T extends Zaak = Zaak>(
       name: "zaaktype",
       filterLookup: "zaaktype",
       filterValue: searchParams.get("zaaktype") || "",
-      valueTransform: (zaak) => {
-        const expandZaak = zaak as T & {
-          _expand: { zaaktype: { identificatie: string } };
-        };
-        const zaaktype = expandZaak._expand.zaaktype.identificatie;
-
-        // Zaaktype choices not yet loaded.
-        if (zaaktypeChoices === null) {
-          return <Placeholder />;
-        }
-
-        // Find label by zaaktype choice.
-        const zaaktypeChoice = zaaktypeChoices.find(
-          ({ value }) => value === zaaktype,
-        );
-
-        // Return label, or null.
-        return zaaktypeChoice?.label || zaaktype;
-      },
+      valueTransform: (value: ExpandZaak) =>
+        valueOrSkeleton(value._expand?.zaaktype.identificatie, zaaktypeChoices),
       options: zaaktypeChoices || [],
       type: "string",
       width: "150px",
@@ -227,32 +223,23 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterValue: searchParams.get("selectielijstklasse") || "",
       // filterLookup: // TODO: Expand?
-      valueTransform: (v: ExpandZaak) => {
-        // selectielijstklasse choices not yet loaded.
-        if (selectielijstKlasseChoices === null) {
-          return <Placeholder />;
-        }
-
-        const zaakSelectielijstklasse =
-          v.selectielijstklasse ||
-          v._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse;
-        return (
-          selectielijstKlasseChoices.find(
-            (c) => c.value === zaakSelectielijstklasse,
-          )?.label || <Placeholder />
-        );
-      },
+      valueTransform: (value: ExpandZaak) =>
+        valueOrSkeleton(
+          value.selectielijstklasse ||
+            value._expand?.resultaat?._expand?.resultaattype
+              ?.selectielijstklasse,
+          selectielijstKlasseChoices,
+        ),
       options: selectielijstKlasseChoices || [],
       width: "150px",
     },
     {
       name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
+      filterLookup: "resultaat__resultaattype",
+      filterValue: searchParams.get("resultaat__resultaattype") || "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
+      options: resultaatTypeChoices,
       width: "150px",
     },
     {
@@ -288,6 +275,25 @@ export function useFields<T extends Zaak = Zaak>(
       ...f,
     })),
   ];
+
+  /**
+   * Returns a value or a skeleton when the value is not yet available due to
+   * choices fetching.
+   * @param val
+   * @param choices
+   */
+  const valueOrSkeleton = (val: unknown, choices: Option[] = []) => {
+    // Return skeleton.
+    if (choices === null) {
+      return <Placeholder />;
+    }
+
+    // Find label by choice.
+    const choice = choices.find(({ value }) => value === val);
+
+    // Return label
+    return choice?.label || <Placeholder />;
+  };
 
   const filterLookupValues = [
     ...new Set(

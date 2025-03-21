@@ -4,9 +4,11 @@ export type CacheRecord<T = unknown> = {
   value: T;
 };
 
+console.log(import.meta.env.OAB_CACHE_DISABLED);
 /** The cache configuration */
 export const CACHE_CONFIG = {
-  DISABLED: import.meta.env.OAB_DISABLED?.toLowerCase() === "true" || false,
+  DISABLED:
+    import.meta.env.OAB_CACHE_DISABLED?.toLowerCase() === "true" || false,
   KEY_PREFIX: import.meta.env.OAB_CACHE_PREFIX || "oab.lib.cache",
   MAX_AGE: parseInt(import.meta.env.OAB_CACHE_MAX_AGE || "600000"),
 };
