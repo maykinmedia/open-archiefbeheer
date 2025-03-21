@@ -3,6 +3,7 @@ import {
   Placeholder,
   TypedField,
   TypedSerializedFormData,
+  useDialog,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -179,6 +180,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
       width: "150px",
+      valueTransform: (rd) => overflowRowData("Omschrijving", rd.omschrijving),
     },
     {
       active: false,
@@ -186,6 +188,7 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterLookup: "toelichting__icontains",
       width: "150px",
+      valueTransform: (rd) => overflowRowData("Toelichting", rd.toelichting),
     },
     {
       name: "startdatum",
@@ -442,3 +445,4 @@ export function useFields<T extends Zaak = Zaak>(
     resetFilters,
   ];
 }
+
