@@ -9,6 +9,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { DestructionList } from "../lib/api/destructionLists";
 import {
+  listBehandelendAfdelingChoices,
   listResultaatTypeChoices,
   listSelectielijstKlasseChoices,
   listZaaktypeChoices,
@@ -99,6 +100,18 @@ export function useFields<T extends Zaak = Zaak>(
     zaakFilterParams.delete(clearField);
     return zaakFilterParams;
   };
+
+  const behandelendAfdelingParams = getZaakFilterParams("behandelendAfdeling");
+  const { data: behandelendAfdelingChoices } = useDataFetcher(
+    (signal) =>
+      listBehandelendAfdelingChoices(behandelendAfdelingParams, signal),
+    {
+      errorMessage:
+        "Er is een fout opgetreden bij het ophalen van behandelend afdeling keuzes!",
+      initialState: [],
+    },
+    [params2CacheKey(behandelendAfdelingParams || {})],
+  );
 
   const selectielijstklasseParams = getZaakFilterParams("selectielijstklasse");
   const { data: selectielijstKlasseChoices } = useDataFetcher(
@@ -196,26 +209,24 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "Behandelende afdeling",
       type: "string",
-      filterLookup: "behandelend_afdeling__icontains",
+      filterLookup: "behandelend_afdeling",
+      filterValue: searchParams.get("behandelend_afdeling") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
-        const behandelendAfdeling: string[] = [];
         // TODO - Understand why the ExpandZaak type doesn't work
-        rollen.map((role) => {
-          if (
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneType === "organisatorische_eenheid" &&
-            // @ts-expect-error The type of role is 'never' for some reason
-            role.betrokkeneIdentificatie?.identificatie
-          )
-            behandelendAfdeling.push(
+        return (
+          rollen
+            .filter(
               // @ts-expect-error The type of role is 'never' for some reason
-              role.betrokkeneIdentificatie?.identificatie,
-            );
-        });
-        return behandelendAfdeling.join(", ");
+              (role) => role.betrokkeneType === "organisatorische_eenheid",
+            )
+            // @ts-expect-error The type of role is 'never' for some reason
+            .map((role) => role.omschrijving)
+            .join(", ")
+        );
       },
+      options: behandelendAfdelingChoices,
       width: "150px",
     },
     {
