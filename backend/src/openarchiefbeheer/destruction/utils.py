@@ -21,6 +21,7 @@ from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.zaken.models import Zaak
+from openarchiefbeheer.zaken.utils import get_zaaktype
 
 from .constants import (
     DestructionListItemAction,
@@ -194,6 +195,8 @@ def create_zaak_for_report(
     zrc_service = get_service(APITypes.zrc)
     zrc_client = build_client(zrc_service)
 
+    zaaktype = get_zaaktype(config.zaaktype)
+
     with zrc_client:
         if not destruction_list.zaak_destruction_report_url:
             response = zrc_client.post(
@@ -207,7 +210,7 @@ def create_zaak_for_report(
                     "omschrijving": _("Destruction report"),
                     "toelichting": _("Destruction report of list: %(list_name)s")
                     % {"list_name": destruction_list.name},
-                    "zaaktype": config.zaaktype,
+                    "zaaktype": zaaktype["url"],
                     "vertrouwelijkheidaanduiding": "openbaar",
                     "startdatum": timezone.now().date().isoformat(),
                     "verantwoordelijkeOrganisatie": config.bronorganisatie,
