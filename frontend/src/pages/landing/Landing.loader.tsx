@@ -33,11 +33,10 @@ export const getStatusMap = async (urlSearchParams: URLSearchParams) => {
     urlSearchParams.set("ordering", "-created");
   }
   const lists = await listDestructionLists(urlSearchParams);
-  return STATUSES.reduce((acc, val) => {
-    const status = val[0] || "";
+  return STATUSES.reduce((acc, [status]) => {
     const destructionLists = lists.filter(
       (l) => STATUS_MAPPING[l.status] === status,
     );
-    return { ...acc, [status]: destructionLists };
+    return { ...acc, [status || ""]: destructionLists };
   }, {});
 };

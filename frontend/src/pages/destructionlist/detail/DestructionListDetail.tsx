@@ -22,9 +22,9 @@ export function DestructionListDetailPage() {
       const isInReview = destructionList.status === "changes_requested";
 
       if (isInReview) {
-        navigate("process-review");
+        navigate("process-review", { replace: true });
       } else {
-        navigate("edit");
+        navigate("edit", { replace: true });
       }
     }
   }, [outlet]);
