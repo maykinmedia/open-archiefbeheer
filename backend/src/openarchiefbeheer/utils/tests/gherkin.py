@@ -867,6 +867,11 @@ class GerkinMixin:
             locator = page.get_by_placeholder(placeholder)
             await expect(locator).to_have_value("")
 
+        async def dropdown_should_be_empty(self, page, name):
+            select = page.get_by_label(f'filter veld "{name}"')
+            value = await select.get_attribute("value")
+            self.testcase.assertEqual(value, None)
+
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
     pass

@@ -201,6 +201,7 @@ export function useFields<T extends Zaak = Zaak>(
       name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling__icontains",
+      filterValue: searchParams.get("behandelend_afdeling__icontains") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
@@ -225,8 +226,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "selectielijstklasse",
       type: "string",
+      filterLookup: "selectielijstklasse",
       filterValue: searchParams.get("selectielijstklasse") || "",
-      // filterLookup: // TODO: Expand?
       valueTransform: (v: ExpandZaak) => {
         // selectielijstklasse choices not yet loaded.
         if (selectielijstKlasseChoices === null) {
