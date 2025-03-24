@@ -49,6 +49,7 @@ export const LandingPage: StoryObj<typeof Landing> = {
 
     const destroyedNames = MOCKS.DESTRUCTION_LISTS.response
       .filter((d) => d.status === "deleted")
+      .filter((d) => d.processingStatus === "succeeded")
       .map((d) => d.name);
     for (const name of destroyedNames) {
       const button = await within(canvasElement).findByTitle(name);
