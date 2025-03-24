@@ -58,7 +58,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "2")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
-            await self.then.not_.zaak_should_be_selected(page, "ZAAK-0")  # First unselected zaak
+            await self.then.zaak_should_not_be_selected(page, "ZAAK-0")  # First unselected zaak
 
             await self.when.user_selects_zaak(page, "ZAAK-0", timeout=6000)
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
