@@ -16,6 +16,7 @@ env:
   DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
   DOCKER_BUILDKIT: '1'
   KEYCLOAK_BASE_URL: http://localhost:28080
+  PLAYWRIGHT_SAVE_TRACE: yes
 
 jobs:
   frontend-build:

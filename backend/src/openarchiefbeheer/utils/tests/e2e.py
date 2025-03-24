@@ -26,7 +26,7 @@ async def browser_page(log_levels=["debug"]):
             and print(message.type.upper(), message),
         )
 
-        save_trace = True
+        save_trace = settings.PLAYWRIGHT_SAVE_TRACE
         try:
             yield page
             save_trace = False
