@@ -307,6 +307,14 @@ class DestructionList(models.Model):
             endpoint = furl(zios[0]["informatieobject"]) / "download"
             return endpoint.url
 
+    @property
+    def can_queue_destruction(self) -> bool:
+        return self.status == ListStatus.ready_to_delete or (
+            # The destruction list can have status "deleted" if the creation of the destruction report failed
+            self.status == ListStatus.deleted
+            and self.processing_status == InternalStatus.failed
+        )
+
 
 class DestructionListItem(models.Model):
     destruction_list = models.ForeignKey(

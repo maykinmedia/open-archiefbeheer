@@ -61,7 +61,7 @@ def delete_destruction_list(destruction_list: DestructionList) -> None:
         )
         return
 
-    if destruction_list.status != ListStatus.ready_to_delete:
+    if not destruction_list.can_queue_destruction:
         logger.warning(
             "Cannot proceed with deleting list %s since it has status %s.",
             destruction_list.name,
