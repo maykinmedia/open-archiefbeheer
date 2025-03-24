@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import permissions
 
-from ..constants import ListStatus
+from ..constants import InternalStatus, ListStatus
 
 
 class CanStartDestructionPermission(permissions.BasePermission):
@@ -99,7 +99,11 @@ class CanQueueDestruction(permissions.BasePermission):
         return request.user.has_perm("accounts.can_start_destruction")
 
     def has_object_permission(self, request, view, destruction_list):
-        return destruction_list.status == ListStatus.ready_to_delete
+        return destruction_list.status == ListStatus.ready_to_delete or (
+            # The destruction list can have status "deleted" if the creation of the destruction report failed
+            destruction_list.status == ListStatus.deleted
+            and destruction_list.processing_status == InternalStatus.failed
+        )
 
 
 class CanDeleteList(permissions.BasePermission):
