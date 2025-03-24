@@ -254,14 +254,13 @@ jobs:
           PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
           PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
 
-      # # Uncomment if you are recording traces for debug purposes
-      # - uses: actions/upload-artifact@v4
-      #   if: ${{ failure() }}
-      #   with:
-      #     name: ${{ matrix.browser }}-playwright-trace.zip
-      #     path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
-      #     retention-days: 1
-      #     if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ${{ matrix.browser }}-playwright-trace.zip
+          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
+          retention-days: 1
+          if-no-files-found: error
           
   docs:
    name: Build and check documentation
