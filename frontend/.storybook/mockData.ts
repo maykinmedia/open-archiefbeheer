@@ -115,6 +115,7 @@ export const MOCKS = {
       destructionListFactory({
         name: "My ninth destruction list",
         status: "deleted",
+        processingStatus: "succeeded",
       }),
       // No planned destruction date
       destructionListFactory({
@@ -122,6 +123,12 @@ export const MOCKS = {
         status: "ready_to_delete",
         processingStatus: "processing",
         plannedDestructionDate: null,
+      }),
+      // Deleted but report failed
+      destructionListFactory({
+        name: "My eleventh destruction list",
+        status: "deleted",
+        processingStatus: "failed",
       }),
     ],
   },
