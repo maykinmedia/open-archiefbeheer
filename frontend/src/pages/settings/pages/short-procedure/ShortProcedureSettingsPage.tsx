@@ -134,7 +134,10 @@ export function ShortProcedureSettingsPage() {
         <H2>Verkorte procedure</H2>
         <P>
           Selecteer zaaktypen die in aanmerking komen voor de verkorte
-          procedure.
+          procedure. Wanneer een vernietigingslijst uitsluitend zaken met deze
+          zaaktypen bevat, wordt de procedure versneld: na goedkeuring door de
+          beoordelaar kan de record manager de lijst direct vernietigen, zonder
+          tweede beoordeling door de archivaris.
         </P>
       </Body>
     </BaseSettingsView>
