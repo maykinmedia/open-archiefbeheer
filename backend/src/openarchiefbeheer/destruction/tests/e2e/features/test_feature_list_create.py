@@ -164,6 +164,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                         "_expand": {
                             "resultaattype": {
                                 "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                                "omschrijving": "resultaattype 111-111-111",
                                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
                             }
                         },
@@ -180,6 +181,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                         "_expand": {
                             "resultaattype": {
                                 "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                                "omschrijving": "resultaattype 111-111-111",
                                 "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
                             }
                         },
