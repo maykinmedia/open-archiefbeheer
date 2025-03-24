@@ -6,7 +6,7 @@ import { params2CacheKey, params2Object } from "../format/params";
 import { request } from "./request";
 
 /**
- * Retrieve the behandelend afdelingen the zaken in the database. These have rollen
+ * Retrieve the behandelend afdelingen the zaken in the database. These are rollen
  * with betrokkeneType equal to "organisatorische_eenheid".
  * @param params
  * @param signal

@@ -383,7 +383,7 @@ class BehandelendAfdelingInternalChoicesView(APIView):
         summary=_("Retrieve behandelend afdeling choices"),
         description=_(
             "Retrieve the behandelend afdelingen the zaken in the database. "
-            'These have rollen with betrokkeneType equal to "organisatorische_eenheid".'
+            'These are rollen with betrokkeneType equal to "organisatorische_eenheid".'
         ),
         tags=["private"],
         responses={
