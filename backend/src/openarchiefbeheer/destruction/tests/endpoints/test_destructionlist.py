@@ -1,5 +1,9 @@
+from datetime import date
+from unittest.mock import patch
+
 from django.utils.translation import gettext as _
 
+from freezegun import freeze_time
 from requests_mock import Mocker
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -9,7 +13,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import ListRole, ListStatus
+from ...constants import InternalStatus, ListRole, ListStatus
 from ...models import DestructionList
 from ..factories import DestructionListAssigneeFactory, DestructionListFactory
 
@@ -224,3 +228,30 @@ class DestructionListViewsetTests(APITestCase):
             response.json()["assignee"]["user"][0],
             _("The author of a list cannot also be a reviewer."),
         )
+
+    def test_queue_destruction_for_failed_list(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            name="A deleted list",
+            status=ListStatus.deleted,
+            processing_status=InternalStatus.failed,
+            planned_destruction_date=date(2025, 3, 23),
+        )
+
+        self.client.force_authenticate(user=user)
+        with (
+            freeze_time("2025-03-24"),
+            patch(
+                "openarchiefbeheer.destruction.api.viewsets.delete_destruction_list"
+            ) as m,
+        ):
+            response = self.client.post(
+                reverse(
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
+                ),
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        m.assert_called_once_with(destruction_list)
