@@ -16,6 +16,7 @@ os.environ.setdefault("LOG_REQUESTS", "no")
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
 PLAYWRIGHT_TRACE_PATH = config("PLAYWRIGHT_TRACE_PATH", default="playwright-trace.zip")
+PLAYWRIGHT_SAVE_TRACE = config("PLAYWRIGHT_SAVE_TRACE", default=True)
 
 from .base import *  # noqa isort:skip
 

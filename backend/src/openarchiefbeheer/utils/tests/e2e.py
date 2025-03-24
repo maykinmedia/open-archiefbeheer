@@ -11,29 +11,6 @@ from playwright.async_api import async_playwright
 @asynccontextmanager
 async def browser_page(log_levels=["debug"]):
     async with async_playwright() as p:
-        try:
-            launch_kwargs = {
-                "headless": settings.PLAYWRIGHT_HEADLESS,
-            }
-
-            browser = await getattr(p, settings.PLAYWRIGHT_BROWSER).launch(
-                **launch_kwargs
-            )
-            page = await browser.new_page()
-            page.on(
-                "console",
-                lambda message: message.type in log_levels
-                and print(message.type.upper(), message),
-            )
-
-            yield page
-        finally:
-            await browser.close()
-
-
-@asynccontextmanager
-async def browser_page_with_tracing(log_levels=["debug"]):
-    async with async_playwright() as p:
         launch_kwargs = {
             "headless": settings.PLAYWRIGHT_HEADLESS,
         }
@@ -49,10 +26,13 @@ async def browser_page_with_tracing(log_levels=["debug"]):
             and print(message.type.upper(), message),
         )
 
+        save_trace = settings.PLAYWRIGHT_SAVE_TRACE
         try:
             yield page
+            save_trace = False
         finally:
-            await context.tracing.stop(path=settings.PLAYWRIGHT_TRACE_PATH)
+            if save_trace:
+                await context.tracing.stop(path=settings.PLAYWRIGHT_TRACE_PATH)
             await browser.close()
 
 
