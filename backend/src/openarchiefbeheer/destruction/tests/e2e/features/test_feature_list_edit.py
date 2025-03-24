@@ -27,7 +27,10 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/create")
 
             await self.when.user_clicks_button(page, "volgende")
+            await self.then.path_should_be(page, "/destruction-lists/create?page=2")
+
             await self.when.user_clicks_checkbox(page, "(de)selecteer 100 rijen")  # All zaken on second page
+            
             await self.when.user_clicks_button(page, "volgende")
             await self.then.path_should_be(page, "/destruction-lists/create?page=3")
 
