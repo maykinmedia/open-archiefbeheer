@@ -776,6 +776,20 @@ class ProcessDeletingZakenTests(TestCase):
 
         m.assert_called_once_with(destruction_list)
 
+    def test_queue_deletion_after_report_failure(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            processing_status=InternalStatus.failed,
+            planned_destruction_date=date(2025, 3, 23),
+        )
+
+        with (freeze_time("2025-03-24"),):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.processing_status, InternalStatus.processing)
+
     @tag("gh-473")
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_traceback_from_failure_is_saved(self):
