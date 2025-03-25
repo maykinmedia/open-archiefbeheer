@@ -53,14 +53,15 @@ type Story = StoryObj<typeof meta>;
 export const AuditLogItemsVisible: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const rows = canvas.getAllByRole("row");
-    console.log(">>>>> 1", rows);
-    await canvas.findByRole("button", { name: "Datum" });
-    console.log(">>>>> 2", rows);
+    const rows = await canvas.findAllByRole("row");
+
+    console.log(">>>>>>", rows.length);
 
     await waitFor(async () => {
       await expect(rows).toHaveLength(4);
     });
+
+    console.log(">>>>>> TEST");
 
     await expect(rows[1]).toHaveTextContent("31/10/1990");
     await expect(rows[1]).toHaveTextContent("John Doe (johndoe)");
