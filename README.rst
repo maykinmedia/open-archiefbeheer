@@ -9,24 +9,27 @@ Open Archiefbeheer
 
 |build-status| |code-quality| |black| |coverage| |python-versions| |docker| |docs|
 
-Open Archiefbeheer is an app to manage the archiving process of cases.
+Create, manage and execute destruction lists, for use with "Zaakgericht
+werken" (case-oriented working).
+
+Developed by `Maykin Media B.V.`_.
 
 
 Introduction
 ============
 
-# To do
+Record management is the practice of destroying data-records that have met their
+end-of-life time. "Zaakgericht werken" prescribes the archiving terms for cases
+that have been brought to an end.
 
+The Open-archiefbeheer (OAB) provides functionality for record
+managers to schedule destruction of cases according to the archiving parameters.
+It implements a multi-step, multi-role accordance process.
 
-Documentation
-=============
+Attention is paid to the user experience of the staff using the app, with
+notifications to inform you of pending work-load, full audit logging and
+traceability of user and system actions.
 
-See ``INSTALL.rst`` for installation instructions, available settings and
-commands.
-
-
-* `Issues <https://github.com/maykinmedia/open-archiefbeheer/issues>`_
-* `Code <https://github.com/maykinmedia/open-archiefbeheer>`_
 
 
 .. _Maykin Media B.V.: https://www.maykinmedia.nl
