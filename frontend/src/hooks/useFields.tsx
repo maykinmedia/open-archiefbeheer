@@ -3,11 +3,11 @@ import {
   Placeholder,
   TypedField,
   TypedSerializedFormData,
-  useDialog,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { ExpandableText } from "../components/ExpandableText";
 import { DestructionList } from "../lib/api/destructionLists";
 import {
   listBehandelendAfdelingChoices,
@@ -27,7 +27,6 @@ import { params2CacheKey } from "../lib/format/params";
 import { FIELD_SELECTION_STORAGE_KEY } from "../pages/constants";
 import { ExpandZaak, Zaak } from "../types";
 import { useDataFetcher } from "./useDataFetcher";
-
 
 type FilterTransformReturnType<T> = Record<
   | "startdatum__gte"
@@ -148,9 +147,9 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(zaaktypeParams || {})],
   );
 
-  const overflowRowData = (data?: string) => {
-    if (!data) return data;
-    return <OverflowText text={data} />;
+  const overflowRowData = (fieldName: string, text?: string) => {
+    if (!text) return text;
+    return <ExpandableText text={text} fieldName={fieldName} />;
   };
 
   // The raw, unfiltered configuration of the available base fields.
@@ -223,7 +222,6 @@ export function useFields<T extends Zaak = Zaak>(
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
-        const behandelendAfdeling: string[] = [];
         // TODO - Understand why the ExpandZaak type doesn't work
         return (
           rollen
@@ -287,27 +285,6 @@ export function useFields<T extends Zaak = Zaak>(
         { label: "Blijvend bewaren", value: "blijvend_bewaren" },
         { label: "Vernietigen", value: "vernietigen" },
       ],
-      width: "150px",
-    },
-    {
-      active: false,
-      name: "relaties",
-      filterLookup: "heeft_relaties",
-      valueTransform: (rowData: object) =>
-        Boolean((rowData as Zaak)?.relevanteAndereZaken?.length),
-      filterValue: searchParams.get("heeft_relaties") || "",
-      type: "boolean",
-      options: [
-        { value: "true", label: "Ja" },
-        { value: "false", label: "Nee" },
-      ],
-      width: "150px",
-    },
-    {
-      name: "hoofdzaak",
-      active: false,
-      type: "string",
-      // valueLookup: // TODO: Expand?
       width: "150px",
     },
     ...(extraFields || []).map((f) => ({
@@ -445,4 +422,3 @@ export function useFields<T extends Zaak = Zaak>(
     resetFilters,
   ];
 }
-
