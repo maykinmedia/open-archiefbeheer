@@ -54,6 +54,9 @@ export const AuditLogItemsVisible: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const rows = canvas.getAllByRole("row");
+    console.log(">>>>> 1", rows);
+    await canvas.findByRole("button", { name: "Datum" });
+    console.log(">>>>> 2", rows);
 
     await waitFor(async () => {
       await expect(rows).toHaveLength(4);
