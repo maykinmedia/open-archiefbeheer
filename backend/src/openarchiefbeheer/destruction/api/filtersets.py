@@ -80,7 +80,7 @@ class DestructionListItemFilterset(FilterSet):
                     default=Value(1),
                 ),
             )
-            .order_by("processing_status_index")
+            .order_by("processing_status_index", "zaak__pk")
         )
 
     def filter_order_match_zaken(
