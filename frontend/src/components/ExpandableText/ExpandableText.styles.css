@@ -1,0 +1,25 @@
+.expandable-text {
+  overflow: hidden;
+}
+
+.expandable-text__p {
+  text-overflow: unset;
+  white-space: nowrap;
+  overflow: hidden;
+  width: calc(100% - 12px);
+  mask-image: unset;
+}
+
+.expandable-text__p--overflowing {
+  mask-image: linear-gradient(
+    to left,
+    transparent,
+    var(--typography-color-background) 10%
+  );
+}
+
+.expandable-text__button {
+  display: inline-block;
+  position: absolute;
+  inset: 5px -4px auto auto;
+}

@@ -7,6 +7,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { ExpandableText } from "../components/ExpandableText";
 import { DestructionList } from "../lib/api/destructionLists";
 import {
   listBehandelendAfdelingChoices,
@@ -146,6 +147,11 @@ export function useFields<T extends Zaak = Zaak>(
     [params2CacheKey(zaaktypeParams || {})],
   );
 
+  const overflowRowData = (fieldName: string, text?: string) => {
+    if (!text) return text;
+    return <ExpandableText text={text} fieldName={fieldName} />;
+  };
+
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
@@ -173,6 +179,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterValue: searchParams.get("omschrijving__icontains") || "",
       type: "string",
       width: "150px",
+      valueTransform: (rd) => overflowRowData("Omschrijving", rd.omschrijving),
     },
     {
       active: false,
@@ -180,6 +187,7 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterLookup: "toelichting__icontains",
       width: "150px",
+      valueTransform: (rd) => overflowRowData("Toelichting", rd.toelichting),
     },
     {
       name: "startdatum",
