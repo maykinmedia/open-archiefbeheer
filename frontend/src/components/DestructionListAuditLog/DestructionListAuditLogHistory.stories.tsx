@@ -54,22 +54,23 @@ export const AuditLogItemsVisible: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const rows = canvas.getAllByRole("row");
-    expect(rows).toHaveLength(4);
 
-    expect(rows[1]).toHaveTextContent("31/10/1990");
-    expect(rows[1]).toHaveTextContent("John Doe (johndoe)");
-    expect(rows[1]).toHaveTextContent("Record Manager");
-    expect(rows[1]).toHaveTextContent("Destruction list created.");
+    await expect(rows).toHaveLength(4);
 
-    expect(rows[2]).toHaveTextContent("02/08/1988");
-    expect(rows[2]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(rows[2]).toHaveTextContent("Record Manager, Reviewer");
-    expect(rows[2]).toHaveTextContent("Destruction list deleted.");
+    await expect(rows[1]).toHaveTextContent("31/10/1990");
+    await expect(rows[1]).toHaveTextContent("John Doe (johndoe)");
+    await expect(rows[1]).toHaveTextContent("Record Manager");
+    await expect(rows[1]).toHaveTextContent("Destruction list created.");
 
-    expect(rows[3]).toHaveTextContent("15/09/2023");
-    expect(rows[3]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(rows[3]).toHaveTextContent("Administrator");
-    expect(rows[3]).toHaveTextContent("Destruction list updated.");
+    await expect(rows[2]).toHaveTextContent("02/08/1988");
+    await expect(rows[2]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(rows[2]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(rows[2]).toHaveTextContent("Destruction list deleted.");
+
+    await expect(rows[3]).toHaveTextContent("15/09/2023");
+    await expect(rows[3]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(rows[3]).toHaveTextContent("Administrator");
+    await expect(rows[3]).toHaveTextContent("Destruction list updated.");
   },
 };
 
@@ -80,41 +81,41 @@ export const AuditLogItemsSortDate: Story = {
     await userEvent.click(dateColumn);
 
     const asc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
-    expect(asc[1]).toHaveTextContent("02/08/1988");
-    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
-    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
+    await expect(asc).toHaveLength(4);
+    await expect(asc[1]).toHaveTextContent("02/08/1988");
+    await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
-    expect(asc[2]).toHaveTextContent("31/10/1990");
-    expect(asc[2]).toHaveTextContent("John Doe (johndoe)");
-    expect(asc[2]).toHaveTextContent("Record Manager");
-    expect(asc[2]).toHaveTextContent("Destruction list created.");
+    await expect(asc[2]).toHaveTextContent("31/10/1990");
+    await expect(asc[2]).toHaveTextContent("John Doe (johndoe)");
+    await expect(asc[2]).toHaveTextContent("Record Manager");
+    await expect(asc[2]).toHaveTextContent("Destruction list created.");
 
-    expect(asc[3]).toHaveTextContent("15/09/2023");
-    expect(asc[3]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(asc[3]).toHaveTextContent("Administrator");
-    expect(asc[3]).toHaveTextContent("Destruction list updated.");
+    await expect(asc[3]).toHaveTextContent("15/09/2023");
+    await expect(asc[3]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(asc[3]).toHaveTextContent("Administrator");
+    await expect(asc[3]).toHaveTextContent("Destruction list updated.");
 
     await userEvent.click(dateColumn);
 
     const desc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
+    await expect(asc).toHaveLength(4);
 
-    expect(desc[1]).toHaveTextContent("15/09/2023");
-    expect(desc[1]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(desc[1]).toHaveTextContent("Administrator");
-    expect(desc[1]).toHaveTextContent("Destruction list updated.");
+    await expect(desc[1]).toHaveTextContent("15/09/2023");
+    await expect(desc[1]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(desc[1]).toHaveTextContent("Administrator");
+    await expect(desc[1]).toHaveTextContent("Destruction list updated.");
 
-    expect(desc[2]).toHaveTextContent("31/10/1990");
-    expect(desc[2]).toHaveTextContent("John Doe (johndoe)");
-    expect(desc[2]).toHaveTextContent("Record Manager");
-    expect(desc[2]).toHaveTextContent("Destruction list created.");
+    await expect(desc[2]).toHaveTextContent("31/10/1990");
+    await expect(desc[2]).toHaveTextContent("John Doe (johndoe)");
+    await expect(desc[2]).toHaveTextContent("Record Manager");
+    await expect(desc[2]).toHaveTextContent("Destruction list created.");
 
-    expect(desc[3]).toHaveTextContent("02/08/1988");
-    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
-    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
+    await expect(desc[3]).toHaveTextContent("02/08/1988");
+    await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
 
@@ -127,41 +128,41 @@ export const AuditLogItemsSortName: Story = {
     await userEvent.click(nameColumn);
 
     const asc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
-    expect(asc[1]).toHaveTextContent("02/08/1988");
-    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
-    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
+    await expect(asc).toHaveLength(4);
+    await expect(asc[1]).toHaveTextContent("02/08/1988");
+    await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
-    expect(asc[2]).toHaveTextContent("15/09/2023");
-    expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(asc[2]).toHaveTextContent("Administrator");
-    expect(asc[2]).toHaveTextContent("Destruction list updated.");
+    await expect(asc[2]).toHaveTextContent("15/09/2023");
+    await expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(asc[2]).toHaveTextContent("Administrator");
+    await expect(asc[2]).toHaveTextContent("Destruction list updated.");
 
-    expect(asc[3]).toHaveTextContent("31/10/1990");
-    expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
-    expect(asc[3]).toHaveTextContent("Record Manager");
-    expect(asc[3]).toHaveTextContent("Destruction list created.");
+    await expect(asc[3]).toHaveTextContent("31/10/1990");
+    await expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
+    await expect(asc[3]).toHaveTextContent("Record Manager");
+    await expect(asc[3]).toHaveTextContent("Destruction list created.");
 
     await userEvent.click(nameColumn);
 
     const desc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
+    await expect(asc).toHaveLength(4);
 
-    expect(desc[1]).toHaveTextContent("31/10/1990");
-    expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
-    expect(desc[1]).toHaveTextContent("Record Manager");
-    expect(desc[1]).toHaveTextContent("Destruction list created.");
+    await expect(desc[1]).toHaveTextContent("31/10/1990");
+    await expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
+    await expect(desc[1]).toHaveTextContent("Record Manager");
+    await expect(desc[1]).toHaveTextContent("Destruction list created.");
 
-    expect(desc[2]).toHaveTextContent("15/09/2023");
-    expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(desc[2]).toHaveTextContent("Administrator");
-    expect(desc[2]).toHaveTextContent("Destruction list updated.");
+    await expect(desc[2]).toHaveTextContent("15/09/2023");
+    await expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(desc[2]).toHaveTextContent("Administrator");
+    await expect(desc[2]).toHaveTextContent("Destruction list updated.");
 
-    expect(desc[3]).toHaveTextContent("02/08/1988");
-    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
-    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
+    await expect(desc[3]).toHaveTextContent("02/08/1988");
+    await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
 
@@ -174,41 +175,41 @@ export const AuditLogItemsSortMessage: Story = {
     await userEvent.click(nameColumn);
 
     const asc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
+    await expect(asc).toHaveLength(4);
 
-    expect(asc[1]).toHaveTextContent("02/08/1988");
-    expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
-    expect(asc[1]).toHaveTextContent("Destruction list deleted.");
+    await expect(asc[1]).toHaveTextContent("02/08/1988");
+    await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
-    expect(asc[2]).toHaveTextContent("15/09/2023");
-    expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(asc[2]).toHaveTextContent("Administrator");
-    expect(asc[2]).toHaveTextContent("Destruction list updated.");
+    await expect(asc[2]).toHaveTextContent("15/09/2023");
+    await expect(asc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(asc[2]).toHaveTextContent("Administrator");
+    await expect(asc[2]).toHaveTextContent("Destruction list updated.");
 
-    expect(asc[3]).toHaveTextContent("31/10/1990");
-    expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
-    expect(asc[3]).toHaveTextContent("Record Manager");
-    expect(asc[3]).toHaveTextContent("Destruction list created.");
+    await expect(asc[3]).toHaveTextContent("31/10/1990");
+    await expect(asc[3]).toHaveTextContent("John Doe (johndoe)");
+    await expect(asc[3]).toHaveTextContent("Record Manager");
+    await expect(asc[3]).toHaveTextContent("Destruction list created.");
 
     await userEvent.click(nameColumn);
 
     const desc = canvas.getAllByRole("row");
-    expect(asc).toHaveLength(4);
+    await expect(asc).toHaveLength(4);
 
-    expect(desc[1]).toHaveTextContent("31/10/1990");
-    expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
-    expect(desc[1]).toHaveTextContent("Record Manager");
-    expect(desc[1]).toHaveTextContent("Destruction list created.");
+    await expect(desc[1]).toHaveTextContent("31/10/1990");
+    await expect(desc[1]).toHaveTextContent("John Doe (johndoe)");
+    await expect(desc[1]).toHaveTextContent("Record Manager");
+    await expect(desc[1]).toHaveTextContent("Destruction list created.");
 
-    expect(desc[2]).toHaveTextContent("15/09/2023");
-    expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
-    expect(desc[2]).toHaveTextContent("Administrator");
-    expect(desc[2]).toHaveTextContent("Destruction list updated.");
+    await expect(desc[2]).toHaveTextContent("15/09/2023");
+    await expect(desc[2]).toHaveTextContent("Jet Doe (jetdoe)");
+    await expect(desc[2]).toHaveTextContent("Administrator");
+    await expect(desc[2]).toHaveTextContent("Destruction list updated.");
 
-    expect(desc[3]).toHaveTextContent("02/08/1988");
-    expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-    expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
-    expect(desc[3]).toHaveTextContent("Destruction list deleted.");
+    await expect(desc[3]).toHaveTextContent("02/08/1988");
+    await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
+    await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+    await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
   },
 };
