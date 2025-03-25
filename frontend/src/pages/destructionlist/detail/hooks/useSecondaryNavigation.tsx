@@ -473,7 +473,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         BUTTON_ABORT_PROCESS,
         (user, destructionList) =>
           destructionList.status !== "new" &&
-          destructionList.status !== "deleted",
+          destructionList.status !== "deleted" &&
+          !isPlannedForDestruction(),
       ),
 
       // Status: "changes_requested": "Opnieuw indienen"
@@ -492,7 +493,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         BUTTON_DESTROY,
         (user, destructionList) =>
           canTriggerDestruction(user, destructionList) &&
-          ["new", "failed"].includes(destructionList.processingStatus),
+          ["new", "failed"].includes(destructionList.processingStatus) &&
+          !isPlannedForDestruction(),
       ),
 
       // Status: "ready_to_delete"
