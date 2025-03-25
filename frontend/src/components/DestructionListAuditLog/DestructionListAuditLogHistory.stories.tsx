@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { auditLogItemFactory } from "../../fixtures/auditLog";
 import { userFactory } from "../../fixtures/user";
@@ -55,7 +55,9 @@ export const AuditLogItemsVisible: Story = {
     const canvas = within(canvasElement);
     const rows = canvas.getAllByRole("row");
 
-    await expect(rows).toHaveLength(4);
+    await waitFor(async () => {
+      await expect(rows).toHaveLength(4);
+    });
 
     await expect(rows[1]).toHaveTextContent("31/10/1990");
     await expect(rows[1]).toHaveTextContent("John Doe (johndoe)");
