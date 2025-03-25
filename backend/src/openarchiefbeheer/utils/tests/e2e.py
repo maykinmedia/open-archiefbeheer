@@ -1,8 +1,10 @@
+import re
 from contextlib import asynccontextmanager
 
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.cache import cache
+from django.db import connection
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
 
 from playwright.async_api import async_playwright
@@ -39,10 +41,7 @@ async def browser_page(log_levels=["debug"]):
 class LiveServerThreadWithReuse(LiveServerThread):
     """Live server thread with reuse of local addresses
 
-    Apparently, after the server thread is stopped, the socket is still bound to the address and in TIME_WAIT state.
-    The connection is kept around so that any delayed packets can be matched to the connection and handled appropriately.
-    The OS will close the connection once a timeout period has passed.
-    By reusing the address, we prevent the ``socket.error: [Errno 48] Address already in use`` error.
+    Prevents "socket.error: [Errno 48] Address already in use" by reusing the address.
     """
 
     def _create_server(self, connections_override=None):
@@ -55,11 +54,38 @@ class LiveServerThreadWithReuse(LiveServerThread):
 
 
 class PlaywrightTestCase(StaticLiveServerTestCase):
-    port = settings.E2E_PORT
     fixtures = ["permissions.json"]
     server_thread_class = LiveServerThreadWithReuse
 
+    @classmethod
+    def get_unique_port(cls):
+        """
+        If the tests are run in parallel (--parallel 4), each process needs a unique port.
+        The port is determined based on the database name and port setting (E2E_PORT).
+
+        - Look at a possible number of the test database, default to 0 if none was matched.
+        - Sum it with the default port and compute the unique port.
+        - Returnn the unique port.
+        """
+        base_port = settings.E2E_PORT or 8000
+        try:
+            db_name = connection.settings_dict["NAME"]
+            match_index = re.search(r"\d+", db_name)[0]
+            index = int(match_index)
+            return base_port + index
+        except TypeError:
+            return base_port
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        If the tests are run in parallel (--parallel 4), each process needs a unique port.
+        The port (defaults to settings.E2E_PORT) is set on the class and used when starting the test server.
+        See `get_unique_port` for more information.
+        """
+        cls.port = cls.get_unique_port()
+        super().setUpClass()
+
     def setUp(self):
         super().setUp()
-
         self.addCleanup(cache.clear)

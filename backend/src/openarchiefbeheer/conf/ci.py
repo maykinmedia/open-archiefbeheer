@@ -3,6 +3,8 @@ import warnings
 
 from .utils import config
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 # Do not log requests in CI/tests:

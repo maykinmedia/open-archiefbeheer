@@ -1,7 +1,7 @@
 import { getCookie } from "../cookie/cookie";
 
-/** Scheme for all API requests. */
-export const API_URL = import.meta.env.OAB_API_URL || "http://localhost:8000";
+/** The base origin for all API requests. */
+export const API_URL = import.meta.env.OAB_API_URL || window.location.origin;
 
 /** The base path for all API requests. */
 export const API_PATH = import.meta.env.OAB_API_PATH || "/api/v1";
