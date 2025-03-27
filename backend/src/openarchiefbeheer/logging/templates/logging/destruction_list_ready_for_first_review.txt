@@ -1,1 +1,6 @@
-{% load i18n %}{% translate "The destruction list was marked as ready to review." %}
+{% load i18n %}{% spaceless %}{% translate "The destruction list was marked as ready to review. " %}
+{% blocktranslate trimmed count counter=log.extra_data.number_of_zaken %}
+It contains {{ counter }} zaak.
+{% plural %}
+It contains {{ counter }} zaken.
+{% endblocktranslate %}{% endspaceless %}

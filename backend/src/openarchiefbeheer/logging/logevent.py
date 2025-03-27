@@ -85,7 +85,9 @@ def destruction_list_ready_for_first_review(
             )
         ),
         "comment": destruction_list.comment,
-        "number_of_zaken": destruction_list.items.count(),
+        "number_of_zaken": destruction_list.items.filter(
+            status=ListItemStatus.suggested
+        ).count(),
     }
 
     items_max_min = destruction_list.items.aggregate(

@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _, ngettext
 
 from furl import furl
 from rest_framework import status
@@ -770,11 +770,18 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(sent_mail[0].alternatives[0][1], "text/html")
 
         logs = TimelineLog.objects.for_object(destruction_list)
+        message = logs[0].get_message()
 
         self.assertEqual(logs.count(), 1)
-        self.assertEqual(
-            logs[0].get_message(),
-            _("The destruction list was marked as ready to review."),
+        self.assertIn(
+            _("The destruction list was marked as ready to review. "), message
+        )
+        self.assertIn(
+            ngettext(
+                "It contains %(counter)s zaak.", "It contains %(counter)s zaken.", 0
+            )
+            % {"counter": 0},
+            message,
         )
 
     def test_cannot_mark_as_ready_to_review_if_not_authenticated(self):
