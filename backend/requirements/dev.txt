@@ -149,7 +149,7 @@ dill==0.3.8
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pylint
-django==4.2.18
+django==4.2.20
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -414,7 +414,7 @@ isort==5.13.2
     #   -r requirements/ci.txt
     #   -r requirements/dev.in
     #   pylint
-jinja2==3.1.5
+jinja2==3.1.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
