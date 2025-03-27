@@ -96,7 +96,7 @@ def queue_destruction_lists_for_deletion():
     destruction_lists_to_process = DestructionList.objects.filter(
         processing_status=InternalStatus.new,
         status=ListStatus.ready_to_delete,
-        planned_destruction_date__lt=today,
+        planned_destruction_date__lte=today,
     )
 
     for destruction_list in destruction_lists_to_process:
