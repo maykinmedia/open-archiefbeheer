@@ -39,7 +39,7 @@ export const ProcessingStatusBadge: React.FC<ProcessingStatusBadgeProps> = ({
       if (isPlannedDestructionDateInPast) {
         return `Wordt vernietigd`;
       }
-      return `Wordt vernietigd ${timeAgo(plannedDestructionDate, { shortFormat: true })}`;
+      return `Wordt vernietigd ${timeAgo(plannedDestructionDate, { shortFormat: true, maxIntervals: 2 })}`;
     }
     return string2Title(PROCESSING_STATUS_MAPPING[processingStatus], {
       unHyphen: false,
