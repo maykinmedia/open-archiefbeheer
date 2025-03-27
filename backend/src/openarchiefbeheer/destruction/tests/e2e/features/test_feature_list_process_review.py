@@ -88,6 +88,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                 assignee=record_manager,
                 author=record_manager,
                 uuid="00000000-0000-0000-0000-000000000000",
+                name="Destruction list to process review for",
                 status=ListStatus.changes_requested
             )
             zaak1 = ZaakFactory.create(
@@ -186,7 +187,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_logs_in(page, self.destruction_list.assignee)
             await self.then.path_should_be(page, "/destruction-lists")
 
-            await self.when.user_clicks_button(page, self.destruction_list.name)
+            await self.when.user_clicks_button(page, "Destruction list to process review for")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
             
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
