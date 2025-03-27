@@ -37,6 +37,7 @@ export function formatDateAndTime(
 interface TimeAgoOptions {
   shortFormat?: boolean; // Use short format like "10d" instead of "10 days ago"
   includeSeconds?: boolean; // Include seconds in the output if less than a minute
+  maxIntervals?: number; // How many intervals at most to display
 }
 
 /**
@@ -64,7 +65,7 @@ export function timeAgo(
   const now = new Date();
   // Calculate the difference in seconds between the current date and the input date
   let seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  const { shortFormat = false } = options;
+  const { shortFormat = false, maxIntervals = 1 } = options;
 
   // Define the intervals in seconds for various time units
   const intervals = [
@@ -91,33 +92,32 @@ export function timeAgo(
   }
 
   // Iterate over the intervals to determine the appropriate time unit
+  const textBits = [];
   for (const interval of intervals) {
-    const intervalCount = Math.floor(seconds / interval.seconds);
-    if (intervalCount >= 1) {
-      // Format the label based on short or long format
-      const label = shortFormat
-        ? interval.shortFormat
-        : intervalCount === 1
-          ? interval.label
-          : interval.plural;
+    if (textBits.length >= maxIntervals) break;
 
-      // Check if it's future or past
-      if (isFuture) {
-        result = `over ${intervalCount}${shortFormat ? "" : " "}${label}`;
-      } else {
-        // Special case to not include "geleden" for the short format
-        // eslint-disable-next-line max-depth
-        if (shortFormat) {
-          result = `${intervalCount}${shortFormat ? "" : " "}${label}`;
-        } else {
-          result = `${intervalCount}${shortFormat ? "" : " "}${label} geleden`;
-        }
-      }
-      break;
-    }
+    const intervalCount = Math.floor(seconds / interval.seconds);
+    if (intervalCount < 1) continue;
+
+    // Format the label based on short or long format
+    const label = shortFormat
+      ? interval.shortFormat
+      : intervalCount === 1
+        ? interval.label
+        : interval.plural;
+
+    textBits.push(`${intervalCount}${shortFormat ? "" : " "}${label}`);
+    seconds = seconds - intervalCount * interval.seconds;
   }
 
-  // Return the formatted time difference
+  const text = `${textBits.join(shortFormat ? "" : " ")}`;
+  if (isFuture) {
+    result = `over ${text}`;
+  } else {
+    // Special case to not include "geleden" for the short format
+    result = shortFormat ? text : `${text} geleden`;
+  }
+
   return result.trim();
 }
 

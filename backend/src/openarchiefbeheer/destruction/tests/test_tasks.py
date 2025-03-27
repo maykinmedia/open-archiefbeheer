@@ -770,6 +770,21 @@ class ProcessDeletingZakenTests(TestCase):
 
         m.assert_called_once_with(destruction_list)
 
+    def test_task_queue_destruction_list_same_day(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete,
+            processing_status=InternalStatus.new,
+            planned_destruction_date=date(2024, 1, 1),
+        )
+
+        with (
+            freeze_time("2024-01-01T12:00:00+01:00"),
+            patch("openarchiefbeheer.destruction.tasks.delete_destruction_list") as m,
+        ):
+            queue_destruction_lists_for_deletion()
+
+        m.assert_called_once_with(destruction_list)
+
     def test_queue_deletion_after_report_failure(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.deleted,
