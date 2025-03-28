@@ -2,7 +2,7 @@
 
 # Helpers
 pip-tools
-bump2version
+bump-my-version
 gitpython
 
 # Code formatting
