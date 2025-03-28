@@ -11,19 +11,19 @@ from openarchiefbeheer.destruction.tests.factories import (
 
 
 class DestructionListQuerySetTests(TestCase):
-    def permitted_for_user_unprivileged(self):
+    def test_permitted_for_user_unprivileged(self):
         user = UserFactory.create(post__can_start_destruction=False)
         DestructionListFactory.create()
         lists = DestructionList.objects.permitted_for_user(user)
         self.assertEqual(len(lists), 0)
 
-    def permitted_for_user_record_manger(self):
+    def test_permitted_for_user_record_manger(self):
         user = UserFactory.create(post__can_start_destruction=True)
         DestructionListFactory.create()
         lists = DestructionList.objects.permitted_for_user(user)
         self.assertEqual(len(lists), 1)
 
-    def permitted_for_user_assignee(self):
+    def test_permitted_for_user_assignee(self):
         user = UserFactory.create()
         destruction_list = DestructionListFactory.create()
         DestructionListAssigneeFactory.create(
