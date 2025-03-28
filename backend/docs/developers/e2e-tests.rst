@@ -58,6 +58,8 @@ Running in parallel
 
 The e2e tests can be run in parallel with:
 
+.. code:: bash
+
    src/manage.py test openarchiefbeheer --tag=e2e --parallel 4
 
 **Choosing the right process count**
@@ -69,15 +71,22 @@ the number of workers is ``core count / 2``. On an 8-core system, this would mea
 When running tests in parallel, CPU cores may reach 100% utilization, which can cause individual tests to be delayed or
 time out. When this occurs, reduce the number of workers for more stable test results.
 
-**Unset OAB_API_URL**
+**Unset OAB_API_URL during build**
 
-The environment variable `OAB_API_URL` specifies the host at which the (backend) API is served. Setting this will direct
+In order for the end to end tests to run in parallel, the ``OAB_API_URL`` need to be unset (``OAB_API_URL=""``) before
+building:
+
+.. code:: bash
+
+    OAB_API_URL="" npm run build
+
+The environment variable ``OAB_API_URL`` specifies the host at which the (backend) API is served. Setting this will direct
 all frontend API requests to its value.
 
-During parallel e2e tests, the port is dynamically allocated based on the process index added to the `E2E_PORT` value.
-For example, with `E2E_PORT=8000`, the first test process will run on `8001`, the second on `8002`, and so on.
+During parallel e2e tests, the port is dynamically allocated based on the process index added to the ``E2E_PORT`` value.
+For example, with ``E2E_PORT=8000``, the first test process will run on ``8001``, the second on ``8002``, and so on.
 
-This behavior relies on the *absence* of `OAB_API_URL`, as its value may override the browser's current location, which
+This behavior relies on the *absence* of ``OAB_API_URL``, as its value may override the browser's current location, which
 is used as a fallback when serving parallel e2e tests.
 
 Environment variables
