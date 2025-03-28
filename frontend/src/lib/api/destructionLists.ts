@@ -31,12 +31,12 @@ export type DestructionListAssignee = {
 // An array to be used in various parts of the application.
 export const DESTRUCTION_LIST_STATUSES = [
   "new",
-  "ready_to_review",
   "changes_requested",
+  "ready_to_review",
+  "internally_reviewed",
+  "ready_for_archivist",
   "ready_to_delete",
   "deleted",
-  "ready_for_archivist",
-  "internally_reviewed",
 ] as const;
 
 // Inferring the type of the array, so that we don't have to repeat the same.
