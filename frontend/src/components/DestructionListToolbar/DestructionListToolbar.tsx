@@ -134,71 +134,74 @@ export function DestructionListToolbar({
   }, [collapsedState]);
 
   const properties = (
-    <Grid>
-      {destructionList && (
-        <Column span={3}>
-          <AttributeTable
-            compact
-            labeledObject={{
-              auteur: {
-                label: "Auteur",
-                value: formatUser(destructionList.author),
-              },
-              toegewezen: {
-                label: "Toegewezen aan",
-                value: formatUser(destructionList.assignee),
-              },
-              toelichting: {
-                label: "Comment",
-                value: destructionList.comment,
-              },
-              // Commented out due to no actual implementation of specifying this.
-              // bevatGevoeligeInformatie: {
-              //   label: "Bevat gevoelige informatie",
-              //   value: destructionList.containsSensitiveInfo,
-              // },
-            }}
-          />
-        </Column>
-      )}
+    <Body>
+      <Grid>
+        {destructionList && (
+          <Column span={3}>
+            <AttributeTable
+              compact
+              labeledObject={{
+                auteur: {
+                  label: "Auteur",
+                  value: formatUser(destructionList.author),
+                },
+                toegewezen: {
+                  label: "Toegewezen aan",
+                  value: formatUser(destructionList.assignee),
+                },
+                toelichting: {
+                  label: "Comment",
+                  value: destructionList.comment,
+                },
+                // Commented out due to no actual implementation of specifying this.
+                // bevatGevoeligeInformatie: {
+                //   label: "Bevat gevoelige informatie",
+                //   value: destructionList.containsSensitiveInfo,
+                // },
+              }}
+            />
+          </Column>
+        )}
 
-      {destructionList && (
-        <Column span={3}>
-          <DestructionListReviewer destructionList={destructionList} />
-        </Column>
-      )}
+        {destructionList && (
+          <Column span={3}>
+            <DestructionListReviewer destructionList={destructionList} />
+          </Column>
+        )}
 
-      {review && (
-        <Column span={3}>
-          <AttributeTable
-            compact
-            object={{
-              "Laatste review door": review.author && formatUser(review.author),
-              Opmerking: review.listFeedback,
-              Beoordeling: (
-                <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
-                  {REVIEW_DECISION_MAPPING[review.decision]}
-                </Badge>
-              ),
-            }}
-          />
-        </Column>
-      )}
+        {review && (
+          <Column span={3}>
+            <AttributeTable
+              compact
+              object={{
+                "Laatste review door":
+                  review.author && formatUser(review.author),
+                Opmerking: review.listFeedback,
+                Beoordeling: (
+                  <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
+                    {REVIEW_DECISION_MAPPING[review.decision]}
+                  </Badge>
+                ),
+              }}
+            />
+          </Column>
+        )}
 
-      {reviewResponse && (
-        <Column span={3}>
-          <AttributeTable
-            compact
-            object={{
-              "Laatst ingediend": formatDate(
-                new Date(String(reviewResponse.created)),
-              ),
-              Opmerking: reviewResponse.comment,
-            }}
-          />
-        </Column>
-      )}
-    </Grid>
+        {reviewResponse && (
+          <Column span={3}>
+            <AttributeTable
+              compact
+              object={{
+                "Laatst ingediend": formatDate(
+                  new Date(String(reviewResponse.created)),
+                ),
+                Opmerking: reviewResponse.comment,
+              }}
+            />
+          </Column>
+        )}
+      </Grid>
+    </Body>
   );
 
   const fields = [
