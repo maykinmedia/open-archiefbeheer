@@ -2,7 +2,7 @@
 Open Archiefbeheer
 ==================
 
-:Version: 0.1.0
+:Version: 1.0.0
 :Source: https://github.com/maykinmedia/open-archiefbeheer
 :Keywords: ``open-archiefbeheer archiveren zaken``
 :PythonVersion: 3.12
