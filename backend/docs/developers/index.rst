@@ -18,3 +18,4 @@ Content
     vcr-tests
     logic
     translations
+    release
