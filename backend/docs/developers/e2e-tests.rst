@@ -53,6 +53,33 @@ Once this is done, you can run the Playwright tests with:
 
 .. _Playwright docs: https://playwright.dev/python/docs/intro#installing-playwright-pytest
 
+Running in parallel
+===================
+
+The e2e tests can be run in parallel with:
+
+   src/manage.py test openarchiefbeheer --tag=e2e --parallel 4
+
+**Choosing the right process count**
+
+In this command, `4` specifies the number of test processes to start. The optimal number of processes depends on the
+system's CPU. In some cases, running tests in parallel may not improve performance. A common guideline for determining
+the number of workers is `core count / 2`. On an 8-core system, this would mean 4 processes.
+
+When running tests in parallel, CPU cores may reach 100% utilization, which can cause individual tests to be delayed or
+time out. When this occurs, reduce the number of workers for more stable test results.
+
+**Unset OAB_API_URL**
+
+The environment variable `OAB_API_URL` specifies the host at which the (backend) API is served. Setting this will direct
+all frontend API requests to its value.
+
+During parallel e2e tests, the port is dynamically allocated based on the process index added to the `E2E_PORT` value.
+For example, with `E2E_PORT=8000`, the first test process will run on `8001`, the second on `8002`, and so on.
+
+This behavior relies on the *absence* of `OAB_API_URL`, as its value may override the browser's current location, which
+is used as a fallback when serving parallel e2e tests.
+
 Environment variables
 =====================
 
