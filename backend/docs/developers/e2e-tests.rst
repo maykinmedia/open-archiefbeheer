@@ -62,7 +62,7 @@ The e2e tests can be run in parallel with:
 
 **Choosing the right process count**
 
-In this command, `4` specifies the number of test processes to start. The optimal number of processes depends on the
+In this command, ``4`` specifies the number of test processes to start. The optimal number of processes depends on the
 system's CPU. In some cases, running tests in parallel may not improve performance. A common guideline for determining
 the number of workers is ``core count / 2``. On an 8-core system, this would mean 4 processes.
 
