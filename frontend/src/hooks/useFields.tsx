@@ -254,10 +254,8 @@ export function useFields<T extends Zaak = Zaak>(
     },
     {
       name: "resultaat",
-      filterLookup: "resultaat__resultaattype__omschrijving__icontains",
-      filterValue:
-        searchParams.get("resultaat__resultaattype__omschrijving__icontains") ||
-        "",
+      filterLookup: "_expand__resultaat__resultaattype",
+      filterValue: searchParams.get("_expand__resultaat__resultaattype") || "",
       valueLookup: "_expand.resultaat._expand.resultaattype.omschrijving",
       type: "string",
       options: resultaatTypeChoices,
