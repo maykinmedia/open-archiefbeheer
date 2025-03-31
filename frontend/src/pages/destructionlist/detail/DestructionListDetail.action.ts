@@ -193,7 +193,7 @@ export async function destructionListUpdateZakenAction({
     throw e;
   }
   await clearZaakSelection(storageKey);
-  await cacheDelete("listZaaktypeChoices", true); // Remove possibly outdated zaaktype cache.
+  await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
   return redirect(`/destruction-lists/${params.uuid}`);
 }
 
