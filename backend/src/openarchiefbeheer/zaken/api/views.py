@@ -89,7 +89,7 @@ class InternalZaaktypenChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         return self._retrieve_zaaktypen(request)
 
@@ -108,7 +108,7 @@ class InternalZaaktypenChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def post(self, request, *args, **kwargs):
         return self._retrieve_zaaktypen(request)
 
@@ -131,7 +131,7 @@ class ExternalZaaktypenChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         results = retrieve_zaaktypen()
         zaaktypen_choices = format_zaaktype_choices(results)
@@ -184,7 +184,7 @@ class InternalSelectielijstklasseChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
@@ -240,7 +240,7 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("statustypen", query_params)
@@ -297,7 +297,7 @@ class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("informatieobjecttypen", query_params)
@@ -323,7 +323,7 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("resultaattypen", query_params)
@@ -347,7 +347,7 @@ class InternalResultaattypeChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
@@ -390,7 +390,7 @@ class BehandelendAfdelingInternalChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
