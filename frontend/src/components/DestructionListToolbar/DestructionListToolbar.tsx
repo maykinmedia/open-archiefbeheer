@@ -72,7 +72,7 @@ export function DestructionListToolbar({
     [destructionList?.uuid],
   );
 
-  const { data: logItemsReadyForFirstReview } = useDataFetcher(
+  const { data: logItemsReadyForReview } = useDataFetcher(
     (signal) => {
       if (!destructionList) return Promise.resolve([]);
       return listAuditLog(
@@ -294,11 +294,11 @@ export function DestructionListToolbar({
             )}
           </Tab>
         ) : null}
-        {logItemsReadyForFirstReview?.length ? (
+        {logItemsReadyForReview?.length ? (
           <Tab id="details" label="Details">
             {!collapsedState && (
               <DestructionListAuditLogDetails
-                readyForFirstReviewLogItem={logItemsReadyForFirstReview[0]}
+                logItem={[...logItemsReadyForReview].reverse()[0]}
               />
             )}
           </Tab>

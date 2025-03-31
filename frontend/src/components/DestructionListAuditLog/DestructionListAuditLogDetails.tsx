@@ -5,13 +5,13 @@ import { formatDateAndTime } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
 
 export function DestructionListAuditLogDetails({
-  readyForFirstReviewLogItem,
+  logItem,
 }: {
-  readyForFirstReviewLogItem: AuditLogItem;
+  logItem: AuditLogItem;
 }) {
-  const extraData = readyForFirstReviewLogItem.extraData;
+  const extraData = logItem.extraData;
   const detailsObjectList = {
-    Auteur: formatUser(readyForFirstReviewLogItem.user),
+    Auteur: formatUser(logItem.user),
     ...(extraData && {
       "Min/Max archiefactiedatum": `van ${
         extraData.minArchiefactiedatum &&
