@@ -3,8 +3,6 @@ import warnings
 
 from .utils import config
 
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 # Do not log requests in CI/tests:
@@ -26,6 +24,7 @@ from .base import *  # noqa isort:skip
 E2E_PORT = config("E2E_PORT", default=8000)
 E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 CACHES.update(
     {
         "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},

@@ -3,8 +3,6 @@ import warnings
 
 from .utils import config
 
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-
 os.environ.setdefault("DEBUG", "yes")
 os.environ.setdefault("ALLOWED_HOSTS", "*")
 os.environ.setdefault(
