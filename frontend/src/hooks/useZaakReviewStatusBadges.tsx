@@ -1,6 +1,7 @@
-import { Badge, Solid } from "@maykin-ui/admin-ui";
+import { AttributeTable, Badge, Solid, Tooltip } from "@maykin-ui/admin-ui";
 import React, { useMemo } from "react";
 
+import { DestructionListItem } from "../lib/api/destructionListsItem";
 import { ZaakSelection } from "../lib/zaakSelection";
 import { Zaak } from "../types";
 import {
@@ -10,35 +11,60 @@ import {
 
 /**
  * Returns `object` with appropriate Badge element and `ZAAK_REVIEW_STATUS_ENUM` for each zaak in `zakenOnPage`.
- * @param zakenOnPage
+ * @param destructionListItems
  * @param reviewedZaakSelectionOnPage
+ * @param reviewAdviceIgnoredResults
  */
 export function useZaakReviewStatusBadges(
-  zakenOnPage: Zaak[],
+  destructionListItems: DestructionListItem[],
   reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
   reviewAdviceIgnoredResults: Record<string, boolean>, // Map of reviewAdviceIgnored
 ): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
+  const filteredDestructionListItems = useMemo(
+    () =>
+      destructionListItems.filter(
+        (destructionListItem) => destructionListItem.zaak,
+      ),
+    [destructionListItems],
+  );
+
+  const zaken = filteredDestructionListItems.map(
+    (destructionListItem) => destructionListItem.zaak as Zaak,
+  );
+
   const statuses = useZaakReviewStatuses(
-    zakenOnPage,
+    filteredDestructionListItems.map(
+      (destructionListItem) => destructionListItem.zaak as Zaak,
+    ),
     reviewedZaakSelectionOnPage,
   );
 
   return useMemo(() => {
-    const badges = zakenOnPage.map((z) => {
-      const status = statuses[z.url as string];
-      const reviewAdviceIgnored = reviewAdviceIgnoredResults[z.url as string];
+    const badges = zaken.map((zaak) => {
+      const status = statuses[zaak.url as string];
+      const reviewAdviceIgnored =
+        reviewAdviceIgnoredResults[zaak.url as string];
+
       if (typeof status === "boolean") {
         if (status) {
           return (
-            // @ts-expect-error - style props not supported (yet?)
-            <Badge key={z.uuid} level="success" style={{ display: "block" }}>
+            <Badge
+              key={zaak.uuid}
+              level="success"
+              // @ts-expect-error - style props not supported (yet?)
+              style={{ display: "block" }}
+            >
               <Solid.HandThumbUpIcon /> Geaccordeerd
             </Badge>
           );
         } else {
           return (
-            // @ts-expect-error - style props not supported (yet?)
-            <Badge key={z.uuid} level="danger" style={{ display: "block" }}>
+            <Badge
+              key={zaak.uuid}
+              level="danger"
+              // @ts-expect-error - style props not supported (yet?)
+              style={{ display: "block" }}
+            >
               <Solid.HandThumbDownIcon /> Uitgezonderd
             </Badge>
           );
@@ -47,24 +73,46 @@ export function useZaakReviewStatusBadges(
         // Display "Herboordelen" badge for reviewAdviceIgnored zaken
         return (
           // @ts-expect-error - style props not supported (yet?)
-          <Badge key={z.uuid} level="info" style={{ display: "block" }}>
+          <Badge key={zaak.uuid} level="info" style={{ display: "block" }}>
             <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
           </Badge>
         );
       } else {
         return (
           // @ts-expect-error - style props not supported (yet?)
-          <Badge key={z.uuid} style={{ display: "block" }}>
+          <Badge key={zaak.uuid} style={{ display: "block" }}>
             <Solid.QuestionMarkCircleIcon /> Niet beoordeeld
           </Badge>
         );
       }
     });
 
-    const entries = zakenOnPage.map((z, i) => [
-      z.url as string,
-      { badge: badges[i], status: statuses[z.url as string] },
-    ]);
+    const entries = filteredDestructionListItems.map(
+      (destructionListItem, i) => {
+        const zaak = destructionListItem.zaak as Zaak;
+        return [
+          zaak.url as string,
+          {
+            badge: (
+              <Tooltip
+                content={
+                  <AttributeTable
+                    object={{
+                      Opmerking: destructionListItem.reviewResponseComment,
+                    }}
+                    compact
+                  />
+                }
+              >
+                {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+                <span tabIndex={0}>{badges[i]}</span>
+              </Tooltip>
+            ),
+            status: statuses[zaak.url as string],
+          },
+        ];
+      },
+    );
     return Object.fromEntries(entries);
-  }, [statuses, reviewAdviceIgnoredResults, zakenOnPage]);
+  }, [statuses, reviewAdviceIgnoredResults, destructionListItems]);
 }

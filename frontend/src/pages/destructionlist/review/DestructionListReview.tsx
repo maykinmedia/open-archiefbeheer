@@ -159,7 +159,7 @@ export function DestructionListReviewPage() {
   );
 
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
-    zakenResults,
+    paginatedZaken.results,
     {
       ...approvedZaakSelection,
       ...excludedZaakSelection,
