@@ -3,6 +3,7 @@ import { redirect } from "react-router-dom";
 
 import { TypedAction } from "../../../hooks";
 import { createDestructionList } from "../../../lib/api/destructionLists";
+import { cacheDelete } from "../../../lib/cache/cache";
 import {
   clearZaakSelection,
   getAllZakenSelected,
@@ -63,5 +64,6 @@ export const destructionListCreateAction = async ({
   }
 
   await clearZaakSelection(DESTRUCTION_LIST_CREATE_KEY);
+  await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
   return redirect("/");
 };

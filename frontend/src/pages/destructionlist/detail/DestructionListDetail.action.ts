@@ -76,6 +76,8 @@ export async function destructionListDeleteAction({
     }
     throw e;
   }
+
+  await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
   return redirect("/");
 }
 
