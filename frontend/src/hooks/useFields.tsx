@@ -234,7 +234,7 @@ export function useFields<T extends Zaak = Zaak>(
             .join(", ")
         );
       },
-      options: behandelendAfdelingChoices,
+      options: behandelendAfdelingChoices || [],
       width: "150px",
     },
     {
