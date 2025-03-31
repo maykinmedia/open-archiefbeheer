@@ -17,7 +17,7 @@ export const AuditLogDetails: StoryObj<typeof DestructionListAuditLogDetails> =
   {
     render: (args) => <DestructionListAuditLogDetails {...args} />,
     args: {
-      readyForFirstReviewLogItem: auditLogItemFactory({
+      logItem: auditLogItemFactory({
         extraData: {
           minArchiefactiedatum: "2021-01-01T00:00:00Z",
           maxArchiefactiedatum: "2021-12-31T00:00:00Z",
