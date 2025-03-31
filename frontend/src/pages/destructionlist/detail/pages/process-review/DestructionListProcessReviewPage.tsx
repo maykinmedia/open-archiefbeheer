@@ -205,7 +205,8 @@ export function DestructionListProcessReviewPage() {
 
     return (
       <Tooltip content={tooltipContent} size="md">
-        <span>
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+        <span tabIndex={0}>
           {action === "keep" ? (
             // @ts-expect-error - style props not supported (yet?)
             <Badge level="info" style={{ display: "block" }} tabIndex={0}>
