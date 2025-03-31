@@ -945,6 +945,69 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
             ],
         )
 
+    def test_cache_cleared_after_update(self):
+        ServiceFactory.create(
+            api_type=APITypes.orc,
+            api_root="https://selectielijst.openzaak.nl/api/v1",
+        )
+        user = UserFactory.create(post__can_start_destruction=True)
+        zaak1 = ZaakFactory.create(
+            selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/111-111-111",
+        )
+        zaak2 = ZaakFactory.create(
+            selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/222-222-222",
+        )
+        destruction_list = DestructionListFactory.create()
+        item1 = DestructionListItemFactory.create(
+            zaak=zaak1, destruction_list=destruction_list
+        )
+        DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:retrieve-internal-selectielijstklasse-choices"))
+        endpoint.args["in_destruction_list"] = str(destruction_list.uuid)
+        with patch(
+            "openarchiefbeheer.zaken.api.views.retrieve_selectielijstklasse_choices",
+            return_value=[
+                {
+                    "label": "Klasse 1",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/111-111-111",
+                },
+                {
+                    "label": "Klasse 2",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/222-222-222",
+                },
+            ],
+        ) as m:
+            response = self.client.get(endpoint.url)
+
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+            m.assert_called_once()
+            self.assertEqual(len(response.json()), 2)
+
+        item1.delete()
+        destruction_list.save()
+
+        # After the list update, the cache should be cleared.
+        with patch(
+            "openarchiefbeheer.zaken.api.views.retrieve_selectielijstklasse_choices",
+            return_value=[
+                {
+                    "label": "Klasse 1",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/111-111-111",
+                },
+                {
+                    "label": "Klasse 2",
+                    "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/222-222-222",
+                },
+            ],
+        ) as m:
+            response = self.client.get(endpoint.url)
+
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+            m.assert_called_once()
+            self.assertEqual(len(response.json()), 1)
+
 
 class ResultaattypenChoicesViewTests(ClearCacheMixin, APITestCase):
     def setUp(self):
