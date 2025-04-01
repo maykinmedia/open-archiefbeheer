@@ -10,6 +10,7 @@ import { ProcessingStatusBadge } from "../../../../../components";
 import { useSubmitAction } from "../../../../../hooks";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { PaginatedZaken } from "../../../../../lib/api/zaken";
+import { cacheDelete } from "../../../../../lib/cache/cache";
 import { paginatedDestructionListItems2paginatedZaken } from "../../../../../lib/format/destructionList";
 import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
@@ -143,7 +144,8 @@ export function DestructionListEditPage() {
    * or escape such flow).
    * @param value
    */
-  const handleSetEditing = (value: boolean) => {
+  const handleSetEditing = async (value: boolean) => {
+    await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
     searchParams.set("page", "1");
     searchParams.set("is_editing", "true");
     setSearchParams(value ? searchParams : {});

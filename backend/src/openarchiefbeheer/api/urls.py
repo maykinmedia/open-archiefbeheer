@@ -33,14 +33,14 @@ from openarchiefbeheer.selection.api.views import (
 from openarchiefbeheer.zaken.api.views import (
     BehandelendAfdelingInternalChoicesView,
     CacheZakenView,
+    ExternalInformatieobjecttypeChoicesView,
     ExternalResultaattypeChoicesView,
     ExternalSelectielijstklasseChoicesView,
+    ExternalStatustypeChoicesView,
     ExternalZaaktypenChoicesView,
-    InformatieobjecttypeChoicesView,
     InternalResultaattypeChoicesView,
     InternalSelectielijstklasseChoicesView,
     InternalZaaktypenChoicesView,
-    StatustypeChoicesView,
 )
 from openarchiefbeheer.zaken.api.viewsets import ZakenViewSet
 
@@ -173,12 +173,12 @@ urlpatterns = [
                 ),
                 path(
                     "_statustype-choices/",
-                    StatustypeChoicesView.as_view(),
+                    ExternalStatustypeChoicesView.as_view(),
                     name="retrieve-statustype-choices",
                 ),
                 path(
                     "_informatieobjecttype-choices/",
-                    InformatieobjecttypeChoicesView.as_view(),
+                    ExternalInformatieobjecttypeChoicesView.as_view(),
                     name="retrieve-informatieobjecttype-choices",
                 ),
                 path(

@@ -86,7 +86,7 @@ CACHES = {
     },
     "choices_endpoints": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "LOCATION": f"redis://{config('CACHE_CHOICES', 'localhost:6379/1')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,

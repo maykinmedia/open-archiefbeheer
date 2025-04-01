@@ -26,7 +26,7 @@ from ..utils import (
     retrieve_zaaktypen,
 )
 from .filtersets import ZaakFilterSet
-from .mixins import FilterOnZaaktypeMixin
+from .mixins import ChoicesMixin, FilterOnZaaktypeMixin
 from .serializers import (
     ChoiceSerializer,
     SelectielijstklasseChoicesQueryParamSerializer,
@@ -47,7 +47,7 @@ class CacheZakenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class InternalZaaktypenChoicesView(APIView):
+class InternalZaaktypenChoicesView(ChoicesMixin, APIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -72,7 +72,7 @@ class InternalZaaktypenChoicesView(APIView):
 
         serializer = ChoiceSerializer(data=zaaktypen_choices, many=True)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return self.no_cache_response(serializer.data)
 
     @extend_schema(
         summary=_("Retrieve local zaaktypen choices"),
@@ -168,7 +168,9 @@ class ExternalSelectielijstklasseChoicesView(APIView):
         return Response(data=choices)
 
 
-class InternalSelectielijstklasseChoicesView(FilterOnZaaktypeMixin, APIView):
+class InternalSelectielijstklasseChoicesView(
+    ChoicesMixin, FilterOnZaaktypeMixin, APIView
+):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -222,10 +224,10 @@ class InternalSelectielijstklasseChoicesView(FilterOnZaaktypeMixin, APIView):
             if formatted_choice:
                 formatted_choices.append(formatted_choice)
 
-        return Response(formatted_choices, status=status.HTTP_200_OK)
+        return self.no_cache_response(formatted_choices)
 
 
-class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
+class ExternalStatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -240,7 +242,7 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("statustypen", query_params)
@@ -251,7 +253,7 @@ class StatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
+class ExternalInformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     # TODO
@@ -297,7 +299,7 @@ class InformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("informatieobjecttypen", query_params)
@@ -323,7 +325,7 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("resultaattypen", query_params)
@@ -334,7 +336,7 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class InternalResultaattypeChoicesView(APIView):
+class InternalResultaattypeChoicesView(ChoicesMixin, APIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -371,10 +373,10 @@ class InternalResultaattypeChoicesView(APIView):
                     "value": resultaattype["url"],
                 }
             )
-        return Response(formatted_choices, status=status.HTTP_200_OK)
+        return self.no_cache_response(formatted_choices)
 
 
-class BehandelendAfdelingInternalChoicesView(APIView):
+class BehandelendAfdelingInternalChoicesView(ChoicesMixin, APIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (NoModelFilterBackend,)
     filterset_class = ZaakFilterSet
@@ -416,4 +418,4 @@ class BehandelendAfdelingInternalChoicesView(APIView):
                     {"label": rol.get("omschrijving", rol["url"]), "value": rol["url"]}
                 )
 
-        return Response(formatted_choices, status=status.HTTP_200_OK)
+        return self.no_cache_response(formatted_choices)

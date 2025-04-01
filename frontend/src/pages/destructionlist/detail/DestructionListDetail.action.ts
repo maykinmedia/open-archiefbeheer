@@ -181,6 +181,8 @@ export async function destructionListUpdateZakenAction({
   request,
   params,
 }: ActionFunctionArgs) {
+  await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
+
   const data: UpdateDestructionListAction<DestructionListUpdateZakenActionPayload> =
     await request.json();
   const { storageKey, add: _add, remove: _remove } = data.payload;
@@ -195,7 +197,6 @@ export async function destructionListUpdateZakenAction({
     throw e;
   }
   await clearZaakSelection(storageKey);
-  await cacheDelete("list", true); // Remove possibly outdated cached value of list API's for choices.
   return redirect(`/destruction-lists/${params.uuid}`);
 }
 
