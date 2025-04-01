@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useAlertOnError } from "./useAlertOnError";
 
@@ -20,13 +20,13 @@ export function usePoll<T = unknown>(
   const alertOnError = useAlertOnError(
     options?.errormessage || "Er is een fout opgetreden!",
   );
-  let active = true;
-  let ref: number = -1;
+  const active = useRef(true);
+  const ref = useRef(-1);
 
-  const cancel = useCallback(() => {
-    active = false;
-    window.clearTimeout(ref);
-  }, [active, ref, ...(deps || [])]);
+  const cancel = () => {
+    active.current = false;
+    window.clearTimeout(ref.current);
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,11 +49,9 @@ export function usePoll<T = unknown>(
     /** Sets a timeout of `[options.timeout=3000]` to schedule `tick()`. */
     const poll = () => {
       // Stop.
-      if (!active) {
-        return;
+      if (active.current) {
+        ref.current = window.setTimeout(() => tick(), options?.timeout ?? 3000);
       }
-
-      ref = window.setTimeout(() => tick(), options?.timeout ?? 3000);
     };
 
     // Schedule first run.
@@ -65,6 +63,10 @@ export function usePoll<T = unknown>(
       cancel();
     };
   }, deps);
+
+  useEffect(() => {
+    active.current = true;
+  });
 
   // Return a function that clears the scheduled `tick()`.
   return cancel;
