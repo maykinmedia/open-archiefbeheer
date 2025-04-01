@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -9,11 +7,12 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ...utils import retrieve_paginated_type
 
 
-class StatustypenChoicesViewTests(VCRMixin, APITestCase):
+class StatustypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -28,7 +27,6 @@ class StatustypenChoicesViewTests(VCRMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):
@@ -76,7 +74,7 @@ class StatustypenChoicesViewTests(VCRMixin, APITestCase):
         )
 
 
-class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
+class ResultaattypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -91,7 +89,6 @@ class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):
@@ -139,7 +136,7 @@ class ResultaattypenChoicesViewTests(VCRMixin, APITestCase):
         )
 
 
-class InformatieobjecttypenChoicesViewTests(VCRMixin, APITestCase):
+class InformatieobjecttypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -154,7 +151,6 @@ class InformatieobjecttypenChoicesViewTests(VCRMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):
@@ -200,7 +196,7 @@ class InformatieobjecttypenChoicesViewTests(VCRMixin, APITestCase):
         )
 
 
-class ExternalZaaktypenChoicesViewTests(VCRMixin, APITestCase):
+class ExternalZaaktypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -215,7 +211,6 @@ class ExternalZaaktypenChoicesViewTests(VCRMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
         self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):

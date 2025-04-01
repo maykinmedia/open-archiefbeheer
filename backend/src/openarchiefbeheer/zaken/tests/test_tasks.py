@@ -1,7 +1,6 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.core.cache import cache
 from django.test import TestCase, TransactionTestCase, tag
 from django.utils.translation import gettext_lazy as _
 
@@ -15,6 +14,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.tests.get_queries import executed_queries
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..models import Zaak
 from ..tasks import resync_zaken, retrieve_and_cache_zaken_from_openzaak
@@ -625,12 +625,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         )
 
 
-class RetrieveCachedZakenQueryTest(TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
-
+class RetrieveCachedZakenQueryTest(ClearCacheMixin, TestCase):
     @Mocker()
     def test_queries_retrieve_zaken(self, m):
         ServiceFactory.create(

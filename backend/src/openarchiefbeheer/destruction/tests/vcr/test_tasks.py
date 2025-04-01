@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.test import TestCase, override_settings, tag
 
 from freezegun import freeze_time
@@ -10,6 +9,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import APIConfig, ArchiveConfig
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import retrieve_and_cache_zaken_from_openzaak
@@ -98,14 +98,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
 
 
 @tag("vcr")
-class DestructionTest(VCRMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        cache.clear()
-
-        self.addCleanup(cache.clear)
-
+class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
