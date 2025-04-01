@@ -169,8 +169,11 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.CharField)
     def get_selectielijstklasse(self, zaak: Zaak) -> str:
-        if not zaak.selectielijstklasse:
-            return ""
-
         selectielijstklasse_choices_dict = get_selectielijstklasse_choices_dict()
-        return selectielijstklasse_choices_dict[zaak.selectielijstklasse]["label"]
+        selectielijstklasse = zaak.selectielijstklasse
+        if not selectielijstklasse:
+            selectielijstklasse = zaak._expand["resultaat"]["_expand"]["resultaattype"][
+                "selectielijstklasse"
+            ]
+
+        return selectielijstklasse_choices_dict[selectielijstklasse]["label"]
