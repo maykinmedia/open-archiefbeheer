@@ -198,12 +198,12 @@ def retrieve_selectielijstklasse_choices(
 
 
 def get_selectielijstklasse_choices_dict() -> dict[str, DropDownChoice]:
-    if selectielijstklasse_dict := cache.get("selectielijstklasse_dict"):
+    if selectielijstklasse_dict := cache.get("selectielijstklasse_choices_dict"):
         return selectielijstklasse_dict
 
     results = retrieve_selectielijstklasse_choices()
     results = {result["value"]: result for result in results}
-    cache.set("selectielijstklasse_dict", results)
+    cache.set("selectielijstklasse_choices_dict", results)
     return results
 
 
@@ -240,16 +240,24 @@ def get_all_selectielijst_procestypen() -> list[dict]:
     return response.json()
 
 
-@lru_cache
 def get_selectielijstprocestypen_dict() -> dict[str, dict]:
+    if selectielijstprocestypen_dict := cache.get("selectielijstprocestypen_dict"):
+        return selectielijstprocestypen_dict
+
     procestypen = get_all_selectielijst_procestypen()
-    return {item["url"]: item for item in procestypen}
+    result = {item["url"]: item for item in procestypen}
+    cache.set("selectielijstprocestypen_dict", result)
+    return result
 
 
-@lru_cache
 def get_selectielijstresultaten_dict() -> dict[str, dict]:
+    if selectielijstresultaten_dict := cache.get("selectielijstresultaten_dict"):
+        return selectielijstresultaten_dict
+
     resultaten = get_all_selectielijst_resultaten()
-    return {item["url"]: item for item in resultaten}
+    result = {item["url"]: item for item in resultaten}
+    cache.set("selectielijstresultaten_dict", result)
+    return result
 
 
 @lru_cache

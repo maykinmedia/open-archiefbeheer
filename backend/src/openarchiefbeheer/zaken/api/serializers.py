@@ -182,7 +182,9 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
             ]
         )
 
-        return selectielijstklasse_choices_dict[selectielijstklasse]["label"]
+        return selectielijstklasse_choices_dict.get(selectielijstklasse, {}).get(
+            "label", ""
+        )
 
     @extend_schema_field(serializers.CharField)
     def get_selectielijstklasse_versie(self, zaak: Zaak) -> str:
@@ -194,5 +196,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
                 "selectielijstklasse"
             ]
         )
-        resultaat = resultaten_dict[selectielijstklasse]
+        resultaat = resultaten_dict.get(selectielijstklasse)
+        if not resultaat:
+            return ""
         return str(procestypen_dict[resultaat["proces_type"]]["jaar"])

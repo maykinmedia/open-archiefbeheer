@@ -411,6 +411,7 @@ class DestructionListTest(TestCase):
                     },
                 },
                 "selectielijstklasse": "3.2 - Niet vastgesteld - vernietigen",
+                "selectielijstklasse_versie": "2020",
             },
         )
         DestructionListItemFactory.create(
@@ -443,6 +444,7 @@ class DestructionListTest(TestCase):
                     },
                 },
                 "selectielijstklasse": "3.2 - Niet vastgesteld - vernietigen",
+                "selectielijstklasse_versie": "2024",
             },
         )
         DestructionListItemFactory.create(
@@ -467,6 +469,7 @@ class DestructionListTest(TestCase):
                     },
                 },
                 "selectielijstklasse": "1.1 - Ingericht - vernietigen",
+                "selectielijstklasse_versie": "2022",
             },
         )
 
@@ -510,7 +513,7 @@ class DestructionListTest(TestCase):
                 "2020-01-01",
                 "2022-01-01",
                 "3.2 - Niet vastgesteld - vernietigen",
-                2020,
+                "2020",
             ),
         )
         self.assertEqual(
@@ -525,7 +528,7 @@ class DestructionListTest(TestCase):
                 "2020-01-02",
                 "2022-01-02",
                 "3.2 - Niet vastgesteld - vernietigen",
-                2024,
+                "2024",
             ),
         )
         self.assertEqual(
@@ -540,7 +543,7 @@ class DestructionListTest(TestCase):
                 "2020-01-03",
                 "2022-01-03",
                 "1.1 - Ingericht - vernietigen",
-                2022,
+                "2022",
             ),
         )
 
