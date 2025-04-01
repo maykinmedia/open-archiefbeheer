@@ -74,6 +74,8 @@ class ZaakSerialisersTests(ClearCacheMixin, VCRMixin, TestCase):
 
         zaak = Zaak.objects.get(identificatie="ZAAK-2025-02-20-B")
 
+        self.assertEqual(zaak.selectielijstklasse, "")
+
         serialiser = ZaakMetadataSerializer(instance=zaak)
 
         self.assertEqual(
