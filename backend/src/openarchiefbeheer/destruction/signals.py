@@ -1,4 +1,5 @@
 import django.dispatch
+from django.core.cache import caches
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -39,6 +40,12 @@ def notify_reviewer_of_assignment(sender, assignee, **kwargs):
         return
 
     notify_reviewer(assignee.user, assignee.destruction_list)
+
+
+@receiver(post_save, sender=DestructionList)
+def clear_cache_on_save(sender: DestructionList, **kwargs):
+    cache = caches["choices_endpoints"]
+    cache.clear()
 
 
 @receiver(deletion_failure)

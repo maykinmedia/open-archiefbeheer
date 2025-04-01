@@ -3,8 +3,6 @@ import warnings
 
 from .utils import config
 
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-
 os.environ.setdefault("DEBUG", "yes")
 os.environ.setdefault("ALLOWED_HOSTS", "*")
 os.environ.setdefault(
@@ -69,7 +67,14 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 # in memory cache and django-axes don't get along.
 # https://django-axes.readthedocs.io/en/latest/configuration.html#known-configuration-problems
 CACHES = {
-    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "default",
+    },
+    "choices_endpoints": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "choices",
+    },
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
 }
 

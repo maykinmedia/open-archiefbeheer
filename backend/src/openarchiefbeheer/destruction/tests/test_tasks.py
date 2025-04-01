@@ -3,7 +3,6 @@ from datetime import date
 from unittest.mock import patch
 
 from django.core import mail
-from django.core.cache import cache
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
@@ -21,6 +20,8 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
+from openarchiefbeheer.zaken.api.serializers import get_service
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -317,11 +318,11 @@ class ProcessReviewResponseTests(TestCase):
 
 
 @temp_private_root()
-class ProcessDeletingZakenTests(TestCase):
+class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
+        self.addCleanup(get_service.cache_clear)
 
     @log_capture(level=logging.INFO)
     def test_skips_if_already_succeeded(self, logs):
@@ -646,6 +647,9 @@ class ProcessDeletingZakenTests(TestCase):
     def test_other_items_processed_if_one_fails(self):
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete
+        )
+        ServiceFactory.create(
+            api_root="http://zaken.nl/api/v1", label="Open Zaak - Zaken API"
         )
 
         item1 = DestructionListItemFactory.create(

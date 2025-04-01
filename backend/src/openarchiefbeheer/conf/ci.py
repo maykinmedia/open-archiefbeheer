@@ -3,8 +3,6 @@ import warnings
 
 from .utils import config
 
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 # Do not log requests in CI/tests:
@@ -26,9 +24,19 @@ from .base import *  # noqa isort:skip
 E2E_PORT = config("E2E_PORT", default=8000)
 E2E_SERVE_FRONTEND = config("E2E_SERVE_FRONTEND", default=False)
 
+# FIXME: this matches the setting in production.
+# However, if you want to run the tests in parallel, this needs to be django.contrib.sessions.backends.db
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 CACHES.update(
     {
-        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "default",
+        },
+        "choices_endpoints": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "choices",
+        },
         # See: https://github.com/jazzband/django-axes/blob/master/docs/configuration.rst#cache-problems
         "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     }

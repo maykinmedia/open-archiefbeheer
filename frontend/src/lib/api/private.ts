@@ -15,6 +15,7 @@ export async function listBehandelendAfdelingChoices(
   params?: URLSearchParams | Record<string, string | number | undefined>,
   signal?: AbortSignal,
 ): Promise<Option[]> {
+  const cacheParams = params2CacheKey(params || {});
   return cacheMemo(
     "listBehandelendAfdelingChoices",
     async () => {
@@ -30,7 +31,7 @@ export async function listBehandelendAfdelingChoices(
 
       return promise;
     },
-    [JSON.stringify(params)],
+    [cacheParams],
   );
 }
 

@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.test import TestCase, tag
 
 from vcr.unittest import VCRMixin
@@ -6,20 +5,14 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..api.serializers import ZaakMetadataSerializer
 from .factories import ZaakFactory
 
 
 @tag("vcr")
-class ZaakSerialisersTests(VCRMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        cache.clear()
-
-        self.addCleanup(cache.clear)
-
+class ZaakSerialisersTests(ClearCacheMixin, VCRMixin, TestCase):
     def test_selectielijstklasse(self):
         service = ServiceFactory(
             slug="selectielijst",

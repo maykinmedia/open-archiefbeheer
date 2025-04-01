@@ -1,8 +1,10 @@
-from django.core.cache import cache
+from django.core.cache import caches
 
 
 class ClearCacheMixin:
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(cache.clear)
+        for cache in caches:
+            caches[cache].clear()
+            self.addCleanup(caches[cache].clear)

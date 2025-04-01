@@ -106,9 +106,7 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.when_user_selects_filter_dropdown_by_index(
                 page, "Behandelende afdeling", 0
             )
-            await self.then.url_should_contain_text(
-                page, "behandelend_afdeling__icontains"
-            )
+            await self.then.url_should_contain_text(page, "behandelend_afdeling")
 
             # Startdatum
             await self.when_user_types_in_date(

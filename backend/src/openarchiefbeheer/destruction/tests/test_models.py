@@ -3,7 +3,6 @@ from datetime import date, datetime
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.test import TestCase
@@ -21,6 +20,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
@@ -40,12 +40,7 @@ from .factories import (
 )
 
 
-class DestructionListItemTest(TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
-
+class DestructionListItemTest(ClearCacheMixin, TestCase):
     def test_set_status(self):
         destruction_list = DestructionListFactory.create()
 

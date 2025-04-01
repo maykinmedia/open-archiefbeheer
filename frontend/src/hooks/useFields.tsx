@@ -217,8 +217,8 @@ export function useFields<T extends Zaak = Zaak>(
     {
       name: "Behandelende afdeling",
       type: "string",
-      filterLookup: "behandelend_afdeling__icontains",
-      filterValue: searchParams.get("behandelend_afdeling__icontains") || "",
+      filterLookup: "behandelend_afdeling",
+      filterValue: searchParams.get("behandelend_afdeling") || "",
       valueTransform: (rowData: object) => {
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
@@ -234,7 +234,7 @@ export function useFields<T extends Zaak = Zaak>(
             .join(", ")
         );
       },
-      options: behandelendAfdelingChoices,
+      options: behandelendAfdelingChoices || [],
       width: "150px",
     },
     {

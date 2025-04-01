@@ -1,12 +1,13 @@
 from pathlib import Path
 
-from django.core.cache import cache
 from django.test import TestCase
 
 from django_setup_configuration.exceptions import ConfigurationRunFailed
 from django_setup_configuration.test_utils import execute_single_step
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
+
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ...models import APIConfig
 from ..steps import APIConfigConfigurationStep
@@ -15,12 +16,7 @@ TEST_FILES = (Path(__file__).parent / "files").resolve()
 CONFIG_FILE_PATH = str(TEST_FILES / "setup_config_api.yaml")
 
 
-class APIConfigConfigurationStepTests(TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(cache.clear)
-
+class APIConfigConfigurationStepTests(ClearCacheMixin, TestCase):
     def test_configure_api_config_create_new(self):
         service = ServiceFactory(
             slug="selectielijst",
