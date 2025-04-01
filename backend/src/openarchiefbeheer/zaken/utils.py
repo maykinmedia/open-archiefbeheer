@@ -208,6 +208,51 @@ def get_selectielijstklasse_choices_dict() -> dict[str, DropDownChoice]:
 
 
 @lru_cache
+def get_all_selectielijst_resultaten() -> list[dict]:
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
+    if not selectielijst_service:
+        return []
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get("resultaten")
+        response.raise_for_status()
+        data_iterator = pagination_helper(client, response.json())
+
+        results = []
+        for page in data_iterator:
+            results += page["results"]
+        return results
+
+
+@lru_cache
+def get_all_selectielijst_procestypen() -> list[dict]:
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
+    if not selectielijst_service:
+        return []
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get("procestypen")
+        response.raise_for_status()
+    return response.json()
+
+
+@lru_cache
+def get_selectielijstprocestypen_dict() -> dict[str, dict]:
+    procestypen = get_all_selectielijst_procestypen()
+    return {item["url"]: item for item in procestypen}
+
+
+@lru_cache
+def get_selectielijstresultaten_dict() -> dict[str, dict]:
+    resultaten = get_all_selectielijst_resultaten()
+    return {item["url"]: item for item in resultaten}
+
+
+@lru_cache
 def retrieve_selectielijstklasse_resultaat(resultaat_url: str) -> dict:
     config = APIConfig.get_solo()
     selectielijst_service = config.selectielijst_api_service
