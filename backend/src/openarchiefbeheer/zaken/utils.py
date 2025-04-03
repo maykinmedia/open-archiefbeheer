@@ -198,13 +198,66 @@ def retrieve_selectielijstklasse_choices(
 
 
 def get_selectielijstklasse_choices_dict() -> dict[str, DropDownChoice]:
-    if selectielijstklasse_dict := cache.get("selectielijstklasse_dict"):
+    if selectielijstklasse_dict := cache.get("selectielijstklasse_choices_dict"):
         return selectielijstklasse_dict
 
     results = retrieve_selectielijstklasse_choices()
     results = {result["value"]: result for result in results}
-    cache.set("selectielijstklasse_dict", results)
+    cache.set("selectielijstklasse_choices_dict", results)
     return results
+
+
+@lru_cache
+def get_all_selectielijst_resultaten() -> list[dict]:
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
+    if not selectielijst_service:
+        return []
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get("resultaten")
+        response.raise_for_status()
+        data_iterator = pagination_helper(client, response.json())
+
+        results = []
+        for page in data_iterator:
+            results += page["results"]
+        return results
+
+
+@lru_cache
+def get_all_selectielijst_procestypen() -> list[dict]:
+    config = APIConfig.get_solo()
+    selectielijst_service = config.selectielijst_api_service
+    if not selectielijst_service:
+        return []
+
+    client = build_client(selectielijst_service)
+    with client:
+        response = client.get("procestypen")
+        response.raise_for_status()
+    return response.json()
+
+
+def get_selectielijstprocestypen_dict() -> dict[str, dict]:
+    if selectielijstprocestypen_dict := cache.get("selectielijstprocestypen_dict"):
+        return selectielijstprocestypen_dict
+
+    procestypen = get_all_selectielijst_procestypen()
+    result = {item["url"]: item for item in procestypen}
+    cache.set("selectielijstprocestypen_dict", result)
+    return result
+
+
+def get_selectielijstresultaten_dict() -> dict[str, dict]:
+    if selectielijstresultaten_dict := cache.get("selectielijstresultaten_dict"):
+        return selectielijstresultaten_dict
+
+    resultaten = get_all_selectielijst_resultaten()
+    result = {item["url"]: item for item in resultaten}
+    cache.set("selectielijstresultaten_dict", result)
+    return result
 
 
 @lru_cache

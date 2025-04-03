@@ -435,18 +435,18 @@ interactions:
       Content-Length:
       - '331526'
       Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
+      - 'connect-src ''self'' raw.githubusercontent.com; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com *.tile.openstreetmap.org; worker-src ''self'' blob:;
+        frame-ancestors ''none''; form-action ''self''; font-src ''self'' fonts.gstatic.com;
+        base-uri ''self''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
+        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
+        cdnjs.cloudflare.com; default-src ''self''; frame-src ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Tue, 01 Apr 2025 15:16:20 GMT
+      - Wed, 02 Apr 2025 09:57:10 GMT
       Referrer-Policy:
       - same-origin
       Server:
@@ -497,7 +497,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:20 GMT
+      - Wed, 02 Apr 2025 09:57:10 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -567,18 +567,18 @@ interactions:
       Content-Length:
       - '16863'
       Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
+      - 'connect-src ''self'' raw.githubusercontent.com; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com *.tile.openstreetmap.org; worker-src ''self'' blob:;
+        frame-ancestors ''none''; form-action ''self''; font-src ''self'' fonts.gstatic.com;
+        base-uri ''self''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
+        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
+        cdnjs.cloudflare.com; default-src ''self''; frame-src ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Tue, 01 Apr 2025 15:16:21 GMT
+      - Wed, 02 Apr 2025 09:57:11 GMT
       Referrer-Policy:
       - same-origin
       Server:
@@ -629,7 +629,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:21 GMT
+      - Wed, 02 Apr 2025 09:57:11 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -655,7 +655,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -850,7 +850,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:22 GMT
+      - Wed, 02 Apr 2025 09:57:11 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -880,7 +880,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -1196,7 +1196,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:22 GMT
+      - Wed, 02 Apr 2025 09:57:12 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -1226,7 +1226,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -1432,7 +1432,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:22 GMT
+      - Wed, 02 Apr 2025 09:57:12 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -1462,7 +1462,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -1694,7 +1694,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:23 GMT
+      - Wed, 02 Apr 2025 09:57:13 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -1724,7 +1724,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -1987,7 +1987,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:24 GMT
+      - Wed, 02 Apr 2025 09:57:13 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -2017,7 +2017,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -2167,7 +2167,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:24 GMT
+      - Wed, 02 Apr 2025 09:57:14 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -2197,7 +2197,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -2405,7 +2405,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:25 GMT
+      - Wed, 02 Apr 2025 09:57:14 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -2435,7 +2435,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.KMDGRG2ZD7idKz2TrCdp19yaPSqDZH1K7Bz6cfZe60g
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzEsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.CXWe9RnpXfM29JhTs7PDYhkVURBjx3Bc61aoi4IqmWg
       Connection:
       - keep-alive
       User-Agent:
@@ -2506,7 +2506,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:25 GMT
+      - Wed, 02 Apr 2025 09:57:15 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -2536,7 +2536,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -2852,7 +2852,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:25 GMT
+      - Wed, 02 Apr 2025 09:57:15 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -2882,7 +2882,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -3077,7 +3077,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:26 GMT
+      - Wed, 02 Apr 2025 09:57:16 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -3107,7 +3107,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -3313,7 +3313,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:26 GMT
+      - Wed, 02 Apr 2025 09:57:16 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -3343,7 +3343,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -3575,7 +3575,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:27 GMT
+      - Wed, 02 Apr 2025 09:57:17 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -3605,7 +3605,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -3868,7 +3868,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:27 GMT
+      - Wed, 02 Apr 2025 09:57:17 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -3898,7 +3898,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -4048,7 +4048,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:28 GMT
+      - Wed, 02 Apr 2025 09:57:18 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -4078,7 +4078,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -4286,7 +4286,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:28 GMT
+      - Wed, 02 Apr 2025 09:57:19 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -4316,7 +4316,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1MjA1ODUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.O3rbsyMOzlGtIwUj5I9BZOHD0kKppnLLW-_sSTsxLaY
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIiLCJpYXQiOjE3NDM1ODc4MzUsImNsaWVudF9pZCI6IiIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.OAS07DhYbpUUkU-tNVud0MN82lVAF_Pf9GP8eSydY5k
       Connection:
       - keep-alive
       User-Agent:
@@ -4387,7 +4387,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
+      - Wed, 02 Apr 2025 09:57:19 GMT
       Feature-Policy:
       - autoplay 'none'; camera 'none'
       Referrer-Policy:
@@ -4409,550 +4409,4 @@ interactions:
     status:
       code: 200
       message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.3
-    method: GET
-    uri: http://localhost:8003/besluiten/api/v1/besluiten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F09213cc2-fb11-4ccc-a57e-a010805fd400
-  response:
-    body:
-      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/besluiten/api/v1/besluiten/84c6015b-a628-46a9-aba2-1d09e6129f80","identificatie":"BESLUIT-02","verantwoordelijkeOrganisatie":"534812971","besluittype":"http://localhost:8003/catalogi/api/v1/besluittypen/588d7ec5-89e6-4aa0-a654-7475f0d5ac8e","zaak":"http://localhost:8003/zaken/api/v1/zaken/09213cc2-fb11-4ccc-a57e-a010805fd400","datum":"2020-06-10","toelichting":"","bestuursorgaan":"","ingangsdatum":"2008-09-23","vervaldatum":null,"vervalreden":"","vervalredenWeergave":"","publicatiedatum":null,"verzenddatum":null,"uiterlijkeReactiedatum":null}]}'
-    headers:
-      API-version:
-      - 1.1.0
-      Allow:
-      - GET, POST, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '630'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.3
-    method: GET
-    uri: http://localhost:8003/besluiten/api/v1/besluitinformatieobjecten?besluit=http%3A%2F%2Flocalhost%3A8003%2Fbesluiten%2Fapi%2Fv1%2Fbesluiten%2F84c6015b-a628-46a9-aba2-1d09e6129f80
-  response:
-    body:
-      string: '[{"url":"http://localhost:8003/besluiten/api/v1/besluitinformatieobjecten/1397773e-2f8a-4d66-80bc-6e4f2b57ac55","informatieobject":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/ba9b9164-fbee-4bf4-bf57-52de0643c030","besluit":"http://localhost:8003/besluiten/api/v1/besluiten/84c6015b-a628-46a9-aba2-1d09e6129f80"}]'
-    headers:
-      API-version:
-      - 1.1.0
-      Allow:
-      - GET, POST, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '339'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/besluiten/api/v1/besluitinformatieobjecten/1397773e-2f8a-4d66-80bc-6e4f2b57ac55
-  response:
-    body:
-      string: ''
-    headers:
-      API-version:
-      - 1.1.0
-      Allow:
-      - GET, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 204
-      message: No Content
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/besluiten/api/v1/besluiten/84c6015b-a628-46a9-aba2-1d09e6129f80
-  response:
-    body:
-      string: ''
-    headers:
-      API-version:
-      - 1.1.0
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 204
-      message: No Content
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.3
-    method: GET
-    uri: http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F09213cc2-fb11-4ccc-a57e-a010805fd400
-  response:
-    body:
-      string: '[{"url":"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/c74fb48f-59c7-4b74-8a9a-b9feffa24e72","uuid":"c74fb48f-59c7-4b74-8a9a-b9feffa24e72","informatieobject":"http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/69f649d8-27dd-4f6f-b647-f2becf215498","zaak":"http://localhost:8003/zaken/api/v1/zaken/09213cc2-fb11-4ccc-a57e-a010805fd400","aardRelatieWeergave":"Hoort
-        bij, omgekeerd: kent","titel":"","beschrijving":"","registratiedatum":"2024-07-19T13:33:19.839000Z","vernietigingsdatum":null,"status":null}]'
-    headers:
-      API-version:
-      - 1.5.1
-      Allow:
-      - GET, POST, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '536'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/zaken/api/v1/zaakinformatieobjecten/c74fb48f-59c7-4b74-8a9a-b9feffa24e72
-  response:
-    body:
-      string: ''
-    headers:
-      API-version:
-      - 1.5.1
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - Accept, origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 204
-      message: No Content
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0
-  response:
-    body:
-      string: '{"type":"http://localhost:8003/ref/fouten/NotFound/","code":"not_found","title":"Niet
-        gevonden.","status":404,"detail":"Niet gevonden.","instance":"urn:uuid:64470885-d1d2-4b3a-9446-8939673c3c37"}'
-    headers:
-      API-version:
-      - 1.4.2
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '195'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 404
-      message: Not Found
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/ba9b9164-fbee-4bf4-bf57-52de0643c030
-  response:
-    body:
-      string: '{"type":"http://localhost:8003/ref/fouten/ValidationError/","code":"invalid","title":"Invalid
-        input.","status":400,"detail":"","instance":"urn:uuid:61499e29-6914-498a-8d0e-d95aca8a5121","invalidParams":[{"name":"nonFieldErrors","code":"pending-relations","reason":"Alle
-        relaties met dit document moeten verbroken worden voor je het document zelf
-        mag verwijderen."}]}'
-    headers:
-      API-version:
-      - 1.4.2
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '366'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 400
-      message: Bad Request
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/69f649d8-27dd-4f6f-b647-f2becf215498
-  response:
-    body:
-      string: '{"type":"http://localhost:8003/ref/fouten/ValidationError/","code":"invalid","title":"Invalid
-        input.","status":400,"detail":"","instance":"urn:uuid:93c2ddee-232b-4e97-b52d-cdd6c15521a6","invalidParams":[{"name":"nonFieldErrors","code":"pending-relations","reason":"Alle
-        relaties met dit document moeten verbroken worden voor je het document zelf
-        mag verwijderen."}]}'
-    headers:
-      API-version:
-      - 1.4.2
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '366'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:29 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 400
-      message: Bad Request
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc0MzUyMDU4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.S1RrnF25DTJKx3NO0QQTTBr9CMw38EVAbgGh8VthKig
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.3
-    method: DELETE
-    uri: http://localhost:8003/zaken/api/v1/zaken/09213cc2-fb11-4ccc-a57e-a010805fd400
-  response:
-    body:
-      string: ''
-    headers:
-      API-version:
-      - 1.5.1
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Crs:
-      - EPSG:4326
-      Content-Length:
-      - '0'
-      Content-Security-Policy:
-      - 'object-src ''none''; script-src ''self'' ''unsafe-inline'' cdnjs.cloudflare.com;
-        base-uri ''self''; font-src ''self'' fonts.gstatic.com; worker-src ''self''
-        blob:; frame-src ''self''; default-src ''self''; form-action ''self''; img-src
-        ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com *.tile.openstreetmap.org;
-        connect-src ''self'' raw.githubusercontent.com; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com; frame-ancestors ''none'''
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Tue, 01 Apr 2025 15:16:30 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.27.0
-      Vary:
-      - origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 204
-      message: No Content
 version: 1

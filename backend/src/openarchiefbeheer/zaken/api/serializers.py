@@ -9,9 +9,12 @@ from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.zaken.utils import get_selectielijstklasse_choices_dict
-
 from ..models import Zaak
+from ..utils import (
+    get_selectielijstklasse_choices_dict,
+    get_selectielijstprocestypen_dict,
+    get_selectielijstresultaten_dict,
+)
 
 
 class ZaakListSerializer(serializers.ListSerializer):
@@ -118,6 +121,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
     resultaat = serializers.SerializerMethodField()
     bronapplicatie = serializers.SerializerMethodField()
     selectielijstklasse = serializers.SerializerMethodField()
+    selectielijstklasse_versie = serializers.SerializerMethodField()
 
     class Meta:
         model = Zaak
@@ -131,6 +135,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
             "zaaktype",
             "bronapplicatie",
             "selectielijstklasse",
+            "selectielijstklasse_versie",
         )
 
     @extend_schema_field(serializers.JSONField)
@@ -169,8 +174,29 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.CharField)
     def get_selectielijstklasse(self, zaak: Zaak) -> str:
-        if not zaak.selectielijstklasse:
-            return ""
-
         selectielijstklasse_choices_dict = get_selectielijstklasse_choices_dict()
-        return selectielijstklasse_choices_dict[zaak.selectielijstklasse]["label"]
+        selectielijstklasse = (
+            zaak.selectielijstklasse
+            or zaak._expand["resultaat"]["_expand"]["resultaattype"][
+                "selectielijstklasse"
+            ]
+        )
+
+        return selectielijstklasse_choices_dict.get(selectielijstklasse, {}).get(
+            "label", ""
+        )
+
+    @extend_schema_field(serializers.CharField)
+    def get_selectielijstklasse_versie(self, zaak: Zaak) -> str:
+        procestypen_dict = get_selectielijstprocestypen_dict()
+        resultaten_dict = get_selectielijstresultaten_dict()
+        selectielijstklasse = (
+            zaak.selectielijstklasse
+            or zaak._expand["resultaat"]["_expand"]["resultaattype"][
+                "selectielijstklasse"
+            ]
+        )
+        resultaat = resultaten_dict.get(selectielijstklasse)
+        if not resultaat:
+            return ""
+        return str(procestypen_dict[resultaat["proces_type"]]["jaar"])

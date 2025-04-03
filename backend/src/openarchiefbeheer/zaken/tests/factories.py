@@ -63,6 +63,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
                             "url": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
                             "archiefactietermijn": "P1D",
                             "omschrijving": "This is a result type",
+                            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/78e12133-c467-4202-91ba-4417baa52801",
                         }
                     },
                 },
