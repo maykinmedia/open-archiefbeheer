@@ -3,9 +3,15 @@ Change history
 ==============
 
 
-0.1.0
-=====
+1.0.0 (2025-03-28)
+==================
 
-*<month, day year>*
+De eerste versie van Open Archiefbeheer is gelanceerd!
+Het systeem stelt organisaties in staat om vernietigingslijsten op te stellen en het vernietigingsproces te beheren in lijn met de Archiefwet en de GEMMA-standaarden.
 
-* Initial release.
+Belangrijke functies:
+* Opstellen en beheren van vernietigingslijsten.
+* Toewijzen van beoordelaars aan vernietigingslijsten.
+* Ondersteuning voor het vernietigingsproces volgens de Archiefwet en GEMMA.
+
+Deze release biedt een basis voor veilig en wettelijk conform archiefbeheer. 
