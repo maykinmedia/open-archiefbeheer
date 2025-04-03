@@ -11,7 +11,7 @@ You need the following libraries and/or programs:
 
 * `Python`_ - check the ``Dockerfile`` for the required version.
 * Python `Virtualenv`_ and `Pip`_
-* `PostgreSQL`_
+* `PostgreSQL`_ and `GDAL`_ - check the ``Dockerfile`` for the required version.
 * `Node.js`_
 * `npm`_
 
@@ -21,6 +21,7 @@ You need the following libraries and/or programs:
 .. _PostgreSQL: https://www.postgresql.org
 .. _Node.js: http://nodejs.org/
 .. _npm: https://www.npmjs.com/
+.. _GDAL: https://pypi.org/project/GDAL/
 
 
 #. Navigate to the location where you want to place your project.
@@ -43,6 +44,11 @@ You need the following libraries and/or programs:
        npm run build
 
 #. Run the migrations with ``src/manage.py migrate``
+
+.. note::
+
+       If you get an error about the ``django.contrib.gis`` module,
+       you need to install the GDAL library and/or enable the extension or give superuser privileges. See the requirements in the Dockerfile.
 #. Create a superuser to access the management interface: ``src/manage.py createsuperuser``
 #. To set environment variables settings, vreate a ``.env`` file. You can use and modify the provided example:
 
@@ -50,12 +56,24 @@ You need the following libraries and/or programs:
 
     cp dotenv.example .env
 
+#. Generate the translation files:
+ .. code:: bash
+
+    src/manage.py makemessages -a
+    src/manage.py compilemessages --locale nl
+
 #. Run the development server with ``src/manage.py runserver``
+
+Optionally You can load initial zaak data to populate your database. Do note, that this is a timely process (~30-60 minutes):
+
+ .. code:: bash
+
+    src/manage.py cache_zaken
 
 
 Optionally, you can load fixtures for the templates of the admin and for the admin index configuration:
 
-.. code:: bash
+ .. code:: bash
 
     src/manage.py loaddata fixture_name.json
 
