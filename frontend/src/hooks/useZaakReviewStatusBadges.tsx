@@ -17,7 +17,10 @@ import {
  */
 export function useZaakReviewStatusBadges(
   destructionListItems: DestructionListItem[],
-  reviewedZaakSelectionOnPage: ZaakSelection<{ approved: boolean }>,
+  reviewedZaakSelectionOnPage: ZaakSelection<{
+    approved: boolean;
+    comment: string;
+  }>,
   reviewAdviceIgnoredResults: Record<string, boolean>, // Map of reviewAdviceIgnored
 ): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
   const filteredDestructionListItems = useMemo(
@@ -90,23 +93,28 @@ export function useZaakReviewStatusBadges(
     const entries = filteredDestructionListItems.map(
       (destructionListItem, i) => {
         const zaak = destructionListItem.zaak as Zaak;
+        const tableContent = Object.fromEntries(
+          Object.entries({
+            "Opmerking (beoordeling verwerken)":
+              destructionListItem.reviewResponseComment,
+            "Opmerking ((mede)beoordeling)":
+              reviewedZaakSelectionOnPage[zaak.url as string]?.detail?.comment,
+          }).filter(([, v]) => v),
+        );
+        const hasComments = Boolean(Object.keys(tableContent).length);
+
         return [
           zaak.url as string,
           {
-            badge: (
+            badge: hasComments ? (
               <Tooltip
-                content={
-                  <AttributeTable
-                    object={{
-                      Opmerking: destructionListItem.reviewResponseComment,
-                    }}
-                    compact
-                  />
-                }
+                content={<AttributeTable object={tableContent} compact />}
               >
                 {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
                 <span tabIndex={0}>{badges[i]}</span>
               </Tooltip>
+            ) : (
+              badges[i]
             ),
             status: statuses[zaak.url as string],
           },
