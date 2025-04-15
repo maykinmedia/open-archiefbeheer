@@ -161,7 +161,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterLookup: "identificatie__icontains",
       filterValue: searchParams.get("identificatie__icontains") || "",
       type: "string",
-      width: "150px",
+      width: "180px",
     },
     {
       name: "zaaktype",
