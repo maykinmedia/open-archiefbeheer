@@ -167,8 +167,19 @@ export function useFields<T extends Zaak = Zaak>(
       name: "zaaktype",
       filterLookup: "zaaktype",
       filterValue: searchParams.get("zaaktype") || "",
-      valueTransform: (value: ExpandZaak) =>
-        valueOrSkeleton(value._expand?.zaaktype.identificatie, zaaktypeChoices),
+      valueTransform: (value: ExpandZaak) => {
+        const valueOrSkeletonReturn = valueOrSkeleton(
+          value._expand?.zaaktype.identificatie,
+          zaaktypeChoices,
+        );
+        if (
+          typeof valueOrSkeletonReturn == "string" ||
+          typeof valueOrSkeletonReturn == "number"
+        ) {
+          return overflowRowData("Zaaktype", String(valueOrSkeletonReturn));
+        }
+        return valueOrSkeletonReturn;
+      },
       options: zaaktypeChoices || [],
       type: "string",
       width: "150px",
