@@ -17,7 +17,7 @@ from .serializers import AuditTrailItemSerializer
     ),
 )
 class LogsViewset(mixins.ListModelMixin, GenericViewSet):
-    queryset = TimelineLog.objects.all()
+    queryset = TimelineLog.objects.order_by("timestamp")
     serializer_class = AuditTrailItemSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = LogsFilterset
