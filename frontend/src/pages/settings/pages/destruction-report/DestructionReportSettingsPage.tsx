@@ -102,6 +102,7 @@ export function DestructionReportSettingsPage() {
       required: true,
       options: informatieObjectTypeChoices,
       value: valuesState.informatieobjecttype,
+      disabled: valuesState.zaaktype == "",
     },
     {
       label: "Statustype",
@@ -116,6 +117,7 @@ export function DestructionReportSettingsPage() {
       required: true,
       options: resultaatTypeChoices,
       value: valuesState.resultaattype,
+      disabled: valuesState.zaaktype == "",
     },
   ];
 
