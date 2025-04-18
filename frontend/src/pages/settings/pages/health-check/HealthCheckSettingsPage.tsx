@@ -18,7 +18,6 @@ export function HealthCheckSettingsPage() {
         return (
           <Badge
             level="danger"
-            // @ts-expect-error - style props not supported (yet?)
             style={{
               display: "block",
               border: "none",
@@ -32,7 +31,6 @@ export function HealthCheckSettingsPage() {
         return (
           <Badge
             level="warning"
-            // @ts-expect-error - style props not supported (yet?)
             style={{
               display: "block",
               border: "none",
@@ -46,7 +44,6 @@ export function HealthCheckSettingsPage() {
         return (
           <Badge
             level="info"
-            // @ts-expect-error - style props not supported (yet?)
             style={{
               display: "block",
               border: "none",
