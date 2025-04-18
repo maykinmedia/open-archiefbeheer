@@ -145,7 +145,6 @@ export function DestructionListProcessReviewPage() {
 
     if (!action) {
       return (
-        // @ts-expect-error - style props not supported (yet?)
         <Badge style={{ display: "block" }} tabIndex={0}>
           <Solid.QuestionMarkCircleIcon />
           Geen Mutatie
@@ -208,13 +207,11 @@ export function DestructionListProcessReviewPage() {
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span tabIndex={0}>
           {action === "keep" ? (
-            // @ts-expect-error - style props not supported (yet?)
             <Badge level="info" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentPlusIcon />
               Voorstel afgewezen
             </Badge>
           ) : (
-            // @ts-expect-error - style props not supported (yet?)
             <Badge level="danger" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentMinusIcon />
               Uitgezonderd
