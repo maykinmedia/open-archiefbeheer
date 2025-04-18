@@ -51,23 +51,13 @@ export function useZaakReviewStatusBadges(
       if (typeof status === "boolean") {
         if (status) {
           return (
-            <Badge
-              key={zaak.uuid}
-              level="success"
-              // @ts-expect-error - style props not supported (yet?)
-              style={{ display: "block" }}
-            >
+            <Badge key={zaak.uuid} level="success" style={{ display: "block" }}>
               <Solid.HandThumbUpIcon /> Geaccordeerd
             </Badge>
           );
         } else {
           return (
-            <Badge
-              key={zaak.uuid}
-              level="danger"
-              // @ts-expect-error - style props not supported (yet?)
-              style={{ display: "block" }}
-            >
+            <Badge key={zaak.uuid} level="danger" style={{ display: "block" }}>
               <Solid.HandThumbDownIcon /> Uitgezonderd
             </Badge>
           );
@@ -75,14 +65,12 @@ export function useZaakReviewStatusBadges(
       } else if (reviewAdviceIgnored) {
         // Display "Herboordelen" badge for reviewAdviceIgnored zaken
         return (
-          // @ts-expect-error - style props not supported (yet?)
           <Badge key={zaak.uuid} level="info" style={{ display: "block" }}>
             <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
           </Badge>
         );
       } else {
         return (
-          // @ts-expect-error - style props not supported (yet?)
           <Badge key={zaak.uuid} style={{ display: "block" }}>
             <Solid.QuestionMarkCircleIcon /> Niet beoordeeld
           </Badge>
