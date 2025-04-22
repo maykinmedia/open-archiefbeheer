@@ -242,7 +242,7 @@ class ExternalStatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("statustypen", query_params)
@@ -299,7 +299,7 @@ class ExternalInformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("informatieobjecttypen", query_params)
@@ -325,7 +325,7 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15))
+    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("resultaattypen", query_params)
