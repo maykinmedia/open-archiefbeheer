@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 15:32+0100\n"
+"POT-Creation-Date: 2025-04-22 12:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,12 +104,12 @@ msgstr ""
 msgid "date joined"
 msgstr "datum toegetreden"
 
-#: openarchiefbeheer/accounts/models.py:54
+#: openarchiefbeheer/accounts/models.py:58
 #: openarchiefbeheer/destruction/models.py:440
 msgid "user"
 msgstr "gebruiker"
 
-#: openarchiefbeheer/accounts/models.py:55
+#: openarchiefbeheer/accounts/models.py:59
 msgid "users"
 msgstr "gebruikers"
 
@@ -1762,28 +1762,28 @@ msgstr ""
 msgid "Filter on zaken that have received negative feedback in a review."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:76
+#: openarchiefbeheer/zaken/api/serializers.py:79
 msgid "The description field of the choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:78
+#: openarchiefbeheer/zaken/api/serializers.py:81
 msgid "The URL of the choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:81
+#: openarchiefbeheer/zaken/api/serializers.py:84
 msgid "Any extra information about this choice."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:90
+#: openarchiefbeheer/zaken/api/serializers.py:93
 msgid ""
 "The URL of the zaak for which the selectielijstklasse choices are needed."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:98
+#: openarchiefbeheer/zaken/api/serializers.py:101
 msgid "The URL of the zaaktype on which to filter."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/serializers.py:102
+#: openarchiefbeheer/zaken/api/serializers.py:105
 msgid "The identificatie of the zaaktype on which to filter."
 msgstr ""
 
@@ -1844,60 +1844,60 @@ msgid ""
 "'zaaktype' of the zaak."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:175
+#: openarchiefbeheer/zaken/api/views.py:177
 msgid "Retrieve internal selectielijstklasse choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:177
+#: openarchiefbeheer/zaken/api/views.py:179
 msgid ""
 "Retrieve the selectielijstklasse choices for zaken in the database. Note: if "
 "a zaak does not have a selectielijstklasse specified, it is deduced from the "
 "resultaat -> resultaattype -> selectielijstklasse."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:232
+#: openarchiefbeheer/zaken/api/views.py:234
 msgid "Retrieve statustypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:234
+#: openarchiefbeheer/zaken/api/views.py:236
 msgid ""
 "Retrieve statustypen from Open Zaak and return a value and a label per "
 "statustype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:289
+#: openarchiefbeheer/zaken/api/views.py:291
 msgid "Retrieve informatieobjecttypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:291
+#: openarchiefbeheer/zaken/api/views.py:293
 msgid ""
 "Retrieve informatieobjecttypen from Open Zaak and return a value and a label "
 "per informatieobjecttype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:315
+#: openarchiefbeheer/zaken/api/views.py:317
 msgid "Retrieve resultaattypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:317
+#: openarchiefbeheer/zaken/api/views.py:319
 msgid ""
 "Retrieve resultaattypen from Open Zaak and return a value and a label per "
 "resultaattype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:343
+#: openarchiefbeheer/zaken/api/views.py:345
 msgid "Retrieve internal resultaattype choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:344
+#: openarchiefbeheer/zaken/api/views.py:346
 msgid "Retrieve the resultaattypen of the zaken in the database. "
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:383
+#: openarchiefbeheer/zaken/api/views.py:385
 msgid "Retrieve behandelend afdeling choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:385
+#: openarchiefbeheer/zaken/api/views.py:387
 msgid ""
 "Retrieve the behandelend afdelingen the zaken in the database. These are "
 "rollen with betrokkeneType equal to \"organisatorische_eenheid\"."
@@ -1938,35 +1938,48 @@ msgstr ""
 msgid "Zaak report destruction settings"
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:34
+#: openarchiefbeheer/config/api/serializers.py:39
 msgid "OIDC authentication URL"
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:36
+#: openarchiefbeheer/config/api/serializers.py:41
 msgid ""
 "URL where to start the OIDC login flow if it is enabled. If it is not "
 "enabled, it will be an empty string."
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:58
+#: openarchiefbeheer/config/api/serializers.py:63
 msgid "Application version"
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:60
+#: openarchiefbeheer/config/api/serializers.py:65
 msgid ""
 "This uses the git tag if one is present, otherwise it defaults to the git "
 "commit hash. If the commit hash cannot be resolved, it will be empty."
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:65
+#: openarchiefbeheer/config/api/serializers.py:70
 msgid "Application git commit hash"
 msgstr ""
 
-#: openarchiefbeheer/config/api/serializers.py:67
+#: openarchiefbeheer/config/api/serializers.py:72
 msgid ""
 "This returns the git commit hash if it can be resolved. Otherwise, it will "
 "be empty."
 msgstr ""
+
+#: openarchiefbeheer/config/api/validators.py:10
+msgid "The characters can only be digits."
+msgstr "Waarde moet numeriek zijn."
+
+#: openarchiefbeheer/config/api/validators.py:25
+#, python-format
+msgid "A RSIN must be %(length)s characters long."
+msgstr "RSIN moet %(length)s tekens lang zijn."
+
+#: openarchiefbeheer/config/api/validators.py:38
+msgid "Invalid RSIN."
+msgstr "Onjuist RSIN."
 
 #: openarchiefbeheer/config/api/views.py:31
 msgid "Retrieve archive configuration"
