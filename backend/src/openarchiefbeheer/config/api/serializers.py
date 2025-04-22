@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from ..models import ArchiveConfig
+from .validators import validate_rsin
 
 
 class ArchiveConfigSerializer(serializers.ModelSerializer):
@@ -21,7 +22,11 @@ class ArchiveConfigSerializer(serializers.ModelSerializer):
             "informatieobjecttype",
         )
         extra_kwargs = {
-            "bronorganisatie": {"required": True, "allow_null": False},
+            "bronorganisatie": {
+                "required": True,
+                "allow_null": False,
+                "validators": [validate_rsin],
+            },
             "zaaktype": {"required": True, "allow_null": False},
             "statustype": {"required": True, "allow_null": False},
             "resultaattype": {"required": True, "allow_null": False},
