@@ -7,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from openarchiefbeheer.destruction.api.permissions import CanStartDestructionPermission
+from openarchiefbeheer.destruction.api.permissions import CanConfigureApplication
 
 from ..health_checks import is_configuration_complete
 from ..models import ArchiveConfig
@@ -22,7 +22,7 @@ class ArchiveConfigView(APIView):
     def get_permissions(self):
         permissions = [permission() for permission in self.permission_classes]
         if self.request.method in ["PATCH", "PUT"]:
-            permissions.append(CanStartDestructionPermission())
+            permissions.append(CanConfigureApplication())
 
         return permissions
 

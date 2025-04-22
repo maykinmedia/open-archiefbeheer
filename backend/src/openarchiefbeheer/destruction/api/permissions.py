@@ -177,3 +177,10 @@ class CanDownloadReport(permissions.BasePermission):
 
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status == ListStatus.deleted
+
+
+class CanConfigureApplication(permissions.BasePermission):
+    message = _("You cannot configure the application.")
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("accounts.can_configure_application")
