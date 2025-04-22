@@ -5,8 +5,8 @@ import { whoAmI } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 import { formatUser } from "../format/user";
 import {
-  canChangeSettings,
   canCoReviewDestructionList,
+  canConfigureApplication,
   canReviewDestructionList,
   canStartDestructionList,
   canTriggerDestruction,
@@ -186,7 +186,7 @@ export function canViewAndEditSettingsRequired<T extends object>(
   return async (loaderFunctionArgs, handlerCtx) => {
     const abortController = new AbortController();
     const user = await whoAmI(abortController.signal);
-    if (!canChangeSettings(user)) {
+    if (!canConfigureApplication(user)) {
       throw new Response("Not Permitted", {
         status: 403,
         statusText: `Gebruiker ${formatUser(user)} heeft onvoldoende rechten om de instellingen te wijzigen.`,

@@ -16,6 +16,7 @@ export type Role = {
   canReviewDestruction: boolean;
   canCoReviewDestruction: boolean;
   canReviewFinalList: boolean;
+  canConfigureApplication: boolean;
 };
 
 /**

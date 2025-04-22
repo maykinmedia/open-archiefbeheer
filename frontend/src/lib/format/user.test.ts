@@ -21,6 +21,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user)).toBe("johndoe");
@@ -38,6 +39,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user)).toBe("John (johndoe)");
@@ -55,6 +57,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user)).toBe("Doe (johndoe)");
@@ -72,6 +75,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user)).toBe("John Doe (johndoe)");
@@ -89,6 +93,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user, { showUsername: false })).toBe("John Doe");
@@ -106,6 +111,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user, { showUsername: false })).toBe("John");
@@ -123,6 +129,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user, { showUsername: false })).toBe("Doe");
@@ -140,6 +147,7 @@ describe("formatUser()", () => {
         canReviewDestruction: false,
         canCoReviewDestruction: false,
         canReviewFinalList: false,
+        canConfigureApplication: false,
       },
     };
     expect(formatUser(user)).toBe("John Doe (johndoe)");

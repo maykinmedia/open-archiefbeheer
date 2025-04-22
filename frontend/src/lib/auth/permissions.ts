@@ -9,9 +9,8 @@ export type DestructionListPermissionCheck = (
   destructionList: DestructionList,
 ) => boolean;
 
-export const canChangeSettings: PermissionCheck = (user) => {
-  // TODO: Functioneel beheerder in future
-  return user.role.canStartDestruction;
+export const canConfigureApplication: PermissionCheck = (user) => {
+  return user.role.canConfigureApplication;
 };
 
 /**

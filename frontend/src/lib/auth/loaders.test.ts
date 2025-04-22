@@ -13,7 +13,7 @@ import {
   loginRequired,
 } from "./loaders";
 import {
-  canChangeSettings,
+  canConfigureApplication,
   canReviewDestructionList,
   canStartDestructionList,
   canTriggerDestruction,
@@ -277,7 +277,7 @@ describe("canTriggerDestructionRequired", () => {
 describe("canViewAndEditSettingsRequired", () => {
   it("should call the loader if the user is permitted", async () => {
     const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
-    vi.mocked(canChangeSettings).mockReturnValueOnce(true);
+    vi.mocked(canConfigureApplication).mockReturnValueOnce(true);
 
     await canViewAndEditSettingsRequired(loader)({
       request: {
@@ -293,7 +293,7 @@ describe("canViewAndEditSettingsRequired", () => {
     const loader = vi.fn().mockReturnValueOnce({ destructionList: {} });
     const user = userFactory();
     vi.mocked(whoAmI).mockResolvedValueOnce(user);
-    vi.mocked(canChangeSettings).mockReturnValueOnce(false);
+    vi.mocked(canConfigureApplication).mockReturnValueOnce(false);
 
     const wrappedLoader = canViewAndEditSettingsRequired(loader);
 
