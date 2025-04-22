@@ -1584,3 +1584,33 @@ class BehandelendAfdelingInternalChoicesViewTests(ClearCacheMixin, APITestCase):
                 },
             ],
         )
+
+
+class ClearChoicesEndpointsTests(ClearCacheMixin, APITestCase):
+    def test_not_authenticated(self):
+        response = self.client.post(reverse("api:clear-choices-endpoints-cache"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cache_is_cleared(self):
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+
+        with patch(
+            "openarchiefbeheer.zaken.api.views.retrieve_zaaktypen", return_value=[]
+        ) as m:
+            response = self.client.get(
+                reverse("api:retrieve-external-zaaktypen-choices")
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            response = self.client.post(reverse("api:clear-choices-endpoints-cache"))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            response = self.client.get(
+                reverse("api:retrieve-external-zaaktypen-choices")
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            self.assertEqual(m.call_count, 2)
