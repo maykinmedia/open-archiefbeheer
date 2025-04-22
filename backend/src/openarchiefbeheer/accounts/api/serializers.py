@@ -13,6 +13,7 @@ class RoleSerializer(serializers.Serializer):
     can_review_destruction = serializers.BooleanField(default=False)
     can_co_review_destruction = serializers.BooleanField(default=False)
     can_review_final_list = serializers.BooleanField(default=False)
+    can_configure_application = serializers.BooleanField(default=False)
 
     class Meta:
         fields = (
@@ -20,6 +21,7 @@ class RoleSerializer(serializers.Serializer):
             "can_review_destruction",
             "can_co_review_destruction",
             "can_review_final_list",
+            "can_configure_application",
         )
 
 
@@ -62,6 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
             "can_review_destruction": "can_review_destruction" in permissions_set,
             "can_co_review_destruction": "can_co_review_destruction" in permissions_set,
             "can_review_final_list": "can_review_final_list" in permissions_set,
+            "can_configure_application": "can_configure_application" in permissions_set,
         }
 
         return RoleSerializer(data).data
