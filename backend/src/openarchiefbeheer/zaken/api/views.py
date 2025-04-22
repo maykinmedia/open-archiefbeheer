@@ -1,3 +1,4 @@
+from django.core.cache import caches
 from django.db.models import Case, F, Q, URLField, When
 from django.db.models.fields.json import KT
 from django.db.models.functions import Cast
@@ -419,3 +420,19 @@ class BehandelendAfdelingInternalChoicesView(ChoicesMixin, APIView):
                 )
 
         return self.no_cache_response(formatted_choices)
+
+
+class ClearChoicesEndpointsCache(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Clear choices endpoints cache"),
+        description=_(
+            "Clear the backend cache where the external and internal choices endpoints are cached."
+        ),
+        tags=["private"],
+    )
+    def post(self, request, *args, **kwargs):
+        cache = caches["choices_endpoints"]
+        cache.clear()
+        return Response(status=status.HTTP_200_OK)

@@ -33,6 +33,7 @@ from openarchiefbeheer.selection.api.views import (
 from openarchiefbeheer.zaken.api.views import (
     BehandelendAfdelingInternalChoicesView,
     CacheZakenView,
+    ClearChoicesEndpointsCache,
     ExternalInformatieobjecttypeChoicesView,
     ExternalResultaattypeChoicesView,
     ExternalSelectielijstklasseChoicesView,
@@ -195,6 +196,11 @@ urlpatterns = [
                     "_retrieve-behandelend-afdeling-choices-choices/",
                     BehandelendAfdelingInternalChoicesView.as_view(),
                     name="retrieve-behandelend-afdeling-choices",
+                ),
+                path(
+                    "_clear-choices-endpoints-cache/",
+                    ClearChoicesEndpointsCache.as_view(),
+                    name="clear-choices-endpoints-cache",
                 ),
                 path("", include(router.urls)),
                 path("", include(destruction_list_router.urls)),
