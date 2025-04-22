@@ -42,5 +42,16 @@
         ],
         "codename": "can_co_review_destruction"
       }
+    },
+    {
+      "model": "auth.permission",
+      "fields": {
+        "name": "Can configure application",
+        "content_type": [
+          "accounts",
+          "user"
+        ],
+        "codename": "can_configure_application"
+      }
     }
 ]

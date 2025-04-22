@@ -34,5 +34,17 @@ class UserFactory(DjangoModelFactory):
             if not value:
                 continue
 
-            permission = Permission.objects.filter(codename=item).first()
+            assert item in [
+                "can_review_final_list",
+                "can_start_destruction",
+                "can_review_destruction",
+                "can_co_review_destruction",
+                "can_configure_application",
+            ]
+
+            if not (permission := Permission.objects.filter(codename=item).first()):
+                print(">>>>> NO PERMISSION, ", item)
+                continue
+
+            # permission = Permission.objects.get(codename=item)
             user.user_permissions.add(permission)

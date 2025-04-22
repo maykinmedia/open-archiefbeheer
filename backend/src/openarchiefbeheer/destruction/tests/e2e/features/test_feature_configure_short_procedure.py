@@ -10,10 +10,10 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 class FeatureConfigureShortProcedure(GherkinLikeTestCase):
     async def test_scenario_configure_short_procedure(self):
         async with browser_page() as page:
-            await self.given.record_manager_exists()
+            await self.given.administrator_exists()
             await self.given.zaaktype_choices_are_available(page)
 
-            await self.when.record_manager_logs_in(page)
+            await self.when.administrator_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
 
             await self.when.user_clicks_button(page, "Instellingen")
