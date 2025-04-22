@@ -37,7 +37,7 @@ import {
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
 import { HealthCheckResponse, getHealthCheck } from "./lib/api/health-check";
 import {
-  canChangeSettings,
+  canConfigureApplication,
   canStartDestructionList,
 } from "./lib/auth/permissions";
 import { formatMessage } from "./lib/format/string";
@@ -136,7 +136,7 @@ function App() {
               {
                 children: <Outline.CogIcon />,
                 title: "Instellingen",
-                hidden: user ? !canChangeSettings(user) : true,
+                hidden: user ? !canConfigureApplication(user) : true,
                 // size: "xl",
                 onClick: () => navigate("/settings"),
               },

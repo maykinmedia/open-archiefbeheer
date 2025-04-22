@@ -6,6 +6,7 @@ const FIXTURE_ROLE = {
   canReviewDestruction: false,
   canCoReviewDestruction: false,
   canReviewFinalList: false,
+  canConfigureApplication: false,
 };
 export const roleFactory = createObjectFactory<Role>(FIXTURE_ROLE);
 
@@ -29,6 +30,7 @@ const FIXTURE_RECORD_MANAGER: User = {
     canReviewDestruction: false,
     canCoReviewDestruction: true,
     canReviewFinalList: false,
+    canConfigureApplication: false,
   },
 };
 
@@ -43,6 +45,7 @@ const FIXTURE_BEOORDELAAR: User = {
     canReviewDestruction: true,
     canCoReviewDestruction: true,
     canReviewFinalList: false,
+    canConfigureApplication: false,
   },
 };
 
@@ -57,6 +60,7 @@ const FIXTURE_PROCES_EIGENAAR: User = {
     canReviewDestruction: true,
     canCoReviewDestruction: true,
     canReviewFinalList: false,
+    canConfigureApplication: false,
   },
 };
 
@@ -71,6 +75,22 @@ const FIXTURE_ARCHIVIST: User = {
     canReviewDestruction: true,
     canCoReviewDestruction: false,
     canReviewFinalList: true,
+    canConfigureApplication: false,
+  },
+};
+
+const FIXTURE_ADMINISTRATOR: User = {
+  pk: 3,
+  username: "Administrator",
+  firstName: "Admi",
+  lastName: "Nistrator",
+  email: "administrator@example.com",
+  role: {
+    canStartDestruction: true,
+    canReviewDestruction: true,
+    canCoReviewDestruction: true,
+    canReviewFinalList: true,
+    canConfigureApplication: true,
   },
 };
 
@@ -81,12 +101,14 @@ const procesEigenaarFactory = createObjectFactory<User>(
   FIXTURE_PROCES_EIGENAAR,
 );
 const archivistFactory = createObjectFactory<User>(FIXTURE_ARCHIVIST);
+const administratorFactory = createObjectFactory<User>(FIXTURE_ADMINISTRATOR);
 
 const defaultUsers: User[] = [
   recordManagerFactory(),
   beoordelaarFactory(),
   procesEigenaarFactory(),
   archivistFactory(),
+  administratorFactory(),
 ];
 
 const usersFactory = createArrayFactory(defaultUsers);
@@ -98,4 +120,5 @@ export {
   userFactory,
   usersFactory,
   archivistFactory,
+  administratorFactory,
 };
