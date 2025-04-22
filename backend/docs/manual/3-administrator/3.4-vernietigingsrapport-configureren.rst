@@ -31,7 +31,7 @@ Stappen
 3. **Vul de vereiste velden in**
     - Vul de benodigde gegevens in de bijbehorende velden:
     
-      - **Bronorganisatie**
+      - **Bronorganisatie**. Dit moet een RSIN zijn.
       - **Zaaktype**
       - **Statustype** (optioneel)
       - **Resultaattype**
