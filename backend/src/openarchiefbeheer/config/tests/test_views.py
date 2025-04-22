@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
@@ -9,6 +10,7 @@ from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
+from ..api.validators import RSIN_LENGTH
 from ..models import APIConfig, ArchiveConfig
 
 
@@ -127,6 +129,54 @@ class ArchiveConfigViews(APITestCase):
         config = ArchiveConfig.get_solo()
 
         self.assertEqual(config.statustype, "")
+
+    @tag("gh-827")
+    @override_settings(SOLO_CACHE=None)
+    def test_validate_bronorganisatie(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        self.client.force_login(user)
+
+        with self.subTest("Non-digits"):
+            response = self.client.patch(
+                reverse("api:archive-config"),
+                data={"bronorganisatie": "AAAAAAAAA"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                response.json()["bronorganisatie"][0],
+                _("The characters can only be digits."),
+            )
+
+        with self.subTest("Wrong length"):
+            response = self.client.patch(
+                reverse("api:archive-config"),
+                data={"bronorganisatie": "000"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                response.json()["bronorganisatie"][0],
+                _("A RSIN must be %(length)s characters long.")
+                % {"length": RSIN_LENGTH},
+            )
+
+        with self.subTest("Fail 11-proef check"):
+            response = self.client.patch(
+                reverse("api:archive-config"),
+                data={"bronorganisatie": "123456789"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.json()["bronorganisatie"][0], _("Invalid RSIN."))
+
+        with self.subTest("Valid bronorganisatie"):
+            response = self.client.patch(
+                reverse("api:archive-config"),
+                data={"bronorganisatie": "123456782"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class OIDCInfoViewTests(APITestCase):
