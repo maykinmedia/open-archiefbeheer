@@ -199,6 +199,20 @@ class GerkinMixin:
             merged_kwargs = {**base_kwargs, **kwargs}
             return await self.user_exists(**merged_kwargs)
 
+        async def administrator_exists(self, **kwargs):
+            base_kwargs = {
+                "username": "administrator",
+                "first_name": "Admi",
+                "last_name": "Nistrator",
+                "post__can_review_final_list": True,
+                "post__can_start_destruction": True,
+                "post__can_review_destruction": True,
+                "post__can_co_review_destruction": True,
+                "post__can_configure_application": True,
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            return await self.user_exists(**merged_kwargs)
+
         async def user_exists(self, **kwargs):
             return await self._get_or_create(
                 UserFactory, password="ANic3Password", **kwargs
@@ -586,6 +600,16 @@ class GerkinMixin:
         async def archivist_logs_in(self, page, **kwargs):
             base_kwargs = {
                 "username": "Achivaris",
+                "password": "ANic3Password",
+            }
+            merged_kwargs = {**base_kwargs, **kwargs}
+            await self._user_logs_in(
+                page, merged_kwargs["username"], merged_kwargs["password"]
+            )
+
+        async def administrator_logs_in(self, page, **kwargs):
+            base_kwargs = {
+                "username": "administrator",
                 "password": "ANic3Password",
             }
             merged_kwargs = {**base_kwargs, **kwargs}

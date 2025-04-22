@@ -14,14 +14,14 @@ class FeatureConfigureDestructionReport(GherkinLikeTestCase):
         async with browser_page() as page:
             with requests_mock.Mocker() as m:
                 await self.given.services_are_configured(m)
-                await self.given.record_manager_exists()
+                await self.given.administrator_exists()
                 await self.given.informatieobjecttype_choices_are_available(page)
                 await self.given.resultaattype_choices_are_available(page)
                 await self.given.selectielijstklasse_choices_are_available(page)
                 await self.given.statustype_choices_are_available(page)
                 await self.given.external_zaaktype_choices_are_available(page)
 
-                await self.when.record_manager_logs_in(page)
+                await self.when.administrator_logs_in(page)
                 await self.then.path_should_be(page, "/destruction-lists")
                 await self.when.user_clicks_button(page, "Instellingen")
                 await self.when.user_clicks_button(page, "Vernietigingsrapport")
