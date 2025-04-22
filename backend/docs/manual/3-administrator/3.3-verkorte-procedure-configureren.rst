@@ -1,4 +1,4 @@
-.. _manual_1-record-manager_1.8-verkorte-procedure-configureren:
+.. _manual_3-administrator_3.3-verkorte-procedure-configureren:
 
 ===============================
 Verkorte procedure configureren
@@ -8,18 +8,18 @@ Verkorte procedure configureren
    :align: center
    :alt: Schermafbeelding van het configureren van de verkorte procedure
 
-Deze handleiding beschrijft de stappen die een **record manager** kan volgen om de zaaktypen te selecteren die in
+Deze handleiding beschrijft de stappen die een **Administrator** kan volgen om de zaaktypen te selecteren die in
 aanmerking komen voor de verkorte procedure.
 
 Voorwaarden
 ------------
-- De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
+- De administrator moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
 - De zaaktype keuzes moeten beschikbaar zijn voor selectie.
 
 Stappen
 -------
 
-1. **Inloggen als record manager**
+1. **Inloggen als administrator**
     - Open de applicatie en log in met je gebruikersnaam en wachtwoord.
     - Na succesvol inloggen, word je automatisch doorgestuurd naar de pagina van de vernietigingslijsten.
 
