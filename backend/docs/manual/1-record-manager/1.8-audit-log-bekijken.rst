@@ -1,4 +1,4 @@
-.. _manual_1-record-manager_2.0-audit-log-bekijken:
+.. _manual_1-record-manager_1.8-audit-log-bekijken:
 
 ==================
 Audit log bekijken
