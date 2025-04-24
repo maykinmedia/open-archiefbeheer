@@ -6,7 +6,7 @@ import {
   ReactRouterDecorator,
 } from "../../../../../.storybook/decorators";
 import { MOCK_BASE } from "../../../../../.storybook/mockData";
-import { recordManagerFactory } from "../../../../fixtures";
+import { administratorFactory } from "../../../../fixtures";
 import { settingsAction } from "../../Settings.action";
 import { HealthCheckSettingsPage } from "./HealthCheckSettingsPage";
 import { healthCheckSettingsLoader } from "./HealthCheckSettingsPage.loader";
@@ -63,7 +63,7 @@ export const HealthCheck: Story = {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",
         status: 200,
-        response: recordManagerFactory(),
+        response: administratorFactory(),
       },
       {
         url: "http://localhost:8000/api/v1/health-check",

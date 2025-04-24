@@ -12,8 +12,8 @@ import {
   FIXTURE_RESULTAATTYPE_CHOICES,
   FIXTURE_STATUSTYPE_CHOICES,
   FIXTURE_ZAAKTYPE_CHOICES,
+  administratorFactory,
   informatieObjectTypeChoicesFactory,
-  recordManagerFactory,
   resultaatTypeChoicesFactory,
   statusTypeChoicesFactory,
   zaaktypeChoicesFactory,
@@ -27,7 +27,7 @@ import {
 
 const FIXTURE: DestructionReportSettingsPageContext = {
   archiveConfiguration: {
-    bronorganisatie: "000000000",
+    bronorganisatie: "123456782",
     informatieobjecttype: FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES[0].value,
     resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[0].value,
     statustype: FIXTURE_STATUSTYPE_CHOICES[0].value,
@@ -48,7 +48,7 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",
         status: 200,
-        response: recordManagerFactory(),
+        response: administratorFactory(),
       },
       {
         url: "http://localhost:8000/api/v1/archive-config?",
@@ -86,6 +86,15 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         status: 200,
         response: informatieObjectTypeChoicesFactory(),
       },
+      {
+        url: `http://localhost:8000/api/v1/health-check`,
+        method: "GET",
+        status: 200,
+        response: {
+          success: true,
+          errors: [],
+        },
+      },
     ],
   },
 };
@@ -97,7 +106,7 @@ export const UpdateDestructionReportSettings: Story = {
   parameters: {
     fillForm: {
       formValues: {
-        Bronorganisatie: "000000001",
+        Bronorganisatie: "123456782",
         Zaaktype: FIXTURE_ZAAKTYPE_CHOICES[1].label,
         Statustype: FIXTURE_STATUSTYPE_CHOICES[1].label,
         Resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[1].label,
