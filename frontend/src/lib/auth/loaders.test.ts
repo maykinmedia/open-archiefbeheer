@@ -33,6 +33,7 @@ vi.mock("./permissions", () => ({
   canViewDestructionList: vi.fn(),
   canTriggerDestruction: vi.fn(),
   canChangeSettings: vi.fn(),
+  canConfigureApplication: vi.fn(),
 }));
 
 vi.mock("react-router-dom", () => ({

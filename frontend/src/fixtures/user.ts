@@ -80,7 +80,7 @@ const FIXTURE_ARCHIVIST: User = {
 };
 
 const FIXTURE_ADMINISTRATOR: User = {
-  pk: 3,
+  pk: 4,
   username: "Administrator",
   firstName: "Admi",
   lastName: "Nistrator",

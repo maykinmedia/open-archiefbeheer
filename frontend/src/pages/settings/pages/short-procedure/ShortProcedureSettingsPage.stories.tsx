@@ -10,7 +10,7 @@ import {
   clickButton,
 } from "../../../../../.storybook/playFunctions";
 import {
-  recordManagerFactory,
+  administratorFactory,
   zaaktypeChoicesFactory,
 } from "../../../../fixtures";
 import { settingsAction } from "../../Settings.action";
@@ -37,7 +37,7 @@ const meta: Meta<typeof ShortProcedureSettingsPage> = {
         url: "http://localhost:8000/api/v1/whoami/",
         method: "GET",
         status: 200,
-        response: recordManagerFactory(),
+        response: administratorFactory(),
       },
       {
         url: "http://localhost:8000/api/v1/archive-config?",
