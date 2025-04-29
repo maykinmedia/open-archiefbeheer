@@ -9,9 +9,9 @@ Prerequisites
 
 You need the following libraries and/or programs:
 
-* `Python`_ - check the ``Dockerfile`` for the required version.
+* `Python`_ – check the ``Dockerfile`` for the required version.
 * Python `Virtualenv`_ and `Pip`_
-* `PostgreSQL`_ and `GDAL`_ - check the ``Dockerfile`` for the required version.
+* `PostgreSQL`_ (with `PostGIS`_) and `GDAL`_ – check the ``Dockerfile`` for the required version.
 * `Node.js`_
 * `npm`_
 
@@ -19,9 +19,10 @@ You need the following libraries and/or programs:
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
 .. _Pip: https://packaging.python.org/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date
 .. _PostgreSQL: https://www.postgresql.org
+.. _PostGIS: https://postgis.net/
+.. _GDAL: https://pypi.org/project/GDAL/
 .. _Node.js: http://nodejs.org/
 .. _npm: https://www.npmjs.com/
-.. _GDAL: https://pypi.org/project/GDAL/
 
 
 #. Navigate to the location where you want to place your project.
@@ -45,38 +46,57 @@ You need the following libraries and/or programs:
 
 #. Run the migrations with ``src/manage.py migrate``
 
-.. note::
+   .. note::
 
-       If you get an error about the ``django.contrib.gis`` module,
-       you need to install the GDAL library and/or enable the extension or give superuser privileges. See the requirements in the Dockerfile.
-#. Create a superuser to access the management interface: ``src/manage.py createsuperuser``
-#. To set environment variables settings, vreate a ``.env`` file. You can use and modify the provided example:
+      If you get an error about the ``django.contrib.gis`` module,
+      you need to install the GDAL library and/or enable the extension or give superuser privileges. See the requirements in the Dockerfile.
 
-  .. code:: bash
+#. Create a superuser to access the management interface:
 
-    cp dotenv.example .env
+   .. code:: bash
+
+      src/manage.py createsuperuser
+
+#. To set environment variables settings, create a ``.env`` file. You can use and modify the provided example:
+
+   .. code:: bash
+
+      cp dotenv.example .env
 
 #. Generate the translation files:
- .. code:: bash
 
-    src/manage.py makemessages -a
-    src/manage.py compilemessages --locale nl
+   .. code:: bash
+
+      ./bin/make_translations
+      src/manage.py makemessages -a
+      src/manage.py compilemessages --locale nl
 
 #. Run the development server with ``src/manage.py runserver``
 
-Optionally You can load initial zaak data to populate your database. Do note, that this is a timely process (~30-60 minutes):
+#. Optionally, you can load initial zaak data to populate your database.
 
- .. code:: bash
+   .. note::
 
-    src/manage.py cache_zaken
+      This is a time-consuming process:
 
+      - ~30–60 minutes **without** a local Open Zaak instance
+      - ~1–2 minutes **with** a local Open Zaak instance
 
-Optionally, you can load fixtures for the templates of the admin and for the admin index configuration:
+   .. important::
 
- .. code:: bash
+      For this to work, the services need to be set up correctly. You can either do this manually, or follow the instructions to :ref:`start a local Open Zaak instance <open-zaak-section>`.
 
-    src/manage.py loaddata fixture_name.json
+   To load the data, run:
 
+   .. code:: bash
+
+      src/manage.py cache_zaken
+
+#. Optionally, you can load fixtures for the templates of the admin and for the admin index configuration:
+
+   .. code:: bash
+
+      src/manage.py loaddata fixture_name.json
 
 Running tests
 =============
@@ -116,6 +136,8 @@ To start the environment:
 .. code:: bash
 
    docker compose -f docker-compose.dev.yaml up
+
+.. _open-zaak-section:
 
 Open Zaak
 =========
