@@ -7,6 +7,7 @@ import {
   SerializedFormData,
   Solid,
   useAlert,
+  useDialog,
   validateForm,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useState } from "react";
@@ -16,6 +17,7 @@ import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";
 import { ArchiveConfiguration } from "../../../../lib/api/config";
 import {
+  clearChoicesCache,
   listInformatieObjectTypeChoices,
   listResultaatTypeChoices,
   listStatusTypeChoices,
@@ -38,6 +40,7 @@ export function DestructionReportSettingsPage() {
   const { archiveConfiguration, zaaktypeChoices } =
     useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
+  const dialog = useDialog();
 
   const [isValidState, setIsValidState] = useState(false);
   const [valuesState, setValuesState] = useState<Record<string, string>>(
@@ -144,9 +147,35 @@ export function DestructionReportSettingsPage() {
     );
   }, [valuesState]);
 
+  const handleClearChoicesCache = useCallback(async () => {
+    dialog(
+      "De caches worden ververst...",
+      "Een moment geduld alstublieft",
+      undefined,
+      { allowClose: false },
+    );
+    await clearChoicesCache();
+    alert(
+      "Instellingen opgeslagen",
+      "De instellingen zijn succesvol opgeslagen",
+      "Ok",
+    );
+  }, []);
+
   return (
     <BaseSettingsView<DestructionReportSetting>
       secondaryNavigationItems={[
+        {
+          children: (
+            <>
+              <Solid.CheckCircleIcon />
+              Verversen
+            </>
+          ),
+          variant: "secondary",
+          pad: "h",
+          onClick: handleClearChoicesCache,
+        },
         {
           children: (
             <>

@@ -231,3 +231,13 @@ export async function listZaaktypeChoices(
     external ? [cacheParams, "external"] : [cacheParams],
   );
 }
+
+export async function clearChoicesCache() {
+  return await request(
+    "POST",
+    "/_clear-choices-endpoints-cache/",
+    {},
+    undefined,
+    undefined,
+  );
+}
