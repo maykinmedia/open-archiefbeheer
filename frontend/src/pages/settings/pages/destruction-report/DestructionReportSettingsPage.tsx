@@ -10,8 +10,8 @@ import {
   useDialog,
   validateForm,
 } from "@maykin-ui/admin-ui";
-import { useCallback, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useActionData, useLoaderData } from "react-router-dom";
 
 import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";
@@ -36,11 +36,27 @@ interface DestructionReportSetting {
  * Allows for configuring zaaktype eligible for the short procedure.
  */
 export function DestructionReportSettingsPage() {
-  const submit = useSubmitAction<UpdateSettingsAction>();
+  const submit = useSubmitAction<UpdateSettingsAction>(false);
   const { archiveConfiguration, zaaktypeChoices } =
     useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
   const dialog = useDialog();
+  const [formErrors, setFormErrors] = useState<
+    Record<string, string> | undefined
+  >();
+
+  const errors = useActionData() as Record<string, string> | null;
+  useEffect(() => {
+    setFormErrors(errors || undefined);
+
+    if (errors === null) {
+      alert(
+        "Instellingen opgeslagen",
+        "De instellingen zijn succesvol opgeslagen",
+        "Ok",
+      );
+    }
+  }, [errors]);
 
   const [isValidState, setIsValidState] = useState(false);
   const [valuesState, setValuesState] = useState<Record<string, string>>(
@@ -142,11 +158,6 @@ export function DestructionReportSettingsPage() {
       type: "PATCH-ARCHIVE-CONFIG",
       payload: valuesState as JsonValue,
     });
-    alert(
-      "Instellingen opgeslagen",
-      "De instellingen zijn succesvol opgeslagen",
-      "Ok",
-    );
   }, [valuesState]);
 
   const handleClearChoicesCache = useCallback(async () => {
@@ -207,6 +218,7 @@ export function DestructionReportSettingsPage() {
 
         <Form
           aria-label="Vernietigingsrapport instellingen"
+          errors={formErrors}
           fields={fields}
           validateOnChange
           showActions={false}

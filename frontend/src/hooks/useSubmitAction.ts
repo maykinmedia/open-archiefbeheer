@@ -59,14 +59,16 @@ export type TypedAction<T = string, P = JsonValue> = {
  * used to retrieve the `TypedAction`. If multiple actions should be handled the
  * type of the action can be used to determine the applicable logic.
  */
-export function useSubmitAction<T extends TypedAction = TypedAction>() {
+export function useSubmitAction<T extends TypedAction = TypedAction>(
+  catchErrors: boolean = true,
+) {
   const submit = useSubmit();
   const actionData = useActionData() as object;
   const alert = useAlert();
 
   // Show error(s) if present.
   useEffect(() => {
-    if (actionData) {
+    if (catchErrors && actionData) {
       const errors = collectErrors(actionData);
       const messages = errors.join("\n");
       alert("Foutmelding", messages, "Ok");
@@ -74,7 +76,7 @@ export function useSubmitAction<T extends TypedAction = TypedAction>() {
       // FIXME: Remove debug if no longer an issue.
       console.debug(messages);
     }
-  }, [actionData]);
+  }, [actionData, catchErrors]);
 
   return (typedAction: T, options: SubmitOptions = {}) => {
     const targetOptions: SubmitOptions = {
