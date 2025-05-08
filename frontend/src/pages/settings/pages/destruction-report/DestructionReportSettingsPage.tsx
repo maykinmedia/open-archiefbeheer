@@ -156,8 +156,8 @@ export function DestructionReportSettingsPage() {
     );
     await clearChoicesCache();
     alert(
-      "Instellingen opgeslagen",
-      "De instellingen zijn succesvol opgeslagen",
+      "Het verversen van de cache is gelukt!",
+      "De informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
       "Ok",
     );
   }, []);
