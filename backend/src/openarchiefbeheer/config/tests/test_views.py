@@ -133,7 +133,7 @@ class ArchiveConfigViews(APITestCase):
     @tag("gh-827")
     @override_settings(SOLO_CACHE=None)
     def test_validate_bronorganisatie(self):
-        user = UserFactory.create(post__can_start_destruction=True)
+        user = UserFactory.create(post__can_configure_application=True)
         self.client.force_login(user)
 
         with self.subTest("Non-digits"):
