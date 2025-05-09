@@ -5,7 +5,7 @@ Release flow
 ============
 
 #. Checkout a branch ``release/X.X.X`` (with the new version number)
-#. Use ``bump-my-version show-bump`` to show the possibilities, for example:
+#. In the ``backend`` directory, use ``bump-my-version show-bump`` to show the possibilities, for example:
 
     .. code:: bash
 
