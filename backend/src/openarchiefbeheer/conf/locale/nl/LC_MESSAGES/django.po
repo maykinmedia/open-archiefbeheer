@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 12:10+0200\n"
+"POT-Creation-Date: 2025-05-09 11:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr "Medebeoordelaar"
 msgid "Archivist"
 msgstr "Archivaris"
 
-#: openarchiefbeheer/accounts/api/serializers.py:28
+#: openarchiefbeheer/accounts/api/serializers.py:30
 msgid "The role of the user within the application logic."
 msgstr ""
 
@@ -235,6 +235,11 @@ msgstr "Je bent niet toegestaan om de medebeoordelaars aan te passen."
 msgid "You cannot download the destruction report."
 msgstr ""
 "Je bent niet toegestaan om de verklaring van vernietiging te downloaden."
+
+#: openarchiefbeheer/destruction/api/permissions.py:183
+msgid "You cannot configure the application."
+msgstr ""
+"Je bent niet toegestaan om de applicatie te configureren."
 
 #: openarchiefbeheer/destruction/api/serializers.py:55
 msgid ""
@@ -1787,20 +1792,20 @@ msgstr ""
 msgid "The identificatie of the zaaktype on which to filter."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:41
+#: openarchiefbeheer/zaken/api/views.py:42
 msgid "Retrieve and cache zaken"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:42
+#: openarchiefbeheer/zaken/api/views.py:43
 msgid "Retrieve and cache zaken from OpenZaak in the background."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:78
+#: openarchiefbeheer/zaken/api/views.py:79
 msgid "Retrieve local zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:80
-#: openarchiefbeheer/zaken/api/views.py:99
+#: openarchiefbeheer/zaken/api/views.py:81
+#: openarchiefbeheer/zaken/api/views.py:100
 msgid ""
 "Retrieve zaaktypen of the zaken stored in the OAB database and return a "
 "value and a label per zaaktype. The label is the 'identificatie' field an "
@@ -1812,15 +1817,15 @@ msgid ""
 "be returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:97
+#: openarchiefbeheer/zaken/api/views.py:98
 msgid "Search local zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:120
+#: openarchiefbeheer/zaken/api/views.py:121
 msgid "Retrieve external zaaktypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:122
+#: openarchiefbeheer/zaken/api/views.py:123
 msgid ""
 "Retrieve zaaktypen from Open Zaak and return a value and a label per "
 "zaaktype. The label is the 'identificatie' field an the value is a string of "
@@ -1832,11 +1837,11 @@ msgid ""
 "be returned."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:145
+#: openarchiefbeheer/zaken/api/views.py:146
 msgid "Retrieve selectielijstklasse choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:147
+#: openarchiefbeheer/zaken/api/views.py:148
 msgid ""
 "Returns all the resultaten from the configured selectielijst API with a "
 "formatted label. If the parameter 'zaak' is provided, then it returns all "
@@ -1844,63 +1849,73 @@ msgid ""
 "'zaaktype' of the zaak."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:177
+#: openarchiefbeheer/zaken/api/views.py:178
 msgid "Retrieve internal selectielijstklasse choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:179
+#: openarchiefbeheer/zaken/api/views.py:180
 msgid ""
 "Retrieve the selectielijstklasse choices for zaken in the database. Note: if "
 "a zaak does not have a selectielijstklasse specified, it is deduced from the "
 "resultaat -> resultaattype -> selectielijstklasse."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:234
+#: openarchiefbeheer/zaken/api/views.py:235
 msgid "Retrieve statustypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:236
+#: openarchiefbeheer/zaken/api/views.py:237
 msgid ""
 "Retrieve statustypen from Open Zaak and return a value and a label per "
 "statustype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:291
+#: openarchiefbeheer/zaken/api/views.py:292
 msgid "Retrieve informatieobjecttypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:293
+#: openarchiefbeheer/zaken/api/views.py:294
 msgid ""
 "Retrieve informatieobjecttypen from Open Zaak and return a value and a label "
 "per informatieobjecttype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:317
+#: openarchiefbeheer/zaken/api/views.py:318
 msgid "Retrieve resultaattypen choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:319
+#: openarchiefbeheer/zaken/api/views.py:320
 msgid ""
 "Retrieve resultaattypen from Open Zaak and return a value and a label per "
 "resultaattype. The label is the field 'omschrijving'."
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:345
+#: openarchiefbeheer/zaken/api/views.py:346
 msgid "Retrieve internal resultaattype choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:346
+#: openarchiefbeheer/zaken/api/views.py:347
 msgid "Retrieve the resultaattypen of the zaken in the database. "
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:385
+#: openarchiefbeheer/zaken/api/views.py:386
 msgid "Retrieve behandelend afdeling choices"
 msgstr ""
 
-#: openarchiefbeheer/zaken/api/views.py:387
+#: openarchiefbeheer/zaken/api/views.py:388
 msgid ""
 "Retrieve the behandelend afdelingen the zaken in the database. These are "
 "rollen with betrokkeneType equal to \"organisatorische_eenheid\"."
+msgstr ""
+
+#: openarchiefbeheer/zaken/api/views.py:429
+msgid "Clear choices endpoints cache"
+msgstr ""
+
+#: openarchiefbeheer/zaken/api/views.py:431
+msgid ""
+"Clear the backend cache where the external and internal choices endpoints "
+"are cached."
 msgstr ""
 
 #: openarchiefbeheer/zaken/api/viewsets.py:25
