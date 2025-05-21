@@ -11,7 +11,7 @@ import {
   validateForm,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
-import { useActionData, useLoaderData } from "react-router-dom";
+import { useActionData, useLoaderData, useRevalidator } from "react-router-dom";
 
 import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";
@@ -37,6 +37,7 @@ interface DestructionReportSetting {
  */
 export function DestructionReportSettingsPage() {
   const submit = useSubmitAction<UpdateSettingsAction>(false);
+  const { revalidate } = useRevalidator();
   const { archiveConfiguration, zaaktypeChoices } =
     useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
@@ -168,9 +169,10 @@ export function DestructionReportSettingsPage() {
       { allowClose: false },
     );
     await clearChoicesCache();
+    revalidate();
     alert(
       "Het verversen van de cache is gelukt!",
-      "De informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
+      "De zaaktypen, informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
       "Ok",
     );
   }, []);
