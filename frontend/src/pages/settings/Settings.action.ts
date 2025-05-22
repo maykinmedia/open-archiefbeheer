@@ -5,9 +5,10 @@ import {
   ArchiveConfiguration,
   patchArchiveConfiguration,
 } from "../../lib/api/config";
+import { clearChoicesCache } from "../../lib/api/private";
 
 export type UpdateSettingsAction<T = JsonValue> = TypedAction<
-  "PATCH-ARCHIVE-CONFIG",
+  "PATCH-ARCHIVE-CONFIG" | "CLEAR-CHOICES-CACHE",
   T
 >;
 
@@ -21,6 +22,8 @@ export async function settingsAction({ request, params }: ActionFunctionArgs) {
   switch (action.type) {
     case "PATCH-ARCHIVE-CONFIG":
       return await patchArchiveConfigAction({ request, params });
+    case "CLEAR-CHOICES-CACHE":
+      return await clearChoicesCacheAction();
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
@@ -39,5 +42,20 @@ async function patchArchiveConfigAction({ request }: ActionFunctionArgs) {
     }
     throw e;
   }
-  return null;
+  return {
+    success: true,
+    type: "PATCH-ARCHIVE-CONFIG",
+  };
+}
+
+async function clearChoicesCacheAction() {
+  try {
+    await clearChoicesCache();
+  } catch (e: unknown) {
+    if (e instanceof Response) {
+      return await (e as Response).json();
+    }
+    throw e;
+  }
+  return { success: true, type: "CLEAR-CHOICES-CACHE" };
 }
