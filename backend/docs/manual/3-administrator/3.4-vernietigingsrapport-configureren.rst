@@ -41,6 +41,16 @@ Stappen
     met de geconfigureerd resultaattype en de selectielijstklasse wordt afgeleid van de resultaattype. De verklaring van vernietiging wordt opgeslagen als
     enkelvoudiginformatieobject met de geconfigureerde informatieobjecttype. De zaak en de enkelvoudiginformatieobject worden met elkaar gerelateerd.
 
+.. note::
+
+    Nieuwe zaaktypen, informatieobjecttypen, statustypen of resultaattypen die tijdens het configureren beschikbaar komen in 
+    Open Zaak, worden niet automatisch weergegeven in de dropdownmenu's. Klik op de knop "Verversen" om de nieuwste 
+    opties zichtbaar te maken. |verversen_knop|
+
+.. |verversen_knop| image:: ../_assets/verversen-knop.png
+   :alt: Knop om zaaktypen, informatieobjecttypen, statustypen en resultaattypen te verversen
+   :height: 26px
+
 4. **Sla de instellingen op**
     - Klik op de knop **"Opslaan"**. |opslaan_knop|
     - Controleer of de melding **"De instellingen zijn succesvol opgeslagen"** verschijnt.
