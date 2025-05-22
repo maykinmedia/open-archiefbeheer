@@ -11,12 +11,13 @@ import {
   validateForm,
 } from "@maykin-ui/admin-ui";
 import { useCallback, useEffect, useState } from "react";
-import { useActionData, useLoaderData } from "react-router-dom";
+import { useActionData, useLoaderData, useRevalidator } from "react-router-dom";
 
 import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";
 import { ArchiveConfiguration } from "../../../../lib/api/config";
 import {
+  clearChoicesCache,
   listInformatieObjectTypeChoices,
   listResultaatTypeChoices,
   listStatusTypeChoices,
@@ -36,6 +37,7 @@ interface DestructionReportSetting {
  */
 export function DestructionReportSettingsPage() {
   const submit = useSubmitAction<UpdateSettingsAction>(false);
+  const { revalidate } = useRevalidator();
   const { archiveConfiguration, zaaktypeChoices } =
     useLoaderData() as DestructionReportSettingsPageContext;
   const alert = useAlert();
@@ -44,29 +46,18 @@ export function DestructionReportSettingsPage() {
     Record<string, string> | undefined
   >();
 
-  const data = useActionData() as Record<string, string> | null;
+  const errors = useActionData() as Record<string, string> | null;
   useEffect(() => {
-    if (!data?.success) {
-      setFormErrors(data || undefined);
-    }
+    setFormErrors(errors || undefined);
 
-    if (data?.success) {
-      if (data.type === "PATCH-ARCHIVE-CONFIG") {
-        alert(
-          "Instellingen opgeslagen",
-          "De instellingen zijn succesvol opgeslagen",
-          "Ok",
-        );
-      }
-      if (data.type === "CLEAR-CHOICES-CACHE") {
-        alert(
-          "Het verversen van de cache is gelukt!",
-          "De zaaktypen, informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
-          "Ok",
-        );
-      }
+    if (errors === null) {
+      alert(
+        "Instellingen opgeslagen",
+        "De instellingen zijn succesvol opgeslagen",
+        "Ok",
+      );
     }
-  }, [data]);
+  }, [errors]);
 
   const [isValidState, setIsValidState] = useState(false);
   const [valuesState, setValuesState] = useState<Record<string, string>>(
@@ -177,10 +168,13 @@ export function DestructionReportSettingsPage() {
       undefined,
       { allowClose: false },
     );
-    submit({
-      type: "CLEAR-CHOICES-CACHE",
-      payload: {},
-    });
+    await clearChoicesCache();
+    revalidate();
+    alert(
+      "Het verversen van de cache is gelukt!",
+      "De zaaktypen, informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
+      "Ok",
+    );
   }, []);
 
   return (
