@@ -15,3 +15,4 @@ Content
     deploying
     django-setup-configuration
     2fa
+    oidc
