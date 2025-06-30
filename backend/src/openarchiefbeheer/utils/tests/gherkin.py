@@ -755,7 +755,7 @@ class GerkinMixin:
             for key, value in kwargs.items():
                 self.testcase.assertEqual(getattr(archive_config, key), value)
 
-        async def list_should_exist(self, page, name):
+        async def list_should_exist(self, page, name: str):
             try:
                 return await DestructionList.objects.aget(name=name)
             except DestructionList.DoesNotExist:
@@ -779,9 +779,19 @@ class GerkinMixin:
             list_assignee = await destruction_list.assignees.aget(user__pk=assignee.pk)
             self.testcase.assertTrue(list_assignee)
 
-        async def list_should_have_status(self, page, destruction_list, status):
+        async def list_should_have_status(
+            self, page, destruction_list: DestructionList, status: str
+        ):
             await destruction_list.arefresh_from_db()
             self.testcase.assertEqual(destruction_list.status, status)
+
+        async def list_should_have_processing_status(
+            self, page, destruction_list: DestructionList, processing_status: str
+        ):
+            await destruction_list.arefresh_from_db()
+            self.testcase.assertEqual(
+                destruction_list.processing_status, processing_status
+            )
 
         async def list_should_have_number_of_items(
             self, destruction_list, number_of_items
