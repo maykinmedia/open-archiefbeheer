@@ -229,6 +229,9 @@ class DestructionList(models.Model):
         self.set_status(ListStatus.new)
         self.planned_destruction_date = None
         self.processing_status = InternalStatus.new
+
+        for assignee in self.assignees.filter(role=ListRole.archivist):
+            assignee.unassign()
         self.save()
 
     def generate_destruction_report(self) -> None:
@@ -467,6 +470,18 @@ class DestructionListAssignee(models.Model):
         self.save()
 
         user_assigned.send(sender=self.__class__, assignee=self)
+
+    def unassign(self) -> None:
+        from .signals import user_unassigned
+
+        # TODO Log unassignment
+        if self.destruction_list.assignee == self.user:
+            self.destruction_list.assignee = None
+
+        self.destruction_list.save()
+        self.delete()
+
+        user_unassigned.send(sender=self.__class__, assignee=self)
 
 
 class DestructionListReview(models.Model):
