@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.files import File
-from django.db import models
+from django.db import models, transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -475,11 +475,12 @@ class DestructionListAssignee(models.Model):
         from .signals import user_unassigned
 
         # TODO Log unassignment
-        if self.destruction_list.assignee == self.user:
-            self.destruction_list.assignee = None
+        with transaction.atomic():
+            if self.destruction_list.assignee == self.user:
+                self.destruction_list.assignee = None
+                self.destruction_list.save()
 
-        self.destruction_list.save()
-        self.delete()
+            self.delete()
 
         user_unassigned.send(sender=self.__class__, assignee=self)
 
