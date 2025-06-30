@@ -2,12 +2,13 @@
 from asyncio import sleep
 
 from django.test import tag
+
 from playwright.async_api import Page
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
-from ....constants import ListStatus, InternalStatus
+from ....constants import ListStatus
 from ....models import DestructionList, DestructionListAssignee
 
 
@@ -114,9 +115,8 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.when.user_fills_form_field(page, "Reden", "gh-843")
         await self.when.user_clicks_button(page, "Toewijzen")
 
-
         await destruction_list.arefresh_from_db()
-        await sleep(3)  # FIXME: Better wait for solution?
+        await sleep(10)  # FIXME: Better wait for solution?
         reviewer2_assignee = await DestructionListAssignee.objects.aget(user=reviewer2)
         await self.then.list_should_have_user_in_assignees(page, destruction_list, reviewer2_assignee)
 
