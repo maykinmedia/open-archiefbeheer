@@ -157,7 +157,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  e2e-tests:
+  e2e-feature-tests:
     runs-on: ubuntu-latest
     needs: frontend-build
     strategy:
@@ -168,7 +168,7 @@ jobs:
           - firefox
           - webkit
     
-    name: End-to-end tests, ${{ matrix.browser }}
+    name: End-to-end tests (features), ${{ matrix.browser }}
 
     defaults:
       run:
@@ -244,7 +244,112 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=e2e --parallel 1
+          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 1
+        env:
+          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
+          SECRET_KEY: dummy
+          DB_USER: postgres
+          DB_PASSWORD: ''
+          E2E_SERVE_FRONTEND: yes
+          PLAYWRIGHT_HEADLESS: yes
+          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+          PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
+          OAB_CACHE_DISABLED: true
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: ${{ matrix.browser }}-playwright-trace.zip
+          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
+          retention-days: 1
+          if-no-files-found: error
+
+  e2e-issue-tests:
+    runs-on: ubuntu-latest
+    needs: frontend-build
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+
+    name: End-to-end tests (issues), ${{ matrix.browser }}
+
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgis/postgis:14-3.4
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # Needed because the postgres container does not provide a healthcheck
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+          --name postgres
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up backend environment
+        uses: maykinmedia/setup-django-backend@v1.3
+        with:
+          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
+          python-version: '3.12'
+          optimize-postgres: 'yes'
+          pg-service: 'postgres'
+          setup-node: 'no'
+          working-directory: backend
+
+      - name: Start CI docker services
+        run: |
+          docker compose up -d
+        working-directory: backend/docker-services/keycloak
+
+      - name: Wait for Keycloak to be up
+        run: |
+          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
+          realm=""
+
+          until [ $realm ]; do
+            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
+            realm=$(curl "$endpoint" -s | jq -r ".realm")
+            sleep 2
+          done
+
+          echo "Running Keycloak with realm $realm"
+
+      # See https://playwright.dev/python/docs/ci#caching-browsers
+      - name: Cache Playwright browser
+        id: cache-browser
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key:
+            ${{ runner.os }}-${{ matrix.browser }}-playwright-${{ hashFiles('requirements/ci.txt') }}
+
+      - name: Install playwright deps
+        run: playwright install --with-deps ${{ matrix.browser }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ${{ github.workspace }}/frontend/dist
+
+      - name: Run tests
+        working-directory: backend
+        run: |
+          ln -s ${{ github.workspace }}/frontend/dist/static/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
+          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
+          python src/manage.py compilemessages
+          python src/manage.py collectstatic --noinput --link
+          python src/manage.py test openarchiefbeheer --tag=issue --parallel 1
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
@@ -309,7 +414,8 @@ jobs:
     needs:
       - backend-tests
       - frontend-build
-      - e2e-tests
+      - e2e-feature-tests
+      - e2e-issue-tests
       - docker_build
 
     name: Push Docker image

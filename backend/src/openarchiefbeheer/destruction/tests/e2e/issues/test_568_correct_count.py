@@ -7,6 +7,7 @@ from ....constants import InternalStatus, ListItemStatus, ListStatus
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-568")
 class Issue568CorrectCount(GherkinLikeTestCase):
     async def test_destruction_fails_with_incorrect_count(self):

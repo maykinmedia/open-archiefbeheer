@@ -8,6 +8,7 @@ from ....constants import ListStatus
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-758")
 class Issue758EditDestructionListShowsIncorrectZaaktype(GherkinLikeTestCase):
     async def test_scenario_user_cancels_filtered_edit_mode(self):

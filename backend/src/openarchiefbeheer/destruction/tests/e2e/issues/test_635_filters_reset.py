@@ -6,6 +6,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-635")
 class Issue635FiltersReset(GherkinLikeTestCase):
     async def when_user_navigates_to_page_with_filter(self, page):

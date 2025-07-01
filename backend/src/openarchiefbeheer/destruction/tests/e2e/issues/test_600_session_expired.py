@@ -8,6 +8,8 @@ from ....constants import ListStatus
 
 
 @tag("e2e")
+@tag("issue")
+@tag("gh-600")
 @override_settings(SESSION_COOKIE_AGE=2)
 class Issue600SessionExpired(GherkinLikeTestCase):
     async def test_session_expired(self):

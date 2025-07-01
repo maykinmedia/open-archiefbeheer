@@ -10,6 +10,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-618")
 class Issue618NoHerbeoordelingForArchivaris(GherkinLikeTestCase):
     async def test_scenario_approval_with_rereview(self):
