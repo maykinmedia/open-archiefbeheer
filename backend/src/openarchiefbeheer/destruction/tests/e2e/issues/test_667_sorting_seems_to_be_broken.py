@@ -21,6 +21,7 @@ from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-667")
 class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
     async def test_scenario_sort_destruction_list_create_page(self):

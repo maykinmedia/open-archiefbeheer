@@ -8,6 +8,8 @@ from ....constants import ListStatus
 
 
 @tag("e2e")
+@tag("issue")
+@tag("gh-290")
 class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
     async def test_scenario_user_cancels_filtered_edit_mode(self):
         async with browser_page() as page:

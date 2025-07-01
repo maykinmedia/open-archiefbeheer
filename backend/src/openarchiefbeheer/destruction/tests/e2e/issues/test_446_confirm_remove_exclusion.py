@@ -7,6 +7,7 @@ from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-446")
 class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
     async def test_scenario_user_approves_and_deselects_single_item(self):

@@ -13,6 +13,7 @@ from ....models import DestructionList, DestructionListAssignee
 
 
 @tag("e2e")
+@tag("issue")
 @tag("gh-843")
 class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
     async def _create(self, page: Page):
