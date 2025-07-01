@@ -16,7 +16,7 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   const loginAbortController = new AbortController();
 
   try {
-    await cacheDelete("whoAmI");
+    await cacheDelete("", true);
     await login(
       username as string,
       password as string,
