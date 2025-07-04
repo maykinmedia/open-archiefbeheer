@@ -11,8 +11,8 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import InternalStatus, ListStatus
-from ..factories import DestructionListFactory
+from ...constants import InternalStatus, ListRole, ListStatus
+from ..factories import DestructionListAssigneeFactory, DestructionListFactory
 
 
 class DestructionListAbortEndpointTest(APITestCase):
@@ -103,6 +103,12 @@ class DestructionListAbortEndpointTest(APITestCase):
             status=ListStatus.ready_to_review,
         )
 
+        DestructionListAssigneeFactory.create(
+            role=ListRole.author,
+            user=record_manager,
+            destruction_list=destruction_list,
+        )
+
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-05T12:00:00+01:00"):
             response = self.client.post(
@@ -151,6 +157,12 @@ class DestructionListAbortEndpointTest(APITestCase):
             status=ListStatus.ready_to_delete,
             processing_status=InternalStatus.new,
             planned_destruction_date=date(2024, 1, 8),
+        )
+
+        DestructionListAssigneeFactory.create(
+            role=ListRole.author,
+            user=record_manager,
+            destruction_list=destruction_list,
         )
 
         self.client.force_authenticate(user=record_manager)
