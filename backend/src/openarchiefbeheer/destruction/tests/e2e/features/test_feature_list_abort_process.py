@@ -3,7 +3,7 @@ from asyncio import sleep
 
 from django.test import tag
 
-from openarchiefbeheer.destruction.constants import ListStatus
+from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
@@ -13,12 +13,14 @@ class FeatureListAbortTests(GherkinLikeTestCase):
     async def test_scenario_user_aborts_process(self):
         async with browser_page() as page:
             record_manger = await self.given.record_manager_exists()
-            await self.given.assignee_exists(user=record_manger)
+            assignee = await self.given.assignee_exists(user=record_manger, role=ListRole.author)
             await self.given.archivist_exists()
             destruction_list = await self.given.list_exists(
                 name="Destruction list to abort",
                 status=ListStatus.internally_reviewed,
-                uuid="00000000-0000-0000-0000-000000000000",)
+                uuid="00000000-0000-0000-0000-000000000000",
+                assignees=[assignee],
+            )
 
             await self.when.record_manager_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
