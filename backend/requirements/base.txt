@@ -55,7 +55,7 @@ cryptography==44.0.1
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
-django==4.2.21
+django==4.2.23
     # via
     #   -r requirements/base.in
     #   django-admin-index
@@ -241,7 +241,7 @@ referencing==0.35.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.3
+requests==2.32.4
     # via
     #   ape-pie
     #   django-rosetta
@@ -282,7 +282,7 @@ tzdata==2024.1
     #   kombu
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==2.2.2
+urllib3==2.5.0
     # via
     #   elastic-apm
     #   requests
