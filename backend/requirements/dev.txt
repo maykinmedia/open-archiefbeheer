@@ -157,7 +157,7 @@ dill==0.3.8
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pylint
-django==4.2.21
+django==4.2.23
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -698,7 +698,7 @@ referencing==0.35.0
     #   -r requirements/ci.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.3
+requests==2.32.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -740,7 +740,7 @@ sentry-sdk==2.11.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-setuptools==71.1.0
+setuptools==80.9.0
     # via pip-tools
 six==1.16.0
     # via
@@ -866,7 +866,7 @@ uritemplate==4.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
-urllib3==2.2.2
+urllib3==2.5.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
