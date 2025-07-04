@@ -15,7 +15,6 @@ from .utils import (
 )
 
 user_assigned = django.dispatch.Signal()
-user_unassigned = django.dispatch.Signal()
 deletion_failure = django.dispatch.Signal()
 co_reviewers_added = django.dispatch.Signal()
 

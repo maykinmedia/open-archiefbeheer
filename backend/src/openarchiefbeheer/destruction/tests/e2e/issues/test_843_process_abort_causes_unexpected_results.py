@@ -14,9 +14,9 @@ from ....models import DestructionList
 @tag("issue")
 @tag("gh-843")
 class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
-    async def _create(self, page: Page):
+    async def _create(self, page: Page, reviewer_username="gh-843-reviewer-1"):
         await self.given.record_manager_exists(username="gh-843-record-manager")
-        reviewer = await self.given.reviewer_exists(username="gh-843-reviewer-1")
+        reviewer = await self.given.reviewer_exists(username=reviewer_username)
         await self.given.zaken_are_indexed(100)
 
         await self.when.record_manager_logs_in(page, username="gh-843-record-manager")
@@ -105,18 +105,18 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
 
         await self.then.list_should_have_status(page, destruction_list, ListStatus.new)
 
-    async def _reassign(self, page: Page, destruction_list: DestructionList):
-        reviewer2 = await self.given.reviewer_exists(username="gh-843-reviewer-2")
+    async def _reassign(self, page: Page, destruction_list: DestructionList, username="gh-843-reviewer-2"):
+        reviewer2 = await self.given.reviewer_exists(username=username)
 
         await self.when.record_manager_logs_in(page, username="gh-843-record-manager")
         await self.when.user_clicks_button(page, "gh-843-destruction-list")
         await self.when.user_clicks_button(page, "Beoordelaar bewerken")
-        await self.when.user_fills_form_field(page, "Beoordelaar", "Beoor del Laar (gh-843-reviewer-2)")
+        await self.when.user_fills_form_field(page, "Beoordelaar", str(reviewer2))
         await self.when.user_fills_form_field(page, "Reden", "gh-843")
         await self.when.user_clicks_button(page, "Toewijzen")
 
         await self.then.page_should_not_contain_text(page, "Beoordelaar toewijzen")
-        await self.then.page_should_contain_text(page, "Beoor del Laar (gh-843-reviewer-2)")
+        await self.then.page_should_contain_text(page, str(reviewer2))
         await self.then.list_should_have_user_in_assignees(page, destruction_list, reviewer2)
 
     async def test_scenario_create_abort_update(self):
@@ -147,3 +147,26 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
             await self._review_by_archivist(page, destruction_list, "gh-843-archivist-2")
             await self._schedule_destroy(page, destruction_list)
             await self._abort_process(page, destruction_list)
+
+    # https://github.com/maykinmedia/open-archiefbeheer/pull/844#discussion_r2183030659
+    async def test_scenario_record_manager_as_archivist_on_second_pass(self):
+        async with browser_page() as page:
+            await self.given.user_exists(username="user a", post__can_review_destruction=True, post__can_review_final_list=True)
+            await self.given.archivist_exists(username="user b")
+            await self.given.reviewer_exists(username="user c")
+
+            # First pass
+            destruction_list = await self._create(page, "user a")
+            await self._ready_to_review(page, destruction_list)
+            await self._review_by_reviewer(page, destruction_list, "user a")
+            await self._finalize(page, destruction_list, "user b")
+            await self._review_by_archivist(page, destruction_list, "user b")
+            await self._schedule_destroy(page, destruction_list)
+            await self._abort_process(page, destruction_list)
+
+            # Second pass
+            await self._reassign(page, destruction_list, "user c")
+            await self._ready_to_review(page, destruction_list)
+            await self._review_by_reviewer(page, destruction_list, "user c")
+            await self._finalize(page, destruction_list, "user a")
+            await self._review_by_archivist(page, destruction_list, "user a")

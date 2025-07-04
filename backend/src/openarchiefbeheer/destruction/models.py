@@ -226,13 +226,17 @@ class DestructionList(models.Model):
         ).exists()
 
     def abort_destruction(self) -> None:
-        self.set_status(ListStatus.new)
-        self.planned_destruction_date = None
-        self.processing_status = InternalStatus.new
+        with transaction.atomic():
+            self.set_status(ListStatus.new)
+            self.planned_destruction_date = None
+            self.processing_status = InternalStatus.new
 
-        for assignee in self.assignees.filter(role=ListRole.archivist):
-            assignee.unassign()
-        self.save()
+            self.assign(self.assignees.get(role=ListRole.author))
+            self.assignees.filter(
+                role__in=[ListRole.co_reviewer, ListRole.archivist]
+            ).delete()
+
+            self.save()
 
     def generate_destruction_report(self) -> None:
         from .destruction_report import DestructionReportGenerator
@@ -463,26 +467,14 @@ class DestructionListAssignee(models.Model):
         from .signals import user_assigned
 
         # TODO Log assignment
-        self.destruction_list.assignee = self.user
-        self.assigned_on = timezone.now()
+        with transaction.atomic():
+            self.destruction_list.assignee = self.user
+            self.assigned_on = timezone.now()
 
-        self.destruction_list.save()
-        self.save()
+            self.destruction_list.save()
+            self.save()
 
         user_assigned.send(sender=self.__class__, assignee=self)
-
-    def unassign(self) -> None:
-        from .signals import user_unassigned
-
-        # TODO Log unassignment
-        with transaction.atomic():
-            if self.destruction_list.assignee == self.user:
-                self.destruction_list.assignee = None
-                self.destruction_list.save()
-
-            self.delete()
-
-        user_unassigned.send(sender=self.__class__, assignee=self)
 
 
 class DestructionListReview(models.Model):
