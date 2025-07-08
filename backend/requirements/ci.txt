@@ -555,6 +555,8 @@ requests==2.32.4
     #   zgw-consumers
 requests-mock==1.12.1
     # via -r requirements/test-tools.in
+roman-numerals-py==3.1.0
+    # via sphinx
 rpds-py==0.18.0
     # via
     #   -c requirements/base.txt
@@ -591,7 +593,7 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.5
     # via beautifulsoup4
-sphinx==7.3.7
+sphinx==8.2.3
     # via
     #   -r requirements/test-tools.in
     #   sphinx-rtd-theme
@@ -602,7 +604,7 @@ sphinxcontrib-applehelp==1.0.8
     # via sphinx
 sphinxcontrib-devhelp==1.0.6
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.5
+sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
 sphinxcontrib-jquery==4.1
     # via sphinx-rtd-theme
