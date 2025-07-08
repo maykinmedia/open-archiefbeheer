@@ -720,6 +720,11 @@ rich==13.9.4
     #   rich-click
 rich-click==1.8.8
     # via bump-my-version
+roman-numerals-py==3.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   sphinx
 rpds-py==0.18.0
     # via
     #   -c requirements/ci.txt
@@ -766,7 +771,7 @@ soupsieve==2.5
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   beautifulsoup4
-sphinx==7.3.7
+sphinx==8.2.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -788,7 +793,7 @@ sphinxcontrib-devhelp==1.0.6
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
-sphinxcontrib-htmlhelp==2.0.5
+sphinxcontrib-htmlhelp==2.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
