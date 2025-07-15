@@ -12,7 +12,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import DestructionListItemAction, ListStatus, ZaakActionType
+from ...constants import DestructionListItemAction, ListRole, ListStatus, ZaakActionType
 from ...models import ReviewItemResponse, ReviewResponse
 from ..factories import (
     DestructionListAssigneeFactory,
@@ -213,6 +213,9 @@ class ReviewResponsesViewSetTests(APITestCase):
             name="Test audittrail",
             status=ListStatus.ready_to_review,
             author=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            user=record_manager, role=ListRole.author, destruction_list=destruction_list
         )
         record_manager_group, created = Group.objects.get_or_create(
             name="Record Manager"

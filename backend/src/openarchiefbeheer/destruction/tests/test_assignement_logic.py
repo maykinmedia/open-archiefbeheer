@@ -276,3 +276,17 @@ class AssignementLogicTest(TestCase):
 
         self.assertEqual(destruction_list.status, ListStatus.ready_for_archivist)
         self.assertEqual(destruction_list.assignee, archivist.user)
+
+    def test_reassign_archivist_when_assigned(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_for_archivist, assignee=None
+        )
+        archivist = DestructionListAssigneeFactory.create(
+            role=ListRole.archivist, destruction_list=destruction_list
+        )
+
+        destruction_list.reassign()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, archivist.user)
