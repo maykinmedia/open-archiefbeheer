@@ -8,6 +8,7 @@ from requests_mock import Mocker
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from typing_extensions import deprecated
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -189,6 +190,7 @@ class DestructionListViewsetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    @deprecated("Delete in 2.0 when endpoint reassign is removed.")
     def test_assign_author_as_reviewer_when_logged_in_as_other_record_manager(self):
         record_manager1 = UserFactory.create(
             post__can_start_destruction=True, post__can_review_destruction=True
@@ -227,6 +229,57 @@ class DestructionListViewsetTests(APITestCase):
         self.assertEqual(
             response.json()["assignee"]["user"][0],
             _("The author of a list cannot also be a reviewer."),
+        )
+
+    def test_assign_author_as_reviewer_when_logged_in_as_other_record_manager_update_assignee(
+        self,
+    ):
+        record_manager1 = UserFactory.create(
+            post__can_start_destruction=True, post__can_review_destruction=True
+        )
+        record_manager2 = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_review,
+            author=record_manager1,  # First record manager is author
+            assignee=reviewer,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=record_manager1,
+            role=ListRole.author,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
+        )
+
+        # Second record manager tries to assign first record manager as reviewer
+        self.client.force_login(record_manager2)
+        endpoint = reverse(
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.post(
+            endpoint,
+            data={
+                "assignee": {
+                    "user": record_manager1.pk,
+                    "role": ListRole.main_reviewer,
+                },
+                "comment": "Tralala",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["assignee"]["user"][0],
+            _(
+                "The chosen user has already had an incompatible role in this destruction list."
+            ),
         )
 
     def test_queue_destruction_for_failed_list(self):
@@ -273,11 +326,15 @@ class DestructionListViewsetTests(APITestCase):
 
         self.client.force_login(record_manager)
         endpoint = reverse(
-            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
         )
         response = self.client.post(
             endpoint,
-            data={"assignee": {"user": archivist2.pk}, "comment": "Change archivist"},
+            data={
+                "assignee": {"user": archivist2.pk, "role": ListRole.archivist},
+                "comment": "Change archivist",
+            },
             format="json",
         )
 
@@ -309,20 +366,22 @@ class DestructionListViewsetTests(APITestCase):
 
         self.client.force_login(record_manager)
         endpoint = reverse(
-            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
         )
         response = self.client.post(
             endpoint,
-            data={"assignee": {"user": archivist2.pk}, "comment": "Change archivist"},
+            data={
+                "assignee": {"user": archivist2.pk, "role": ListRole.archivist},
+                "comment": "Change archivist",
+            },
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.json()["assignee"]["user"][0],
-            _(
-                "The chosen user does not have the permission of reviewing a final destruction list."
-            ),
+            _("The user does not have the right permissions for this role."),
         )
 
         destruction_list.refresh_from_db()
@@ -353,11 +412,15 @@ class DestructionListViewsetTests(APITestCase):
 
         self.client.force_login(record_manager)
         endpoint = reverse(
-            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
         )
         response = self.client.post(
             endpoint,
-            data={"assignee": {"user": archivist2.pk}, "comment": "Change archivist"},
+            data={
+                "assignee": {"user": archivist2.pk, "role": ListRole.archivist},
+                "comment": "Change archivist",
+            },
             format="json",
         )
 
@@ -365,10 +428,65 @@ class DestructionListViewsetTests(APITestCase):
         self.assertEqual(
             response.json()["assignee"]["user"][0],
             _(
-                "The chosen user has already covered a role other than the archivist for this list."
+                "The chosen user has already had an incompatible role in this destruction list."
             ),
         )
 
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, archivist1)
+
+    def test_update_reviewer_new_list(self):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        reviewer1 = UserFactory.create(post__can_review_destruction=True)
+        reviewer2 = UserFactory.create(post__can_review_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.new,
+            assignee=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=record_manager,
+            role=ListRole.author,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=reviewer1,
+            role=ListRole.main_reviewer,
+        )
+
+        self.client.force_login(record_manager)
+        endpoint = reverse(
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.post(
+            endpoint,
+            data={
+                "assignee": {"user": reviewer2.pk, "role": ListRole.main_reviewer},
+                "comment": "Change reviewer",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, record_manager)
+        self.assertTrue(
+            DestructionListAssignee.objects.filter(
+                destruction_list=destruction_list, user=record_manager
+            ).exists()
+        )
+        self.assertTrue(
+            DestructionListAssignee.objects.filter(
+                destruction_list=destruction_list, user=reviewer2
+            ).exists()
+        )
+        self.assertFalse(
+            DestructionListAssignee.objects.filter(
+                destruction_list=destruction_list, user=reviewer1
+            ).exists()
+        )
