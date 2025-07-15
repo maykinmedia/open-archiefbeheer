@@ -1,6 +1,7 @@
 from datetime import date
 from unittest.mock import patch
 
+from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
 import freezegun
@@ -16,6 +17,7 @@ from ..factories import DestructionListFactory, DestructionListItemFactory
 
 
 class DestructionListStartDestructionEndpointTest(APITestCase):
+    @override_settings(WAITING_PERIOD=7)
     def test_plan_destruction(self):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
@@ -81,6 +83,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         m_delete.assert_called_once()
         self.assertEqual(m_delete.call_args_list[0].args[0].pk, destruction_list.pk)
 
+    @override_settings(WAITING_PERIOD=7)
     def test_retry_destruction_after_failure_with_planned_date_in_future_raises_error(
         self,
     ):
@@ -157,6 +160,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         m_task.assert_not_called()
 
+    @override_settings(WAITING_PERIOD=7)
     def test_cannot_start_destruction_if_archiefactiedatum_in_the_future(self):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
