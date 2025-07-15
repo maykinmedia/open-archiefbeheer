@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from timeline_logger.models import TimelineLog
+from typing_extensions import deprecated
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -205,6 +206,7 @@ class ReviewResponsesViewSetTests(APITestCase):
             ),
         )
 
+    @deprecated("Delete in 2.0 when endpoint reassign is removed.")
     @freezegun.freeze_time("2023-09-15T21:36:00+02:00")
     def test_audit_log(self):
         # Reassign
@@ -253,6 +255,66 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
         self.assertEqual(
             data[0]["message"].strip(), _("The destruction list was reassigned.")
+        )
+        self.assertEqual(
+            data[0]["extra_data"]["assignee"]["user"],
+            {
+                "email": other_reviewer.email,
+                "pk": other_reviewer.pk,
+                "username": other_reviewer.username,
+            },
+        )
+
+    @freezegun.freeze_time("2023-09-15T21:36:00+02:00")
+    def test_audit_log_update_assignee(self):
+        # Reassign
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        destruction_list = DestructionListFactory.create(
+            name="Test audittrail",
+            status=ListStatus.ready_to_review,
+            author=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            user=record_manager, role=ListRole.author, destruction_list=destruction_list
+        )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
+        DestructionListAssigneeFactory.create(destruction_list=destruction_list)
+        other_reviewer = UserFactory.create(post__can_review_destruction=True)
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint_reassign = reverse(
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
+        )
+        response = self.client.post(
+            endpoint_reassign,
+            data={
+                "assignee": {"user": other_reviewer.pk, "role": ListRole.main_reviewer},
+                "comment": "Lorem ipsum...",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        endpoint_audittrail = furl(reverse("api:logs-list"))
+        endpoint_audittrail.args["destruction_list"] = destruction_list.uuid
+        response_audittrail = self.client.get(endpoint_audittrail.url)
+
+        self.assertEqual(response_audittrail.status_code, status.HTTP_200_OK)
+
+        data = response_audittrail.data
+
+        self.assertEqual(data[0]["user"]["pk"], record_manager.pk)
+        self.assertEqual(
+            data[0]["timestamp"],
+            "2023-09-15T21:36:00+02:00",
+        )
+        self.assertEqual(
+            data[0]["message"].strip(),
+            _("The destruction lists assignees were updated."),
         )
         self.assertEqual(
             data[0]["extra_data"]["assignee"]["user"],
