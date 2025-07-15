@@ -494,6 +494,9 @@ class DestructionListViewSetTest(APITestCase):
             author=record_manager,
             status=ListStatus.new,
         )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list, user=record_manager, role=ListRole.author
+        )
 
         self.client.force_authenticate(user=record_manager)
         endpoint = reverse(
@@ -518,10 +521,19 @@ class DestructionListViewSetTest(APITestCase):
 
     def test_reassign_destruction_list(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
         destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review, author=record_manager
+            status=ListStatus.ready_to_review, author=record_manager, assignee=reviewer
         )
-        DestructionListAssigneeFactory.create(destruction_list=destruction_list)
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list, user=record_manager, role=ListRole.author
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=reviewer,
+            role=ListRole.main_reviewer,
+        )
+
         other_reviewer = UserFactory.create(post__can_review_destruction=True)
 
         self.client.force_authenticate(user=record_manager)

@@ -8,7 +8,7 @@ from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import ListRole
 from ..models import DestructionListItem
-from ..utils import process_new_reviewer, resync_items_and_zaken
+from ..utils import replace_assignee, resync_items_and_zaken
 from .factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -19,13 +19,21 @@ from .factories import (
 class UtilsTest(TestCase):
     def test_process_assignees(self):
         destruction_list = DestructionListFactory.create()
-        DestructionListAssigneeFactory.create_batch(
-            3, role=ListRole.main_reviewer, destruction_list=destruction_list
+        DestructionListAssigneeFactory.create(
+            role=ListRole.author, destruction_list=destruction_list
         )
+        assignee2 = DestructionListAssigneeFactory.create(
+            role=ListRole.main_reviewer, destruction_list=destruction_list
+        )
+        DestructionListAssigneeFactory.create(
+            role=ListRole.co_reviewer, destruction_list=destruction_list
+        )
+        destruction_list.assignee = assignee2.user
+        destruction_list.save()
 
         new_reviewer = UserFactory.create(post__can_review_destruction=True)
 
-        process_new_reviewer(destruction_list, new_reviewer)
+        replace_assignee(destruction_list, new_reviewer)
 
         reviewer = destruction_list.assignees.get(role=ListRole.main_reviewer)
 
