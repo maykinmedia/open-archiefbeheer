@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta
 
 from django.conf import settings
@@ -16,6 +17,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from slugify import slugify
+from typing_extensions import deprecated
 from zgw_consumers.client import build_client
 from zgw_consumers.models import Service
 
@@ -24,7 +26,13 @@ from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.models import Zaak
 
-from ..constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
+from ..constants import (
+    MAPPING_STATUS_ROLE_POSSIBLE_CHANGES,
+    DestructionListItemAction,
+    InternalStatus,
+    ListRole,
+    ListStatus,
+)
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -75,7 +83,10 @@ from .serializers import (
     ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
+    UpdateAssigneeSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema_view(
@@ -196,6 +207,7 @@ from .serializers import (
     ),
     reassign=extend_schema(
         tags=["Destruction list"],
+        deprecated=True,
         summary=_("Reassign the destruction list to new assignees."),
         description=_(
             "This endpoint can be used to change the users that are assigned to a list."
@@ -257,7 +269,7 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated & CanQueueDestruction]
         elif self.action == "make_final":
             permission_classes = [IsAuthenticated & CanMarkListAsFinal]
-        elif self.action == "reassign":
+        elif self.action in ["reassign", "update_assignee"]:
             permission_classes = [IsAuthenticated & CanReassignDestructionList]
         elif self.action == "mark_ready_review":
             permission_classes = [IsAuthenticated & CanMarkAsReadyToReview]
@@ -352,6 +364,9 @@ class DestructionListViewSet(
 
         return Response(status=status.HTTP_201_CREATED)
 
+    @deprecated(
+        "Deprecated in favour of endpoint update-assignee. Will be removed in 2.0"
+    )
     @action(detail=True, methods=["post"], name="reassign")
     def reassign(self, request, *args, **kwargs):
         """Delete the current DestructionListAssignee and then assign it
@@ -388,6 +403,65 @@ class DestructionListViewSet(
             serialiser.validated_data["comment"],
             request.user,
         )
+        return Response()
+
+    @action(detail=True, methods=["post"], name="update-assignee")
+    def update_assignee(self, request, *args, **kwargs):
+        """Update a DestructionListAssignee and if needed assign it to the destruction list."""
+        destruction_list = self.get_object()
+
+        # Step 1: Validate that:
+        # - The user is valid
+        # - They have the right permissions for the role
+        # - They haven't already had another role in the list
+        serialiser = UpdateAssigneeSerializer(
+            data=request.data, context={"destruction_list": destruction_list}
+        )
+        serialiser.is_valid(raise_exception=True)
+
+        # Step 2: Check that it makes sense to replace a specific assignee based on the list status
+        if (
+            not serialiser.validated_data["assignee"]["role"]
+            in MAPPING_STATUS_ROLE_POSSIBLE_CHANGES[destruction_list.status]
+        ):
+            raise ValidationError(
+                {
+                    "role": _(
+                        "It is not possible to replace an assignee with this role in a destruction list with this status."
+                    )
+                }
+            )
+
+        # TODO: check that we are not assigning the wrong role in case destruction_list.status == ListStatus.changes_requested
+
+        # Step 3: Create new assignee, deleting the old one with the same role.
+        # If the old_assignee.user == destruction_list.assignee, reassign the list.
+        with transaction.atomic():
+            old_assignees = destruction_list.assignees.filter(
+                role=serialiser.validated_data["assignee"]["role"]
+            ).order_by("pk")
+            old_assignee = old_assignees.last()
+            if old_assignees.count() > 1:
+                logger.warning(
+                    "We are replacing a DestructionListAssignee, but there are multiple ones with the same role. Choosing the last one."
+                )
+            new_assignee = DestructionListAssignee.objects.create(
+                user=serialiser.validated_data["assignee"]["user"],
+                role=serialiser.validated_data["assignee"]["role"],
+                destruction_list=destruction_list,
+            )
+
+            if old_assignee.user == destruction_list.assignee:
+                destruction_list.assign(new_assignee)
+            old_assignee.delete()
+
+            logevent.destruction_list_updated_assignees(
+                destruction_list,
+                new_assignee,
+                serialiser.validated_data["comment"],
+                request.user,
+            )
+
         return Response()
 
     @action(detail=True, methods=["post"], name="mark-ready-review")
