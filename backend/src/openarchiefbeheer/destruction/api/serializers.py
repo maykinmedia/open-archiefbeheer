@@ -231,9 +231,72 @@ class DestructionListAssigneeReadSerializer(serializers.ModelSerializer):
         fields = ("user", "role")
 
 
+class DestructionListAssigneeWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user", "role")
+
+
 class ReassignementSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
-    assignee = ReviewerAssigneeSerializer()
+    assignee = DestructionListAssigneeWriteSerializer()
+
+    def validate(self, attrs: dict) -> dict:
+        destruction_list = self.context["destruction_list"]
+
+        if destruction_list.status in [ListStatus.ready_to_review, ListStatus.new]:
+            self._validate_potential_reviewer(
+                destruction_list, attrs["assignee"]["user"]
+            )
+        elif destruction_list.status == ListStatus.ready_for_archivist:
+            self._validate_potential_archivist(
+                destruction_list, attrs["assignee"]["user"]
+            )
+
+        return attrs
+
+    def _get_assignee_user_error_msg(self, message: str) -> dict:
+        return {"assignee": {"user": [message]}}
+
+    def _validate_potential_reviewer(self, destruction_list, user):
+        if not user.has_perm("accounts.can_review_destruction"):
+            raise ValidationError(
+                self._get_assignee_user_error_msg(
+                    _(
+                        "The chosen user does not have the permission of reviewing a destruction list."
+                    )
+                )
+            )
+
+        if destruction_list.author.pk == user.pk:
+            raise ValidationError(
+                self._get_assignee_user_error_msg(
+                    _("The author of a list cannot also be a reviewer.")
+                )
+            )
+
+    def _validate_potential_archivist(self, destruction_list, user):
+        if not user.has_perm("accounts.can_review_final_list"):
+            raise ValidationError(
+                self._get_assignee_user_error_msg(
+                    _(
+                        "The chosen user does not have the permission of reviewing a final destruction list."
+                    )
+                )
+            )
+
+        # Check that there isn't already an assignee with a role other than
+        # archivist already involved in the list.
+        if destruction_list.assignees.filter(
+            ~Q(role=ListRole.archivist) & Q(user=user)
+        ).exists():
+            raise ValidationError(
+                self._get_assignee_user_error_msg(
+                    _(
+                        "The chosen user has already covered a role other than the archivist for this list."
+                    )
+                )
+            )
 
 
 class DestructionListItemWriteSerializer(serializers.ModelSerializer):

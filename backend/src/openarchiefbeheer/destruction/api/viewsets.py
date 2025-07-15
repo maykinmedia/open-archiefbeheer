@@ -36,7 +36,7 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
-from ..utils import process_new_reviewer
+from ..utils import replace_assignee
 from .backends import NestedFilterBackend, NestedOrderingFilterBackend
 from .filtersets import (
     DestructionListCoReviewFilterset,
@@ -354,6 +354,21 @@ class DestructionListViewSet(
 
     @action(detail=True, methods=["post"], name="reassign")
     def reassign(self, request, *args, **kwargs):
+        """Delete the current DestructionListAssignee and then assign it
+        to the destruction list.
+
+        The cases supported are:
+        - ListStatus: new -> The reviewer can be updated.
+        - ListStatus: ready_to_review -> The reviewer can be updated.
+        - ListStatus: ready_for_archivist -> The archivist can be updated.
+
+        Conditions:
+        - The permissions of the new user need to match those of the role to which
+          they will be assigned.
+        - A new reviewer cannot also be the author of the list.
+        - A new archivist cannot be the author of the list OR have been a reviewer on the list.
+        """
+
         destruction_list = self.get_object()
         serialiser = ReassignementSerializer(
             data=request.data,
@@ -361,7 +376,7 @@ class DestructionListViewSet(
         )
         serialiser.is_valid(raise_exception=True)
 
-        new_assignee = process_new_reviewer(
+        new_assignee = replace_assignee(
             destruction_list,
             serialiser.validated_data["assignee"]["user"],
         )
