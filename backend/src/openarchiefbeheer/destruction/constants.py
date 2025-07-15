@@ -47,3 +47,30 @@ class InternalStatus(models.TextChoices):
     processing = "processing", _("processing")
     failed = "failed", _("failed")
     succeeded = "succeeded", _("succeeded")
+
+
+MAPPING_ROLE_PERMISSIONS = {
+    ListRole.author: "accounts.can_start_destruction",
+    ListRole.main_reviewer: "accounts.can_review_destruction",
+    ListRole.co_reviewer: "accounts.can_co_review_destruction",
+    ListRole.archivist: "accounts.can_review_final_list",
+}
+
+# Mapping to check if it is allowed to change an assignee
+# based on the list status.
+# Co-reviewers are not included because they have different logic (and their separate endpoint).
+MAPPING_STATUS_ROLE_POSSIBLE_CHANGES = {
+    ListStatus.new: [ListRole.main_reviewer, ListRole.author],
+    ListStatus.ready_to_review: [ListRole.main_reviewer, ListRole.author],
+    # Challenging: the changes could have been requested by a reviewr or an archivist.
+    # We cannot decide based on the status alone.
+    ListStatus.changes_requested: [
+        ListRole.main_reviewer,
+        ListRole.archivist,
+        ListRole.author,
+    ],
+    # From internally_reviewed onward, we cannot change the reviewer (since they have nothing left to do)
+    ListStatus.internally_reviewed: [ListRole.author],
+    ListStatus.ready_for_archivist: [ListRole.archivist, ListRole.author],
+    ListStatus.ready_to_delete: [ListRole.author],
+}
