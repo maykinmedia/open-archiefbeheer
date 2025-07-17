@@ -338,7 +338,9 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
 class DestructionListWriteSerializer(serializers.ModelSerializer):
     add = DestructionListItemWriteSerializer(many=True, required=False)
     remove = DestructionListItemWriteSerializer(many=True, required=False)
-    reviewer = ReviewerAssigneeSerializer(required=False)
+    reviewer = ReviewerAssigneeSerializer(
+        required=False,
+    )
     author = UserSerializer(read_only=True)
     select_all = serializers.BooleanField(
         required=False,
@@ -389,6 +391,12 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_comment(self, value: str | None):
+        if not self.instance and not value:
+            raise ValidationError(_("A comment is required when creating a list."))
+
+        return value
+
     def validate(self, attrs: dict) -> dict:
         if (attrs.get("add") or attrs.get("remove")) and attrs.get("select_all"):
             raise ValidationError(
@@ -406,6 +414,11 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 "Selecting a reviewer is required for creating a list.",
                 code="invalid",
+            )
+
+        if not self.instance and "comment" not in attrs:
+            raise ValidationError(
+                {"comment": _("A comment is required when creating a list.")}
             )
 
         return attrs
