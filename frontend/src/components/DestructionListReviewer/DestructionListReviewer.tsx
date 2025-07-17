@@ -20,7 +20,7 @@ import {
   DestructionList,
   DestructionListAssignee,
   listDestructionListCoReviewers,
-  reassignDestructionList,
+  updateAssigneeDestructionList,
   updateCoReviewers,
 } from "../../lib/api/destructionLists";
 import { listCoReviewers, listReviewers } from "../../lib/api/reviewers";
@@ -203,8 +203,8 @@ export function DestructionListReviewer({
     }
 
     if (reviewer) {
-      const promise = reassignDestructionList(destructionList.uuid, {
-        assignee: { user: Number(reviewer) },
+      const promise = updateAssigneeDestructionList(destructionList.uuid, {
+        assignee: { user: Number(reviewer), role: "main_reviewer" },
         comment: String(comment),
       }).catch(async (e) => {
         console.error(e);
