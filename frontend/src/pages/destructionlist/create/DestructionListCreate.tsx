@@ -86,7 +86,7 @@ export function DestructionListCreatePage() {
     {
       label: "Opmerking",
       name: "comment",
-      required: false,
+      required: true,
     },
   ];
 
