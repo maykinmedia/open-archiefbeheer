@@ -366,7 +366,7 @@ export const ReassignDestructionListErrorShowsErrorMessage: Story = {
         response: [coReviewFactory({ author: REVIEWER2 })],
       },
       {
-        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+        url: "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/update_assignee/",
         method: "POST",
         status: 400,
         response: {
