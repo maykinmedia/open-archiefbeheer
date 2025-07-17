@@ -66,6 +66,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "reviewer": {"user": reviewer.pk},
+            "comment": "Hello",
             "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -198,6 +199,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "reviewer": {"user": reviewer.pk},
+            "comment": "Hello",
             "add": [
                 {
                     "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -527,6 +529,7 @@ class DestructionListSerializerTests(TestCase):
             "name": "A test list",
             "contains_sensitive_info": True,
             "reviewer": {"user": reviewer.pk},
+            "comment": "Hello",
             "select_all": True,
             "zaak_filters": {"omschrijving": "AAAAA"},
         }
@@ -578,6 +581,7 @@ class DestructionListSerializerTests(TestCase):
         data = {
             "name": "A test list",
             "contains_sensitive_info": True,
+            "comment": "Hello",
             "reviewer": {"user": reviewer.pk},
             "select_all": True,
         }
