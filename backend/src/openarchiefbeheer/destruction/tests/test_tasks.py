@@ -378,7 +378,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
 
         with freeze_time("2024-10-06T12:00:00+02:00"):
-            logevent.destruction_list_reviewed(destruction_list, review, review.author)
+            logevent.destruction_list_reviewed(
+                destruction_list, review, "some comment", review.author
+            )
         with freeze_time("2024-12-01T12:00:00+01:00"):
             logevent.destruction_list_deletion_triggered(
                 destruction_list, record_manager
@@ -601,7 +603,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
 
         self.assertIsNone(destruction_list.destruction_report.name)
         with freeze_time("2024-10-06T12:00:00+02:00"):
-            logevent.destruction_list_reviewed(destruction_list, review, review.author)
+            logevent.destruction_list_reviewed(
+                destruction_list, review, "some comment!", review.author
+            )
         with freeze_time("2024-10-08T12:00:00+02:00"):
             logevent.destruction_list_deletion_triggered(
                 destruction_list, record_manager

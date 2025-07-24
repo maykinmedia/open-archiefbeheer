@@ -774,16 +774,25 @@ class DestructionListTest(TestCase):
         )  # A log with a different template (should NOT be present in the report)
 
         logevent.destruction_list_reviewed(
-            destruction_list, review_reviewer_rejected, reviewer
+            destruction_list,
+            review_reviewer_rejected,
+            comment="Terrible",
+            user=reviewer,
         )  # A rejection (should NOT be present in the report)
         logevent.destruction_list_deletion_triggered(destruction_list, author)
         with freeze_time("2024-05-02T16:00:00+02:00"):
             logevent.destruction_list_reviewed(
-                destruction_list, review_reviewer_accepted, reviewer
+                destruction_list,
+                review_reviewer_accepted,
+                comment="Nice",
+                user=reviewer,
             )
         with freeze_time("2024-05-08T09:45:00+02:00"):
             logevent.destruction_list_reviewed(
-                destruction_list, review_archivist_accepted, archivist
+                destruction_list,
+                review_archivist_accepted,
+                comment="Ship it",
+                user=archivist,
             )
 
         destruction_list.generate_destruction_report()
