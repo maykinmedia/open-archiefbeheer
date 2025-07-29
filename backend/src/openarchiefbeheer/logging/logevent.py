@@ -181,13 +181,19 @@ def destruction_list_co_reviewers_added(
 
 
 def destruction_list_reviewed(
-    destruction_list: DestructionList, review: DestructionListReview, user: User
+    destruction_list: DestructionList,
+    review: DestructionListReview,
+    comment: str,
+    user: User,
 ) -> None:
     _create_log(
         model=destruction_list,
         event="destruction_list_reviewed",
         user=user,
-        extra_data={"approved": review.decision == ReviewDecisionChoices.accepted},
+        extra_data={
+            "approved": review.decision == ReviewDecisionChoices.accepted,
+            "comment": comment,
+        },
     )
 
 

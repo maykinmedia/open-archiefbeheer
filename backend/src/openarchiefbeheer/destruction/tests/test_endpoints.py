@@ -596,8 +596,7 @@ class DestructionListViewSetTest(APITestCase):
 
         message = logs[0].get_message()
 
-        self.assertEqual(
-            message.strip(),
+        self.assertIn(
             _(
                 "The destruction list was made final and assigned to the archivist "
                 "%(archivist)s."
@@ -605,9 +604,13 @@ class DestructionListViewSetTest(APITestCase):
             % {
                 "archivist": "archivist",
             },
+            message,
         )
-        self.assertEqual(
-            logs[0].extra_data["comment"], "The list is ready for the archivist"
+        self.assertIn(
+            _('The recor manager commented: "{comment}".').format(
+                comment="The list is ready for the archivist"
+            ),
+            message,
         )
 
     def test_cannot_mark_as_final_if_not_authenticated(self):
@@ -873,6 +876,7 @@ class DestructionListReviewViewSetTest(APITestCase):
         data = {
             "destruction_list": destruction_list.uuid,
             "decision": ReviewDecisionChoices.accepted,
+            "list_feedback": "Beautiful!",
         }
         self.client.force_authenticate(user=reviewer)
         response = self.client.post(
@@ -885,6 +889,16 @@ class DestructionListReviewViewSetTest(APITestCase):
                 destruction_list=destruction_list
             ).count(),
             1,
+        )
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(
+            _('The destruction list was approved with comment: "{comment}".').format(
+                comment="Beautiful!"
+            ),
+            logs[0].get_message(),
         )
 
     def test_create_review_rejected(self):
@@ -937,6 +951,16 @@ class DestructionListReviewViewSetTest(APITestCase):
                 destruction_list=destruction_list
             ).count(),
             2,
+        )
+
+        logs = TimelineLog.objects.for_object(destruction_list)
+
+        self.assertEqual(logs.count(), 1)
+        self.assertEqual(
+            _('The destruction list was rejected with comment: "{comment}".').format(
+                comment="I disagree with this list"
+            ),
+            logs[0].get_message(),
         )
 
     def test_create_review_archivist_accepted(self):
