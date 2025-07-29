@@ -104,8 +104,8 @@ class ReadyForArchivist:
         destruction_list.assign(destruction_list.get_author())
 
     def reassign(self, destruction_list: "DestructionList") -> None:
-        # TODO
-        raise NotImplementedError
+        archivist = destruction_list.assignees.filter(role=ListRole.archivist).first()
+        destruction_list.assign(archivist)
 
 
 STATE_MANAGER = {

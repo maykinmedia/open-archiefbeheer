@@ -10,6 +10,7 @@ from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
+from typing_extensions import deprecated
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
@@ -21,6 +22,7 @@ from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
 
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
 from ..constants import (
+    MAPPING_ROLE_PERMISSIONS,
     DestructionListItemAction,
     InternalStatus,
     ListItemStatus,
@@ -231,6 +233,51 @@ class DestructionListAssigneeReadSerializer(serializers.ModelSerializer):
         fields = ("user", "role")
 
 
+class DestructionListAssigneeWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DestructionListAssignee
+        fields = ("user", "role")
+
+    def validate(self, attrs):
+        permission = MAPPING_ROLE_PERMISSIONS[attrs["role"]]
+        if not attrs["user"].has_perm(permission):
+            raise ValidationError(
+                {
+                    "user": [
+                        _("The user does not have the right permissions for this role.")
+                    ]
+                }
+            )
+
+        return attrs
+
+
+class UpdateAssigneeSerializer(serializers.Serializer):
+    comment = serializers.CharField(required=True, allow_blank=False)
+    assignee = DestructionListAssigneeWriteSerializer()
+
+    def validate(self, attrs: dict) -> dict:
+        destruction_list = self.context["destruction_list"]
+
+        if destruction_list.assignees.filter(
+            ~Q(role=attrs["assignee"]["role"]) & Q(user=attrs["assignee"]["user"])
+        ).exists():
+            raise ValidationError(
+                {
+                    "assignee": {
+                        "user": [
+                            _(
+                                "The chosen user has already had an incompatible role in this destruction list."
+                            )
+                        ]
+                    }
+                }
+            )
+
+        return attrs
+
+
+@deprecated("Deprecated in favour of UpdateAssigneeSerializer")
 class ReassignementSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True, allow_blank=False)
     assignee = ReviewerAssigneeSerializer()

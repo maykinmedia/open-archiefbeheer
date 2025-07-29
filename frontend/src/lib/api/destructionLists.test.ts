@@ -18,7 +18,7 @@ import {
   listDestructionLists,
   markDestructionListAsFinal,
   markDestructionListAsReadyToReview,
-  reassignDestructionList,
+  updateAssigneeDestructionList,
   updateCoReviewers,
   updateDestructionList,
 } from "./destructionLists";
@@ -424,13 +424,13 @@ describe("reassignDestructionList", () => {
   it("should return response on success", async () => {
     mockResponseOnce(
       "post",
-      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/update_assignee/",
       {},
     );
 
     await expect(
-      reassignDestructionList("00000000-0000-0000-0000-000000000000", {
-        assignee: { user: 2 },
+      updateAssigneeDestructionList("00000000-0000-0000-0000-000000000000", {
+        assignee: { user: 2, role: "main_reviewer" },
         comment: "",
       }),
     ).resolves.toBeTruthy();
@@ -439,12 +439,12 @@ describe("reassignDestructionList", () => {
   it("should throw an error on failure", async () => {
     mockRejectOnce(
       "post",
-      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/reassign/",
+      "http://localhost:8000/api/v1/destruction-lists/00000000-0000-0000-0000-000000000000/update_assignee/",
     );
 
     await expect(
-      reassignDestructionList("00000000-0000-0000-0000-000000000000", {
-        assignee: { user: 2 },
+      updateAssigneeDestructionList("00000000-0000-0000-0000-000000000000", {
+        assignee: { user: 2, role: "main_reviewer" },
         comment: "",
       }),
     ).rejects.toThrow();

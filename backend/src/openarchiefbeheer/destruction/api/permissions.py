@@ -125,6 +125,7 @@ class CanReassignDestructionList(permissions.BasePermission):
         return destruction_list.status in [
             ListStatus.new,
             ListStatus.ready_to_review,
+            ListStatus.ready_for_archivist,
         ]
 
 

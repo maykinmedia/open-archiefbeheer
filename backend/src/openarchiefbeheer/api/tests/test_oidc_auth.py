@@ -6,7 +6,7 @@ from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 
 
-@tag("e2e")
+@tag("e2e", "oidc")
 class OIDCLoginTest(GherkinLikeTestCase):
     fixtures = ["permissions.json", "oidc_config_test.json"]
 
