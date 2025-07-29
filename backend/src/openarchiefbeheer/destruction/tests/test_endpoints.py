@@ -75,6 +75,7 @@ class DestructionListViewSetTest(APITestCase):
                 "name": "A test list",
                 "contains_sensitive_info": True,
                 "reviewer": {"user": reviewer.pk},
+                "comment": "This is a comment",
                 "add": [
                     {
                         "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -118,6 +119,80 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertEqual(destruction_list.author, record_manager)
+
+    def test_create_destruction_list_without_comment(self):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        reviewer = UserFactory.create(
+            username="reviewer", post__can_review_destruction=True
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            omschrijving="Description 1",
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+            omschrijving="Description 2",
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse("api:destructionlist-list")
+
+        with self.subTest("No comment"):
+            response = self.client.post(
+                endpoint,
+                data={
+                    "name": "A test list",
+                    "contains_sensitive_info": True,
+                    "reviewer": {"user": reviewer.pk},
+                    "add": [
+                        {
+                            "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                            "extra_zaak_data": {},
+                        },
+                        {
+                            "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                            "extra_zaak_data": {},
+                        },
+                    ],
+                },
+                format="json",
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                response.json()["comment"][0],
+                _("A comment is required when creating a list."),
+            )
+
+        with self.subTest("Blank comment"):
+            response = self.client.post(
+                endpoint,
+                data={
+                    "name": "A test list",
+                    "contains_sensitive_info": True,
+                    "reviewer": {"user": reviewer.pk},
+                    "comment": "",
+                    "add": [
+                        {
+                            "zaak": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+                            "extra_zaak_data": {},
+                        },
+                        {
+                            "zaak": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
+                            "extra_zaak_data": {},
+                        },
+                    ],
+                },
+                format="json",
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                response.json()["comment"][0],
+                _("A comment is required when creating a list."),
+            )
 
     def test_list_destruction_lists_unprivileged_user(self):
         user = UserFactory.create(post__can_start_destruction=False)
