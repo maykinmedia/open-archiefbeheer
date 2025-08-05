@@ -160,7 +160,31 @@ export const canReassignDestructionList: DestructionListPermissionCheck = (
   (canStartDestructionList(user) ||
     canReviewDestructionList(user, destructionList)) &&
   (destructionList.status === "new" ||
+    destructionList.status === "changes_requested" ||
     destructionList.status === "ready_to_review");
+
+/**
+ * TODO: THIS CHECK NEETS TO BE EVALUATED ALONG WITH ITS PYTHON COUNTERPART
+ * @param user
+ * @param destructionList
+ */
+export const canUpdateCoReviewers: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
+  if (user.role.canStartDestruction) {
+    return (
+      destructionList.status === "new" ||
+      destructionList.status === "ready_to_review"
+    );
+  }
+
+  if (user.role.canReviewDestruction) {
+    return destructionList.status === "ready_to_review";
+  }
+
+  return false;
+};
 
 export const canDownloadReport: DestructionListPermissionCheck = (
   user,

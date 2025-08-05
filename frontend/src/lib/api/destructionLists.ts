@@ -23,9 +23,11 @@ export type DestructionList = {
   uuid: string;
 };
 
+export type ListRole = "main_reviewer" | "co_reviewer" | "author" | "archivist";
+
 export type DestructionListAssignee = {
   user: User;
-  role?: "main_reviewer" | "co_reviewer" | "author" | "archivist";
+  role?: ListRole;
 };
 
 // An array to be used in various parts of the application.
@@ -42,6 +44,18 @@ export const DESTRUCTION_LIST_STATUSES = [
 // Inferring the type of the array, so that we don't have to repeat the same.
 export type DestructionListStatus = (typeof DESTRUCTION_LIST_STATUSES)[number];
 
+// TODO: Is this correct? Shouldn't this have the keys:
+// add,
+// remove,
+// uuid,
+// name,
+// author,
+// comment,
+// contains_sensitive_info,
+// reviewer,
+// status,
+// select_all,
+// zaak_filters,
 export type DestructionListUpdateData = {
   assignees?: DestructionListAssigneeUpdate[];
   add?: DestructionListItemUpdate[];
@@ -224,9 +238,14 @@ export async function destructionListQueueDestruction(uuid: string) {
   return null;
 }
 
+export type UpdateAssigneePostData = {
+  user: number;
+  role: ListRole;
+};
+
 export type DestructionListReassignData = {
   comment: string;
-  assignee: DestructionListAssigneeUpdate;
+  assignee: UpdateAssigneePostData;
 };
 
 /**
@@ -234,11 +253,16 @@ export type DestructionListReassignData = {
  * @param uuid
  * @param data
  */
-export async function reassignDestructionList(
+export async function updateAssigneeDestructionList(
   uuid: string,
   data: DestructionListReassignData,
 ) {
-  return request("POST", `/destruction-lists/${uuid}/reassign/`, {}, data);
+  return request(
+    "POST",
+    `/destruction-lists/${uuid}/update_assignee/`,
+    {},
+    data,
+  );
 }
 
 /**
