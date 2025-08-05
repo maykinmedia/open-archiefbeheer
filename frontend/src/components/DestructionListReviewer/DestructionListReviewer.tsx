@@ -27,6 +27,7 @@ import { listCoReviewers, listReviewers } from "../../lib/api/reviewers";
 import {
   canReassignDestructionList,
   canStartDestructionList,
+  canUpdateCoReviewers,
 } from "../../lib/auth/permissions";
 import { collectErrors } from "../../lib/format/error";
 import { formatUser } from "../../lib/format/user";
@@ -175,7 +176,7 @@ export function DestructionListReviewer({
 
     const promises: Promise<unknown>[] = [];
 
-    if (coReviewer) {
+    if (coReviewer && user && canUpdateCoReviewers(user, destructionList)) {
       const add = coReviewer
         .filter((pk) => Boolean(pk))
         .map((pk) => ({ user: Number(pk) }));
@@ -257,38 +258,41 @@ export function DestructionListReviewer({
     const activeCoReviewerFields =
       (assignReviewersFormState.coReviewer as string[]) || [];
 
-    const coReviewerFields = new Array(5).fill(null).map((f, i) => {
-      return {
-        ...f,
-        label: `Medebeoordelaar ${1 + i}`,
-        name: "coReviewer",
-        required: false,
-        type: "string",
-        value: assignReviewersFormState.coReviewer?.[i],
-        options: coReviewersState
-          // Don't show the co-reviewer as option if:
-          // - The co-reviewer is already selected AND
-          // - The co-reviewer is not selected as value for the current
-          //   field.
-          // - OR if the co-reviewer is equal to the author of the destruction list
-          .filter((c) => {
-            const selectedIndex = activeCoReviewerFields.indexOf(
-              c.pk.toString(),
-            );
-            if (
-              (selectedIndex < 0 || selectedIndex === i) &&
-              c.pk !== destructionList.author.pk
-            ) {
-              return true;
-            }
-            return false;
+    const coReviewerFields =
+      user && canUpdateCoReviewers(user, destructionList)
+        ? new Array(5).fill(null).map((f, i) => {
+            return {
+              ...f,
+              label: `Medebeoordelaar ${1 + i}`,
+              name: "coReviewer",
+              required: false,
+              type: "string",
+              value: assignReviewersFormState.coReviewer?.[i],
+              options: coReviewersState
+                // Don't show the co-reviewer as option if:
+                // - The co-reviewer is already selected AND
+                // - The co-reviewer is not selected as value for the current
+                //   field.
+                // - OR if the co-reviewer is equal to the author of the destruction list
+                .filter((c) => {
+                  const selectedIndex = activeCoReviewerFields.indexOf(
+                    c.pk.toString(),
+                  );
+                  if (
+                    (selectedIndex < 0 || selectedIndex === i) &&
+                    c.pk !== destructionList.author.pk
+                  ) {
+                    return true;
+                  }
+                  return false;
+                })
+                .map((u) => ({
+                  label: formatUser(u),
+                  value: u.pk,
+                })),
+            };
           })
-          .map((u) => ({
-            label: formatUser(u),
-            value: u.pk,
-          })),
-      };
-    });
+        : [];
 
     if (!user || !canStartDestructionList(user)) {
       return [...coReviewerFields, commentField];
