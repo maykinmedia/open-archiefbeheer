@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Protocol
 
+from django.db import transaction
+
 from .constants import ListRole, ListStatus, ReviewDecisionChoices
 from .exceptions import NoReviewFoundError
 
@@ -60,14 +62,43 @@ class ReadyToReview:
 class ChangesRequested:
     def assign_next(self, destruction_list: "DestructionList") -> None:
         last_review = destruction_list.reviews.order_by("created").last()
-        last_reviewer = destruction_list.get_assignee(last_review.author)
+        last_review_author = destruction_list.get_assignee(last_review.author)
 
-        if last_reviewer.role == ListRole.archivist:
-            destruction_list.set_status(ListStatus.ready_for_archivist)
-        else:
-            destruction_list.set_status(ListStatus.ready_to_review)
+        with transaction.atomic():
+            if not last_review_author:
+                # When the last review author (reviewer/archivist) no longer exists (for instance: the record manager
+                # assigns another reviewer that has no yet given a review). We need to figure if we need to go back to:
+                #
+                # - Successful review (accepted) by reviewer exist -> archivist
+                # - Else -> reviewer (must exist at this point).
+                successful_review = destruction_list.reviews.filter(
+                    decision=ReviewDecisionChoices.accepted
+                )
+                if successful_review.exists():
+                    # - Successful review (accepted) by reviewer exist -> archivist
+                    next_reviewer = destruction_list.assignees.filter(
+                        role=ListRole.archivist
+                    ).first()
+                    destruction_list.set_status(ListStatus.ready_for_archivist)
+                else:
+                    # - Else -> reviewer (must exist at this point).
+                    next_reviewer = destruction_list.assignees.filter(
+                        role=ListRole.main_reviewer
+                    ).first()
+                    destruction_list.set_status(ListStatus.ready_to_review)
+                destruction_list.assign(next_reviewer)
+            else:
+                # When the last review author does exist: based on the role of the last review author:
+                #
+                # Archivist -> set status to ready_for_archivist
+                # Else (main reviewer) -> set status to ready_to_review
+                if last_review_author.role == ListRole.archivist:
+                    destruction_list.set_status(ListStatus.ready_for_archivist)
+                else:
+                    destruction_list.set_status(ListStatus.ready_to_review)
 
-        destruction_list.assign(last_reviewer)
+                # Assign the user.
+                destruction_list.assign(last_review_author)
 
     def reassign(self, destruction_list: "DestructionList") -> None:
         # When a list has requested changes, it is assigned to the author. No action needed.
