@@ -8,7 +8,6 @@ from requests_mock import Mocker
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
-from typing_extensions import deprecated
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -189,47 +188,6 @@ class DestructionListViewsetTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    @deprecated("Delete in 2.0 when endpoint reassign is removed.")
-    def test_assign_author_as_reviewer_when_logged_in_as_other_record_manager(self):
-        record_manager1 = UserFactory.create(
-            post__can_start_destruction=True, post__can_review_destruction=True
-        )
-        record_manager2 = UserFactory.create(post__can_start_destruction=True)
-        reviewer = UserFactory.create(post__can_review_destruction=True)
-
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_review,
-            author=record_manager1,  # First record manager is author
-            assignee=reviewer,
-        )
-        DestructionListAssigneeFactory.create(
-            destruction_list=destruction_list,
-            user=record_manager1,
-            role=ListRole.author,
-        )
-        DestructionListAssigneeFactory.create(
-            destruction_list=destruction_list,
-            user=reviewer,
-            role=ListRole.main_reviewer,
-        )
-
-        # Second record manager tries to assign first record manager as reviewer
-        self.client.force_login(record_manager2)
-        endpoint = reverse(
-            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
-        )
-        response = self.client.post(
-            endpoint,
-            data={"assignee": {"user": record_manager1.pk}, "comment": "Tralala"},
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.json()["assignee"]["user"][0],
-            _("The author of a list cannot also be a reviewer."),
-        )
 
     def test_assign_author_as_reviewer_when_logged_in_as_other_record_manager_update_assignee(
         self,

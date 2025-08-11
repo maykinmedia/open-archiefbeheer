@@ -3,7 +3,6 @@ import traceback
 from django.db.models import Max, Min, Model
 
 from timeline_logger.models import TimelineLog
-from typing_extensions import deprecated
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
@@ -134,32 +133,6 @@ def destruction_list_review_response_processed(
 
 def destruction_list_updated(destruction_list: DestructionList, user: User) -> None:
     _create_log(model=destruction_list, event="destruction_list_updated", user=user)
-
-
-@deprecated(
-    "Deprecated in favour of destruction_list_updated_assignees. Will be removed in 2.0"
-)
-def destruction_list_reassigned(
-    destruction_list: DestructionList,
-    assignee: DestructionListAssignee,
-    comment: str,
-    user: User,
-) -> None:
-    _create_log(
-        model=destruction_list,
-        event="destruction_list_reassigned",
-        user=user,
-        extra_data={
-            "assignee": {
-                "user": {
-                    "pk": assignee.user.pk,
-                    "email": assignee.user.email,
-                    "username": assignee.user.username,
-                },
-            },
-            "comment": comment,
-        },
-    )
 
 
 def destruction_list_updated_assignees(
