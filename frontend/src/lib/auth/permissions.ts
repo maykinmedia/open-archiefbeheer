@@ -161,6 +161,7 @@ export const canReassignDestructionList: DestructionListPermissionCheck = (
     canReviewDestructionList(user, destructionList)) &&
   (destructionList.status === "new" ||
     destructionList.status === "changes_requested" ||
+    destructionList.status === "ready_for_archivist" ||
     destructionList.status === "ready_to_review");
 
 /**
