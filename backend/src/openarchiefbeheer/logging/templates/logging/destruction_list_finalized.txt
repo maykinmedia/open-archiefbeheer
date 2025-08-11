@@ -1,3 +1,6 @@
 {% load i18n format_user %}{% blocktranslate trimmed with archivist=log.extra_data.archivist|format_user %}
 The destruction list was made final and assigned to the archivist {{ archivist }}.
 {% endblocktranslate %}
+{% if log.extra_data.comment %}
+The recor manager commented: "{{ log.extra_data.comment }}".
+{% endif %}

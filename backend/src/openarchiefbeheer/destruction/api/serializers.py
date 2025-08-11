@@ -549,6 +549,12 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             "zaken_reviews",
             "created",
         )
+        # TODO: in v2 make list_feedback required.
+        # extra_kwargs = {
+        #     "list_feedback": {
+        #         "required": True,
+        #     }
+        # }
 
     def validate(self, attrs: dict) -> dict:
         zaken_reviews = attrs.get("zaken_reviews", [])
@@ -632,6 +638,7 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
             destruction_list=validated_data["destruction_list"],
             review=review,
             user=review.author,
+            comment=validated_data.get("list_feedback", ""),
         )
 
         return review

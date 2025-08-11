@@ -802,7 +802,7 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertEqual(logs.count(), 1)
         self.assertEqual(logs[0].user, reviewer)
         self.assertTrue(logs[0].extra_data["approved"])
-        self.assertIn(_("It was approved."), logs[0].get_message())
+        self.assertIn(_("The destruction list was approved."), logs[0].get_message())
 
     def test_create_review_accepted_cannot_have_item_reviews(self):
         reviewer = UserFactory.create(
@@ -932,11 +932,12 @@ class DestructionListReviewSerializerTests(TestCase):
         self.assertEqual(logs[0].user, reviewer)
 
         message = logs[0].get_message()
-        self.assertIn(
-            _("The destruction list was reviewed."),
+        self.assertEqual(
+            _('The destruction list was rejected with comment: "{comment}".').format(
+                comment="I disagree with this list"
+            ),
             message,
         )
-        self.assertIn(_("It was rejected."), message)
 
     def test_reviewing_cases_not_in_destruction_list(self):
         reviewer = UserFactory.create(
