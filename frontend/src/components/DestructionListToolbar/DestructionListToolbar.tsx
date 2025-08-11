@@ -37,7 +37,10 @@ import {
 import {
   REVIEW_DECISION_LEVEL_MAPPING,
   REVIEW_DECISION_MAPPING,
+  STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST,
+  STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER,
 } from "../../pages/constants";
+import { DestructionListArchivist } from "../DestructionListArchivist/DestructionListArchivist";
 import {
   DestructionListAuditLogDetails,
   DestructionListAuditLogHistory,
@@ -133,6 +136,23 @@ export function DestructionListToolbar({
     setPreference<boolean>("destructionListToolbarCollapsed", collapsedState);
   }, [collapsedState]);
 
+  /*
+  If the list already has a DestructionListAssignee with role archivist, then they must have already 
+  gone through the reviewer round. So it should not be possible to update the reviewer.
+  */
+  const destructionListHasArchivistAssigned =
+    destructionList &&
+    destructionList.assignees.find((assignee) => assignee.role == "archivist");
+
+  const shouldShowReviewer =
+    destructionList &&
+    STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER.includes(destructionList.status) &&
+    !destructionListHasArchivistAssigned;
+  const shouldShowArchivist =
+    destructionList &&
+    STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST.includes(destructionList.status) &&
+    destructionListHasArchivistAssigned;
+
   const properties = (
     <Body>
       <Grid>
@@ -163,9 +183,15 @@ export function DestructionListToolbar({
           </Column>
         )}
 
-        {destructionList && (
+        {shouldShowReviewer && (
           <Column span={3}>
             <DestructionListReviewer destructionList={destructionList} />
+          </Column>
+        )}
+
+        {shouldShowArchivist && (
+          <Column span={3}>
+            <DestructionListArchivist destructionList={destructionList} />
           </Column>
         )}
 
