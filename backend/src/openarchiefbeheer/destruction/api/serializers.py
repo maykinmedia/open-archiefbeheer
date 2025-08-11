@@ -10,7 +10,6 @@ from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
-from typing_extensions import deprecated
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
@@ -275,12 +274,6 @@ class UpdateAssigneeSerializer(serializers.Serializer):
             )
 
         return attrs
-
-
-@deprecated("Deprecated in favour of UpdateAssigneeSerializer")
-class ReassignementSerializer(serializers.Serializer):
-    comment = serializers.CharField(required=True, allow_blank=False)
-    assignee = ReviewerAssigneeSerializer()
 
 
 class DestructionListItemWriteSerializer(serializers.ModelSerializer):

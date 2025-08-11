@@ -17,7 +17,6 @@ from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from slugify import slugify
-from typing_extensions import deprecated
 from zgw_consumers.client import build_client
 from zgw_consumers.models import Service
 
@@ -44,7 +43,6 @@ from ..models import (
     ReviewResponse,
 )
 from ..tasks import delete_destruction_list
-from ..utils import replace_assignee
 from .backends import NestedFilterBackend, NestedOrderingFilterBackend
 from .filtersets import (
     DestructionListCoReviewFilterset,
@@ -80,7 +78,6 @@ from .serializers import (
     DestructionListReviewSerializer,
     DestructionListWriteSerializer,
     MarkAsFinalSerializer,
-    ReassignementSerializer,
     ReviewerAssigneeSerializer,
     ReviewResponseSerializer,
     UpdateAssigneeSerializer,
@@ -204,16 +201,6 @@ logger = logging.getLogger(__name__)
         ),
         request=ReviewerAssigneeSerializer,
         responses={201: None},
-    ),
-    reassign=extend_schema(
-        tags=["Destruction list"],
-        deprecated=True,
-        summary=_("Reassign the destruction list to new assignees."),
-        description=_(
-            "This endpoint can be used to change the users that are assigned to a list."
-        ),
-        request=ReassignementSerializer,
-        responses={200: None},
     ),
     mark_ready_review=extend_schema(
         tags=["Destruction list"],
@@ -363,47 +350,6 @@ class DestructionListViewSet(
         )
 
         return Response(status=status.HTTP_201_CREATED)
-
-    @deprecated(
-        "Deprecated in favour of endpoint update-assignee. Will be removed in 2.0"
-    )
-    @action(detail=True, methods=["post"], name="reassign")
-    def reassign(self, request, *args, **kwargs):
-        """Delete the current DestructionListAssignee and then assign it
-        to the destruction list.
-
-        The cases supported are:
-        - ListStatus: new -> The reviewer can be updated.
-        - ListStatus: ready_to_review -> The reviewer can be updated.
-        - ListStatus: ready_for_archivist -> The archivist can be updated.
-
-        Conditions:
-        - The permissions of the new user need to match those of the role to which
-          they will be assigned.
-        - A new reviewer cannot also be the author of the list.
-        - A new archivist cannot be the author of the list OR have been a reviewer on the list.
-        """
-
-        destruction_list = self.get_object()
-        serialiser = ReassignementSerializer(
-            data=request.data,
-            context={"destruction_list": destruction_list, "request": request},
-        )
-        serialiser.is_valid(raise_exception=True)
-
-        new_assignee = replace_assignee(
-            destruction_list,
-            serialiser.validated_data["assignee"]["user"],
-        )
-        destruction_list.reassign()
-
-        logevent.destruction_list_reassigned(
-            destruction_list,
-            new_assignee,
-            serialiser.validated_data["comment"],
-            request.user,
-        )
-        return Response()
 
     @action(detail=True, methods=["post"], name="update-assignee")
     def update_assignee(self, request, *args, **kwargs):
