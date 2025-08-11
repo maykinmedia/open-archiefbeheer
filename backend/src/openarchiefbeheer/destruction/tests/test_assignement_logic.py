@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
@@ -290,3 +290,82 @@ class AssignementLogicTest(TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(destruction_list.assignee, archivist.user)
+
+    @tag("gh-841")
+    def test_assign_archivist_after_reassignement_when_changes_requested(self):
+        """
+        Test the assignement logic for this case:
+
+        - Archivaris 1 has rejected a list, so the list was assigned to the record manager with status "changes_requested".
+        - The record manager changed the archivaris to be archivaris 2.
+        - The record manager submits the changes so the assignment logic needs to determine
+          to whom it should be assigned next (archivaris 2).
+        """
+        archivist1 = UserFactory.create(post__can_review_final_list=True)
+        archivist2 = UserFactory.create(post__can_review_final_list=True)
+        reviewer = UserFactory.create(post__can_review_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.changes_requested,
+            assignee=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=archivist2,
+            role=ListRole.archivist,
+        )
+        # A reviewer has already approved the list
+        DestructionListReviewFactory.create(
+            author=reviewer,
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.accepted,
+        )
+        # The archivaris rejected it, but it was then replaced by archivist 2.
+        # So when assigning the next person, it should go to archivist 2
+        DestructionListReviewFactory.create(
+            author=archivist1,
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.rejected,
+        )
+
+        destruction_list.assign_next()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, archivist2)
+
+    @tag("gh-841")
+    def test_assign_reviewer_after_reassignement_when_changes_requested(self):
+        """
+        Test the assignement logic for this case:
+
+        - Reviewer 1 has rejected a list, so the list was assigned to the record manager with status "changes_requested".
+        - The record manager changed the reviewer to be reviewer 2.
+        - The record manager submits the changes so the assignment logic needs to determine
+          to whom it should be assigned next (reviewer 2).
+        """
+        reviewer1 = UserFactory.create(post__can_review_destruction=True)
+        reviewer2 = UserFactory.create(post__can_review_destruction=True)
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.changes_requested,
+            assignee=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            destruction_list=destruction_list,
+            user=reviewer2,
+            role=ListRole.archivist,
+        )
+        DestructionListReviewFactory.create(
+            author=reviewer1,
+            destruction_list=destruction_list,
+            decision=ReviewDecisionChoices.accepted,
+        )
+
+        destruction_list.assign_next()
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(destruction_list.assignee, reviewer2)
