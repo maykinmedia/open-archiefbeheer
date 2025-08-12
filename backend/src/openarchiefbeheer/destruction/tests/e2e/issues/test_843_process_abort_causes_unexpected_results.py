@@ -48,7 +48,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.when.reviewer_logs_in(page, username=reviewer_username)
         await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Goedkeuren")
-        await self.when.user_fills_form_field(page, "Toelichting", "gh-843")
+        await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
 
         await self.then.path_should_be(page, "/destruction-lists")
@@ -73,7 +73,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.when.archivist_logs_in(page, username=archivist_username)
         await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Goedkeuren")
-        await self.when.user_fills_form_field(page, "Toelichting", "gh-843")
+        await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
 
         await self.then.path_should_be(page, "/destruction-lists")
@@ -97,7 +97,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.when.record_manager_logs_in(page, username=record_manager_username)
         await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Vernietigen annuleren")
-        await self.when.user_fills_form_field(page, "Toelichting", "gh-843")
+        await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietiging annuleren")
 
         await destruction_list.arefresh_from_db()
