@@ -26,6 +26,7 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
                 page, "Naam", "gh-841-destruction-list"
             )
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer1))
+            await self.when.user_fills_form_field(page, "Opmerking", "Description bla.")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.path_should_be(page, "/destruction-lists")
