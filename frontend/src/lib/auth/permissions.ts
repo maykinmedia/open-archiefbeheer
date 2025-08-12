@@ -1,4 +1,8 @@
-import { STATUSES_ELIGIBLE_FOR_EDIT } from "../../pages/constants";
+import {
+  STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST,
+  STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER,
+  STATUSES_ELIGIBLE_FOR_EDIT,
+} from "../../pages/constants";
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 
@@ -162,10 +166,10 @@ export const canReassignDestructionList: DestructionListPermissionCheck = (
   if (canStartDestructionList(user)) {
     userHasCorrectRole = true;
     listHasCorrectStatus =
-      destructionList.status === "new" ||
-      destructionList.status === "changes_requested" ||
-      destructionList.status === "ready_for_archivist" ||
-      destructionList.status === "ready_to_review";
+      STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER.includes(
+        destructionList.status,
+      ) ||
+      STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST.includes(destructionList.status);
   } else if (user.role.canReviewDestruction) {
     // Needed for the reviewer to be able to assign/reassign the co-reviewers
     // We cannot use `canReviewDestruction` function, because it allows also

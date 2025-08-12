@@ -19,10 +19,7 @@ import {
   DestructionList,
   updateAssigneeDestructionList,
 } from "../../lib/api/destructionLists";
-import {
-  canReassignDestructionList,
-  canStartDestructionList,
-} from "../../lib/auth/permissions";
+import { canReassignDestructionList } from "../../lib/auth/permissions";
 import { collectErrors } from "../../lib/format/error";
 import { formatUser } from "../../lib/format/user";
 
@@ -90,9 +87,6 @@ export function DestructionListArchivist({
       value: assignArchivistFormState.comment,
     };
 
-    if (!user || !canStartDestructionList(user)) {
-      return [commentField];
-    }
     return [archivistField, commentField];
   }, [assignArchivistModalOpenState, assignArchivistFormState.archivist]);
 
