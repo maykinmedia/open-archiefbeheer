@@ -170,7 +170,7 @@ export function DestructionListToolbar({
                   value: formatUser(destructionList.assignee),
                 },
                 toelichting: {
-                  label: "Comment",
+                  label: "Toelichting",
                   value: destructionList.comment,
                 },
                 // Commented out due to no actual implementation of specifying this.
@@ -202,7 +202,6 @@ export function DestructionListToolbar({
               object={{
                 "Laatste review door":
                   review.author && formatUser(review.author),
-                Opmerking: review.listFeedback,
                 Beoordeling: (
                   <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
                     {REVIEW_DECISION_MAPPING[review.decision]}

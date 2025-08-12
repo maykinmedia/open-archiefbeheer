@@ -170,8 +170,6 @@ export const WithReviewDetails: Story = {
     const canvas = within(canvasElement);
     const lastReviewer = canvas.getByText("Laatste review door");
     expect(lastReviewer).toBeInTheDocument();
-    const opmerking = canvas.getByText("Opmerking");
-    expect(opmerking).toBeInTheDocument();
     const beoordeling = canvas.getByText("Beoordeling");
     expect(beoordeling).toBeInTheDocument();
   },
