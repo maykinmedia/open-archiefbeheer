@@ -26,7 +26,9 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
                 page, "Naam", "gh-841-destruction-list"
             )
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer1))
-            await self.when.user_fills_form_field(page, "Opmerking", "Description bla.")
+            await self.when.user_fills_form_field(
+                page, "Toelichting", "Description bla."
+            )
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.path_should_be(page, "/destruction-lists")
@@ -73,8 +75,6 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
             await self.when.user_fills_form_field(page, "Reden", "I like this case.")
             await self.when.user_clicks_button(page, "muteren")
             await self.when.user_clicks_button(page, "Opnieuw indienen")
-            await self.when.user_fills_form_field(
-                page, "Opmerking", "Let's gooo.", None, 1
-            )
+            await self.when.user_fills_form_field(page, "Opmerking", "Let's gooo.")
             await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")

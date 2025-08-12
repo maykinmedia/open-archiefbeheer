@@ -22,6 +22,6 @@ class FeatureListRenameTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Destruction list to rename")
             await self.when.user_clicks_button(page, "Naam bewerken")
-            await self.when.user_fills_form_field(page, "Naam", "Destruction list renamed", role="input")
+            await self.when.user_fills_form_field(page, "Naam", "Destruction list renamed", role="textbox")
             await self.when.user_clicks_button(page, "Opslaan")
             await self.then.page_should_contain_text(page, "Destruction list renamed")
