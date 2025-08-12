@@ -79,6 +79,12 @@ const meta: Meta<typeof DestructionListReviewerComponent> = {
           },
         ],
       },
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
+      },
     ],
   },
 };
@@ -112,7 +118,12 @@ const assertEditButton: PlayFunctionWithReturnValue<
 };
 
 export const UserCannotReassignReviewer: Story = {
-  args: { destructionList: destructionListFactory({ author: RECORD_MANAGER }) },
+  args: {
+    destructionList: destructionListFactory({
+      author: RECORD_MANAGER,
+      status: "internally_reviewed",
+    }),
+  },
   play: async (context) => {
     await assertEditButton({
       ...context,

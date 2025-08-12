@@ -28,7 +28,7 @@ const FIXTURE_RECORD_MANAGER: User = {
   role: {
     canStartDestruction: true,
     canReviewDestruction: false,
-    canCoReviewDestruction: true,
+    canCoReviewDestruction: false,
     canReviewFinalList: false,
     canConfigureApplication: false,
   },
