@@ -151,10 +151,6 @@ class CanAbortDestruction(permissions.BasePermission):
 
 
 class CanUpdateCoReviewers(permissions.BasePermission):
-    """
-    TODO: THIS CHECK NEETS TO BE EVALUATED ALONG WITH ITS TS COUNTERPART
-    """
-
     message = _("You are not allowed to update the co-reviewers.")
 
     def has_permission(self, request, view):
