@@ -82,7 +82,7 @@ export const CreateDestructionList: Story = {
       formValues: {
         Naam: "My First Destruction List",
         Reviewer: "Beoor del Laar (Beoor del Laar)",
-        Opmerking: "CreateDestructionList",
+        Toelichting: "CreateDestructionList",
       },
     },
   },

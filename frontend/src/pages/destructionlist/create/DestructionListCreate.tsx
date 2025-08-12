@@ -84,7 +84,7 @@ export function DestructionListCreatePage() {
       required: true,
     },
     {
-      label: "Opmerking",
+      label: "Toelichting",
       name: "comment",
       required: true,
     },
