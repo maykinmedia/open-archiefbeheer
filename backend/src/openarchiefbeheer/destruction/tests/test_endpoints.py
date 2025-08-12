@@ -219,7 +219,7 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(len(response.json()), 3)
 
     def test_list_destruction_lists_assignee(self):
-        user = UserFactory.create()
+        user = UserFactory.create(username="author")
         lists = DestructionListFactory.create_batch(3)
         DestructionListAssigneeFactory.create(destruction_list=lists[0], user=user)
         DestructionListAssigneeFactory.create(destruction_list=lists[2], user=user)
