@@ -156,13 +156,26 @@ export const canTriggerDestruction: DestructionListPermissionCheck = (
 export const canReassignDestructionList: DestructionListPermissionCheck = (
   user,
   destructionList,
-) =>
-  (canStartDestructionList(user) ||
-    canReviewDestructionList(user, destructionList)) &&
-  (destructionList.status === "new" ||
-    destructionList.status === "changes_requested" ||
-    destructionList.status === "ready_for_archivist" ||
-    destructionList.status === "ready_to_review");
+) => {
+  let userHasCorrectRole = false;
+  let listHasCorrectStatus = false;
+  if (canStartDestructionList(user)) {
+    userHasCorrectRole = true;
+    listHasCorrectStatus =
+      destructionList.status === "new" ||
+      destructionList.status === "changes_requested" ||
+      destructionList.status === "ready_for_archivist" ||
+      destructionList.status === "ready_to_review";
+  } else if (user.role.canReviewDestruction) {
+    // Needed for the reviewer to be able to assign/reassign the co-reviewers
+    // We cannot use `canReviewDestruction` function, because it allows also
+    // archivists when the list is in state ready_for_archivist.
+    userHasCorrectRole = true;
+    listHasCorrectStatus = destructionList.status === "ready_to_review";
+  }
+
+  return userHasCorrectRole && listHasCorrectStatus;
+};
 
 /**
  * TODO: THIS CHECK NEETS TO BE EVALUATED ALONG WITH ITS PYTHON COUNTERPART
