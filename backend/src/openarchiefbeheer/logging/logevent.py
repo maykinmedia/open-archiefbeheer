@@ -135,15 +135,15 @@ def destruction_list_updated(destruction_list: DestructionList, user: User) -> N
     _create_log(model=destruction_list, event="destruction_list_updated", user=user)
 
 
-def destruction_list_reassigned(
+def destruction_list_updated_assignees(
     destruction_list: DestructionList,
     assignee: DestructionListAssignee,
     comment: str,
     user: User,
-) -> None:
+):
     _create_log(
         model=destruction_list,
-        event="destruction_list_reassigned",
+        event="destruction_list_updated_assignees",
         user=user,
         extra_data={
             "assignee": {

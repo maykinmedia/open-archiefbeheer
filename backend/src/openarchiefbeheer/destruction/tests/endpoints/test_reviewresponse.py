@@ -12,7 +12,7 @@ from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...constants import DestructionListItemAction, ListStatus, ZaakActionType
+from ...constants import DestructionListItemAction, ListRole, ListStatus, ZaakActionType
 from ...models import ReviewItemResponse, ReviewResponse
 from ..factories import (
     DestructionListAssigneeFactory,
@@ -206,13 +206,16 @@ class ReviewResponsesViewSetTests(APITestCase):
         )
 
     @freezegun.freeze_time("2023-09-15T21:36:00+02:00")
-    def test_audit_log(self):
+    def test_audit_log_update_assignee(self):
         # Reassign
         record_manager = UserFactory.create(post__can_start_destruction=True)
         destruction_list = DestructionListFactory.create(
             name="Test audittrail",
             status=ListStatus.ready_to_review,
             author=record_manager,
+        )
+        DestructionListAssigneeFactory.create(
+            user=record_manager, role=ListRole.author, destruction_list=destruction_list
         )
         record_manager_group, created = Group.objects.get_or_create(
             name="Record Manager"
@@ -223,12 +226,13 @@ class ReviewResponsesViewSetTests(APITestCase):
 
         self.client.force_authenticate(user=record_manager)
         endpoint_reassign = reverse(
-            "api:destructionlist-reassign", kwargs={"uuid": destruction_list.uuid}
+            "api:destructionlist-update-assignee",
+            kwargs={"uuid": destruction_list.uuid},
         )
         response = self.client.post(
             endpoint_reassign,
             data={
-                "assignee": {"user": other_reviewer.pk},
+                "assignee": {"user": other_reviewer.pk, "role": ListRole.main_reviewer},
                 "comment": "Lorem ipsum...",
             },
             format="json",
@@ -249,7 +253,8 @@ class ReviewResponsesViewSetTests(APITestCase):
             "2023-09-15T21:36:00+02:00",
         )
         self.assertEqual(
-            data[0]["message"].strip(), _("The destruction list was reassigned.")
+            data[0]["message"].strip(),
+            _("The destruction lists assignees were updated."),
         )
         self.assertEqual(
             data[0]["extra_data"]["assignee"]["user"],

@@ -673,9 +673,9 @@ class GerkinMixin:
                 pass
 
             if role:
-                locator = page.get_by_label(label).and_(page.get_by_role("textbox"))
+                locator = page.get_by_label(label).and_(page.get_by_role(role))
             else:
-                locator = page.get_by_label(label)
+                locator = page.get_by_label(label).and_(page.get_by_role("textbox"))
 
             elements = await locator.all()
             await elements[index].fill(value)

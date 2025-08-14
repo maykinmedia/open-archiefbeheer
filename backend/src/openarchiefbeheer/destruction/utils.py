@@ -27,7 +27,6 @@ from .constants import (
     DestructionListItemAction,
     InternalStatus,
     ListItemStatus,
-    ListRole,
     ListStatus,
 )
 from .models import (
@@ -132,20 +131,24 @@ class ObjectWithStatus(Protocol):
     def set_processing_status(self, status: InternalStatus) -> None: ...
 
 
-def process_new_reviewer(
+def replace_assignee(
     destruction_list: DestructionList,
-    reviewer: User,
+    new_user: User,
 ) -> DestructionListAssignee:
     with transaction.atomic():
-        destruction_list.assignees.filter(role=ListRole.main_reviewer).delete()
-        new_reviewer = DestructionListAssignee(
-            user=reviewer,
-            destruction_list=destruction_list,
-            role=ListRole.main_reviewer,
+        current_assignee = destruction_list.assignees.get(
+            user=destruction_list.assignee
         )
-        new_reviewer.save()
+        current_role = current_assignee.role
 
-    return new_reviewer
+        current_assignee.delete()
+        new_assignee = DestructionListAssignee.objects.create(
+            user=new_user,
+            destruction_list=destruction_list,
+            role=current_role,
+        )
+
+    return new_assignee
 
 
 def resync_items_and_zaken() -> None:
