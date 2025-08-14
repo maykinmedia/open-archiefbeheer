@@ -357,6 +357,11 @@ export function DestructionListReviewer({
     );
   }, [assignCoReviewerModalOpenState, JSON.stringify(fields)]);
 
+  const canUpdateReviewerOrCoreviewers =
+    user &&
+    (canReassignDestructionList(user, destructionList) ||
+      canUpdateCoReviewers(user, destructionList));
+
   return (
     <>
       {assignedMainReviewer && (
@@ -369,25 +374,24 @@ export function DestructionListReviewer({
                 value: (
                   <P>
                     {formatUser(assignedMainReviewer.user)}
-                    {user &&
-                      canReassignDestructionList(user, destructionList) && (
-                        <>
-                          &nbsp;
-                          <Button
-                            aria-label="Beoordelaar bewerken"
-                            disabled={
-                              state === "loading" || state === "submitting"
-                            }
-                            size="xs"
-                            variant="secondary"
-                            onClick={() =>
-                              setAssignCoReviewerModalOpenState(true)
-                            }
-                          >
-                            <Solid.PencilIcon />
-                          </Button>
-                        </>
-                      )}
+                    {user && canUpdateReviewerOrCoreviewers && (
+                      <>
+                        &nbsp;
+                        <Button
+                          aria-label="Beoordelaar bewerken"
+                          disabled={
+                            state === "loading" || state === "submitting"
+                          }
+                          size="xs"
+                          variant="secondary"
+                          onClick={() =>
+                            setAssignCoReviewerModalOpenState(true)
+                          }
+                        >
+                          <Solid.PencilIcon />
+                        </Button>
+                      </>
+                    )}
                   </P>
                 ),
               },

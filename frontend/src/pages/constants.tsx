@@ -25,6 +25,12 @@ export const STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER = [
   "ready_to_review",
   "changes_requested",
 ];
+export const STATUS_ELIGIBLE_TO_REASSIGN_LIST = [
+  "new",
+  "ready_to_review",
+  "ready_for_archivist",
+  "changes_requested",
+];
 export const STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST = [
   "changes_requested",
   "ready_for_archivist",
