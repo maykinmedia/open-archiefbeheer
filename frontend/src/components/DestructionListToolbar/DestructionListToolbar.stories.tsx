@@ -8,6 +8,7 @@ import {
 import { MOCKS } from "../../../.storybook/mockData";
 import { fillForm } from "../../../.storybook/playFunctions";
 import {
+  archivistFactory,
   beoordelaarFactory,
   destructionListFactory,
   recordManagerFactory,
@@ -26,6 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 const RECORD_MANAGER = recordManagerFactory();
 const REVIEWER1 = beoordelaarFactory();
+const ARCHIVIST = archivistFactory({ pk: 1, username: "archivist1" });
 
 const DESTRUCTION_LIST = destructionListFactory({
   name: "Test List",
@@ -101,6 +103,67 @@ export const UserCanEditName: Story = {
   },
 };
 
+export const WithArchivarisMenu: Story = {
+  args: {
+    destructionList: destructionListFactory({
+      author: RECORD_MANAGER,
+      assignee: ARCHIVIST,
+      status: "ready_for_archivist",
+      assignees: [
+        { user: RECORD_MANAGER, role: "author" },
+        { user: REVIEWER1, role: "main_reviewer" },
+        { user: ARCHIVIST, role: "archivist" },
+      ],
+    }),
+  },
+  parameters: {
+    mockData: [
+      MOCKS.OIDC_INFO,
+      MOCKS.AUDIT_LOG,
+      MOCKS.ARCHIVISTS,
+      {
+        url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: RECORD_MANAGER,
+      },
+      {
+        url: "http://localhost:8000/api/v1/destruction-list-co-reviews/?destructionList__uuid=00000000-0000-0000-0000-000000000000",
+        method: "GET",
+        status: 200,
+        response: [],
+      },
+    ],
+  },
+  play: async ({ context }) => {
+    const canvas = within(context.canvasElement);
+    const archivaris = canvas.getByText("Archivaris");
+    expect(archivaris).toBeInTheDocument();
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const editButton = await within(context.canvasElement).getByRole("button", {
+      name: "Archivaris bewerken",
+    });
+
+    await userEvent.click(editButton);
+    const dialog = await within(context.canvasElement).findByRole("dialog");
+    const form = dialog.querySelector("form");
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          form: form,
+          formValues: {
+            Archivaris: "Archi Varis (Archivaris)",
+            Reden: "Tada",
+          },
+          submitForm: true,
+        },
+      },
+    });
+  },
+};
+
 export const WithReviewDetails: Story = {
   args: { destructionList: DESTRUCTION_LIST, review: REVIEW },
   play: async ({ canvasElement }) => {
@@ -111,6 +174,29 @@ export const WithReviewDetails: Story = {
     expect(opmerking).toBeInTheDocument();
     const beoordeling = canvas.getByText("Beoordeling");
     expect(beoordeling).toBeInTheDocument();
+  },
+};
+
+export const WithReviewDetailsFromArchivaris: Story = {
+  args: {
+    destructionList: destructionListFactory({
+      author: RECORD_MANAGER,
+      assignee: RECORD_MANAGER,
+      status: "changes_requested",
+      assignees: [
+        { user: RECORD_MANAGER, role: "author" },
+        { user: REVIEWER1, role: "main_reviewer" },
+        { user: ARCHIVIST, role: "archivist" },
+      ],
+    }),
+    review: reviewFactory({
+      author: ARCHIVIST,
+      decision: "rejected",
+      listFeedback: "Looks bad.",
+    }),
+  },
+  parameters: {
+    mockData: [...baseMocks, MOCKS.REVIEW_RESPONSES],
   },
 };
 

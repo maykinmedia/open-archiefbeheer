@@ -1,4 +1,7 @@
-import { STATUSES_ELIGIBLE_FOR_EDIT } from "../../pages/constants";
+import {
+  STATUSES_ELIGIBLE_FOR_EDIT,
+  STATUS_ELIGIBLE_TO_REASSIGN_LIST,
+} from "../../pages/constants";
 import { User } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";
 
@@ -156,11 +159,34 @@ export const canTriggerDestruction: DestructionListPermissionCheck = (
 export const canReassignDestructionList: DestructionListPermissionCheck = (
   user,
   destructionList,
-) =>
-  (canStartDestructionList(user) ||
-    canReviewDestructionList(user, destructionList)) &&
-  (destructionList.status === "new" ||
-    destructionList.status === "ready_to_review");
+) => {
+  return (
+    canStartDestructionList(user) &&
+    STATUS_ELIGIBLE_TO_REASSIGN_LIST.includes(destructionList.status)
+  );
+};
+
+/**
+ * @param user
+ * @param destructionList
+ */
+export const canUpdateCoReviewers: DestructionListPermissionCheck = (
+  user,
+  destructionList,
+) => {
+  if (user.role.canStartDestruction) {
+    return (
+      destructionList.status === "new" ||
+      destructionList.status === "ready_to_review"
+    );
+  }
+
+  if (user.role.canReviewDestruction) {
+    return destructionList.status === "ready_to_review";
+  }
+
+  return false;
+};
 
 export const canDownloadReport: DestructionListPermissionCheck = (
   user,

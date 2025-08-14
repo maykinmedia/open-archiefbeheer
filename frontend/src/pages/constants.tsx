@@ -20,6 +20,21 @@ export const REVIEW_DECISION_LEVEL_MAPPING: Record<
 };
 
 export const STATUSES_ELIGIBLE_FOR_EDIT = ["new", "changes_requested"];
+export const STATUSES_ELIGIBLE_FOR_CHANGING_REVIEWER = [
+  "new",
+  "ready_to_review",
+  "changes_requested",
+];
+export const STATUS_ELIGIBLE_TO_REASSIGN_LIST = [
+  "new",
+  "ready_to_review",
+  "ready_for_archivist",
+  "changes_requested",
+];
+export const STATUSES_ELIGIBLE_FOR_CHANGING_ARCHIVIST = [
+  "changes_requested",
+  "ready_for_archivist",
+];
 
 export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
   new: "nieuw",

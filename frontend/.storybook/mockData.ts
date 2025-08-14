@@ -1,6 +1,7 @@
 import {
   FIXTURE_DESTRUCTION_LIST,
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
+  archivistFactory,
   auditLogFactory,
   coReviewsFactory,
   destructionListAssigneesFactory,
@@ -152,6 +153,12 @@ export const MOCKS = {
     method: "GET",
     status: 200,
     response: [recordManagerFactory()],
+  },
+  ARCHIVISTS: {
+    url: "http://localhost:8000/api/v1/users?role=archivist",
+    method: "GET",
+    status: 200,
+    response: [archivistFactory()],
   },
   REVIEWERS: {
     url: "http://localhost:8000/api/v1/users?role=main_reviewer",

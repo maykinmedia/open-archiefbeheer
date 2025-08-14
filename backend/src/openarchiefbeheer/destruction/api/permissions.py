@@ -124,7 +124,9 @@ class CanReassignDestructionList(permissions.BasePermission):
     def has_object_permission(self, request, view, destruction_list):
         return destruction_list.status in [
             ListStatus.new,
+            ListStatus.changes_requested,
             ListStatus.ready_to_review,
+            ListStatus.ready_for_archivist,
         ]
 
 
