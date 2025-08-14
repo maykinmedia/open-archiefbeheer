@@ -49,7 +49,10 @@ You need the following libraries and/or programs:
    .. note::
 
       If you get an error about the ``django.contrib.gis`` module,
-      you need to install the GDAL library and/or enable the extension or give superuser privileges. See the requirements in the Dockerfile.
+      you need to install the GDAL extension. 
+      To do this, you can either log into Postgres as superuser, connect to the database and run 
+      ``CREATE EXTENSION POSTGIS`` **or** you can give superuser rights to the ``openarchiefbeheer`` user. 
+      We recommend the former way.
 
 #. Create a superuser to access the management interface:
 
@@ -67,8 +70,7 @@ You need the following libraries and/or programs:
 
    .. code:: bash
 
-      ./bin/make_translations
-      src/manage.py makemessages -a
+      ./bin/make_translations.sh
       src/manage.py compilemessages --locale nl
 
 #. Run the development server with ``src/manage.py runserver``
@@ -77,14 +79,15 @@ You need the following libraries and/or programs:
 
    .. note::
 
-      This is a time-consuming process:
+      This is a time-consuming process, depending on how many zaken there are in Open Zaak.
 
-      - ~30–60 minutes **without** a local Open Zaak instance
-      - ~1–2 minutes **with** a local Open Zaak instance
+      - ~2 h with about 10000 zaken
+      - <1 min with about 100 zaken
 
    .. important::
 
-      For this to work, the services need to be set up correctly. You can either do this manually, or follow the instructions to :ref:`start a local Open Zaak instance <open-zaak-section>`.
+      For this to work, the services need to be set up correctly. You can either do this manually in the admin, 
+      or load the fixture provided in the instructions to :ref:`start a local Open Zaak instance <open-zaak-section>`.
 
    To load the data, run:
 
@@ -92,11 +95,12 @@ You need the following libraries and/or programs:
 
       src/manage.py cache_zaken
 
-#. Optionally, you can load fixtures for the templates of the admin and for the admin index configuration:
+#. Optionally, you can load fixtures for the email templates and for the admin index configuration:
 
    .. code:: bash
 
-      src/manage.py loaddata fixture_name.json
+      src/manage.py loaddata default_emails.json
+      src/manage.py loaddata default_admin_index.json
 
 Running tests
 =============
@@ -247,6 +251,31 @@ use this fixture (you may need to update the primary key field ``pk``):
             "client_id": "test-vcr",
             "secret": "test-vcr",
             "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      }, 
+      {
+         "model": "zgw_consumers.service",
+         "pk": 5,
+         "fields": {
+            "label": "Open Zaak (public) - Selectielijst API",
+            "oas": "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+            "oas_file": "",
+            "uuid": "6e0be7db-d19c-43a6-a004-43953420f2cd",
+            "slug": "open-zaak-public-selectielijst-api",
+            "api_type": "orc",
+            "api_root": "https://selectielijst.openzaak.nl/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "",
+            "secret": "",
+            "auth_type": "no_auth",
             "header_key": "",
             "header_value": "",
             "nlx": "",
