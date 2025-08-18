@@ -77,7 +77,9 @@ class PerformanceTest(GerkinMixin, TestCase):
             await self.when.user_fills_form_field(
                 page, "Reviewer", "John Doe (reviewer1)"
             )
-            await self.when.user_fills_form_field(page, "Opmerking", "A humongous list")
+            await self.when.user_fills_form_field(
+                page, "Toelichting", "A humongous list"
+            )
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
             await self.then.path_should_be(page, "/destruction-lists")
 

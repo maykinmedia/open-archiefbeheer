@@ -31,7 +31,7 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list select all")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
-            await self.when.user_fills_form_field(page, "Opmerking", "Youhuuu")
+            await self.when.user_fills_form_field(page, "Toelichting", "Youhuuu")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.path_should_be(page, "/destruction-lists")
@@ -64,7 +64,7 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
             await self.when.user_fills_form_field(page, "Naam", "Destruction list select all with filters")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
-            await self.when.user_fills_form_field(page, "Opmerking", "Magnificent list.")
+            await self.when.user_fills_form_field(page, "Toelichting", "Magnificent list.")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
             await self.then.path_should_be(page, "/destruction-lists")

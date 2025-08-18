@@ -25,7 +25,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", index=1)
         await self.when.user_fills_form_field(page, "Naam", "gh-843-destruction-list")
         await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
-        await self.when.user_fills_form_field(page, "Opmerking", "Glorious list")
+        await self.when.user_fills_form_field(page, "Toelichting", "Glorious list")
 
         await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
 
