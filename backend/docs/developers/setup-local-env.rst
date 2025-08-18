@@ -9,9 +9,9 @@ Prerequisites
 
 You need the following libraries and/or programs:
 
-* `Python`_ - check the ``Dockerfile`` for the required version.
+* `Python`_ – check the ``Dockerfile`` for the required version.
 * Python `Virtualenv`_ and `Pip`_
-* `PostgreSQL`_
+* `PostgreSQL`_ (with `PostGIS`_) and `GDAL`_ – check the ``Dockerfile`` for the required version.
 * `Node.js`_
 * `npm`_
 
@@ -19,6 +19,8 @@ You need the following libraries and/or programs:
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
 .. _Pip: https://packaging.python.org/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date
 .. _PostgreSQL: https://www.postgresql.org
+.. _PostGIS: https://postgis.net/
+.. _GDAL: https://pypi.org/project/GDAL/
 .. _Node.js: http://nodejs.org/
 .. _npm: https://www.npmjs.com/
 
@@ -43,22 +45,62 @@ You need the following libraries and/or programs:
        npm run build
 
 #. Run the migrations with ``src/manage.py migrate``
-#. Create a superuser to access the management interface: ``src/manage.py createsuperuser``
-#. To set environment variables settings, vreate a ``.env`` file. You can use and modify the provided example:
 
-  .. code:: bash
+   .. note::
 
-    cp dotenv.example .env
+      If you get an error about the ``django.contrib.gis`` module,
+      you need to install the GDAL extension. 
+      To do this, you can either log into Postgres as superuser, connect to the database and run 
+      ``CREATE EXTENSION POSTGIS`` **or** you can give superuser rights to the ``openarchiefbeheer`` user. 
+      We recommend the former way.
+
+#. Create a superuser to access the management interface:
+
+   .. code:: bash
+
+      src/manage.py createsuperuser
+
+#. To set environment variables settings, create a ``.env`` file. You can use and modify the provided example:
+
+   .. code:: bash
+
+      cp dotenv.example .env
+
+#. Generate the translation files:
+
+   .. code:: bash
+
+      ./bin/make_translations.sh
+      src/manage.py compilemessages --locale nl
 
 #. Run the development server with ``src/manage.py runserver``
 
+#. Optionally, you can load initial zaak data to populate your database.
 
-Optionally, you can load fixtures for the templates of the admin and for the admin index configuration:
+   .. note::
 
-.. code:: bash
+      This is a time-consuming process, depending on how many zaken there are in Open Zaak.
 
-    src/manage.py loaddata fixture_name.json
+      - ~2 h with about 10000 zaken
+      - <1 min with about 100 zaken
 
+   .. important::
+
+      For this to work, the services need to be set up correctly. You can either do this manually in the admin, 
+      or load the fixture provided in the instructions to :ref:`start a local Open Zaak instance <open-zaak-section>`.
+
+   To load the data, run:
+
+   .. code:: bash
+
+      src/manage.py cache_zaken
+
+#. Optionally, you can load fixtures for the email templates and for the admin index configuration:
+
+   .. code:: bash
+
+      src/manage.py loaddata default_emails.json
+      src/manage.py loaddata default_admin_index.json
 
 Running tests
 =============
@@ -98,6 +140,8 @@ To start the environment:
 .. code:: bash
 
    docker compose -f docker-compose.dev.yaml up
+
+.. _open-zaak-section:
 
 Open Zaak
 =========
@@ -207,6 +251,31 @@ use this fixture (you may need to update the primary key field ``pk``):
             "client_id": "test-vcr",
             "secret": "test-vcr",
             "auth_type": "zgw",
+            "header_key": "",
+            "header_value": "",
+            "nlx": "",
+            "user_id": "",
+            "user_representation": "",
+            "client_certificate": null,
+            "server_certificate": null,
+            "timeout": 10
+         }
+      }, 
+      {
+         "model": "zgw_consumers.service",
+         "pk": 5,
+         "fields": {
+            "label": "Open Zaak (public) - Selectielijst API",
+            "oas": "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
+            "oas_file": "",
+            "uuid": "6e0be7db-d19c-43a6-a004-43953420f2cd",
+            "slug": "open-zaak-public-selectielijst-api",
+            "api_type": "orc",
+            "api_root": "https://selectielijst.openzaak.nl/api/v1/",
+            "api_connection_check_path": "",
+            "client_id": "",
+            "secret": "",
+            "auth_type": "no_auth",
             "header_key": "",
             "header_value": "",
             "nlx": "",
