@@ -2,6 +2,25 @@
 Change history
 ==============
 
+1.1.0 (2025-08-22)
+==================
+
+New features:
+
+* [#841] The record manager can now reassign both the main reviewer and the archivaris, instead of only the reviewer.
+
+Documentation improvements:
+
+* [#848] Explain the role of health checks and clarify that they do not indicate a failure occurred during deployment.
+* [#808] Improved developer docs with information about how to setup a local environment.
+* [#834] Document button to refresh Catalogi API resources from Open Zaak.
+
+Bug fixes:
+
+* [#842] All the comments added at any step of the process are now visible.
+* [#843] Fix that some users could no longer be selected as reviewers/archivist after a process had been interrupted.
+
+
 1.0.1 (2025-05-09)
 ==================
 
