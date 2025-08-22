@@ -2,7 +2,7 @@
 Open Archiefbeheer
 ==================
 
-:Version: 1.0.1
+:Version: 1.1.0
 :Source: https://github.com/maykinmedia/open-archiefbeheer
 :Docker hub: https://hub.docker.com/r/maykinmedia/open-archiefbeheer
 :Keywords: ``open-archiefbeheer archiveren zaken``
