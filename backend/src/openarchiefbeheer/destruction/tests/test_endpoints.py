@@ -994,9 +994,8 @@ class DestructionListReviewViewSetTest(APITestCase):
 
         self.assertEqual(logs.count(), 1)
         self.assertEqual(
-            _('The destruction list was approved with comment: "{comment}".').format(
-                comment="Beautiful!"
-            ),
+            _('The destruction list was approved with comment: "%(comment)s".')
+            % {"comment": "Beautiful!"},
             logs[0].get_message(),
         )
 
@@ -1056,9 +1055,8 @@ class DestructionListReviewViewSetTest(APITestCase):
 
         self.assertEqual(logs.count(), 1)
         self.assertEqual(
-            _('The destruction list was rejected with comment: "{comment}".').format(
-                comment="I disagree with this list"
-            ),
+            _('The destruction list was rejected with comment: "%(comment)s".')
+            % {"comment": "I disagree with this list"},
             logs[0].get_message(),
         )
 
