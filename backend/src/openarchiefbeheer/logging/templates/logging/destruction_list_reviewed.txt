@@ -1,8 +1,8 @@
 {% load i18n %}{% spaceless %}
 {% if log.extra_data.comment and log.extra_data.approved %}
-{% blocktranslate with comment=log.extra_data.comment%} The destruction list was approved with comment: "{{ comment }}". {% endblocktranslate %}
+{% blocktranslate with comment=log.extra_data.comment%}The destruction list was approved with comment: "{{ comment }}".{% endblocktranslate %}
 {% elif log.extra_data.comment and not log.extra_data.approved %}
-{% blocktranslate with comment=log.extra_data.comment%} The destruction list was rejected with comment: "{{ comment }}". {% endblocktranslate %}
+{% blocktranslate with comment=log.extra_data.comment%}The destruction list was rejected with comment: "{{ comment }}".{% endblocktranslate %}
 {% elif log.extra_data.approved%}
 {% translate "The destruction list was approved." %}
 {% else %}
