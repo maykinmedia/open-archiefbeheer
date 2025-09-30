@@ -1,4 +1,5 @@
-import { Badge, Outline, string2Title } from "@maykin-ui/admin-ui";
+import { Badge, Outline } from "@maykin-ui/admin-ui";
+import { string2Title } from "@maykin-ui/client-common";
 import React from "react";
 
 import { ProcessingStatus } from "../../lib/api/processingStatus";
@@ -41,9 +42,7 @@ export const ProcessingStatusBadge: React.FC<ProcessingStatusBadgeProps> = ({
       }
       return `Wordt vernietigd ${timeAgo(plannedDestructionDate, { shortFormat: true, maxIntervals: 2 })}`;
     }
-    return string2Title(PROCESSING_STATUS_MAPPING[processingStatus], {
-      unHyphen: false,
-    });
+    return string2Title(PROCESSING_STATUS_MAPPING[processingStatus]);
   };
 
   return (

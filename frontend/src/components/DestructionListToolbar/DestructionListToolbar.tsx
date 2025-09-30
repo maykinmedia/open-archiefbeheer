@@ -10,10 +10,10 @@ import {
   Solid,
   Tab,
   Tabs,
-  string2Title,
   useAlert,
   useFormDialog,
 } from "@maykin-ui/admin-ui";
+import { string2Title } from "@maykin-ui/client-common";
 import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 
@@ -250,10 +250,7 @@ export function DestructionListToolbar({
   return (
     <Body className="destruction-list-toolbar">
       <H2>
-        {title
-          ? title
-          : destructionList &&
-            string2Title(destructionList.name, { unHyphen: false })}
+        {title ? title : destructionList && string2Title(destructionList.name)}
         {user &&
           destructionList &&
           canRenameDestructionList(user, destructionList) && (
