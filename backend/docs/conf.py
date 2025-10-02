@@ -103,4 +103,4 @@ todo_include_todos = True
 
 linkcheck_retries = 3
 
-linkcheck_ignore = []
+linkcheck_ignore = ["https://www.npmjs.com/"]
