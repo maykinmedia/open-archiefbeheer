@@ -2,6 +2,14 @@
 Change history
 ==============
 
+1.1.1 (2025-10-03)
+==================
+
+Patch release:
+
+* [#857] Logging for the ``mozilla_django_oidc`` package is added with a configurable logging level. This should make it easier to debug OIDC login problems.
+* Upgrade Django dependency and js dependencies.
+
 1.1.0 (2025-08-22)
 ==================
 
