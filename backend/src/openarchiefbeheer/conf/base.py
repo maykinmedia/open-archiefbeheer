@@ -244,8 +244,11 @@ DEFAULT_FROM_EMAIL = config(
 # LOGGING
 #
 LOG_STDOUT = config("LOG_STDOUT", default=False)
-
 LOGGING_DIR = BASE_DIR / "log"
+LOG_LEVEL = config(
+    "LOG_LEVEL",
+    default="INFO",
+)
 
 LOGGING = {
     "version": 1,
@@ -306,7 +309,7 @@ LOGGING = {
     "loggers": {
         "openarchiefbeheer": {
             "handlers": ["project"] if not LOG_STDOUT else ["console"],
-            "level": "INFO",
+            "level": LOG_LEVEL,
             "propagate": True,
         },
         "django.request": {
@@ -317,6 +320,11 @@ LOGGING = {
         "django.template": {
             "handlers": ["console"],
             "level": "INFO",
+            "propagate": True,
+        },
+        "mozilla_django_oidc_db": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
             "propagate": True,
         },
     },
