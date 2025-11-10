@@ -17,6 +17,8 @@ import {
   P,
   Solid,
 } from "@maykin-ui/admin-ui";
+import "@maykin-ui/admin-ui/style";
+import "@maykin-ui/admin-ui/style/themes/purple-rain.css";
 import { useState } from "react";
 import {
   Outlet,
