@@ -157,7 +157,7 @@ dill==0.3.8
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pylint
-django==4.2.25
+django==4.2.26
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -529,7 +529,7 @@ pillow==10.3.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-pip==24.0
+pip==25.3
     # via pip-tools
 pip-tools==7.4.1
     # via -r requirements/dev.in
