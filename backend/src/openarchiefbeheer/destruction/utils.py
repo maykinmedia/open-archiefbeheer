@@ -1,5 +1,4 @@
 from base64 import b64encode
-from functools import lru_cache
 from typing import Protocol
 
 from django.conf import settings
@@ -10,7 +9,12 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from openarchiefbeheer.accounts.models import User
-from openarchiefbeheer.clients import drc_client, zrc_client, ztc_client
+from openarchiefbeheer.clients import (
+    _cached_with_args,
+    drc_client,
+    zrc_client,
+    ztc_client,
+)
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
@@ -18,7 +22,7 @@ from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.utils import get_zaaktype
+from openarchiefbeheer.zaken.utils import retrieve_zaaktypen
 
 from .constants import (
     DestructionListItemAction,
@@ -174,7 +178,7 @@ def resync_items_and_zaken() -> None:
         logevent.destruction_list_items_deleted(destruction_list, number_deleted_items)
 
 
-@lru_cache
+@_cached_with_args
 def get_selectielijstklasse(resultaattype_url: str) -> str:
     with ztc_client() as client:
         response = client.get(resultaattype_url)
@@ -189,7 +193,7 @@ def create_zaak_for_report(
 ) -> None:
     config = ArchiveConfig.get_solo()
 
-    zaaktype = get_zaaktype(config.zaaktype)
+    zaaktype = retrieve_zaaktypen(config.zaaktype)[0]
 
     with zrc_client() as client:
         if not destruction_list.zaak_destruction_report_url:
