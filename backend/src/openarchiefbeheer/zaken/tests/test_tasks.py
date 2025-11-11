@@ -1,5 +1,4 @@
 from datetime import date
-from unittest.mock import patch
 
 from django.test import TestCase, TransactionTestCase, tag
 from django.utils.translation import gettext_lazy as _
@@ -11,14 +10,13 @@ from timeline_logger.models import TimelineLog
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.tests.factories import APIConfigFactory
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.tests.get_queries import executed_queries
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..models import Zaak
 from ..tasks import resync_zaken, retrieve_and_cache_zaken_from_openzaak
-from ..utils import get_resource
 from .factories import ZaakFactory
 
 PAGE_1 = {
@@ -85,10 +83,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
         )
-        cls.selectielijst_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/zaken/api/v1",
-        )
+        APIConfigFactory.create()
 
     def test_no_zaken_in_db(self, m):
         Zaak.objects.all().delete()
@@ -123,15 +118,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with (
-            freeze_time("2024-08-29T16:00:00+02:00"),
-            patch(
-                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-                return_value=APIConfig(
-                    selectielijst_api_service=self.selectielijst_service
-                ),
-            ),
-        ):
+        with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 
         zaak_request = m.request_history[0]
@@ -175,15 +162,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with (
-            freeze_time("2024-08-29T16:00:00+02:00"),
-            patch(
-                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-                return_value=APIConfig(
-                    selectielijst_api_service=self.selectielijst_service
-                ),
-            ),
-        ):
+        with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 
         zaak_request = m.request_history[0]
@@ -220,15 +199,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with (
-            freeze_time("2024-08-29T16:00:00+02:00"),
-            patch(
-                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-                return_value=APIConfig(
-                    selectielijst_api_service=self.selectielijst_service
-                ),
-            ),
-        ):
+        with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.count(), 1)
@@ -246,13 +217,7 @@ class RetrieveAndCacheZakenTest(TestCase):
         m.get("http://zaken-api.nl/zaken/api/v1/zaken", json=PAGE_1)
         m.get("http://zaken-api.nl/zaken/api/v1/zaken/?page=2", json=PAGE_2)
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(
-                selectielijst_api_service=self.selectielijst_service
-            ),
-        ):
-            retrieve_and_cache_zaken_from_openzaak()
+        retrieve_and_cache_zaken_from_openzaak()
 
         self.assertTrue(
             Zaak.objects.filter(
@@ -287,13 +252,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(
-                selectielijst_api_service=self.selectielijst_service
-            ),
-        ):
-            retrieve_and_cache_zaken_from_openzaak()
+        retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.all().count(), 1)
 
@@ -323,13 +282,7 @@ class RetrieveAndCacheZakenTest(TestCase):
             },
         )
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(
-                selectielijst_api_service=self.selectielijst_service
-            ),
-        ):
-            retrieve_and_cache_zaken_from_openzaak()
+        retrieve_and_cache_zaken_from_openzaak()
 
         self.assertEqual(Zaak.objects.all().count(), 1)
 
@@ -395,7 +348,7 @@ PAGE_WITH_EXPAND = {
 
 @Mocker()
 class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
-    # Needed, because the test teardown calls the management command "flush", which
+    # Needed because the test teardown calls the management command "flush", which
     # removes the permissions created with the data migration from the db.
     fixtures = ["permissions.json"]
 
@@ -403,17 +356,8 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-    def setUp(self):
-        super().setUp()
-
-        self.selectielijst_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1/",
-        )
-
-        self.addCleanup(get_resource.cache_clear)
-
     def test_expanded_correctly(self, m):
+        APIConfigFactory.create()
         ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
@@ -428,13 +372,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(
-                selectielijst_api_service=self.selectielijst_service
-            ),
-        ):
-            retrieve_and_cache_zaken_from_openzaak()
+        retrieve_and_cache_zaken_from_openzaak()
 
         zaak_with_resultaat = Zaak.objects.get(identificatie="ZAAK-01")
 
@@ -473,6 +411,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         )
 
     def test_expand_no_selectielijst_service(self, m):
+        APIConfigFactory.create(selectielijst_api_service=None)
         ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
@@ -502,11 +441,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=None),
-        ):
-            retrieve_and_cache_zaken_from_openzaak()
+        retrieve_and_cache_zaken_from_openzaak()
 
         zaak = Zaak.objects.get(identificatie="ZAAK-01")
 
@@ -517,6 +452,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
 
     @tag("gh-296")
     def test_resyncing_zaken_does_not_break_destruction_list(self, m):
+        APIConfigFactory.create()
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://zaken-api.nl/zaken/api/v1/zaken/75f4c682-1e16-45ea-8f78-99b4474986ac",
@@ -563,13 +499,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             },
         )
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(
-                selectielijst_api_service=self.selectielijst_service
-            ),
-        ):
-            resync_zaken()
+        resync_zaken()
 
         item.refresh_from_db()
 
@@ -591,6 +521,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         )
 
     def test_resync_zaken_raises_error(self, m):
+        APIConfigFactory.create()
         ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/zaken/api/v1",
@@ -601,15 +532,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
             exc=requests.exceptions.ConnectTimeout("Oh noes!"),
         )
 
-        with (
-            self.assertRaises(requests.exceptions.ConnectTimeout),
-            patch(
-                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-                return_value=APIConfig(
-                    selectielijst_api_service=self.selectielijst_service
-                ),
-            ),
-        ):
+        with self.assertRaises(requests.exceptions.ConnectTimeout):
             resync_zaken()
 
         logs = TimelineLog.objects.all()

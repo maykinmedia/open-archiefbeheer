@@ -8,7 +8,8 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import APIConfig, ArchiveConfig
+from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.config.tests.factories import APIConfigFactory
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
@@ -127,11 +128,7 @@ class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
-        cls.selectielijst_service = ServiceFactory(
-            slug="selectielijst",
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1/",
-        )
+        APIConfigFactory.create()
 
     @reload_openzaak_fixtures()
     def test_document_deleted(self):
@@ -141,10 +138,6 @@ class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
         After a relation object (ZIO/BIO) is deleted by OAB and before the
         corresponding EIO is deleted by OAB, someone deletes the EIO in OZ.
         """
-        config = APIConfig.get_solo()
-        config.selectielijst_api_service = self.selectielijst_service
-        config.save()
-
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 
@@ -178,10 +171,6 @@ class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
         """
         Issue 770: the zaaktype is an identificatie instead of a URL
         """
-        config = APIConfig.get_solo()
-        config.selectielijst_api_service = self.selectielijst_service
-        config.save()
-
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
 

@@ -17,7 +17,6 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.clients import get_ztc_service_from_url
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
@@ -319,11 +318,6 @@ class ProcessReviewResponseTests(TestCase):
 
 @temp_private_root()
 class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(get_ztc_service_from_url.cache_clear)
-
     @log_capture(level=logging.INFO)
     def test_skips_if_already_succeeded(self, logs):
         destruction_list = DestructionListFactory.create(

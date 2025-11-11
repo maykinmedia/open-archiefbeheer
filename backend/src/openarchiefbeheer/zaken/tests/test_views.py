@@ -12,7 +12,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.tests.factories import APIConfigFactory
 from openarchiefbeheer.destruction.constants import ListItemStatus
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
@@ -23,7 +23,6 @@ from openarchiefbeheer.destruction.tests.factories import (
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
-from ..utils import retrieve_paginated_type, retrieve_selectielijstklasse_choices
 from .factories import ZaakFactory
 
 
@@ -438,10 +437,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
     @Mocker()
     def test_retrieve_choices(self, m):
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
+        APIConfigFactory.create()
         user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
@@ -498,11 +494,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
         endpoint.args["zaak"] = zaak.url
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
-        ):
-            response = self.client.get(endpoint.url)
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -534,11 +526,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
     @Mocker()
     def test_retrieve_choices_without_zaak(self, m):
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
-
+        APIConfigFactory.create()
         user = UserFactory.create(post__can_start_destruction=True)
 
         m.get(
@@ -596,11 +584,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
 
         # Send the GET request
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
-        ):
-            response = self.client.get(endpoint.url)
+        response = self.client.get(endpoint.url)
 
         # Validate the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -633,10 +617,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
     @Mocker()
     def test_response_cached(self, m):
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
+        APIConfigFactory.create()
         user = UserFactory.create(post__can_start_destruction=True)
         zaak = ZaakFactory.create()
         process_type_url = zaak._expand["zaaktype"]["selectielijst_procestype"]["url"]
@@ -693,25 +674,14 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         endpoint = furl(reverse("api:retrieve-selectielijstklasse-choices"))
         endpoint.args["zaak"] = zaak.url
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
-        ):
-            self.client.get(endpoint.url)
-            self.client.get(endpoint.url)
+        self.client.get(endpoint.url)
+        self.client.get(endpoint.url)
 
         # One request for the selectielijstklasse, one for the processtypen
         self.assertEqual(len(m.request_history), 2)
 
 
 class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        retrieve_selectielijstklasse_choices.cache_clear()
-
-        self.addCleanup(retrieve_selectielijstklasse_choices.cache_clear)
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-internal-selectielijstklasse-choices")
 
@@ -733,10 +703,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         We mock the selectielijstklasse API endpoint to return 3 resultaten, two of which are referenced in the zaken
         in the db. So the internal selectielijstklasse choices endpoint should only return 2 choices.
         """
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
+        APIConfigFactory.create()
         user = UserFactory.create(post__can_start_destruction=True)
         ZaakFactory.create(
             selectielijstklasse="https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
@@ -827,11 +794,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         self.client.force_authenticate(user=user)
         endpoint = furl(reverse("api:retrieve-internal-selectielijstklasse-choices"))
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
-        ):
-            response = self.client.get(endpoint.url)
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -859,10 +822,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         """
         Test that only the selectielijstklassen of the filtered zaken in the database are returned.
         """
-        selectielist_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
+        APIConfigFactory.create()
         user = UserFactory.create(post__can_start_destruction=True)
         ZaakFactory.create(
             identificatie="ZAAK-1",
@@ -925,11 +885,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
         endpoint = furl(reverse("api:retrieve-internal-selectielijstklasse-choices"))
         endpoint.args["identificatie"] = "ZAAK-1"
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=selectielist_service),
-        ):
-            response = self.client.get(endpoint.url)
+        response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -1010,11 +966,6 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
 
 
 class ResultaattypenChoicesViewTests(ClearCacheMixin, APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-external-resultaattype-choices")
 
@@ -1111,11 +1062,6 @@ class ResultaattypenChoicesViewTests(ClearCacheMixin, APITestCase):
 
 
 class InformatieobjecttypenChoicesViewTests(ClearCacheMixin, APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-informatieobjecttype-choices")
 
@@ -1206,11 +1152,6 @@ class InformatieobjecttypenChoicesViewTests(ClearCacheMixin, APITestCase):
 
 
 class StatustypenChoicesViewTests(ClearCacheMixin, APITestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-statustype-choices")
 

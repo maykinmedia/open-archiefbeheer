@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from django.test import TestCase, override_settings, tag
 
 import requests
@@ -9,7 +7,7 @@ from vcr.unittest import VCRMixin
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.tests.factories import APIConfigFactory
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.models import Zaak
 
@@ -28,10 +26,7 @@ class RecachingZakenTests(VCRMixin, TestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
-        cls.selectielijst_service = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/zaken/api/v1",
-        )
+        APIConfigFactory.create()
 
     @tag("gh-298")
     @reload_openzaak_fixtures()
@@ -74,11 +69,5 @@ class RecachingZakenTests(VCRMixin, TestCase):
         with (
             freeze_time("2025-01-27"),
             self.assertRaises(requests.exceptions.RetryError),
-            patch(
-                "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-                return_value=APIConfig(
-                    selectielijst_api_service=self.selectielijst_service
-                ),
-            ),
         ):
             resync_zaken()
