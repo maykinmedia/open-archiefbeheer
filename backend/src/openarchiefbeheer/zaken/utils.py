@@ -15,15 +15,14 @@ from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
-from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
+from openarchiefbeheer.clients import brc_client, drc_client, zrc_client, ztc_client
 from openarchiefbeheer.config.exceptions import ServiceNotConfigured
 from openarchiefbeheer.config.models import APIConfig
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.services import get_service
 
 from .models import Zaak
 from .types import DropDownChoice
@@ -317,11 +316,8 @@ def delete_decisions_and_relation_objects(
 
     This automatically deletes ZaakBesluiten in the Zaken API.
     """
-    brc_service = get_service(APITypes.brc)
-    brc_client = build_client(brc_service)
-
-    with brc_client:
-        response = brc_client.get("besluiten", params={"zaak": zaak.url})
+    with brc_client() as client:
+        response = client.get("besluiten", params={"zaak": zaak.url})
         response.raise_for_status()
 
         data = response.json()
@@ -329,7 +325,7 @@ def delete_decisions_and_relation_objects(
             return
 
         data_iterator = pagination_helper(
-            brc_client,
+            client,
             data,
             params={"zaak": zaak.url},
         )
@@ -337,15 +333,13 @@ def delete_decisions_and_relation_objects(
         for data in data_iterator:
             for besluit in data["results"]:
                 besluit_uuid = furl(besluit["url"]).path.segments[-1]
-                delete_relation_object(
-                    brc_client, "besluit", besluit["url"], result_store
-                )
+                delete_relation_object(client, "besluit", besluit["url"], result_store)
 
                 delete_object_and_store_result(
                     result_store,
                     "besluiten",
                     besluit["url"],
-                    partial(brc_client.delete, f"besluiten/{besluit_uuid}"),
+                    partial(client.delete, f"besluiten/{besluit_uuid}"),
                     handle_delete_with_pending_relations,
                 )
 
@@ -388,10 +382,7 @@ def delete_relation_object(
 
 
 def delete_documents(result_store: ResultStore) -> None:
-    drc_service = get_service(APITypes.drc)
-    drc_client = build_client(drc_service)
-
-    with drc_client:
+    with drc_client() as client:
         for document_url in result_store.get_resources_to_delete(
             "enkelvoudiginformatieobjecten"
         ):
@@ -401,7 +392,7 @@ def delete_documents(result_store: ResultStore) -> None:
                 "enkelvoudiginformatieobjecten",
                 document_url,
                 partial(
-                    drc_client.delete, f"enkelvoudiginformatieobjecten/{document_uuid}"
+                    client.delete, f"enkelvoudiginformatieobjecten/{document_uuid}"
                 ),
                 handle_delete_with_pending_relations,
             )
@@ -443,13 +434,12 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     If an error occurs after deleting the ZIOs, we wouldn't know which documents
     should be deleted.
     """
-    zrc_service = get_service(APITypes.zrc)
-    zrc_client = build_client(zrc_service)
+    client = zrc_client()
 
     delete_decisions_and_relation_objects(zaak, result_store)
-    delete_relation_object(zrc_client, "zaak", zaak.url, result_store)
+    delete_relation_object(client, "zaak", zaak.url, result_store)
     delete_documents(result_store)
-    delete_zaak(zaak, zrc_client, result_store)
+    delete_zaak(zaak, client, result_store)
 
 
 @lru_cache
@@ -459,13 +449,10 @@ def retrieve_paginated_type(
     def format_choice(item: dict) -> DropDownChoice:
         return {"label": item["omschrijving"] or item["url"], "value": item["url"]}
 
-    ztc_service = get_service(APITypes.ztc)
-    ztc_client = build_client(ztc_service)
-
-    with ztc_client:
-        response = ztc_client.get(resource_path, params=query_params)
+    with ztc_client() as client:
+        response = client.get(resource_path, params=query_params)
         response.raise_for_status()
-        data_iterator = pagination_helper(ztc_client, response.json())
+        data_iterator = pagination_helper(client, response.json())
 
     results = []
     for page in data_iterator:
@@ -483,13 +470,10 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
 
 @lru_cache
 def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
-    ztc_service = get_service(APITypes.ztc)
-    ztc_client = build_client(ztc_service)
-
-    with ztc_client:
-        response = ztc_client.get("zaaktypen", params=query_params)
+    with ztc_client() as client:
+        response = client.get("zaaktypen", params=query_params)
         response.raise_for_status()
-        data_iterator = pagination_helper(ztc_client, response.json())
+        data_iterator = pagination_helper(client, response.json())
 
     results = []
     for page in data_iterator:

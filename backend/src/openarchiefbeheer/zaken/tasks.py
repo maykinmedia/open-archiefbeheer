@@ -2,19 +2,17 @@ import datetime
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import Max
 
 from ape_pie import APIClient
 from requests.adapters import HTTPAdapter, Retry
-from zgw_consumers.client import build_client
-from zgw_consumers.constants import APITypes
 
 from openarchiefbeheer.celery import app
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.clients import selectielijst_client, zrc_client
 from openarchiefbeheer.destruction.utils import resync_items_and_zaken
 from openarchiefbeheer.logging import logevent
-from openarchiefbeheer.utils.services import get_service
 
 from .api.serializers import ZaakSerializer
 from .decorators import log_errors
@@ -36,13 +34,12 @@ def configure_retry(client: APIClient) -> APIClient:
 
 
 def retrieve_and_cache_zaken(is_full_resync=False):
-    zrc_service = get_service(APITypes.zrc)
-    zrc_client = build_client(zrc_service)
-    zrc_client = configure_retry(zrc_client)
-
-    config = APIConfig.get_solo()
-    service = config.selectielijst_api_service
-    selectielijst_api_client = build_client(service) if service else None
+    # TODO: We should probably let this error out,
+    # But I don't want to change the behaviour for now while fixing #867
+    try:
+        selectielijst_api_client = selectielijst_client()
+    except ImproperlyConfigured:
+        selectielijst_api_client = None
 
     today = datetime.date.today()
     query_params = {
@@ -56,11 +53,11 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         result = Zaak.objects.aggregate(Max("einddatum"))
         query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
 
-    with transaction.atomic(), zrc_client, selectielijst_api_client or NoClient():
+    with transaction.atomic(), zrc_client() as client, selectielijst_api_client or NoClient():
         if is_full_resync:
             Zaak.objects.all().delete()
 
-        response = zrc_client.get(
+        response = client.get(
             "zaken",
             headers={"Accept-Crs": "EPSG:4326"},
             params=query_params,
@@ -69,7 +66,7 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         response.raise_for_status()
 
         data_iterator = pagination_helper(
-            zrc_client,
+            client,
             response.json(),
             headers={"Accept-Crs": "EPSG:4326"},
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,

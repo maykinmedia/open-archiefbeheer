@@ -9,17 +9,14 @@ from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from zgw_consumers.client import build_client
-from zgw_consumers.constants import APITypes
-
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.clients import drc_client, zrc_client, ztc_client
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.utils import get_zaaktype
 
@@ -179,11 +176,8 @@ def resync_items_and_zaken() -> None:
 
 @lru_cache
 def get_selectielijstklasse(resultaattype_url: str) -> str:
-    ztc_service = get_service(APITypes.ztc)
-    ztc_client = build_client(ztc_service)
-
-    with ztc_client:
-        response = ztc_client.get(resultaattype_url)
+    with ztc_client() as client:
+        response = client.get(resultaattype_url)
         response.raise_for_status()
         resultaattype = response.json()
 
@@ -195,14 +189,11 @@ def create_zaak_for_report(
 ) -> None:
     config = ArchiveConfig.get_solo()
 
-    zrc_service = get_service(APITypes.zrc)
-    zrc_client = build_client(zrc_service)
-
     zaaktype = get_zaaktype(config.zaaktype)
 
-    with zrc_client:
+    with zrc_client() as client:
         if not destruction_list.zaak_destruction_report_url:
-            response = zrc_client.post(
+            response = client.post(
                 "zaken",
                 headers={
                     "Accept-Crs": "EPSG:4326",
@@ -231,7 +222,7 @@ def create_zaak_for_report(
             destruction_list.save()
 
         if config.resultaattype and not store.has_created_resource("resultaten"):
-            response = zrc_client.post(
+            response = client.post(
                 "resultaten",
                 json={
                     "zaak": destruction_list.zaak_destruction_report_url,
@@ -242,7 +233,7 @@ def create_zaak_for_report(
             store.add_created_resource("resultaten", response.json()["url"])
 
         if config.statustype and not store.has_created_resource("statussen"):
-            response = zrc_client.post(
+            response = client.post(
                 "statussen",
                 json={
                     "zaak": destruction_list.zaak_destruction_report_url,
@@ -262,11 +253,10 @@ def create_eio_destruction_report(
 
     config = ArchiveConfig.get_solo()
 
-    drc_service = get_service(APITypes.drc)
-    drc_client = build_client(drc_service)
-
-    with drc_client, destruction_list.destruction_report.open("rb") as f_report:
-        response = drc_client.post(
+    with drc_client() as client, destruction_list.destruction_report.open(
+        "rb"
+    ) as f_report:
+        response = client.post(
             "enkelvoudiginformatieobjecten",
             json={
                 "bronorganisatie": config.bronorganisatie,
@@ -293,11 +283,8 @@ def attach_report_to_zaak(
     if store.has_created_resource("zaakinformatieobjecten"):
         return
 
-    zrc_service = get_service(APITypes.zrc)
-    zrc_client = build_client(zrc_service)
-
-    with zrc_client:
-        response = zrc_client.post(
+    with zrc_client() as client:
+        response = client.post(
             "zaakinformatieobjecten",
             json={
                 "zaak": destruction_list.zaak_destruction_report_url,

@@ -3,10 +3,7 @@ from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from zgw_consumers.client import build_client
-from zgw_consumers.constants import APITypes
-
-from openarchiefbeheer.utils.services import get_service
+from openarchiefbeheer.clients import zrc_client
 
 
 class Zaak(models.Model):
@@ -113,11 +110,8 @@ class Zaak(models.Model):
     def update_data(self, data: dict) -> None:
         from .api.serializers import ZaakSerializer
 
-        zrc_service = get_service(APITypes.zrc)
-        zrc_client = build_client(zrc_service)
-
-        with zrc_client:
-            response = zrc_client.patch(
+        with zrc_client() as client:
+            response = client.patch(
                 f"zaken/{self.uuid}",
                 headers={
                     "Accept-Crs": "EPSG:4326",
