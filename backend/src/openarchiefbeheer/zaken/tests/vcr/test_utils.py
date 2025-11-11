@@ -2,13 +2,12 @@ from django.test import TestCase, tag
 
 from freezegun import freeze_time
 from vcr.unittest import VCRMixin
-from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.clients import brc_client, drc_client, zrc_client
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 
 from ...models import Zaak
@@ -54,21 +53,16 @@ class DeletingZakenTests(VCRMixin, TestCase):
 
         delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
 
-        zrc_service = get_service(APITypes.zrc)
-        zrc_client = build_client(zrc_service)
-
-        with zrc_client:
-            response = zrc_client.get("zaken", headers={"Accept-Crs": "EPSG:4326"})
+        with zrc_client() as client:
+            response = client.get("zaken", headers={"Accept-Crs": "EPSG:4326"})
             response.raise_for_status()
 
             data = response.json()
 
             self.assertEqual(data["count"], 102)
 
-        drc_service = get_service(APITypes.drc)
-        drc_client = build_client(drc_service)
-        with drc_client:
-            response = drc_client.get("enkelvoudiginformatieobjecten")
+        with drc_client() as client:
+            response = client.get("enkelvoudiginformatieobjecten")
             response.raise_for_status()
 
             data = response.json()
@@ -80,10 +74,8 @@ class DeletingZakenTests(VCRMixin, TestCase):
             self.assertIn("DOCUMENT-01", identificaties)
             self.assertIn("DOCUMENT-03", identificaties)
 
-        brc_service = get_service(APITypes.brc)
-        brc_client = build_client(brc_service)
-        with brc_client:
-            response = brc_client.get("besluiten")
+        with brc_client() as client:
+            response = client.get("besluiten")
             response.raise_for_status()
 
             data = response.json()
