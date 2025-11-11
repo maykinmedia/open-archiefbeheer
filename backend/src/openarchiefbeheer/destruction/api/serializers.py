@@ -14,6 +14,7 @@ from rest_framework.relations import SlugRelatedField
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.logging import logevent
+from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
@@ -788,7 +789,7 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
             "comment",
         )
 
-    def _get_selectielijst_resultaat(self, resultaat_url: str) -> dict:
+    def _get_selectielijst_resultaat(self, resultaat_url: str) -> JSONValue:
         try:
             resultaat = retrieve_selectielijstklasse_resultaat(resultaat_url)
         except HTTPError:

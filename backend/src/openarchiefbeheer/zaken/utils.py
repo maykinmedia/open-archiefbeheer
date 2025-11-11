@@ -1,8 +1,8 @@
-from functools import lru_cache, partial
+from functools import partial
 from typing import Callable, Generator, Iterable, Literal
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext as _
 
 from ape_pie import APIClient
@@ -15,12 +15,19 @@ from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
-from zgw_consumers.models import Service
 from zgw_consumers.utils import PaginatedResponseData
 
-from openarchiefbeheer.clients import brc_client, drc_client, zrc_client, ztc_client
-from openarchiefbeheer.config.exceptions import ServiceNotConfigured
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.clients import (
+    _cached,
+    _cached_with_args,
+    brc_client,
+    drc_client,
+    get_service_from_url,
+    selectielijst_client,
+    zrc_client,
+    ztc_client,
+)
+from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
 
@@ -46,9 +53,9 @@ def pagination_helper(
     return _iter(paginated_response)
 
 
-@lru_cache
-def get_resource(url: str) -> dict | None:
-    service = Service.get_service(url)
+@_cached_with_args
+def get_resource(url: str) -> JSONValue | None:
+    service = get_service_from_url(url)
     if not service:
         return
 
@@ -59,9 +66,7 @@ def get_resource(url: str) -> dict | None:
             timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
         )
         response.raise_for_status()
-        data = response.json()
-
-    return data
+        return response.json()
 
 
 def get_resource_with_prebuilt_client(client: APIClient, url: str) -> dict | None:
@@ -160,30 +165,29 @@ def format_resultaten_choices(resultaten: list[dict | None]) -> DropDownChoice:
     return result
 
 
-@lru_cache
+@_cached_with_args
 def retrieve_selectielijstklasse_choices(
-    query_params: HashableDict | None = None,
-) -> list:
-    config = APIConfig.get_solo()
-    selectielijst_service = config.selectielijst_api_service
-    if not selectielijst_service:
+    procestype_url: str = "",
+) -> list[DropDownChoice]:
+    try:
+        client = selectielijst_client()
+    except ImproperlyConfigured:
         return []
 
-    def _retrieve_processtypen(client: APIClient) -> list[dict]:
-        response = client.get("procestypen")
-        response.raise_for_status()
-
-        return response.json()
-
-    client = build_client(selectielijst_service)
     with client:
+        query_params = {"procesType": procestype_url} if procestype_url else {}
         response = client.get("resultaten", params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
 
+        @_cached
+        def _retrieve_processtypen() -> list[dict]:
+            response = client.get("procestypen")
+            response.raise_for_status()
+            return response.json()
+
         procestypen = {
-            procestype["url"]: procestype
-            for procestype in _retrieve_processtypen(client)
+            procestype["url"]: procestype for procestype in _retrieve_processtypen()
         }
 
         results = []
@@ -192,28 +196,22 @@ def retrieve_selectielijstklasse_choices(
                 format_selectielijstklasse_choice(result, procestypen)
                 for result in page["results"]
             ]
-
     return results
 
 
+@_cached
 def get_selectielijstklasse_choices_dict() -> dict[str, DropDownChoice]:
-    if selectielijstklasse_dict := cache.get("selectielijstklasse_choices_dict"):
-        return selectielijstklasse_dict
-
     results = retrieve_selectielijstklasse_choices()
-    results = {result["value"]: result for result in results}
-    cache.set("selectielijstklasse_choices_dict", results)
-    return results
+    return {result["value"]: result for result in results}
 
 
-@lru_cache
+@_cached
 def get_all_selectielijst_resultaten() -> list[dict]:
-    config = APIConfig.get_solo()
-    selectielijst_service = config.selectielijst_api_service
-    if not selectielijst_service:
+    try:
+        client = selectielijst_client()
+    except ImproperlyConfigured:
         return []
 
-    client = build_client(selectielijst_service)
     with client:
         response = client.get("resultaten")
         response.raise_for_status()
@@ -225,48 +223,35 @@ def get_all_selectielijst_resultaten() -> list[dict]:
         return results
 
 
-@lru_cache
+@_cached
 def get_all_selectielijst_procestypen() -> list[dict]:
-    config = APIConfig.get_solo()
-    selectielijst_service = config.selectielijst_api_service
-    if not selectielijst_service:
+    try:
+        client = selectielijst_client()
+    except ImproperlyConfigured:
         return []
 
-    client = build_client(selectielijst_service)
     with client:
         response = client.get("procestypen")
         response.raise_for_status()
     return response.json()
 
 
-def get_selectielijstprocestypen_dict() -> dict[str, dict]:
-    if selectielijstprocestypen_dict := cache.get("selectielijstprocestypen_dict"):
-        return selectielijstprocestypen_dict
-
+@_cached
+def get_selectielijstprocestypen_dict() -> dict[str, JSONValue]:
     procestypen = get_all_selectielijst_procestypen()
-    result = {item["url"]: item for item in procestypen}
-    cache.set("selectielijstprocestypen_dict", result)
-    return result
+    return {item["url"]: item for item in procestypen}
 
 
-def get_selectielijstresultaten_dict() -> dict[str, dict]:
-    if selectielijstresultaten_dict := cache.get("selectielijstresultaten_dict"):
-        return selectielijstresultaten_dict
-
+@_cached
+def get_selectielijstresultaten_dict() -> dict[str, JSONValue]:
     resultaten = get_all_selectielijst_resultaten()
-    result = {item["url"]: item for item in resultaten}
-    cache.set("selectielijstresultaten_dict", result)
-    return result
+    return {item["url"]: item for item in resultaten}
 
 
-@lru_cache
-def retrieve_selectielijstklasse_resultaat(resultaat_url: str) -> dict:
-    config = APIConfig.get_solo()
-    selectielijst_service = config.selectielijst_api_service
-    if not selectielijst_service:
-        raise ServiceNotConfigured(msg="No selectielijst API service configured.")
+@_cached_with_args
+def retrieve_selectielijstklasse_resultaat(resultaat_url: str) -> JSONValue:
+    client = selectielijst_client()
 
-    client = build_client(selectielijst_service)
     with client:
         response = client.get(resultaat_url)
         response.raise_for_status()
@@ -442,7 +427,6 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     delete_zaak(zaak, client, result_store)
 
 
-@lru_cache
 def retrieve_paginated_type(
     resource_path: str, query_params: HashableDict | None = None
 ) -> list[DropDownChoice]:
@@ -468,9 +452,12 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
     return serializer.data
 
 
-@lru_cache
-def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
+@_cached_with_args
+def retrieve_zaaktypen(zaaktype_identificatie: str = "") -> list[dict]:
     with ztc_client() as client:
+        query_params = (
+            {"identificatie": zaaktype_identificatie} if zaaktype_identificatie else {}
+        )
         response = client.get("zaaktypen", params=query_params)
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
@@ -478,6 +465,13 @@ def retrieve_zaaktypen(query_params: HashableDict | None = None) -> list[dict]:
     results = []
     for page in data_iterator:
         results += page["results"]
+
+    if zaaktype_identificatie:
+        # If the identificatie was provided, sort by begin geldigheid so that the
+        # latest version is first.
+        results = sorted(
+            results, key=lambda zaaktype: zaaktype["begin_geldigheid"], reverse=True
+        )
 
     return results
 
@@ -488,15 +482,3 @@ class NoClient:
 
     def __exit__(self, *args):
         return None
-
-
-@lru_cache
-def get_zaaktype(identificatie: str) -> dict:
-    """Get the latest version of the zaaktype with this identificatie"""
-    params = HashableDict({"identificatie": identificatie})
-    zaaktypen = retrieve_zaaktypen(params)
-
-    zaaktypen = sorted(
-        zaaktypen, key=lambda zaaktype: zaaktype["begin_geldigheid"], reverse=True
-    )
-    return zaaktypen[0]

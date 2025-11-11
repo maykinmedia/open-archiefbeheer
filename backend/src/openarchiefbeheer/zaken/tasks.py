@@ -53,7 +53,8 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         result = Zaak.objects.aggregate(Max("einddatum"))
         query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
 
-    with transaction.atomic(), zrc_client() as client, selectielijst_api_client or NoClient():
+    client = configure_retry(zrc_client())
+    with transaction.atomic(), client, selectielijst_api_client or NoClient():
         if is_full_resync:
             Zaak.objects.all().delete()
 

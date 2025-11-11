@@ -159,13 +159,13 @@ class ExternalSelectielijstklasseChoicesView(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        query_params = HashableDict()
+        procestype_url = ""
         if zaak_url := serializer.validated_data.get("zaak"):
             zaak = get_object_or_404(Zaak, url=zaak_url)
             processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
-            query_params.update({"procesType": processtype["url"]})
+            procestype_url = processtype["url"]
 
-        choices = retrieve_selectielijstklasse_choices(query_params)
+        choices = retrieve_selectielijstklasse_choices(procestype_url)
         return Response(data=choices)
 
 
@@ -272,11 +272,9 @@ class ExternalInformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
         serializer = ZaaktypeFilterSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
-        zaaktypen_query_params = HashableDict()
-        zaaktypen_query_params.update(
-            {"identificatie": serializer.validated_data["zaaktype_identificatie"]}
+        zaaktypen = retrieve_zaaktypen(
+            serializer.validated_data["zaaktype_identificatie"]
         )
-        zaaktypen = retrieve_zaaktypen(zaaktypen_query_params)
         if not zaaktypen:
             return query_params
 
