@@ -1,5 +1,5 @@
 import { LoaderFunction } from "@remix-run/router/utils";
-import { StoryContext, StoryFn } from "@storybook/react";
+import { StoryContext, StoryFn } from "@storybook/react-vite";
 import {
   RouterProvider,
   createBrowserRouter,

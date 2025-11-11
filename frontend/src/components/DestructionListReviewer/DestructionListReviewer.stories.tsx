@@ -1,6 +1,6 @@
-import { Meta, ReactRenderer, StoryObj } from "@storybook/react";
-import { expect, userEvent, within } from "@storybook/test";
+import { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
 import { PlayFunction } from "storybook/internal/types";
+import { expect, userEvent, within } from "storybook/test";
 
 import {
   ClearSessionStorageDecorator,
