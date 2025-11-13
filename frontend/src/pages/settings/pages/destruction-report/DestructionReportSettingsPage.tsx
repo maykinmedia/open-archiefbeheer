@@ -17,7 +17,7 @@ import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";
 import { ArchiveConfiguration } from "../../../../lib/api/config";
 import {
-  clearChoicesCache,
+  clearBackendCache,
   listInformatieObjectTypeChoices,
   listResultaatTypeChoices,
   listStatusTypeChoices,
@@ -164,11 +164,18 @@ export function DestructionReportSettingsPage() {
       undefined,
       { allowClose: false },
     );
-    await clearChoicesCache();
+    try {
+      await clearBackendCache();
+    } catch (exc) {
+      alert("Het verversen is NIET gelukt!", (exc as Error).message, "Ok");
+      return;
+    }
+    sessionStorage.clear();
     alert(
       "Het verversen van de cache is gelukt!",
       "De informatieobjecttypen, statustypen en resultaattypen zijn succesvol ververst.",
       "Ok",
+      () => window.location.reload(),
     );
   }, []);
 
