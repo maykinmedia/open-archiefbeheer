@@ -17,13 +17,11 @@ from glom import glom
 from privates.fields import PrivateMediaFileField
 from slugify import slugify
 from timeline_logger.models import TimelineLog
-from zgw_consumers.client import build_client
-from zgw_consumers.constants import APITypes
 
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.services import get_service
 from openarchiefbeheer.zaken.utils import (
     delete_zaak_and_related_objects,
     get_zaak_metadata,
@@ -296,11 +294,8 @@ class DestructionList(models.Model):
         if not self.zaak_destruction_report_url:
             return
 
-        zrc_service = get_service(APITypes.zrc)
-        zrc_client = build_client(zrc_service)
-
-        with zrc_client:
-            response = zrc_client.get(
+        with zrc_client() as client:
+            response = client.get(
                 "zaakinformatieobjecten",
                 params={"zaak": self.zaak_destruction_report_url},
             )

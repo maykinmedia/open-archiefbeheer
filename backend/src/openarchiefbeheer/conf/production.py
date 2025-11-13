@@ -9,7 +9,6 @@ import os
 os.environ.setdefault("ENVIRONMENT", "production")
 # NOTE: watch out for multiple projects using the same cache!
 os.environ.setdefault("CACHE_DEFAULT", "127.0.0.1:6379/2")
-os.environ.setdefault("CACHE_CHOICES", "127.0.0.1:6379/3")
 
 from .base import *  # noqa isort:skip
 

@@ -232,10 +232,10 @@ export async function listZaaktypeChoices(
   );
 }
 
-export async function clearChoicesCache() {
+export async function clearBackendCache() {
   return await request(
     "POST",
-    "/_clear-choices-endpoints-cache/",
+    "/_clear-default-cache/",
     {},
     undefined,
     undefined,

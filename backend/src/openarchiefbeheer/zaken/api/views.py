@@ -82,7 +82,6 @@ class InternalZaaktypenChoicesView(ChoicesMixin, APIView):
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
-            "The response is cached for 15 minutes.\n"
             "All the filters for the zaken are available to limit which zaaktypen should be returned."
         ),
         tags=["private"],
@@ -90,7 +89,6 @@ class InternalZaaktypenChoicesView(ChoicesMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         return self._retrieve_zaaktypen(request)
 
@@ -101,7 +99,6 @@ class InternalZaaktypenChoicesView(ChoicesMixin, APIView):
             "The label is the 'identificatie' field an the value is a string of comma separated URLs. "
             "There are multiple URLs per identificatie if there are multiple versions of a zaaktype. "
             "If there are no zaken of a particular zaaktype in the database, then that zaaktype is not returned. "
-            "The response is cached for 15 minutes.\n"
             "All the filters for the zaken are available to limit which zaaktypen should be returned."
         ),
         tags=["private"],
@@ -109,7 +106,6 @@ class InternalZaaktypenChoicesView(ChoicesMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def post(self, request, *args, **kwargs):
         return self._retrieve_zaaktypen(request)
 
@@ -132,7 +128,7 @@ class ExternalZaaktypenChoicesView(APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         results = retrieve_zaaktypen()
         zaaktypen_choices = format_zaaktype_choices(results)
@@ -159,13 +155,13 @@ class ExternalSelectielijstklasseChoicesView(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        query_params = HashableDict()
+        procestype_url = ""
         if zaak_url := serializer.validated_data.get("zaak"):
             zaak = get_object_or_404(Zaak, url=zaak_url)
             processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
-            query_params.update({"procesType": processtype["url"]})
+            procestype_url = processtype["url"]
 
-        choices = retrieve_selectielijstklasse_choices(query_params)
+        choices = retrieve_selectielijstklasse_choices(procestype_url)
         return Response(data=choices)
 
 
@@ -187,7 +183,6 @@ class InternalSelectielijstklasseChoicesView(
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
@@ -243,7 +238,7 @@ class ExternalStatustypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("statustypen", query_params)
@@ -272,11 +267,9 @@ class ExternalInformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
         serializer = ZaaktypeFilterSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
 
-        zaaktypen_query_params = HashableDict()
-        zaaktypen_query_params.update(
-            {"identificatie": serializer.validated_data["zaaktype_identificatie"]}
+        zaaktypen = retrieve_zaaktypen(
+            serializer.validated_data["zaaktype_identificatie"]
         )
-        zaaktypen = retrieve_zaaktypen(zaaktypen_query_params)
         if not zaaktypen:
             return query_params
 
@@ -300,7 +293,7 @@ class ExternalInformatieobjecttypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("informatieobjecttypen", query_params)
@@ -326,7 +319,7 @@ class ExternalResultaattypeChoicesView(FilterOnZaaktypeMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
+    @method_decorator(cache_page(60 * 15))
     def get(self, request, *args, **kwargs):
         query_params = self.get_query_params(request)
         results = retrieve_paginated_type("resultaattypen", query_params)
@@ -350,7 +343,6 @@ class InternalResultaattypeChoicesView(ChoicesMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
@@ -393,7 +385,6 @@ class BehandelendAfdelingInternalChoicesView(ChoicesMixin, APIView):
             200: ChoiceSerializer(many=True),
         },
     )
-    @method_decorator(cache_page(60 * 15, cache="choices_endpoints"))
     def get(self, request, *args, **kwargs):
         filterset = ZaakFilterSet(data=request.query_params or request.data)
         is_valid = filterset.is_valid()
@@ -422,17 +413,16 @@ class BehandelendAfdelingInternalChoicesView(ChoicesMixin, APIView):
         return self.no_cache_response(formatted_choices)
 
 
-class ClearChoicesEndpointsCache(APIView):
+class ClearDefaultCacheView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        summary=_("Clear choices endpoints cache"),
+        summary=_("Clear Django default cache"),
         description=_(
-            "Clear the backend cache where the external and internal choices endpoints are cached."
+            "Clear the backend Django default cache. This is useful when configuring resources in the Catalogi API have changed."
         ),
         tags=["private"],
     )
     def post(self, request, *args, **kwargs):
-        cache = caches["choices_endpoints"]
-        cache.clear()
-        return Response(status=status.HTTP_200_OK)
+        caches["default"].clear()
+        return Response(status=status.HTTP_204_NO_CONTENT)
