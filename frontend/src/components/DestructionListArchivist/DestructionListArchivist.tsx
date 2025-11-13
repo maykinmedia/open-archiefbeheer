@@ -2,9 +2,9 @@ import {
   AttributeTable,
   Button,
   FormField,
+  FormValidator,
   P,
   Solid,
-  TypedSerializedFormData,
   useAlert,
   useFormDialog,
   validateForm,
@@ -90,12 +90,12 @@ export function DestructionListArchivist({
     return [archivistField, commentField];
   }, [assignArchivistModalOpenState, assignArchivistFormState.archivist]);
 
-  const handleValidate = (values: TypedSerializedFormData) => {
+  const handleValidate: FormValidator = (values, _, validators) => {
     const _values = Object.assign({ ...assignArchivistFormState }, values);
     if (Object.keys(_values).length) {
       setAssignArchivistFormState(_values as typeof assignArchivistFormState);
     }
-    return validateForm(_values, fields);
+    return validateForm(_values, fields, validators);
   };
 
   const handleSubmit = (data: DestructionListArchivistFormType) => {

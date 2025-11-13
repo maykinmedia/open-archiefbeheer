@@ -6,7 +6,7 @@ import {
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import { useMemo } from "react";
+import { JSX, useMemo } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import {
@@ -507,7 +507,7 @@ export function DestructionListReviewPage() {
   }
 
   return (
-    <BaseListView
+    <BaseListView<Zaak & { Beoordeling?: string; Acties?: JSX.Element }>
       storageKey={destructionListReviewKey}
       destructionList={destructionList}
       paginatedZaken={paginatedObjectList}

@@ -1,4 +1,5 @@
 import { TypedField } from "@maykin-ui/admin-ui";
+import { invariant } from "@maykin-ui/client-common";
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import * as fieldSelection from "../lib/fieldSelection/fieldSelection";
@@ -112,6 +113,10 @@ describe("useFields Hook", () => {
       (f) => f.name === "selectielijstklasse",
     );
 
+    invariant(
+      Array.isArray(selectielijstKlasse?.options),
+      "selectielijstKlasse?.options must be an array",
+    );
     expect(selectielijstKlasse?.options?.length).toBeTruthy();
     expect(selectielijstKlasse?.options?.[0].value).toContain("https://");
   });
