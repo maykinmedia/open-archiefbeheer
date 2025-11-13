@@ -413,16 +413,16 @@ class BehandelendAfdelingInternalChoicesView(ChoicesMixin, APIView):
         return self.no_cache_response(formatted_choices)
 
 
-class ClearChoicesEndpointsCache(APIView):
+class ClearDefaultCacheView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        summary=_("Clear choices endpoints cache"),
+        summary=_("Clear Django default cache"),
         description=_(
-            "Clear the backend cache where the external and internal choices endpoints are cached."
+            "Clear the backend Django default cache. This is useful when configuring resources in the Catalogi API have changed."
         ),
         tags=["private"],
     )
     def post(self, request, *args, **kwargs):
         caches["default"].clear()
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)

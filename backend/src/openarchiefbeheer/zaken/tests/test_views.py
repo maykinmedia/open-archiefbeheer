@@ -1515,7 +1515,7 @@ class BehandelendAfdelingInternalChoicesViewTests(ClearCacheMixin, APITestCase):
 
 class ClearChoicesEndpointsTests(ClearCacheMixin, APITestCase):
     def test_not_authenticated(self):
-        response = self.client.post(reverse("api:clear-choices-endpoints-cache"))
+        response = self.client.post(reverse("api:clear-default-cache"))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1532,8 +1532,8 @@ class ClearChoicesEndpointsTests(ClearCacheMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-            response = self.client.post(reverse("api:clear-choices-endpoints-cache"))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.post(reverse("api:clear-default-cache"))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
             response = self.client.get(
                 reverse("api:retrieve-external-zaaktypen-choices")
