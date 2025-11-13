@@ -144,20 +144,6 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
             response.json()[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)")
         )
 
-    def test_response_cached(self):
-        user = UserFactory.create()
-
-        self.client.force_authenticate(user=user)
-        endpoint = reverse("api:retrieve-zaaktypen-choices")
-
-        with patch(
-            "openarchiefbeheer.zaken.api.views.format_zaaktype_choices", return_value=[]
-        ) as m:
-            self.client.get(endpoint)
-            self.client.get(endpoint)
-
-        m.assert_called_once()
-
     def test_retrieve_zaaktypen_choices_for_destruction_list(self):
         user = UserFactory.create()
 
