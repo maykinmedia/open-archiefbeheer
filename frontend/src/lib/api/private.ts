@@ -235,7 +235,7 @@ export async function listZaaktypeChoices(
 export async function clearChoicesCache() {
   return await request(
     "POST",
-    "/_clear-choices-endpoints-cache/",
+    "/_clear-default-cache/",
     {},
     undefined,
     undefined,
