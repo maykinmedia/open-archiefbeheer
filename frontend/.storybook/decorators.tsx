@@ -1,24 +1,24 @@
 import { LoaderFunction } from "@remix-run/router/utils";
-import { StoryContext, StoryFn } from "@storybook/react-vite";
 import {
   RouterProvider,
   createBrowserRouter,
   redirect,
 } from "react-router-dom";
+import { DecoratorFunction } from "storybook/internal/types";
 
 import App from "../src/App";
 
 /**
  * Decorators removing all session storage items which key starts with "oab.".
  */
-export const ClearSessionStorageDecorator = (Story: StoryFn) => {
+export const ClearSessionStorageDecorator: DecoratorFunction = (Story) => {
   Object.keys(sessionStorage)
     .filter((key) => key.startsWith("oab."))
     .forEach((key) => {
       console.info(`ClearSessionStorageDecorator: removing item "${key}"`);
       sessionStorage.removeItem(key);
     });
-  return <Story />;
+  return Story();
 };
 
 /**
@@ -27,9 +27,9 @@ export const ClearSessionStorageDecorator = (Story: StoryFn) => {
  * @param parameters.reactRouterDecorator.route Route configuration to navigate to.
  * @param parameters.reactRouterDecorator.params Router params to apply to route.
  */
-export const ReactRouterDecorator = (
-  Story: StoryFn,
-  { parameters }: StoryContext,
+export const ReactRouterDecorator: DecoratorFunction = (
+  Story,
+  { parameters },
 ) => {
   const { route, params } = parameters?.reactRouterDecorator || {};
 

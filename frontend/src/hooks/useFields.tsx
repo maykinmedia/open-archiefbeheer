@@ -61,8 +61,8 @@ export function useFields<T extends Zaak = Zaak>(
   extraFields?: TypedField<T>[],
   restrictFilterChoices: "list" | "unassigned" | false = "list",
 ): [
-  TypedField<T>[],
-  (fields: TypedField<T>[]) => void,
+  TypedField<T & { "Behandelende afdeling": string }>[],
+  (fields: TypedField<T & { "Behandelende afdeling": string }>[]) => void,
   (
     filterData: Partial<TypedSerializedFormData<keyof T & string>>,
   ) => FilterTransformReturnType<T>,
@@ -155,7 +155,9 @@ export function useFields<T extends Zaak = Zaak>(
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
-  const fields: (TypedField<T> & { filterLookups?: string[] })[] = [
+  const fields: (TypedField<T & { "Behandelende afdeling": string }> & {
+    filterLookups?: string[];
+  })[] = [
     {
       name: "identificatie",
       filterLookup: "identificatie__icontains",
@@ -381,7 +383,9 @@ export function useFields<T extends Zaak = Zaak>(
    * Pass this to `filterTransform` of a DataGrid component.
    * @param fields
    */
-  const setFields = async (fields: TypedField<T>[]) => {
+  const setFields = async (
+    fields: TypedField<T & { "Behandelende afdeling": string }>[],
+  ) => {
     const activeFields = fields.filter((f) => f.active !== false);
     const inActiveFields = fields.filter((f) => f.active === false);
     await addToFieldSelection(FIELD_SELECTION_STORAGE_KEY, activeFields);

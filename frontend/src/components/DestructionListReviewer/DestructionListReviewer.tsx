@@ -2,9 +2,9 @@ import {
   AttributeTable,
   Button,
   FormField,
+  FormValidator,
   P,
   Solid,
-  TypedSerializedFormData,
   useAlert,
   useFormDialog,
   validateForm,
@@ -159,12 +159,12 @@ export function DestructionListReviewer({
    * This allows `field` to use filtered options based on it's value.
    * @param values
    */
-  const handleValidate = (values: TypedSerializedFormData) => {
+  const handleValidate: FormValidator = (values, _, validators) => {
     const _values = Object.assign({ ...assignReviewersFormState }, values);
     if (Object.keys(_values).length) {
       setAssignReviewersFormState(_values as typeof assignReviewersFormState);
     }
-    return validateForm(_values, fields);
+    return validateForm(_values, fields, validators);
   };
 
   /**

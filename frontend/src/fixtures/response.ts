@@ -19,6 +19,9 @@ const FIXTURE_RESPONSE: Response = {
   blob: function (): Promise<Blob> {
     throw new Error("Function not implemented.");
   },
+  bytes: function (): Promise<Uint8Array<ArrayBuffer>> {
+    throw new Error("Function not implemented.");
+  },
   formData: function (): Promise<FormData> {
     throw new Error("Function not implemented.");
   },

@@ -2,9 +2,9 @@ import {
   Body,
   Form,
   FormField,
+  FormValidator,
   H2,
   P,
-  SerializedFormData,
   Solid,
   useAlert,
   useDialog,
@@ -137,14 +137,11 @@ export function DestructionReportSettingsPage() {
     },
   ];
 
-  const handleValidate = useCallback(
-    (values: SerializedFormData, fields: FormField[]) => {
-      const errors = validateForm(values, fields);
+  const handleValidate = useCallback<FormValidator>(
+    (values, fields, validators) => {
+      const errors = validateForm(values, fields, validators);
       const isValid = Object.keys(errors).length === 0;
-      const newValues = Object.assign({ ...valuesState }, values) as Omit<
-        ArchiveConfiguration,
-        "zaaktypesShortProcess"
-      >;
+      const newValues = Object.assign({ ...valuesState }, values);
 
       setIsValidState(isValid);
       setValuesState(newValues);
