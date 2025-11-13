@@ -33,10 +33,6 @@ CACHES.update(
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
             "LOCATION": "default",
         },
-        "choices_endpoints": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "choices",
-        },
         # See: https://github.com/jazzband/django-axes/blob/master/docs/configuration.rst#cache-problems
         "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
     }
