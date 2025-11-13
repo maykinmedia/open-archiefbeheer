@@ -1,8 +1,5 @@
-import {
-  LoginTemplate,
-  LoginTemplateProps,
-  forceArray,
-} from "@maykin-ui/admin-ui";
+import { LoginTemplate, LoginTemplateProps } from "@maykin-ui/admin-ui";
+import { forceArray } from "@maykin-ui/client-common";
 import { useContext } from "react";
 import { useActionData, useSubmit } from "react-router-dom";
 

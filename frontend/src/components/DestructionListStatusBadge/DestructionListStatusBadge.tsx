@@ -1,4 +1,5 @@
-import { Badge, ucFirst } from "@maykin-ui/admin-ui";
+import { Badge } from "@maykin-ui/admin-ui";
+import { ucFirst } from "@maykin-ui/client-common";
 import React from "react";
 
 import { DestructionList } from "../../lib/api/destructionLists";

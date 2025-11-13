@@ -10,10 +10,10 @@ import {
   Solid,
   Tab,
   Tabs,
-  string2Title,
   useAlert,
   useFormDialog,
 } from "@maykin-ui/admin-ui";
+import { string2Title } from "@maykin-ui/client-common";
 import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 
@@ -137,7 +137,7 @@ export function DestructionListToolbar({
   }, [collapsedState]);
 
   /*
-  If the list already has a DestructionListAssignee with role archivist, then it must have already 
+  If the list already has a DestructionListAssignee with role archivist, then it must have already
   gone through the reviewer round. So it should not be possible to update the reviewer.
   */
   const destructionListHasArchivistAssigned =
@@ -278,7 +278,7 @@ export function DestructionListToolbar({
         {title
           ? title
           : destructionList &&
-            string2Title(destructionList.name, { unHyphen: false })}
+            string2Title(destructionList.name, { hyphens2Whitespace: false })}
         {user &&
           destructionList &&
           canRenameDestructionList(user, destructionList) && (
