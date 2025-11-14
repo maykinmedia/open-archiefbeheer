@@ -82,8 +82,8 @@ describe("useFields Hook", () => {
       const [, , filterTransform] = result.current;
 
       const filterData = {
-        startdatum: [new Date("2023-01-01"), new Date("2023-01-31")],
-        einddatum: [new Date("2023-02-01"), new Date("2023-02-28")],
+        startdatum: "2023-01-01/2023-01-31",
+        einddatum: "2023-02-01/2023-02-28",
       };
 
       const transformedData = filterTransform(filterData);
