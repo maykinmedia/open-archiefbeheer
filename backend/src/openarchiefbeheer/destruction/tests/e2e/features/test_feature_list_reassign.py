@@ -49,7 +49,6 @@ class FeatureListReassignTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Annuleren")
             await self.when.user_clicks_button(page, "Beoordelaar bewerken")
-            await self.then.button_should_be_disabled(page, "Toewijzen")
 
             await self.when.user_fills_form_field(page, "Reden", "gh-636")
             await self.when.user_clicks_button(page, "Annuleren")

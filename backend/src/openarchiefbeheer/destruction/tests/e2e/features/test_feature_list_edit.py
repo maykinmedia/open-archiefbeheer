@@ -56,7 +56,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
 
-            await self.when.user_clicks_button(page, "2")
+            await self.when.user_clicks_button(page, "Volgende")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
             await self.then.zaak_should_not_be_selected(page, "ZAAK-0")  # First unselected zaak
@@ -73,11 +73,11 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-0")  # Zaak that we are going to remove
 
-            await self.when.user_clicks_button(page, "2")
+            await self.when.user_clicks_button(page, "Volgende")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
 
-            await self.when.user_clicks_button(page, "1")
+            await self.when.user_clicks_button(page, "Ga naar de eerste pagina (pagina 1)")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
             await self.when.user_selects_zaak(page, "ZAAK-0")
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
@@ -85,7 +85,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
 
             # View updated destruction list
             await self.then.page_should_contain_text(page, "ZAAK-199")
-            await self.when.user_clicks_button(page, "2")
+            await self.when.user_clicks_button(page, "Volgende")
             await self.then.not_.page_should_contain_text(page, "ZAAK-0")
 
     async def test_zaaktype_filter(self):

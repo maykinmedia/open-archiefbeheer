@@ -647,7 +647,7 @@ class GerkinMixin:
             await locator.click()
 
         async def _user_clicks(self, role, page, name, index=0):
-            locator = page.get_by_role(role, name=name)
+            locator = page.get_by_role(role, name=name, exact=False)
             await locator.first.wait_for()
             elements = await locator.all()
             element = elements[index]
@@ -906,11 +906,13 @@ class GerkinMixin:
 
         async def zaaktype_filters_are(self, page, expected_filters):
             select = page.get_by_label('filter veld "zaaktype"')
+            dropdown = select.get_by_role("listbox")
 
-            await select.click()
+            if not await dropdown.last.is_visible():
+                await select.click()
 
-            dropdown = await select.get_by_role("listbox").all_inner_texts()
-            labels = dropdown[0].rstrip("\n").split("\n")
+            options = await dropdown.all_inner_texts()
+            labels = options[0].rstrip("\n").split("\n")
 
             self.testcase.assertEqual(labels, expected_filters)
 

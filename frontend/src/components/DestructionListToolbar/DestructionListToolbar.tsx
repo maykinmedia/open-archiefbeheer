@@ -234,7 +234,7 @@ export function DestructionListToolbar({
       name: "name",
       type: "string",
       label: "Naam",
-      value: destructionList?.name,
+      defaultValue: destructionList?.name,
     },
   ];
 
