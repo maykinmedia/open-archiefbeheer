@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from "@storybook/react";
-import { expect, userEvent, waitFor, within } from "@storybook/test";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { auditLogItemFactory } from "../../fixtures/auditLog";
 import { userFactory } from "../../fixtures/user";
@@ -132,7 +132,7 @@ export const AuditLogItemsSortName: Story = {
     await waitFor(async () => {
       const canvas = within(canvasElement);
       const nameColumn = await canvas.findByRole("button", {
-        name: "Gewijzigd door",
+        name: "Gewijzigd Door",
       });
       await userEvent.click(nameColumn);
 
@@ -182,7 +182,7 @@ export const AuditLogItemsSortMessage: Story = {
     await waitFor(async () => {
       const canvas = within(canvasElement);
       const nameColumn = await canvas.findByRole("button", {
-        name: "Gewijzigd door",
+        name: "Gewijzigd Door",
       });
       await userEvent.click(nameColumn);
 

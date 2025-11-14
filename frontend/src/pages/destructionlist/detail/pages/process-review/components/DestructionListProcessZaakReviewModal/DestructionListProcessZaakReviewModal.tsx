@@ -4,6 +4,7 @@ import {
   ErrorMessage,
   Form,
   FormField,
+  FormValidator,
   Grid,
   H3,
   Hr,
@@ -243,7 +244,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     return [...baseFields, ...(_formState.action ? actionSelectedFields : [])];
   };
 
-  const validate = (values: DestructionListProcessZaakReviewModalFormType) => {
+  const validate: FormValidator = (_values, _, validators) => {
+    const values = _values as DestructionListProcessZaakReviewModalFormType;
     const action = values.action;
     /**
      * Updates the form state, and validates the form.
@@ -271,7 +273,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
 
     setFormState(values as typeof formState);
     const _fields = getFields(values as typeof formState);
-    return validateForm(values, _fields);
+    return validateForm(values, _fields, validators);
   };
 
   /**

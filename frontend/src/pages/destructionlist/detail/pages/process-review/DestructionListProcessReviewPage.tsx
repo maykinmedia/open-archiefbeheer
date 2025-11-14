@@ -7,7 +7,7 @@ import {
   Tooltip,
   TypedField,
 } from "@maykin-ui/admin-ui";
-import { useMemo, useState } from "react";
+import { JSX, useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
@@ -33,6 +33,12 @@ type ProcessZaakReviewSelectionDetail = {
   action: ProcessReviewAction;
   selectielijstklasse: string;
   archiefactiedatum: string;
+};
+
+type ReviewMeta = {
+  Opmerking: string;
+  Mutatie: string;
+  Acties: JSX.Element;
 };
 
 /**
@@ -95,10 +101,10 @@ export function DestructionListProcessReviewPage() {
   );
 
   // Whether extra fields should be rendered.
-  const extraFields: TypedField[] = [
+  const extraFields: TypedField<ReviewMeta>[] = [
     { name: "Opmerking", type: "text" },
     { name: "Mutatie", type: "text" },
-    { name: "Acties", type: "text" },
+    { name: "Acties", type: "jsx" },
   ];
 
   // The object list of the current page with review actions appended.
@@ -306,7 +312,7 @@ export function DestructionListProcessReviewPage() {
   };
 
   return (
-    <BaseListView
+    <BaseListView<Zaak & ReviewMeta>
       destructionList={destructionList}
       review={review || undefined}
       extraFields={extraFields}

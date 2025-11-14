@@ -6,8 +6,8 @@ import {
   P,
   Solid,
   Tooltip,
-  string2Title,
 } from "@maykin-ui/admin-ui";
+import { string2Title } from "@maykin-ui/client-common";
 import { useMemo } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 

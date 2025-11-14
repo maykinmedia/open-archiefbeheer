@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from "@storybook/react";
-import { within } from "@storybook/test";
+import { Meta, StoryObj } from "@storybook/react-vite";
+import { within } from "storybook/test";
 
 import { formatDate } from "../../lib/format/date";
 import { ProcessingStatusBadge } from "./ProcessingStatusBadge";
@@ -26,7 +26,7 @@ export const ProcessingStatusQueued: Story = {
     processingStatus: "queued",
   },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText("In de wachtrij");
+    await within(canvasElement).findByText("In De Wachtrij");
   },
 };
 

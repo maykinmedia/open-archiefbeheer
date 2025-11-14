@@ -40,14 +40,17 @@ function DialogBody() {
     [],
   );
 
+  const object = {
+    Versie: <P size="xs">{appInfo?.release}</P>,
+    "Git SHA": <P size="xs">{appInfo?.gitSha}</P>,
+  };
+
   return (
     <Card>
       <LogoImage width={"100%"} />
       <AttributeList
-        object={{
-          Versie: <P size="xs">{appInfo?.release}</P>,
-          "Git SHA": <P size="xs">{appInfo?.gitSha}</P>,
-        }}
+        fields={Object.keys(object) as keyof object}
+        object={object}
       />
     </Card>
   );

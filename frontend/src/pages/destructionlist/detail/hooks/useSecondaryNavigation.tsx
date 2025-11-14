@@ -1,4 +1,5 @@
 import {
+  FormValidator,
   Solid,
   ToolbarItem,
   useConfirm,
@@ -362,16 +363,19 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       ),
   };
 
-  const validateName = ({ name }: DestructionListNameFormType) => {
+  const validateName: FormValidator = (values) => {
+    const { name } = values as DestructionListNameFormType;
     // Name can be undefined at a certain point and will crash the entire page
     if (
       (name as string | undefined)?.toLowerCase() ===
       destructionList.name.toLowerCase()
     ) {
-      return;
+      return {};
     }
     return {
-      name: "De opgegeven naam komt niet overeen met de naam van de lijst! Controleer de naam van de lijst en probeer het opnieuw.",
+      name: [
+        "De opgegeven naam komt niet overeen met de naam van de lijst! Controleer de naam van de lijst en probeer het opnieuw.",
+      ],
     };
   };
 
