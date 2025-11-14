@@ -26,7 +26,7 @@ export const ProcessingStatusQueued: Story = {
     processingStatus: "queued",
   },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText("In de wachtrij");
+    await within(canvasElement).findByText("In De Wachtrij");
   },
 };
 

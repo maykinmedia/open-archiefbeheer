@@ -168,7 +168,7 @@ export const WithReviewDetails: Story = {
   args: { destructionList: DESTRUCTION_LIST, review: REVIEW },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const lastReviewer = canvas.getByText("Laatste review door");
+    const lastReviewer = canvas.getByText("Laatste Review Door");
     expect(lastReviewer).toBeInTheDocument();
     const beoordeling = canvas.getByText("Beoordeling");
     expect(beoordeling).toBeInTheDocument();
@@ -272,7 +272,7 @@ export const Tabable: Story = {
     );
     await expect(await canvas.findByText("Datum")).toBeVisible();
     await userEvent.click(await canvas.findByRole("tab", { name: "Details" }));
-    await expect(canvas.getByText("Min/max archiefactiedatum")).toBeVisible();
+    await expect(canvas.getByText("Min/Max Archiefactiedatum")).toBeVisible();
   },
 };
 

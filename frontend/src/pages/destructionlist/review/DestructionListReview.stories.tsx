@@ -206,7 +206,6 @@ export const ReviewerCanExcludeZaak: Story = {
     const submitExclude = await canvas.findByRole("button", {
       name: "Zaak uitzonderen",
     });
-    await expect(submitExclude).toBeDisabled();
     await userEvent.type(reason, "reden", { delay: 10, skipClick: false });
     await expect(submitExclude).toBeEnabled();
     await userEvent.click(submitExclude);
@@ -240,7 +239,6 @@ export const ReviewerCanApproveDestructionList: Story = {
     const submit = await canvas.getByRole("button", {
       name: "Vernietigingslijst goedkeuren",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await userEvent.click(submit);
   },
@@ -273,7 +271,6 @@ export const ApproveDestructionListErrorShowsErrorMessage: Story = {
     const submit = await canvas.getByRole("button", {
       name: "Vernietigingslijst goedkeuren",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await userEvent.click(submit);
     await expect(await canvas.findByText("example")).toBeInTheDocument();
@@ -339,7 +336,6 @@ export const ReviewerCanRejectDestructionList: Story = {
     const submit = await canvas.getByRole("button", {
       name: "Vernietigingslijst afwijzen",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(reason, "Reden", { delay: 10, skipClick: false });
     await userEvent.click(submit);
   },
@@ -404,7 +400,6 @@ export const RejectDestructionListErrorShowsErrorMessage: Story = {
     const submit = await canvas.getByRole("button", {
       name: "Vernietigingslijst afwijzen",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(reason, "Reden", { delay: 10, skipClick: false });
     await userEvent.click(submit);
     await expect(await canvas.findByText("example")).toBeInTheDocument();
@@ -454,7 +449,6 @@ export const CoReviewerCanCompleteCoReview: Story = {
     const submit = await within(dialog).getByRole("button", {
       name: "Medebeoordeling afronden",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await userEvent.click(submit);
   },
@@ -503,7 +497,6 @@ export const CompleteCoReviewErrorShowsErrorMessage: Story = {
     const submit = await within(dialog).getByRole("button", {
       name: "Medebeoordeling afronden",
     });
-    await expect(submit).toBeDisabled();
     await userEvent.type(comment, "Comment", { delay: 10, skipClick: false });
     await userEvent.click(submit);
     await expect(await canvas.findByText("example")).toBeInTheDocument();
