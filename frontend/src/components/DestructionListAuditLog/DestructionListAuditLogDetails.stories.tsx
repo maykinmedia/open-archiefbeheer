@@ -1,8 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 
-import { auditLogItemFactory } from "../../fixtures/auditLog";
-import { userFactory } from "../../fixtures/user";
+import { auditLogItemFactory, userFactory } from "../../fixtures";
 import { DestructionListAuditLogDetails } from "./DestructionListAuditLogDetails";
 
 const meta: Meta<typeof DestructionListAuditLogDetails> = {
@@ -42,18 +41,19 @@ export const AuditLogDetails: StoryObj<typeof DestructionListAuditLogDetails> =
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
 
-      const rows = canvas.getAllByRole("row");
-      expect(rows).toHaveLength(7);
+      await waitFor(() => {
+        expect(canvas.getAllByRole("row")).toHaveLength(7);
 
-      expect(canvas.getByText("John Doe (johndoe)")).toBeInTheDocument();
-      expect(
-        canvas.getByText("01/01/2021", { exact: false }),
-      ).toBeInTheDocument();
-      expect(
-        canvas.getByText("31/12/2021", { exact: false }),
-      ).toBeInTheDocument();
-      expect(canvas.getByText("Zaaktype 1, Zaaktype 2")).toBeInTheDocument();
-      expect(canvas.getByText("This is a comment")).toBeInTheDocument();
-      expect(canvas.getByText("10")).toBeInTheDocument();
+        expect(canvas.getByText("John Doe (johndoe)")).toBeInTheDocument();
+        expect(
+          canvas.getByText("01/01/2021", { exact: false }),
+        ).toBeInTheDocument();
+        expect(
+          canvas.getByText("31/12/2021", { exact: false }),
+        ).toBeInTheDocument();
+        expect(canvas.getByText("Zaaktype 1, Zaaktype 2")).toBeInTheDocument();
+        expect(canvas.getByText("This is a comment")).toBeInTheDocument();
+        expect(canvas.getByText("10")).toBeInTheDocument();
+      });
     },
   };
