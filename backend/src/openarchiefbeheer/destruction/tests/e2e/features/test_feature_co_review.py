@@ -22,7 +22,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             )
 
             await self.when.reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to assign co-reviewers for")
+            await self.when.user_clicks_button(page, "Destruction list to assign co reviewers for")
             await self.when.user_clicks_button(page, "Beoordelaar bewerken")
 
             await self.when.user_fills_form_field(page, "Medebeoordelaar 1", "Co Reviewer (co-reviewer1)")
@@ -50,13 +50,13 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
                 assignee=reviewer,
                 assignees=[reviewer_assignee, co_reviewer_assignee],
                 uuid="00000000-0000-0000-0000-000000000000",
-                name="Destruction list to co-review",
+                name="Destruction list to co review",
                 status=ListStatus.ready_to_review,
             )
 
             # Reviewer approves first case.
             await self.when.reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Destruction list to co review")
             await self.when.user_clicks_checkbox(page, "Markeren als (on)gezien")
             await self.then.page_should_contain_text(page, "Geaccordeerd")
 
@@ -65,7 +65,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
 
             # Co-reviewer should see first case approved.
             await self.when.co_reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Destruction list to co review")
             await self.then.page_should_contain_text(page, "Geaccordeerd")
 
             # Co-reviewer rejects second case.
@@ -79,7 +79,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
 
             # Reviewer should see second case rejected.
             await self.when.reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Destruction list to co review")
             await self.then.page_should_contain_text(page, "Uitgezonderd")
 
             # Log out.
@@ -87,7 +87,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
 
             # Co-reviewer finishes co-review
             await self.when.co_reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Destruction list to co review")
             await self.when.user_clicks_button(page, "Medebeoordeling afronden")
             await self.when.user_fills_form_field(page, "Opmerking", "gh-497")
             await self.when.user_clicks_button(page, "Medebeoordeling afronden", 1)
@@ -100,6 +100,6 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
 
             # Reviewer should see review completed.
             await self.when.reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to co-review")
+            await self.when.user_clicks_button(page, "Destruction list to co review")
             # Making the timeout higher because this is dependent on the polling
             await self.then.page_should_contain_element_with_title(page, "Medebeoordelaar is klaar met beoordelen", timeout=10000)

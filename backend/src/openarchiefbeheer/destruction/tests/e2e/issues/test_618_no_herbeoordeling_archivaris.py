@@ -29,7 +29,7 @@ class Issue618NoHerbeoordelingForArchivaris(GherkinLikeTestCase):
             await self.given.review_item_response_exists(action_item=DestructionListItemAction.keep, review_item__destruction_list=destruction_list, review_item__destruction_list_item=await destruction_list.items.afirst())
 
             await self.when.archivist_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to re-review")
+            await self.when.user_clicks_button(page, "Destruction list to re review")
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
             await self.then.not_.page_should_contain_text(page, "Herboordelen")

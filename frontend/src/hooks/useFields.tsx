@@ -405,17 +405,19 @@ export function useFields<T extends Zaak = Zaak>(
     const { startdatum, einddatum, archiefactiedatum, ..._filterData } =
       filterData;
 
-    const formatDateRange = (dates: Date[] | undefined) =>
-      dates ? dates.map((d) => formatDate(d, "iso")) : [null, null];
+    const formatDateRange = (dateRange: string | undefined) => {
+      if (!dateRange) return [null, null];
+      return dateRange.split("/");
+    };
 
     const [startdatum__gte, startdatum__lte] = formatDateRange(
-      startdatum as Date[] | undefined,
+      startdatum?.toString(),
     );
     const [einddatum__gte, einddatum__lte] = formatDateRange(
-      einddatum as Date[] | undefined,
+      einddatum?.toString(),
     );
     const [archiefactiedatum__gte, archiefactiedatum__lte] = formatDateRange(
-      archiefactiedatum as Date[] | undefined,
+      archiefactiedatum?.toString(),
     );
 
     return {
