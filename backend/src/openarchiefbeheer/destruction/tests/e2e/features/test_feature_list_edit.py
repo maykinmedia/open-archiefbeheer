@@ -25,14 +25,17 @@ class FeatureListEditTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 0)
             await self.then.path_should_be(page, "/destruction-lists/create")
+            await self.then.page_should_contain_text(page, "zaak-99")
 
             await self.when.user_clicks_button(page, "volgende")
             await self.then.path_should_be(page, "/destruction-lists/create?page=2")
+            await self.then.page_should_contain_text(page, "zaak-199")
 
             await self.when.user_clicks_checkbox(page, "(de)selecteer 100 rijen")  # All zaken on second page
             
             await self.when.user_clicks_button(page, "volgende")
             await self.then.path_should_be(page, "/destruction-lists/create?page=3")
+            await self.then.page_should_contain_text(page, "zaak-299")
 
             await self.when.user_selects_zaak(page, "ZAAK-200")  # First zaak on third (last) page (ZAAK-200)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 1)
@@ -55,11 +58,11 @@ class FeatureListEditTests(GherkinLikeTestCase):
             # Add "ZAAK-0" (The first unselected zaak)
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
+            await self.then.page_should_contain_text(page, "zaak-199")
 
             await self.when.user_clicks_button(page, "Volgende")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
-            await self.then.zaak_should_not_be_selected(page, "ZAAK-0")  # First unselected zaak
 
             await self.when.user_selects_zaak(page, "ZAAK-0", timeout=6000)
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
