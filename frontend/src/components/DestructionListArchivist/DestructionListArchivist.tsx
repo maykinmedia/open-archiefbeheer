@@ -84,7 +84,7 @@ export function DestructionListArchivist({
       name: "comment",
       type: "text",
       required: true,
-      value: assignArchivistFormState.comment,
+      defaultValue: assignArchivistFormState.comment,
     };
 
     return [archivistField, commentField];

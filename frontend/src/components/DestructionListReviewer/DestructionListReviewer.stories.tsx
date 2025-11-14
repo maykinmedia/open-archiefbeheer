@@ -482,12 +482,6 @@ export const ReopeningModalPreservesState: Story = {
       },
     });
 
-    await expect(
-      await within(context.canvasElement).findByRole("button", {
-        name: "Toewijzen",
-      }),
-    ).toBeDisabled();
-
     await fillForm({
       ...context,
       parameters: {

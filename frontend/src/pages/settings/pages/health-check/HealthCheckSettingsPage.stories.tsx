@@ -81,13 +81,13 @@ export const HealthCheck: Story = {
 
     expect(severityBadges).toHaveLength(3);
     expect(severityBadges[0].parentElement).toHaveClass(
-      "mykn-badge--level-danger",
+      "mykn-badge--variant-danger",
     );
     expect(severityBadges[1].parentElement).toHaveClass(
-      "mykn-badge--level-info",
+      "mykn-badge--variant-info",
     );
     expect(severityBadges[2].parentElement).toHaveClass(
-      "mykn-badge--level-warning",
+      "mykn-badge--variant-warning",
     );
   },
 };

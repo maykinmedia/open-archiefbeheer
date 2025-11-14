@@ -252,7 +252,7 @@ export function DestructionListReviewer({
       name: "comment",
       type: "text",
       required: true,
-      value: assignReviewersFormState.comment,
+      defaultValue: assignReviewersFormState.comment,
     };
 
     const activeCoReviewerFields =
