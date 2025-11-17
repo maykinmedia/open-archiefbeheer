@@ -1,5 +1,6 @@
 import { BreadcrumbItem } from "@maykin-ui/admin-ui";
 import "@maykin-ui/admin-ui/style";
+import "@maykin-ui/admin-ui/style/themes/purple-rain.css";
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import {
