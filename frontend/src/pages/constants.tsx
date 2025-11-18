@@ -12,7 +12,7 @@ export const REVIEW_DECISION_MAPPING: Record<Review["decision"], string> = {
 
 export const REVIEW_DECISION_LEVEL_MAPPING: Record<
   Review["decision"],
-  BadgeProps["level"]
+  BadgeProps["variant"]
 > = {
   accepted: "success",
   rejected: "danger",
@@ -47,7 +47,7 @@ export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
 };
 
 export const STATUS_LEVEL_MAPPING: {
-  [key in DestructionListStatus]: BadgeProps["level"];
+  [key in DestructionListStatus]: BadgeProps["variant"];
 } = {
   new: "success",
   changes_requested: "warning",
@@ -79,7 +79,7 @@ export const PROCESSING_STATUS_ICON_MAPPING: {
 };
 
 export const PROCESSING_STATUS_LEVEL_MAPPING: {
-  [key in ProcessingStatus]: BadgeProps["level"];
+  [key in ProcessingStatus]: BadgeProps["variant"];
 } = {
   new: "info",
   queued: "info",

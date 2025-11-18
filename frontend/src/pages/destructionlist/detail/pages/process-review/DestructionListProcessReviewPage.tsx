@@ -213,12 +213,12 @@ export function DestructionListProcessReviewPage() {
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span tabIndex={0}>
           {action === "keep" ? (
-            <Badge level="info" style={{ display: "block" }} tabIndex={0}>
+            <Badge variant="info" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentPlusIcon />
               Voorstel afgewezen
             </Badge>
           ) : (
-            <Badge level="danger" style={{ display: "block" }} tabIndex={0}>
+            <Badge variant="danger" style={{ display: "block" }} tabIndex={0}>
               <Solid.DocumentMinusIcon />
               Uitgezonderd
             </Badge>

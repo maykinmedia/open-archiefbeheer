@@ -357,7 +357,7 @@ export const Landing = () => {
             },
             {
               icon: <Outline.ChevronUpDownIcon />,
-              direction: "horizontal",
+              direction: "h",
               name: "ordering",
               options: [
                 { label: "Nieuwste eerst", value: "-created" },
@@ -386,7 +386,7 @@ export const Landing = () => {
         renderPreview: (entry) => {
           if (canDownloadReport(user, entry.destructionList)) {
             return (
-              <Badge level="success">
+              <Badge variant="success">
                 <Outline.CloudArrowDownIcon /> Download rapport
               </Badge>
             );

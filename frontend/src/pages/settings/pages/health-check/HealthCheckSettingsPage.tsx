@@ -17,7 +17,7 @@ export function HealthCheckSettingsPage() {
       case "error":
         return (
           <Badge
-            level="danger"
+            variant="danger"
             style={{
               display: "block",
               border: "none",
@@ -30,7 +30,7 @@ export function HealthCheckSettingsPage() {
       case "warning":
         return (
           <Badge
-            level="warning"
+            variant="warning"
             style={{
               display: "block",
               border: "none",
@@ -43,7 +43,7 @@ export function HealthCheckSettingsPage() {
       case "info":
         return (
           <Badge
-            level="info"
+            variant="info"
             style={{
               display: "block",
               border: "none",

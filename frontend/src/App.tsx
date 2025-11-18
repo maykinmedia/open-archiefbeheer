@@ -188,7 +188,7 @@ function App() {
                       <Column span={6}>
                         <ButtonLink
                           href={"/logout"}
-                          variant="outline"
+                          variant="secondary"
                           wrap={false}
                         >
                           <Solid.ArrowRightEndOnRectangleIcon />
