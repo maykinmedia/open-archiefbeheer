@@ -1,10 +1,12 @@
 import {
   Body,
+  ButtonProps,
   Form,
   FormField,
   Modal,
   SerializedFormData,
   Solid,
+  date2DateString,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import {
@@ -38,13 +40,70 @@ export function DestructionListCreatePage() {
     {}) as DestructionListCreateActionResponseData;
 
   const [modalOpenState, setModalOpenState] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const submitAction = useSubmitAction<DestructionListCreateAction>();
 
+  const getSelectionActions = (): ButtonProps[] => {
+    const actions: ButtonProps[] = [
+      {
+        children: (
+          <>
+            <Solid.DocumentPlusIcon />
+            Vernietigingslijst opstellen
+          </>
+        ),
+        variant: "primary",
+        wrap: false,
+        onClick: handleCreateClick,
+      },
+    ];
+
+    if (!isFilteredArchiveDateExpired()) {
+      actions.push({
+        children: (
+          <>
+            <Solid.ArchiveBoxArrowDownIcon />
+            Toon zaken met verlopen archiefdatum
+          </>
+        ),
+        disabled: false,
+        variant: "info",
+        onClick: handleFilterClick,
+      });
+    }
+
+    return actions;
+  };
+
   /**
-   * Gets called when the "Vernietigingslijst opstellen" is clicked
+   * Returns whether the filter value for "archiefactiedatum" is in the past or the current date.
+   * return false if filter value is not set.
    */
-  const handleClick = () => setModalOpenState(true);
+  const isFilteredArchiveDateExpired = () => {
+    const strArchiveDateGte = searchParams.get("archiefactiedatum__gte");
+    const strArchiveDateLte = searchParams.get("archiefactiedatum__lte");
+    if (!strArchiveDateGte || !strArchiveDateLte) return false;
+
+    const dateArchiveDateGte = new Date(strArchiveDateGte);
+    const dateArchiveDateLte = new Date(strArchiveDateLte);
+    const today = new Date();
+
+    return dateArchiveDateGte <= today && dateArchiveDateLte <= today;
+  };
+
+  /**
+   * Gets called when the "Vernietigingslijst opstellen" button is clicked.
+   */
+  const handleCreateClick = () => setModalOpenState(true);
+
+  /**
+   * Get called when the "Toon zaken met verlopen archiefdatum" button is clicked.
+   */
+  const handleFilterClick = () => {
+    searchParams.set("archiefactiedatum__gte", "1970-01-01");
+    searchParams.set("archiefactiedatum__lte", date2DateString(new Date()));
+    setSearchParams(searchParams);
+  };
 
   /**
    * Gets called when the form is submitted.
@@ -99,19 +158,7 @@ export function DestructionListCreatePage() {
         paginatedZaken={paginatedZaken}
         restrictFilterChoices="unassigned"
         allowSelectAllPages={true}
-        selectionActions={[
-          {
-            children: (
-              <>
-                <Solid.DocumentPlusIcon />
-                Vernietigingslijst opstellen
-              </>
-            ),
-            variant: "primary",
-            wrap: false,
-            onClick: handleClick,
-          },
-        ]}
+        selectionActions={getSelectionActions()}
       />
 
       <Modal
