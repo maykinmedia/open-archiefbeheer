@@ -30,7 +30,12 @@ Stappen
     - Je wordt doorgestuurd naar de pagina **“Vernietigingslijst opstellen”**.
 
 3. **Filters gebruiken**
-    - Gebruik de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype** om specifieke items te vinden. |filters|
+    - Gebruik de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**, om specifieke items te vinden. |filters|
+    - **Zaken met een verlopen archiefdatum tonen**
+      Klik op **“Toon zaken met verlopen archiefdatum”** om alleen zaken te tonen waarvan de archiefactiedatum op of vóór vandaag ligt. |toon_zaken_met_verlopen_archiefdatum|
+    - **Filters wissen**
+      Deze knop verschijnt zodra er één of meer filters actief zijn.
+      Bij gebruik worden alle actieve filters verwijderd. |filters_wissen|
 
 4. **Selecteer zaken voor de vernietigingslijst**
     - Op de pagina zie je een lijst van beschikbare zaken.
@@ -78,6 +83,14 @@ controle wordt :ref:`aangeboden aan de beoordelaar<manual_1-record-manager_1.3-v
 
 .. |filters| image:: ../_assets/filters.png
     :alt: Filters
+    :height: 32px
+
+.. |toon_zaken_met_verlopen_archiefdatum| image:: ../_assets/toon-zaken-met-verlopen-archiefdatum.png
+    :alt: Toon zaken met verlopen archiefdatum
+    :height: 32px
+
+.. |filters_wissen| image:: ../_assets/filters-wissen.png
+    :alt: Filters wissen
     :height: 32px
 
 .. |checkbox_zaak| image:: ../_assets/checkbox-zaak.png

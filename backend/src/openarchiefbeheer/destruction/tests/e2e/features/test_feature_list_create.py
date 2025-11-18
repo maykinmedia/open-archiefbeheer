@@ -1,6 +1,9 @@
 # fmt: off
+import datetime
+
 from django.test import tag
 
+import dateutil.utils
 from asgiref.sync import sync_to_async
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
@@ -221,3 +224,35 @@ class FeatureListCreateTests(GherkinLikeTestCase):
 
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.page_should_contain_text(page, "ZAAK-3")
+
+    async def test_scenario_filter_expired_archive_date(self):
+        @sync_to_async
+        def create_data():
+            today = dateutil.utils.today()
+            yesterday = today - datetime.timedelta(days=1)
+            tomorrow = today + datetime.timedelta(days=1)
+
+            ZaakFactory.create(identificatie="ZAAK-1", archiefactiedatum=yesterday)
+            ZaakFactory.create(identificatie="ZAAK-2", archiefactiedatum=today)
+            ZaakFactory.create(identificatie="ZAAK-3", archiefactiedatum=tomorrow)
+            
+        async with browser_page() as page:
+            await self.given.data_exists(create_data)
+            await self.given.record_manager_exists()
+
+            await self.when.record_manager_logs_in(page)
+            await self.then.path_should_be(page, "/destruction-lists")
+
+            await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
+            await self.then.path_should_be(page, "/destruction-lists/create")
+
+            await self.then.page_should_contain_text(page, "Zaak-1")
+            await self.then.page_should_contain_text(page, "Zaak-2")
+            await self.then.page_should_contain_text(page, "Zaak-3")
+
+            await self.when.user_clicks_button(page, "Toon zaken met verlopen archiefdatum")
+            await self.then.page_should_contain_text(page, "Filters wissen")
+            await self.then.page_should_not_contain_text(page, "Toon zaken met verlopen archiefdatum")
+            await self.then.page_should_contain_text(page, "Zaak-1")
+            await self.then.page_should_contain_text(page, "Zaak-2")
+            await self.then.page_should_not_contain_text(page, "Zaak-3")
