@@ -19,7 +19,7 @@ export const ProcessingStatusBadge: React.FC<ProcessingStatusBadgeProps> = ({
   processingStatus,
   plannedDestructionDate,
 }) => {
-  const getLevel = () => {
+  const getVariant = () => {
     if (processingStatus === "new" && plannedDestructionDate) {
       return "warning";
     }
@@ -48,7 +48,7 @@ export const ProcessingStatusBadge: React.FC<ProcessingStatusBadgeProps> = ({
   };
 
   return (
-    <Badge level={getLevel()}>
+    <Badge variant={getVariant()}>
       {getStatusIcon()}
       {getStatusText()}
     </Badge>

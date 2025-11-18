@@ -51,13 +51,21 @@ export function useZaakReviewStatusBadges(
       if (typeof status === "boolean") {
         if (status) {
           return (
-            <Badge key={zaak.uuid} level="success" style={{ display: "block" }}>
+            <Badge
+              key={zaak.uuid}
+              variant="success"
+              style={{ display: "block" }}
+            >
               <Solid.HandThumbUpIcon /> Geaccordeerd
             </Badge>
           );
         } else {
           return (
-            <Badge key={zaak.uuid} level="danger" style={{ display: "block" }}>
+            <Badge
+              key={zaak.uuid}
+              variant="danger"
+              style={{ display: "block" }}
+            >
               <Solid.HandThumbDownIcon /> Uitgezonderd
             </Badge>
           );
@@ -65,7 +73,7 @@ export function useZaakReviewStatusBadges(
       } else if (reviewAdviceIgnored) {
         // Display "Herboordelen" badge for reviewAdviceIgnored zaken
         return (
-          <Badge key={zaak.uuid} level="info" style={{ display: "block" }}>
+          <Badge key={zaak.uuid} variant="info" style={{ display: "block" }}>
             <Solid.ArrowPathRoundedSquareIcon /> Herboordelen
           </Badge>
         );

@@ -203,7 +203,9 @@ export function DestructionListToolbar({
                 "Laatste review door":
                   review.author && formatUser(review.author),
                 Beoordeling: (
-                  <Badge level={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}>
+                  <Badge
+                    variant={REVIEW_DECISION_LEVEL_MAPPING[review.decision]}
+                  >
                     {REVIEW_DECISION_MAPPING[review.decision]}
                   </Badge>
                 ),
