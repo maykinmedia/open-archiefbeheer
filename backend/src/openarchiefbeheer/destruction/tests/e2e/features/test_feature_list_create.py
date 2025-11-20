@@ -3,7 +3,6 @@ import datetime
 
 from django.test import tag
 
-import dateutil.utils
 from asgiref.sync import sync_to_async
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
@@ -228,7 +227,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
     async def test_scenario_filter_expired_archive_date(self):
         @sync_to_async
         def create_data():
-            today = dateutil.utils.today()
+            today = datetime.date.today()
             yesterday = today - datetime.timedelta(days=1)
             tomorrow = today + datetime.timedelta(days=1)
 
