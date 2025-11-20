@@ -1,17 +1,19 @@
-import { Badge, Solid } from "@maykin-ui/admin-ui";
+import { Badge, Body, Solid } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { HealthCheckSettingsPageContext } from "./HealthCheckSettingsPage.loader";
+import { HealthCheckResult } from "../../../../lib/api/health-check";
 
 /**
  * Check the health of certain services that require configuring
  */
 export function HealthCheckSettingsPage() {
-  const { errors } = useLoaderData() as HealthCheckSettingsPageContext;
-  const sortedErrors = errors.sort((a, b) => a.model.localeCompare(b.model));
+  const failedChecks = useLoaderData() as HealthCheckSettingsPageContext;
+  const failedChecksKeys = Object.keys(failedChecks);
+  const sortedfailedChecksKeys = failedChecksKeys.sort();
   const getSeverityBadge = (
-    severity: HealthCheckSettingsPageContext["errors"][0]["severity"],
+    severity: HealthCheckResult["severity"],
   ) => {
     switch (severity) {
       case "error":
@@ -61,12 +63,15 @@ export function HealthCheckSettingsPage() {
   return (
     <BaseSettingsView
       dataGridProps={{
-        objectList: sortedErrors.map((error) => ({
-          Model: error.model,
-          Niveau: getSeverityBadge(error.severity),
-          Bericht: error.message,
-          Veld: error.field,
-        })),
+        objectList: sortedfailedChecksKeys.map((checkKey) => {
+          const check = failedChecks[checkKey];
+          return {
+            Model: check.model,
+            Niveau: getSeverityBadge(check.severity),
+            Bericht: check.message,
+            Veld: check.field,
+          };
+        }),
       }}
       secondaryNavigationItems={[
         {
@@ -81,6 +86,8 @@ export function HealthCheckSettingsPage() {
           href: "/admin",
         },
       ]}
-    />
+    >
+      {failedChecksKeys.length === 0 && <Body>Geen configuratie fouten gevonden. </Body>}
+    </BaseSettingsView>
   );
 }
