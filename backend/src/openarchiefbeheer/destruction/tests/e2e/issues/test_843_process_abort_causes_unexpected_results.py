@@ -34,7 +34,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
 
     async def _ready_to_review(self, page: Page, destruction_list: DestructionList, record_manager_username="gh-843-record-manager-1"):
         await self.when.record_manager_logs_in(page, username=record_manager_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Ter beoordeling indienen")
         await self.when.user_clicks_button(page, "Ter beoordeling indienen", 1)
 
@@ -46,7 +46,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
 
     async def _review_by_reviewer(self, page: Page, destruction_list: DestructionList, reviewer_username="gh-843-reviewer-1"):
         await self.when.reviewer_logs_in(page, username=reviewer_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Goedkeuren")
         await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
@@ -59,7 +59,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         archivaris = await self.given.archivist_exists(username=archivist_username)
 
         await self.when.record_manager_logs_in(page, username=record_manager_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Markeren als definitief")
         await self.when.user_fills_form_field(page, "Archivaris", str(archivaris))
         await self.when.user_fills_form_field(page, "Opmerking", "Dit is een test comment")
@@ -71,7 +71,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
 
     async def _review_by_archivist(self, page: Page, destruction_list: DestructionList, archivist_username="gh-843-archivist-1"):
         await self.when.archivist_logs_in(page, username=archivist_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Goedkeuren")
         await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietigingslijst goedkeuren")
@@ -82,7 +82,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
 
     async def _schedule_destroy(self, page: Page, destruction_list: DestructionList, record_manager_username="gh-843-record-manager-1"):
         await self.when.record_manager_logs_in(page, username=record_manager_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Vernietigen starten")
         await self.when.user_fills_form_field(page, "Type naam van de lijst ter bevestiging", destruction_list.name)
         await self.when.user_clicks_button(page, "1 zaken vernietigen")
@@ -95,7 +95,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.given.record_manager_exists(username=record_manager_username)
 
         await self.when.record_manager_logs_in(page, username=record_manager_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Vernietigen annuleren")
         await self.when.user_fills_form_field(page, "Opmerking", "gh-843")
         await self.when.user_clicks_button(page, "Vernietiging annuleren")
@@ -113,7 +113,7 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         reviewer2 = await self.given.reviewer_exists(username=reviewer_username)
 
         await self.when.record_manager_logs_in(page, username=record_manager_username)
-        await self.when.user_clicks_button(page, destruction_list.name.replace("-", " "))
+        await self.when.user_clicks_button(page, destruction_list.name)
         await self.when.user_clicks_button(page, "Beoordelaar bewerken")
         await self.when.user_fills_form_field(page, "Beoordelaar", str(reviewer2))
         await self.when.user_fills_form_field(page, "Reden", "gh-843")

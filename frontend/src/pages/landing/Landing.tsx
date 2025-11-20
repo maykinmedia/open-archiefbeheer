@@ -1,6 +1,8 @@
 import {
   Badge,
   FieldSet,
+  KanbanButton,
+  KanbanButtonProps,
   KanbanTemplate,
   Outline,
   P,
@@ -252,11 +254,24 @@ export const Landing = () => {
     setSearchParams({ ...searchParams, [name]: value });
   };
 
+  const fieldsets = STATUSES.map(
+    (fieldset) =>
+      [
+        fieldset[0],
+        {
+          ...fieldset[1],
+          component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
+            <KanbanButton {...props} title={props.object.title} />
+          ),
+        },
+      ] as FieldSet,
+  );
+
   return (
     <KanbanTemplate<LandingKanbanEntry>
       kanbanProps={{
         title: "Vernietigingslijsten",
-        fieldsets: STATUSES,
+        fieldsets: fieldsets,
         buttonLinkProps: {
           download: true,
         },
