@@ -249,9 +249,15 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Zaak-2")
             await self.then.page_should_contain_text(page, "Zaak-3")
 
-            await self.when.user_clicks_button(page, "Toon zaken met verlopen archiefdatum")
+            await self.when.user_clicks_button(page, "Toon enkel zaken met verlopen archiefdatum")
             await self.then.page_should_contain_text(page, "Filters wissen")
-            await self.then.page_should_not_contain_text(page, "Toon zaken met verlopen archiefdatum")
+            await self.then.page_should_contain_text(page, "Toon ook zaken met toekomstige archiefdatum")
             await self.then.page_should_contain_text(page, "Zaak-1")
             await self.then.page_should_contain_text(page, "Zaak-2")
             await self.then.page_should_not_contain_text(page, "Zaak-3")
+
+            await self.when.user_clicks_button(page, "Toon ook zaken met toekomstige archiefdatum")
+            await self.then.page_should_contain_text(page, "Toon enkel zaken met verlopen archiefdatum")
+            await self.then.page_should_contain_text(page, "Zaak-1")
+            await self.then.page_should_contain_text(page, "Zaak-2")
+            await self.then.page_should_contain_text(page, "Zaak-3")

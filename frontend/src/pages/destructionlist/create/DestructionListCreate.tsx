@@ -58,12 +58,26 @@ export function DestructionListCreatePage() {
       },
     ];
 
-    if (!isFilteredArchiveDateExpired()) {
+    if (showUnarchivableZaken()) {
       actions.push({
         children: (
           <>
             <Solid.ArchiveBoxArrowDownIcon />
-            Toon zaken met verlopen archiefdatum
+            Toon enkel zaken met verlopen archiefdatum
+          </>
+        ),
+        disabled: false,
+        variant: "info",
+        onClick: handleFilterClick,
+      });
+    }
+
+    if (onlyShowArchivableZaken()) {
+      actions.push({
+        children: (
+          <>
+            <Solid.ArchiveBoxArrowDownIcon />
+            Toon ook zaken met toekomstige archiefdatum
           </>
         ),
         disabled: false,
@@ -79,16 +93,30 @@ export function DestructionListCreatePage() {
    * Returns whether the filter value for "archiefactiedatum" is in the past or the current date.
    * return false if filter value is not set.
    */
-  const isFilteredArchiveDateExpired = () => {
-    const strArchiveDateGte = searchParams.get("archiefactiedatum__gte");
-    const strArchiveDateLte = searchParams.get("archiefactiedatum__lte");
-    if (!strArchiveDateGte || !strArchiveDateLte) return false;
+  const onlyShowArchivableZaken = () => {
+    if (searchParams.get("archiefactiedatum__gte")) return false; // User filtered.
 
-    const dateArchiveDateGte = new Date(strArchiveDateGte);
+    const strArchiveDateLte = searchParams.get("archiefactiedatum__lte");
+    if (!strArchiveDateLte) return false;
+
     const dateArchiveDateLte = new Date(strArchiveDateLte);
     const today = new Date();
 
-    return dateArchiveDateGte <= today && dateArchiveDateLte <= today;
+    return dateArchiveDateLte <= today;
+  };
+
+  /**
+   * Returns whether the filter value for "archiefactiedatum" is in the past or the current date.
+   * return false if filter value is not set.
+   */
+  const showUnarchivableZaken = () => {
+    if (
+      searchParams.get("archiefactiedatum__lte") ||
+      searchParams.get("archiefactiedatum__gte")
+    ) {
+      return false;
+    }
+    return true;
   };
 
   /**
@@ -100,7 +128,13 @@ export function DestructionListCreatePage() {
    * Get called when the "Toon zaken met verlopen archiefdatum" button is clicked.
    */
   const handleFilterClick = () => {
-    searchParams.set("archiefactiedatum__gte", "1970-01-01");
+    if (onlyShowArchivableZaken()) {
+      searchParams.delete("archiefactiedatum__lte");
+      searchParams.delete("archiefactiedatum__gte");
+      setSearchParams(searchParams);
+      return;
+    }
+    searchParams.delete("archiefactiedatum__gte");
     searchParams.set("archiefactiedatum__lte", date2DateString(new Date()));
     setSearchParams(searchParams);
   };
