@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from django.utils.translation import gettext_lazy as _
 
 from djangorestframework_camel_case.util import camelize
@@ -7,7 +5,8 @@ from drf_spectacular.utils import extend_schema_field
 from furl import furl
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
-from zgw_consumers.models import Service
+
+from openarchiefbeheer.clients import get_service_from_url
 
 from ..models import Zaak
 from ..utils import (
@@ -109,11 +108,6 @@ class ZaaktypeFilterSerializer(serializers.Serializer):
         return camelize(instance)
 
 
-@lru_cache
-def get_service(url: str) -> Service | None:
-    return Service.get_service(url)
-
-
 # The structure of ZaakMetadataSerializer needs to remain in sync with ZAAK_METADATA_FIELDS_MAPPINGS
 # TODO: Make more robust so that we don't have to worry about keeping in sync
 class ZaakMetadataSerializer(serializers.ModelSerializer):
@@ -169,7 +163,7 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
         zaak_url = furl(zaak.url)
         zaak_url.path.segments = zaak_url.path.segments[:-1]
 
-        service = get_service(zaak_url.url)
+        service = get_service_from_url(zaak_url.url)
         return service.label
 
     @extend_schema_field(serializers.CharField)

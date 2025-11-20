@@ -71,10 +71,6 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "default",
     },
-    "choices_endpoints": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "choices",
-    },
     "axes": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
 }
 

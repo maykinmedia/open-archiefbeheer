@@ -1,15 +1,11 @@
-from unittest.mock import patch
-
 from django.test import TestCase, tag
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework.test import APIRequestFactory
 from vcr.unittest import VCRMixin
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.tests.factories import APIConfigFactory
 
 from ...api.serializers import ReviewResponseSerializer
 from ...constants import DestructionListItemAction, ListStatus, ZaakActionType
@@ -20,16 +16,8 @@ factory = APIRequestFactory()
 
 @tag("vcr")
 class ReviewResponseSerializerTest(VCRMixin, TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-
-        cls.config = ServiceFactory.create(
-            api_type=APITypes.orc,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-        )
-
     def test_new_selectielijst_blijvend_bewaren(self):
+        APIConfigFactory.create()
         record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
@@ -58,13 +46,9 @@ class ReviewResponseSerializerTest(VCRMixin, TestCase):
             ],
         }
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=self.config),
-        ):
-            serializer = ReviewResponseSerializer(data=data)
+        serializer = ReviewResponseSerializer(data=data)
 
-            self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid())
 
         self.assertEqual(
             serializer.errors["items_responses"][0]["selectielijstklasse"][0],
@@ -74,6 +58,7 @@ class ReviewResponseSerializerTest(VCRMixin, TestCase):
         )
 
     def test_selectielijst_blijvend_bewaren_update_archiefactiedatum(self):
+        APIConfigFactory.create()
         record_manager = UserFactory.create(post__can_start_destruction=True)
         review = DestructionListReviewFactory.create(
             destruction_list__author=record_manager,
@@ -106,15 +91,9 @@ class ReviewResponseSerializerTest(VCRMixin, TestCase):
         request = factory.get("/foo")
         request.user = record_manager
 
-        with patch(
-            "openarchiefbeheer.zaken.utils.APIConfig.get_solo",
-            return_value=APIConfig(selectielijst_api_service=self.config),
-        ):
-            serializer = ReviewResponseSerializer(
-                data=data, context={"request": request}
-            )
+        serializer = ReviewResponseSerializer(data=data, context={"request": request})
 
-            self.assertFalse(serializer.is_valid())
+        self.assertFalse(serializer.is_valid())
 
         self.assertEqual(
             serializer.errors["items_responses"][0]["archiefactiedatum"][0],

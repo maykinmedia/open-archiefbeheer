@@ -19,3 +19,4 @@ Content
     logic
     translations
     release
+    cache

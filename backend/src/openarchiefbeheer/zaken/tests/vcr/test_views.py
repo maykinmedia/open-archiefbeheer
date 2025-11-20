@@ -9,8 +9,6 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
-from ...utils import retrieve_paginated_type
-
 
 class StatustypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
     @classmethod
@@ -23,11 +21,6 @@ class StatustypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
-
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):
         user = UserFactory.create()
@@ -86,11 +79,6 @@ class ResultaattypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
             secret="test-vcr",
         )
 
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
-
     def test_retrieve_all_choices(self):
         user = UserFactory.create()
 
@@ -148,11 +136,6 @@ class InformatieobjecttypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCa
             secret="test-vcr",
         )
 
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
-
     def test_retrieve_all_choices(self):
         user = UserFactory.create()
 
@@ -207,11 +190,6 @@ class ExternalZaaktypenChoicesViewTests(ClearCacheMixin, VCRMixin, APITestCase):
             client_id="test-vcr",
             secret="test-vcr",
         )
-
-    def setUp(self):
-        super().setUp()
-
-        self.addCleanup(retrieve_paginated_type.cache_clear)
 
     def test_retrieve_all_choices(self):
         user = UserFactory.create()
