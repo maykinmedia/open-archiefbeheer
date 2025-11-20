@@ -35,7 +35,7 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
             await self.then.list_should_exist(page, "gh-841-destruction-list")
 
             await self.when.record_manager_logs_in(page)
-            await self.when.user_clicks_button(page, "gh 841 destruction list")
+            await self.when.user_clicks_button(page, "gh-841-destruction-list")
             await self.when.user_clicks_button(page, "Ter beoordeling indienen")
             await self.when.user_clicks_button(page, "Ter beoordeling indienen", 1)
 
@@ -43,7 +43,7 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
 
             # Reviewer 1 rejects the list
             await self.when.reviewer_logs_in(page, username=reviewer1.username)
-            await self.when.user_clicks_button(page, "gh 841 destruction list")
+            await self.when.user_clicks_button(page, "gh-841-destruction-list")
             await self.when.user_clicks_button(page, "Uitzonderen")
             await self.when.user_fills_form_field(
                 page, "Reden", "Please reconsider this zaak"
@@ -61,7 +61,7 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
 
             # The record manager reassigns the reviewer and then re-submits the list.
             await self.when.record_manager_logs_in(page)
-            await self.when.user_clicks_button(page, "gh 841 destruction list")
+            await self.when.user_clicks_button(page, "gh-841-destruction-list")
             await self.when.user_clicks_button(page, "Beoordelaar bewerken")
             await self.when.user_fills_form_field(page, "Beoordelaar", str(reviewer2))
             await self.when.user_fills_form_field(

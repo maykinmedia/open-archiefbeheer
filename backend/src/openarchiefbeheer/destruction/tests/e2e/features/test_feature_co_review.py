@@ -22,7 +22,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             )
 
             await self.when.reviewer_logs_in(page)
-            await self.when.user_clicks_button(page, "Destruction list to assign co reviewers for")
+            await self.when.user_clicks_button(page, "Destruction list to assign co-reviewers for")
             await self.when.user_clicks_button(page, "Beoordelaar bewerken")
 
             await self.when.user_fills_form_field(page, "Medebeoordelaar 1", "Co Reviewer (co-reviewer1)")
