@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Mapping, NoReturn, TypedDict, TypeVar
 
+from maykin_health_checks.types import HealthCheckResult
+
 PluginConfig = TypeVar("PluginConfig")
 
 
@@ -31,7 +33,7 @@ class AbstractBasePlugin[PluginConfig, T](ABC):
         return self.verbose_name
 
     @abstractmethod
-    def check_config(self) -> None | NoReturn:
+    def check_config(self) -> HealthCheckResult:
         raise NotImplementedError()
 
     @abstractmethod
