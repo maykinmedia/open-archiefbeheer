@@ -1,5 +1,5 @@
 import hashlib
-from functools import lru_cache
+from functools import cache, lru_cache
 from typing import Callable, NoReturn, TypeVar
 
 from django.core.cache import cache as django_cache
@@ -21,7 +21,8 @@ def get_service_from_url(url: str) -> Service | None:
     return Service.get_service(url)
 
 
-def _get_client(api_type: APITypes, slug: str = "") -> APIClient | NoReturn:
+@lru_cache
+def _get_service(api_type: APITypes, slug: str = "") -> Service | NoReturn:
     """Return an APIClient of the requested type.
 
     The empty slug `""` wil return whatever the "first" is if it exists."""
@@ -36,59 +37,60 @@ def _get_client(api_type: APITypes, slug: str = "") -> APIClient | NoReturn:
             )
         )
 
-    return build_client(service)
+    return service
 
 
-@lru_cache
 def ztc_client(slug: str = "") -> APIClient | NoReturn:
     """Return the APIClient for the configured ZTC service"""
-    client = _get_client(APITypes.ztc, slug)
+    service = _get_service(APITypes.ztc, slug)
+    client = build_client(service)
     # passing as arg to build_client doesn't work
     client.headers["Accept-Crs"] = "EPSG:4326"
     return client
 
 
-@lru_cache
 def zrc_client(slug: str = "") -> APIClient | NoReturn:
     """Return the APIClient for the configured ZRC service"""
-    return _get_client(APITypes.zrc, slug)
+    service = _get_service(APITypes.zrc, slug)
+    return build_client(service)
 
 
-@lru_cache
 def drc_client(slug: str = "") -> APIClient | NoReturn:
     """Return the APIClient for the configured DRC service"""
-    return _get_client(APITypes.drc, slug)
+    service = _get_service(APITypes.drc, slug)
+    return build_client(service)
 
 
-@lru_cache
 def brc_client(slug: str = "") -> APIClient | NoReturn:
-    """Return the APIClient for the configured DRC service"""
-    return _get_client(APITypes.brc, slug)
+    """Return the APIClient for the configured BRC service"""
+    service = _get_service(APITypes.brc, slug)
+    return build_client(service)
 
 
-@lru_cache
-def selectielijst_client() -> APIClient | NoReturn:
+@cache
+def _get_selectielijst_service() -> Service | NoReturn:
     config = APIConfig.get_solo()
 
     if config.selectielijst_api_service is None:
         raise ImproperlyConfigured(_("No Selectielijst service configured"))
 
-    return build_client(config.selectielijst_api_service)
+    return config.selectielijst_api_service
+
+
+def selectielijst_client() -> APIClient | NoReturn:
+    return build_client(_get_selectielijst_service())
 
 
 @receiver([post_delete, post_save], sender=Service, weak=False)
 def clear_cache_on_service_change(sender, instance, **_):
     get_service_from_url.cache_clear()
-    ztc_client.cache_clear()
-    zrc_client.cache_clear()
-    drc_client.cache_clear()
-    brc_client.cache_clear()
-    selectielijst_client.cache_clear()
+    _get_service.cache_clear()
+    _get_selectielijst_service.cache_clear()
 
 
 @receiver([post_delete, post_save], sender=APIConfig, weak=False)
 def clear_cache_on_api_config_change(sender, instance, **_):
-    selectielijst_client.cache_clear()
+    _get_selectielijst_service.cache_clear()
 
 
 R = TypeVar("R", covariant=True)
@@ -121,8 +123,8 @@ def _cached[F: Callable[[], object]](f: F) -> F:
         default=f,
         timeout=60 * 60 * 24,
     )
-    function.clear_cache = lambda: django_cache.delete(
+    function.clear_cache = lambda: django_cache.delete(  # pyright: ignore[reportFunctionMemberAccess] # noqa
         key
-    )  # pyright: ignore[reportFunctionMemberAccess]
+    )
 
     return function

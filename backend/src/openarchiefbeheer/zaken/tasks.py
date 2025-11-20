@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import logging
 
@@ -17,7 +18,7 @@ from openarchiefbeheer.logging import logevent
 from .api.serializers import ZaakSerializer
 from .decorators import log_errors
 from .models import Zaak
-from .utils import NoClient, pagination_helper, process_expanded_data
+from .utils import pagination_helper, process_expanded_data
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +38,9 @@ def retrieve_and_cache_zaken(is_full_resync=False):
     # TODO: We should probably let this error out,
     # But I don't want to change the behaviour for now while fixing #867
     try:
-        selectielijst_api_client = selectielijst_client()
+        selectielijst_api_client_cm = selectielijst_client()
     except ImproperlyConfigured:
-        selectielijst_api_client = None
+        selectielijst_api_client_cm = contextlib.nullcontext()
 
     today = datetime.date.today()
     query_params = {
@@ -54,7 +55,9 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
 
     client = configure_retry(zrc_client())
-    with transaction.atomic(), client, selectielijst_api_client or NoClient():
+    with transaction.atomic(), (
+        client
+    ), selectielijst_api_client_cm as selectielijst_api_client:
         if is_full_resync:
             Zaak.objects.all().delete()
 
@@ -87,7 +90,7 @@ def retrieve_and_cache_zaken(is_full_resync=False):
                         del new_zaken[duplicate.url]
                 zaken = [zaak for zaak in new_zaken.values()]
 
-            if selectielijst_api_client:
+            if isinstance(selectielijst_api_client, APIClient):
                 zaken = process_expanded_data(zaken, selectielijst_api_client)
 
             serializer = ZaakSerializer(data=zaken, many=True)

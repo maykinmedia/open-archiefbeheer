@@ -474,11 +474,3 @@ def retrieve_zaaktypen(zaaktype_identificatie: str = "") -> list[dict]:
         )
 
     return results
-
-
-class NoClient:
-    def __enter__(self):
-        return None
-
-    def __exit__(self, *args):
-        return None
