@@ -88,7 +88,7 @@ function App() {
   return (
     <div className="App">
       {healthCheck &&
-        !healthCheck.success &&
+        Object.keys(healthCheck).length > 0 &&
         location?.pathname != "/settings/health-check" && (
           <Banner
             withIcon

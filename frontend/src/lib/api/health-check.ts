@@ -1,16 +1,16 @@
 import { request } from "./request";
 
-interface HealthCheckError {
+export interface HealthCheckResult {
   model: string;
   code: string;
   message: string;
   severity: "error" | "warning" | "info";
   field?: string;
+  success: boolean;
 }
 
 export interface HealthCheckResponse {
-  success: boolean;
-  errors: HealthCheckError[];
+  [key: string]: HealthCheckResult;
 }
 
 /**
