@@ -679,3 +679,11 @@ SETUP_CONFIGURATION_STEPS = [
     "openarchiefbeheer.config.setup_configuration.steps.APIConfigConfigurationStep",
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
 ]
+
+#
+# Django health checks
+#
+HEALTH_CHECKS = []
+HEALTH_CHECKS_PLUGIN_LOADER = ""
+
+ZGW_REQUIRED_SERVICE_TYPES = ["zrc", "drc", "ztc", "brc"]

@@ -1,15 +1,13 @@
 from django.utils.translation import gettext_lazy as _
 
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
-from rest_framework import serializers
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from openarchiefbeheer.destruction.api.permissions import CanConfigureApplication
 
-from ..health_checks import is_configuration_complete
 from ..models import ArchiveConfig
 from .serializers import (
     ApplicationInfoSerializer,
@@ -86,52 +84,6 @@ class OIDCInfoView(APIView):
         config = OpenIDConnectConfig.get_solo()
         serializer = OIDCInfoSerializer(instance=config, context={"request": request})
         return Response(serializer.data)
-
-
-class HealthCheckView(APIView):
-    @extend_schema(
-        summary=_("Get health check"),
-        description=_(
-            "Returns whether everything that should have been configured was configured."
-        ),
-        tags=["Configuration"],
-        responses={
-            200: inline_serializer(
-                name="HealthCheckResponse",
-                fields={
-                    "success": serializers.BooleanField(
-                        help_text="Whether the configuration is complete."
-                    ),
-                    "errors": inline_serializer(
-                        name="HealthCheckError",
-                        many=True,
-                        fields={
-                            "model": serializers.CharField(
-                                help_text="The model that is not properly configured."
-                            ),
-                            "code": serializers.CharField(
-                                help_text="A code name for the error."
-                            ),
-                            "message": serializers.CharField(
-                                help_text="A human readable error message."
-                            ),
-                            "severity": serializers.ChoiceField(
-                                help_text="Whether this is an error, warning or info.",
-                                choices=["error", "warning", "info"],
-                            ),
-                            "field": serializers.CharField(
-                                help_text="The field of a model that is not properly configured. Can be empty.",
-                                required=False,
-                            ),
-                        },
-                    ),
-                },
-            ),
-        },
-    )
-    def get(self, request: Request, *args, **kwargs):
-        results = is_configuration_complete()
-        return Response(results)
 
 
 @extend_schema(
