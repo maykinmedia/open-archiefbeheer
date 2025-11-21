@@ -1,20 +1,15 @@
 import { Badge, Body, Solid } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
+import { HealthCheckResult, Severity } from "../../../../lib/api/health-check";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
-import { HealthCheckSettingsPageContext } from "./HealthCheckSettingsPage.loader";
-import { HealthCheckResult } from "../../../../lib/api/health-check";
 
 /**
  * Check the health of certain services that require configuring
  */
 export function HealthCheckSettingsPage() {
-  const failedChecks = useLoaderData() as HealthCheckSettingsPageContext;
-  const failedChecksKeys = Object.keys(failedChecks);
-  const sortedfailedChecksKeys = failedChecksKeys.sort();
-  const getSeverityBadge = (
-    severity: HealthCheckResult["severity"],
-  ) => {
+  const failedChecks = useLoaderData() as HealthCheckResult[];
+  const getSeverityBadge = (severity: Severity) => {
     switch (severity) {
       case "error":
         return (
@@ -60,19 +55,24 @@ export function HealthCheckSettingsPage() {
     }
   };
 
+  const getFormattedCheckResults = () => {
+    const formattedResult = [];
+    for (const result of failedChecks) {
+      for (const extraInfo of result.extra || []) {
+        formattedResult.push({
+          Niveau: getSeverityBadge(extraInfo.severity),
+          Bericht: extraInfo.message,
+          Model: extraInfo.model,
+          Veld: extraInfo.field,
+        });
+      }
+    }
+    return formattedResult;
+  };
+
   return (
     <BaseSettingsView
-      dataGridProps={{
-        objectList: sortedfailedChecksKeys.map((checkKey) => {
-          const check = failedChecks[checkKey];
-          return {
-            Model: check.model,
-            Niveau: getSeverityBadge(check.severity),
-            Bericht: check.message,
-            Veld: check.field,
-          };
-        }),
-      }}
+      dataGridProps={{ objectList: getFormattedCheckResults() }}
       secondaryNavigationItems={[
         {
           children: (
@@ -87,7 +87,9 @@ export function HealthCheckSettingsPage() {
         },
       ]}
     >
-      {failedChecksKeys.length === 0 && <Body>Geen configuratie fouten gevonden. </Body>}
+      {failedChecks.length === 0 && (
+        <Body>Geen configuratie fouten gevonden. </Body>
+      )}
     </BaseSettingsView>
   );
 }
