@@ -1,16 +1,20 @@
 import { request } from "./request";
 
-export interface HealthCheckResult {
+export type Severity = "error" | "warning" | "info";
+
+export interface ExtraInfo {
   model: string;
   code: string;
-  message: string;
-  severity: "error" | "warning" | "info";
+  message?: string;
+  severity: Severity;
   field?: string;
-  success: boolean;
 }
 
-export interface HealthCheckResponse {
-  [key: string]: HealthCheckResult;
+export interface HealthCheckResult {
+  message: string;
+  success: boolean;
+  identifier: string;
+  extra?: ExtraInfo[];
 }
 
 /**
@@ -18,7 +22,7 @@ export interface HealthCheckResponse {
  */
 export async function getHealthCheck(
   signal?: AbortSignal,
-): Promise<HealthCheckResponse> {
+): Promise<HealthCheckResult[]> {
   const response = await request(
     "GET",
     "/health-check",
@@ -27,6 +31,6 @@ export async function getHealthCheck(
     undefined,
     signal,
   );
-  const promise: Promise<HealthCheckResponse> = response.json();
+  const promise: Promise<HealthCheckResult[]> = response.json();
   return promise;
 }
