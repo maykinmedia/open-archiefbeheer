@@ -26,6 +26,7 @@ django-cors-headers
 django-filter
 djangorestframework-gis
 drf-nested-routers
+msgspec
 
 # WSGI servers & monitoring - production oriented
 uwsgi
