@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Literal, TypedDict
+from typing import Literal
 
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
-from maykin_health_checks.checks import HealthCheck
-from maykin_health_checks.types import HealthCheckResult as _HealthCheckResult
+from maykin_health_checks.types import HealthCheck
+from msgspec import UNSET, Struct, UnsetType, to_builtins
 from zgw_consumers.models import Service
 
 from openarchiefbeheer.registers.plugin import AbstractBasePlugin
@@ -15,50 +15,29 @@ from openarchiefbeheer.types import JSONValue
 from .models import APIConfig, ArchiveConfig
 
 
-class HealthCheckError(TypedDict, total=False):
+class ExtraInfo(Struct):
     model: str
     code: str
+    severity: Literal["error", "warning", "info"] = "error"
+    message: str | UnsetType = UNSET
+    field: str | UnsetType = UNSET
+
+
+class CheckResult(Struct):
+    identifier: str
+    success: bool
     message: str
-    severity: Literal["error", "warning", "info"]
-    field: str
+    extra: list[ExtraInfo] | UnsetType = UNSET
+
+    def to_builtins(self) -> JSONValue:
+        return to_builtins(self)
 
 
 @dataclass
-class HealthCheckResult:
-    health_check: HealthCheck
-    success: bool
-    model: str = ""
-    code: str = ""
-    message: str = ""
-    severity: Literal["error", "warning", "info"] = "error"
+class ServiceHealthCheck:
+    identifier = "services_presence"
 
-    def pretty_print(self) -> str:
-        if self.success:
-            return ""
-
-        return f"{self.health_check.human_name}: {self.message}"
-
-    # TODO: shouldn't do this by hand
-    def serialize(self) -> JSONValue:
-        if self.success:
-            return {
-                "success": self.success,
-            }
-
-        return {
-            "success": self.success,
-            "message": self.message,
-            "code": self.code,
-            "model": self.model,
-            "severity": self.severity,
-        }
-
-
-class MissingServiceHealthCheck(HealthCheck):
-    human_name = _("Missing services check")
-    identifier = "missing_services"
-
-    def run(self) -> HealthCheckResult:
+    def run(self) -> CheckResult:
         missing_services = []
 
         for needed_service_type in settings.ZGW_REQUIRED_SERVICE_TYPES:
@@ -72,29 +51,32 @@ class MissingServiceHealthCheck(HealthCheck):
             missing_services.append("selectielijst")
 
         if missing_services:
-            return HealthCheckResult(
-                health_check=self,
-                code="missing_service",
-                model="zgw_consumers.models.Service",
+            return CheckResult(
+                identifier=self.identifier,
                 message=_("Missing service(s): {missing_services}").format(
                     missing_services=missing_services
                 ),
                 success=False,
+                extra=[
+                    ExtraInfo(
+                        code="missing_service",
+                        model="zgw_consumers.models.Service",
+                    )
+                ],
             )
 
-        return HealthCheckResult(health_check=self, success=True)
+        return CheckResult(
+            identifier=self.identifier,
+            success=True,
+            message=_("All expected services configured correctly."),
+        )
 
 
 @dataclass
-class MisconfiguredServicesCheckResult(HealthCheckResult):
-    errors: list[HealthCheckError] | None = None
+class ServiceConfigurationHealthCheck:
+    identifier = "services_configuration"
 
-
-class MisconfiguredServiceHealthCheck(HealthCheck):
-    human_name = _("Misconfigured services check")
-    identifier = "misconfigured_services"
-
-    def run(self) -> MisconfiguredServicesCheckResult:
+    def run(self) -> CheckResult:
         errors = []
         for service in Service.objects.all():
             service_connection_result = service.connection_check
@@ -102,76 +84,124 @@ class MisconfiguredServiceHealthCheck(HealthCheck):
                 service_connection_result and not 200 <= service_connection_result < 300
             ):
                 errors.append(
-                    HealthCheckError(
+                    ExtraInfo(
                         code="improperly_configured_service",
                         message=_(
                             'Service "{service}" is improperly configured.'
                         ).format(service=service.label),
                         severity="error",
+                        model="zgw_consumers.models.Service",
                     )
                 )
 
-        return MisconfiguredServicesCheckResult(
-            health_check=self, success=len(errors) == 0, errors=errors or None
+        has_errors = len(errors) > 0
+        return CheckResult(
+            identifier=self.identifier,
+            success=not has_errors,
+            extra=errors,
+            message=(
+                _("Found some misconfigured services")
+                if has_errors
+                else _("No misconfigured services")
+            ),
         )
 
 
-class APIConfigCheck(HealthCheck):
-    human_name = _("API Configuration Check")
+@dataclass
+class APIConfigCheck:
     identifier = "apiconfig"
 
-    def run(self) -> HealthCheckResult:
+    def run(self) -> CheckResult:
         api_config = APIConfig.get_solo()
         assert api_config.selectielijst_api_service
         if api_config.selectielijst_api_service.connection_check != 200:
-            return HealthCheckResult(
-                health_check=self,
+            return CheckResult(
+                identifier=self.identifier,
                 success=False,
-                message=_("Missing selectielijst API service"),
-                model="openarchiefbeheer.config.APIConfig",
+                message=_("Missing selectielijst API service."),
+                extra=[
+                    ExtraInfo(
+                        code="missing_service",
+                        model="openarchiefbeheer.config.APIConfig",
+                    )
+                ],
             )
-        return HealthCheckResult(health_check=self, success=True)
+        return CheckResult(
+            identifier=self.identifier,
+            success=True,
+            message=_("The API settings are properly configured."),
+        )
 
 
-class ArchiveConfigHealthCheck(HealthCheck):
-    human_name = _("Archive Configuration Check")
+@dataclass
+class ArchiveConfigHealthCheck:
     identifier = "archiveconfig"
 
-    def run(self) -> HealthCheckResult:
-        missing_fields = []
+    def run(self) -> CheckResult:
+        errors = []
         archive_config = ArchiveConfig.get_solo()
         if not archive_config.bronorganisatie:
-            missing_fields.append("bronorganisatie")
+            errors.append(
+                ExtraInfo(
+                    model="openarchiefbeheer.config.ArchiveConfig",
+                    code="missing_field",
+                    field="bronorganisatie",
+                )
+            )
         if not archive_config.zaaktype:
-            missing_fields.append("zaaktype")
+            errors.append(
+                ExtraInfo(
+                    model="openarchiefbeheer.config.ArchiveConfig",
+                    code="missing_field",
+                    field="zaaktype",
+                )
+            )
         if not archive_config.resultaattype:
-            missing_fields.append("resultaattype")
+            errors.append(
+                ExtraInfo(
+                    model="openarchiefbeheer.config.ArchiveConfig",
+                    code="missing_field",
+                    field="resultaattype",
+                )
+            )
         if not archive_config.informatieobjecttype:
-            missing_fields.append("informatieobjecttype")
+            errors.append(
+                ExtraInfo(
+                    model="openarchiefbeheer.config.ArchiveConfig",
+                    code="missing_field",
+                    field="informatieobjecttype",
+                )
+            )
 
-        if missing_fields:
-            return HealthCheckResult(
-                health_check=self,
+        if errors:
+            return CheckResult(
+                identifier=self.identifier,
                 success=False,
                 message=_("Missing settings(s): {missing_fields}").format(
-                    missing_fields=missing_fields
+                    missing_fields=errors
                 ),
-                model="openarchiefbeheer.config.ArchiveConfig",
+                extra=errors,
             )
-        return HealthCheckResult(health_check=self, success=True)
+        return CheckResult(
+            identifier=self.identifier,
+            success=True,
+            message=_("The archiving settings are properly configured."),
+        )
 
 
-class PluginHealthCheck(HealthCheck):
-    plugin = AbstractBasePlugin
+@dataclass
+class PluginHealthCheck:
+    identifier: str
+    plugin: AbstractBasePlugin
 
-    def run(self) -> _HealthCheckResult:
+    def run(self) -> CheckResult:
         return self.plugin.check_config()
 
 
 def checks_collector() -> list[HealthCheck]:
     checks = [
-        MissingServiceHealthCheck(),
-        MisconfiguredServiceHealthCheck(),
+        ServiceHealthCheck(),
+        ServiceConfigurationHealthCheck(),
         APIConfigCheck(),
         ArchiveConfigHealthCheck(),
     ]
@@ -180,7 +210,6 @@ def checks_collector() -> list[HealthCheck]:
             PluginHealthCheck(
                 identifier=plugin.identifier,
                 plugin=plugin,
-                human_name=plugin.verbose_name,
             )
         )
 
