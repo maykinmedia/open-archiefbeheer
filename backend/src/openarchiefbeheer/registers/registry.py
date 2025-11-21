@@ -1,4 +1,4 @@
-from typing import Callable, Iterable
+from typing import Callable, Iterator
 
 from git import TYPE_CHECKING
 
@@ -25,7 +25,7 @@ class Registry[PluginT: AbstractBasePlugin]:
 
         return decorator
 
-    def __iter__(self) -> Iterable[PluginT]:
+    def __iter__(self) -> Iterator[PluginT]:
         return iter(self._registry.values())
 
     def __getitem__(self, key: str) -> PluginT:

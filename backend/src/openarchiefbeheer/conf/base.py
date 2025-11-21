@@ -137,6 +137,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "privates",
     "django_setup_configuration",
+    "maykin_health_checks",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
