@@ -13,10 +13,12 @@ from ....constants import ListStatus
 class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
     async def test_scenario_user_cancels_filtered_edit_mode(self):
         async with browser_page() as page:
+            zaken = await self.given.zaken_are_indexed(3)
             await self.given.list_exists(
                 name="Destruction list to edit",
                 status=ListStatus.new,
                 uuid="00000000-0000-0000-0000-000000000000",
+                zaken=zaken
             )
 
             await self.when.record_manager_logs_in(page)
@@ -27,7 +29,7 @@ class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Zaak-")
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
-            await self.then.zaak_should_be_selected(page, "zaak-0")
+            await self.then.zaak_should_be_selected(page, zaken[0].identificatie)
 
             await self.when.user_fills_form_field(page, "Identificatie", "non-matching-identifier", "textbox")
             await self.then.path_should_be(page,
