@@ -86,9 +86,7 @@ class ServiceConfigurationHealthCheck:
                 errors.append(
                     ExtraInfo(
                         code="improperly_configured_service",
-                        message=_(
-                            'Service "{service}" is improperly configured.'
-                        ).format(service=service.label),
+                        message=service.label,
                         severity="error",
                         model="zgw_consumers.models.Service",
                     )
@@ -98,7 +96,7 @@ class ServiceConfigurationHealthCheck:
         return CheckResult(
             identifier=self.identifier,
             success=not has_errors,
-            extra=errors,
+            extra=errors if has_errors else UNSET,
             message=(
                 _("Found some misconfigured services")
                 if has_errors
@@ -113,16 +111,19 @@ class APIConfigCheck:
 
     def run(self) -> CheckResult:
         api_config = APIConfig.get_solo()
-        assert api_config.selectielijst_api_service
-        if api_config.selectielijst_api_service.connection_check != 200:
+
+        if not api_config.selectielijst_api_service:
             return CheckResult(
                 identifier=self.identifier,
                 success=False,
-                message=_("Missing selectielijst API service."),
+                message=_(
+                    "No selectielijst API services selected in the API configuration page."
+                ),
                 extra=[
                     ExtraInfo(
                         code="missing_service",
                         model="openarchiefbeheer.config.APIConfig",
+                        field="selectielijst_api_service",
                     )
                 ],
             )

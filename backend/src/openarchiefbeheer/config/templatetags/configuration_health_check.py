@@ -8,6 +8,6 @@ register = template.Library()
 
 
 @register.inclusion_tag("configuration_health_check.html")
-def configuration_health_check() -> list[CheckResult]:
+def configuration_health_check() -> dict[str, list[CheckResult]]:
     runner = HealthChecksRunner(checks_collector=checks_collector)
-    return runner.run_checks()
+    return {"failed_checks": runner.run_checks()}
