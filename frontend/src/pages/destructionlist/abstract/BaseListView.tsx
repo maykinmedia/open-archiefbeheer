@@ -259,12 +259,7 @@ export function BaseListView<T extends Zaak = Zaak>({
           selectionActions: getSelectionActions(),
           onFieldsChange: setFields,
           onFilter: (rowData) => {
-            // (gh-635) Edge-case: If filters have NOT been reset yet, we set the filter field
-            if (!resetRef.current) {
-              setFilterField(rowData);
-            } else {
-              resetRef.current = false;
-            }
+            setFilterField(rowData);
           },
           onPageChange: setPage,
           onSelect: handleSelect,
