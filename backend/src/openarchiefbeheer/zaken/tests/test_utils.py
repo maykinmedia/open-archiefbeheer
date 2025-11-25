@@ -1,5 +1,7 @@
-from django.test import TestCase
 import contextlib
+
+from django.test import TestCase
+
 from requests.exceptions import ConnectTimeout
 from requests_mock import Mocker
 from rest_framework import status

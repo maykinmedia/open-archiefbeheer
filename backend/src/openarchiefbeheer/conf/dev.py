@@ -1,6 +1,6 @@
+import contextlib
 import os
 import warnings
-import contextlib
 
 from .utils import config
 
