@@ -8,8 +8,8 @@ from maykin_health_checks.types import HealthCheck
 from msgspec import UNSET, Struct, UnsetType, to_builtins
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.registers.plugin import AbstractBasePlugin
-from openarchiefbeheer.registers.registry import register as registry
+from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
+from openarchiefbeheer.external_registers.registry import register as registry
 from openarchiefbeheer.types import JSONValue
 
 from .models import APIConfig, ArchiveConfig

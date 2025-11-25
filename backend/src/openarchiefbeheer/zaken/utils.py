@@ -27,7 +27,7 @@ from openarchiefbeheer.clients import (
     zrc_client,
     ztc_client,
 )
-from openarchiefbeheer.registers.registry import register as registry
+from openarchiefbeheer.external_registers.registry import register as registry
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore

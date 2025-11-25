@@ -3,7 +3,7 @@ from typing import Callable, Iterator
 from git import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from openarchiefbeheer.registers.plugin import AbstractBasePlugin
+    from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
 
 
 class Registry[PluginT: AbstractBasePlugin]:
