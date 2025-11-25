@@ -26,7 +26,7 @@ class UserFactory(DjangoModelFactory):
         )
 
     @post_generation
-    def post(user, create, extracted, **kwargs):
+    def post(user, create, extracted, **kwargs):  # noqa: N805
         if not create:
             return
 

@@ -1,5 +1,5 @@
 from django.test import TestCase
-
+import contextlib
 from requests.exceptions import ConnectTimeout
 from requests_mock import Mocker
 from rest_framework import status
@@ -69,11 +69,9 @@ class DeletingZakenWithErrorsTests(TestCase):
             exc=ConnectTimeout,
         )
 
-        try:
-            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
-        except ConnectTimeout:
+        with contextlib.suppress(ConnectTimeout):
             # We configured the mock to raise this error
-            pass
+            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
 
         result_store.refresh_from_db()
         results = result_store.get_internal_results()
@@ -120,11 +118,9 @@ class DeletingZakenWithErrorsTests(TestCase):
             exc=ConnectTimeout,
         )
 
-        try:
-            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
-        except ConnectTimeout:
+        with contextlib.suppress(ConnectTimeout):
             # We configured the mock to raise this error
-            pass
+            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
 
         result_store.refresh_from_db()
         results = result_store.get_internal_results()

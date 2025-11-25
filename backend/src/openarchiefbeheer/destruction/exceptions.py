@@ -2,11 +2,11 @@ class DeletionProcessingError(Exception):
     pass
 
 
-class ZaakNotFound(Exception):
+class ZaakNotFoundError(Exception):
     pass
 
 
-class ZaakArchiefactiedatumInFuture(Exception):
+class ZaakArchiefactiedatumInFutureError(Exception):
     pass
 
 
@@ -14,5 +14,5 @@ class NoReviewFoundError(Exception):
     pass
 
 
-class PlannedDestructionDateInTheFuture(Exception):
+class PlannedDestructionDateInTheFutureError(Exception):
     pass

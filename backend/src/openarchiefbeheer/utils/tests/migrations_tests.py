@@ -48,7 +48,7 @@ class TestMigrations(TransactionTestCase):
 
         self.apps = executor.loader.project_state(self.migrate_to).apps
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         pass
 
     @classmethod

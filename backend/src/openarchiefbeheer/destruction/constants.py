@@ -35,8 +35,9 @@ class DestructionListItemAction(models.TextChoices):
 
 
 class ZaakActionType(models.TextChoices):
-    selectielijstklasse_and_bewaartermijn = "selectielijstklasse_and_bewaartermijn", _(
-        "selectielijstklasse and bewaartermijn"
+    selectielijstklasse_and_bewaartermijn = (
+        "selectielijstklasse_and_bewaartermijn",
+        _("selectielijstklasse and bewaartermijn"),
     )
     bewaartermijn = "bewaartermijn", _("bewaartermijn")
 

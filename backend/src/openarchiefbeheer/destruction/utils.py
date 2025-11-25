@@ -257,9 +257,10 @@ def create_eio_destruction_report(
 
     config = ArchiveConfig.get_solo()
 
-    with drc_client() as client, destruction_list.destruction_report.open(
-        "rb"
-    ) as f_report:
+    with (
+        drc_client() as client,
+        destruction_list.destruction_report.open("rb") as f_report,
+    ):
         response = client.post(
             "enkelvoudiginformatieobjecten",
             json={
@@ -322,15 +323,14 @@ def prepopulate_selection_after_review_response(
         action_item=DestructionListItemAction.keep
     )
 
-    selection_items_advice_ignored_to_create = []
-    for response in ignored_advice_responses:
-        selection_items_advice_ignored_to_create.append(
-            SelectionItem(
-                key=selection_key,
-                selection_data={"selected": False},
-                zaak_url=response.review_item.destruction_list_item.zaak.url,
-            )
+    selection_items_advice_ignored_to_create = [
+        SelectionItem(
+            key=selection_key,
+            selection_data={"selected": False},
+            zaak_url=response.review_item.destruction_list_item.zaak.url,
         )
+        for response in ignored_advice_responses
+    ]
 
     # Make sure that the selection is clean
     SelectionItem.objects.filter(key=selection_key).delete()
@@ -341,21 +341,20 @@ def prepopulate_selection_after_review_response(
 
     # Create the selection items for the items that were already
     # approved (they will appear as selected and approved)
-    other_selection_items_to_create = []
-    for item in destruction_list.items.filter(
-        ~Q(
-            zaak__in=ignored_advice_responses.values_list(
-                "review_item__destruction_list_item__zaak"
-            )
-        ),
-        status=ListItemStatus.suggested,
-    ):
-        other_selection_items_to_create.append(
-            SelectionItem(
-                key=selection_key,
-                selection_data={"selected": True, "detail": {"approved": True}},
-                zaak_url=item.zaak.url,
-            )
+    other_selection_items_to_create = [
+        SelectionItem(
+            key=selection_key,
+            selection_data={"selected": True, "detail": {"approved": True}},
+            zaak_url=item.zaak.url,
         )
+        for item in destruction_list.items.filter(
+            ~Q(
+                zaak__in=ignored_advice_responses.values_list(
+                    "review_item__destruction_list_item__zaak"
+                )
+            ),
+            status=ListItemStatus.suggested,
+        )
+    ]
 
     SelectionItem.objects.bulk_create(other_selection_items_to_create)

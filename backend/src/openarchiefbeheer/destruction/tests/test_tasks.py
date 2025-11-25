@@ -469,7 +469,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
         with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file
+            destruction_list.destruction_report.file  # noqa: B018
 
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
@@ -639,7 +639,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             "2024-10-09T12:00:00+02:00",
         )
         with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file
+            destruction_list.destruction_report.file  # noqa: B018
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_other_items_processed_if_one_fails(self):
@@ -794,7 +794,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             planned_destruction_date=date(2025, 3, 23),
         )
 
-        with (freeze_time("2025-03-24"),):
+        with (
+            freeze_time("2025-03-24"),
+        ):
             delete_destruction_list(destruction_list)
 
         destruction_list.refresh_from_db()

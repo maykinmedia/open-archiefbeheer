@@ -21,10 +21,10 @@ class APIConfigConfigurationStep(BaseConfigurationStep[APIConfigConfigurationMod
             config.selectielijst_api_service = Service.objects.get(
                 slug=model.selectielijst_service_identifier
             )
-        except Service.DoesNotExist:
+        except Service.DoesNotExist as exc:
             raise ConfigurationRunFailed(
                 f"Could not find an existing `selectielijst` service with identifier `{model.selectielijst_service_identifier}`."
                 " Make sure it is already configured, manually or by first running the configuration step of `zgw_consumers`."
-            )
+            ) from exc
 
         config.save(update_fields=["selectielijst_api_service"])

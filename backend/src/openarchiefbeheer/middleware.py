@@ -37,7 +37,7 @@ class SessionExpiredMiddleware:
         response = self.get_response(request)
 
         # Stop if response not 403
-        if not response.status_code == 403:
+        if response.status_code != 403:
             return response
 
         # Stop if not an API route

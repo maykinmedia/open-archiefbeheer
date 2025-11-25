@@ -28,8 +28,8 @@ def validate_charfield_entry(value, allow_apostrophe=False):
 def validate_phone_number(value):
     try:
         int(value.strip().lstrip("0+").replace("-", "").replace(" ", ""))
-    except (ValueError, TypeError):
-        raise ValidationError(_("Invalid mobile phonenumber."))
+    except (ValueError, TypeError) as exc:
+        raise ValidationError(_("Invalid mobile phonenumber.")) from exc
 
     return value
 

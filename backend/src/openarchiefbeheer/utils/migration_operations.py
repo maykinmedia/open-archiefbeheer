@@ -5,12 +5,12 @@ from django.db import migrations, router
 
 
 def _get_reset_sql() -> str:
-    INFILE = os.path.join(settings.BASE_DIR, "bin", "reset_sequences.sql")
+    infile_path = os.path.join(settings.BASE_DIR, "bin", "reset_sequences.sql")
 
-    with open(INFILE, "r") as infile:
-        SQL = infile.read()
+    with open(infile_path, "r") as infile:
+        sql_content = infile.read()
 
-    return SQL
+    return sql_content
 
 
 class ResetSequences(migrations.RunSQL):
@@ -45,7 +45,6 @@ class ResetSequences(migrations.RunSQL):
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
         ):
-
             base_sql = _get_reset_sql()
 
             with schema_editor.connection.cursor() as cursor:

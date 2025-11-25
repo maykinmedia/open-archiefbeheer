@@ -1,2 +1,2 @@
-class NoServiceConfigured(Exception):
+class NoServiceConfiguredError(Exception):
     pass

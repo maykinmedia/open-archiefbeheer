@@ -314,5 +314,5 @@ class DestructionListItemsViewSetTest(APITestCase):
         data = response.json()
 
         self.assertTrue(
-            all([item["reviewAdviceIgnored"] is None for item in data["results"]])
+            all(item["reviewAdviceIgnored"] is None for item in data["results"])
         )

@@ -84,34 +84,34 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 identificatie="ZAAK-000-1",
                 post___expand={
                     "zaaktype": {
-                        "identificatie": "ZAAKTYPE-01", 
-                        "omschrijving": "ZAAKTYPE-01", 
-                        "versiedatum": "2024-01-01", 
+                        "identificatie": "ZAAKTYPE-01",
+                        "omschrijving": "ZAAKTYPE-01",
+                        "versiedatum": "2024-01-01",
                         "url": "http://catalogue-api.nl/zaaktypen/111-111-111"
                     }
-                }, 
+                },
             )
             ZaakFactory.create(
                 identificatie="ZAAK-000-2",
                 post___expand={
                     "zaaktype": {
-                        "identificatie": "ZAAKTYPE-02", 
-                        "omschrijving": "ZAAKTYPE-02", 
-                        "versiedatum": "2024-01-01", 
+                        "identificatie": "ZAAKTYPE-02",
+                        "omschrijving": "ZAAKTYPE-02",
+                        "versiedatum": "2024-01-01",
                         "url": "http://catalogue-api.nl/zaaktypen/222-222-222"
                     }
-                }, 
+                },
             )
             ZaakFactory.create(
                 identificatie="ZAAK-111-1",
                 post___expand={
                     "zaaktype": {
-                        "identificatie": "ZAAKTYPE-03", 
-                        "omschrijving": "ZAAKTYPE-03", 
-                        "versiedatum": "2024-01-01", 
+                        "identificatie": "ZAAKTYPE-03",
+                        "omschrijving": "ZAAKTYPE-03",
+                        "versiedatum": "2024-01-01",
                         "url": "http://catalogue-api.nl/zaaktypen/333-333-333"
                     }
-                }, 
+                },
             )
 
             # This zaaktype should not be shown as its only zaak gets assigned to a destruction list.
@@ -119,15 +119,15 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 identificatie="ZAAK-111-2",
                 post___expand={
                     "zaaktype": {
-                        "identificatie": "ZAAKTYPE-04", 
-                        "omschrijving": "ZAAKTYPE-04", 
-                        "versiedatum": "2024-01-01", 
+                        "identificatie": "ZAAKTYPE-04",
+                        "omschrijving": "ZAAKTYPE-04",
+                        "versiedatum": "2024-01-01",
                         "url": "http://catalogue-api.nl/zaaktypen/444-444-444"
                     }
-                }, 
+                },
             )
             DestructionListItemFactory.create(zaak=zaak)
-        
+
         async with browser_page() as page:
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()
@@ -137,8 +137,8 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen")
             await self.then.path_should_be(page, "/destruction-lists/create")
             await self.then.zaaktype_filters_are(page, [
-                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
-                "ZAAKTYPE-02 (ZAAKTYPE-02)", 
+                "ZAAKTYPE-01 (ZAAKTYPE-01)",
+                "ZAAKTYPE-02 (ZAAKTYPE-02)",
                 "ZAAKTYPE-03 (ZAAKTYPE-03)"
             ])
 
@@ -146,8 +146,8 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/create?identificatie__icontains=ZAAK-000&page=1")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
             await self.then.zaaktype_filters_are(page, [
-                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
-                "ZAAKTYPE-02 (ZAAKTYPE-02)" 
+                "ZAAKTYPE-01 (ZAAKTYPE-01)",
+                "ZAAKTYPE-02 (ZAAKTYPE-02)"
             ])
 
     async def test_zaaktype_filters_on_selectielijstklasse_create_page(self):
@@ -192,7 +192,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                     }
                 },
             )
-        
+
         async with browser_page() as page:
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()
@@ -208,7 +208,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "1.1 - Ingericht - vernietigen - P10Y")
             await self.then.page_should_contain_text(page, "1.1.1 - Ingericht - blijvend_bewaren")
             await self.then.page_should_contain_text(page, "1.1.2 - Ingericht - blijvend_bewaren")
-            
+
             await self.when.user_filters_zaken(page, "selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
 
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
@@ -234,7 +234,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             ZaakFactory.create(identificatie="ZAAK-1", archiefactiedatum=yesterday)
             ZaakFactory.create(identificatie="ZAAK-2", archiefactiedatum=today)
             ZaakFactory.create(identificatie="ZAAK-3", archiefactiedatum=tomorrow)
-            
+
         async with browser_page() as page:
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()

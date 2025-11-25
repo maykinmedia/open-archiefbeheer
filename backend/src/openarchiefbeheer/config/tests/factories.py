@@ -20,12 +20,10 @@ class APIConfigFactory(DjangoModelFactory):
     # so it might not be a problem. Otherwise, running with pytest and have a
     # auto_use fixture that monkeypatches, is an option.
 
-    selectielijst_api_service = (
-        factory.SubFactory(  # pyright: ignore[reportPrivateImportUsage]
-            ServiceFactory,
-            api_root="https://selectielijst.openzaak.nl/api/v1",
-            api_type=APITypes.orc,
-        )
+    selectielijst_api_service = factory.SubFactory(  # pyright: ignore[reportPrivateImportUsage]
+        ServiceFactory,
+        api_root="https://selectielijst.openzaak.nl/api/v1",
+        api_type=APITypes.orc,
     )
 
     class Meta:  # type: ignore

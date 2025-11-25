@@ -99,12 +99,13 @@ class UrlFetcher:
                 return weasyprint.default_url_fetcher(orig_url)
 
             content_type, encoding = mimetypes.guess_type(absolute_path)
-            result = dict(
-                mime_type=content_type,
-                encoding=encoding,
-                redirected_url=orig_url,
-                filename=path.parts[-1],
-            )
+            result = {
+                "mime_type": content_type,
+                "encoding": encoding,
+                "redirected_url": orig_url,
+                "filename": path.parts[-1],
+            }
+
             with open(absolute_path, "rb") as f:
                 result["file_obj"] = BytesIO(f.read())
             return result

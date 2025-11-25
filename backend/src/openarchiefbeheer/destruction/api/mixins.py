@@ -18,10 +18,10 @@ class DestructionListChecksMixin:
             destruction_list = DestructionList.objects.get(
                 uuid=request.data.get("destruction_list")
             )
-        except DestructionList.DoesNotExist:
+        except DestructionList.DoesNotExist as exc:
             raise ValidationError(
                 detail={"destruction_list": _("The destruction list does not exist.")}
-            )
+            ) from exc
 
         self.check_object_permissions(self.request, destruction_list)
         return super().create(request, *args, **kwargs)

@@ -55,9 +55,11 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         query_params.update({"einddatum__gt": result["einddatum__max"].isoformat()})
 
     client = configure_retry(zrc_client())
-    with transaction.atomic(), (
-        client
-    ), selectielijst_api_client_cm as selectielijst_api_client:
+    with (
+        transaction.atomic(),
+        client,
+        selectielijst_api_client_cm as selectielijst_api_client,
+    ):
         if is_full_resync:
             Zaak.objects.all().delete()
 
@@ -88,7 +90,7 @@ def retrieve_and_cache_zaken(is_full_resync=False):
                 if duplicates.exists():
                     for duplicate in duplicates:
                         del new_zaken[duplicate.url]
-                zaken = [zaak for zaak in new_zaken.values()]
+                zaken = list(new_zaken.values())
 
             if isinstance(selectielijst_api_client, APIClient):
                 zaken = process_expanded_data(zaken, selectielijst_api_client)

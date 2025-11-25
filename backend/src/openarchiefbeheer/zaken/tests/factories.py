@@ -37,7 +37,7 @@ class ZaakFactory(factory.django.DjangoModelFactory):
         )
 
     @post_generation
-    def post(obj, create, extracted, **kwargs):
+    def post(obj, create, extracted, **kwargs):  # noqa: N805
         expand = copy.deepcopy(
             {
                 "zaaktype": {

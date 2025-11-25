@@ -367,8 +367,8 @@ class DestructionListViewSet(
 
         # Step 2: Check that it makes sense to replace a specific assignee based on the list status
         if (
-            not serialiser.validated_data["assignee"]["role"]
-            in MAPPING_STATUS_ROLE_POSSIBLE_CHANGES[destruction_list.status]
+            serialiser.validated_data["assignee"]["role"]
+            not in MAPPING_STATUS_ROLE_POSSIBLE_CHANGES[destruction_list.status]
         ):
             raise ValidationError(
                 {

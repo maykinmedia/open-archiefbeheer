@@ -122,7 +122,7 @@ ARCHIVE_CONFIG_ERRORS = {
 }
 
 
-def is_configuration_complete() -> HealthCheckResponse:
+def is_configuration_complete() -> HealthCheckResponse:  # noqa: C901
     errors = []
     # Are services for Zaken, Documenten, Catalogi, Besluiten APIs configured?
     if not (zrc_service := Service.objects.filter(api_type=APITypes.zrc).first()):

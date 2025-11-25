@@ -28,16 +28,15 @@ class CanReviewPermission(permissions.BasePermission):
             return False
 
         # User is not permitted based on role + status
-        if (
+        condition = (
             destruction_list.status == ListStatus.ready_to_review
             and user.has_perm("accounts.can_review_destruction")
         ) or (
             destruction_list.status == ListStatus.ready_for_archivist
             and user.has_perm("accounts.can_review_final_list")
-        ):
-            return True
+        )
 
-        return False
+        return condition
 
 
 class CanCoReviewPermission(permissions.BasePermission):
@@ -55,12 +54,9 @@ class CanCoReviewPermission(permissions.BasePermission):
             return False
 
         # User is permitted based on role + status
-        if destruction_list.status == ListStatus.ready_to_review and user.has_perm(
+        return destruction_list.status == ListStatus.ready_to_review and user.has_perm(
             "accounts.can_co_review_destruction"
-        ):
-            return True
-
-        return False
+        )
 
 
 class CanUpdateDestructionList(permissions.BasePermission):
