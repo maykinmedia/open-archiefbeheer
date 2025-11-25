@@ -244,7 +244,7 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 2
+          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 3
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
@@ -349,7 +349,7 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=issue --parallel 2
+          python src/manage.py test openarchiefbeheer --tag=issue --parallel 3
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
