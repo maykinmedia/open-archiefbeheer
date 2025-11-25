@@ -27,6 +27,7 @@ from openarchiefbeheer.clients import (
     zrc_client,
     ztc_client,
 )
+from openarchiefbeheer.registers.registry import register as registry
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import ResultStore
@@ -416,6 +417,11 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     should be deleted.
     """
     client = zrc_client()
+
+    # Delete resources in external registries
+    for plugin in registry:
+        # TODO: implementing the exclusion of resources to delete
+        plugin.delete_related_resources(zaak.url, excluded_resources=[])
 
     delete_decisions_and_relation_objects(zaak, result_store)
     delete_relation_object(client, "zaak", zaak.url, result_store)
