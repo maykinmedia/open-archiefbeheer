@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Mapping, NoReturn, TypedDict, TypeVar
+from typing import Iterable, Mapping, NoReturn, TypedDict, TypeVar
 
 from maykin_health_checks.types import HealthCheckResult
 
@@ -49,16 +49,10 @@ class AbstractBasePlugin[PluginConfig, T](ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def delete_resource(self, resource_url: str) -> None | NoReturn:
-        """Delete the resource from the register.
-
-        Raise an error if something goes wrong.
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def unlink_resource(self, resource_url: str, zaak_url: str) -> None | NoReturn:
-        """Unlink the resource from the zaak.
+    def delete_related_resources(
+        self, zaak_url: str, excluded_resources: Iterable[str]
+    ) -> None | NoReturn:
+        """Delete/Unlink the resources from the register that are related to the zaak.
 
         Raise an error if something goes wrong.
         """
