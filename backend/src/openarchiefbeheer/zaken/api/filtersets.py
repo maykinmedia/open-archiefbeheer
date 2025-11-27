@@ -165,7 +165,7 @@ class ZaakFilterSet(FilterSet):
             # # Array Fields
             # "rollen": ["exact", "icontains"],
             # "deelzaken": ["exact", "icontains"],
-            # "zaakobjecten": ["exact", "icontains"],
+            "zaakobjecten": ["len", "len__lte", "len__gte"],
             # "eigenschappen": ["exact", "icontains"],
             # "producten_of_diensten": ["exact", "icontains"],
             # "zaakinformatieobjecten": ["exact", "icontains"],

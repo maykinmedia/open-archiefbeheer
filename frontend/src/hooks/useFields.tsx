@@ -228,6 +228,14 @@ export function useFields<T extends Zaak = Zaak>(
       width: "230px",
     },
     {
+      name: "zaakobjecten",
+      type: "number",
+      filterLookup: "zaakobjecten__len__gte",
+      filterValue: searchParams.get("zaakobjecten__len__gte") ?? undefined,
+      valueTransform: (rowData) => rowData.zaakobjecten?.length,
+      width: "125px",
+    },
+    {
       name: "Behandelende afdeling",
       type: "string",
       filterLookup: "behandelend_afdeling",
