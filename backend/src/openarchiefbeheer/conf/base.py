@@ -386,13 +386,12 @@ ENABLE_ADMIN_NAV_SIDEBAR = config("ENABLE_ADMIN_NAV_SIDEBAR", default=False)
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
 
-
-if "GIT_SHA" in os.environ:
+if "GIT_SHA" in os.environ:  # noqa: SIM108
     GIT_SHA = config("GIT_SHA", "")
 else:
     GIT_SHA = get_git_sha()
 
-if "RELEASE" in os.environ:
+if "RELEASE" in os.environ:  # noqa: SIM108
     RELEASE = config("RELEASE", "")
 else:
     RELEASE = get_release() or GIT_SHA

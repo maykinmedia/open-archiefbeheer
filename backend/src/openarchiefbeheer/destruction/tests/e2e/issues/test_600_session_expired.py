@@ -17,7 +17,7 @@ class Issue600SessionExpired(GherkinLikeTestCase):
 
         If the session has expired, the polling will receive a 403 with
         a specific error.
-        Note: the SESSION_COOKIE_AGE setting needs to give enough time to the 
+        Note: the SESSION_COOKIE_AGE setting needs to give enough time to the
         test to reach the detail page of the destruction list.
         """
         async with browser_page() as page:

@@ -64,7 +64,6 @@ def destruction_list_created(
 def destruction_list_ready_for_first_review(
     destruction_list: DestructionList, user: User
 ) -> None:
-
     extra_data = {
         "zaaktypen": format_zaaktype_choices(
             destruction_list.items.order_by(

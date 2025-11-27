@@ -6,7 +6,7 @@ from sentry_sdk.integrations import DidNotEnable, django, redis
 logger = logging.getLogger(__name__)
 
 
-def config(option: str, default=undefined, *args, **kwargs):
+def config(option: str, default=undefined, **kwargs):
     """
     Pull a config parameter from the environment.
 
@@ -27,7 +27,7 @@ def config(option: str, default=undefined, *args, **kwargs):
 
     if default is not undefined and default is not None:
         kwargs.setdefault("cast", type(default))
-    return _config(option, default=default, *args, **kwargs)
+    return _config(option, default=default, **kwargs)
 
 
 def get_sentry_integrations() -> list:

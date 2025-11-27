@@ -44,7 +44,7 @@ class UserQuerySet(QuerySet):
         return self._users_with_permission(permission)
 
     def _users_with_permission(self, permission: Permission) -> "UserQuerySet":
-        return self.filter(  # noqa
+        return self.filter(
             Q(groups__permissions=permission) | Q(user_permissions=permission)
         ).distinct()
 

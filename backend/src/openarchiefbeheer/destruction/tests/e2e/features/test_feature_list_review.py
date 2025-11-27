@@ -102,7 +102,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             reviewer = UserFactory.create(username="Beoordelaar", password="ANic3Password", post__can_review_destruction=True)
 
             zaken = ZaakFactory.create_batch(2)
-            
+
             destruction_list = DestructionListFactory.create(
                 author=record_manager,
                 assignee=reviewer,
@@ -273,7 +273,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, self.destruction_list.name)
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review")
-            
+
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
 
             # If filtering first on identificatie, the zaaktype filters change

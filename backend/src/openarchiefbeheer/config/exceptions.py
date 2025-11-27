@@ -1,2 +1,0 @@
-class ServiceNotConfigured(Exception):
-    pass

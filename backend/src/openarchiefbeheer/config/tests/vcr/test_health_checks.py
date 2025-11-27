@@ -11,7 +11,6 @@ from ...models import APIConfig, ArchiveConfig
 
 
 class TestConfigurationHealthChecks(VCRMixin, TestCase):
-
     def test_services_badly_configured(self):
         ServiceFactory.create(
             api_type=APITypes.zrc,

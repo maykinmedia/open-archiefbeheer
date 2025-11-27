@@ -26,7 +26,7 @@ class DestructionListFactory(factory.django.DjangoModelFactory):
         )
 
     @post_generation
-    def post(destruction_list, create, extracted, **kwargs):
+    def post(destruction_list, create, extracted, **kwargs):  # noqa: N805
         if not create:
             return
 
@@ -42,11 +42,11 @@ class DestructionListAssigneeFactory(factory.django.DjangoModelFactory):
         model = "destruction.DestructionListAssignee"
 
     @post_generation
-    def post(assignee, create, extracted, **kwargs):
+    def post(assignee, create, extracted, **kwargs):  # noqa: N805
         if not create:
             return
 
-        match (assignee.role):
+        match assignee.role:
             case ListRole.author:
                 permission = Permission.objects.get(codename="can_start_destruction")
                 assignee.user.user_permissions.add(permission)
@@ -120,7 +120,7 @@ class ReviewResponseFactory(factory.django.DjangoModelFactory):
         model = "destruction.ReviewResponse"
 
     @post_generation
-    def post(review_response, create, extracted, **kwargs):
+    def post(review_response, create, extracted, **kwargs):  # noqa: N805
         if not create:
             return
 

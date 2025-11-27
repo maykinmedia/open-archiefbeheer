@@ -4,7 +4,6 @@ from rest_framework.test import APITestCase
 
 
 class SchemaEndpointTests(APITestCase):
-
     def test_retrieve_json_schema(self):
         response = self.client.get(reverse("api:schema"))
 

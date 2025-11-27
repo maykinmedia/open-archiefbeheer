@@ -20,7 +20,7 @@ class ZakenAdminTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url, f"/admin/login/?next={reverse("admin:zaken_zaak_changelist")}"
+            response.url, f"/admin/login/?next={reverse('admin:zaken_zaak_changelist')}"
         )
 
     def test_schedule_resync(self):

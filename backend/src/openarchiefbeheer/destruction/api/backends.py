@@ -1,3 +1,5 @@
+from typing import Mapping
+
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.utils import translate_validation
 
@@ -42,7 +44,9 @@ class NestedFilterBackend(DjangoFilterBackend):
 
 
 class NestedOrderingFilterBackend(OrderingWithPostFilterBackend):
-    def get_valid_fields(self, queryset, view, context={}) -> list[tuple[str, str]]:
+    def get_valid_fields(
+        self, queryset, view, context: Mapping = {}
+    ) -> list[tuple[str, str]]:
         valid_fields = getattr(
             view, context.get("ordering_fields_view_attr", "ordering_fields"), []
         )
@@ -70,8 +74,7 @@ class NestedOrderingFilterBackend(OrderingWithPostFilterBackend):
         return [item[0] for item in valid_fields]
 
     def is_term_valid(self, term, valid_fields) -> bool:
-        if term.startswith("-"):
-            term = term[1:]
+        term = term.removeprefix("-")
         return term in valid_fields
 
     def get_ordering(self, request, queryset, view) -> list[str]:
@@ -111,6 +114,6 @@ class NestedOrderingFilterBackend(OrderingWithPostFilterBackend):
                 if is_reverse := term.startswith("-"):
                     term = term[1:]
                 formatted_fields.append(
-                    f"{"-" if is_reverse else ""}{view.nested_ordering_relation_field}__{term}"
+                    f"{'-' if is_reverse else ''}{view.nested_ordering_relation_field}__{term}"
                 )
         return formatted_fields

@@ -6,7 +6,7 @@ class TestAddGroups(TestMigrations):
     migrate_from = "0003_role_can_review_final_list"
     migrate_to = "0006_remove_user_role_delete_role"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         User = apps.get_model("accounts", "User")
         Role = apps.get_model("accounts", "Role")
 
@@ -44,7 +44,7 @@ class TestReAddRoles(TestMigrations):
     migrate_from = "0006_remove_user_role_delete_role"
     migrate_to = "0003_role_can_review_final_list"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         User = apps.get_model("accounts", "User")
         Group = apps.get_model("auth", "Group")
 
@@ -92,7 +92,7 @@ class TestAddNewRoleToGroup(TestMigrations):
     migrate_from = "0008_add_co_reviewer_group"
     migrate_to = "0009_add_co_reviewer_permission_to_admin"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         Group = apps.get_model("auth", "Group")
 
         administrator, _ = Group.objects.get_or_create(

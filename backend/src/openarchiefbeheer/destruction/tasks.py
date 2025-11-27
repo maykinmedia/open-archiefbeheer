@@ -34,7 +34,7 @@ def process_review_response(pk: int) -> None:
     for item_response in items_review_responses:
         try:
             item_response.process()
-        except Exception as exc:
+        except Exception as exc:  # noqa: PERF203
             logger.exception(
                 "An error occurred while processing the review item response",
                 exc_info=exc,

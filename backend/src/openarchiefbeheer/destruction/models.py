@@ -37,7 +37,7 @@ from .constants import (
     ReviewDecisionChoices,
     ZaakActionType,
 )
-from .exceptions import ZaakArchiefactiedatumInFuture, ZaakNotFound
+from .exceptions import ZaakArchiefactiedatumInFutureError, ZaakNotFoundError
 from .managers import DestructionListManager
 
 if TYPE_CHECKING:
@@ -203,18 +203,14 @@ class DestructionList(models.Model):
         config = ArchiveConfig.get_solo()
 
         return all(
-            [
-                zaaktype in config.zaaktypes_short_process
-                for zaaktype in zaaktypes_identificaties
-            ]
+            zaaktype in config.zaaktypes_short_process
+            for zaaktype in zaaktypes_identificaties
         )
 
     def has_failures(self) -> bool:
         return any(
-            [
-                status == InternalStatus.failed
-                for status in self.items.values_list("processing_status", flat=True)
-            ]
+            status == InternalStatus.failed
+            for status in self.items.values_list("processing_status", flat=True)
         )
 
     def all_items_can_be_deleted_by_date(self, destruction_date: date) -> bool:
@@ -239,7 +235,7 @@ class DestructionList(models.Model):
     def generate_destruction_report(self) -> None:
         from .destruction_report import DestructionReportGenerator
 
-        if not self.status == ListStatus.deleted:
+        if self.status != ListStatus.deleted:
             logger.warning("The destruction list has not been deleted yet.")
             return
 
@@ -393,13 +389,13 @@ class DestructionListItem(models.Model):
     def _delete_zaak(self):
         if not self.zaak:
             logger.error("Could not find the zaak. Aborting deletion.")
-            raise ZaakNotFound()
+            raise ZaakNotFoundError()
 
         if self.zaak.archiefactiedatum > date.today():
             logger.error(
                 "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
             )
-            raise ZaakArchiefactiedatumInFuture()
+            raise ZaakArchiefactiedatumInFutureError()
 
         store = ResultStore(store=self)
         store.clear_traceback()
@@ -595,27 +591,23 @@ class ReviewResponse(models.Model):
 
     @staticmethod
     def _derive_status(items_statuses: list[str]) -> str:
-        if all([item_status == InternalStatus.new for item_status in items_statuses]):
+        if all(item_status == InternalStatus.new for item_status in items_statuses):
             return InternalStatus.new
 
         if all(
-            [item_status == InternalStatus.succeeded for item_status in items_statuses]
+            item_status == InternalStatus.succeeded for item_status in items_statuses
         ):
             return InternalStatus.succeeded
 
-        if any(
-            [item_status == InternalStatus.failed for item_status in items_statuses]
-        ):
+        if any(item_status == InternalStatus.failed for item_status in items_statuses):
             return InternalStatus.failed
 
         if any(
-            [item_status == InternalStatus.processing for item_status in items_statuses]
+            item_status == InternalStatus.processing for item_status in items_statuses
         ):
             return InternalStatus.processing
 
-        if any(
-            [item_status == InternalStatus.queued for item_status in items_statuses]
-        ):
+        if any(item_status == InternalStatus.queued for item_status in items_statuses):
             return InternalStatus.queued
 
         return InternalStatus.processing

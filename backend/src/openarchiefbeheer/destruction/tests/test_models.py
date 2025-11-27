@@ -1363,7 +1363,7 @@ class DestructionListTest(TestCase):
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
         with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file
+            destruction_list.destruction_report.file  # noqa: B018
         self.assertFalse(os.path.isfile(path))
 
 

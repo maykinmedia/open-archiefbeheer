@@ -52,10 +52,8 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertEqual(len(data), 3)
         self.assertTrue(
             all(
-                [
-                    co_reviewers.filter(user__pk=co_reviewer["user"]["pk"]).exists()
-                    for co_reviewer in data
-                ]
+                co_reviewers.filter(user__pk=co_reviewer["user"]["pk"]).exists()
+                for co_reviewer in data
             )
         )
 
@@ -120,10 +118,8 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertEqual(new_assignees.count(), 3)
         self.assertTrue(
             all(
-                [
-                    new_assignees.filter(user=co_reviewer).exists()
-                    for co_reviewer in new_co_reviewers
-                ]
+                new_assignees.filter(user=co_reviewer).exists()
+                for co_reviewer in new_co_reviewers
             )
         )
 
@@ -217,10 +213,8 @@ class CoReviewersViewSetTest(APITestCase):
         self.assertEqual(assignees.count(), 4)
         self.assertTrue(
             all(
-                [
-                    assignees.filter(user=co_reviewer).exists()
-                    for co_reviewer in new_co_reviewers
-                ]
+                assignees.filter(user=co_reviewer).exists()
+                for co_reviewer in new_co_reviewers
             )
         )
         self.assertFalse(assignees.filter(user=initial_assignee1.user).exists())

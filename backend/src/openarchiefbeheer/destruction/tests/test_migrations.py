@@ -10,7 +10,7 @@ class TestAddZaakMigration(TestMigrations):
     migrate_from = "0016_alter_destructionlistitem_unique_together_and_more"
     migrate_to = "0017_destructionlistitem_zaak"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         Zaak = apps.get_model("zaken", "Zaak")
         DestructionListItem = apps.get_model("destruction", "DestructionListItem")
         DestructionList = apps.get_model("destruction", "DestructionList")
@@ -79,7 +79,7 @@ class TestAddZaakBackwardsMigration(TestMigrations):
     migrate_to = "0016_alter_destructionlistitem_unique_together_and_more"
     migrate_from = "0017_destructionlistitem_zaak"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         Zaak = apps.get_model("zaken", "Zaak")
         DestructionListItem = apps.get_model("destruction", "DestructionListItem")
         DestructionList = apps.get_model("destruction", "DestructionList")
@@ -148,7 +148,7 @@ class TestAddZaakUrlMigration(TestMigrations):
     migrate_from = "0019_destructionlistitem__zaak_url"
     migrate_to = "0020_auto_20240822_1113"
 
-    def setUpBeforeMigration(self, apps):
+    def setUpBeforeMigration(self, apps):  # noqa: N802
         Zaak = apps.get_model("zaken", "Zaak")
         DestructionListItem = apps.get_model("destruction", "DestructionListItem")
         DestructionList = apps.get_model("destruction", "DestructionList")

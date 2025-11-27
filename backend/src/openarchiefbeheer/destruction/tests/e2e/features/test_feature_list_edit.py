@@ -32,7 +32,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "zaak-199")
 
             await self.when.user_clicks_checkbox(page, "(de)selecteer 100 rijen")  # All zaken on second page
-            
+
             await self.when.user_clicks_button(page, "volgende")
             await self.then.path_should_be(page, "/destruction-lists/create?page=3")
             await self.then.page_should_contain_text(page, "zaak-299")
@@ -142,7 +142,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
                         "url": "http://catalogue-api.nl/zaaktypen/333-333-333",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
-                        }, 
+                        },
                         "versiedatum": "2024-01-01"
                     }
                 },
@@ -156,12 +156,12 @@ class FeatureListEditTests(GherkinLikeTestCase):
                         "url": "http://catalogue-api.nl/zaaktypen/444-444-444",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
-                        }, 
+                        },
                         "versiedatum": "2024-01-01"
                     }
                 },
             )
-            
+
             DestructionListItemFactory.create(zaak=zaak1, destruction_list=destruction_list)
             DestructionListItemFactory.create(zaak=zaak2, destruction_list=destruction_list)
             DestructionListItemFactory.create(zaak=zaak3, destruction_list=destruction_list)
@@ -183,8 +183,8 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
             # Initially the filters are for all zaaktypes
             await self.then.zaaktype_filters_are(page, [
-                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
-                "ZAAKTYPE-02 (ZAAKTYPE-02)", 
+                "ZAAKTYPE-01 (ZAAKTYPE-01)",
+                "ZAAKTYPE-02 (ZAAKTYPE-02)",
                 "ZAAKTYPE-03 (ZAAKTYPE-03)",
                 "ZAAKTYPE-04 (ZAAKTYPE-04)",
             ])
@@ -193,6 +193,6 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&identificatie__icontains=ZAAK-000")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
             await self.then.zaaktype_filters_are(page, [
-                "ZAAKTYPE-01 (ZAAKTYPE-01)", 
-                "ZAAKTYPE-02 (ZAAKTYPE-02)" 
+                "ZAAKTYPE-01 (ZAAKTYPE-01)",
+                "ZAAKTYPE-02 (ZAAKTYPE-02)"
             ])

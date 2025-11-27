@@ -413,7 +413,6 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
 
 
 class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-selectielijstklasse-choices")
 
@@ -1228,7 +1227,6 @@ class StatustypenChoicesViewTests(ClearCacheMixin, APITestCase):
 
 
 class InternalResultaattypeChoicesViewTest(ClearCacheMixin, APITestCase):
-
     def test_not_authenticated(self):
         endpoint = reverse("api:retrieve-internal-resultaattype-choices")
         response = self.client.get(endpoint)

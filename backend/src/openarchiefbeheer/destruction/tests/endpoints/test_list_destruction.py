@@ -102,7 +102,7 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             destruction_list=destruction_list, processing_status=InternalStatus.failed
         )
         self.client.force_authenticate(user=record_manager)
-        with (freezegun.freeze_time("2024-01-01T21:36:00+02:00"),):
+        with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
             response = self.client.post(
                 reverse(
                     "api:destructionlist-queue-destruction",

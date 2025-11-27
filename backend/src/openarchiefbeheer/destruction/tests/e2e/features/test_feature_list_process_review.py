@@ -27,7 +27,7 @@ from ...factories import (
 class FeatureProcessReviewTests(GherkinLikeTestCase):
     async def test_scenario_record_manager_process_review(self):
         patcher = patch(
-            "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat", 
+            "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
             return_value={"waardering": "vernietigen"}
         )
         patcher.start()
@@ -144,7 +144,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                         "url": "http://catalogue-api.nl/zaaktypen/444-444-444",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
-                        }, 
+                        },
                         "versiedatum": "2024-01-01"
                     }
                 },
@@ -157,7 +157,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
                         "url": "http://catalogue-api.nl/zaaktypen/555-555-555",
                         "selectielijst_procestype": {
                             "url": "http://selectielijst.nl/api/v1/procestype/1"
-                        }, 
+                        },
                         "versiedatum": "2024-01-01"
                     }
                 },
@@ -171,12 +171,12 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             )
             DestructionListItemReviewFactory.create(
                 destruction_list=destruction_list,
-                destruction_list_item=item1, 
+                destruction_list_item=item1,
                 review=review
             )
             DestructionListItemReviewFactory.create(
                 destruction_list=destruction_list,
-                destruction_list_item=item2, 
+                destruction_list_item=item2,
                 review=review
             )
 
@@ -189,7 +189,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
 
             await self.when.user_clicks_button(page, "Destruction list to process review for")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
-            
+
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)", "ZAAKTYPE-02 (ZAAKTYPE-02)"])
 
             # If filtering first on identificatie, the zaaktype filters change
@@ -197,7 +197,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review?identificatie__icontains=ZAAK-000&page=1")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
-        
+
     @tag("gh-378")
     async def test_zaak_removed_outside_process(self):
         @sync_to_async
@@ -228,7 +228,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
 
             await self.when.user_clicks_button(page, "Destruction list to process")
-            
+
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/process-review")
             await self.then.page_should_contain_text(page, "Opnieuw indienen")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)

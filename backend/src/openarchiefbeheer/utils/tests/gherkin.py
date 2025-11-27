@@ -98,10 +98,10 @@ class GerkinMixin:
         async def services_are_configured(
             self,
             m,
-            zaaktypen=[],
-            statustypen=[],
-            resultaattypen=[],
-            informatieobjecttypen=[],
+            zaaktypen: list | None = None,
+            statustypen: list | None = None,
+            resultaattypen: list | None = None,
+            informatieobjecttypen: list | None = None,
         ):
             """
             Mock Services implementation.
@@ -111,19 +111,19 @@ class GerkinMixin:
             """
             m.get(
                 "http://zaken.nl/catalogi/api/v1/zaaktypen",
-                json={"results": zaaktypen},
+                json={"results": zaaktypen or []},
             )
             m.get(
                 "http://zaken.nl/catalogi/api/v1/statustypen",
-                json={"results": statustypen},
+                json={"results": statustypen or []},
             )
             m.get(
                 "http://zaken.nl/catalogi/api/v1/resultaattypen",
-                json={"results": resultaattypen},
+                json={"results": resultaattypen or []},
             )
             m.get(
                 "http://zaken.nl/catalogi/api/v1/informatieobjecttypen",
-                json={"results": informatieobjecttypen},
+                json={"results": informatieobjecttypen or []},
             )
 
             await self._get_or_create(
@@ -691,7 +691,7 @@ class GerkinMixin:
 
                 for option in options:
                     text_content = await option.text_content()
-                    if not text_content == value:
+                    if text_content != value:
                         continue
 
                     return await option.click()
@@ -758,10 +758,10 @@ class GerkinMixin:
         async def list_should_exist(self, page, name: str):
             try:
                 return await DestructionList.objects.aget(name=name)
-            except DestructionList.DoesNotExist:
+            except DestructionList.DoesNotExist as exc:
                 raise AssertionError(
                     f"Destruction list with name '{name}' does not exist."
-                )
+                ) from exc
 
         async def list_should_have_assignee(self, page, destruction_list, assignee):
             @sync_to_async()

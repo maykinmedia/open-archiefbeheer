@@ -126,14 +126,12 @@ class ProcessReviewResponseTests(TestCase):
 
         m.patch(zaak.url, json={"archiefactiedatum": "2026-01-01"})
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_review_required="Destruction list review request",
-                    body_review_required_text="Please review the list",
-                    body_review_required_html="Please review the list",
-                ),
+        with patch(
+            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+            return_value=EmailConfig(
+                subject_review_required="Destruction list review request",
+                body_review_required_text="Please review the list",
+                body_review_required_html="Please review the list",
             ),
         ):
             process_review_response(review_response.pk)
@@ -184,14 +182,12 @@ class ProcessReviewResponseTests(TestCase):
             role=ListRole.main_reviewer,
         )
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_review_required="Destruction list review request",
-                    body_review_required_text="Please review the list",
-                    body_review_required_html="Please review the list",
-                ),
+        with patch(
+            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+            return_value=EmailConfig(
+                subject_review_required="Destruction list review request",
+                body_review_required_text="Please review the list",
+                body_review_required_html="Please review the list",
             ),
         ):
             process_review_response(review_response.pk)
@@ -469,7 +465,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         self.assertEqual(item1.extra_zaak_data, {})
         self.assertEqual(item2.extra_zaak_data, {})
         with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file
+            destruction_list.destruction_report.file  # noqa: B018
 
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
@@ -639,7 +635,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             "2024-10-09T12:00:00+02:00",
         )
         with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file
+            destruction_list.destruction_report.file  # noqa: B018
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_other_items_processed_if_one_fails(self):
@@ -665,11 +661,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             if zaak.url == item1.zaak.url:
                 raise Exception("An errur occurred!")
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
-                side_effect=mock_exceptions,
-            ),
+        with patch(
+            "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+            side_effect=mock_exceptions,
         ):
             delete_destruction_list(destruction_list)
 
@@ -794,7 +788,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             planned_destruction_date=date(2025, 3, 23),
         )
 
-        with (freeze_time("2025-03-24"),):
+        with freeze_time("2025-03-24"):
             delete_destruction_list(destruction_list)
 
         destruction_list.refresh_from_db()

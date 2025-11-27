@@ -50,7 +50,7 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
             # These zaken should be on the create page
             await self.given.zaken_are_indexed(5, omschrijving="Test 1")
             await self.given.zaken_are_indexed(5, omschrijving="Test 2")
-            
+
             await self.when.record_manager_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
 

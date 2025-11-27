@@ -16,7 +16,6 @@ from .factories import ZaakFactory
 
 
 class ZakenViewSetTest(APITestCase):
-
     def test_not_authenticated(self):
         endpoint = reverse("api:zaken-list")
 

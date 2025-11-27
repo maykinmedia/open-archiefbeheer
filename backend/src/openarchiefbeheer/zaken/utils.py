@@ -88,21 +88,20 @@ def process_expanded_data(
             return zaak
 
         extra_data = zaak["_expand"]
-        if procestype_url := extra_data["zaaktype"].get("selectielijst_procestype"):
-            if (
-                expanded_procestype := retrieved_procestypen.get(procestype_url)
-            ) is not None:
-                extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
+        if (
+            procestype_url := extra_data["zaaktype"].get("selectielijst_procestype")
+        ) and (
+            expanded_procestype := retrieved_procestypen.get(procestype_url)
+        ) is not None:
+            extra_data["zaaktype"]["selectielijst_procestype"] = expanded_procestype
 
         return zaak
 
-    procestypen_urls = set(
-        [
-            glom(zaak, "_expand.zaaktype.selectielijst_procestype")
-            for zaak in zaken
-            if glom(zaak, "_expand.zaaktype.selectielijst_procestype", default=None)
-        ]
-    )
+    procestypen_urls = {
+        glom(zaak, "_expand.zaaktype.selectielijst_procestype")
+        for zaak in zaken
+        if glom(zaak, "_expand.zaaktype.selectielijst_procestype", default=None)
+    }
     retrieve_procestype_fn = partial(
         get_resource_with_prebuilt_client, selectielijst_api_client
     )
@@ -124,7 +123,7 @@ def format_zaaktype_choices(zaaktypen: Iterable[dict]) -> list[DropDownChoice]:
     for zaaktype in zaaktypen:
         omschrijving = zaaktype["omschrijving"]
         label = (
-            f"{omschrijving} ({zaaktype.get("identificatie") or _("no identificatie")})"
+            f"{omschrijving} ({zaaktype.get('identificatie') or _('no identificatie')})"
         )
         formatted_zaaktypen.append(
             {"label": label, "value": zaaktype.get("identificatie") or ""}
@@ -287,10 +286,7 @@ def handle_delete_with_pending_relations(exc: HTTPError) -> None:
         response.status_code == status.HTTP_400_BAD_REQUEST
         and response.json()["invalidParams"][0]["code"] == "pending-relations"
     )
-    if (
-        not response.status_code == status.HTTP_204_NO_CONTENT
-        and not has_pending_relations
-    ):
+    if response.status_code != status.HTTP_204_NO_CONTENT and not has_pending_relations:
         response.raise_for_status()
 
 

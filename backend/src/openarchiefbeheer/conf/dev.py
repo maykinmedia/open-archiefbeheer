@@ -1,3 +1,4 @@
+import contextlib
 import os
 import warnings
 
@@ -110,7 +111,5 @@ PLAYWRIGHT_SAVE_TRACE = config("PLAYWRIGHT_SAVE_TRACE", default=False)
 ENVIRONMENT = "development"
 
 # Override settings with local settings.
-try:
+with contextlib.suppress(ImportError):
     from .local import *  # noqa
-except ImportError:
-    pass

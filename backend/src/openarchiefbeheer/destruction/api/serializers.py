@@ -792,13 +792,13 @@ class ReviewItemResponseSerializer(serializers.ModelSerializer):
     def _get_selectielijst_resultaat(self, resultaat_url: str) -> JSONValue:
         try:
             resultaat = retrieve_selectielijstklasse_resultaat(resultaat_url)
-        except HTTPError:
+        except HTTPError as exc:
             raise ValidationError(
                 _(
                     "Could not validate the selectielijstklasse waardering "
                     "due to an unexpected response from the Selectielijst API."
                 )
-            )
+            ) from exc
 
         return resultaat
 
