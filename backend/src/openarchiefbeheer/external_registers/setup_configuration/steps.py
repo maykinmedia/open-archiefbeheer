@@ -20,7 +20,7 @@ class ExternalRegisterPluginsConfigurationStep(
     verbose_name = "External registers"
 
     def execute(self, model: RegisterPluginConfigurationModel) -> None:
-        for plugin in register:
+        for plugin in register.iter_automatically_configurable():
             step = plugin.setup_configuration_step()
             plugin_config_data = getattr(model, plugin.identifier)
             step.execute(plugin.setup_configuration_model(**plugin_config_data))

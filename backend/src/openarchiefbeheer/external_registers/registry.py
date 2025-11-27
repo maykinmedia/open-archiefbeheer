@@ -34,5 +34,14 @@ class Registry[PluginT: AbstractBasePlugin]:
     def __contains__(self, key: str) -> bool:
         return key in self._registry
 
+    def iter_automatically_configurable(self) -> Iterator[PluginT]:
+        return iter(
+            [
+                plugin
+                for plugin in self._registry.values()
+                if plugin.is_automatically_configurable
+            ]
+        )
+
 
 register = Registry()

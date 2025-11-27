@@ -17,7 +17,7 @@ class PluginsRefMetaclass(DjangoRefsMetaclass):
     ):
         annotations = namespace.setdefault("__annotations__", {})
 
-        for plugin in register:
+        for plugin in register.iter_automatically_configurable():
             namespace[plugin.identifier] = plugin.setup_configuration_model
             annotations[plugin.identifier] = object
 
