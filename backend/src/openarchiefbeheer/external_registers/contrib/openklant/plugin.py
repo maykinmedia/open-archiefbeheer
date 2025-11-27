@@ -12,6 +12,7 @@ from openarchiefbeheer.utils.health_checks import CheckResult
 
 from .models import OpenKlantConfig
 from .setup_configuration.models import OpenKlantConfigurationModel
+from .setup_configuration.steps import OpenKlantConfigurationStep
 
 
 @register("openklant")
@@ -19,6 +20,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
     verbose_name = "Open Klant plugin"
     config = OpenKlantConfig
     setup_configuration_model = OpenKlantConfigurationModel
+    setup_configuration_step = OpenKlantConfigurationStep
 
     def check_config(self) -> HealthCheckResult:
         return CheckResult(
