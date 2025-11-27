@@ -66,25 +66,27 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
     async def test_scenario_sort_destruction_list_edit_page(self):
         async with browser_page() as page:
             await self.given.record_manager_exists()
-            zaken = await self.given.zaken_are_indexed(amount=3, recreate=True)
+            zaken = await self.given.zaken_are_indexed(amount=10, recreate=True, omschrijving="Destruction list to sort")
             await self.given.list_exists(
                 name="Destruction list to sort",
                 status=ListStatus.new,
                 uuid="00000000-0000-0000-0000-000000000000",
-                zaken=zaken)
+                zaken=zaken[:2])
 
             await self.when.record_manager_logs_in(page)
             await self.when.user_clicks_button(page, "Destruction list to sort")
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.zaken_should_have_order(page, ["ZAAK-0", "ZAAK-1", "ZAAK-2"])
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")
+            await self.when.user_fills_form_field(page, "Omschrijving", "Destruction list to sort")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&omschrijving__icontains=Destruction+list+to+sort")
 
             await self.when.user_clicks_button(page, "Identificatie")
-            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&ordering=identificatie")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&omschrijving__icontains=Destruction+list+to+sort&ordering=identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-0", "ZAAK-1", "ZAAK-2"])
 
             await self.when.user_clicks_button(page, "Identificatie")
-            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&ordering=-identificatie")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&omschrijving__icontains=Destruction+list+to+sort&ordering=-identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-2", "ZAAK-1", "ZAAK-0"])
 
     async def test_scenario_sort_destruction_list_review_page(self):

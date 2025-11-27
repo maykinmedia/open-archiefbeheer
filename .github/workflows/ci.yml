@@ -39,7 +39,7 @@ jobs:
           npm run lint
           CI=false npm run build
         env: 
-          OAB_API_URL: "http://localhost:8000"
+          OAB_API_URL: ""
 
       - uses: actions/upload-artifact@v4
         with:
@@ -158,7 +158,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   e2e-feature-tests:
-    runs-on: ubuntu-latest
+    runs-on: maykin-runner
     needs: frontend-build
     strategy:
       fail-fast: false
@@ -244,7 +244,7 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 1
+          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 4
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
@@ -265,7 +265,7 @@ jobs:
           if-no-files-found: error
 
   e2e-issue-tests:
-    runs-on: ubuntu-latest
+    runs-on: maykin-runner
     needs: frontend-build
     strategy:
       fail-fast: false
@@ -349,7 +349,7 @@ jobs:
           ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=issue --parallel 1
+          python src/manage.py test openarchiefbeheer --tag=issue --parallel 4
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy

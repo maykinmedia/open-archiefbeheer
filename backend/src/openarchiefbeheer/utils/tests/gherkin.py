@@ -800,6 +800,7 @@ class GerkinMixin:
             self.testcase.assertEqual(number_of_items, count)
 
         async def zaken_should_have_order(self, page: Page, zaken: list[str]):
+            await page.wait_for_load_state("networkidle")
             locators: list[Locator] = [
                 await self.page_should_contain_text(page, z) for z in zaken
             ]

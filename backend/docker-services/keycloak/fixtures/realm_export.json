@@ -670,7 +670,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://localhost:8000/oidc/callback/", "http://localhost:3000" ],
+    "redirectUris" : [ "http://localhost:*/oidc/callback/", "http://localhost:*" ],
     "webOrigins" : [ "http://localhost:8000", "http://localhost:3000" ],
     "notBefore" : 0,
     "bearerOnly" : false,
