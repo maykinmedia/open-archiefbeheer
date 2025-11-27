@@ -85,9 +85,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        with (
-            freeze_time("2024-05-02T16:00:00+02:00"),
-        ):
+        with freeze_time("2024-05-02T16:00:00+02:00"):
             destruction_list = serializer.save()
 
         assignees = destruction_list.assignees.order_by("pk")
@@ -543,9 +541,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(is_valid)
 
-        with (
-            freeze_time("2024-05-02T16:00:00+02:00"),
-        ):
+        with freeze_time("2024-05-02T16:00:00+02:00"):
             destruction_list = serializer.save()
 
         self.assertEqual(destruction_list.items.count(), 2)
@@ -597,9 +593,7 @@ class DestructionListSerializerTests(TestCase):
 
         self.assertTrue(is_valid)
 
-        with (
-            freeze_time("2024-05-02T16:00:00+02:00"),
-        ):
+        with freeze_time("2024-05-02T16:00:00+02:00"):
             destruction_list = serializer.save()
 
         self.assertEqual(destruction_list.items.count(), 3)
@@ -787,14 +781,12 @@ class DestructionListReviewSerializerTests(TestCase):
 
         self.assertTrue(serializer.is_valid())
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_positive_review="Review accepted",
-                    body_positive_review_text="Yuppiii reviewer accepted!",
-                    body_positive_review_html="Yuppiii reviewer accepted!",
-                ),
+        with patch(
+            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+            return_value=EmailConfig(
+                subject_positive_review="Review accepted",
+                body_positive_review_text="Yuppiii reviewer accepted!",
+                body_positive_review_html="Yuppiii reviewer accepted!",
             ),
         ):
             serializer.save()

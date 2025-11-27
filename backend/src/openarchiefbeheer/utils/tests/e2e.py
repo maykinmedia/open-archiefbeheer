@@ -12,10 +12,7 @@ from playwright.async_api import async_playwright
 
 
 @asynccontextmanager
-async def browser_page(log_levels: Iterable[str] | None = None):
-    if not log_levels:
-        log_levels = ["debug"]
-
+async def browser_page(log_levels: Iterable[str] = ["debug"]):
     async with async_playwright() as p:
         launch_kwargs = {
             "headless": settings.PLAYWRIGHT_HEADLESS,

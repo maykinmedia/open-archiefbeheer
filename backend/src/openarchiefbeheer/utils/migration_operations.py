@@ -1,16 +1,11 @@
-import os
+from pathlib import Path
 
 from django.conf import settings
 from django.db import migrations, router
 
 
 def _get_reset_sql() -> str:
-    infile_path = os.path.join(settings.BASE_DIR, "bin", "reset_sequences.sql")
-
-    with open(infile_path, "r") as infile:
-        sql_content = infile.read()
-
-    return sql_content
+    return Path(settings.BASE_DIR, "bin", "reset_sequences.sql").read_text()
 
 
 class ResetSequences(migrations.RunSQL):

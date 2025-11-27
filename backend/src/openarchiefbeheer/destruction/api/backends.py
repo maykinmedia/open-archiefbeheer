@@ -1,3 +1,5 @@
+from typing import Mapping
+
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.utils import translate_validation
 
@@ -43,11 +45,8 @@ class NestedFilterBackend(DjangoFilterBackend):
 
 class NestedOrderingFilterBackend(OrderingWithPostFilterBackend):
     def get_valid_fields(
-        self, queryset, view, context: dict | None = None
+        self, queryset, view, context: Mapping = {}
     ) -> list[tuple[str, str]]:
-        if not context:
-            context = {}
-
         valid_fields = getattr(
             view, context.get("ordering_fields_view_attr", "ordering_fields"), []
         )
