@@ -30,7 +30,7 @@ class AbstractBasePlugin[T](ABC):
     """
     Specify the human-readable label for the plugin.
     """
-    config: PluginConfig
+    config: type[PluginConfig]
     """
     Django solo model containing the configuration for the plugin.
     """
