@@ -1,0 +1,7 @@
+external_registers_enabled: true
+external_registers:
+  openklant:
+    enabled: true
+    services_identifiers: 
+    - openklant_service1
+    - openklant_service2
