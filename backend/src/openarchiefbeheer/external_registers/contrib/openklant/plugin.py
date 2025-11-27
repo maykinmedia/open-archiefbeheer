@@ -1,5 +1,7 @@
 from typing import Iterable, Mapping, NoReturn
 
+from django.utils.translation import gettext as _
+
 from maykin_health_checks.types import HealthCheckResult
 
 from openarchiefbeheer.external_registers.plugin import (
@@ -8,7 +10,7 @@ from openarchiefbeheer.external_registers.plugin import (
     ServiceSlug,
 )
 from openarchiefbeheer.external_registers.registry import register
-from openarchiefbeheer.utils.health_checks import CheckResult
+from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
 from .models import OpenKlantConfig
 from .setup_configuration.models import OpenKlantConfigurationModel
@@ -23,8 +25,31 @@ class OpenKlantPlugin(AbstractBasePlugin):
     setup_configuration_step = OpenKlantConfigurationStep
 
     def check_config(self) -> HealthCheckResult:
+        config = OpenKlantConfig.get_solo()
+        if not config.enabled:
+            return CheckResult(
+                identifier=self.identifier,
+                success=True,
+                message=_("The Open Klant plugin is disabled."),
+            )
+
+        if not config.services.count() > 0:
+            return CheckResult(
+                identifier=self.identifier,
+                success=False,
+                message=_("No Open Klant API service(s) configured."),
+                extra=[
+                    ExtraInfo(
+                        code="missing_service",
+                        model="openarchiefbeheer.external_registers.contrib.openklant.models.OpenKlantConfig",
+                        field="services",
+                    )
+                ],
+            )
         return CheckResult(
-            identifier=self.identifier, success=False, message="Not implemented yet."
+            identifier=self.identifier,
+            success=True,
+            message=_("The Open Klant settings are properly configured."),
         )
 
     def get_admin_url(self, resource_url: str) -> str:
