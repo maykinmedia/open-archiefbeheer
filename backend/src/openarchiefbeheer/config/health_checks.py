@@ -1,36 +1,17 @@
 from dataclasses import dataclass
-from typing import Literal
 
 from django.conf import settings
 from django.utils.translation import gettext as _
 
 from maykin_health_checks.types import HealthCheck
-from msgspec import UNSET, Struct, UnsetType, to_builtins
+from msgspec import UNSET
 from zgw_consumers.models import Service
 
 from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
 from openarchiefbeheer.external_registers.registry import register as registry
-from openarchiefbeheer.types import JSONValue
+from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
 from .models import APIConfig, ArchiveConfig
-
-
-class ExtraInfo(Struct):
-    model: str
-    code: str
-    severity: Literal["error", "warning", "info"] = "error"
-    message: str | UnsetType = UNSET
-    field: str | UnsetType = UNSET
-
-
-class CheckResult(Struct):
-    identifier: str
-    success: bool
-    message: str
-    extra: list[ExtraInfo] | UnsetType = UNSET
-
-    def to_builtins(self) -> JSONValue:
-        return to_builtins(self)
 
 
 @dataclass
