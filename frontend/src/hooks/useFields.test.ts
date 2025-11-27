@@ -24,7 +24,7 @@ describe("useFields Hook", () => {
     const activeFields = fields.filter((f) => f.active);
 
     // Verify initial fields are set with proper selections
-    expect(activeFields).toHaveLength(9);
+    expect(activeFields).toHaveLength(10);
     expect(fields[0].name).toBe("identificatie");
 
     // Mock the field selection change
