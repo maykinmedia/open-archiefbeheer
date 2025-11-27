@@ -230,6 +230,7 @@ export function BaseListView<T extends Zaak = Zaak>({
           boolProps: {
             explicit: true,
           },
+          decorate: true,
           fieldsSelectable: true,
           height: "fill-available-space",
           pageSize: 100,
