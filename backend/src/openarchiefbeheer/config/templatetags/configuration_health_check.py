@@ -1,11 +1,16 @@
+from typing import Iterable
+
 from django import template
 
-from ..health_checks import is_configuration_complete
+from maykin_health_checks.runner import HealthChecksRunner
+from maykin_health_checks.types import HealthCheckResult
+
+from ..health_checks import checks_collector
 
 register = template.Library()
 
 
 @register.inclusion_tag("configuration_health_check.html")
-def configuration_health_check():
-    result = is_configuration_complete()
-    return result
+def configuration_health_check() -> dict[str, Iterable[HealthCheckResult]]:
+    runner = HealthChecksRunner(checks_collector=checks_collector)
+    return {"failed_checks": runner.run_checks()}

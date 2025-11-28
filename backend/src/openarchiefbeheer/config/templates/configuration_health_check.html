@@ -4,20 +4,28 @@
     <h2>
         {% translate 'Configuration status' %}
         &nbsp;
-        {% if success %}
-            <img src="/static/admin/img/icon-yes.svg" alt="{% translate 'Configuration complete' %}">
-        {% else %}
+        {% if failed_checks %}
             <img src="/static/admin/img/icon-no.svg" alt="{% translate 'Configuration incomplete' %}">
+        {% else %}
+            <img src="/static/admin/img/icon-yes.svg" alt="{% translate 'Configuration complete' %}">
         {% endif %}
     </h2>
-    {% if success %}
-    <p>{% translate 'The configuration is complete.' %}</p>
+    {% if failed_checks %}
+        <p>{% translate 'The following issues have been detected:' %}</p>
+        <ul class="config-error-list">
+            {% for failed_check in failed_checks %}
+            <li>
+                {{ failed_check.message }}{% if failed_check.extra %}: 
+                <ul>
+                    {% for info in failed_check.extra %}
+                    <li>{{ info.message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}.
+            </li>
+            {% endfor %}
+        </ul>
     {% else %}
-    <p>{% translate 'The following issues have been detected:' %}</p>
-    <ul class="config-error-list">
-        {% for error in errors %}
-        <li>{{ error.message }}</li>
-        {% endfor %}
-    </ul>
+        <p>{% translate 'The configuration is complete.' %}</p>
     {% endif %}
 </div>

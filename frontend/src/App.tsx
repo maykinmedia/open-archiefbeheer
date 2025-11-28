@@ -35,7 +35,7 @@ import {
   ZaakSelectionContextProvider,
 } from "./contexts";
 import { User, getOIDCInfo, whoAmI } from "./lib/api/auth";
-import { HealthCheckResponse, getHealthCheck } from "./lib/api/health-check";
+import { HealthCheckResult, getHealthCheck } from "./lib/api/health-check";
 import {
   canConfigureApplication,
   canStartDestructionList,
@@ -56,7 +56,7 @@ function App() {
     enabled: false,
     loginUrl: "",
   });
-  const [healthCheck, setHealthCheck] = useState<HealthCheckResponse | null>(
+  const [healthCheck, setHealthCheck] = useState<HealthCheckResult[] | null>(
     null,
   );
 
@@ -88,7 +88,7 @@ function App() {
   return (
     <div className="App">
       {healthCheck &&
-        !healthCheck.success &&
+        healthCheck.length > 0 &&
         location?.pathname != "/settings/health-check" && (
           <Banner
             withIcon

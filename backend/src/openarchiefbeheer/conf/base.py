@@ -137,6 +137,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "privates",
     "django_setup_configuration",
+    "maykin_health_checks",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -146,6 +147,9 @@ INSTALLED_APPS = [
     "openarchiefbeheer.emails",
     "openarchiefbeheer.config",
     "openarchiefbeheer.selection",
+    "openarchiefbeheer.external_registers",
+    # Plugins for external registers
+    "openarchiefbeheer.external_registers.contrib.openklant",
 ]
 
 MIDDLEWARE = [
@@ -677,4 +681,5 @@ SETUP_CONFIGURATION_STEPS = [
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "openarchiefbeheer.config.setup_configuration.steps.APIConfigConfigurationStep",
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
+    "openarchiefbeheer.external_registers.setup_configuration.steps.ExternalRegisterPluginsConfigurationStep",
 ]
