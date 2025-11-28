@@ -61,7 +61,7 @@ export function HealthCheckSettingsPage() {
       for (const extraInfo of result.extra || []) {
         formattedResult.push({
           Niveau: getSeverityBadge(extraInfo.severity),
-          Bericht: extraInfo.message,
+          Bericht: extraInfo.message || result.message,
           Model: extraInfo.model,
           Veld: extraInfo.field,
         });

@@ -20,34 +20,48 @@ const meta: Meta<typeof HealthCheckSettingsPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const HEALTH_CHECK_FIXTURE = {
-  success: false,
-  errors: [
-    {
-      model: "openarchiefbeheer.config.ArchiveConfig",
-      field: "bronorganisatie",
-      code: "MISSING_BRONORGANISATIE",
-      message:
-        "No source organisation for the destruction report case configured.",
-      severity: "error",
-    },
-    {
-      model: "openarchiefbeheer.config.ArchiveConfig",
-      field: "zaaktype",
-      code: "MISSING_ZAAKTYPE",
-      message: "No zaaktype for the destruction report case configured.",
-      severity: "info",
-    },
-    {
-      model: "openarchiefbeheer.config.ArchiveConfig",
-      field: "selectielijstklasse",
-      code: "MISSING_SELECTIELIJSTKLASSE",
-      message:
-        "No selectielijstklasse for the destruction report case configured.",
-      severity: "warning",
-    },
-  ],
-};
+const HEALTH_CHECK_FIXTURE = [
+  {
+    identifier: "services_presence",
+    success: false,
+    message: "Missing service(s): ztc, zrc.",
+    extra: [
+      {
+        model: "zgw_consumers.models.Service",
+        code: "missing_service",
+        severity: "error",
+        message: "Missing zaak service",
+      },
+    ],
+  },
+  {
+    identifier: "apiconfig",
+    success: false,
+    message:
+      "No selectielijst API services selected in the API configuration page.",
+    extra: [
+      {
+        model: "openarchiefbeheer.config.APIConfig",
+        code: "missing_service",
+        severity: "info",
+        field: "selectielijst_api_service",
+      },
+    ],
+  },
+  {
+    identifier: "archiveconfig",
+    success: false,
+    message: "Missing settings(s): bronorganisatie",
+    extra: [
+      {
+        model: "openarchiefbeheer.config.ArchiveConfig",
+        code: "missing_field",
+        severity: "warning",
+        field: "bronorganisatie",
+      },
+    ],
+  },
+];
 
 export const HealthCheck: Story = {
   parameters: {
