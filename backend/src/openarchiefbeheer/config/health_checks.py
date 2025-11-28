@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from django.conf import settings
 from django.utils.translation import gettext as _
 
 from maykin_health_checks.types import HealthCheck, HealthCheckResult
 from msgspec import UNSET
+from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
@@ -12,6 +12,8 @@ from openarchiefbeheer.external_registers.registry import register as registry
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
 from .models import APIConfig, ArchiveConfig
+
+ZGW_REQUIRED_SERVICE_TYPES = [APITypes.zrc, APITypes.drc, APITypes.ztc, APITypes.brc]
 
 
 @dataclass
@@ -21,7 +23,7 @@ class ServiceHealthCheck:
     def run(self) -> CheckResult:
         missing_services = []
 
-        for needed_service_type in settings.ZGW_REQUIRED_SERVICE_TYPES:
+        for needed_service_type in ZGW_REQUIRED_SERVICE_TYPES:
             service = Service.objects.filter(api_type=needed_service_type).first()
 
             if not service:

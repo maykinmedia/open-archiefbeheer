@@ -683,11 +683,3 @@ SETUP_CONFIGURATION_STEPS = [
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
     "openarchiefbeheer.external_registers.setup_configuration.steps.ExternalRegisterPluginsConfigurationStep",
 ]
-
-#
-# Django health checks
-#
-HEALTH_CHECKS = []
-HEALTH_CHECKS_PLUGIN_LOADER = ""
-
-ZGW_REQUIRED_SERVICE_TYPES = ["zrc", "drc", "ztc", "brc"]
