@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from maykin_health_checks.types import HealthCheck
+from maykin_health_checks.types import HealthCheck, HealthCheckResult
 from msgspec import UNSET
 from zgw_consumers.models import Service
 
@@ -176,7 +176,7 @@ class PluginHealthCheck:
     identifier: str
     plugin: AbstractBasePlugin
 
-    def run(self) -> CheckResult:
+    def run(self) -> HealthCheckResult:
         return self.plugin.check_config()
 
 

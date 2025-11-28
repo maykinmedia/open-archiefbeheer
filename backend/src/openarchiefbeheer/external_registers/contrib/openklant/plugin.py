@@ -8,6 +8,7 @@ from openarchiefbeheer.external_registers.plugin import (
     ServiceSlug,
 )
 from openarchiefbeheer.external_registers.registry import register
+from openarchiefbeheer.utils.health_checks import CheckResult
 
 from .models import OpenKlantConfig
 from .setup_configuration.models import OpenKlantConfigurationModel
@@ -20,7 +21,9 @@ class OpenKlantPlugin(AbstractBasePlugin):
     setup_configuration_model = OpenKlantConfigurationModel
 
     def check_config(self) -> HealthCheckResult:
-        raise NotImplementedError()
+        return CheckResult(
+            identifier=self.identifier, success=True, message="Not implemented yet."
+        )
 
     def get_admin_url(self, resource_url: str) -> str:
         """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
