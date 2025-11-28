@@ -90,8 +90,16 @@ export function DestructionListCreatePage() {
   };
 
   /**
-   * Returns whether the filter value for "archiefactiedatum" is in the past or the current date.
-   * return false if filter value is not set.
+   * Returns true if the "Toon enkel zaken met verlopen archiefdatum" filter is
+   * active.
+   *
+   * This happens when:
+   * - The user did NOT set a "archiefactiedatum__gte" filter
+   * - AND the "archiefactiedatum__lte" filter is set
+   * - AND the "archiefactiedatum__lte" date is in the past or today.
+   *
+   * This indicates that the user clicked the "Toon enkel zaken met verlopen archiefdatum"
+   * button.
    */
   const onlyShowArchivableZaken = () => {
     if (searchParams.get("archiefactiedatum__gte")) return false; // User filtered.
@@ -106,8 +114,12 @@ export function DestructionListCreatePage() {
   };
 
   /**
-   * Returns whether the filter value for "archiefactiedatum" is in the past or the current date.
-   * return false if filter value is not set.
+   * Returns true if there is no active "archiefactiedatum" filter.
+   * This happens when both "archiefactiedatum__gte" and "archiefactiedatum__lte"
+   * are omitted.
+   *
+   * This indicates that the user has not applied any archiefactiedatum filtering,
+   * so the "Toon enkel zaken met verlopen archiefdatum" button should be shown.
    */
   const showUnarchivableZaken = () => {
     if (
