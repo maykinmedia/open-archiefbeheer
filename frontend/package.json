@@ -3,7 +3,7 @@
   "version": "1.1.1",
   "private": true,
   "dependencies": {
-    "@maykin-ui/admin-ui": "^2.0.0-alpha.34",
+    "@maykin-ui/admin-ui": "^2.0.0-beta.1",
     "@maykin-ui/client-common": "^0.0.6",
     "@storybook/react-vite": "10.0.6",
     "@storybook/test-runner": "^0.24.1",
