@@ -3,7 +3,12 @@ from django.test import TestCase
 from maykin_health_checks.runner import HealthChecksRunner
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.config.health_checks import checks_collector
+from openarchiefbeheer.config.health_checks import (
+    APIConfigCheck,
+    ArchiveConfigHealthCheck,
+    ServiceConfigurationHealthCheck,
+    ServiceHealthCheck,
+)
 from openarchiefbeheer.config.tests.factories import (
     APIConfigFactory,
     ArchiveConfigFactory,
@@ -23,12 +28,18 @@ class TestHealthChecks(TestCase):
             informatieobjecttype="",
         )
 
-        runner = HealthChecksRunner(
-            checks_collector=checks_collector, include_success=False
-        )
-        failed_checks = runner.run_checks()
+        def checks_collector():
+            return [
+                ServiceHealthCheck(),
+                ServiceConfigurationHealthCheck(),
+                APIConfigCheck(),
+                ArchiveConfigHealthCheck(),
+            ]
 
-        self.assertEqual(len(failed_checks), 4)  # TODO will go back to 3 in next PR
+        runner = HealthChecksRunner(checks_collector=checks_collector)
+        failed_checks = list(runner.run_checks())
+
+        self.assertEqual(len(failed_checks), 3)
         self.assertEqual(failed_checks[0].identifier, "services_presence")
         self.assertEqual(failed_checks[1].identifier, "apiconfig")
         self.assertEqual(failed_checks[2].identifier, "archiveconfig")
