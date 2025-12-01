@@ -1,10 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Mapping, NoReturn, TypedDict, TypeVar
+from typing import Iterable, Mapping, NoReturn, Protocol, TypedDict, TypeVar
 
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from maykin_health_checks.types import HealthCheckResult
+from zgw_consumers.models import Service
 
-PluginConfig = TypeVar("PluginConfig")
+type Identifier = str
+type ServiceSlug = str
+T = TypeVar("T", covariant=True)
+
+
+class PluginConfig(Protocol):
+    enabled: bool
+    services: Iterable[Service]
+
+    _plugin_identifier: Identifier
 
 
 class RelatedResourceList[T](TypedDict):
@@ -14,10 +24,8 @@ class RelatedResourceList[T](TypedDict):
     count: int
 
 
-type ServiceSlug = str
-
-
-class AbstractBasePlugin[PluginConfig, T](ABC):
+class AbstractBasePlugin[T](ABC):
+    identifier: Identifier
     verbose_name: str
     """
     Specify the human-readable label for the plugin.
@@ -29,7 +37,7 @@ class AbstractBasePlugin[PluginConfig, T](ABC):
     setup_configuration_model: type[ConfigurationModel] | None = None
     setup_configuration_step: type[BaseConfigurationStep] | None = None
 
-    def __init__(self, identifier: str):
+    def __init__(self, identifier: Identifier):
         self.identifier = identifier
 
     def get_label(self) -> str:
