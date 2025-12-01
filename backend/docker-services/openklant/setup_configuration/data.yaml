@@ -1,0 +1,10 @@
+tokenauth_config_enable: true
+tokenauth:
+  items:
+    - identifier: token-1
+      token: ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      contact_person: John Doe
+      email: jdoe@example.com
+      organization: Maykin
+      application: Open Archiefbeheer
+      administration: TEST

@@ -34,6 +34,20 @@ zgw_consumers:
     api_root: https://selectielijst.openzaak.nl/api/v1/
     api_type: orc
     auth_type: no_auth
+  - identifier: openklant-klantinteracties
+    label: Open Klant Klantinteracties
+    api_root: http://localhost:8005/klantinteracties/api/v1/
+    api_type: orc
+    auth_type: api_key
+    header_key: Authorization
+    header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+  - identifier: openklant-contactgegevens
+    label: Open Klant Contactgegevens
+    api_root: http://localhost:8005/contactgegevens/api/v1/
+    api_type: orc
+    auth_type: api_key
+    header_key: Authorization
+    header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
 
 api_configuration_enabled: true
 api_configuration:
