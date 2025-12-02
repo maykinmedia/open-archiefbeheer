@@ -2,6 +2,13 @@
 Change history
 ==============
 
+X.X.X (TBD)
+===========
+
+Temporary changelog entry to keep track of changes that need to be mentioned:
+
+- Upgraded django_setup_configuration to version 0.11.0
+
 1.1.1 (2025-10-03)
 ==================
 
