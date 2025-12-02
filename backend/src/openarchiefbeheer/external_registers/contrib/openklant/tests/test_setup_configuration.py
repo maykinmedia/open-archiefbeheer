@@ -2,8 +2,8 @@ from pathlib import Path
 
 from django.test import TestCase
 
+from django_setup_configuration.exceptions import PrerequisiteFailed
 from django_setup_configuration.test_utils import execute_single_step
-from pydantic import ValidationError
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.external_registers.setup_configuration.steps import (
@@ -39,8 +39,9 @@ class ExternalRegistersConfigurationStepTests(ClearCacheMixin, TestCase):
 
     def test_wrong_configuration(self):
         with self.assertRaises(
-            ValidationError,
-            msg="1 validation error for OpenKlantConfigurationModel services_identifiers",
+            PrerequisiteFailed,
+            msg="Failed to load config model for External registers. "
+            "Further details: 1 validation error for ConfigSettingsSourceExternal_registers",
         ):
             execute_single_step(
                 ExternalRegisterPluginsConfigurationStep,
