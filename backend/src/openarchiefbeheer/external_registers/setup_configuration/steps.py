@@ -1,12 +1,12 @@
-from django_setup_configuration import BaseConfigurationStep
+from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 
 from openarchiefbeheer.external_registers.registry import register
 
-from .models import RegisterPluginConfigurationModel
+from .models import make_model_with_plugins
 
 
 class ExternalRegisterPluginsConfigurationStep(
-    BaseConfigurationStep[RegisterPluginConfigurationModel]
+    BaseConfigurationStep[ConfigurationModel]
 ):
     """Configure the settings of the external registers.
 
@@ -14,13 +14,13 @@ class ExternalRegisterPluginsConfigurationStep(
     so this should be okay.
     """
 
-    config_model = RegisterPluginConfigurationModel
+    config_model = make_model_with_plugins()
     enable_setting = "external_registers_enabled"
     namespace = "external_registers"
     verbose_name = "External registers"
 
-    def execute(self, model: RegisterPluginConfigurationModel) -> None:
+    def execute(self, model: ConfigurationModel) -> None:
         for plugin in register.iter_automatically_configurable():
             step = plugin.setup_configuration_step()
-            plugin_config_data = getattr(model, plugin.identifier)
-            step.execute(plugin.setup_configuration_model(**plugin_config_data))
+            plugin_model = getattr(model, plugin.identifier)
+            step.execute(plugin_model)

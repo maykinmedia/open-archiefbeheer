@@ -1,5 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Container, Iterable, Mapping, NoReturn, Protocol, TypedDict, TypeVar
+from typing import (
+    Iterable,
+    Mapping,
+    NoReturn,
+    Protocol,
+    TypedDict,
+    TypeVar,
+)
 
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from maykin_health_checks.types import HealthCheckResult
