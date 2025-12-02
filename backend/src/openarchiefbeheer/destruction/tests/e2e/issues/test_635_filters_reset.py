@@ -129,6 +129,10 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.url_should_contain_text(page, "einddatum__gte")
             await self.then.url_should_contain_text(page, "einddatum__lte")
 
+            # Zaakobjecten
+            await self.when.user_filters_zaken(page, "zaakobjecten", "1")
+            await self.then.url_should_contain_text(page, "zaakobjecten__len__gte=1")
+
             # Archiefactiedatum
             await self.when_user_types_in_date(
                 page, "startdatum", "Archiefactiedatum", "01", "01", "2021"
@@ -155,6 +159,7 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then_date_field_should_be_empty(page, "einddatum", "Startdatum")
             await self.then_date_field_should_be_empty(page, "startdatum", "Einddatum")
             await self.then_date_field_should_be_empty(page, "einddatum", "Einddatum")
+            await self.then.input_field_should_be_empty(page, "Zaakobjecten")
             await self.then_date_field_should_be_empty(
                 page, "startdatum", "Archiefactiedatum"
             )
