@@ -1,46 +1,40 @@
-from unittest.mock import patch
-
 from django.test import TestCase
 
+from maykin_health_checks.runner import HealthChecksRunner
 from zgw_consumers.models import Service
 
-from ..health_checks import (
-    API_CONFIG_ERRORS,
-    ARCHIVE_CONFIG_ERRORS,
-    SERVICES_ERRORS,
-    is_configuration_complete,
+from openarchiefbeheer.config.health_checks import checks_collector
+from openarchiefbeheer.config.tests.factories import (
+    APIConfigFactory,
+    ArchiveConfigFactory,
 )
-from ..models import APIConfig, ArchiveConfig
 
 
 class TestHealthChecks(TestCase):
     def test_nothing_configured(self):
         Service.objects.all().delete()
+        APIConfigFactory.create(selectielijst_api_service=None)
+        ArchiveConfigFactory.create(
+            zaaktypes_short_process=[],
+            bronorganisatie="",
+            zaaktype="",
+            statustype="",
+            resultaattype="",
+            informatieobjecttype="",
+        )
 
-        with (
-            patch(
-                "openarchiefbeheer.config.health_checks.APIConfig.get_solo",
-                return_value=APIConfig(),
-            ),
-            patch(
-                "openarchiefbeheer.config.health_checks.ArchiveConfig.get_solo",
-                return_value=ArchiveConfig(),
-            ),
-        ):
-            result = is_configuration_complete()
+        runner = HealthChecksRunner(
+            checks_collector=checks_collector, include_success=False
+        )
+        failed_checks = runner.run_checks()
 
-        self.assertFalse(result["success"])
+        self.assertEqual(len(failed_checks), 4)  # TODO will go back to 3 in next PR
+        self.assertEqual(failed_checks[0].identifier, "services_presence")
+        self.assertEqual(failed_checks[1].identifier, "apiconfig")
+        self.assertEqual(failed_checks[2].identifier, "archiveconfig")
 
-        expected_errors = [
-            SERVICES_ERRORS["MISSING_ZRC_SERVICE"],
-            SERVICES_ERRORS["MISSING_DRC_SERVICE"],
-            SERVICES_ERRORS["MISSING_BRC_SERVICE"],
-            SERVICES_ERRORS["MISSING_ZTC_SERVICE"],
-            API_CONFIG_ERRORS["MISSING_SELECTIELIJST_API"],
-            ARCHIVE_CONFIG_ERRORS["MISSING_BRONORGANISATIE"],
-            ARCHIVE_CONFIG_ERRORS["MISSING_ZAAKTYPE"],
-            ARCHIVE_CONFIG_ERRORS["MISSING_RESULTAATTYPE"],
-            ARCHIVE_CONFIG_ERRORS["MISSING_INFORMATIEOBJECTTYPE"],
-        ]
-
-        self.assertEqual(expected_errors, result["errors"])
+        self.assertEqual(failed_checks[1].extra[0].field, "selectielijst_api_service")
+        self.assertEqual(failed_checks[2].extra[0].field, "bronorganisatie")
+        self.assertEqual(failed_checks[2].extra[1].field, "zaaktype")
+        self.assertEqual(failed_checks[2].extra[2].field, "resultaattype")
+        self.assertEqual(failed_checks[2].extra[3].field, "informatieobjecttype")
