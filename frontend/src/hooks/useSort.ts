@@ -12,7 +12,9 @@ export function useSort(): [string | boolean, (sort: string) => void] {
    * @param sort
    */
   const setSort = (sort: string) => {
-    setCombinedSearchParams({ ordering: sort });
+    // FIXME: https://github.com/maykinmedia/admin-ui/issues/279
+    const ordering = sort.replace("Gerelateerde objecten", "zaakobjecten");
+    setCombinedSearchParams({ ordering });
   };
 
   return [searchParams.get("ordering") || true, setSort];

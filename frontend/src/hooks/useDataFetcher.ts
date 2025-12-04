@@ -14,10 +14,15 @@ import { useAlertOnError } from "./useAlertOnError";
  * @returns `{ data, loading, error }`
  */
 export function useDataFetcher<T, R = T extends undefined ? never : T>(
-  fetchFunction: (signal?: AbortSignal) => T | Promise<T>,
+  fetchFunction: (signal: AbortSignal) => T | Promise<T>,
   config?: Omit<UseDataFetcherConfig<T, R | T>, "deps">,
   deps: unknown[] = [],
-): { data: R | T; loading: boolean; error: boolean } {
+): {
+  data: R | T;
+  fetch: () => AbortController;
+  loading: boolean;
+  error: boolean;
+} {
   const {
     errorMessage = "Er is een fout opgetreden!",
     initialState,
@@ -61,7 +66,17 @@ export function useDataFetcher<T, R = T extends undefined ? never : T>(
     return () => controller.abort();
   }, [fetchData]);
 
-  return { data, loading, error };
+  /**
+   * Allows external control
+   * @returns {AbortController}
+   */
+  const fetch = () => {
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return controller;
+  };
+
+  return { data, fetch, loading, error };
 }
 
 /**

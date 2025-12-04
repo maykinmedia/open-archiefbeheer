@@ -11,9 +11,10 @@ import {
 import { JSX, useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
+import { RelatedObjectsSelectionModal } from "../../../../../components";
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
 import { PaginatedResults } from "../../../../../lib/api/paginatedResults";
-import { paginatedDestructionListItems2paginatedDetail } from "../../../../../lib/format/destructionList";
+import { paginatedDestructionListItems2DestructionDetailData } from "../../../../../lib/format/destructionList";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
@@ -57,6 +58,7 @@ export function DestructionListProcessReviewPage() {
     review,
     reviewItems = [],
     selectieLijstKlasseChoicesMap,
+    user,
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
@@ -99,15 +101,26 @@ export function DestructionListProcessReviewPage() {
     () =>
       selectionClearedState
         ? []
-        : paginatedDestructionListItems2paginatedDetail(destructionListItems)
-            .results,
-    [selectionClearedState, destructionListItems],
+        : paginatedDestructionListItems2DestructionDetailData(
+            destructionListItems,
+            destructionList,
+            user,
+          ).results,
+    [selectionClearedState, destructionListItems, destructionList, user],
   );
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo<DestructionListProcessReviewData[]>(() => {
-    return zakenOnPage.map((z, i) => ({
+    return (reviewItems || []).map(({ destructionListItem, zaak: z }, i) => ({
       ...z,
+      "Gerelateerde objecten": (
+        <RelatedObjectsSelectionModal
+          amount={z.zaakobjecten?.length || 0}
+          destructionList={destructionList}
+          destructionListItemPk={destructionListItem}
+          user={user}
+        />
+      ),
       Opmerking: reviewItems?.[i]?.feedback ?? "",
       Mutatie: getProcessReviewBadge(z),
       Acties: (
@@ -136,7 +149,7 @@ export function DestructionListProcessReviewPage() {
         />
       ),
     }));
-  }, [reviewItems, zaakReviewStatuses]);
+  }, [reviewItems, zaakReviewStatuses, user]);
 
   /**
    * Get the process review badge for a zaak to know what mutation is proposed.
