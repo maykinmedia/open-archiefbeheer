@@ -192,10 +192,10 @@ def checks_collector() -> list[HealthCheck]:
     checks.extend(
         [
             PluginHealthCheck(
-                identifier=plugin.identifier,
+                identifier=identifier,
                 plugin=plugin,
             )
-            for plugin in registry
+            for identifier, plugin in registry.iterate()
         ]
     )
 

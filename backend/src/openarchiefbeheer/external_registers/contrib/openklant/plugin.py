@@ -22,7 +22,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
 
     def check_config(self) -> HealthCheckResult:
         return CheckResult(
-            identifier=self.identifier, success=True, message="Not implemented yet."
+            identifier=self.identifier, success=False, message="Not implemented yet."
         )
 
     def get_admin_url(self, resource_url: str) -> str:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Mapping, NoReturn, Protocol, TypedDict, TypeVar
+from typing import Container, Iterable, Mapping, NoReturn, Protocol, TypedDict, TypeVar
 
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from maykin_health_checks.types import HealthCheckResult
@@ -68,7 +68,7 @@ class AbstractBasePlugin[T](ABC):
 
     @abstractmethod
     def delete_related_resources(
-        self, zaak_url: str, excluded_resources: Iterable[str]
+        self, zaak_url: str, excluded_resources: Container[str]
     ) -> None | NoReturn:
         """Delete/Unlink the resources from the register that are related to the zaak.
 

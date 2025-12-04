@@ -1,9 +1,7 @@
+from collections.abc import ItemsView
 from typing import Callable, Iterator
 
-from git import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
+from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
 
 
 class Registry[PluginT: AbstractBasePlugin]:
@@ -25,8 +23,8 @@ class Registry[PluginT: AbstractBasePlugin]:
 
         return decorator
 
-    def __iter__(self) -> Iterator[PluginT]:
-        return iter(self._registry.values())
+    def iterate(self) -> ItemsView[str, PluginT]:
+        return self._registry.items()
 
     def __getitem__(self, key: str) -> PluginT:
         return self._registry[key]
@@ -35,13 +33,11 @@ class Registry[PluginT: AbstractBasePlugin]:
         return key in self._registry
 
     def iter_automatically_configurable(self) -> Iterator[PluginT]:
-        return iter(
-            [
-                plugin
-                for plugin in self._registry.values()
-                if plugin.is_automatically_configurable
-            ]
+        return (
+            plugin
+            for _identifier, plugin in self.iterate()
+            if plugin.is_automatically_configurable
         )
 
 
-register = Registry()
+register: Registry[AbstractBasePlugin[object]] = Registry()

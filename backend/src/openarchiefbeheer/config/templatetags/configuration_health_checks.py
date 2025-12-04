@@ -10,7 +10,7 @@ from ..health_checks import checks_collector
 register = template.Library()
 
 
-@register.inclusion_tag("configuration_health_check.html")
-def configuration_health_check() -> dict[str, Iterable[HealthCheckResult]]:
-    runner = HealthChecksRunner(checks_collector=checks_collector)
-    return {"failed_checks": runner.run_checks()}
+@register.simple_tag
+def run_health_checks() -> Iterable[HealthCheckResult]:
+    runner = HealthChecksRunner(checks_collector=checks_collector, include_success=True)
+    return runner.run_checks()
