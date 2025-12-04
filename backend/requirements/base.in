@@ -17,7 +17,7 @@ django-solo
 mozilla-django-oidc-db[setup-configuration]
 django-privates
 django-setup-configuration
-django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@1be9adb70cea0277e0eb00d42a7d751d70910f45
+django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@99b5ce57917abc40e16543b7fb251ba710524b31
 
 # API libraries
 djangorestframework

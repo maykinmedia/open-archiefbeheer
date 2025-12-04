@@ -171,7 +171,7 @@ django-formtools==2.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@1be9adb70cea0277e0eb00d42a7d751d70910f45
+django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@99b5ce57917abc40e16543b7fb251ba710524b31
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -383,7 +383,6 @@ msgspec==0.19.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   django-health-checks
 multidict==6.0.5
     # via yarl
 openpyxl==3.1.5
