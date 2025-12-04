@@ -14,4 +14,5 @@ export * from "./selectieLijstKlasseChoices";
 export * from "./statusTypeChoices";
 export * from "./user";
 export * from "./zaak";
+export * from "./zaakObjectSelection";
 export * from "./zaakTypeChoices";

@@ -1,3 +1,4 @@
+import { ModalService } from "@maykin-ui/admin-ui";
 import { LoaderFunction } from "@remix-run/router/utils";
 import {
   RouterProvider,
@@ -19,6 +20,13 @@ export const ClearSessionStorageDecorator: DecoratorFunction = (Story) => {
       sessionStorage.removeItem(key);
     });
   return Story();
+};
+
+/**
+ * Decorator providing `<ModalService/>` for use with `useAlert()` etc.
+ */
+export const ModalServiceDecorator: DecoratorFunction = (Story) => {
+  return <ModalService>{Story()}</ModalService>;
 };
 
 /**
