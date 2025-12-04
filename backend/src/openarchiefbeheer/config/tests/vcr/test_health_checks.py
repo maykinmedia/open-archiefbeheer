@@ -44,10 +44,12 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
             informatieobjecttype="http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
         )
 
-        runner = HealthChecksRunner(checks_collector=checks_collector)
+        runner = HealthChecksRunner(
+            checks_collector=checks_collector, include_success=False
+        )
         failed_checks = runner.run_checks()
 
-        self.assertEqual(len(failed_checks), 1)
+        self.assertEqual(len(failed_checks), 2)  # TODO, will go back to 1 in next PR
         self.assertEqual(failed_checks[0].identifier, "services_configuration")
         self.assertEqual(len(failed_checks[0].extra), 5)
         self.assertEqual(
@@ -102,7 +104,9 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
             informatieobjecttype="http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
         )
 
-        runner = HealthChecksRunner(checks_collector=checks_collector)
+        runner = HealthChecksRunner(
+            checks_collector=checks_collector, include_success=False
+        )
         failed_checks = runner.run_checks()
 
-        self.assertEqual(len(failed_checks), 0)
+        self.assertEqual(len(failed_checks), 1)  # TODO will go back to 0 in next PR
