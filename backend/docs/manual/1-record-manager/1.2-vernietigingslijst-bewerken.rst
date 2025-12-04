@@ -35,27 +35,35 @@ Stappen
     - Klik op de knop **"Bewerken"** om de lijst aan te passen. |vernietigingslijst_bewerken|
     - Je wordt doorgestuurd naar de bewerkingspagina van de vernietigingslijst.
 
-4. **Zaken toevoegen**
-    - Navigeer naar de juiste pagina van de lijst indien deze meerdere pagina's bevat.
-    - Selecteer extra zaken door op het selectievak naast de gewenste zaken te klikken.
-    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
-
-5. **Zaken verwijderen**
-    - Navigeer naar de juiste pagina van de lijst.
-    - Deselecteer zaken door op het selectievak naast de ongewenste zaken te klikken.
-    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
-
-6. **Filters gebruiken**
+4. **Filters gebruiken**
     - Klik op het filtericoon en selecteer de gewenste filters, bijvoorbeeld op **identificatie** of **zaaktype**. |filters|
     - Pas filters toe om specifieke zaken te vinden en te beheren binnen de vernietigingslijst.
     - Voeg zaken toe of verwijder zaken zoals eerder beschreven.
 
-7. **Naam van de lijst aanpassen**
+5. **Zaken toevoegen**
+    - Navigeer naar de juiste pagina van de lijst indien deze meerdere pagina's bevat.
+    - Selecteer extra zaken door op het selectievak naast de gewenste zaken te klikken.
+    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
+
+6. **Zaken verwijderen**
+    - Navigeer naar de juiste pagina van de lijst.
+    - Deselecteer zaken door op het selectievak naast de ongewenste zaken te klikken.
+    - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
+
+7. **Gerelateerde objecten bekijken en beheren**
+    - In de kolom **Gerelateerde objecten** verschijnt een knop om gerelateerde objecten interactief te beheren
+      wanneer de lijst niet in bewerkmodus staat en de gebruiker de juiste rechten heeft om gerelateerde objecten te bewerken. |gerelateerde_objecten_knop|
+    - Ondersteunde objecten kunnen aangevinkt of uitgevinkt worden; niet-ondersteunde objecten zijn alleen ter informatie
+      en altijd uitgeschakeld.
+    - Alleen de geselecteerde gerelateerde objecten worden daadwerkelijk vernietigd.
+    - Klik op de knop **"Opslaan"** binnen deze sectie om wijzigingen op te slaan.
+
+8. **Naam van de lijst aanpassen**
     - Klik op de knop **"Naam bewerken"** om de naam van de lijst te wijzigen. |naam_bewerken|
     - Vul de nieuwe lijstnaam in, bijvoorbeeld **"Vernietigingslijst"** in het veld **"Naam"**.
     - Klik op de knop **"Opslaan"** om de naamwijziging door te voeren.
 
-8. **Controleer de wijzigingen**
+9. **Controleer de wijzigingen**
     - Na het opslaan van de aanpassingen (via de knop **"Vernietigingslijst aanpassen"**) word je teruggeleid naar de
       lijstweergave.
     - De zaken die je hebt toegevoegd of verwijderd, evenals de nieuwe naam van de lijst, worden voortaan weergegeven in de lijst.
@@ -82,6 +90,10 @@ en filters gebruiken om je selectie te verfijnen. De volgende stap is om de lijs
 
 .. |vernietigingslijst_opslaan| image:: ../_assets/vernietigingslijst-opslaan.png
     :alt: Vernietigingslijst opslaan knop
+    :height: 32px
+
+.. |gerelateerde_objecten_knop| image:: ../_assets/gerelateerde-objecten-knop.png
+    :alt: Gerelateerde objecten bekijken
     :height: 32px
 
 .. |filters| image:: ../_assets/filters.png

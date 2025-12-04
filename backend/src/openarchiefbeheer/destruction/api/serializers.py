@@ -708,7 +708,7 @@ class DestructionListItemReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DestructionListItemReview
-        fields = ("pk", "zaak", "feedback")
+        fields = ("pk", "destruction_list_item", "zaak", "feedback")
 
     @extend_schema_field(ZaakSerializer)
     def get_zaak(self, obj) -> dict | None:

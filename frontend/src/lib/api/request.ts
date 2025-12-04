@@ -18,11 +18,11 @@ export const API_BASE_URL = `${API_URL}${API_PATH}`;
  * @param headers
  * @param [signal]
  */
-export async function request(
+export async function request<DATA>(
   method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT",
   endpoint: string,
   params?: URLSearchParams | Record<string, string | number | undefined>,
-  data?: Record<string, unknown>,
+  data?: DATA,
   headers?: Record<string, string>,
   signal?: AbortSignal,
 ) {

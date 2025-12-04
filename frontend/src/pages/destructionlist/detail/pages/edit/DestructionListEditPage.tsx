@@ -19,7 +19,7 @@ import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
 import { cacheDelete } from "../../../../../lib/cache/cache";
 import {
   DestructionDetailData,
-  paginatedDestructionListItems2paginatedDetail,
+  paginatedDestructionListItems2DestructionDetailData,
 } from "../../../../../lib/format/destructionList";
 import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection";
 import { BaseListView } from "../../../abstract";
@@ -40,6 +40,7 @@ function DestructionListEditPage() {
     destructionListItems,
     selectableZaken,
     storageKey: loaderStorageKey,
+    user,
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
@@ -58,9 +59,12 @@ function DestructionListEditPage() {
   // The initially select items.
   const initiallySelectedZakenOnPage = useMemo(
     () =>
-      paginatedDestructionListItems2paginatedDetail(destructionListItems)
-        .results,
-    [destructionListItems],
+      paginatedDestructionListItems2DestructionDetailData(
+        destructionListItems,
+        destructionList,
+        user,
+      ).results,
+    [destructionListItems, destructionList, user],
   );
 
   // Selection actions based on `editingState`.
@@ -186,7 +190,11 @@ function DestructionListEditPage() {
   function getPaginatedObjectList(): PaginatedResults<DestructionDetailData> {
     return isEditing
       ? selectableZaken
-      : paginatedDestructionListItems2paginatedDetail(destructionListItems);
+      : paginatedDestructionListItems2DestructionDetailData(
+          destructionListItems,
+          destructionList,
+          user,
+        );
   }
 
   /**

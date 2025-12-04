@@ -4,7 +4,7 @@ import {
   TypedField,
   TypedSerializedFormData,
 } from "@maykin-ui/admin-ui";
-import { useCallback, useEffect, useState } from "react";
+import React, { JSX, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { ExpandableText } from "../components/ExpandableText";
@@ -44,6 +44,14 @@ type FilterTransformReturnType<T> = Record<
     >
   >;
 
+type FIELDS<T> = FIELD<T>[];
+type FIELD<T> = TypedField<
+  T & {
+    "Behandelende afdeling": string;
+    "Gerelateerde objecten": JSX.Element;
+  }
+>;
+
 /**
  * Hook resolving the base fields for lists.
  * s
@@ -61,8 +69,8 @@ export function useFields<T extends Zaak = Zaak>(
   extraFields?: TypedField<T>[],
   restrictFilterChoices: "list" | "unassigned" | false = "list",
 ): [
-  TypedField<T & { "Behandelende afdeling": string }>[],
-  (fields: TypedField<T & { "Behandelende afdeling": string }>[]) => void,
+  FIELDS<T>,
+  (fields: FIELDS<T>) => void,
   (
     filterData: Partial<TypedSerializedFormData<keyof T & string>>,
   ) => FilterTransformReturnType<T>,
@@ -155,7 +163,7 @@ export function useFields<T extends Zaak = Zaak>(
   // The raw, unfiltered configuration of the available base fields.
   // Both filterLookup AND filterLookups will be used for clearing filters.
   // NOTE: This get filtered by `getActiveFields()`.
-  const fields: (TypedField<T & { "Behandelende afdeling": string }> & {
+  const fields: (FIELD<T> & {
     filterLookups?: string[];
   })[] = [
     {
@@ -228,11 +236,16 @@ export function useFields<T extends Zaak = Zaak>(
       width: "230px",
     },
     {
-      name: "zaakobjecten",
-      type: "number",
+      name: "Gerelateerde objecten",
+      type: "jsx",
       filterLookup: "zaakobjecten__len__gte",
       filterValue: searchParams.get("zaakobjecten__len__gte") ?? undefined,
-      valueTransform: (rowData) => rowData.zaakobjecten?.length,
+      valueTransform: (rowData) => {
+        // Gerelateerde objecten may be set with a JSX node containing `RelatedObjectsSelectionModal`.
+        return React.isValidElement(rowData["Gerelateerde objecten"])
+          ? rowData["Gerelateerde objecten"]
+          : rowData.zaakobjecten?.length;
+      },
       width: "125px",
     },
     {
@@ -387,9 +400,7 @@ export function useFields<T extends Zaak = Zaak>(
    * Pass this to `filterTransform` of a DataGrid component.
    * @param fields
    */
-  const setFields = async (
-    fields: TypedField<T & { "Behandelende afdeling": string }>[],
-  ) => {
+  const setFields = async (fields: FIELDS<T>) => {
     const activeFields = fields.filter((f) => f.active !== false);
     const inActiveFields = fields.filter((f) => f.active === false);
     await addToFieldSelection(FIELD_SELECTION_STORAGE_KEY, activeFields);
