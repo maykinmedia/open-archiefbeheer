@@ -1,0 +1,1 @@
+OPENKLANT_IDENTIFIER = "openklant"
