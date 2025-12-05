@@ -39,10 +39,6 @@ class AbstractBasePlugin[T](ABC):
     """
     Specify the human-readable label for the plugin.
     """
-    config_identifier: str
-    """
-    Unique identifier of the configuration model containing for the plugin.
-    """
     setup_configuration_model: type[ConfigurationModel] | None = None
     setup_configuration_step: type[BaseConfigurationStep] | None = None
 
@@ -54,7 +50,7 @@ class AbstractBasePlugin[T](ABC):
 
     def get_or_create_config(self) -> ExternalRegisterConfig:
         config, _created = ExternalRegisterConfig.objects.get_or_create(
-            identifier=self.config_identifier
+            identifier=self.identifier
         )
         return config
 
