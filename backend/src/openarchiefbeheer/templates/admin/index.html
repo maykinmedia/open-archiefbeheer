@@ -1,10 +1,13 @@
 {% extends "admin/index.html" %}
-{% load configuration_health_check static i18n %}
+{% load configuration_health_checks display_health_checks static i18n %}
+
 
 {% block sidebar %}
+{% run_health_checks as health_check_results %}
+
 <div class="admin-sidebar">
     <div class="admin-sidebar-item" id="configuration-health-check">
-        {% configuration_health_check %} 
+        {% display_health_checks health_check_results %} 
     </div>
     
     <!-- Overwriting the parent template -->
