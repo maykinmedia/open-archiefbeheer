@@ -946,3 +946,28 @@ class AbortDestructionSerializer(serializers.Serializer):
             abort_destruction=status == ListStatus.ready_to_delete,
         )
         return self.instance
+
+
+class RelatedObjectSerializer(serializers.Serializer):
+    url = serializers.URLField(
+        required=True,
+        help_text=_("The URL of the ZaakObject."),
+    )
+    selected = serializers.BooleanField(
+        default=False,
+        help_text=_(
+            "If True, Open Archiefbeheer will destroy this related object "
+            "when destroying the zaak."
+        ),
+    )
+    supported = serializers.BooleanField(
+        default=False,
+        help_text=_(
+            "If True, Open Archiefbeheer supports destroying this type "
+            "of related objects when destroying the zaak."
+        ),
+    )
+    result = serializers.JSONField(
+        required=True,
+        help_text=_("The content of the ZaakObject retrieved from Open Zaak."),
+    )

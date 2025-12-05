@@ -5,16 +5,20 @@ from drf_spectacular.views import (
     SpectacularJSONAPIView,
     SpectacularRedocView,
 )
+from maykin_health_checks.api.views import HealthChecksView
 from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView
 from openarchiefbeheer.config.api.views import (
     ApplicationInfoView,
     ArchiveConfigView,
-    HealthCheckView,
     OIDCInfoView,
 )
-from openarchiefbeheer.destruction.api.views import ListStatusesListView
+from openarchiefbeheer.config.health_checks import checks_collector
+from openarchiefbeheer.destruction.api.views import (
+    ListStatusesListView,
+    RelatedObjectsView,
+)
 from openarchiefbeheer.destruction.api.viewsets import (
     CoReviewersViewSet,
     DestructionListCoReviewViewSet,
@@ -132,10 +136,19 @@ urlpatterns = [
                     name="destruction-list-statuses",
                 ),
                 path(
+                    "destruction-list-items/<int:pk>/related_objects/",
+                    RelatedObjectsView.as_view(),
+                    name="destruction-items-relations",
+                ),
+                path(
                     "archive-config", ArchiveConfigView.as_view(), name="archive-config"
                 ),
                 path("oidc-info", OIDCInfoView.as_view(), name="oidc-info"),
-                path("health-check", HealthCheckView.as_view(), name="health-check"),
+                path(
+                    "health-check",
+                    HealthChecksView.as_view(checks_collector=checks_collector),
+                    name="health-check",
+                ),
                 path(
                     "selections/<str:key>/", SelectionView.as_view(), name="selections"
                 ),
