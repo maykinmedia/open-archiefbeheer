@@ -36,7 +36,9 @@ class TestHealthChecks(TestCase):
                 ArchiveConfigHealthCheck(),
             ]
 
-        runner = HealthChecksRunner(checks_collector=checks_collector)
+        runner = HealthChecksRunner(
+            checks_collector=checks_collector, include_success=False
+        )
         failed_checks = list(runner.run_checks())
 
         self.assertEqual(len(failed_checks), 3)

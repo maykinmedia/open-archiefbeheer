@@ -5,12 +5,12 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.external_registers.registry import register
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
-from .factories import OpenKlantConfigFactory
+from ....models import ExternalRegisterConfig
 
 
 class OpenKlantPluginTests(ClearCacheMixin, TestCase):
     def test_plugin_disabled(self):
-        config = OpenKlantConfigFactory.create()
+        config = ExternalRegisterConfig.objects.get(identifier="openklant")
         config.enabled = False
         config.save()
 
@@ -20,9 +20,8 @@ class OpenKlantPluginTests(ClearCacheMixin, TestCase):
         self.assertTrue(result.success)
 
     def test_no_services_configured(self):
-        config = OpenKlantConfigFactory.create()
+        config = ExternalRegisterConfig.objects.get(identifier="openklant")
         config.enabled = True
-        config.services.all().delete()
         config.save()
 
         plugin = register["openklant"]
@@ -33,7 +32,7 @@ class OpenKlantPluginTests(ClearCacheMixin, TestCase):
 
     def test_fully_configured(self):
         service = ServiceFactory.create()
-        config = OpenKlantConfigFactory.create()
+        config = ExternalRegisterConfig.objects.get(identifier="openklant")
         config.enabled = True
         config.services.add(service)
         config.save()
