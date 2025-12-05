@@ -2,18 +2,22 @@ from django_setup_configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import ConfigurationRunFailed
 from zgw_consumers.models import Service
 
-from ..models import OpenKlantConfig
-from .models import OpenKlantConfigurationModel
+from openarchiefbeheer.external_registers.registry import register as registry
+from openarchiefbeheer.external_registers.setup_configuration.models import (
+    ExternalRegisterConfigurationModel,
+)
 
 
-class OpenKlantConfigurationStep(BaseConfigurationStep[OpenKlantConfigurationModel]):
-    config_model = OpenKlantConfigurationModel
+class OpenKlantConfigurationStep(
+    BaseConfigurationStep[ExternalRegisterConfigurationModel]
+):
+    config_model = ExternalRegisterConfigurationModel
     enable_setting = "openklant_enabled"
     namespace = "openklant"
     verbose_name = "OpenKlant Configuration"
 
-    def execute(self, model: OpenKlantConfigurationModel) -> None:
-        config = OpenKlantConfig.get_solo()
+    def execute(self, model: ExternalRegisterConfigurationModel) -> None:
+        config = registry["openklant"].get_or_create_config()
 
         config.enabled = model.enabled
         services = Service.objects.filter(slug__in=model.services_identifiers)

@@ -1,10 +1,13 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from solo.models import SingletonModel
 
-
-class OpenKlantConfig(SingletonModel):
+class ExternalRegisterConfig(models.Model):
+    identifier = models.CharField(
+        verbose_name=_("identifier"),
+        unique=True,
+        help_text=_("Identifier that used as a reference from the plugin."),
+    )
     enabled = models.BooleanField(
         verbose_name=_("enabled"),
         default=True,
@@ -17,8 +20,6 @@ class OpenKlantConfig(SingletonModel):
         help_text=_("Services to talk to Open Klant instances."),
     )
 
-    _plugin_identifier = "openklant"
-
     class Meta:  # type: ignore
-        verbose_name = _("Open Klant plugin configuration")
-        verbose_name_plural = _("Open Klant plugin configurations")
+        verbose_name = _("External register plugin configuration")
+        verbose_name_plural = _("External register plugin configurations")
