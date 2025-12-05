@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class ExternalRegisterConfig(models.Model):
+    # This identifier is managed by the plugin and is the same
+    # as the plugin identifier
     identifier = models.CharField(
         verbose_name=_("identifier"),
         unique=True,

@@ -24,7 +24,6 @@ from .setup_configuration.steps import OpenKlantConfigurationStep
 @register(OPENKLANT_IDENTIFIER)
 class OpenKlantPlugin(AbstractBasePlugin):
     verbose_name = "Open Klant plugin"
-    config_identifier = OPENKLANT_IDENTIFIER
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = OpenKlantConfigurationStep
 
