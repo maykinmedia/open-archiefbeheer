@@ -7,6 +7,8 @@ from openarchiefbeheer.external_registers.setup_configuration.models import (
     ExternalRegisterConfigurationModel,
 )
 
+from ..constants import OPENKLANT_IDENTIFIER
+
 
 class OpenKlantConfigurationStep(
     BaseConfigurationStep[ExternalRegisterConfigurationModel]
@@ -17,7 +19,7 @@ class OpenKlantConfigurationStep(
     verbose_name = "OpenKlant Configuration"
 
     def execute(self, model: ExternalRegisterConfigurationModel) -> None:
-        config = registry["openklant"].get_or_create_config()
+        config = registry[OPENKLANT_IDENTIFIER].get_or_create_config()
 
         config.enabled = model.enabled
         services = Service.objects.filter(slug__in=model.services_identifiers)

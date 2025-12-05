@@ -12,6 +12,7 @@ from openarchiefbeheer.external_registers.setup_configuration.steps import (
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ....models import ExternalRegisterConfig
+from ..constants import OPENKLANT_IDENTIFIER
 
 TEST_FILES = (Path(__file__).parent / "files").resolve()
 CONFIG_FILE_PATH = str(TEST_FILES / "external_registers.yaml")
@@ -22,7 +23,7 @@ class ExternalRegistersConfigurationStepTests(ClearCacheMixin, TestCase):
     def test_configure_external_registers(self):
         ServiceFactory.create(slug="openklant_service1")
         ServiceFactory.create(slug="openklant_service2")
-        config = ExternalRegisterConfig.objects.get(identifier="openklant")
+        config = ExternalRegisterConfig.objects.get(identifier=OPENKLANT_IDENTIFIER)
 
         execute_single_step(
             ExternalRegisterPluginsConfigurationStep, yaml_source=CONFIG_FILE_PATH
