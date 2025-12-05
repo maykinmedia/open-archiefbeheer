@@ -1,4 +1,4 @@
-from typing import Iterable, Mapping, NoReturn
+from typing import Container, Mapping, NoReturn
 
 from django.utils.translation import gettext as _
 
@@ -10,22 +10,23 @@ from openarchiefbeheer.external_registers.plugin import (
     ServiceSlug,
 )
 from openarchiefbeheer.external_registers.registry import register
+from openarchiefbeheer.external_registers.setup_configuration.models import (
+    ExternalRegisterConfigurationModel,
+)
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
-from .models import OpenKlantConfig
-from .setup_configuration.models import OpenKlantConfigurationModel
 from .setup_configuration.steps import OpenKlantConfigurationStep
 
 
 @register("openklant")
 class OpenKlantPlugin(AbstractBasePlugin):
     verbose_name = "Open Klant plugin"
-    config = OpenKlantConfig
-    setup_configuration_model = OpenKlantConfigurationModel
+    config_identifier = "openklant"
+    setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = OpenKlantConfigurationStep
 
     def check_config(self) -> HealthCheckResult:
-        config = OpenKlantConfig.get_solo()
+        config = self.get_or_create_config()
         if not config.enabled:
             return CheckResult(
                 identifier=self.identifier,
@@ -63,7 +64,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
         raise NotImplementedError()
 
     def delete_related_resources(
-        self, zaak_url: str, excluded_resources: Iterable[str]
+        self, zaak_url: str, excluded_resources: Container[str]
     ) -> None | NoReturn:
         """Delete/Unlink the resources from the register that are related to the zaak.
 
