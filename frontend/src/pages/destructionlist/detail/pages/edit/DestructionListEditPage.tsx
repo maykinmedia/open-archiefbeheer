@@ -203,7 +203,7 @@ export function DestructionListEditPage() {
         extraFields={extraFields}
         restrictFilterChoices={isEditing ? false : "list"}
         initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
-        paginatedZaken={paginatedZaken}
+        paginatedObjectList={paginatedZaken}
         secondaryNavigationItems={secondaryNavigationItems}
         selectable={editingState}
         selectionActions={selectionActions}

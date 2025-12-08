@@ -20,11 +20,12 @@ import {
   useZaakSelection,
 } from "../../../hooks";
 import { DestructionList } from "../../../lib/api/destructionLists";
+import { PaginatedResults } from "../../../lib/api/paginatedResults";
 import { Review } from "../../../lib/api/review";
-import { PaginatedZaken } from "../../../lib/api/zaken";
 import { formatMessage } from "../../../lib/format/string";
 import {
   SessionStorageBackend,
+  ZaakIdentifier,
   ZaakSelectionBackend,
 } from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
@@ -40,7 +41,7 @@ export type BaseListViewProps<T extends Zaak = Zaak> = React.PropsWithChildren<{
 
   destructionList?: DestructionList;
   review?: Review;
-  paginatedZaken: PaginatedZaken;
+  paginatedObjectList: PaginatedResults<ZaakIdentifier>;
   secondaryNavigationItems?: ListTemplateProps["secondaryNavigationItems"];
 
   // Visible means that no checkboxes appear, but the zaken are marked if selected (via another route).
@@ -76,7 +77,7 @@ export function BaseListView<T extends Zaak = Zaak>({
 
   destructionList,
   review,
-  paginatedZaken,
+  paginatedObjectList,
   secondaryNavigationItems,
 
   selectable = true,
@@ -103,7 +104,7 @@ export function BaseListView<T extends Zaak = Zaak>({
   const [sort, setSort] = useSort();
 
   // Object list.
-  const objectList = paginatedZaken.results.map((zaak) => ({
+  const objectList = paginatedObjectList.results.map((zaak) => ({
     ...zaak,
     href: formatMessage(OAB_ZAAK_URL_TEMPLATE || "", zaak),
   })) as unknown as T[];
@@ -135,7 +136,7 @@ export function BaseListView<T extends Zaak = Zaak>({
     },
   ] = useZaakSelection(
     storageKey,
-    paginatedZaken.results,
+    paginatedObjectList.results,
     filterSelectionZaken,
     getSelectionDetail,
     selectionBackend,
@@ -241,7 +242,7 @@ export function BaseListView<T extends Zaak = Zaak>({
 
           allowSelectAllPages,
           allPagesSelected,
-          count: paginatedZaken.count,
+          count: paginatedObjectList.count,
           equalityChecker: (a, b) =>
             a && b && (a.uuid === b.uuid || a.url === b.url),
           fields: fields,
@@ -253,7 +254,10 @@ export function BaseListView<T extends Zaak = Zaak>({
           selected: selectable
             ? ([
                 ...new Map(
-                  selectedZakenOnPage.map((zaak) => [zaak["uuid"], zaak]),
+                  selectedZakenOnPage.map((zaak) => [
+                    "uuid" in zaak ? zaak["uuid"] : zaak.url.split("/").pop(), // FIXME
+                    zaak,
+                  ]),
                 ).values(),
               ] as T[])
             : [],

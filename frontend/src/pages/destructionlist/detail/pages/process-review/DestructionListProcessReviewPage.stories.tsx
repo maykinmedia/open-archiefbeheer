@@ -41,6 +41,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
+  uuid: destructionListFactory().uuid,
+  reviewResponse: null,
   storageKey: `storybook-storage-key!${meta.title}:ProcessReview`,
 
   destructionList: { ...destructionListFactory(), status: "changes_requested" },

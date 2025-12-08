@@ -3,25 +3,14 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
 import { User, whoAmI } from "../../../lib/api/auth";
-import {
-  DestructionList,
-  getDestructionList,
-} from "../../../lib/api/destructionLists";
+import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   PaginatedDestructionListItems,
   listDestructionListItems,
 } from "../../../lib/api/destructionListsItem";
 import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
-import {
-  Review,
-  ReviewItemWithZaak,
-  getLatestReview,
-  listReviewItems,
-} from "../../../lib/api/review";
-import {
-  ReviewResponse,
-  getLatestReviewResponse,
-} from "../../../lib/api/reviewResponse";
+import { Review, ReviewItemWithZaak } from "../../../lib/api/review";
+import { ReviewResponse } from "../../../lib/api/reviewResponse";
 import { PaginatedZaken, searchZaken } from "../../../lib/api/zaken";
 import {
   canViewDestructionListRequired,
@@ -29,11 +18,16 @@ import {
 } from "../../../lib/auth/loaders";
 import { cacheMemo } from "../../../lib/cache/cache";
 import { ZaakSelection, getZaakSelection } from "../../../lib/zaakSelection";
+import { getBaseDestructionListLoaderData } from "../abstract/loaderutils";
 
 export interface DestructionListDetailContext {
+  uuid: string;
   storageKey: string;
-
   destructionList: DestructionList;
+  review: Review | null;
+  reviewItems: ReviewItemWithZaak[] | null;
+  reviewResponse: ReviewResponse | null;
+
   destructionListItems: PaginatedDestructionListItems;
 
   zaakSelection?: ZaakSelection;
@@ -41,10 +35,6 @@ export interface DestructionListDetailContext {
 
   archivists: User[];
   user: User;
-
-  review: Review | null;
-  reviewItems: ReviewItemWithZaak[] | null;
-  reviewResponse?: ReviewResponse;
 
   selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }
@@ -54,61 +44,35 @@ export interface DestructionListDetailContext {
  */
 export const destructionListDetailLoader = loginRequired(
   canViewDestructionListRequired(
-    async ({
-      request,
-      params,
-    }: ActionFunctionArgs): Promise<DestructionListDetailContext> => {
-      const controller = new AbortController();
-      const abortSignal = controller.signal;
+    async (
+      actionFunctionArgs: ActionFunctionArgs,
+    ): Promise<DestructionListDetailContext> => {
+      const { request } = actionFunctionArgs;
 
-      const uuid = params.uuid as string;
-      const searchParams = Object.fromEntries(
-        new URL(request.url).searchParams,
-      );
+      const base = await getBaseDestructionListLoaderData(actionFunctionArgs);
+      const uuid = base.uuid;
+      const storageKey = base.storageKey;
+      const destructionList = base.destructionList;
+      const review = base.review;
+      const reviewItems = base.reviewItems;
 
-      // We need to fetch the destruction list first to get the status.
-      const destructionList = await getDestructionList(uuid as string);
-      const storageKey = `destruction-list-detail-${uuid}-${destructionList.status}`;
-      const isEditing = searchParams.is_editing;
-      const isInReview = destructionList.status === "changes_requested";
-      // If status indicates review: collect it.
-      const review = await getLatestReview(
-        {
-          destructionList__uuid: uuid,
-        },
-        abortSignal,
-      );
+      const searchParams = new URL(request.url).searchParams;
+      const objParams = Object.fromEntries(searchParams);
 
-      // If review collected: collect items.
-      const reviewItems = isInReview
-        ? await listReviewItems(
-            {
-              ...searchParams,
-              "item-review-review": review?.pk,
-            },
-            abortSignal,
-          )
-        : null;
-
-      // #378 - If for some unfortunate reason a zaak has been deleted outside of the process,
-      // item.zaak can be null
-      const reviewItemsWithZaak = reviewItems
-        ? (reviewItems.filter((item) => !!item.zaak) as ReviewItemWithZaak[])
-        : reviewItems;
+      const isEditing = objParams.is_editing;
 
       /**
-       * Fetch selectable zaken: empty array if review collected OR all zaken not in another destruction list.
-       * FIXME: Accept no/implement real pagination?
+       * Fetches items on the destruction list.
        */
       const getDestructionListItems =
         async (): Promise<PaginatedDestructionListItems> => {
-          const params = searchParams;
+          const params = objParams;
           if (isEditing) {
             params["item-order_match_zaken"] = "true"; // Must be in sync with `searchZaken()` ordering.
           }
-          return reviewItemsWithZaak
+          return reviewItems
             ? {
-                count: reviewItemsWithZaak.length,
+                count: reviewItems.length,
                 next: null,
                 previous: null,
                 results: [],
@@ -116,15 +80,10 @@ export const destructionListDetailLoader = loginRequired(
             : await listDestructionListItems(
                 uuid,
                 params as unknown as URLSearchParams,
-                abortSignal,
               ).catch((e) => {
                 // This happens when the user is browsing selectable zaken and exceeds
                 // the last page of the destruction list items.
-                if (
-                  searchParams.is_editing &&
-                  e instanceof Response &&
-                  e.status === 404
-                ) {
+                if (isEditing && e instanceof Response && e.status === 404) {
                   return {
                     count: 0,
                     next: null,
@@ -138,51 +97,49 @@ export const destructionListDetailLoader = loginRequired(
 
       /**
        * Fetch selectielijst choices if review collected.
-       * reviewItems ? await listSelectieLijstKlasseChoices({}) : null,
+       * // TODO: Investigate
        */
-      const getReviewItems = () =>
-        reviewItemsWithZaak
+      const getSelectieLijstKlasseChoicesMap = () =>
+        reviewItems
           ? cacheMemo(
               "selectieLijstKlasseChoicesMap",
               async () =>
                 Object.fromEntries(
                   await Promise.all(
-                    reviewItemsWithZaak.map(async (ri) => {
+                    reviewItems.map(async (ri) => {
                       const choices = await listSelectielijstKlasseChoices(
                         {
                           zaak: ri.zaak.url,
                         },
                         true,
-                        abortSignal,
                       );
                       return [ri.zaak.url, choices];
                     }),
                   ),
                 ),
               // @ts-expect-error - Params not used in function but in case key only.
-              reviewItemsWithZaak.map((ri) => ri.pk),
+              reviewItems.map((ri) => ri.pk),
             )
           : null;
 
+      /**
+       * Fetch zaken that are selectable (to add to a destruction list).
+       */
       const getSelectableZaken = () =>
-        reviewItemsWithZaak || destructionList.status === "ready_to_delete"
+        reviewItems || destructionList.status === "ready_to_delete"
           ? ({
               count: 0,
               next: null,
               previous: null,
               results: [],
             } as PaginatedZaken)
-          : searchZaken(
-              {
-                ...searchParams,
-                not_in_destruction_list_except: uuid,
-              },
-              abortSignal,
-            );
+          : searchZaken({
+              ...objParams,
+              not_in_destruction_list_except: uuid,
+            });
 
       const [
         destructionListItems,
-        reviewResponse,
         zaakSelection,
         allZaken,
         archivists,
@@ -190,18 +147,11 @@ export const destructionListDetailLoader = loginRequired(
         selectieLijstKlasseChoicesMap,
       ] = await Promise.all([
         getDestructionListItems(),
-        review &&
-          getLatestReviewResponse(
-            {
-              review: review.pk,
-            },
-            abortSignal,
-          ),
         review ? getZaakSelection(storageKey) : undefined,
         getSelectableZaken(),
-        listArchivists(abortSignal),
-        whoAmI(abortSignal),
-        getReviewItems(),
+        listArchivists(),
+        whoAmI(),
+        getSelectieLijstKlasseChoicesMap(),
       ]);
 
       // remove all the archivists that are currently as assignees
@@ -211,22 +161,14 @@ export const destructionListDetailLoader = loginRequired(
             (assignee) => assignee.user.pk === archivist.pk,
           ),
       );
+
       return {
-        storageKey,
-
-        destructionList,
-        destructionListItems: destructionListItems,
-
+        ...base,
+        destructionListItems,
         zaakSelection,
         selectableZaken: allZaken,
-
         archivists: filteredArchivists,
         user,
-
-        review: review,
-        reviewItems: reviewItemsWithZaak,
-        reviewResponse,
-
         selectieLijstKlasseChoicesMap,
       };
     },

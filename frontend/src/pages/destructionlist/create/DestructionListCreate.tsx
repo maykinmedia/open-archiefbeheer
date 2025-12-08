@@ -201,7 +201,7 @@ export function DestructionListCreatePage() {
         storageKey={DESTRUCTION_LIST_CREATE_KEY}
         title="Vernietigingslijst opstellen"
         errors={errors}
-        paginatedZaken={paginatedZaken}
+        paginatedObjectList={paginatedZaken}
         restrictFilterChoices="unassigned"
         allowSelectAllPages={true}
         selectionActions={getSelectionActions()}
