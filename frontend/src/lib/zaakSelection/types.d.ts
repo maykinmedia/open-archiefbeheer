@@ -1,10 +1,8 @@
-import type { Zaak } from "../../types";
-
 /**
  * A type describing an object with a `Zaak`'s url and optionally other `Zaak`
  * attributes.
  */
-export type ZaakIdentifier = { url: string } & Partial<Zaak>;
+export type ZaakIdentifier = { url: string };
 
 /**
  * A `Zaak.url` mapped to a `boolean`.

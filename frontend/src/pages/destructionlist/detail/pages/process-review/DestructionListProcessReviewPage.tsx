@@ -317,7 +317,7 @@ export function DestructionListProcessReviewPage() {
       review={review || undefined}
       extraFields={extraFields}
       initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
-      paginatedZaken={paginatedZaken}
+      paginatedObjectList={paginatedZaken}
       secondaryNavigationItems={secondaryNavigationItems}
       selectable="visible"
       storageKey={storageKey}

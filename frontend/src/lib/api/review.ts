@@ -63,12 +63,12 @@ export async function getLatestReview(
         destructionList__uuid?: DestructionList["uuid"];
       },
   signal?: AbortSignal,
-) {
+): Promise<Review | null> {
   const reviews = await listReviews(
     { ...params, ordering: "-created" },
     signal,
   );
-  return reviews[0];
+  return reviews[0] ?? null;
 }
 
 /**
