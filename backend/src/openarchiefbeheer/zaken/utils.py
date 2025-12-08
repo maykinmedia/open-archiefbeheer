@@ -417,6 +417,11 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     """
     client = zrc_client()
 
+    # Delete resources in external registries
+    ## TODO: implementing the exclusion of resources to delete
+    # for identifier, plugin in registry.iterate():
+    #     plugin.delete_related_resources(zaak.url, excluded_resources=[])
+
     delete_decisions_and_relation_objects(zaak, result_store)
     delete_relation_object(client, "zaak", zaak.url, result_store)
     delete_documents(result_store)

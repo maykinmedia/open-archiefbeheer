@@ -1,18 +1,15 @@
-import { Badge, Solid } from "@maykin-ui/admin-ui";
+import { Badge, Body, Solid } from "@maykin-ui/admin-ui";
 import { useLoaderData } from "react-router-dom";
 
+import { HealthCheckResult, Severity } from "../../../../lib/api/health-check";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
-import { HealthCheckSettingsPageContext } from "./HealthCheckSettingsPage.loader";
 
 /**
  * Check the health of certain services that require configuring
  */
 export function HealthCheckSettingsPage() {
-  const { errors } = useLoaderData() as HealthCheckSettingsPageContext;
-  const sortedErrors = errors.sort((a, b) => a.model.localeCompare(b.model));
-  const getSeverityBadge = (
-    severity: HealthCheckSettingsPageContext["errors"][0]["severity"],
-  ) => {
+  const failedChecks = useLoaderData() as HealthCheckResult[];
+  const getSeverityBadge = (severity: Severity) => {
     switch (severity) {
       case "error":
         return (
@@ -58,16 +55,24 @@ export function HealthCheckSettingsPage() {
     }
   };
 
+  const getFormattedCheckResults = () => {
+    const formattedResult = [];
+    for (const result of failedChecks) {
+      for (const extraInfo of result.extra || []) {
+        formattedResult.push({
+          Niveau: getSeverityBadge(extraInfo.severity),
+          Bericht: extraInfo.message || result.message,
+          Model: extraInfo.model,
+          Veld: extraInfo.field,
+        });
+      }
+    }
+    return formattedResult;
+  };
+
   return (
     <BaseSettingsView
-      dataGridProps={{
-        objectList: sortedErrors.map((error) => ({
-          Model: error.model,
-          Niveau: getSeverityBadge(error.severity),
-          Bericht: error.message,
-          Veld: error.field,
-        })),
-      }}
+      dataGridProps={{ objectList: getFormattedCheckResults() }}
       secondaryNavigationItems={[
         {
           children: (
@@ -81,6 +86,10 @@ export function HealthCheckSettingsPage() {
           href: "/admin",
         },
       ]}
-    />
+    >
+      {failedChecks.length === 0 && (
+        <Body>Geen configuratie fouten gevonden. </Body>
+      )}
+    </BaseSettingsView>
   );
 }

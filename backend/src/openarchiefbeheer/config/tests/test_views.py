@@ -9,9 +9,13 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.config.tests.factories import (
+    APIConfigFactory,
+    ArchiveConfigFactory,
+)
 
 from ..api.validators import RSIN_LENGTH
-from ..models import APIConfig, ArchiveConfig
+from ..models import ArchiveConfig
 
 
 class ArchiveConfigViews(APITestCase):
@@ -213,38 +217,25 @@ class OIDCInfoViewTests(APITestCase):
 
 class HealthCheckViewTests(APITestCase):
     def test_not_logged_in(self):
-        with (
-            patch(
-                "openarchiefbeheer.config.health_checks.APIConfig.get_solo",
-                return_value=APIConfig(),
-            ),
-            patch(
-                "openarchiefbeheer.config.health_checks.ArchiveConfig.get_solo",
-                return_value=ArchiveConfig(),
-            ),
-        ):
-            response = self.client.get(reverse("api:health-check"))
+        APIConfigFactory.create()
+        ArchiveConfigFactory.create()
+
+        response = self.client.get(reverse("api:health-check"))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_health_check(self):
         user = UserFactory.create()
         self.client.force_login(user)
+        APIConfigFactory.create()
+        ArchiveConfigFactory.create()
 
-        with (
-            patch(
-                "openarchiefbeheer.config.health_checks.APIConfig.get_solo",
-                return_value=APIConfig(),
-            ),
-            patch(
-                "openarchiefbeheer.config.health_checks.ArchiveConfig.get_solo",
-                return_value=ArchiveConfig(),
-            ),
-        ):
-            response = self.client.get(reverse("api:health-check"))
+        response = self.client.get(reverse("api:health-check"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.json()["success"])
+
+        failed_checks = response.json()
+        self.assertGreater(len(failed_checks), 0)
 
 
 @override_settings(RELEASE="1.0.0", GIT_SHA="123")
