@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 import sentry_sdk
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
+from csp.constants import SELF
 
 from .utils import config, get_git_sha, get_release, get_sentry_integrations
 
@@ -138,6 +139,7 @@ INSTALLED_APPS = [
     "privates",
     "django_setup_configuration",
     "maykin_health_checks",
+    "csp",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -167,6 +169,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "mozilla_django_oidc_db.middleware.SessionRefresh",
+    "csp.middleware.CSPMiddleware",
     # should be last according to docs
     "axes.middleware.AxesMiddleware",
     "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
@@ -683,3 +686,18 @@ SETUP_CONFIGURATION_STEPS = [
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
     "openarchiefbeheer.external_registers.setup_configuration.steps.ExternalRegisterPluginsConfigurationStep",
 ]
+
+
+#
+# Django CSP
+#
+CONTENT_SECURITY_POLICY = {
+    "EXCLUDE_URL_PREFIXES": [],
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "frame-ancestors": [SELF],
+        "form-action": [SELF],
+    },
+}
+
+CONTENT_SECURITY_POLICY_REPORT_ONLY = {}
