@@ -147,6 +147,7 @@ django==4.2.27
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-csp
     #   django-debug-toolbar
     #   django-extensions
     #   django-filter
@@ -188,6 +189,10 @@ django-axes==6.4.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
 django-cors-headers==4.3.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+django-csp==4.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -477,11 +482,12 @@ orderedmultidict==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   furl
-packaging==24.0
+packaging==25.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   build
+    #   django-csp
     #   pytest
     #   sphinx
 phonenumberslite==8.13.35
