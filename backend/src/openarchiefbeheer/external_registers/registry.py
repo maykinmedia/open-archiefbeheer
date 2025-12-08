@@ -4,13 +4,15 @@ from typing import Callable, Iterator
 from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
 
 
-class Registry[PluginT: AbstractBasePlugin]:
-    _registry: dict[str, PluginT]
+class Registry:
+    _registry: dict[str, AbstractBasePlugin]
 
     def __init__(self) -> None:
         self._registry = {}
 
-    def __call__(self, identifier: str) -> Callable[[type[PluginT]], type[PluginT]]:
+    def __call__[PluginT: AbstractBasePlugin](
+        self, identifier: str
+    ) -> Callable[[type[PluginT]], type[PluginT]]:
         def decorator(plugin_cls: type[PluginT]) -> type[PluginT]:
             if identifier in self._registry:
                 raise ValueError(
@@ -23,16 +25,16 @@ class Registry[PluginT: AbstractBasePlugin]:
 
         return decorator
 
-    def iterate(self) -> ItemsView[str, PluginT]:
+    def iterate(self) -> ItemsView[str, AbstractBasePlugin]:
         return self._registry.items()
 
-    def __getitem__(self, key: str) -> PluginT:
+    def __getitem__(self, key: str) -> AbstractBasePlugin:
         return self._registry[key]
 
     def __contains__(self, key: str) -> bool:
         return key in self._registry
 
-    def iter_automatically_configurable(self) -> Iterator[PluginT]:
+    def iter_automatically_configurable(self) -> Iterator[AbstractBasePlugin]:
         return (
             plugin
             for _identifier, plugin in self.iterate()
@@ -40,4 +42,4 @@ class Registry[PluginT: AbstractBasePlugin]:
         )
 
 
-register: Registry[AbstractBasePlugin[object]] = Registry()
+register: Registry = Registry()
