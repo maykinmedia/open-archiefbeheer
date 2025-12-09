@@ -112,7 +112,7 @@ cryptography==44.0.1
     #   webauthn
 cssselect==1.2.0
     # via pyquery
-django==4.2.26
+django==4.2.27
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -120,6 +120,7 @@ django==4.2.26
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-csp
     #   django-filter
     #   django-formtools
     #   django-health-checks
@@ -159,6 +160,10 @@ django-axes==6.4.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 django-cors-headers==4.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+django-csp==4.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -392,8 +397,11 @@ orderedmultidict==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   furl
-packaging==24.0
+packaging==25.0
     # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-csp
     #   pytest
     #   sphinx
 phonenumberslite==8.13.35
@@ -631,7 +639,7 @@ uritemplate==4.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
-urllib3==2.5.0
+urllib3==2.6.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

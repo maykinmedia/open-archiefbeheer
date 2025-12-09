@@ -1,3 +1,4 @@
+from django.test import TestCase
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -18,3 +19,12 @@ class HealthCheckTests(WebTest):
         self.assertEqual(
             len(response.html.find_all(id="configuration-health-check")), 1
         )
+
+
+class CSPHeadersAdminTests(TestCase):
+    def test_csp_headers_admin(self):
+        response = self.client.get(reverse("maykin_2fa:login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.has_header("Content-Security-Policy"))
+        self.assertIn("default-src 'self'", response.headers["Content-Security-Policy"])

@@ -55,13 +55,14 @@ cryptography==44.0.1
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
-django==4.2.26
+django==4.2.27
     # via
     #   -r requirements/base.in
     #   django-admin-index
     #   django-appconf
     #   django-axes
     #   django-cors-headers
+    #   django-csp
     #   django-filter
     #   django-formtools
     #   django-health-checks
@@ -93,6 +94,8 @@ django-appconf==1.0.6
 django-axes==6.4.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
+    # via -r requirements/base.in
+django-csp==4.0
     # via -r requirements/base.in
 django-filter==24.2
     # via -r requirements/base.in
@@ -194,6 +197,8 @@ msgspec==0.19.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
+packaging==25.0
+    # via django-csp
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 pillow==10.3.0
@@ -287,7 +292,7 @@ tzdata==2024.1
     #   kombu
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==2.5.0
+urllib3==2.6.0
     # via
     #   elastic-apm
     #   requests
