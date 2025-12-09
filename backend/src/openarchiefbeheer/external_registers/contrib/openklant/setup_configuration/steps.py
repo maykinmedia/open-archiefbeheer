@@ -22,13 +22,25 @@ class OpenKlantConfigurationStep(
         config = registry[OPENKLANT_IDENTIFIER].get_or_create_config()
 
         config.enabled = model.enabled
-        services = Service.objects.filter(slug__in=model.services_identifiers)
-        if services.count() != len(model.services_identifiers):
+        existing_services = Service.objects.filter(
+            slug__in=model.services_identifiers
+        ).values_list("slug", "id")
+        if existing_services.count():
+            existing_services_slugs, existing_services_ids = zip(
+                *existing_services, strict=True
+            )
+        else:
+            existing_services_slugs = existing_services_ids = set()
+
+        missing_services_slugs = set(model.services_identifiers) - set(
+            existing_services_slugs
+        )
+        if missing_services_slugs:
             raise ConfigurationRunFailed(
-                "Could not find all the services specified."
+                f"Missing services with slugs: {', '.join(sorted(missing_services_slugs))}."
                 " Make sure they are already configured, manually or by first running the "
                 "configuration step of `zgw_consumers`."
             )
 
-        config.services.add(*services.values_list("id", flat=True))
+        config.services.add(*existing_services_ids)
         config.save()
