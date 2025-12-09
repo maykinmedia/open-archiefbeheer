@@ -2,7 +2,10 @@ from pathlib import Path
 
 from django.test import TestCase
 
-from django_setup_configuration.exceptions import PrerequisiteFailed
+from django_setup_configuration.exceptions import (
+    ConfigurationRunFailed,
+    PrerequisiteFailed,
+)
 from django_setup_configuration.test_utils import execute_single_step
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -47,4 +50,15 @@ class ExternalRegistersConfigurationStepTests(ClearCacheMixin, TestCase):
             execute_single_step(
                 ExternalRegisterPluginsConfigurationStep,
                 yaml_source=BROKEN_CONFIG_FILE_PATH,
+            )
+
+    def test_missing_services(self):
+        with self.assertRaises(
+            ConfigurationRunFailed,
+            msg="Missing services with slugs: openklant_service1, openklant_service2."
+            " Make sure they are already configured, manually or by first running the "
+            "configuration step of `zgw_consumers`.",
+        ):
+            execute_single_step(
+                ExternalRegisterPluginsConfigurationStep, yaml_source=CONFIG_FILE_PATH
             )
