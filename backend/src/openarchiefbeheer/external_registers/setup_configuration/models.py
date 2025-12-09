@@ -1,30 +1,23 @@
-from typing import Any
-
 from django_setup_configuration import ConfigurationModel
-from django_setup_configuration.models import DjangoRefsMetaclass
+from django_setup_configuration.fields import DjangoModelRef
+from pydantic import create_model
 
-from openarchiefbeheer.external_registers.registry import register
-
-
-class PluginsRefMetaclass(DjangoRefsMetaclass):
-    def __new__(
-        cls,
-        name: str,
-        bases: tuple[type[Any], ...],
-        namespace: dict[str, Any],
-        *args,
-        **kwargs: Any,
-    ):
-        annotations = namespace.setdefault("__annotations__", {})
-
-        for plugin in register.iter_automatically_configurable():
-            namespace[plugin.identifier] = plugin.setup_configuration_model
-            annotations[plugin.identifier] = object
-
-        return super().__new__(cls, name, bases, namespace, *args, **kwargs)
+from ..models import ExternalRegisterConfig
+from ..registry import register
 
 
-class RegisterPluginConfigurationModel(
-    ConfigurationModel, metaclass=PluginsRefMetaclass
-):
-    pass
+def make_model_with_plugins() -> type[ConfigurationModel]:
+    new_fields = {}
+    for plugin in register.iter_automatically_configurable():
+        new_fields[plugin.identifier] = (plugin.setup_configuration_model, None)
+
+    return create_model(
+        "ExternalRegisterPluginConfigurationModel",
+        __base__=ConfigurationModel,
+        **new_fields,
+    )
+
+
+class ExternalRegisterConfigurationModel(ConfigurationModel):
+    enabled: bool = DjangoModelRef(ExternalRegisterConfig, "enabled")
+    services_identifiers: list[str] = DjangoModelRef(ExternalRegisterConfig, "services")
