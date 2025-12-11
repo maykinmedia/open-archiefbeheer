@@ -1,4 +1,10 @@
-import { Banner, ButtonProps, Solid, TypedField } from "@maykin-ui/admin-ui";
+import {
+  Banner,
+  ButtonProps,
+  Solid,
+  ToolbarItem,
+  TypedField,
+} from "@maykin-ui/admin-ui";
 import { useMemo } from "react";
 import {
   useNavigation,
@@ -8,95 +14,59 @@ import {
 
 import { ProcessingStatusBadge } from "../../../../../components";
 import { useSubmitAction } from "../../../../../hooks";
+import { PaginatedResults } from "../../../../../lib/api/paginatedResults";
 import { ProcessingStatus } from "../../../../../lib/api/processingStatus";
-import { PaginatedZaken } from "../../../../../lib/api/zaken";
 import { cacheDelete } from "../../../../../lib/cache/cache";
-import { paginatedDestructionListItems2paginatedZaken } from "../../../../../lib/format/destructionList";
+import {
+  DestructionDetailData,
+  paginatedDestructionListItems2paginatedDetail,
+} from "../../../../../lib/format/destructionList";
 import { getFilteredZaakSelection } from "../../../../../lib/zaakSelection";
-import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import {
   DestructionListUpdateZakenActionPayload,
   UpdateDestructionListAction,
 } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
-import { useSecondaryNavigation } from "../../hooks/useSecondaryNavigation";
-
-type DestructionListEditData = Zaak & { processingStatus: string };
+import { useSecondaryNavigation } from "../../hooks";
 
 /**
  * Show items of a destruction list.
  * Allows viewing, adding and removing destruction list items.
  */
-export function DestructionListEditPage() {
-  const { destructionList, destructionListItems, selectableZaken, storageKey } =
-    useRouteLoaderData(
-      "destruction-list:detail",
-    ) as DestructionListDetailContext;
+function DestructionListEditPage() {
+  const {
+    destructionList,
+    destructionListItems,
+    selectableZaken,
+    storageKey: loaderStorageKey,
+  } = useRouteLoaderData(
+    "destruction-list:detail",
+  ) as DestructionListDetailContext;
 
   const { state } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
   const submitAction = useSubmitAction<UpdateDestructionListAction>();
-  const secondaryNavigationItems = useSecondaryNavigation();
+  const secondaryNavigation =
+    useSecondaryNavigation<DestructionListDetailContext>();
 
   // Whether the edit mode is active.
-  const isEditing = searchParams.get("is_editing")?.toLowerCase() === "true";
-
-  // Whether the list is in edit mode.
-  const editingState = useMemo(
-    () =>
-      destructionList.status === "new" &&
-      Boolean(searchParams.get("is_editing")),
-    [destructionList.status, searchParams],
-  );
+  const isEditing =
+    destructionList.status === "new" &&
+    searchParams.get("is_editing")?.toLowerCase() === "true";
 
   // The initially select items.
   const initiallySelectedZakenOnPage = useMemo(
     () =>
-      paginatedDestructionListItems2paginatedZaken(destructionListItems)
+      paginatedDestructionListItems2paginatedDetail(destructionListItems)
         .results,
     [destructionListItems],
   );
 
-  // Whether extra fields should be rendered.
-  const extraFields: TypedField<DestructionListEditData>[] = useMemo(
-    () =>
-      !editingState && destructionList.processingStatus !== "new"
-        ? [
-            {
-              name: "processingStatus",
-              type: "string",
-              options: [
-                { label: "New", value: "new" },
-                { label: "Queued", value: "queued" },
-                { label: "Processing", value: "processing" },
-                { label: "Failed", value: "failed" },
-                { label: "Succeeded", value: "succeeded" },
-              ],
-              width: "180px",
-              valueTransform: (data) => (
-                <ProcessingStatusBadge
-                  processingStatus={data.processingStatus as ProcessingStatus}
-                />
-              ),
-            },
-          ]
-        : [],
-    [editingState, destructionList],
-  );
-
-  // DataGrid (paginated) results based on `editingState`.
-  const paginatedZaken = useMemo<PaginatedZaken>(() => {
-    if (editingState) {
-      return selectableZaken;
-    }
-    return paginatedDestructionListItems2paginatedZaken(destructionListItems);
-  }, [destructionListItems, selectableZaken, editingState]);
-
   // Selection actions based on `editingState`.
   const selectionActions: ButtonProps[] = useMemo(
     () =>
-      editingState
+      isEditing
         ? [
             {
               children: (
@@ -136,7 +106,7 @@ export function DestructionListEditPage() {
               },
             ]
           : [],
-    [editingState, state],
+    [isEditing, state],
   );
 
   /**
@@ -156,7 +126,7 @@ export function DestructionListEditPage() {
    */
   const handleUpdate = async () => {
     const zaakSelection = await getFilteredZaakSelection(
-      storageKey,
+      getStorageKey(),
       false,
       false,
     );
@@ -171,13 +141,67 @@ export function DestructionListEditPage() {
       {
         type: "UPDATE_ZAKEN",
         payload: {
-          storageKey,
+          storageKey: getStorageKey(),
           add,
           remove,
         },
       };
     submitAction(action);
   };
+
+  //
+  // Common.
+  //
+
+  /**
+   * Generates a list of extra fields for rendering or processing, based on specific conditions.
+   */
+  function getExtraFields(): TypedField<DestructionDetailData>[] {
+    return !isEditing && destructionList.processingStatus !== "new"
+      ? [
+          {
+            name: "processingStatus",
+            type: "string",
+            options: [
+              { label: "New", value: "new" },
+              { label: "Queued", value: "queued" },
+              { label: "Processing", value: "processing" },
+              { label: "Failed", value: "failed" },
+              { label: "Succeeded", value: "succeeded" },
+            ],
+            width: "180px",
+            valueTransform: (data) => (
+              <ProcessingStatusBadge
+                processingStatus={data.processingStatus as ProcessingStatus}
+              />
+            ),
+          },
+        ]
+      : [];
+  }
+
+  /**
+   * Retrieves a paginated list of objects.
+   */
+  function getPaginatedObjectList(): PaginatedResults<DestructionDetailData> {
+    return isEditing
+      ? selectableZaken
+      : paginatedDestructionListItems2paginatedDetail(destructionListItems);
+  }
+
+  /**
+   * Retrieves the secondary navigation items.
+   */
+  function getSecondaryNavigationItems(): ToolbarItem[] {
+    return secondaryNavigation;
+  }
+
+  /**
+   * A memoized callback function that retrieves the storage key.
+   */
+  function getStorageKey(): string {
+    return loaderStorageKey;
+  }
 
   return (
     <>
@@ -198,17 +222,21 @@ export function DestructionListEditPage() {
             }
           />
         )}
-      <BaseListView<DestructionListEditData>
+      <BaseListView<DestructionDetailData>
+        // Common
         destructionList={destructionList}
-        extraFields={extraFields}
-        restrictFilterChoices={isEditing ? false : "list"}
+        extraFields={getExtraFields()}
+        paginatedObjectList={getPaginatedObjectList()}
+        secondaryNavigationItems={getSecondaryNavigationItems()}
+        storageKey={getStorageKey()}
+        // Specific
         initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
-        paginatedObjectList={paginatedZaken}
-        secondaryNavigationItems={secondaryNavigationItems}
-        selectable={editingState}
+        restrictFilterChoices={isEditing ? false : "list"}
+        selectable={isEditing}
         selectionActions={selectionActions}
-        storageKey={storageKey}
       ></BaseListView>
     </>
   );
 }
+
+export default DestructionListEditPage;

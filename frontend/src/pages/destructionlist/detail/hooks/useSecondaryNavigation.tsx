@@ -6,6 +6,7 @@ import {
   useFormDialog,
   usePrompt,
 } from "@maykin-ui/admin-ui";
+import { invariant } from "@maykin-ui/client-common";
 import { useContext, useMemo } from "react";
 import { useNavigation, useRouteLoaderData } from "react-router-dom";
 
@@ -15,21 +16,31 @@ import {
 } from "../../../../components";
 import { ZaakSelectionContext } from "../../../../contexts";
 import { useSubmitAction } from "../../../../hooks";
+import { User } from "../../../../lib/api/auth";
+import { DestructionList } from "../../../../lib/api/destructionLists";
+import { DestructionListItem } from "../../../../lib/api/destructionListsItem";
+import { PaginatedResults } from "../../../../lib/api/paginatedResults";
+import { Review, ReviewItem, ZaakReview } from "../../../../lib/api/review";
 import { ReviewItemResponse } from "../../../../lib/api/reviewResponse";
 import {
   DestructionListPermissionCheck,
+  canCoReviewDestructionList,
   canDeleteDestructionList,
   canMarkAsReadyToReview,
   canMarkListAsFinal,
+  canReviewDestructionList,
   canTriggerDestruction,
 } from "../../../../lib/auth/permissions";
 import { formatUser } from "../../../../lib/format/user";
-import { getFilteredZaakSelection } from "../../../../lib/zaakSelection";
+import {
+  ZaakSelection,
+  getFilteredZaakSelection,
+} from "../../../../lib/zaakSelection";
+import { ReviewDestructionListAction } from "../../review";
 import {
   UpdateDestructionListAction,
   UpdateDestructionListProcessReviewAction,
 } from "../DestructionListDetail.action";
-import { DestructionListDetailContext } from "../DestructionListDetail.loader";
 import { ProcessReviewAction } from "../pages/process-review/components";
 
 interface ProcessZaakReviewSelectionDetail {
@@ -48,11 +59,29 @@ type DestructionListNameFormType = {
   name: string;
 };
 
+type SecondaryNavigationContext = {
+  storageKey: string;
+  destructionList: DestructionList;
+  destructionListItems?: PaginatedResults<DestructionListItem>;
+  user: User;
+  archivists?: User[];
+  review?: Review | null;
+  reviewItems?: ReviewItem[] | null;
+};
+
 /**
  * Returns the items to show in the secondary navigation (top bar) and provides
  * the associated callbacks.
  */
-export function useSecondaryNavigation(): ToolbarItem[] {
+export function useSecondaryNavigation<
+  Context extends SecondaryNavigationContext,
+>(
+  routeId = "destruction-list:detail",
+  excludedZaakSelection?: ZaakSelection<{
+    approved: boolean;
+    comment: string;
+  }>,
+): ToolbarItem[] {
   const { state } = useNavigation();
   const {
     storageKey,
@@ -62,14 +91,14 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     archivists,
     review,
     reviewItems,
-  } = useRouteLoaderData(
-    "destruction-list:detail",
-  ) as DestructionListDetailContext;
+  } = useRouteLoaderData(routeId) as Context;
   const confirm = useConfirm();
   const prompt = usePrompt();
   const formDialog = useFormDialog();
 
-  const submitAction = useSubmitAction<UpdateDestructionListAction>();
+  const submitAction = useSubmitAction<
+    UpdateDestructionListAction | ReviewDestructionListAction
+  >();
   const { selectionSize } = useContext(ZaakSelectionContext);
 
   /**
@@ -188,7 +217,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     });
   };
 
-  const BUTTON_PROCESS_REVIEW: ToolbarItem = {
+  const BUTTON_PROCESS_REVIEW: ToolbarItem = destructionListItems && {
     children: (
       <>
         <Solid.DocumentArrowUpIcon />
@@ -215,6 +244,8 @@ export function useSecondaryNavigation(): ToolbarItem[] {
    * Gets called when the destruction list feedback is submitted.
    */
   const handleProcessReview = async (comment: string) => {
+    invariant(reviewItems, "review is undefined!");
+    invariant(reviewItems, "reviewItems is undefined!");
     const zaakSelection = await getFilteredZaakSelection(storageKey);
 
     console.assert(
@@ -232,7 +263,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
           comment: comment as string,
           itemsResponses:
             reviewItems?.map<ReviewItemResponse>((ri) => {
-              const detail = zaakSelection[ri.zaak.url || ""]
+              const detail = zaakSelection[ri.zaak?.url || ""]
                 ?.detail as ProcessZaakReviewSelectionDetail;
 
               return {
@@ -264,7 +295,129 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     submitAction(actionData);
   };
 
-  const BUTTON_MAKE_FINAL: ToolbarItem = {
+  const BUTTON_CO_REVIEW: ToolbarItem = {
+    children: (
+      <>
+        <Solid.CheckCircleIcon />
+        Medebeoordeling afronden
+      </>
+    ),
+    pad: "h",
+    variant: "primary",
+    onClick: () => handleCompleteCoReview(),
+  };
+
+  /**
+   * Gets called when the co-reviewer completes reviewing the destruction list.
+   */
+  function handleCompleteCoReview() {
+    prompt(
+      `Medebeoordeling afronden`,
+      `U staat op het punt om de medebeoordeling voor vernietigingslijst ${destructionList.name} af te ronden, wilt u doorgaan?`,
+      "Opmerking",
+      "Medebeoordeling afronden",
+      "Annuleren",
+      (comment) => {
+        submitAction({
+          type: "COMPLETE_CO_REVIEW",
+          payload: {
+            comment,
+            destructionList: destructionList.uuid,
+          },
+        });
+      },
+    );
+  }
+
+  const BUTTON_UPDATE_APPROVAL: ToolbarItem = excludedZaakSelection
+    ? !Object.keys(excludedZaakSelection).length
+      ? {
+          children: (
+            <>
+              <Solid.HandThumbUpIcon />
+              Goedkeuren
+            </>
+          ),
+          pad: "h",
+          variant: "primary",
+          onClick: () => handleApproveList(),
+        }
+      : {
+          children: (
+            <>
+              <Solid.HandThumbDownIcon />
+              Afwijzen
+            </>
+          ),
+          pad: "h",
+          variant: "danger",
+          onClick: () => handleRejectList(),
+        }
+    : null;
+
+  /**
+   * Gets called when the user approves the destruction list.
+   */
+  function handleApproveList() {
+    prompt(
+      `${destructionList.name} goedkeuren`,
+      `U staat op het punt om vernietigingslijst ${destructionList.name} goed te keuren, wilt u doorgaan?`,
+      "Opmerking",
+      "Vernietigingslijst goedkeuren",
+      "Annuleren",
+      (comment) => {
+        submitAction({
+          type: "APPROVE_LIST",
+          payload: {
+            comment,
+            destructionList: destructionList.uuid,
+            status: destructionList.status,
+          },
+        });
+      },
+    );
+  }
+
+  /**
+   * Gets called when the user reject the destruction list.
+   */
+  function handleRejectList() {
+    prompt(
+      `${destructionList.name} afwijzen`,
+      undefined,
+      "Reden",
+      "Vernietigingslijst afwijzen",
+      "Annuleren",
+      (comment) => {
+        const zaakReviews = getExcludedZaakReviews();
+
+        submitAction({
+          type: "REJECT_LIST",
+          payload: {
+            comment,
+            destructionList: destructionList.uuid,
+            status: destructionList.status,
+            zaakReviews,
+          },
+        });
+      },
+    );
+  }
+
+  /**
+   * Returns `ZaakReview[]` of excluded zaken.
+   * `approved`.
+   */
+  function getExcludedZaakReviews(): ZaakReview[] {
+    invariant(excludedZaakSelection, "excludedZaakSelection is undefined!");
+    const entries = Object.entries(excludedZaakSelection);
+    return entries.map(([zaakUrl, selection]) => ({
+      zaakUrl,
+      feedback: selection.detail?.comment as string,
+    }));
+  }
+
+  const BUTTON_MAKE_FINAL: ToolbarItem = archivists && {
     children: (
       <>
         <Solid.KeyIcon />
@@ -322,7 +475,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     });
   };
 
-  const BUTTON_DESTROY: ToolbarItem = {
+  const BUTTON_DESTROY: ToolbarItem = destructionListItems && {
     bold: true,
     children: (
       <>
@@ -391,7 +544,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
     });
   };
 
-  const BUTTON_CANCEL_DESTROY: ToolbarItem = {
+  const BUTTON_CANCEL_DESTROY: ToolbarItem = destructionListItems && {
     bold: true,
     children: (
       <>
@@ -475,7 +628,7 @@ export function useSecondaryNavigation(): ToolbarItem[] {
 
       getPermittedToolbarItem(
         BUTTON_ABORT_PROCESS,
-        (user, destructionList) =>
+        (_, destructionList) =>
           destructionList.status !== "new" &&
           destructionList.status !== "deleted" &&
           !isPlannedForDestruction(),
@@ -487,6 +640,16 @@ export function useSecondaryNavigation(): ToolbarItem[] {
         (user, destructionList) =>
           canMarkAsReadyToReview(user, destructionList) &&
           destructionList.status === "changes_requested",
+      ),
+
+      // Status: "ready_to_review" (co-review)
+      getPermittedToolbarItem(BUTTON_CO_REVIEW, canCoReviewDestructionList),
+      // Status: "ready_to_review" (review)
+      getPermittedToolbarItem(
+        BUTTON_UPDATE_APPROVAL,
+        (user, destructionList) =>
+          typeof excludedZaakSelection !== "undefined" &&
+          canReviewDestructionList(user, destructionList),
       ),
 
       // Status: "internally_reviewed": "Markeren als definitief"
@@ -504,5 +667,5 @@ export function useSecondaryNavigation(): ToolbarItem[] {
       // Status: "ready_to_delete"
       getPermittedToolbarItem(BUTTON_CANCEL_DESTROY, isPlannedForDestruction),
     ];
-  }, [user, destructionList, selectionSize]);
+  }, [excludedZaakSelection, user, destructionList, selectionSize]);
 }

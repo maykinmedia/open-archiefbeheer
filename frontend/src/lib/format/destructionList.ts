@@ -1,17 +1,32 @@
+import { invariant } from "@maykin-ui/client-common";
+
+import { Zaak } from "../../types";
 import { PaginatedDestructionListItems } from "../api/destructionListsItem";
-import { PaginatedZaken } from "../api/zaken";
+import { PaginatedResults } from "../api/paginatedResults";
+
+export type DestructionDetailData = Zaak & { processingStatus?: string };
 
 /**
- * Converts `PaginatedDestructionListItems` to `PaginatedZaken`.
+ * Transforms a PaginatedDestructionListItems object into a PaginatedResults object
+ * containing DestructionDetailData entries. Filters out items without a valid `zaak`
+ * and maps the remaining items to include `zaak` data along with its associated
+ * `processingStatus`.
  */
-export function paginatedDestructionListItems2paginatedZaken(
+export function paginatedDestructionListItems2paginatedDetail(
   paginatedDestructionListItems: PaginatedDestructionListItems,
-): PaginatedZaken {
+): PaginatedResults<DestructionDetailData> {
   return {
     ...paginatedDestructionListItems,
     results: paginatedDestructionListItems.results
-      .map((dli) => ({ ...dli.zaak, processingStatus: dli.processingStatus }))
-      // @ts-expect-error - FIXME: Adding "processingStatus" to zaak.
-      .filter((v): v is Zaak => Boolean(v)) as Zaak[],
+      .filter((dli) => Boolean(dli.zaak))
+      .map((dli) => {
+        const zaak = dli.zaak;
+        invariant(zaak, "zaak must be a valid Zaak!");
+
+        return {
+          ...zaak,
+          processingStatus: dli.processingStatus,
+        };
+      }),
   };
 }

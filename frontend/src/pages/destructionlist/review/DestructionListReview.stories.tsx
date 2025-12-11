@@ -62,6 +62,23 @@ const DESTRUCTION_LIST = destructionListFactory({
   ],
 });
 
+/**
+ * Removes items from sessionStorage with keys starting with "oab.".
+ * Logs the removal of each item to the console.
+ *
+ * This complements `ClearSessionStorageDecorator`.
+ */
+function cleanUp() {
+  Object.keys(sessionStorage)
+    .filter((key) => key.startsWith("oab."))
+    .forEach((key) => {
+      console.info(
+        `destructionListReview.stories.tsx.meta: removing item "${key}"`,
+      );
+      sessionStorage.removeItem(key);
+    });
+}
+
 const meta: Meta<typeof DestructionListReviewPage> = {
   title: "Pages/DestructionList/DestructionListReviewPage",
   component: DestructionListReviewPage,
@@ -69,6 +86,7 @@ const meta: Meta<typeof DestructionListReviewPage> = {
   parameters: {
     reactRouterDecorator: {
       route: {
+        id: "destruction-list:review",
         loader: destructionListReviewLoader,
         action: destructionListReviewAction,
       },
@@ -173,6 +191,8 @@ const meta: Meta<typeof DestructionListReviewPage> = {
       },
     ],
   },
+  beforeEach: cleanUp,
+  afterEach: cleanUp,
 };
 
 export default meta;

@@ -131,6 +131,7 @@ const router = createBrowserRouter([
             },
           },
           {
+            id: "destruction-list:review",
             path: "review",
             loader: destructionListReviewLoader,
             element: <DestructionListReviewPage />,
