@@ -6,6 +6,7 @@ import {
   Solid,
   TypedField,
 } from "@maykin-ui/admin-ui";
+import { distinctArray } from "@maykin-ui/client-common";
 import React, { useCallback, useMemo, useRef } from "react";
 import { useNavigation } from "react-router-dom";
 
@@ -251,16 +252,7 @@ export function BaseListView<T extends Zaak = Zaak>({
           objectList: objectList,
           page,
           sort: sortable && sort,
-          selected: selectable
-            ? ([
-                ...new Map(
-                  selectedZakenOnPage.map((zaak) => [
-                    "uuid" in zaak ? zaak["uuid"] : zaak.url.split("/").pop(), // FIXME
-                    zaak,
-                  ]),
-                ).values(),
-              ] as T[])
-            : [],
+          selected: selectable ? distinctArray(selectedZakenOnPage, "url") : [],
           selectionActions: getSelectionActions(),
           onFieldsChange: setFields,
           onFilter: (rowData) => {
