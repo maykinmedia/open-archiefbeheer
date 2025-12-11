@@ -1,5 +1,5 @@
 import { AttributeTable, Badge, Solid, Tooltip } from "@maykin-ui/admin-ui";
-import React, { useMemo } from "react";
+import { JSX, useMemo } from "react";
 
 import { DestructionListItem } from "../lib/api/destructionListsItem";
 import { ZaakSelection } from "../lib/zaakSelection";
@@ -22,7 +22,7 @@ export function useZaakReviewStatusBadges(
     comment: string;
   }>,
   reviewAdviceIgnoredResults: Record<string, boolean>, // Map of reviewAdviceIgnored
-): Record<string, { badge: React.ReactNode; status: ZAAK_REVIEW_STATUS_ENUM }> {
+): Record<string, { badge: JSX.Element; status: ZAAK_REVIEW_STATUS_ENUM }> {
   const filteredDestructionListItems = useMemo(
     () =>
       destructionListItems.filter(

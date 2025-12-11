@@ -18,7 +18,7 @@ import {
 } from "../../../../../fixtures";
 import { destructionListUpdateAction } from "../../DestructionListDetail.action";
 import { destructionListDetailLoader } from "../../DestructionListDetail.loader";
-import { DestructionListEditPage } from "./DestructionListEditPage";
+import DestructionListEditPage from "./DestructionListEditPage";
 
 const meta: Meta<typeof DestructionListEditPage> = {
   title: "Pages/DestructionList/DestructionListEditPage",

@@ -1,27 +1,20 @@
 import {
-  ButtonProps,
   P,
   Solid,
   Toolbar,
+  TypedField,
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
-import { JSX, useMemo } from "react";
+import { JSX } from "react";
 import { useLoaderData } from "react-router-dom";
 
 import {
   usePoll,
-  useSubmitAction,
   useZaakReviewStatusBadges,
   useZaakSelection,
 } from "../../../hooks";
-import { useDataFetcher } from "../../../hooks/useDataFetcher";
-import { whoAmI } from "../../../lib/api/auth";
-import { ZaakReview } from "../../../lib/api/review";
-import {
-  canCoReviewDestructionList,
-  canReviewDestructionList,
-} from "../../../lib/auth/permissions";
+import { PaginatedResults } from "../../../lib/api/paginatedResults";
 import {
   RestBackend,
   ZaakIdentifier,
@@ -33,7 +26,7 @@ import {
 } from "../../../lib/zaakSelection";
 import { Zaak } from "../../../types";
 import { BaseListView } from "../abstract";
-import { ReviewDestructionListAction } from "./DestructionListReview.action";
+import { useSecondaryNavigation } from "../detail/hooks";
 import "./DestructionListReview.css";
 import { DestructionListReviewContext } from "./DestructionListReview.loader";
 
@@ -49,6 +42,11 @@ export const getDestructionListReviewKey = (id: string, status: string) =>
 export const CO_REVIEW_POLL_INTERVAL = parseInt(
   import.meta.env.OAB_CO_REVIEW_POLL_INTERVAL || 3000,
 );
+
+type DestructionListReviewData = Zaak & {
+  Beoordeling?: JSX.Element;
+  Acties?: JSX.Element;
+};
 
 /**
  * Review-destruction-list page
@@ -66,19 +64,10 @@ export function DestructionListReviewPage() {
     reviewItems,
     reviewResponse,
   } = useLoaderData() as DestructionListReviewContext;
+
   const zakenResults = paginatedZaken.results
     .map((zaak) => zaak.zaak)
     .filter((zaak) => zaak !== null) as Zaak[];
-
-  const { data: user } = useDataFetcher(
-    (signal) => whoAmI(signal),
-    {
-      errorMessage:
-        "Er is een fout opgetreden bij het ophalen van de huidige gebruiker!",
-      initialState: null,
-    },
-    [],
-  );
 
   // Don't use the BaseListView zaak selection due to conflicting requirements, use custom implementation instead.
   const [
@@ -145,6 +134,13 @@ export function DestructionListReviewPage() {
     ),
   );
 
+  // Get secondary navigation items.
+  const secondaryNavigation =
+    useSecondaryNavigation<DestructionListReviewContext>(
+      "destruction-list:review",
+      excludedZaakSelection,
+    );
+
   const reviewAdviceIgnoredResults = Object.fromEntries(
     paginatedZaken.results.map((result) => [
       result.zaak?.url as string,
@@ -152,7 +148,6 @@ export function DestructionListReviewPage() {
     ]),
   );
 
-  const submitAction = useSubmitAction<ReviewDestructionListAction>();
   const destructionListReviewKey = getDestructionListReviewKey(
     uuid,
     destructionList.status,
@@ -165,26 +160,6 @@ export function DestructionListReviewPage() {
       ...excludedZaakSelection,
     },
     reviewAdviceIgnoredResults,
-  );
-
-  // The object list of the current page with review actions appended.
-  const objectList = useMemo(() => {
-    return zakenResults.map((zaak) => {
-      const badge = zaakReviewStatusBadges[zaak.url as string].badge;
-      const actions = getActionsToolbarForZaak(zaak);
-      return { ...zaak, Beoordeling: badge, Acties: actions };
-    });
-  }, [
-    zakenResults,
-    zaakReviewStatusBadges,
-    reviewItems,
-    excludedZaakSelection,
-  ]);
-
-  // The paginated object list of the current page with review actions appended.
-  const paginatedObjectList = Object.assign(
-    { ...paginatedZaken },
-    { results: objectList },
   );
 
   /**
@@ -230,71 +205,6 @@ export function DestructionListReviewPage() {
   }
 
   /**
-   * Returns the button to show in the secondary navigation (top bar).
-   */
-  function getSubmitDestructionListButton(): ButtonProps | null {
-    const isReview = user && canReviewDestructionList(user, destructionList);
-    const isCoReview =
-      !isReview && user && canCoReviewDestructionList(user, destructionList);
-
-    if (!isReview && !isCoReview) {
-      return null;
-    }
-
-    if (isCoReview) {
-      return {
-        children: (
-          <>
-            <Solid.CheckCircleIcon />
-            Medebeoordeling afronden
-          </>
-        ),
-        pad: "h",
-        variant: "primary",
-        onClick: () => handleCompleteCoReview(),
-      };
-    }
-
-    if (Object.keys(excludedZaakSelection).length) {
-      return {
-        children: (
-          <>
-            <Solid.HandThumbDownIcon />
-            Afwijzen
-          </>
-        ),
-        pad: "h",
-        variant: "danger",
-        onClick: () => handleRejectList(),
-      };
-    } else {
-      return {
-        children: (
-          <>
-            <Solid.HandThumbUpIcon />
-            Goedkeuren
-          </>
-        ),
-        pad: "h",
-        variant: "primary",
-        onClick: () => handleApproveList(),
-      };
-    }
-  }
-
-  /**
-   * Returns `ZaakReview[]` of excluded zaken.
-   * `approved`.
-   */
-  function getExcludedZaakReviews(): ZaakReview[] {
-    const entries = Object.entries(excludedZaakSelection);
-    return entries.map(([zaakUrl, selection]) => ({
-      zaakUrl,
-      feedback: selection.detail?.comment as string,
-    }));
-  }
-
-  /**
    * Gets called when a zaak is approved.
    * @param zaak
    */
@@ -330,77 +240,6 @@ export function DestructionListReviewPage() {
           approved: false,
           comment,
         }),
-    );
-  }
-
-  /**
-   * Gets called when the user reject the destruction list.
-   */
-  function handleRejectList() {
-    prompt(
-      `${destructionList.name} afwijzen`,
-      undefined,
-      "Reden",
-      "Vernietigingslijst afwijzen",
-      "Annuleren",
-      (comment) => {
-        const zaakReviews = getExcludedZaakReviews();
-
-        submitAction({
-          type: "REJECT_LIST",
-          payload: {
-            comment,
-            destructionList: uuid,
-            status: destructionList.status,
-            zaakReviews,
-          },
-        });
-      },
-    );
-  }
-
-  /**
-   * Gets called when the user approves the destruction list.
-   */
-  function handleApproveList() {
-    prompt(
-      `${destructionList.name} goedkeuren`,
-      `U staat op het punt om vernietigingslijst ${destructionList.name} goed te keuren, wilt u doorgaan?`,
-      "Opmerking",
-      "Vernietigingslijst goedkeuren",
-      "Annuleren",
-      (comment) => {
-        submitAction({
-          type: "APPROVE_LIST",
-          payload: {
-            comment,
-            destructionList: uuid,
-            status: destructionList.status,
-          },
-        });
-      },
-    );
-  }
-
-  /**
-   * Gets called when the co-reviewer completes reviewing the destruction list.
-   */
-  function handleCompleteCoReview() {
-    prompt(
-      `Medebeoordeling afronden`,
-      `U staat op het punt om de medebeoordeling voor vernietigingslijst ${destructionList.name} af te ronden, wilt u doorgaan?`,
-      "Opmerking",
-      "Medebeoordeling afronden",
-      "Annuleren",
-      (comment) => {
-        submitAction({
-          type: "COMPLETE_CO_REVIEW",
-          payload: {
-            comment,
-            destructionList: uuid,
-          },
-        });
-      },
     );
   }
 
@@ -506,21 +345,61 @@ export function DestructionListReviewPage() {
     return { approved, comment: "" };
   }
 
+  //
+  // Common.
+  //
+
+  /**
+   * Generates a list of extra fields for rendering or processing, based on specific conditions.
+   */
+  function getExtraFields(): TypedField<DestructionListReviewData>[] {
+    return [
+      { name: "Beoordeling", type: "text" },
+      { name: "Acties", type: "text", width: "230px" },
+    ];
+  }
+
+  /**
+   * Retrieves a paginated list of objects.
+   */
+  function getPaginatedObjectList(): PaginatedResults<DestructionListReviewData> {
+    const objectList = zakenResults.map((zaak) => {
+      const badge = zaakReviewStatusBadges[zaak.url].badge;
+      const actions = getActionsToolbarForZaak(zaak);
+      return { ...zaak, Beoordeling: badge, Acties: actions };
+    });
+
+    return { ...paginatedZaken, results: objectList };
+  }
+
+  /**
+   * Retrieves the secondary navigation items.
+   */
+  function getSecondaryNavigationItems() {
+    return secondaryNavigation;
+  }
+
+  /**
+   * A memoized callback function that retrieves the storage key.
+   */
+  function getStorageKey(): string {
+    return destructionListReviewKey;
+  }
+
   return (
-    <BaseListView<Zaak & { Beoordeling?: string; Acties?: JSX.Element }>
-      storageKey={destructionListReviewKey}
+    <BaseListView<DestructionListReviewData>
+      // Common
       destructionList={destructionList}
-      paginatedObjectList={paginatedObjectList}
-      secondaryNavigationItems={[getSubmitDestructionListButton()]}
-      extraFields={[
-        { name: "Beoordeling", type: "text" },
-        { name: "Acties", type: "text", width: "230px" },
-      ]}
+      extraFields={getExtraFields()}
+      paginatedObjectList={getPaginatedObjectList()}
+      secondaryNavigationItems={getSecondaryNavigationItems()}
+      storageKey={getStorageKey()}
+      // Specific
       dataGridProps={{
         labelSelect: "Markeren als (on)gezien",
         labelSelectAll: "Alles als (on)gezien markeren",
-        onSelect: handleSelect,
         selected: selectedZakenOnPage as Zaak[],
+        onSelect: handleSelect,
       }}
       selectionBackend={null}
       onClearZaakSelection={clearZaakSelection}
