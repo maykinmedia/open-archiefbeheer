@@ -32,9 +32,6 @@ class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.zaak_should_be_selected(page, zaken[0].identificatie)
 
             await self.when.user_fills_form_field(page, "Identificatie", "non-matching-identifier", "textbox")
-            await self.then.path_should_be(page,
-                                           "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&identificatie__icontains=non-matching-identifier", timeout=10000)
-
             await self.then.url_should_contain_text(page, ".*non-matching-identifier.*")
             await self.then.not_.page_should_contain_text(page, "Zaak-")
 

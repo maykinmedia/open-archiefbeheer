@@ -648,6 +648,7 @@ class GerkinMixin:
 
         async def _user_clicks(self, role: str, page: Page, name: str, index=0):
             await page.wait_for_load_state("networkidle")
+
             locator = page.get_by_role(role, name=name, exact=False)
             await locator.first.wait_for()
             elements = await locator.all()
