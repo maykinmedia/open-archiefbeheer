@@ -73,8 +73,8 @@ class OpenZaakDataCreationHelper:
 
         data: Mapping[str, JSONEncodable] = {
             "zaaktype": zaaktype_url,
-            "bronorganisatie": "000000000",
-            "verantwoordelijkeOrganisatie": "000000000",
+            "bronorganisatie": "123456782",
+            "verantwoordelijkeOrganisatie": "123456782",
             "startdatum": "2000-01-01",
             "archiefnominatie": "vernietigen",
             "archiefactiedatum": "2020-01-01",
@@ -111,7 +111,6 @@ class OpenZaakDataCreationHelper:
     def create_zaaktype_with_relations(
         self,
         catalogus_url: str = "",
-        objecttype_url: str = "",
         **zaaktype_overrides: Mapping[str, JSONEncodable],
     ) -> ZaaktypeWithRelations:
         zaaktype = self.create_zaaktype(catalogus_url, **zaaktype_overrides)
@@ -139,16 +138,6 @@ class OpenZaakDataCreationHelper:
         with ztc_client(self.ztc_service_slug) as client:
             uuid = furl(zaaktype_url).path.segments[-1]
             response = client.post(f"zaaktypen/{uuid}/publish")
-
-            if response.status_code == 400:
-                raise Exception(response.json())
-
-            response.raise_for_status()
-
-    def publish_informatieobjecttype(self, informatieobjecttype_url: str) -> None:
-        with ztc_client(self.ztc_service_slug) as client:
-            uuid = furl(informatieobjecttype_url).path.segments[-1]
-            response = client.post(f"informatieobjecttypen/{uuid}/publish")
 
             if response.status_code == 400:
                 raise Exception(response.json())
