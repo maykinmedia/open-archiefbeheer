@@ -259,7 +259,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ matrix.browser }}-playwright-trace.zip
+          name: ${{ matrix.browser }}-features-playwright-trace.zip
           path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
           retention-days: 1
           if-no-files-found: error
@@ -364,7 +364,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: ${{ matrix.browser }}-playwright-trace.zip
+          name: ${{ matrix.browser }}-issue-playwright-trace.zip
           path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
           retention-days: 1
           if-no-files-found: error

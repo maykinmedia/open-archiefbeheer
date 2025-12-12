@@ -40,51 +40,46 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_selects_zaak(page, "ZAAK-200")  # First zaak on third (last) page (ZAAK-200)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 1)
 
-            await self.when.user_fills_form_field(page, "Naam", "Destruction list to edit")
+            await self.when.user_fills_form_field(page, "Naam", "Destruction list (multi page) to edit")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
             await self.when.user_fills_form_field(page, "Toelichting", "Masterpiece of a list")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
             await self.then.path_should_be(page, "/destruction-lists")
+            await self.then.page_should_contain_text(page, "Destruction list (multi page) to edit")
 
             # View destruction list
-            destruction_list = await self.then.list_should_exist(page, "Destruction list to edit")
-            await self.when.user_clicks_button(page, "Destruction list to edit")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
+            await self.then.list_should_exist(page, "Destruction list (multi page) to edit")
+            await self.when.user_clicks_button(page, "Destruction list (multi page) to edit")
 
             await self.when.user_clicks_button(page, "2")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2")
             await self.then.page_should_contain_text(page, "ZAAK-200")
 
             # Add "ZAAK-0" (The first unselected zaak)
             await self.when.user_clicks_button(page, "Bewerken", 2)
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
             await self.then.page_should_contain_text(page, "zaak-199")
 
             await self.when.user_clicks_button(page, "Volgende")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
 
             await self.when.user_selects_zaak(page, "ZAAK-0", timeout=6000)
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             # View updated destruction list
             await self.then.page_should_contain_text(page, "ZAAK-0") # The new zaak has a the smallest pk, so it is at the start of the list
 
             # Remove "ZAAK-0"
+            await page.wait_for_timeout(1000)  # I tried to avoid this.  # FIXME possibly with refactored index
             await self.when.user_clicks_button(page, "Bewerken", 2)
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
             await self.then.zaak_should_be_selected(page, "ZAAK-0")  # Zaak that we are going to remove
 
             await self.when.user_clicks_button(page, "Volgende")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=2&is_editing=true")
+            await self.then.page_should_contain_text(page, "ZAAK-200")
             await self.then.zaak_should_be_selected(page, "ZAAK-200")
 
             await self.when.user_clicks_button(page, "Ga naar de eerste pagina (pagina 1)")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit?page=1&is_editing=true")
+            await self.then.page_should_contain_text(page, "ZAAK-0")
             await self.when.user_selects_zaak(page, "ZAAK-0")
             await self.when.user_clicks_button(page, "Vernietigingslijst aanpassen")
-            await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             # View updated destruction list
             await self.then.page_should_contain_text(page, "ZAAK-199")

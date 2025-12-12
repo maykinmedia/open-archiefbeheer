@@ -21,12 +21,13 @@ import { ZaakSelection, getZaakSelection } from "../../../lib/zaakSelection";
 import { getBaseDestructionListLoaderData } from "../abstract/loaderutils";
 
 export interface DestructionListDetailContext {
-  uuid: string;
-  storageKey: string;
   destructionList: DestructionList;
-  review: Review | null;
+  review?: Review | null;
   reviewItems: ReviewItemWithZaak[] | null;
   reviewResponse: ReviewResponse | null;
+  storageKey: string;
+  user: User;
+  uuid: string;
 
   destructionListItems: PaginatedDestructionListItems;
 
@@ -34,7 +35,6 @@ export interface DestructionListDetailContext {
   selectableZaken: PaginatedZaken;
 
   archivists: User[];
-  user: User;
 
   selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
 }

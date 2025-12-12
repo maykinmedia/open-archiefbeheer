@@ -4,6 +4,7 @@ import {
   Outline,
   Solid,
   Toolbar,
+  ToolbarItem,
   Tooltip,
   TypedField,
 } from "@maykin-ui/admin-ui";
@@ -11,8 +12,8 @@ import { JSX, useMemo, useState } from "react";
 import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
-import { PaginatedZaken } from "../../../../../lib/api/zaken";
-import { paginatedDestructionListItems2paginatedZaken } from "../../../../../lib/format/destructionList";
+import { PaginatedResults } from "../../../../../lib/api/paginatedResults";
+import { paginatedDestructionListItems2paginatedDetail } from "../../../../../lib/format/destructionList";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
@@ -37,9 +38,11 @@ type ProcessZaakReviewSelectionDetail = {
 
 type ReviewMeta = {
   Opmerking: string;
-  Mutatie: string;
+  Mutatie: JSX.Element;
   Acties: JSX.Element;
 };
+
+type DestructionListProcessReviewData = Zaak & ReviewMeta;
 
 /**
  * Show items of a destruction list review.
@@ -47,7 +50,7 @@ type ReviewMeta = {
  */
 export function DestructionListProcessReviewPage() {
   const {
-    storageKey,
+    storageKey: loaderStorageKey,
     destructionList,
     destructionListItems,
     zaakSelection, // FIXME: remove usage
@@ -61,7 +64,8 @@ export function DestructionListProcessReviewPage() {
 
   const [selectionClearedState, setSelectionClearedState] = useState(false);
   const revalidator = useRevalidator();
-  const secondaryNavigationItems = useSecondaryNavigation();
+  const secondaryNavigation =
+    useSecondaryNavigation<DestructionListDetailContext>();
 
   const [, handleSelect, { zaakSelectionOnPage }] = useZaakSelection<{
     approved?: boolean;
@@ -69,7 +73,7 @@ export function DestructionListProcessReviewPage() {
     selectielijstklasse?: string;
     archiefactiedatum?: string;
     comment?: string;
-  }>(storageKey, zakenOnPage);
+  }>(getStorageKey(), zakenOnPage);
   const zaakReviewStatuses = useZaakReviewStatuses(
     zakenOnPage,
     zaakSelectionOnPage,
@@ -95,23 +99,16 @@ export function DestructionListProcessReviewPage() {
     () =>
       selectionClearedState
         ? []
-        : paginatedDestructionListItems2paginatedZaken(destructionListItems)
+        : paginatedDestructionListItems2paginatedDetail(destructionListItems)
             .results,
     [selectionClearedState, destructionListItems],
   );
 
-  // Whether extra fields should be rendered.
-  const extraFields: TypedField<ReviewMeta>[] = [
-    { name: "Opmerking", type: "text" },
-    { name: "Mutatie", type: "text" },
-    { name: "Acties", type: "jsx" },
-  ];
-
   // The object list of the current page with review actions appended.
-  const objectList = useMemo(() => {
+  const objectList = useMemo<DestructionListProcessReviewData[]>(() => {
     return zakenOnPage.map((z, i) => ({
       ...z,
-      Opmerking: reviewItems?.[i]?.feedback,
+      Opmerking: reviewItems?.[i]?.feedback ?? "",
       Mutatie: getProcessReviewBadge(z),
       Acties: (
         <Toolbar
@@ -228,16 +225,6 @@ export function DestructionListProcessReviewPage() {
     );
   }
 
-  // DataGrid (paginated) results.
-  const paginatedZaken = useMemo<PaginatedZaken>(() => {
-    return {
-      count: reviewItems?.length || 0,
-      next: null,
-      previous: null,
-      results: objectList,
-    };
-  }, [reviewItems, objectList]);
-
   /**
    * Gets called when te selection is cleared.
    */
@@ -311,16 +298,59 @@ export function DestructionListProcessReviewPage() {
     revalidator.revalidate();
   };
 
+  //
+  // Common.
+  //
+
+  /**
+   * Generates a list of extra fields for rendering or processing, based on specific conditions.
+   */
+  function getExtraFields(): TypedField<DestructionListProcessReviewData>[] {
+    return [
+      { name: "Opmerking", type: "text" },
+      { name: "Mutatie", type: "text" },
+      { name: "Acties", type: "jsx" },
+    ];
+  }
+
+  /**
+   * Retrieves a paginated list of objects.
+   */
+  function getPaginatedObjectList(): PaginatedResults<DestructionListProcessReviewData> {
+    return {
+      count: reviewItems?.length || 0,
+      next: null,
+      previous: null,
+      results: objectList,
+    };
+  }
+
+  /**
+   * Retrieves the secondary navigation items.
+   */
+  function getSecondaryNavigationItems(): ToolbarItem[] {
+    return secondaryNavigation;
+  }
+
+  /**
+   * A memoized callback function that retrieves the storage key.
+   */
+  function getStorageKey(): string {
+    return loaderStorageKey;
+  }
+
   return (
-    <BaseListView<Zaak & ReviewMeta>
+    <BaseListView<DestructionListProcessReviewData>
+      // Common
       destructionList={destructionList}
-      review={review || undefined}
-      extraFields={extraFields}
+      extraFields={getExtraFields()}
+      paginatedObjectList={getPaginatedObjectList()}
+      secondaryNavigationItems={getSecondaryNavigationItems()}
+      storageKey={getStorageKey()}
+      // Specific
       initiallySelectedZakenOnPage={initiallySelectedZakenOnPage}
-      paginatedObjectList={paginatedZaken}
-      secondaryNavigationItems={secondaryNavigationItems}
+      review={review || undefined}
       selectable="visible"
-      storageKey={storageKey}
       onClearZaakSelection={handleClearSelection}
     >
       {/* The "feedback" modal */}

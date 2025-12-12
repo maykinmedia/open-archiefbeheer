@@ -1,6 +1,7 @@
 import { invariant } from "@maykin-ui/client-common";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 
+import { whoAmI } from "../../../lib/api/auth";
 import {
   DestructionList,
   getDestructionList,
@@ -35,19 +36,27 @@ export async function getBaseDestructionListLoaderData({
     ? (await getReviewResponse(review)) ?? null
     : null;
 
-  const reviewItems = await getReviewItems(
+  const reviewItemsPromise = getReviewItems(
     destructionList,
     review,
     searchParams,
   );
 
+  const userPromise = whoAmI();
+
+  const [reviewItems, user] = await Promise.all([
+    reviewItemsPromise,
+    userPromise,
+  ]);
+
   return {
-    uuid,
-    storageKey: storageKey,
     destructionList,
     review,
     reviewItems,
     reviewResponse,
+    storageKey: storageKey,
+    user: user,
+    uuid,
   };
 }
 

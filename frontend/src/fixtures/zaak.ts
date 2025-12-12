@@ -18,6 +18,7 @@ const FIXTURE_ZAAK: Zaak = {
   verlenging: null,
   opschorting: {
     reden: "",
+    eerdereOpschorting: false,
     indicatie: false,
   },
   toelichting: "",
@@ -35,6 +36,7 @@ const FIXTURE_ZAAK: Zaak = {
   zaakgeometrie: null,
   bronorganisatie: "376924512",
   publicatiedatum: null,
+  laatstGemuteerd: "2021-01-01",
   archiefnominatie: "vernietigen",
   einddatumGepland: null,
   registratiedatum: "2024-03-25",

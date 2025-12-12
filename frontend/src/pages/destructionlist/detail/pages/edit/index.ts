@@ -1,1 +1,1 @@
-export * from "./DestructionListEditPage";
+export { default as DestructionListEditPage } from "./DestructionListEditPage";

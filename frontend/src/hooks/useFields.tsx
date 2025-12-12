@@ -171,7 +171,7 @@ export function useFields<T extends Zaak = Zaak>(
       filterValue: searchParams.get("zaaktype") || "",
       valueTransform: (value: ExpandZaak) => {
         const valueOrSkeletonReturn = valueOrSkeleton(
-          value._expand?.zaaktype.identificatie,
+          value._expand?.zaaktype?.identificatie,
           zaaktypeChoices,
         );
         if (
@@ -244,16 +244,10 @@ export function useFields<T extends Zaak = Zaak>(
         const rollen = (rowData as ExpandZaak)._expand?.rollen || [];
         if (!rollen.length) return "";
         // TODO - Understand why the ExpandZaak type doesn't work
-        return (
-          rollen
-            .filter(
-              // @ts-expect-error The type of role is 'never' for some reason
-              (role) => role.betrokkeneType === "organisatorische_eenheid",
-            )
-            // @ts-expect-error The type of role is 'never' for some reason
-            .map((role) => role.omschrijving)
-            .join(", ")
-        );
+        return rollen
+          .filter((role) => role.betrokkeneType === "organisatorische_eenheid")
+          .map((role) => role.omschrijving)
+          .join(", ");
       },
       options: behandelendAfdelingChoices || [],
       width: "150px",
@@ -263,13 +257,15 @@ export function useFields<T extends Zaak = Zaak>(
       type: "string",
       filterLookup: "selectielijstklasse",
       filterValue: searchParams.get("selectielijstklasse") || "",
-      valueTransform: (value: ExpandZaak) =>
-        valueOrSkeleton(
+      valueTransform: (value: ExpandZaak) => {
+        return valueOrSkeleton(
           value.selectielijstklasse ||
+            // @ts-expect-error - Type says it should not exist, but it does, probably some typing error with _expand logic.
             value._expand?.resultaat?._expand?.resultaattype
               ?.selectielijstklasse,
           selectielijstKlasseChoices,
-        ),
+        );
+      },
       options: selectielijstKlasseChoices || [],
       width: "150px",
     },

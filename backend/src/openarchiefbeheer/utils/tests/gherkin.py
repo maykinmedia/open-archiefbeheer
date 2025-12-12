@@ -646,11 +646,12 @@ class GerkinMixin:
             await locator.wait_for(timeout=timeout)
             await locator.click()
 
-        async def _user_clicks(self, role, page, name, index=0):
+        async def _user_clicks(self, role: str, page: Page, name: str, index=0):
+            await page.wait_for_load_state("networkidle")
+
             locator = page.get_by_role(role, name=name, exact=False)
             await locator.first.wait_for()
-            elements = await locator.all()
-            element = elements[index]
+            element = locator.nth(index)
             await element.wait_for()
             await element.click()
 
@@ -845,8 +846,10 @@ class GerkinMixin:
             element = page.get_by_title(title)
             await expect(element).to_be_visible(timeout=timeout)
 
-        async def path_should_be(self, page, path):
-            await self.url_should_be(page, self.testcase.live_server_url + path)
+        async def path_should_be(self, page, path, timeout=None):
+            await self.url_should_be(
+                page, self.testcase.live_server_url + path, timeout=timeout
+            )
 
         async def button_should_be_enabled(self, page, name, index=0):
             element = page.get_by_role("button", name=name)
@@ -881,11 +884,11 @@ class GerkinMixin:
         async def url_regex_should_be(self, page, regex_path):
             await expect(page).to_have_url(re.compile(regex_path))
 
-        async def url_should_be(self, page, url):
-            await expect(page).to_have_url(url)
+        async def url_should_be(self, page, url, timeout=None):
+            await expect(page).to_have_url(url, timeout=timeout)
 
-        async def url_should_contain_text(self, page, text):
-            await expect(page).to_have_url(re.compile(text))
+        async def url_should_contain_text(self, page, text, timeout=None):
+            await expect(page).to_have_url(re.compile(text), timeout=timeout)
 
         async def zaak_should_be_selected(
             self, page, identificatie, template="(de)selecteer rij"

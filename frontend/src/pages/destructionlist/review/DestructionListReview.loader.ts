@@ -16,12 +16,13 @@ import {
 import { getBaseDestructionListLoaderData } from "../abstract/loaderutils";
 
 export type DestructionListReviewContext = {
-  uuid: string;
-  storageKey: string;
   destructionList: DestructionList;
   review: Review | null;
   reviewItems: ReviewItemWithZaak[] | null;
   reviewResponse: ReviewResponse | null;
+  storageKey: string;
+  user: User;
+  uuid: string;
 
   paginatedZaken: PaginatedDestructionListItems;
   reviewers: User[];
