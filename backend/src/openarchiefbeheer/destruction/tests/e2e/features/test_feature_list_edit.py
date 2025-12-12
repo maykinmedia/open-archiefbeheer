@@ -40,15 +40,16 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_selects_zaak(page, "ZAAK-200")  # First zaak on third (last) page (ZAAK-200)
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 1)
 
-            await self.when.user_fills_form_field(page, "Naam", "Destruction list to edit")
+            await self.when.user_fills_form_field(page, "Naam", "Destruction list (multi page) to edit")
             await self.when.user_fills_form_field(page, "Reviewer", str(reviewer))
             await self.when.user_fills_form_field(page, "Toelichting", "Masterpiece of a list")
             await self.when.user_clicks_button(page, "Vernietigingslijst opstellen", 2)
             await self.then.path_should_be(page, "/destruction-lists")
+            await self.then.page_should_contain_text(page, "Destruction list (multi page) to edit")
 
             # View destruction list
-            destruction_list = await self.then.list_should_exist(page, "Destruction list to edit")
-            await self.when.user_clicks_button(page, "Destruction list to edit")
+            destruction_list = await self.then.list_should_exist(page, "Destruction list (multi page) to edit")
+            await self.when.user_clicks_button(page, "Destruction list (multi page) to edit")
             await self.then.path_should_be(page, f"/destruction-lists/{str(destruction_list.uuid)}/edit")
 
             await self.when.user_clicks_button(page, "2")
