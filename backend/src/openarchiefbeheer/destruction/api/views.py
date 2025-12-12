@@ -50,15 +50,17 @@ class RelatedObjectsView(APIView):
             results = []
             for page in data_iterator:
                 for zaakobject in page["results"]:
-                    plugin = get_plugin_for_related_object(zaakobject["url"])
+                    plugin = get_plugin_for_related_object(zaakobject["object"])
+                    supported = plugin is not None
                     results.append(
                         {
                             "url": zaakobject["url"],
                             "selected": (
-                                zaakobject["url"]
+                                supported
+                                and zaakobject["url"]
                                 not in destruction_list_item.excluded_relations
                             ),
-                            "supported": plugin is not None,
+                            "supported": supported,
                             "result": zaakobject,
                         }
                     )
