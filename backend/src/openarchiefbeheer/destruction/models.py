@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.files import File
 from django.db import models, transaction
 from django.db.models import QuerySet
@@ -365,6 +366,15 @@ class DestructionListItem(models.Model):
             "the URL of the resources deleted from Open Zaak get stored here."
         ),
         default=dict,
+    )
+    excluded_relations = ArrayField(
+        models.URLField("excluded_relations", max_length=1000, blank=True),
+        blank=True,
+        default=list,
+        help_text=_(
+            "URLs of the related resources (Zaak Objecten) "
+            "that will not be destroyed when destroying the zaak."
+        ),
     )
 
     class Meta:

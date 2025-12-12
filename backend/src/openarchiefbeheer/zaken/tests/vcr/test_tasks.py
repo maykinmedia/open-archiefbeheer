@@ -29,7 +29,7 @@ class RecachingZakenTests(VCRMixin, TestCase):
         APIConfigFactory.create()
 
     @tag("gh-298")
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_recaching_zaken_with_multiple_pages_doesnt_explode_url(self):
         with Mocker(real_http=True) as m:
             with freeze_time("2024-08-29T16:00:00+02:00"):
@@ -46,7 +46,7 @@ class RecachingZakenTests(VCRMixin, TestCase):
 
         self.assertEqual(zaken_in_db.count(), 103)
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_recaching_zaken_correct_eindatum(self):
         with freeze_time("2024-08-02T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()

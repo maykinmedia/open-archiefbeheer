@@ -12,63 +12,78 @@ services:
     image: redis:7
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - openzaak-dev
+      - openzaak_dev
 
   openzaak-db:
-    image: postgis/postgis:${PG_VERSION:-14-master}
+    image: postgis/postgis:${PG_VERSION:-17-3.5}
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - ./docker-init-open-zaak-db/:/docker-entrypoint-initdb.d
       - open-zaak-db:/var/lib/postgresql/data
+      # This contains a fresh DB dump that OAB tests can reload if they need a clean Open Zaak DB
+      - ./clean_db:/clean_db
     networks:
-      - openzaak-dev
+      - openzaak_dev
 
   openzaak-web.local:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.18.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment: &openzaak_web_env
-      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
-      - SECRET_KEY=${SECRET_KEY:-fgv=c0hz&tl*8*3m3893@m+1pstrvidc9e^5@fpspmg%cy$15d}
-      - ALLOWED_HOSTS=openzaak-web.local,localhost
-      - DB_NAME=openzaak
-      - DB_USER=openzaak
-      - DB_HOST=openzaak-db
-      - IS_HTTPS=no
-      - CACHE_DEFAULT=openzaak-redis:6379/0
-      - CACHE_AXES=openzaak-redis:6379/0
-      - SUBPATH=${SUBPATH:-/}
-      - OPENZAAK_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
-      - CELERY_BROKER_URL=redis://openzaak-redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://openzaak-redis:6379/1
-      - NOTIFICATIONS_DISABLED=true
-      - JWT_EXPIRY=99999999999  # Roughly 3170 years. This is required for tests with time frozen to work
-      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-2}
-      - DISABLE_2FA=yes
+      DJANGO_SETTINGS_MODULE: openzaak.conf.docker
+      SECRET_KEY: ${SECRET_KEY:-fgv=c0hz&tl*8*3m3893@m+1pstrvidc9e^5@fpspmg%cy$15d}
+      ALLOWED_HOSTS: openzaak-web.local,localhost
+      DB_NAME: openzaak
+      DB_USER: openzaak
+      DB_HOST: openzaak-db
+      IS_HTTPS: no
+      CACHE_DEFAULT: openzaak-redis:6379/0
+      CACHE_AXES: openzaak-redis:6379/0
+      SUBPATH: ${SUBPATH:-/}
+      OPENZAAK_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_PASSWORD: admin
+      OPENZAAK_SUPERUSER_EMAIL: admin@localhost
+      CELERY_BROKER_URL: redis://openzaak-redis:6379/1
+      CELERY_RESULT_BACKEND: redis://openzaak-redis:6379/1
+      NOTIFICATIONS_DISABLED: true
+      JWT_EXPIRY: 99999999999  # Roughly 3170 years. This is required for tests with time frozen to work
+      CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
+      DISABLE_2FA: yes
+      OTEL_SDK_DISABLED: True
     volumes: &openzaak_web_volumes
-      # mount fixtures dir to automatically populate the DB
-      - ./fixtures/:/app/fixtures
+      - ./fixtures/:/app/test_fixtures
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
     depends_on:
       - openzaak-db
       - openzaak-redis
     networks:
-      - openzaak-dev
+      - openzaak_dev
 
   web-init:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.18.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: ["/bin/sh", "-c", "echo \"This is a destruction report\" > /app/private-media/uploads/2024/12/01219b90-0d13-4e25-b463-ab1545b05f05.bin"]
     depends_on:
       - openzaak-web.local
     networks:
-      - openzaak-dev
+      - openzaak_dev
+
+  web-setup-config:
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
+    environment:
+      <<: *openzaak_web_env
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    volumes:
+      - ./setup_configuration:/app/setup_configuration
+    depends_on:
+      - openzaak-web.local
+    networks:
+      - openzaak_dev
 
   celery:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.18.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: /celery_worker.sh
@@ -76,7 +91,7 @@ services:
       - openzaak-db
       - openzaak-redis
     networks:
-      - openzaak-dev
+      - openzaak_dev
 
   openzaak-nginx:
     image: nginx
@@ -88,7 +103,7 @@ services:
     depends_on:
       - openzaak-web.local
     networks:
-      - openzaak-dev
+      - openzaak_dev
 
 volumes:
   open-zaak-db:
@@ -96,5 +111,5 @@ volumes:
   private-media:
 
 networks:
-  openzaak-dev:
-    name: openzaak-dev
+  openzaak_dev:
+    name: openzaak_dev

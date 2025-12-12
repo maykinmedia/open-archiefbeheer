@@ -1,0 +1,43 @@
+sites_config_enable: true
+sites_config:
+  items:
+    - domain: localhost:8003
+      name: Open Zaak Docker compose
+
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+    - identifier: selectielijst-api
+      label: Selectielijst API
+      api_root: https://selectielijst.local/api/v1/
+      api_connection_check_path: selectielijst
+      api_type: orc
+      auth_type: no_auth
+
+
+notifications_config_enable: false
+
+openzaak_selectielijst_config_enable: true
+openzaak_selectielijst_config:
+  selectielijst_api_service_identifier: selectielijst-api
+  allowed_years:
+    - 2017
+    - 2020
+  default_year: 2020
+
+vng_api_common_credentials_config_enable: true
+vng_api_common_credentials:
+  items:
+    - identifier: test-vcr
+      secret: test-vcr
+
+vng_api_common_applicaties_config_enable: true
+vng_api_common_applicaties:
+  items:
+    - uuid: 78591bab-9a00-4887-849c-53b21a67782f
+      client_ids:
+        - test-vcr
+      label: Open Archiefbeheer test
+      heeft_alle_autorisaties: true
+
+oidc_db_config_enable: false

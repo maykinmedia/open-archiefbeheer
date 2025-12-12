@@ -1,10 +1,16 @@
+from typing import Iterable
+
 from django.conf import settings
 
 import docker
 from docker.errors import DockerException
 
 
-def reload_openzaak_fixtures():
+class FixtureLoadingError(Exception):
+    pass
+
+
+def reload_openzaak_fixtures(fixtures: Iterable[str] = []):
     def decorator(func):
         """Use the docker API to reload a fixture
 
@@ -28,16 +34,23 @@ def reload_openzaak_fixtures():
         except DockerException:
             client = docker.DockerClient(base_url="tcp://127.0.0.1:2375")
 
-        containers = client.containers.list(filters={"name": "openzaak-web.local"})
-
-        if not len(containers):
-            return func
-
-        web_container = containers[0]
-        web_container.exec_run(
-            "/app/src/manage.py loaddata /app/fixtures/complex_relations.json"
+        # Clean the database. This reloads a db where we have the tokens already set up
+        # but no catalogi/zaken.
+        db_container = client.containers.get(container_id="open-zaak-openzaak-db-1")
+        db_container.exec_run(
+            "pg_restore -U postgres --dbname=openzaak /clean_db/clean_db.sql -Fc --clean --exit-on-error"
         )
-        web_container.exec_run("/app/src/manage.py loaddata /app/fixtures/zaken.json")
+
+        web_container = client.containers.get(
+            container_id="open-zaak-openzaak-web.local-1"
+        )
+        for fixture in fixtures:
+            result = web_container.exec_run(
+                f"/app/src/manage.py loaddata /app/test_fixtures/{fixture}"
+            )
+            if not result.exit_code == 0:
+                raise FixtureLoadingError(result.output)
+
         return func
 
     return decorator

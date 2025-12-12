@@ -9,7 +9,7 @@ services:
   openklant-redis:
     image: redis:7
     networks:
-      - openklant-dev
+      - openklant_dev
 
   openklant-db:
     image: postgres:17
@@ -19,9 +19,9 @@ services:
       - ./docker-init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
       - open-klant-db:/var/lib/postgresql/data
     networks:
-      - openklant-dev
+      - openklant_dev
 
-  openklant-web:
+  openklant-web.local:
     image: maykinmedia/open-klant:latest
     environment: &web_env
       DJANGO_SETTINGS_MODULE: openklant.conf.docker
@@ -55,9 +55,9 @@ services:
       client: dev
       target: test
       app: open-klant
-      service: openklant-web
+      service: openklant-web.local
     networks:
-      - openklant-dev
+      - openklant_dev
 
   web-init:
     image: maykinmedia/open-klant:latest
@@ -73,18 +73,18 @@ services:
       - openklant-db
       - openklant-redis
     networks:
-      - openklant-dev
+      - openklant_dev
 
   celery:
     image: maykinmedia/open-klant:latest
     environment: *web_env
     command: /celery_worker.sh
     depends_on:
-      openklant-web: 
+      openklant-web.local: 
         condition: service_started
     volumes: *web_volumes
     networks:
-      - openklant-dev
+      - openklant_dev
 
 
 
@@ -94,5 +94,5 @@ volumes:
   private_media:
 
 networks:
-  openklant-dev:
-    name: openklant-dev
+  openklant_dev:
+    name: openklant_dev
