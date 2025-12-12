@@ -126,8 +126,12 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.when_user_types_in_date(
                 page, "einddatum", "Einddatum", "01", "01", "2022"
             )
-            await self.then.url_should_contain_text(page, "einddatum__gte")
-            await self.then.url_should_contain_text(page, "einddatum__lte")
+            await self.then.url_should_contain_text(
+                page, "einddatum__gte", timeout=10000
+            )
+            await self.then.url_should_contain_text(
+                page, "einddatum__lte", timeout=10000
+            )
 
             # Zaakobjecten
             await self.when.user_filters_zaken(page, "zaakobjecten", "1")

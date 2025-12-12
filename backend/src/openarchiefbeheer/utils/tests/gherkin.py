@@ -887,8 +887,8 @@ class GerkinMixin:
         async def url_should_be(self, page, url, timeout=None):
             await expect(page).to_have_url(url, timeout=timeout)
 
-        async def url_should_contain_text(self, page, text):
-            await expect(page).to_have_url(re.compile(text))
+        async def url_should_contain_text(self, page, text, timeout=None):
+            await expect(page).to_have_url(re.compile(text), timeout=timeout)
 
         async def zaak_should_be_selected(
             self, page, identificatie, template="(de)selecteer rij"
