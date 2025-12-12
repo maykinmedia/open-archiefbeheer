@@ -651,8 +651,7 @@ class GerkinMixin:
 
             locator = page.get_by_role(role, name=name, exact=False)
             await locator.first.wait_for()
-            elements = await locator.all()
-            element = elements[index]
+            element = locator.nth(index)
             await element.wait_for()
             await element.click()
 

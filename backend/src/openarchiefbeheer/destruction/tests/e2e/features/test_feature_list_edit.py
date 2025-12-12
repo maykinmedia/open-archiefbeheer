@@ -68,6 +68,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "ZAAK-0") # The new zaak has a the smallest pk, so it is at the start of the list
 
             # Remove "ZAAK-0"
+            await page.wait_for_timeout(1000)  # I tried to avoid this.
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.zaak_should_be_selected(page, "ZAAK-0")  # Zaak that we are going to remove
 
