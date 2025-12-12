@@ -39,7 +39,7 @@ class ProcessResponseTest(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_process_response(self):
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()
@@ -130,7 +130,7 @@ class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
         )
         APIConfigFactory.create()
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_document_deleted(self):
         """
         Issue 594: Test deletion race conditions
@@ -165,7 +165,7 @@ class DestructionTest(ClearCacheMixin, VCRMixin, TestCase):
 
         self.assertEqual(item.processing_status, InternalStatus.succeeded)
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_delete_list(self):
         """
