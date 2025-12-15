@@ -136,7 +136,7 @@ urlpatterns = [
                     name="destruction-list-statuses",
                 ),
                 path(
-                    "destruction-list-items/<int:pk>/related-objects/",
+                    "destruction-list-items/<int:pk>/related-objects-selection/",
                     RelatedObjectsView.as_view(),
                     name="destruction-items-relations",
                 ),

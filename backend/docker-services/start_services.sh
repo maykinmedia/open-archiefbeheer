@@ -5,6 +5,7 @@ set -e
 
 if ! curl -s -X GET http://127.0.0.1:2375/_ping | grep -q "OK"; then
     echo "Docker daemon not accessible on 127.0.0.1:2375. Restarting..."
+    # TODO: this was only tested on linux. Will not work on Mac. See issue #934
     
     # Stop the docker service
     systemctl stop docker.service
