@@ -564,6 +564,12 @@ class GerkinMixin:
         def __init__(self, testcase: PlaywrightTestCase):
             self.testcase = testcase
 
+        async def page_has_finished_loading(self, page: Page):
+            await page.wait_for_load_state("networkidle")
+            await expect(
+                page.get_by_role("img", name="Bezig met laden...")
+            ).to_have_count(0)
+
         async def user_logs_in(self, page, user):
             await self._user_logs_in(page, user.username, "ANic3Password")
 
@@ -647,6 +653,8 @@ class GerkinMixin:
             await locator.click()
 
         async def _user_clicks(self, role, page, name, index=0):
+            await self.testcase.when.page_has_finished_loading(page)
+
             locator = page.get_by_role(role, name=name, exact=False)
             await locator.first.wait_for()
             elements = await locator.all()
@@ -655,6 +663,7 @@ class GerkinMixin:
             await element.click()
 
         async def user_fills_form_field(self, page, label, value, role=None, index=0):
+            await self.testcase.when.page_has_finished_loading(page)
             selects = await page.query_selector_all(f'.mykn-select[title="{label}"]')
             try:
                 select = selects[index]
@@ -845,8 +854,10 @@ class GerkinMixin:
             element = page.get_by_title(title)
             await expect(element).to_be_visible(timeout=timeout)
 
-        async def path_should_be(self, page, path):
-            await self.url_should_be(page, self.testcase.live_server_url + path)
+        async def path_should_be(self, page, path, timeout: int | None = None):
+            await self.url_should_be(
+                page, self.testcase.live_server_url + path, timeout=timeout
+            )
 
         async def button_should_be_enabled(self, page, name, index=0):
             element = page.get_by_role("button", name=name)
@@ -881,8 +892,8 @@ class GerkinMixin:
         async def url_regex_should_be(self, page, regex_path):
             await expect(page).to_have_url(re.compile(regex_path))
 
-        async def url_should_be(self, page, url):
-            await expect(page).to_have_url(url)
+        async def url_should_be(self, page, url, timeout: int | None = None):
+            await expect(page).to_have_url(url, timeout=timeout)
 
         async def url_should_contain_text(self, page, text):
             await expect(page).to_have_url(re.compile(text))
