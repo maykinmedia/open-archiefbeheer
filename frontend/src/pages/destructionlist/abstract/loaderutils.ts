@@ -4,6 +4,7 @@ import { ActionFunctionArgs } from "@remix-run/router/utils";
 import { whoAmI } from "../../../lib/api/auth";
 import {
   DestructionList,
+  DestructionListStatus,
   getDestructionList,
 } from "../../../lib/api/destructionLists";
 import {
@@ -20,6 +21,7 @@ import { getDestructionListReviewKey } from "../review";
  * Base loader data for destruction list detail/review views.
  * @param request
  * @param params
+ * @param review - Whether the data is for a review page.
  */
 export async function getBaseDestructionListLoaderData({
   request,
@@ -27,85 +29,93 @@ export async function getBaseDestructionListLoaderData({
 }: ActionFunctionArgs) {
   invariant(params.uuid, "params.uuid not set!");
   const uuid = params.uuid;
+
   const searchParams = new URL(request.url).searchParams;
 
-  const destructionList = await getDestructionList(uuid as string);
-  const storageKey = getDestructionListStorageKey(destructionList);
-  const review = await getReview(destructionList);
-  const reviewResponse = review
-    ? (await getReviewResponse(review)) ?? null
-    : null;
-
+  const destructionListPromise = getDestructionList(uuid as string);
+  const storageKeyPromise = getDestructionListStorageKey(
+    destructionListPromise,
+  );
+  const reviewPromise = getReview(destructionListPromise);
   const reviewItemsPromise = getReviewItems(
-    destructionList,
-    review,
+    destructionListPromise,
+    reviewPromise,
     searchParams,
   );
+  const reviewResponsePromise = getReviewResponse(reviewPromise);
 
   const userPromise = whoAmI();
 
-  const [reviewItems, user] = await Promise.all([
-    reviewItemsPromise,
-    userPromise,
-  ]);
-
   return {
-    destructionList,
-    review,
-    reviewItems,
-    reviewResponse,
-    storageKey: storageKey,
-    user: user,
     uuid,
+    storageKeyPromise,
+    destructionListPromise,
+    reviewPromise,
+    reviewItemsPromise,
+    reviewResponsePromise,
+    userPromise,
   };
 }
 
 /**
  * Returns the "storage key" for a specific destruction list.
- * The storage key is used to associated various storages with a destruction
+ * The storage key is used to associate various storages with a destruction
  * list.
- * @param destructionList
+ * @param destructionListPromise
  */
-export function getDestructionListStorageKey(
-  destructionList: DestructionList,
-): string {
-  switch (destructionList.status) {
+export async function getDestructionListStorageKey(
+  destructionListPromise: Promise<DestructionList>,
+) {
+  const { uuid, status } = await destructionListPromise;
+
+  switch (status) {
     case "ready_to_review":
     case "ready_for_archivist":
-      return getDestructionListReviewKey(
-        destructionList.uuid,
-        destructionList.status,
-      );
-    default:
-      return `destruction-list-detail-${destructionList.uuid}-${destructionList.status}`;
+      return getDestructionListReviewKey(uuid, status);
   }
+  return `destruction-list-detail-${uuid}-${status}`;
 }
 
 /**
  * Returns the latest `Review` (if any) or `null` (if none) for `destructionList`.
- * @param destructionList
+ * @param destructionListPromise
  */
 export async function getReview(
-  destructionList: DestructionList,
+  destructionListPromise: Promise<DestructionList>,
 ): Promise<Review | null> {
-  return getLatestReview({
-    destructionList__uuid: destructionList.uuid,
-  });
+  return destructionListPromise.then((destructionList) =>
+    getLatestReview({
+      destructionList__uuid: destructionList.uuid,
+    }),
+  );
 }
 
 /**
  * Returns the review items for `Review` (if any) if required by `DestructionList.status`.
- * @param destructionList
- * @param review
+ * @param destructionListPromise
+ * @param reviewPromise
  * @param searchParams
  */
 export async function getReviewItems(
-  destructionList: DestructionList,
-  review: Review | null,
+  destructionListPromise: Promise<DestructionList>,
+  reviewPromise: Promise<Review | null>,
   searchParams: URLSearchParams,
 ): Promise<ReviewItemWithZaak[] | null> {
   // Construct full params including fitter etc.
+  const destructionList = await destructionListPromise;
+  const supportedStatuses: DestructionListStatus[] = [
+    "changes_requested",
+    "ready_to_review",
+    "ready_for_archivist",
+  ];
+
+  // Items not needed.
+  if (!supportedStatuses.includes(destructionList.status)) {
+    return null;
+  }
+
   const objectParams = Object.fromEntries(searchParams);
+  const review = await reviewPromise;
   const params = {
     ...objectParams,
     "item-review-review": review?.pk,
@@ -133,19 +143,21 @@ export async function getReviewItems(
             ): item is ReviewItemWithZaak => !!item.zaak,
           )
         : null;
-
-    // Review items not needed.
-    default:
-      return null;
   }
+
+  invariant(false, "getReviewItems() was inconclusive!");
 }
 
 /**
  * Return the `ReviewResponse` (if any) for `review`.
- * @param review
+ * @param reviewPromise
  */
-export async function getReviewResponse(review: Review) {
-  return getLatestReviewResponse({
-    review: review.pk,
-  });
+export async function getReviewResponse(reviewPromise: Promise<Review | null>) {
+  return reviewPromise.then((review) =>
+    review
+      ? getLatestReviewResponse({
+          review: review.pk,
+        }).then((reviewResponse) => reviewResponse ?? null)
+      : null,
+  );
 }

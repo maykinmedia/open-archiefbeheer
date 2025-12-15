@@ -40,14 +40,38 @@ export const destructionListReviewLoader = loginRequired(
     ): Promise<DestructionListReviewContext> => {
       const { request } = actionFunctionArgs;
 
-      const base = await getBaseDestructionListLoaderData(actionFunctionArgs);
-      const uuid = base.uuid;
-
       const searchParams = new URL(request.url).searchParams;
-      searchParams.set("destruction_list", uuid); // TODO: Investigate (how) is this used, possibly affects `listDestructionListItems`?
       const objParams = Object.fromEntries(searchParams);
 
-      const [zaken, reviewers] = await Promise.all([
+      const {
+        uuid,
+        storageKeyPromise,
+        destructionListPromise,
+        reviewPromise,
+        reviewItemsPromise,
+        reviewResponsePromise,
+        userPromise,
+      } = await getBaseDestructionListLoaderData(actionFunctionArgs);
+
+      searchParams.set("destruction_list", uuid); // TODO: Investigate (how) is this used, possibly affects `listDestructionListItems`?
+
+      const [
+        destructionList,
+        review,
+        reviewItems,
+        reviewResponse,
+        storageKey,
+        user,
+
+        zaken,
+        reviewers,
+      ] = await Promise.all([
+        destructionListPromise,
+        reviewPromise,
+        reviewItemsPromise,
+        reviewResponsePromise,
+        storageKeyPromise,
+        userPromise,
         listDestructionListItems(uuid, {
           "item-order_review_ignored": true,
           ...objParams,
@@ -56,7 +80,14 @@ export const destructionListReviewLoader = loginRequired(
       ]);
 
       return {
-        ...base,
+        destructionList,
+        review,
+        reviewItems,
+        reviewResponse,
+        storageKey,
+        user,
+        uuid,
+
         paginatedZaken: zaken,
         reviewers,
       };

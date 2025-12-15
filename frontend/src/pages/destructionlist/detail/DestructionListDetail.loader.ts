@@ -2,7 +2,7 @@ import { Option } from "@maykin-ui/admin-ui";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
-import { User, whoAmI } from "../../../lib/api/auth";
+import { User } from "../../../lib/api/auth";
 import { DestructionList } from "../../../lib/api/destructionLists";
 import {
   PaginatedDestructionListItems,
@@ -49,108 +49,139 @@ export const destructionListDetailLoader = loginRequired(
     ): Promise<DestructionListDetailContext> => {
       const { request } = actionFunctionArgs;
 
-      const base = await getBaseDestructionListLoaderData(actionFunctionArgs);
-      const uuid = base.uuid;
-      const storageKey = base.storageKey;
-      const destructionList = base.destructionList;
-      const review = base.review;
-      const reviewItems = base.reviewItems;
-
       const searchParams = new URL(request.url).searchParams;
       const objParams = Object.fromEntries(searchParams);
-
       const isEditing = objParams.is_editing;
+
+      const {
+        uuid,
+        storageKeyPromise,
+        destructionListPromise,
+        reviewPromise,
+        reviewItemsPromise,
+        reviewResponsePromise,
+        userPromise,
+      } = await getBaseDestructionListLoaderData(actionFunctionArgs);
 
       /**
        * Fetches items on the destruction list.
        */
       const getDestructionListItems =
         async (): Promise<PaginatedDestructionListItems> => {
-          const params = objParams;
-          if (isEditing) {
-            params["item-order_match_zaken"] = "true"; // Must be in sync with `searchZaken()` ordering.
-          }
-          return reviewItems
-            ? {
-                count: reviewItems.length,
-                next: null,
-                previous: null,
-                results: [],
-              }
-            : await listDestructionListItems(
-                uuid,
-                params as unknown as URLSearchParams,
-              ).catch((e) => {
-                // This happens when the user is browsing selectable zaken and exceeds
-                // the last page of the destruction list items.
-                if (isEditing && e instanceof Response && e.status === 404) {
-                  return {
-                    count: 0,
-                    next: null,
-                    previous: null,
-                    results: [],
-                  };
+          return reviewItemsPromise.then(async (reviewItems) => {
+            const params = objParams;
+            if (isEditing) {
+              params["item-order_match_zaken"] = "true"; // Must be in sync with `searchZaken()` ordering.
+            }
+            return reviewItems
+              ? {
+                  count: reviewItems.length,
+                  next: null,
+                  previous: null,
+                  results: [],
                 }
-                throw e;
-              });
+              : await listDestructionListItems(
+                  uuid,
+                  params as unknown as URLSearchParams,
+                ).catch((e) => {
+                  // This happens when the user is browsing selectable zaken and exceeds
+                  // the last page of the destruction list items.
+                  if (isEditing && e instanceof Response && e.status === 404) {
+                    return {
+                      count: 0,
+                      next: null,
+                      previous: null,
+                      results: [],
+                    };
+                  }
+                  throw e;
+                });
+          });
         };
 
       /**
        * Fetch selectielijst choices if review collected.
        * // TODO: Investigate
        */
-      const getSelectieLijstKlasseChoicesMap = () =>
-        reviewItems
-          ? cacheMemo(
-              "selectieLijstKlasseChoicesMap",
-              async () =>
-                Object.fromEntries(
-                  await Promise.all(
-                    reviewItems.map(async (ri) => {
-                      const choices = await listSelectielijstKlasseChoices(
-                        {
-                          zaak: ri.zaak.url,
-                        },
-                        true,
-                      );
-                      return [ri.zaak.url, choices];
-                    }),
+      const getSelectieLijstKlasseChoicesMap = () => {
+        return reviewItemsPromise.then((reviewItems) => {
+          return reviewItems
+            ? cacheMemo(
+                "selectieLijstKlasseChoicesMap",
+                async () =>
+                  Object.fromEntries(
+                    await Promise.all(
+                      reviewItems.map(async (ri) => {
+                        const choices = await listSelectielijstKlasseChoices(
+                          {
+                            zaak: ri.zaak.url,
+                          },
+                          true,
+                        );
+                        return [ri.zaak.url, choices];
+                      }),
+                    ),
                   ),
-                ),
-              // @ts-expect-error - Params not used in function but in case key only.
-              reviewItems.map((ri) => ri.pk),
-            )
-          : null;
+                // @ts-expect-error - Params not used in function but in case key only.
+                reviewItems.map((ri) => ri.pk),
+              )
+            : null;
+        });
+      };
+
+      const maybeGetZaakSelection = async () => {
+        const promise = Promise.all([reviewPromise, storageKeyPromise]);
+        return promise.then(([review, storageKey]) =>
+          review ? getZaakSelection(storageKey) : undefined,
+        );
+      };
 
       /**
        * Fetch zaken that are selectable (to add to a destruction list).
        */
-      const getSelectableZaken = () =>
-        reviewItems || destructionList.status === "ready_to_delete"
-          ? ({
-              count: 0,
-              next: null,
-              previous: null,
-              results: [],
-            } as PaginatedZaken)
-          : searchZaken({
-              ...objParams,
-              not_in_destruction_list_except: uuid,
-            });
+      const getSelectableZaken = () => {
+        const promise = Promise.all([
+          destructionListPromise,
+          reviewItemsPromise,
+        ]);
+        return promise.then(([destructionList, reviewItems]) => {
+          return reviewItems || destructionList.status === "ready_to_delete"
+            ? ({
+                count: 0,
+                next: null,
+                previous: null,
+                results: [],
+              } as PaginatedZaken)
+            : searchZaken({
+                ...objParams,
+                not_in_destruction_list_except: uuid,
+              });
+        });
+      };
 
       const [
+        destructionList,
+        review,
+        reviewItems,
+        reviewResponse,
+        storageKey,
+        user,
         destructionListItems,
         zaakSelection,
         allZaken,
         archivists,
-        user,
         selectieLijstKlasseChoicesMap,
       ] = await Promise.all([
+        destructionListPromise,
+        reviewPromise,
+        reviewItemsPromise,
+        reviewResponsePromise,
+        storageKeyPromise,
+        userPromise,
         getDestructionListItems(),
-        review ? getZaakSelection(storageKey) : undefined,
+        maybeGetZaakSelection(),
         getSelectableZaken(),
         listArchivists(),
-        whoAmI(),
         getSelectieLijstKlasseChoicesMap(),
       ]);
 
@@ -163,12 +194,18 @@ export const destructionListDetailLoader = loginRequired(
       );
 
       return {
-        ...base,
+        destructionList,
+        review,
+        reviewItems,
+        reviewResponse,
+        storageKey,
+        user,
+        uuid,
+
         destructionListItems,
         zaakSelection,
         selectableZaken: allZaken,
         archivists: filteredArchivists,
-        user,
         selectieLijstKlasseChoicesMap,
       };
     },
