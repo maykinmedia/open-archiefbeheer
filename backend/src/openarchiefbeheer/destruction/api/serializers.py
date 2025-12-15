@@ -971,3 +971,17 @@ class RelatedObjectSerializer(serializers.Serializer):
         required=True,
         help_text=_("The content of the ZaakObject retrieved from Open Zaak."),
     )
+
+
+class SelectionRelatedObjectSerializer(serializers.Serializer):
+    url = serializers.URLField(
+        required=True,
+        help_text=_("The URL of the ZaakObject."),
+    )
+    selected = serializers.BooleanField(
+        default=True,
+        help_text=_(
+            "If True, Open Archiefbeheer will destroy this related object "
+            "when destroying the zaak."
+        ),
+    )
