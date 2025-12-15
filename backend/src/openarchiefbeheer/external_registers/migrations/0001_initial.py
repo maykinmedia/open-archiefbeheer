@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                     "enabled",
                     models.BooleanField(
                         default=True,
-                        help_text="Specifies whether the Open Klant plugin is enabled.",
+                        help_text="Specifies whether the plugin is enabled.",
                         verbose_name="enabled",
                     ),
                 ),
@@ -44,9 +44,9 @@ class Migration(migrations.Migration):
                     "services",
                     models.ManyToManyField(
                         blank=True,
-                        help_text="Services to talk to Open Klant instances.",
+                        help_text="Services needed to talk to the external register instances.",
                         to="zgw_consumers.service",
-                        verbose_name="Open Klant API services",
+                        verbose_name="services",
                     ),
                 ),
             ],

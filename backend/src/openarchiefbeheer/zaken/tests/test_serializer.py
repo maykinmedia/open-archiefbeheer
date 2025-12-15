@@ -40,7 +40,7 @@ class ZaakSerialisersTests(ClearCacheMixin, VCRMixin, TestCase):
         )
         self.assertEqual(serialiser.data["selectielijstklasse_versie"], "2017")
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_selectielijstklasse_derived(self):
         APIConfigFactory.create()
         ServiceFactory.create(

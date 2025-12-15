@@ -40,7 +40,7 @@ class DeletingZakenTests(VCRMixin, TestCase):
             secret="test-vcr",
         )
 
-    @reload_openzaak_fixtures()
+    @reload_openzaak_fixtures(fixtures=["complex_relations.json", "zaken.json"])
     def test_delete_zaak_related_to_besluit_related_to_document(self):
         with freeze_time("2024-08-29T16:00:00+02:00"):
             retrieve_and_cache_zaken_from_openzaak()

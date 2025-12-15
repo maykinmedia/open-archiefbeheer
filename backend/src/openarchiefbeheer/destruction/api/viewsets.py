@@ -499,6 +499,7 @@ class DestructionListViewSet(
 )
 class DestructionListItemsViewSet(
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = DestructionListItemReadSerializer

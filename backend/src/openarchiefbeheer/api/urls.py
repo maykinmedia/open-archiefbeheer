@@ -15,7 +15,10 @@ from openarchiefbeheer.config.api.views import (
     OIDCInfoView,
 )
 from openarchiefbeheer.config.health_checks import checks_collector
-from openarchiefbeheer.destruction.api.views import ListStatusesListView
+from openarchiefbeheer.destruction.api.views import (
+    ListStatusesListView,
+    RelatedObjectsView,
+)
 from openarchiefbeheer.destruction.api.viewsets import (
     CoReviewersViewSet,
     DestructionListCoReviewViewSet,
@@ -131,6 +134,11 @@ urlpatterns = [
                     "destruction-list-statuses/",
                     ListStatusesListView.as_view(),
                     name="destruction-list-statuses",
+                ),
+                path(
+                    "destruction-list-items/<int:pk>/related-objects-selection/",
+                    RelatedObjectsView.as_view(),
+                    name="destruction-items-relations",
                 ),
                 path(
                     "archive-config", ArchiveConfigView.as_view(), name="archive-config"
