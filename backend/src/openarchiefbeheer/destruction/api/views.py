@@ -41,10 +41,13 @@ class RelatedObjectsView(APIView):
     def get(self, request: Request, pk: int) -> Response:
         destruction_list_item = get_object_or_404(DestructionListItem, pk=pk)
 
+        if not destruction_list_item.zaak or not (
+            zaak_url := destruction_list_item.zaak.url
+        ):
+            return Response([])
+
         with zrc_client() as client:
-            response = client.get(
-                "zaakobjecten", params={"zaak": destruction_list_item._zaak_url}
-            )
+            response = client.get("zaakobjecten", params={"zaak": zaak_url})
             response.raise_for_status()
             data_iterator = pagination_helper(client, response.json())
             results = []
