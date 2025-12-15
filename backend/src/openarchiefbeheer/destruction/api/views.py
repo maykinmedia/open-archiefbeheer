@@ -14,7 +14,7 @@ from openarchiefbeheer.zaken.utils import pagination_helper
 
 from ..constants import ListStatus
 from ..models import DestructionListItem
-from .serializers import RelatedObjectSerializer
+from .serializers import RelatedObjectSerializer, SelectionRelatedObjectSerializer
 
 
 @extend_schema(
@@ -38,6 +38,18 @@ class ListStatusesListView(APIView):
 
 
 class RelatedObjectsView(APIView):
+    @extend_schema(
+        tags=["Related Objects"],
+        summary=_("List related objects selection"),
+        description=_(
+            "List which objects are related to a zaak, including information about "
+            "whether their destruction in external registers is supported and whether they "
+            "are excluded from destruction (selected: false)."
+        ),
+        responses={
+            200: RelatedObjectSerializer(many=True),
+        },
+    )
     def get(self, request: Request, pk: int) -> Response:
         destruction_list_item = get_object_or_404(DestructionListItem, pk=pk)
 
@@ -71,3 +83,34 @@ class RelatedObjectsView(APIView):
         serializer = RelatedObjectSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
+
+    @extend_schema(
+        tags=["Related Objects"],
+        summary=_("Update related objects selection"),
+        description=_(
+            "Specify which supported related objects should be destroyed"
+            " when the zaak is destroyed."
+        ),
+        request=SelectionRelatedObjectSerializer(many=True),
+        responses={
+            200: None,
+        },
+    )
+    def patch(self, request: Request, pk: int) -> Response:
+        destruction_list_item = get_object_or_404(DestructionListItem, pk=pk)
+
+        # For performance purpose, we are not checking whether the URLs correspond to real ZaakObjects.
+        # We are only saving the unselected objects URLs for checking during deletion if a related object
+        # should not be deleted.
+        serializer = SelectionRelatedObjectSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        assert isinstance(serializer.validated_data, list)
+        excluded_urls = [
+            item["url"] for item in serializer.validated_data if not item["selected"]
+        ]
+
+        destruction_list_item.excluded_relations = excluded_urls
+        destruction_list_item.save()
+
+        return Response()
