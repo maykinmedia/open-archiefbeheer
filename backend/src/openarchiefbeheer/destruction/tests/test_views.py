@@ -1,5 +1,6 @@
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -137,7 +138,9 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
     @reload_openzaak_fixtures(["RelatedObjectsViewTests_test_supported_relation.json"])
     def test_supported_relation(self):
         user = UserFactory.create()
-        retrieve_and_cache_zaken(is_full_resync=True)
+
+        with freeze_time("2025-12-12"):
+            retrieve_and_cache_zaken(is_full_resync=True)
 
         item = DestructionListItemFactory.create(
             zaak=Zaak.objects.get(identificatie="ZAAK-2000-0000000001")
@@ -182,7 +185,8 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
     def test_supported_not_selected(self):
         user = UserFactory.create()
 
-        retrieve_and_cache_zaken(is_full_resync=True)
+        with freeze_time("2025-12-12"):
+            retrieve_and_cache_zaken(is_full_resync=True)
 
         item = DestructionListItemFactory.create(
             zaak=Zaak.objects.get(identificatie="ZAAK-2000-0000000001"),
@@ -201,3 +205,20 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertFalse(data[0]["selected"])
+
+    def test_no_related_zaak(self):
+        item = DestructionListItemFactory.create(
+            zaak=None,
+        )
+
+        user = UserFactory.create()
+
+        endpoint = reverse("api:destruction-items-relations", args=(item.pk,))
+        self.client.force_authenticate(user)
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data, [])
