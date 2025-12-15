@@ -222,3 +222,25 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
         data = response.json()
 
         self.assertEqual(data, [])
+
+    def test_update_selection(self):
+        item = DestructionListItemFactory.create()
+
+        user = UserFactory.create()
+
+        endpoint = reverse("api:destruction-items-relations", args=(item.pk,))
+        self.client.force_authenticate(user)
+        response = self.client.patch(
+            endpoint,
+            data=[
+                {"url": "http://oz.nl/api/v1/zaakobject/1", "selected": True},
+                {"url": "http://oz.nl/api/v1/zaakobject/1", "selected": False},
+            ],
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        item.refresh_from_db()
+
+        self.assertEqual(item.excluded_relations, ["http://oz.nl/api/v1/zaakobject/1"])
