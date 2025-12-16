@@ -1,5 +1,7 @@
+from collections import defaultdict
+from collections.abc import Container
 from functools import partial
-from typing import Callable, Generator, Iterable, Literal
+from typing import Generator, Iterable, Literal
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -27,9 +29,14 @@ from openarchiefbeheer.clients import (
     zrc_client,
     ztc_client,
 )
+from openarchiefbeheer.external_registers.registry import register as registry
+from openarchiefbeheer.external_registers.utils import get_plugin_for_related_object
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
-from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.results_store import (
+    ResultStore,
+    delete_object_and_store_result,
+)
 
 from .models import Zaak
 from .types import DropDownChoice
@@ -258,28 +265,6 @@ def retrieve_selectielijstklasse_resultaat(resultaat_url: str) -> JSONValue:
     return response.json()
 
 
-def delete_object_and_store_result(
-    store: ResultStore,
-    resource_type: str,
-    resource: str,
-    callable: Callable,
-    http_error_handler: Callable | None = None,
-) -> None:
-    try:
-        response = callable(timeout=settings.REQUESTS_DEFAULT_TIMEOUT)
-        if response.status_code == status.HTTP_404_NOT_FOUND:
-            # Could not be found, nothing to delete
-            return
-        response.raise_for_status()
-    except HTTPError as exc:
-        if http_error_handler:
-            return http_error_handler(exc)
-        raise exc
-
-    store.add_deleted_resource(resource_type, resource)
-    store.save()
-
-
 def handle_delete_with_pending_relations(exc: HTTPError) -> None:
     response = exc.response
     has_pending_relations = (
@@ -391,10 +376,42 @@ def delete_zaak(zaak: "Zaak", zrc_client: APIClient, result_store: ResultStore) 
         )
 
 
-def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> None:
+def delete_external_relations(
+    zaak_url: str,
+    zrc_client: APIClient,
+    excluded_relations: Container[str],
+    result_store: ResultStore,
+) -> None:
+    """Delete relations to a zaak in supported external registers."""
+    with zrc_client:
+        response = zrc_client.get("zaakobjecten", params={"zaak": zaak_url})
+        response.raise_for_status()
+
+        related_objects_to_delete = defaultdict(list)
+        for page in pagination_helper(zrc_client, response.json()):
+            for zaakobject in page["results"]:
+                if zaakobject["url"] in excluded_relations:
+                    continue
+
+                if plugin := get_plugin_for_related_object(zaakobject["object"]):
+                    related_objects_to_delete[plugin.identifier].append(
+                        zaakobject["object"]
+                    )
+
+    for plugin_identifier in related_objects_to_delete:
+        plugin = registry[plugin_identifier]
+        plugin.delete_related_resources(
+            related_resources=related_objects_to_delete[plugin_identifier],
+            result_store=result_store,
+        )
+
+
+def delete_zaak_and_related_objects(
+    zaak: "Zaak", excluded_relations: Container[str], result_store: ResultStore
+) -> None:
     """Delete a zaak and related objects
 
-    The procedure to delete all objects related to a zaak is as follows:
+    The procedure to delete all objects related to a zaak (in Open Zaak) is as follows:
     - Check if there are besluiten (in the Besluiten API) related to the zaak.
     - Check if there are documents related to these besluiten (BesluitenInformatieObjecten).
       If yes, store the URLs of the corresponding documents.
@@ -417,11 +434,7 @@ def delete_zaak_and_related_objects(zaak: "Zaak", result_store: ResultStore) -> 
     """
     client = zrc_client()
 
-    # Delete resources in external registries
-    ## TODO: implementing the exclusion of resources to delete
-    # for identifier, plugin in registry.iterate():
-    #     plugin.delete_related_resources(zaak.url, excluded_resources=[])
-
+    delete_external_relations(zaak.url, client, excluded_relations, result_store)
     delete_decisions_and_relation_objects(zaak, result_store)
     delete_relation_object(client, "zaak", zaak.url, result_store)
     delete_documents(result_store)

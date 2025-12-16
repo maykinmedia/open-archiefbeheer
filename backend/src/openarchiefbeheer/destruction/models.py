@@ -411,7 +411,11 @@ class DestructionListItem(models.Model):
         store.clear_traceback()
 
         try:
-            delete_zaak_and_related_objects(zaak=self.zaak, result_store=store)
+            delete_zaak_and_related_objects(
+                zaak=self.zaak,
+                excluded_relations=self.excluded_relations,
+                result_store=store,
+            )
         except Exception as exc:
             store.add_traceback(traceback.format_exc())
             raise exc
