@@ -43,6 +43,13 @@ class DeletingZakenWithErrorsTests(TestCase):
         result_store = ResultStore(store=destruction_list_item)
 
         m.get(
+            "http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            json={
+                "count": 0,
+                "results": [],
+            },
+        )
+        m.get(
             "http://localhost:8003/besluiten/api/v1/besluiten",
             json={
                 "count": 1,
@@ -73,7 +80,11 @@ class DeletingZakenWithErrorsTests(TestCase):
 
         with contextlib.suppress(ConnectTimeout):
             # We configured the mock to raise this error
-            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
+            delete_zaak_and_related_objects(
+                destruction_list_item.zaak,
+                excluded_relations=[],
+                result_store=result_store,
+            )
 
         result_store.refresh_from_db()
         results = result_store.get_internal_results()
@@ -103,6 +114,13 @@ class DeletingZakenWithErrorsTests(TestCase):
             },
         )
         m.get(
+            "http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            json={
+                "count": 0,
+                "results": [],
+            },
+        )
+        m.get(
             f"http://localhost:8003/zaken/api/v1/zaakinformatieobjecten?zaak={destruction_list_item.zaak.url}",
             json=[
                 {
@@ -120,9 +138,13 @@ class DeletingZakenWithErrorsTests(TestCase):
             exc=ConnectTimeout,
         )
 
+        # We configured the mock to raise this error
         with contextlib.suppress(ConnectTimeout):
-            # We configured the mock to raise this error
-            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
+            delete_zaak_and_related_objects(
+                destruction_list_item.zaak,
+                excluded_relations=[],
+                result_store=result_store,
+            )
 
         result_store.refresh_from_db()
         results = result_store.get_internal_results()
@@ -143,7 +165,11 @@ class DeletingZakenWithErrorsTests(TestCase):
         )
 
         with self.assertRaises(ConnectTimeout):
-            delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
+            delete_zaak_and_related_objects(
+                destruction_list_item.zaak,
+                excluded_relations=[],
+                result_store=result_store,
+            )
 
 
 class FormatZaaktypeChoicesTests(TestCase):

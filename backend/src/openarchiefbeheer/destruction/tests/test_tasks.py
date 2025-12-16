@@ -657,9 +657,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             destruction_list=destruction_list,
         )
 
-        def mock_exceptions(zaak, result_store):
+        def mock_exceptions(zaak, excluded_relations, result_store):
             if zaak.url == item1.zaak.url:
-                raise Exception("An errur occurred!")
+                raise Exception("An error occurred!")
 
         with patch(
             "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",

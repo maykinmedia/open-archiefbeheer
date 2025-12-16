@@ -51,7 +51,9 @@ class DeletingZakenTests(VCRMixin, TestCase):
         destruction_list_item = DestructionListItemFactory.create(zaak=zaak)
         result_store = ResultStore(store=destruction_list_item)
 
-        delete_zaak_and_related_objects(destruction_list_item.zaak, result_store)
+        delete_zaak_and_related_objects(
+            destruction_list_item.zaak, excluded_relations=[], result_store=result_store
+        )
 
         with zrc_client() as client:
             response = client.get("zaken", headers={"Accept-Crs": "EPSG:4326"})
