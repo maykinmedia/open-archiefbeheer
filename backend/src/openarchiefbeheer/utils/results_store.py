@@ -1,6 +1,11 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Protocol, TypedDict
+from typing import Callable, Protocol, TypedDict
+
+from django.conf import settings
+
+from requests import HTTPError
+from rest_framework import status
 
 
 class InternalResults(TypedDict):
@@ -94,3 +99,25 @@ class ResultStore:
         results = self.get_internal_results()
         results["traceback"] = ""
         self.save()
+
+
+def delete_object_and_store_result(
+    store: ResultStore,
+    resource_type: str,
+    resource: str,
+    callable: Callable,
+    http_error_handler: Callable | None = None,
+) -> None:
+    try:
+        response = callable(timeout=settings.REQUESTS_DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            # Could not be found, nothing to delete
+            return
+        response.raise_for_status()
+    except HTTPError as exc:
+        if http_error_handler:
+            return http_error_handler(exc)
+        raise exc
+
+    store.add_deleted_resource(resource_type, resource)
+    store.save()

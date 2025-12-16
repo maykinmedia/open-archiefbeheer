@@ -1,8 +1,12 @@
-from typing import Container, Mapping, NoReturn
+from collections.abc import Iterable
+from functools import partial
+from typing import Mapping, NoReturn
 
+from django.db.models.functions import Length
 from django.utils.translation import gettext as _
 
 from maykin_health_checks.types import HealthCheckResult
+from zgw_consumers.client import build_client
 
 from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
@@ -17,6 +21,10 @@ from openarchiefbeheer.external_registers.setup_configuration.models import (
     ExternalRegisterConfigurationModel,
 )
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
+from openarchiefbeheer.utils.results_store import (
+    ResultStore,
+    delete_object_and_store_result,
+)
 
 from .setup_configuration.steps import OpenKlantConfigurationStep
 
@@ -66,10 +74,30 @@ class OpenKlantPlugin(AbstractBasePlugin):
         raise NotImplementedError()
 
     def delete_related_resources(
-        self, zaak_url: str, excluded_resources: Container[str]
+        self, related_resources: Iterable[str], result_store: ResultStore
     ) -> None | NoReturn:
-        """Delete/Unlink the resources from the register that are related to the zaak.
+        config = self.get_or_create_config()
+        services_candidates = (
+            config.services.all()
+            .annotate(api_root_length=Length("api_root"))
+            .order_by("-api_root_length")
+        )
+        clients = {
+            service.slug: build_client(service) for service in services_candidates
+        }
 
-        Raise an error if something goes wrong.
-        """
-        raise NotImplementedError()
+        for resource_url in related_resources:
+            for service in services_candidates:
+                if not resource_url.startswith(service.api_root):
+                    continue
+
+                delete_object_and_store_result(
+                    result_store,
+                    "klantcontacten",
+                    resource_url,
+                    partial(
+                        clients[service.slug].delete,
+                        resource_url.replace(service.api_root, ""),
+                    ),
+                )
+                break
