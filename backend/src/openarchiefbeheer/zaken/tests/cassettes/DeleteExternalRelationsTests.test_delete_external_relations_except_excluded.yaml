@@ -1,0 +1,162 @@
+interactions:
+- request:
+    body: '{"kanaal": "telefoon", "onderwerp": "Testing", "taal": "dut", "vertrouwelijk":
+      false}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '85'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.4
+    method: POST
+    uri: http://localhost:8005/klantinteracties/api/v1/klantcontacten
+  response:
+    body:
+      string: '{"uuid":"68340895-6a9a-4ccf-b41a-4acd5df99609","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/68340895-6a9a-4ccf-b41a-4acd5df99609","gingOverOnderwerpobjecten":[],"hadBetrokkenActoren":[],"omvatteBijlagen":[],"hadBetrokkenen":[],"leiddeTotInterneTaken":[],"nummer":"0000000025","kanaal":"telefoon","onderwerp":"Testing","inhoud":"","indicatieContactGelukt":null,"taal":"dut","vertrouwelijk":false,"plaatsgevondenOp":"2025-12-16T15:19:26.488203Z"}'
+    headers:
+      API-version:
+      - 0.4.1
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Content-Length:
+      - '467'
+      Content-Security-Policy:
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com; script-src ''self''
+        ''unsafe-inline''; font-src ''self'' fonts.gstatic.com; default-src ''self'';
+        base-uri ''self''; img-src ''self'' data: cdn.redoc.ly; form-action ''self'';
+        frame-src ''self''; frame-ancestors ''none''; worker-src ''self'' blob:; object-src
+        ''none'''
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Location:
+      - http://localhost:8005/klantinteracties/api/v1/klantcontacten/68340895-6a9a-4ccf-b41a-4acd5df99609
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 201
+      message: Created
+- request:
+    body: '{"kanaal": "telefoon", "onderwerp": "Testing", "taal": "dut", "vertrouwelijk":
+      false}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '85'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.4
+    method: POST
+    uri: http://localhost:8005/klantinteracties/api/v1/klantcontacten
+  response:
+    body:
+      string: '{"uuid":"9dd33b97-5037-4914-9e44-6d416ce711f0","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/9dd33b97-5037-4914-9e44-6d416ce711f0","gingOverOnderwerpobjecten":[],"hadBetrokkenActoren":[],"omvatteBijlagen":[],"hadBetrokkenen":[],"leiddeTotInterneTaken":[],"nummer":"0000000026","kanaal":"telefoon","onderwerp":"Testing","inhoud":"","indicatieContactGelukt":null,"taal":"dut","vertrouwelijk":false,"plaatsgevondenOp":"2025-12-16T15:19:26.512381Z"}'
+    headers:
+      API-version:
+      - 0.4.1
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Content-Length:
+      - '467'
+      Content-Security-Policy:
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com; script-src ''self''
+        ''unsafe-inline''; font-src ''self'' fonts.gstatic.com; default-src ''self'';
+        base-uri ''self''; img-src ''self'' data: cdn.redoc.ly; form-action ''self'';
+        frame-src ''self''; frame-ancestors ''none''; worker-src ''self'' blob:; object-src
+        ''none'''
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Location:
+      - http://localhost:8005/klantinteracties/api/v1/klantcontacten/9dd33b97-5037-4914-9e44-6d416ce711f0
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.32.4
+    method: DELETE
+    uri: http://localhost:8005/klantinteracties/api/v1/klantcontacten/9dd33b97-5037-4914-9e44-6d416ce711f0
+  response:
+    body:
+      string: ''
+    headers:
+      API-version:
+      - 0.4.1
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com; script-src ''self''
+        ''unsafe-inline''; font-src ''self'' fonts.gstatic.com; default-src ''self'';
+        base-uri ''self''; img-src ''self'' data: cdn.redoc.ly; form-action ''self'';
+        frame-src ''self''; frame-ancestors ''none''; worker-src ''self'' blob:; object-src
+        ''none'''
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 204
+      message: No Content
+version: 1
