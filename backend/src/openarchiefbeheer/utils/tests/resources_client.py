@@ -35,10 +35,10 @@ class ZaaktypeWithRelations(TypedDict):
 
 @dataclass
 class OpenZaakDataCreationHelper:
-    zrc_service_slug: str
-    ztc_service_slug: str
-    drc_service_slug: str
-    openklant_service_slug: str
+    zrc_service_slug: str = ""
+    ztc_service_slug: str = ""
+    drc_service_slug: str = ""
+    openklant_service_slug: str = ""
 
     def _create_resource(
         self,
