@@ -5,12 +5,20 @@ from django.test import TestCase
 from requests.exceptions import ConnectTimeout
 from requests_mock import Mocker
 from rest_framework import status
-from zgw_consumers.constants import APITypes
+from vcr.unittest import VCRMixin
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.external_registers.contrib.openklant.constants import (
+    OPENKLANT_IDENTIFIER,
+)
+from openarchiefbeheer.external_registers.models import ExternalRegisterConfig
 from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.utils.tests.resources_client import OpenZaakDataCreationHelper
 from openarchiefbeheer.zaken.utils import (
+    delete_external_relations,
     delete_zaak_and_related_objects,
     format_zaaktype_choices,
 )
@@ -203,3 +211,126 @@ class FormatZaaktypeChoicesTests(TestCase):
         # Should return an empty list
         result = format_zaaktype_choices(zaaktypen)
         self.assertEqual(result, expected_result)
+
+
+class DeleteExternalRelationsTests(VCRMixin, TestCase):
+    @Mocker(real_http=True)
+    def test_delete_external_relations(self, m):
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        result_store = ResultStore(store=item)
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+        ok_service = ServiceFactory.create(
+            slug="openklant",
+            api_type=APITypes.orc,
+            api_root="http://localhost:8005/klantinteracties/api/v1/",
+            auth_type=AuthTypes.api_key,
+            header_key="Authorization",
+            header_value="Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
+        )
+        config = ExternalRegisterConfig.objects.get(identifier=OPENKLANT_IDENTIFIER)
+        config.enabled = True
+        config.services.add(ok_service)
+        config.save()
+        helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
+        klantcontact = helper.create_klantcontact()
+        assert isinstance(klantcontact["url"], str)
+
+        # TODO: Replace with real interactions once it is possible to do this in Open Zaak
+        m.get(
+            "http://localhost:8003/zaken/api/v1/zaakobjecten"
+            "?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F111-111-111",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/111-111-111",
+                        "object": klantcontact["url"],
+                    }
+                ],
+            },
+        )
+
+        delete_external_relations(
+            zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            zrc_client=zrc_client(),
+            excluded_relations=[],
+            result_store=result_store,
+        )
+
+        results = result_store.get_internal_results()
+        self.assertEqual(
+            results["deleted_resources"]["klantcontacten"][0],
+            klantcontact["url"],
+        )
+
+    @Mocker(real_http=True)
+    def test_delete_external_relations_except_excluded(self, m):
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            excluded_relations=[
+                "http://localhost:8003/zaken/api/v1/zaakobjecten/111-111-111"
+            ],
+        )
+        result_store = ResultStore(store=item)
+        ServiceFactory.create(
+            api_type=APITypes.zrc,
+            api_root="http://localhost:8003/zaken/api/v1",
+        )
+        ok_service = ServiceFactory.create(
+            slug="openklant",
+            api_type=APITypes.orc,
+            api_root="http://localhost:8005/klantinteracties/api/v1/",
+            auth_type=AuthTypes.api_key,
+            header_key="Authorization",
+            header_value="Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
+        )
+        config = ExternalRegisterConfig.objects.get(identifier=OPENKLANT_IDENTIFIER)
+        config.enabled = True
+        config.services.add(ok_service)
+        config.save()
+        helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
+        klantcontact1 = helper.create_klantcontact()
+        klantcontact2 = helper.create_klantcontact()
+        assert isinstance(klantcontact1["url"], str) and isinstance(
+            klantcontact2["url"], str
+        )
+
+        # TODO: Replace with real interactions once it is possible to do this in Open Zaak
+        m.get(
+            "http://localhost:8003/zaken/api/v1/zaakobjecten"
+            "?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F111-111-111",
+            json={
+                "count": 1,
+                "results": [
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/111-111-111",
+                        "object": klantcontact1["url"],
+                    },
+                    {
+                        "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/222-222-222",
+                        "object": klantcontact2["url"],
+                    },
+                ],
+            },
+        )
+
+        delete_external_relations(
+            zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+            zrc_client=zrc_client(),
+            excluded_relations=item.excluded_relations,
+            result_store=result_store,
+        )
+
+        results = result_store.get_internal_results()
+        self.assertEqual(len(results["deleted_resources"]["klantcontacten"]), 1)
+        self.assertEqual(
+            results["deleted_resources"]["klantcontacten"][0],
+            klantcontact2["url"],
+        )

@@ -1,10 +1,13 @@
-from typing import Container, Mapping, NoReturn
+from collections.abc import Iterable
+from typing import Mapping, NoReturn
 from unittest.mock import patch
 
 from django.test import TestCase
 
 from maykin_health_checks.types import HealthCheckResult
 from zgw_consumers.test.factories import ServiceFactory
+
+from openarchiefbeheer.utils.results_store import ResultStore
 
 from ..plugin import AbstractBasePlugin, RelatedResourceList, ServiceSlug
 from ..registry import Registry
@@ -24,7 +27,7 @@ class DummyPlugin(AbstractBasePlugin):
         return {}
 
     def delete_related_resources(
-        self, zaak_url: str, excluded_resources: Container[str]
+        self, related_resources: Iterable[str], result_store: ResultStore
     ) -> None | NoReturn:
         return
 
