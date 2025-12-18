@@ -21,3 +21,5 @@ docker compose -f openzaak/docker-compose.yaml up -d
 
 docker compose -f openklant/docker-compose.yaml up -d
 
+docker compose -f objecten/docker-compose.yaml up -d
+
