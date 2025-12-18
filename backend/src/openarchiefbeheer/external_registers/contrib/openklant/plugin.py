@@ -74,7 +74,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
         raise NotImplementedError()
 
     def delete_related_resources(
-        self, related_resources: Iterable[str], result_store: ResultStore
+        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
     ) -> None | NoReturn:
         config = self.get_or_create_config()
         services_candidates = (
@@ -93,7 +93,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
 
                 delete_object_and_store_result(
                     result_store,
-                    "klantcontacten",
+                    "onderwerpobjecten",
                     resource_url,
                     partial(
                         clients[service.slug].delete,

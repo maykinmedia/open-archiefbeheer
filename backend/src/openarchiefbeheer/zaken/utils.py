@@ -401,6 +401,7 @@ def delete_external_relations(
     for plugin_identifier in related_objects_to_delete:
         plugin = registry[plugin_identifier]
         plugin.delete_related_resources(
+            zaak_url=zaak_url,
             related_resources=related_objects_to_delete[plugin_identifier],
             result_store=result_store,
         )
