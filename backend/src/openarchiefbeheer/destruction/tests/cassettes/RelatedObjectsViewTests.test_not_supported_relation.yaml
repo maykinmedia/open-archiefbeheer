@@ -1,7 +1,7 @@
 interactions:
 - request:
-    body: '{"domein": "OIASK", "rsin": "123456782", "contactpersoonBeheerNaam": "Ubaldo",
-      "naam": "Before term over trade including why."}'
+    body: '{"domein": "IMXIZ", "rsin": "123456782", "contactpersoonBeheerNaam": "Ubaldo",
+      "naam": "Minute address certain everybody five tell wall term."}'
     headers:
       Accept:
       - '*/*'
@@ -10,13 +10,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ4OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.RX1aItTbBkdvPvY2yg4tSBXDG5q8mxdifYCpV94N37E
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3NiwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.SeOIIPl9Nc9oEBqLpuxj1v_Wfaj3_WglPqR-HZoNSuU
       Connection:
       - keep-alive
       Content-Crs:
       - EPSG:4326
       Content-Length:
-      - '127'
+      - '143'
       Content-Type:
       - application/json
       User-Agent:
@@ -25,8 +25,8 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/catalogussen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","domein":"OIASK","rsin":"123456782","contactpersoonBeheerNaam":"Ubaldo","contactpersoonBeheerTelefoonnummer":"","contactpersoonBeheerEmailadres":"","zaaktypen":[],"besluittypen":[],"informatieobjecttypen":[],"naam":"Before
-        term over trade including why.","versie":"","begindatumVersie":null}'
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","domein":"IMXIZ","rsin":"123456782","contactpersoonBeheerNaam":"Ubaldo","contactpersoonBeheerTelefoonnummer":"","contactpersoonBeheerEmailadres":"","zaaktypen":[],"besluittypen":[],"informatieobjecttypen":[],"naam":"Minute
+        address certain everybody five tell wall term.","versie":"","begindatumVersie":null}'
     headers:
       API-version:
       - 1.3.1
@@ -35,22 +35,22 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '388'
+      - '404'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:08 GMT
+      - Thu, 18 Dec 2025 13:32:56 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56
+      - http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9
       Referrer-Policy:
       - same-origin
       Server:
@@ -65,14 +65,14 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"omschrijving": "Place catch wonder film question.", "vertrouwelijkheidaanduiding":
+    body: '{"omschrijving": "Democratic understand laugh year bed.", "vertrouwelijkheidaanduiding":
       "geheim", "doel": "New Zaaktype 001", "aanleiding": "New Zaaktype 001", "indicatieInternOfExtern":
       "intern", "handelingInitiator": "aanvragen", "onderwerp": "New Zaaktype 001",
       "handelingBehandelaar": "handelin", "doorlooptijd": "P40D", "opschortingEnAanhoudingMogelijk":
       false, "verlengingMogelijk": true, "verlengingstermijn": "P40D", "publicatieIndicatie":
       false, "productenOfDiensten": ["https://example.com/product/321"], "referentieproces":
       {"naam": "ReferentieProces 1"}, "verantwoordelijke": "200000000", "beginGeldigheid":
-      "2025-06-19", "versiedatum": "2025-06-19", "catalogus": "http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56",
+      "2025-06-19", "versiedatum": "2025-06-19", "catalogus": "http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9",
       "besluittypen": [], "gerelateerdeZaaktypen": [], "selectielijstProcestype":
       "https://selectielijst.openzaak.nl/api/v1/procestypen/aa8aa2fd-b9c6-4e34-9a6c-58a677f60ea0"}'
     headers:
@@ -83,13 +83,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ4OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.RX1aItTbBkdvPvY2yg4tSBXDG5q8mxdifYCpV94N37E
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3NiwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.SeOIIPl9Nc9oEBqLpuxj1v_Wfaj3_WglPqR-HZoNSuU
       Connection:
       - keep-alive
       Content-Crs:
       - EPSG:4326
       Content-Length:
-      - '932'
+      - '936'
       Content-Type:
       - application/json
       User-Agent:
@@ -98,11 +98,11 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/zaaktypen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","identificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Place
-        catch wonder film question.","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"geheim","doel":"New
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","identificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Democratic
+        understand laugh year bed.","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"geheim","doel":"New
         Zaaktype 001","aanleiding":"New Zaaktype 001","toelichting":"","indicatieInternOfExtern":"intern","handelingInitiator":"aanvragen","onderwerp":"New
         Zaaktype 001","handelingBehandelaar":"handelin","doorlooptijd":"P40D","servicenorm":null,"opschortingEnAanhoudingMogelijk":false,"verlengingMogelijk":true,"verlengingstermijn":"P40D","trefwoorden":[],"publicatieIndicatie":false,"publicatietekst":"","verantwoordingsrelatie":[],"productenOfDiensten":["https://example.com/product/321"],"selectielijstProcestype":"https://selectielijst.openzaak.nl/api/v1/procestypen/aa8aa2fd-b9c6-4e34-9a6c-58a677f60ea0","referentieproces":{"naam":"ReferentieProces
-        1","link":""},"concept":true,"verantwoordelijke":"200000000","broncatalogus":{"url":"","domein":"","rsin":""},"bronzaaktype":{"url":"","identificatie":"","omschrijving":""},"beginGeldigheid":"2025-06-19","eindeGeldigheid":null,"versiedatum":"2025-06-19","beginObject":"2025-06-19","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","statustypen":[],"resultaattypen":[],"eigenschappen":[],"informatieobjecttypen":[],"roltypen":[],"besluittypen":[],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]}'
+        1","link":""},"concept":true,"verantwoordelijke":"200000000","broncatalogus":{"url":"","domein":"","rsin":""},"bronzaaktype":{"url":"","identificatie":"","omschrijving":""},"beginGeldigheid":"2025-06-19","eindeGeldigheid":null,"versiedatum":"2025-06-19","beginObject":"2025-06-19","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","statustypen":[],"resultaattypen":[],"eigenschappen":[],"informatieobjecttypen":[],"roltypen":[],"besluittypen":[],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]}'
     headers:
       API-version:
       - 1.3.1
@@ -111,22 +111,22 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1495'
+      - '1499'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:09 GMT
+      - Thu, 18 Dec 2025 13:32:56 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e
+      - http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f
       Referrer-Policy:
       - same-origin
       Server:
@@ -141,7 +141,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e",
+    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f",
       "omschrijving": "Vastgesteld", "omschrijvingGeneriek": "adviseur"}'
     headers:
       Accept:
@@ -151,7 +151,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.sfpFxV-2p2prqsumHqtjlpO2kUxTPqPunORnxc8H4ME
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3NiwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.SeOIIPl9Nc9oEBqLpuxj1v_Wfaj3_WglPqR-HZoNSuU
       Connection:
       - keep-alive
       Content-Crs:
@@ -166,7 +166,7 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/roltypen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/roltypen/5e618d68-3f45-4cdb-8b82-59a206f77325","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Vastgesteld","omschrijvingGeneriek":"adviseur","catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/roltypen/960f6a5e-d9d5-48fd-9181-9470d1077c74","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Vastgesteld","omschrijvingGeneriek":"adviseur","catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
     headers:
       API-version:
       - 1.3.1
@@ -177,20 +177,20 @@ interactions:
       Content-Length:
       - '491'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:09 GMT
+      - Thu, 18 Dec 2025 13:32:57 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/roltypen/5e618d68-3f45-4cdb-8b82-59a206f77325
+      - http://localhost:8003/catalogi/api/v1/roltypen/960f6a5e-d9d5-48fd-9181-9470d1077c74
       Referrer-Policy:
       - same-origin
       Server:
@@ -205,7 +205,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e",
+    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f",
       "omschrijving": "Gegrond", "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/3a0a9c3c-0847-4e7e-b7d9-765b9434094c",
       "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
       "archiefnominatie": "vernietigen", "brondatumArchiefprocedure": {"afleidingswijze":
@@ -219,7 +219,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ4OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.sfpFxV-2p2prqsumHqtjlpO2kUxTPqPunORnxc8H4ME
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3NywiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.y3Ah0ftTw_2yXYzkad7T33amwMX2YrQkiur1I0L_fao
       Connection:
       - keep-alive
       Content-Crs:
@@ -234,7 +234,7 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/resultaattypen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/resultaattypen/ecd4ccb3-1ac6-43d6-a8ab-3758eb78b461","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Gegrond","resultaattypeomschrijving":"https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/3a0a9c3c-0847-4e7e-b7d9-765b9434094c","omschrijvingGeneriek":"Gegrond","selectielijstklasse":"https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc","toelichting":"","archiefnominatie":"vernietigen","archiefactietermijn":null,"brondatumArchiefprocedure":{"afleidingswijze":"afgehandeld","datumkenmerk":"","einddatumBekend":false,"objecttype":"","registratie":"","procestermijn":null},"procesobjectaard":"","indicatieSpecifiek":null,"procestermijn":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","besluittypen":[],"besluittypeOmschrijving":[],"informatieobjecttypen":[],"informatieobjecttypeOmschrijving":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/resultaattypen/1057c410-7b97-48f5-9929-86de3c4a5451","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Gegrond","resultaattypeomschrijving":"https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/3a0a9c3c-0847-4e7e-b7d9-765b9434094c","omschrijvingGeneriek":"Gegrond","selectielijstklasse":"https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc","toelichting":"","archiefnominatie":"vernietigen","archiefactietermijn":null,"brondatumArchiefprocedure":{"afleidingswijze":"afgehandeld","datumkenmerk":"","einddatumBekend":false,"objecttype":"","registratie":"","procestermijn":null},"procesobjectaard":"","indicatieSpecifiek":null,"procestermijn":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","besluittypen":[],"besluittypeOmschrijving":[],"informatieobjecttypen":[],"informatieobjecttypeOmschrijving":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
     headers:
       API-version:
       - 1.3.1
@@ -245,20 +245,20 @@ interactions:
       Content-Length:
       - '1157'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:10 GMT
+      - Thu, 18 Dec 2025 13:32:58 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/resultaattypen/ecd4ccb3-1ac6-43d6-a8ab-3758eb78b461
+      - http://localhost:8003/catalogi/api/v1/resultaattypen/1057c410-7b97-48f5-9929-86de3c4a5451
       Referrer-Policy:
       - same-origin
       Server:
@@ -273,7 +273,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"omschrijving": "begin", "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e",
+    body: '{"omschrijving": "begin", "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f",
       "volgnummer": 1, "omschrijving_generiek": "", "statustekst": "", "informeren":
       false, "checklistitem_statustype": []}'
     headers:
@@ -284,7 +284,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.ePuXKwLoNILztKC487748dxP2Skb1v2zyFTd_OW2m0Q
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.UqfZZF7QAe43ebtyupPitcTYytFzfo2rVbTv9Mpes4c
       Connection:
       - keep-alive
       Content-Crs:
@@ -299,7 +299,7 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/statustypen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/statustypen/f8831e83-8256-480a-9694-6094268543c7","omschrijving":"begin","omschrijvingGeneriek":"","statustekst":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","volgnummer":1,"isEindstatus":true,"informeren":false,"doorlooptijd":null,"toelichting":null,"checklistitemStatustype":[],"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","eigenschappen":[],"zaakobjecttypen":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/statustypen/8f9616e9-7342-4a61-90d4-7d9b95226123","omschrijving":"begin","omschrijvingGeneriek":"","statustekst":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","volgnummer":1,"isEindstatus":true,"informeren":false,"doorlooptijd":null,"toelichting":null,"checklistitemStatustype":[],"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","eigenschappen":[],"zaakobjecttypen":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
     headers:
       API-version:
       - 1.3.1
@@ -310,20 +310,20 @@ interactions:
       Content-Length:
       - '659'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:10 GMT
+      - Thu, 18 Dec 2025 13:32:58 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/statustypen/f8831e83-8256-480a-9694-6094268543c7
+      - http://localhost:8003/catalogi/api/v1/statustypen/8f9616e9-7342-4a61-90d4-7d9b95226123
       Referrer-Policy:
       - same-origin
       Server:
@@ -338,7 +338,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"omschrijving": "eind", "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e",
+    body: '{"omschrijving": "eind", "zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f",
       "volgnummer": 2, "omschrijving_generiek": "", "statustekst": "", "informeren":
       false, "checklistitem_statustype": []}'
     headers:
@@ -349,7 +349,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.ePuXKwLoNILztKC487748dxP2Skb1v2zyFTd_OW2m0Q
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.UqfZZF7QAe43ebtyupPitcTYytFzfo2rVbTv9Mpes4c
       Connection:
       - keep-alive
       Content-Crs:
@@ -364,7 +364,7 @@ interactions:
     uri: http://localhost:8003/catalogi/api/v1/statustypen
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/statustypen/44038cd6-18ac-48a8-9141-4c7861b29bf5","omschrijving":"eind","omschrijvingGeneriek":"","statustekst":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","volgnummer":2,"isEindstatus":true,"informeren":false,"doorlooptijd":null,"toelichting":null,"checklistitemStatustype":[],"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","eigenschappen":[],"zaakobjecttypen":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/statustypen/c2b8b613-3728-4a90-9b28-227504210a31","omschrijving":"eind","omschrijvingGeneriek":"","statustekst":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","zaaktypeIdentificatie":"ZAAKTYPE-2025-0000000002","volgnummer":2,"isEindstatus":true,"informeren":false,"doorlooptijd":null,"toelichting":null,"checklistitemStatustype":[],"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","eigenschappen":[],"zaakobjecttypen":[],"beginGeldigheid":null,"eindeGeldigheid":null,"beginObject":null,"eindeObject":null}'
     headers:
       API-version:
       - 1.3.1
@@ -375,20 +375,20 @@ interactions:
       Content-Length:
       - '658'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:10 GMT
+      - Thu, 18 Dec 2025 13:32:58 GMT
       Location:
-      - http://localhost:8003/catalogi/api/v1/statustypen/44038cd6-18ac-48a8-9141-4c7861b29bf5
+      - http://localhost:8003/catalogi/api/v1/statustypen/c2b8b613-3728-4a90-9b28-227504210a31
       Referrer-Policy:
       - same-origin
       Server:
@@ -412,7 +412,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.ePuXKwLoNILztKC487748dxP2Skb1v2zyFTd_OW2m0Q
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.UqfZZF7QAe43ebtyupPitcTYytFzfo2rVbTv9Mpes4c
       Connection:
       - keep-alive
       Content-Length:
@@ -420,14 +420,14 @@ interactions:
       User-Agent:
       - python-requests/2.32.4
     method: POST
-    uri: http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e/publish
+    uri: http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f/publish
   response:
     body:
-      string: '{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","identificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Place
-        catch wonder film question.","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"geheim","doel":"New
+      string: '{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","identificatie":"ZAAKTYPE-2025-0000000002","omschrijving":"Democratic
+        understand laugh year bed.","omschrijvingGeneriek":"","vertrouwelijkheidaanduiding":"geheim","doel":"New
         Zaaktype 001","aanleiding":"New Zaaktype 001","toelichting":"","indicatieInternOfExtern":"intern","handelingInitiator":"aanvragen","onderwerp":"New
         Zaaktype 001","handelingBehandelaar":"handelin","doorlooptijd":"P40D","servicenorm":null,"opschortingEnAanhoudingMogelijk":false,"verlengingMogelijk":true,"verlengingstermijn":"P40D","trefwoorden":[],"publicatieIndicatie":false,"publicatietekst":"","verantwoordingsrelatie":[],"productenOfDiensten":["https://example.com/product/321"],"selectielijstProcestype":"https://selectielijst.openzaak.nl/api/v1/procestypen/aa8aa2fd-b9c6-4e34-9a6c-58a677f60ea0","referentieproces":{"naam":"ReferentieProces
-        1","link":""},"concept":false,"verantwoordelijke":"200000000","broncatalogus":{"url":"","domein":"","rsin":""},"bronzaaktype":{"url":"","identificatie":"","omschrijving":""},"beginGeldigheid":"2025-06-19","eindeGeldigheid":null,"versiedatum":"2025-06-19","beginObject":"2025-06-19","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/a08df309-add8-4c0b-b37b-59ba90997f56","statustypen":["http://localhost:8003/catalogi/api/v1/statustypen/44038cd6-18ac-48a8-9141-4c7861b29bf5","http://localhost:8003/catalogi/api/v1/statustypen/f8831e83-8256-480a-9694-6094268543c7"],"resultaattypen":["http://localhost:8003/catalogi/api/v1/resultaattypen/ecd4ccb3-1ac6-43d6-a8ab-3758eb78b461"],"eigenschappen":[],"informatieobjecttypen":[],"roltypen":["http://localhost:8003/catalogi/api/v1/roltypen/5e618d68-3f45-4cdb-8b82-59a206f77325"],"besluittypen":[],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]}'
+        1","link":""},"concept":false,"verantwoordelijke":"200000000","broncatalogus":{"url":"","domein":"","rsin":""},"bronzaaktype":{"url":"","identificatie":"","omschrijving":""},"beginGeldigheid":"2025-06-19","eindeGeldigheid":null,"versiedatum":"2025-06-19","beginObject":"2025-06-19","eindeObject":null,"catalogus":"http://localhost:8003/catalogi/api/v1/catalogussen/97591414-3204-4794-b33e-e7826c5910c9","statustypen":["http://localhost:8003/catalogi/api/v1/statustypen/c2b8b613-3728-4a90-9b28-227504210a31","http://localhost:8003/catalogi/api/v1/statustypen/8f9616e9-7342-4a61-90d4-7d9b95226123"],"resultaattypen":["http://localhost:8003/catalogi/api/v1/resultaattypen/1057c410-7b97-48f5-9929-86de3c4a5451"],"eigenschappen":[],"informatieobjecttypen":[],"roltypen":["http://localhost:8003/catalogi/api/v1/roltypen/960f6a5e-d9d5-48fd-9181-9470d1077c74"],"besluittypen":[],"deelzaaktypen":[],"gerelateerdeZaaktypen":[],"zaakobjecttypen":[]}'
     headers:
       API-version:
       - 1.3.1
@@ -436,20 +436,20 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1849'
+      - '1853'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:10 GMT
+      - Thu, 18 Dec 2025 13:32:58 GMT
       Referrer-Policy:
       - same-origin
       Server:
@@ -464,7 +464,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e",
+    body: '{"zaaktype": "http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f",
       "bronorganisatie": "123456782", "verantwoordelijkeOrganisatie": "123456782",
       "startdatum": "2000-01-01", "archiefnominatie": "vernietigen", "archiefactiedatum":
       "2020-01-01"}'
@@ -476,7 +476,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.ePuXKwLoNILztKC487748dxP2Skb1v2zyFTd_OW2m0Q
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.UqfZZF7QAe43ebtyupPitcTYytFzfo2rVbTv9Mpes4c
       Connection:
       - keep-alive
       Content-Crs:
@@ -491,7 +491,7 @@ interactions:
     uri: http://localhost:8003/zaken/api/v1/zaken
   response:
     body:
-      string: '{"url":"http://localhost:8003/zaken/api/v1/zaken/f7621434-d78c-4a57-96ea-51e4db118035","uuid":"f7621434-d78c-4a57-96ea-51e4db118035","identificatie":"ZAAK-2000-0000000002","bronorganisatie":"123456782","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/4cd1c05f-ffb2-4e2d-8b13-6e093d11246e","registratiedatum":"2025-12-12","verantwoordelijkeOrganisatie":"123456782","startdatum":"2000-01-01","einddatum":null,"einddatumGepland":null,"uiterlijkeEinddatumAfdoening":"2000-02-10","publicatiedatum":null,"laatstGemuteerd":"2025-12-12T16:38:10.943827Z","laatstGeopend":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":null,"verlenging":null,"opschorting":{"indicatie":false,"eerdereOpschorting":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":[],"rollen":[],"status":null,"zaakinformatieobjecten":[],"zaakobjecten":[],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2020-01-01","resultaat":null,"opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""}}'
+      string: '{"url":"http://localhost:8003/zaken/api/v1/zaken/9d551e5c-8329-448b-b41f-9723f884c7e6","uuid":"9d551e5c-8329-448b-b41f-9723f884c7e6","identificatie":"ZAAK-2000-0000000002","bronorganisatie":"123456782","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/5fd45cfa-c22f-4ebf-9d2b-dd57ed6f881f","registratiedatum":"2025-12-18","verantwoordelijkeOrganisatie":"123456782","startdatum":"2000-01-01","einddatum":null,"einddatumGepland":null,"uiterlijkeEinddatumAfdoening":"2000-02-10","publicatiedatum":null,"laatstGemuteerd":"2025-12-18T13:32:58.956768Z","laatstGeopend":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":null,"verlenging":null,"opschorting":{"indicatie":false,"eerdereOpschorting":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":[],"rollen":[],"status":null,"zaakinformatieobjecten":[],"zaakobjecten":[],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2020-01-01","resultaat":null,"opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""}}'
     headers:
       API-version:
       - 1.5.1
@@ -504,20 +504,20 @@ interactions:
       Content-Length:
       - '1404'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:11 GMT
+      - Thu, 18 Dec 2025 13:32:59 GMT
       Location:
-      - http://localhost:8003/zaken/api/v1/zaken/f7621434-d78c-4a57-96ea-51e4db118035
+      - http://localhost:8003/zaken/api/v1/zaken/9d551e5c-8329-448b-b41f-9723f884c7e6
       Referrer-Policy:
       - same-origin
       Server:
@@ -532,7 +532,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"zaak": "http://localhost:8003/zaken/api/v1/zaken/f7621434-d78c-4a57-96ea-51e4db118035",
+    body: '{"zaak": "http://localhost:8003/zaken/api/v1/zaken/9d551e5c-8329-448b-b41f-9723f884c7e6",
       "objectType": "overige", "object": "https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ",
       "objectTypeOverige": "Chuck norris quote", "objectIdentificatie": {"overigeData":
       "3kcaD8EnSKuRHKAi9Lt8HQ"}}'
@@ -544,7 +544,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.rpyl8S-UOkueLvddQEqq4RImjLo_GWOo6QnHviN94IA
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc3OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.JnzTli5D_hJ01weGaBIqLwi1KwhsB2gtqGInh8BrUxs
       Connection:
       - keep-alive
       Content-Crs:
@@ -559,7 +559,7 @@ interactions:
     uri: http://localhost:8003/zaken/api/v1/zaakobjecten
   response:
     body:
-      string: '{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/1c5216c7-8178-4ec1-8a1d-1fce8053659c","uuid":"1c5216c7-8178-4ec1-8a1d-1fce8053659c","zaak":"http://localhost:8003/zaken/api/v1/zaken/f7621434-d78c-4a57-96ea-51e4db118035","object":"https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Chuck
+      string: '{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/a858799b-8ff3-44c4-b719-21f2e44270df","uuid":"a858799b-8ff3-44c4-b719-21f2e44270df","zaak":"http://localhost:8003/zaken/api/v1/zaken/9d551e5c-8329-448b-b41f-9723f884c7e6","object":"https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Chuck
         norris quote","objectTypeOverigeDefinitie":null,"relatieomschrijving":"","objectIdentificatie":{"overigeData":"3kcaD8EnSKuRHKAi9Lt8HQ"}}'
     headers:
       API-version:
@@ -571,20 +571,20 @@ interactions:
       Content-Length:
       - '502'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:11 GMT
+      - Thu, 18 Dec 2025 13:32:59 GMT
       Location:
-      - http://localhost:8003/zaken/api/v1/zaakobjecten/1c5216c7-8178-4ec1-8a1d-1fce8053659c
+      - http://localhost:8003/zaken/api/v1/zaakobjecten/a858799b-8ff3-44c4-b719-21f2e44270df
       Referrer-Policy:
       - same-origin
       Server:
@@ -606,16 +606,16 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1NzQ5MSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.rpyl8S-UOkueLvddQEqq4RImjLo_GWOo6QnHviN94IA
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc4MCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.lN0ojvZUWVYJiooJFcEbAA2N3VZWJyW6CvUtbcLr66o
       Connection:
       - keep-alive
       User-Agent:
       - python-requests/2.32.4
     method: GET
-    uri: http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2Ff7621434-d78c-4a57-96ea-51e4db118035
+    uri: http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F9d551e5c-8329-448b-b41f-9723f884c7e6
   response:
     body:
-      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/1c5216c7-8178-4ec1-8a1d-1fce8053659c","uuid":"1c5216c7-8178-4ec1-8a1d-1fce8053659c","zaak":"http://localhost:8003/zaken/api/v1/zaken/f7621434-d78c-4a57-96ea-51e4db118035","object":"https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Chuck
+      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/a858799b-8ff3-44c4-b719-21f2e44270df","uuid":"a858799b-8ff3-44c4-b719-21f2e44270df","zaak":"http://localhost:8003/zaken/api/v1/zaken/9d551e5c-8329-448b-b41f-9723f884c7e6","object":"https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Chuck
         norris quote","objectTypeOverigeDefinitie":null,"relatieomschrijving":"","objectIdentificatie":{"overigeData":"3kcaD8EnSKuRHKAi9Lt8HQ"}}]}'
     headers:
       API-version:
@@ -627,18 +627,18 @@ interactions:
       Content-Length:
       - '554'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:38:11 GMT
+      - Thu, 18 Dec 2025 13:33:00 GMT
       Referrer-Policy:
       - same-origin
       Server:
