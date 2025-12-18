@@ -331,3 +331,20 @@ class OpenZaakDataCreationHelper:
             "klantcontacten",
             build_client(Service.objects.get(slug=self.openklant_service_slug)),
         )
+
+    def create_onderwerpobject(
+        self, **overrides: Mapping[str, JSONEncodable]
+    ) -> Mapping[str, JSONEncodable]:
+        klantcontact = self.create_klantcontact()
+        assert isinstance(klantcontact["url"], str)
+        data: Mapping[str, JSONEncodable] = {
+            "klantcontact": {"uuid": furl(klantcontact["url"]).path.segments[-1]},
+            "wasKlantcontact": None,
+            "onderwerpobjectidentificator": None,
+        } | overrides
+
+        return self._create_resource(
+            data,
+            "onderwerpobjecten",
+            build_client(Service.objects.get(slug=self.openklant_service_slug)),
+        )

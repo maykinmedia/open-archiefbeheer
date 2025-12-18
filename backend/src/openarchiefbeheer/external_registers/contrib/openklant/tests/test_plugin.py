@@ -58,8 +58,8 @@ class OpenKlantPluginTests(ClearCacheMixin, VCRMixin, TestCase):
             header_value="Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
         )
         helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
-        klantcontact = helper.create_klantcontact()
-        assert isinstance(klantcontact["url"], str)
+        onderwerpobject = helper.create_onderwerpobject()
+        assert isinstance(onderwerpobject["url"], str)
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -72,12 +72,13 @@ class OpenKlantPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         plugin = register[OPENKLANT_IDENTIFIER]
         plugin.delete_related_resources(
-            related_resources=[klantcontact["url"]],
+            zaak_url=item.zaak.url,
+            related_resources=[onderwerpobject["url"]],
             result_store=result_store,
         )
 
         results = result_store.get_internal_results()
         self.assertEqual(
-            results["deleted_resources"]["klantcontacten"][0],
-            klantcontact["url"],
+            results["deleted_resources"]["onderwerpobjecten"][0],
+            onderwerpobject["url"],
         )

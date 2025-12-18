@@ -238,8 +238,8 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
         config.services.add(ok_service)
         config.save()
         helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
-        klantcontact = helper.create_klantcontact()
-        assert isinstance(klantcontact["url"], str)
+        onderwerpobject = helper.create_onderwerpobject()
+        assert isinstance(onderwerpobject["url"], str)
 
         # TODO: Replace with real interactions once it is possible to do this in Open Zaak
         m.get(
@@ -250,7 +250,7 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
                 "results": [
                     {
                         "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/111-111-111",
-                        "object": klantcontact["url"],
+                        "object": onderwerpobject["url"],
                     }
                 ],
             },
@@ -265,8 +265,8 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
 
         results = result_store.get_internal_results()
         self.assertEqual(
-            results["deleted_resources"]["klantcontacten"][0],
-            klantcontact["url"],
+            results["deleted_resources"]["onderwerpobjecten"][0],
+            onderwerpobject["url"],
         )
 
     @Mocker(real_http=True)
@@ -296,10 +296,10 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
         config.services.add(ok_service)
         config.save()
         helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
-        klantcontact1 = helper.create_klantcontact()
-        klantcontact2 = helper.create_klantcontact()
-        assert isinstance(klantcontact1["url"], str) and isinstance(
-            klantcontact2["url"], str
+        onderwerpobject1 = helper.create_onderwerpobject()
+        onderwerpobject2 = helper.create_onderwerpobject()
+        assert isinstance(onderwerpobject1["url"], str) and isinstance(
+            onderwerpobject2["url"], str
         )
 
         # TODO: Replace with real interactions once it is possible to do this in Open Zaak
@@ -311,11 +311,11 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
                 "results": [
                     {
                         "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/111-111-111",
-                        "object": klantcontact1["url"],
+                        "object": onderwerpobject1["url"],
                     },
                     {
                         "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/222-222-222",
-                        "object": klantcontact2["url"],
+                        "object": onderwerpobject2["url"],
                     },
                 ],
             },
@@ -329,8 +329,8 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
         )
 
         results = result_store.get_internal_results()
-        self.assertEqual(len(results["deleted_resources"]["klantcontacten"]), 1)
+        self.assertEqual(len(results["deleted_resources"]["onderwerpobjecten"]), 1)
         self.assertEqual(
-            results["deleted_resources"]["klantcontacten"][0],
-            klantcontact2["url"],
+            results["deleted_resources"]["onderwerpobjecten"][0],
+            onderwerpobject2["url"],
         )
