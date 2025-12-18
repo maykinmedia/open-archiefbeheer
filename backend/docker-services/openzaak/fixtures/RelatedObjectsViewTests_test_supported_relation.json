@@ -202,12 +202,12 @@
         "fields": {
             "uuid": "d0b27cb0-ec3d-44c0-9683-b53471834348",
             "zaak": 1,
-            "object": "http://localhost:8005/klantinteracties/api/v1/klantcontacten/1dfca717-ae24-4ba6-b656-695b121723a6",
+            "object": "http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6",
             "relatieomschrijving": "",
             "object_type": "overige",
-            "object_type_overige": "Klantcontact",
+            "object_type_overige": "Onderwerpobject",
             "object_type_overige_definitie": {
-                "url": "http://localhost:8005/klantinteracties/api/v1/klantcontacten/1dfca717-ae24-4ba6-b656-695b121723a6",
+                "url": "http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6",
                 "schema": {},
                 "object_data": {}
             },
