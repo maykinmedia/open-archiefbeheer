@@ -50,13 +50,14 @@ Stappen
     - Deselecteer zaken door op het selectievak naast de ongewenste zaken te klikken.
     - Klik op de knop **"Vernietigingslijst aanpassen"** om de wijzigingen op te slaan. |vernietigingslijst_opslaan|
 
-7. **Gerelateerde objecten bekijken en beheren**
+7. **Selectie van gerelateerde objecten bekijken en bewerken**
     - In de kolom **Gerelateerde objecten** verschijnt een knop om gerelateerde objecten interactief te beheren
       wanneer de lijst niet in bewerkmodus staat en de gebruiker de juiste rechten heeft om gerelateerde objecten te bewerken. |gerelateerde_objecten_knop|
     - Ondersteunde objecten kunnen aangevinkt of uitgevinkt worden; niet-ondersteunde objecten zijn alleen ter informatie
       en altijd uitgeschakeld.
     - Alleen de geselecteerde gerelateerde objecten worden daadwerkelijk vernietigd.
     - Klik op de knop **"Opslaan"** binnen deze sectie om wijzigingen op te slaan.
+    - Wijzigingen aan de selectie worden direct doorgevoerd.
 
 8. **Naam van de lijst aanpassen**
     - Klik op de knop **"Naam bewerken"** om de naam van de lijst te wijzigen. |naam_bewerken|
@@ -158,4 +159,4 @@ Met deze stappen kun je de beoordelaar voor een vernietigingslijst bijwerken en 
 
 .. |beoordelaar_bewerken| image:: ../_assets/naam-bewerken.png
     :alt: Beoordelaar bewerken knop
-    :height: 22px
+    :height: 26px

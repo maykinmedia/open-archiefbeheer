@@ -33,21 +33,31 @@ Stappen
     - Zoek de vernietigingslijst die je wilt verwerken. Bijvoorbeeld **"Mijn eerste vernietigingslijst"**.
     - Klik op de naam van de lijst om de details van de lijst te openen.
 
-3. **Beoordeel de wijzigingen**
+3. **Selectie van gerelateerde objecten bekijken en bewerken**
+    - In de kolom **Gerelateerde objecten** verschijnt een knop om gerelateerde objecten interactief te beheren
+      wanneer de lijst niet in bewerkmodus staat en de gebruiker de juiste rechten heeft om gerelateerde objecten te bewerken. |gerelateerde_objecten_knop|
+    - Ondersteunde objecten kunnen aangevinkt of uitgevinkt worden; niet-ondersteunde objecten zijn alleen ter informatie
+      en altijd uitgeschakeld.
+    - Alleen de geselecteerde gerelateerde objecten worden daadwerkelijk vernietigd.
+    - Klik op de knop **"Opslaan"** binnen deze sectie om wijzigingen op te slaan.
+    - Wijzigingen aan de selectie worden direct doorgevoerd.
+
+4. **Beoordeel de wijzigingen**
     - Je wordt doorgestuurd naar de pagina waar je de beoordeling kunt verwerken.
     - Klik op de knop **"Muteren"** om wijzigingen aan te brengen. |muteren_knop|
+    - Wijzigingen worden doorgevoerd na het opnieuw indienen van de lijst.
 
-4. **Selectielijstklasse aanpassen**
+5. **Selectielijstklasse aanpassen**
     - Indien nodig, selecteer je de optie **"Aanpassen van selectielijstklasse"**.
     - Vul het veld **"Selectielijstklasse"** in, bijvoorbeeld **"11.1 - Verleend - vernietigen - P1Y"**.
 
-5. **Bewaartermijn verlengen**
+6. **Bewaartermijn verlengen**
     - Kies de optie **"Verlengen bewaartermijn"**.
     - Vul de gewenste **"Dag van de maand"** in (bijvoorbeeld **09/15/2023**).
     - Je kunt de bewaartermijn niet verlengen voor zaken waarvoor de selectielijst een archiefnominatie van
       **"blijvend bewaren"** heeft.
 
-6. **Afwijzen van het voorstel**
+7. **Afwijzen van het voorstel**
     - Kies de optie **"Afwijzen van het voorstel"** om zaak niet te muteren (en opnieuw aan te bieden aan de
       beoordelaar).
 
@@ -81,6 +91,10 @@ Let op
 Na het indienen kan de lijst door de beoordelaar opnieuw worden
 :ref:`bekeken<manual_2-beoordelaar-archivaris_2.1-vernietigingslijst-beoordelen>`. De beoordelaar kan de lijst goedkeuren
 of verdere wijzigingen aanvragen.
+
+.. |gerelateerde_objecten_knop| image:: ../_assets/gerelateerde-objecten-knop.png
+    :alt: Gerelateerde objecten bekijken
+    :height: 26px
 
 .. |muteren_knop| image:: ../_assets/muteren-knop.png
     :alt: muteren knop

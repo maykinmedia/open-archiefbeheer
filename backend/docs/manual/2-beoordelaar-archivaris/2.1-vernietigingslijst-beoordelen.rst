@@ -29,7 +29,7 @@ Stappen
     - Zoek de vernietigingslijst die je wilt beoordelen. Bijvoorbeeld **"Mijn eerste vernietigingslijst"**.
     - Klik op de naam van de lijst om de details van de lijst te openen.
 
-3. **Gerelateerde objecten bekijken**
+3. **Selectie van gerelateerde objecten bekijken**
     - In de kolom **Gerelateerde objecten** verschijnt een knop om gerelateerde objecten te bekijken. |gerelateerde_objecten_knop|
     - Alleen de geselecteerde gerelateerde objecten worden daadwerkelijk vernietigd.
 
@@ -80,7 +80,7 @@ afgekeurd, moet de record manager de aangevraagde wijzigingen
 
 .. |gerelateerde_objecten_knop| image:: ../_assets/gerelateerde-objecten-knop.png
     :alt: Gerelateerde objecten bekijken
-    :height: 32px
+    :height: 26px
 
 .. |accorderen| image:: ../_assets/accorderen.png
     :alt: accorderen knop
