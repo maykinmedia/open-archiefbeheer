@@ -9,8 +9,8 @@ import { PaginatedDestructionListItems } from "../api/destructionListsItem";
 import { PaginatedResults } from "../api/paginatedResults";
 
 export type DestructionDetailData = Zaak & {
-  processingStatus?: string;
   "Gerelateerde objecten"?: JSX.Element;
+  processingStatus?: string;
 };
 
 /**

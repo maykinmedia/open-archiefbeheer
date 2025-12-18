@@ -6,9 +6,11 @@ import {
   useConfirm,
   usePrompt,
 } from "@maykin-ui/admin-ui";
+import { invariant } from "@maykin-ui/client-common";
 import { JSX } from "react";
 import { useLoaderData } from "react-router-dom";
 
+import { RelatedObjectsSelectionModal } from "../../../components";
 import {
   usePoll,
   useZaakReviewStatusBadges,
@@ -44,6 +46,7 @@ export const CO_REVIEW_POLL_INTERVAL = parseInt(
 );
 
 type DestructionListReviewData = Zaak & {
+  "Gerelateerde objecten"?: JSX.Element;
   Beoordeling?: JSX.Element;
   Acties?: JSX.Element;
 };
@@ -63,6 +66,7 @@ export function DestructionListReviewPage() {
     paginatedZaken,
     reviewItems,
     reviewResponse,
+    user,
   } = useLoaderData() as DestructionListReviewContext;
 
   const zakenResults = paginatedZaken.results
@@ -363,11 +367,28 @@ export function DestructionListReviewPage() {
    * Retrieves a paginated list of objects.
    */
   function getPaginatedObjectList(): PaginatedResults<DestructionListReviewData> {
-    const objectList = zakenResults.map((zaak) => {
-      const badge = zaakReviewStatusBadges[zaak.url].badge;
-      const actions = getActionsToolbarForZaak(zaak);
-      return { ...zaak, Beoordeling: badge, Acties: actions };
-    });
+    const objectList = paginatedZaken.results
+      .filter((r) => r.zaak)
+      .map(({ pk, zaak }) => {
+        invariant(zaak, "zaak is undefined!");
+
+        const gerelateerdeObjecten = (
+          <RelatedObjectsSelectionModal
+            amount={zaak?.zaakobjecten?.length || 0}
+            destructionList={destructionList}
+            destructionListItemPk={pk}
+            user={user}
+          />
+        );
+        const badge = zaakReviewStatusBadges[zaak.url].badge;
+        const actions = getActionsToolbarForZaak(zaak);
+        return {
+          ...zaak,
+          "Gerelateerde objecten": gerelateerdeObjecten,
+          Beoordeling: badge,
+          Acties: actions,
+        };
+      });
 
     return { ...paginatedZaken, results: objectList };
   }
