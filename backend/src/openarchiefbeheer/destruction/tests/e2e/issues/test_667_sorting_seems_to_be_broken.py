@@ -17,15 +17,19 @@ from openarchiefbeheer.destruction.tests.factories import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 
 @tag("e2e")
 @tag("issue")
 @tag("gh-667")
+@AsyncCapableRequestsMock()
 class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
-    async def test_scenario_sort_destruction_list_create_page(self):
+    async def test_scenario_sort_destruction_list_create_page(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             await self.given.zaken_are_indexed(amount=3, recreate=True)
 
@@ -41,8 +45,9 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/create?ordering=-identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-2", "ZAAK-1", "ZAAK-0"])
 
-    async def test_scenario_sort_destruction_list_detail_page(self):
+    async def test_scenario_sort_destruction_list_detail_page(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             zaken = await self.given.zaken_are_indexed(amount=3, recreate=True)
             await self.given.list_exists(
@@ -63,8 +68,9 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?ordering=-identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-2", "ZAAK-1", "ZAAK-0"])
 
-    async def test_scenario_sort_destruction_list_edit_page(self):
+    async def test_scenario_sort_destruction_list_edit_page(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             zaken = await self.given.zaken_are_indexed(amount=10, recreate=True, omschrijving="Destruction list to sort")
             await self.given.list_exists(
@@ -89,8 +95,9 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&omschrijving__icontains=Destruction+list+to+sort&ordering=-identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-2", "ZAAK-1", "ZAAK-0"])
 
-    async def test_scenario_sort_destruction_list_review_page(self):
+    async def test_scenario_sort_destruction_list_review_page(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists()
             archivist = await self.given.archivist_exists()
@@ -124,7 +131,7 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/review?ordering=-identificatie")
             await self.then.zaken_should_have_order(page, ["ZAAK-2", "ZAAK-1", "ZAAK-0"])
 
-    async def test_scenario_sort_destruction_list_process_review_page(self):
+    async def test_scenario_sort_destruction_list_process_review_page(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(
@@ -207,6 +214,7 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
             self.destruction_list = destruction_list
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.user_logs_in(page, self.destruction_list.assignee)
             await self.then.path_should_be(page, "/destruction-lists")

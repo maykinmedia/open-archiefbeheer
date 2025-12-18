@@ -638,7 +638,7 @@ class DestructionListCoReviewViewSet(
 class DestructionListItemReviewViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DestructionListItemReviewSerializer
     queryset = DestructionListItemReview.objects.all().select_related(
-        "destruction_list_item__zaak"
+        "destruction_list_item", "destruction_list_item__zaak"
     )
     filterset_class = DestructionListReviewItemFilterset
     filter_backends = (NestedFilterBackend, NestedOrderingFilterBackend)

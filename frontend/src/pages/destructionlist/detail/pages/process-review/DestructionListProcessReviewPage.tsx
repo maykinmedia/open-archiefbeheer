@@ -13,7 +13,9 @@ import { useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 import { RelatedObjectsSelectionModal } from "../../../../../components";
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";
+import { DestructionListItem } from "../../../../../lib/api/destructionListsItem";
 import { PaginatedResults } from "../../../../../lib/api/paginatedResults";
+import { ReviewItem } from "../../../../../lib/api/review";
 import { paginatedDestructionListItems2DestructionDetailData } from "../../../../../lib/format/destructionList";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
 import { Zaak } from "../../../../../types";
@@ -45,6 +47,10 @@ type ReviewMeta = {
 
 type DestructionListProcessReviewData = Zaak & ReviewMeta;
 
+type ReviewItemWithZaak = Omit<ReviewItem, "destructionListItem"> & {
+  destructionListItem: Omit<DestructionListItem, "zaak"> & { zaak: Zaak };
+};
+
 /**
  * Show items of a destruction list review.
  * Allows processing feedback of the destruction list.
@@ -56,13 +62,19 @@ export function DestructionListProcessReviewPage() {
     destructionListItems,
     zaakSelection, // FIXME: remove usage
     review,
-    reviewItems = [],
+    reviewItems: _reviewItems = [],
     selectieLijstKlasseChoicesMap,
     user,
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
-  const zakenOnPage = reviewItems?.map((ri) => ri.zaak) || [];
+  const reviewItems: ReviewItemWithZaak[] =
+    (_reviewItems?.filter(
+      (ri) => ri.destructionListItem.zaak,
+    ) as ReviewItemWithZaak[]) || [];
+
+  const zakenOnPage: Zaak[] =
+    reviewItems.map((ri) => ri.destructionListItem.zaak!) || [];
 
   const [selectionClearedState, setSelectionClearedState] = useState(false);
   const revalidator = useRevalidator();
@@ -111,18 +123,18 @@ export function DestructionListProcessReviewPage() {
 
   // The object list of the current page with review actions appended.
   const objectList = useMemo<DestructionListProcessReviewData[]>(() => {
-    return (reviewItems || []).map(({ destructionListItem, zaak: z }, i) => ({
-      ...z,
+    return (reviewItems || []).map(({ destructionListItem }, i) => ({
+      ...destructionListItem.zaak,
       "Gerelateerde objecten": (
         <RelatedObjectsSelectionModal
-          amount={z.zaakobjecten?.length || 0}
+          amount={destructionListItem.zaak.zaakobjecten?.length || 0}
           destructionList={destructionList}
-          destructionListItemPk={destructionListItem}
+          destructionListItemPk={destructionListItem.pk}
           user={user}
         />
       ),
       Opmerking: reviewItems?.[i]?.feedback ?? "",
-      Mutatie: getProcessReviewBadge(z),
+      Mutatie: getProcessReviewBadge(destructionListItem.zaak),
       Acties: (
         <Toolbar
           align="end"
@@ -141,8 +153,8 @@ export function DestructionListProcessReviewPage() {
               wrap: false,
               onClick: () =>
                 handleProcessReviewZaakSelect(
-                  z,
-                  (z.url as string) in zaakReviewStatuses,
+                  destructionListItem.zaak,
+                  destructionListItem.zaak.url in zaakReviewStatuses,
                 ),
             },
           ]}
@@ -371,7 +383,9 @@ export function DestructionListProcessReviewPage() {
         zaakModalDataState={processZaakReviewModalState}
         reviewItem={
           reviewItems?.find(
-            (ri) => ri.zaak.url === processZaakReviewModalState.zaak?.url,
+            (ri) =>
+              ri.destructionListItem.zaak.url ===
+              processZaakReviewModalState.zaak?.url,
           ) || null
         }
         action={processZaakReviewDetail?.action}

@@ -2,6 +2,7 @@ from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 from ....constants import InternalStatus, ListItemStatus, ListStatus
 
@@ -9,9 +10,13 @@ from ....constants import InternalStatus, ListItemStatus, ListStatus
 @tag("e2e")
 @tag("issue")
 @tag("gh-568")
+@AsyncCapableRequestsMock()
 class Issue568CorrectCount(GherkinLikeTestCase):
-    async def test_destruction_fails_with_incorrect_count(self):
+    async def test_destruction_fails_with_incorrect_count(
+        self, requests_mock: AsyncCapableRequestsMock
+    ):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             zaken = await self.given.zaken_are_indexed(amount=6)
             await self.given.record_manager_exists()
 

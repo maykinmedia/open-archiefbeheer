@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 
-import { ZaakSelection } from "../lib/zaakSelection";
-import { Zaak } from "../types";
+import { ZaakIdentifier, ZaakSelection } from "../lib/zaakSelection";
 
 export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;
 
@@ -11,7 +10,7 @@ export type ZAAK_REVIEW_STATUS_ENUM = boolean | null;
  * @param reviewedZaakSelectionOnPage
  */
 export function useZaakReviewStatuses(
-  zakenOnPage: Zaak[],
+  zakenOnPage: ZaakIdentifier[],
   reviewedZaakSelectionOnPage: ZaakSelection<{ approved?: boolean }>,
 ): Record<string, ZAAK_REVIEW_STATUS_ENUM> {
   // Page specific approved zaken.

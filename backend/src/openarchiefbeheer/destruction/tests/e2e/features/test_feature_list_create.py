@@ -7,15 +7,18 @@ from asgiref.sync import sync_to_async
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...factories import DestructionListItemFactory
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListCreateTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_creates_list(self):
+    async def test_scenario_record_manager_creates_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
             await self.given.zaken_are_indexed(100)
@@ -36,8 +39,9 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.page_should_contain_text(page, "Destruction list to create")
 
-    async def test_scenario_record_manager_cannot_create_existing_list(self):
+    async def test_scenario_record_manager_cannot_create_existing_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page([]) as page:  # Silence (debug) warning.
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
             await self.given.zaken_are_indexed(200)
@@ -59,8 +63,9 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Foutmelding")
             await self.then.page_should_contain_text(page, "Er bestaat al een vernietigingslijst met dezelfde naam")
 
-    async def test_scenario_reviewer_cannot_create_list(self):
+    async def test_scenario_reviewer_cannot_create_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.reviewer_exists()
             await self.given.zaken_are_indexed(100)
 
@@ -68,8 +73,9 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
-    async def test_scenario_archivist_cannot_create_list(self):
+    async def test_scenario_archivist_cannot_create_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.archivist_exists()
             await self.given.zaken_are_indexed(100)
 
@@ -77,7 +83,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.path_should_be(page, "/destruction-lists")
             await self.then.not_.page_should_contain_text(page, "Vernietigingslijst opstellen")
 
-    async def test_zaaktype_filters_on_create_page(self):
+    async def test_zaaktype_filters_on_create_page(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             ZaakFactory.create(
@@ -129,6 +135,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             DestructionListItemFactory.create(zaak=zaak)
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()
             await self.when.record_manager_logs_in(page)
@@ -150,7 +157,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
                 "ZAAKTYPE-02 (ZAAKTYPE-02)"
             ])
 
-    async def test_zaaktype_filters_on_selectielijstklasse_create_page(self):
+    async def test_zaaktype_filters_on_selectielijstklasse_create_page(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             ZaakFactory.create(
@@ -194,6 +201,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             )
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()
             await self.given.selectielijstklasse_choices_are_available(page)
@@ -224,7 +232,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
             await self.then.page_should_contain_text(page, "ZAAK-3")
 
-    async def test_scenario_filter_expired_archive_date(self):
+    async def test_scenario_filter_expired_archive_date(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             today = datetime.date.today()
@@ -236,6 +244,7 @@ class FeatureListCreateTests(GherkinLikeTestCase):
             ZaakFactory.create(identificatie="ZAAK-3", archiefactiedatum=tomorrow)
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.given.record_manager_exists()
 

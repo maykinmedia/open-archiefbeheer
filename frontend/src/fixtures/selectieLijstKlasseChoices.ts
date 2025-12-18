@@ -1,7 +1,6 @@
 import { Option } from "@maykin-ui/admin-ui";
 
 import { createArrayFactory } from "./factory";
-import { zakenFactory } from "./zaak";
 
 interface SelectieLijstKlasseChoice {
   label: string;
@@ -78,20 +77,8 @@ const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: SelectieLijstKlasseChoice[] = [
   },
 ];
 
-const FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP = zakenFactory().reduce(
-  (acc, val) => ({
-    ...acc,
-    [val.url as string]: FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-  }),
-  {},
-);
-
 const selectieLijstKlasseFactory = createArrayFactory<Option>(
   FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
 );
 
-export {
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES,
-  FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
-  selectieLijstKlasseFactory,
-};
+export { FIXTURE_SELECTIELIJSTKLASSE_CHOICES, selectieLijstKlasseFactory };

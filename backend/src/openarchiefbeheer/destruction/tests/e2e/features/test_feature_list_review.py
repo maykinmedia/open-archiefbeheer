@@ -11,6 +11,7 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...factories import (
@@ -23,9 +24,11 @@ from ...factories import (
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListReviewTests(GherkinLikeTestCase):
-    async def test_scenario_reviewer_approves_list(self):
+    async def test_scenario_reviewer_approves_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists()
             archivist = await self.given.archivist_exists()
@@ -58,8 +61,9 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, destruction_list, ListStatus.internally_reviewed)
 
-    async def test_scenario_reviewer_rejects_list(self):
+    async def test_scenario_reviewer_rejects_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists()
             archivist = await self.given.archivist_exists()
@@ -95,7 +99,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.list_should_have_status(page, destruction_list, ListStatus.changes_requested)
 
     @tag("gh-372")
-    async def test_scenario_reviewer_reviews_second_time(self):
+    async def test_scenario_reviewer_reviews_second_time(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -118,6 +122,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             DestructionListItemReviewFactory.create(destruction_list=destruction_list, destruction_list_item=item, review=review)
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.reviewer_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -127,8 +132,9 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Accorderen")
             await self.then.this_number_of_zaken_should_be_visible(page, 2)
 
-    async def test_scenario_archivist_approves_list(self):
+    async def test_scenario_archivist_approves_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             archivist = await self.given.archivist_exists()
 
@@ -159,8 +165,9 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, destruction_list, ListStatus.ready_to_delete)
 
-    async def test_scenario_archivist_rejects_list(self):
+    async def test_scenario_archivist_rejects_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             archivist = await self.given.archivist_exists()
 
@@ -193,7 +200,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Destruction list to review")
             await self.then.list_should_have_status(page, destruction_list, ListStatus.changes_requested)
 
-    async def test_zaaktype_filters(self):
+    async def test_zaaktype_filters(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             reviewer = UserFactory.create(
@@ -267,6 +274,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             self.destruction_list = destruction_list
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.user_logs_in(page, self.destruction_list.assignee)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -285,7 +293,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             ])
 
     @tag("gh-378")
-    async def test_zaak_removed_outside_process(self):
+    async def test_zaak_removed_outside_process(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -311,6 +319,7 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             item1.zaak.delete()
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.reviewer_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -321,8 +330,9 @@ class FeatureListReviewTests(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Accorderen")
             await self.then.this_number_of_zaken_should_be_visible(page, 1)
 
-    async def test_reviewer_approves_list_with_short_process(self):
+    async def test_reviewer_approves_list_with_short_process(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists()
 

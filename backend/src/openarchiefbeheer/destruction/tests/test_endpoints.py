@@ -5,11 +5,14 @@ from django.core import mail
 from django.test import override_settings
 from django.utils.translation import gettext as _, ngettext
 
+import requests_mock
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from timeline_logger.models import TimelineLog
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
@@ -1372,7 +1375,16 @@ class DestructionListItemReviewViewSetTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_filter_on_review(self):
+    @requests_mock.Mocker()
+    def test_filter_on_review(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         user = UserFactory.create()
 
         reviews = DestructionListReviewFactory.create_batch(2)
@@ -1411,5 +1423,4 @@ class DestructionListItemReviewViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
-
-        self.assertIsNone(data[0]["zaak"])
+        self.assertIsNone(data[0]["destructionListItem"]["zaak"])

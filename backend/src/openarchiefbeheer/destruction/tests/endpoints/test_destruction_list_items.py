@@ -1,9 +1,12 @@
 from django.test import tag
 
+import requests_mock
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -30,7 +33,16 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_retrieve_destruction_list_items(self):
+    @requests_mock.Mocker()
+    def test_retrieve_destruction_list_items(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
 
         DestructionListItemFactory.create(
@@ -73,7 +85,16 @@ class DestructionListItemsViewSetTest(APITestCase):
             "http://zaken.nl/api/v1/zaken/333-333-333",
         )
 
-    def test_filter_items_on_destruction_list(self):
+    @requests_mock.Mocker()
+    def test_filter_items_on_destruction_list(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
 
         destruction_list = DestructionListFactory.create()
@@ -109,7 +130,16 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.assertEqual(data["count"], 2)
 
-    def test_filter_items_on_destruction_list_and_status(self):
+    @requests_mock.Mocker()
+    def test_filter_items_on_destruction_list_and_status(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
 
         destruction_list = DestructionListFactory.create()
@@ -146,7 +176,16 @@ class DestructionListItemsViewSetTest(APITestCase):
 
         self.assertEqual(data["count"], 1)
 
-    def test_order_on_processing_status(self):
+    @requests_mock.Mocker()
+    def test_order_on_processing_status(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
         destruction_list = DestructionListFactory.create()
         item1 = DestructionListItemFactory.create(
@@ -185,7 +224,15 @@ class DestructionListItemsViewSetTest(APITestCase):
         self.assertEqual(data["results"][2]["pk"], item1.pk)
 
     @tag("gh-471")
-    def test_item_with_extra_zaak_data(self):
+    @requests_mock.Mocker()
+    def test_item_with_extra_zaak_data(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
         record_manager = UserFactory.create(username="record_manager")
 
         destruction_list = DestructionListFactory.create()
