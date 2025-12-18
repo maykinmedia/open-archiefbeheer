@@ -10,6 +10,10 @@ class FixtureLoadingError(Exception):
     pass
 
 
+class CleanDatabaseError(Exception):
+    pass
+
+
 def reload_openzaak_fixtures(fixtures: Iterable[str] = []):
     def decorator(func):
         """Use the docker API to reload a fixture
@@ -37,9 +41,11 @@ def reload_openzaak_fixtures(fixtures: Iterable[str] = []):
         # Clean the database. This reloads a db where we have the tokens already set up
         # but no catalogi/zaken.
         db_container = client.containers.get(container_id="open-zaak-openzaak-db-1")
-        db_container.exec_run(
+        result = db_container.exec_run(
             "pg_restore -U postgres --dbname=openzaak /clean_db/clean_db.sql -Fc --clean --exit-on-error"
         )
+        if not result.exit_code == 0:
+            raise CleanDatabaseError(result.output)
 
         web_container = client.containers.get(
             container_id="open-zaak-openzaak-web.local-1"
