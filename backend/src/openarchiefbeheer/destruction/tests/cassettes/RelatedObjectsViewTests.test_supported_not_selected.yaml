@@ -9,7 +9,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1Nzk1OCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.mEfUbLYKQxslgAyKjHTtXCdaMThq1onyRU8fzEDlGiQ
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTQ5NzYwMCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.7-QDP1B3K5yuCpJ-yech4LIfSK66njti3IIAMcWrIWg
       Connection:
       - keep-alive
       User-Agent:
@@ -35,18 +35,18 @@ interactions:
       Content-Length:
       - '3418'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:45:58 GMT
+      - Thu, 18 Dec 2025 13:33:00 GMT
       Referrer-Policy:
       - same-origin
       Server:
@@ -68,7 +68,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTU1Nzk1OSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.L8AXqUnakUW4k38ZnbcsspW4sgiV0uMtvMtf41uip5Q
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc4MSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.wv0qZVIkHYv4czPQPnCM_uUYwLnI2gGdB6Jbqm7TF0o
       Connection:
       - keep-alive
       User-Agent:
@@ -77,7 +77,7 @@ interactions:
     uri: http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F7eac038c-6675-4273-b794-7849508db496
   response:
     body:
-      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348","uuid":"d0b27cb0-ec3d-44c0-9683-b53471834348","zaak":"http://localhost:8003/zaken/api/v1/zaken/7eac038c-6675-4273-b794-7849508db496","object":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/1dfca717-ae24-4ba6-b656-695b121723a6","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Klantcontact","objectTypeOverigeDefinitie":{"url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/1dfca717-ae24-4ba6-b656-695b121723a6","schema":"{}","objectData":"{}"},"relatieomschrijving":"","objectIdentificatie":null}]}'
+      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348","uuid":"d0b27cb0-ec3d-44c0-9683-b53471834348","zaak":"http://localhost:8003/zaken/api/v1/zaken/7eac038c-6675-4273-b794-7849508db496","object":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Onderwerpobject","objectTypeOverigeDefinitie":{"url":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6","schema":"{}","objectData":"{}"},"relatieomschrijving":"","objectIdentificatie":null}]}'
     headers:
       API-version:
       - 1.5.1
@@ -86,20 +86,20 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '689'
+      - '698'
       Content-Security-Policy:
-      - 'font-src ''self'' fonts.gstatic.com; worker-src ''self'' blob:; frame-ancestors
-        ''none''; default-src ''self''; frame-src ''self''; form-action ''self'';
-        img-src ''self'' data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org;
-        object-src ''none''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com
-        cdnjs.cloudflare.com cdn.jsdelivr.net; base-uri ''self''; script-src ''self''
-        ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
+        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 12 Dec 2025 16:45:59 GMT
+      - Thu, 18 Dec 2025 13:33:01 GMT
       Referrer-Policy:
       - same-origin
       Server:
