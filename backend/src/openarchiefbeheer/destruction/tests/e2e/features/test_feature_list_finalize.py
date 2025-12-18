@@ -8,12 +8,15 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListFinalizeTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_finalizes_list(self):
+    async def test_scenario_record_manager_finalizes_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
             archivaris = await self.given.archivist_exists(username="Archivaris")

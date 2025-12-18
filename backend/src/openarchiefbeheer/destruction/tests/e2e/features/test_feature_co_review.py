@@ -4,12 +4,15 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureCoReviewTests(GherkinLikeTestCase):
-    async def test_assign_co_reviewers(self):
+    async def test_assign_co_reviewers(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             reviewer = await self.given.reviewer_exists()
             co_reviewer1 = await self.given.co_reviewer_exists(username="co-reviewer1", first_name="Co", last_name="Reviewer")
             co_reviewer2 = await self.given.co_reviewer_exists(username="co-reviewer2", first_name="Cor", last_name="Eviewer")
@@ -39,8 +42,9 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
             await self.then.list_should_have_user_in_assignees(page, destruction_list, co_reviewer1)
             await self.then.list_should_have_user_in_assignees(page, destruction_list, co_reviewer2)
 
-    async def test_scenario_co_reviewer_select_zaken_visible_to_reviewer(self):
+    async def test_scenario_co_reviewer_select_zaken_visible_to_reviewer(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             reviewer = await self.given.reviewer_exists()
             reviewer_assignee = await self.given.assignee_exists(user=reviewer, role=ListRole.main_reviewer)
             co_reviewer = await self.given.co_reviewer_exists()

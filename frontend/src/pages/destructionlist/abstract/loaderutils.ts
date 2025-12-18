@@ -10,7 +10,6 @@ import {
 import {
   Review,
   ReviewItem,
-  ReviewItemWithZaak,
   getLatestReview,
   listReviewItems,
 } from "../../../lib/api/review";
@@ -100,7 +99,7 @@ export async function getReviewItems(
   destructionListPromise: Promise<DestructionList>,
   reviewPromise: Promise<Review | null>,
   searchParams: URLSearchParams,
-): Promise<ReviewItemWithZaak[] | null> {
+): Promise<ReviewItem[] | null> {
   // Construct full params including fitter etc.
   const destructionList = await destructionListPromise;
   const supportedStatuses: DestructionListStatus[] = [
@@ -129,8 +128,7 @@ export async function getReviewItems(
         'DestructionList with statues "changes_requested" must have a Review!',
       );
       return (await listReviewItems(params)).filter(
-        (item: ReviewItem | ReviewItemWithZaak): item is ReviewItemWithZaak =>
-          !!item.zaak,
+        (item: ReviewItem) => !!item.destructionListItem.zaak,
       );
 
     // "ready_to_review" may not have a review.
@@ -138,9 +136,8 @@ export async function getReviewItems(
     case "ready_for_archivist":
       return review
         ? (await listReviewItems(params)).filter(
-            (
-              item: ReviewItem | ReviewItemWithZaak,
-            ): item is ReviewItemWithZaak => !!item.zaak,
+            (item: ReviewItem): item is ReviewItem =>
+              !!item.destructionListItem.zaak,
           )
         : null;
   }

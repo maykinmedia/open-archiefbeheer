@@ -5,6 +5,7 @@ from playwright.async_api import Page
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 from ....constants import ListStatus
 from ....models import DestructionList
@@ -13,6 +14,7 @@ from ....models import DestructionList
 @tag("e2e")
 @tag("issue")
 @tag("gh-843")
+@AsyncCapableRequestsMock()
 class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
     async def _create(self, page: Page, record_manager_username="gh-843-record-manager-1", reviewer_username="gh-843-reviewer-1"):
         await self.given.record_manager_exists(username=record_manager_username)
@@ -123,8 +125,9 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
         await self.then.page_should_contain_text(page, str(reviewer2))
         await self.then.list_should_have_user_in_assignees(page, destruction_list, reviewer2)
 
-    async def test_scenario_create_abort_update(self):
+    async def test_scenario_create_abort_update(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             # First pass
             destruction_list = await self._create(page)
             await self._ready_to_review(page, destruction_list)
@@ -153,8 +156,9 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
             await self._abort_process(page, destruction_list)
 
     # https://github.com/maykinmedia/open-archiefbeheer/pull/844#discussion_r2183030659
-    async def test_scenario_record_manager_as_archivist_on_second_pass(self):
+    async def test_scenario_record_manager_as_archivist_on_second_pass(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.user_exists(username="user a", post__can_review_destruction=True, post__can_review_final_list=True)
             await self.given.archivist_exists(username="user b")
             await self.given.user_exists(username="user c", post__can_review_destruction=True, post__can_review_final_list=True)
@@ -175,8 +179,9 @@ class Issue843ProcessAbortCausesUnexpectedResultsTestCase(GherkinLikeTestCase):
             await self._finalize(page, destruction_list, archivist_username="user a")
             await self._review_by_archivist(page, destruction_list, archivist_username="user a")
 
-    async def test_scenario_different_record_manager_on_second_pass(self):
+    async def test_scenario_different_record_manager_on_second_pass(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             # First pass
             destruction_list = await self._create(page)
             await self._ready_to_review(page, destruction_list)

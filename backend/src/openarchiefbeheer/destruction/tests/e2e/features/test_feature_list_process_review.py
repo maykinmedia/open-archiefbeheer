@@ -13,6 +13,7 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...factories import (
@@ -24,8 +25,9 @@ from ...factories import (
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureProcessReviewTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_process_review(self):
+    async def test_scenario_record_manager_process_review(self, requests_mock: AsyncCapableRequestsMock):
         patcher = patch(
             "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
             return_value={"waardering": "vernietigen"}
@@ -34,6 +36,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
         self.addCleanup(patcher.stop)
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.selectielijstklasse_choices_are_available(page)
             record_manager = await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
@@ -78,7 +81,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Opnieuw indienen", 1)
             await self.then.path_should_be(page, "/destruction-lists")
 
-    async def test_zaaktype_filters_on_process_review_page(self):
+    async def test_zaaktype_filters_on_process_review_page(self, requests_mock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(
@@ -183,6 +186,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             self.destruction_list = destruction_list
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.user_logs_in(page, self.destruction_list.assignee)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -199,7 +203,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.then.zaaktype_filters_are(page, ["ZAAKTYPE-01 (ZAAKTYPE-01)"])
 
     @tag("gh-378")
-    async def test_zaak_removed_outside_process(self):
+    async def test_zaak_removed_outside_process(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(username="Record Manager", password="ANic3Password", post__can_start_destruction=True)
@@ -223,6 +227,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             item1.zaak.delete()
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.record_manager_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")

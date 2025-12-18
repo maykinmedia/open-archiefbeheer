@@ -4,12 +4,15 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListMarkReadyForReviewTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_marks_list_as_ready_to_review(self):
+    async def test_scenario_record_manager_marks_list_as_ready_to_review(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaken_are_indexed(amount=100)
 
             record_manager = await self.given.record_manager_exists()

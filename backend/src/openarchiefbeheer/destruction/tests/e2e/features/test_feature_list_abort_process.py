@@ -6,12 +6,15 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListRole, ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListAbortTests(GherkinLikeTestCase):
-    async def test_scenario_user_aborts_process(self):
+    async def test_scenario_user_aborts_process(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manger = await self.given.record_manager_exists()
             assignee = await self.given.assignee_exists(user=record_manger, role=ListRole.author)
             await self.given.archivist_exists()

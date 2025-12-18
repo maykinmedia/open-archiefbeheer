@@ -224,7 +224,9 @@ export function DestructionListReviewPage() {
    * @param zaak
    */
   function handleExcludeClick(zaak: Zaak) {
-    const reviewItem = reviewItems?.find((ri) => ri.zaak.url === zaak.url);
+    const reviewItem = reviewItems?.find(
+      (ri) => ri.destructionListItem.zaak?.url === zaak.url,
+    );
     const reviewItemReponse = reviewResponse?.itemsResponses.find(
       (ir) => ir.reviewItem === reviewItem?.pk,
     );
