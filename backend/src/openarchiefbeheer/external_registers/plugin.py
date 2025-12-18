@@ -80,7 +80,7 @@ class AbstractBasePlugin[T](ABC):
 
     @abstractmethod
     def delete_related_resources(
-        self, related_resources: Iterable[str], result_store: ResultStore
+        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
     ) -> None | NoReturn:
         """Delete/Unlink the resources from the register that are related to the zaak.
 
