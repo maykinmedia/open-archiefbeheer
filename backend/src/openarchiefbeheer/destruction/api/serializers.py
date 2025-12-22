@@ -1,5 +1,6 @@
 from typing import Any, Iterable
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -337,12 +338,24 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         help_text=_("The number of related objects that will be destroyed")
     )
 
-    def get_supported_related_objects_count(self, item: DestructionListItem) -> int:
+    def get_supported_related_objects_count(
+        self, item: DestructionListItem
+    ) -> int | None:
+        # This is an expensive call, allow disabling it.
+        if settings.FEATURE_RELATED_COUNT_DISABLED:
+            return None
+
         if item.zaak is None:
             return 0
         return len(fetch_supported_zaakobjects(item.zaak.url))
 
-    def get_selected_related_objects_count(self, item: DestructionListItem) -> int:
+    def get_selected_related_objects_count(
+        self, item: DestructionListItem
+    ) -> int | None:
+        # This is an expensive call, allow disabling it.
+        if settings.FEATURE_RELATED_COUNT_DISABLED:
+            return None
+
         supported_count = self.get_supported_related_objects_count(item)
         excluded_count = len(item.excluded_relations)
         return supported_count - excluded_count

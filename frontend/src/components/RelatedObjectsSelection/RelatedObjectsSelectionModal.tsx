@@ -21,6 +21,13 @@ export type ZaakObjectSelectionModalProps = {
 export const RelatedObjectsSelectionModal: React.FC<
   ZaakObjectSelectionModalProps
 > = ({ destructionList, destructionListItem, user }) => {
+  // The related count can be disable by a feature flag, in which `supportedRelatedObjectsCount`
+  // will be set to null.
+  //
+  // Detect it and if so, disable stats.
+  const FEATURE_RELATED_COUNT_DISABLED =
+    destructionListItem.supportedRelatedObjectsCount === null;
+
   const [destructionListItemState, setDestructionListItemState] =
     useState(destructionListItem);
   useEffect(() => {
@@ -33,7 +40,7 @@ export const RelatedObjectsSelectionModal: React.FC<
   const handleClose = () => setModalOpenState(false);
 
   const handleChange = useCallback(
-    (selectedRelatedObjectsCount) => {
+    (selectedRelatedObjectsCount: number) => {
       setDestructionListItemState({
         ...destructionListItemState,
         selectedRelatedObjectsCount,
@@ -51,10 +58,12 @@ export const RelatedObjectsSelectionModal: React.FC<
         pad={"h"}
         onClick={handleOpen}
       >
-        <Badge>
-          {destructionListItemState.selectedRelatedObjectsCount} /{" "}
-          {destructionListItemState.supportedRelatedObjectsCount}
-        </Badge>
+        {!FEATURE_RELATED_COUNT_DISABLED && (
+          <Badge>
+            {destructionListItemState.selectedRelatedObjectsCount} /{" "}
+            {destructionListItemState.supportedRelatedObjectsCount}
+          </Badge>
+        )}
         <Solid.EyeIcon />
       </Button>
       <Modal
