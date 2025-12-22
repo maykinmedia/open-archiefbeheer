@@ -34,6 +34,9 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", split=True)
 FRONTEND_URL = config("FRONTEND_URL", default="")
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default=False)
 
+# Feature flags
+FEATURE_RELATED_COUNT_DISABLED = config("FEATURE_RELATED_COUNT_DISABLED", default=False)
+
 
 IS_HTTPS = config("IS_HTTPS", default=not DEBUG)
 
