@@ -1,0 +1,148 @@
+#
+# DISCLAIMER: THIS IS FOR DEVELOPMENT PURPOSES ONLY AND NOT SUITABLE FOR PRODUCTION.
+#
+# You can use this docker-compose to spin up a local stack for demo/try-out
+# purposes, or to get some insight in the various components involved (e.g. to build
+# your Helm charts from). Note that various environment variables are UNSAFE and merely
+# specified so that you can get up and running with the least amount of friction.
+
+services:
+  objecten_db:
+    # NOTE: No persistance storage configured.
+    # See: https://hub.docker.com/_/postgres/
+    image: postgis/postgis:17-3.5
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    networks:
+      - objects-dev
+
+  objecten_redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - objects-dev
+
+  objecten_web:
+    image: maykinmedia/objects-api:3.5.0
+    environment: &web_env
+      DJANGO_SETTINGS_MODULE: objects.conf.docker
+      SECRET_KEY: ${SECRET_KEY:-1(@f(-6s_u(5fd&1sg^uvu2s(c-9sapw)1era8q&)g)h@cwxxg}
+      DB_NAME: objects
+      DB_USER: objects
+      DB_HOST: objecten_db
+      IS_HTTPS: no
+      ALLOWED_HOSTS: '*'
+      CACHE_DEFAULT: objecten_redis:6379/0
+      CACHE_AXES: objecten_redis:6379/0
+      CELERY_BROKER_URL: redis://objecten_redis:6379/1
+      CELERY_RESULT_EXPIRES: 3600
+      CELERY_RESULT_BACKEND: redis://objecten_redis:6379/1
+      CELERY_LOGLEVEL: DEBUG
+      DISABLE_2FA: ${DISABLE_2FA:-yes}
+      SUBPATH: ${SUBPATH}
+      DB_CONN_MAX_AGE: "0"
+      DB_POOL_ENABLED: True
+      OTEL_SDK_DISABLED: True
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - 8006:8000
+    depends_on:
+        objecten_web_init:
+          condition: service_completed_successfully
+    volumes: &web_volumes
+      - media:/app/media  # Shared media volume to get access to saved OAS files
+    networks:
+      - objects-dev
+    labels:
+      client: dev
+      target: test
+      app: objects-api
+      service: web
+
+  objecten_web_init:
+    image: maykinmedia/objects-api:3.5.0
+    environment:
+      <<: *web_env
+      #
+      # Django-setup-configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    depends_on:
+      - objecten_db
+      - objecten_redis
+    volumes:
+      - ./setup_configuration:/app/setup_configuration
+    networks:
+      - objects-dev
+
+  objecttypes_web:
+    image: maykinmedia/objecttypes-api:3.4.0
+    environment: &app-env
+      DB_NAME: objecttypes
+      DB_USER: objecttypes
+      DB_HOST: objecten_db
+      DJANGO_SETTINGS_MODULE: objecttypes.conf.docker
+      SECRET_KEY: ${SECRET_KEY:-fgv=c0hz&tl*8*3m3893@m+1pstrvidc9e^5@fpspmg%cyf15d}
+      ALLOWED_HOSTS: '*'
+      CACHE_DEFAULT: objecten_redis:6379/0
+      CACHE_AXES: objecten_redis:6379/0
+      DISABLE_2FA: yes
+      SUBPATH: ${SUBPATH:-/}
+      OTEL_SDK_DISABLED: True
+    ports:
+      - 8007:8000
+    depends_on:
+      objecttypes_web_init:
+        condition: service_completed_successfully
+    networks:
+      - objects-dev
+
+  objecttypes_web_init:
+    image: maykinmedia/objecttypes-api:3.4.0
+    environment:
+      <<: *app-env
+      #
+      # Django-setup-configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    volumes:
+      - ./setup_configuration/objecttypes_data.yaml:/app/setup_configuration/data.yaml
+    depends_on:
+      - objecten_db
+      - objecten_redis
+    networks:
+      - objects-dev
+
+  celery:
+    image: maykinmedia/objects-api:3.5.0
+    environment: *web_env
+    command: /celery_worker.sh
+    healthcheck:
+      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      objecten_web:
+        condition: service_healthy
+    volumes: *web_volumes
+    networks:
+      - objects-dev
+
+volumes:
+  media:
+
+networks:
+  objects-dev:
+    name: objects-dev
