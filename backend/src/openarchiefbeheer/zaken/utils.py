@@ -15,6 +15,7 @@ from glom import glom
 from requests import HTTPError
 from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
+from zgw_consumers.api_models.zaken import ZaakObject
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
 from zgw_consumers.utils import PaginatedResponseData
@@ -30,7 +31,6 @@ from openarchiefbeheer.clients import (
     ztc_client,
 )
 from openarchiefbeheer.external_registers.registry import register as registry
-from openarchiefbeheer.external_registers.utils import get_plugin_for_related_object
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import (
@@ -38,6 +38,7 @@ from openarchiefbeheer.utils.results_store import (
     delete_object_and_store_result,
 )
 
+from ..external_registers.utils import get_plugin_for_related_object
 from .models import Zaak
 from .types import DropDownChoice
 
@@ -85,6 +86,45 @@ def get_resource_with_prebuilt_client(client: APIClient, url: str) -> dict | Non
     data = response.json()
 
     return data
+
+
+@_cached_with_args
+def fetch_supported_zaakobjects(zaak_url: str) -> list[ZaakObject]:
+    """
+    Fetches and returns the list of supported related objects for a given Zaak.
+
+    This method retrieves all related objects for the specified Zaak using a ZRC client,
+    filters the results to include only those objects that are supported by available plugins,
+    and returns the filtered list.
+
+    Args:
+        zaak_url: A string representing the URL of the Zaak whose related objects are to be fetched.
+
+    Returns:
+        A list of ZaakObject instances representing the supported related objects for the given Zaak.
+    """
+    zaakobjects = fetch_zaakobjects(zaak_url)
+    return [
+        zaakobject
+        for zaakobject in zaakobjects
+        if get_plugin_for_related_object(zaakobject["object"])
+    ]
+
+
+@_cached_with_args
+def fetch_zaakobjects(zaak_url: str) -> list[ZaakObject]:
+    zaakobjects = []
+
+    with zrc_client() as client:
+        response = client.get("zaakobjecten", params={"zaak": zaak_url})
+
+        response.raise_for_status()
+        data_iterator = pagination_helper(client, response.json())
+
+        for page in data_iterator:
+            zaakobjects.extend(zaakobject for zaakobject in page["results"])
+
+    return zaakobjects
 
 
 def process_expanded_data(

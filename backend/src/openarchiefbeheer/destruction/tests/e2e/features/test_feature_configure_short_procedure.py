@@ -4,12 +4,15 @@ from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureConfigureShortProcedure(GherkinLikeTestCase):
-    async def test_scenario_configure_short_procedure(self):
+    async def test_scenario_configure_short_procedure(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.administrator_exists()
             await self.given.zaaktype_choices_are_available(page)
 

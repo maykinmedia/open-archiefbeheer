@@ -3,14 +3,17 @@ from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 from ....constants import ListStatus
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListDestroyTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_destroys_list(self):
+    async def test_scenario_record_manager_destroys_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             destruction_list = await self.given.list_exists(
                 name="Destruction list to destroy",

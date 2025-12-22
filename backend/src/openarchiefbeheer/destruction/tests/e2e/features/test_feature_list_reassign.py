@@ -4,12 +4,15 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListReassignTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_updates_reviewer(self):
+    async def test_scenario_record_manager_updates_reviewer(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             record_manger = await self.given.record_manager_exists()
             reviewer1 = await self.given.reviewer_exists(username="reviewer1", first_name="John", last_name="Doe")
             reviewer2 = await self.given.reviewer_exists(username="reviewer2", first_name="Jane", last_name="Doe")
@@ -33,8 +36,9 @@ class FeatureListReassignTests(GherkinLikeTestCase):
             await self.then.list_should_have_assignee(page, destruction_list, reviewer2)
 
     @tag("gh-636")
-    async def test_scenario_reopening_modal_preserves_state(self):
+    async def test_scenario_reopening_modal_preserves_state(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             await self.given.list_exists(name="Destruction list to update", status=ListStatus.ready_to_review)
             await self.given.reviewer_exists(username="reviewer2", first_name="Jane", last_name="Doe")

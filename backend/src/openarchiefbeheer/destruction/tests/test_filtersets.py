@@ -1,10 +1,13 @@
 from datetime import date
 
+import requests_mock
 from freezegun import freeze_time
 from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 
@@ -19,7 +22,16 @@ from .factories import (
 
 
 class DestructionListItemEndpoint(APITestCase):
-    def test_filter_on_non_method_field(self):
+    @requests_mock.Mocker()
+    def test_filter_on_non_method_field(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
         DestructionListItemFactory.create(
             with_zaak=True,
@@ -53,7 +65,16 @@ class DestructionListItemEndpoint(APITestCase):
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["results"][0]["pk"], item.pk)
 
-    def test_on_method_field(self):
+    @requests_mock.Mocker()
+    def test_on_method_field(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
         item = DestructionListItemFactory.create(
             with_zaak=True,
@@ -83,7 +104,16 @@ class DestructionListItemEndpoint(APITestCase):
 
 
 class DestructionListItemReviewEndpoint(APITestCase):
-    def test_filter_on_non_method_field(self):
+    @requests_mock.Mocker()
+    def test_filter_on_non_method_field(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -127,7 +157,16 @@ class DestructionListItemReviewEndpoint(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["pk"], review_item2.pk)
 
-    def test_on_method_field(self):
+    @requests_mock.Mocker()
+    def test_on_method_field(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         record_manager = UserFactory.create(username="record_manager")
         item1 = DestructionListItemFactory.create(
             with_zaak=True,
@@ -167,7 +206,16 @@ class DestructionListItemReviewEndpoint(APITestCase):
 
 
 class DestructionListEndpoint(APITestCase):
-    def test_filter_name(self):
+    @requests_mock.Mocker()
+    def test_filter_name(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         DestructionListFactory.create(name="Destruction list A")
         DestructionListFactory.create(name="Destruction list B")
 
@@ -189,7 +237,16 @@ class DestructionListEndpoint(APITestCase):
             ["Destruction list B"],
         )
 
-    def test_filter_status(self):
+    @requests_mock.Mocker()
+    def test_filter_status(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         DestructionListFactory.create(name="Destruction list A", status=ListStatus.new)
         DestructionListFactory.create(
             name="Destruction list B", status=ListStatus.ready_to_review
@@ -213,7 +270,16 @@ class DestructionListEndpoint(APITestCase):
             ["Destruction list B"],
         )
 
-    def test_filter_author(self):
+    @requests_mock.Mocker()
+    def test_filter_author(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         user_a = UserFactory.create()
         user_b = UserFactory.create()
 
@@ -238,7 +304,16 @@ class DestructionListEndpoint(APITestCase):
             ["Destruction list B"],
         )
 
-    def test_filter_reviewer(self):
+    @requests_mock.Mocker()
+    def test_filter_reviewer(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         user_a = UserFactory.create()
         user_b = UserFactory.create()
 
@@ -274,7 +349,16 @@ class DestructionListEndpoint(APITestCase):
             ["Destruction list B"],
         )
 
-    def test_filter_assignee(self):
+    @requests_mock.Mocker()
+    def test_filter_assignee(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         user_a = UserFactory.create()
         user_b = UserFactory.create()
 
@@ -299,7 +383,16 @@ class DestructionListEndpoint(APITestCase):
             ["Destruction list B"],
         )
 
-    def test_ordering_on_creation_date(self):
+    @requests_mock.Mocker()
+    def test_ordering_on_creation_date(self, m: requests_mock.Mocker):
+        ServiceFactory.create(
+            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
+        )
+        m.get(
+            "http://zaken.nl/zaken/api/v1/zaakobjecten",
+            json={"results": []},
+        )
+
         with freeze_time("2024-05-02T16:00:00+02:00"):
             DestructionListFactory.create(name="Destruction list A")
         with freeze_time("2024-08-01T16:30:00+02:00"):

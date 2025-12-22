@@ -6,12 +6,14 @@ import {
   clickButton,
   fillForm,
 } from "../../../../../../.storybook/playFunctions";
-import { destructionListFactory } from "../../../../../fixtures/destructionList";
-import { paginatedZakenFactory } from "../../../../../fixtures/paginatedZaken";
-import { reviewFactory } from "../../../../../fixtures/review";
-import { reviewItemsFactory } from "../../../../../fixtures/reviewItem";
-import { FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP } from "../../../../../fixtures/selectieLijstKlasseChoices";
-import { usersFactory } from "../../../../../fixtures/user";
+import {
+  destructionListFactory,
+  paginatedZakenFactory,
+  reviewFactory,
+  reviewItemsFactory,
+  selectieLijstKlasseFactory,
+  usersFactory,
+} from "../../../../../fixtures";
 import { getZaakSelection } from "../../../../../lib/zaakSelection";
 import { destructionListProcessReviewAction } from "../../DestructionListDetail.action";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
@@ -40,6 +42,8 @@ const meta: Meta<typeof DestructionListProcessReviewPage> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const REVIEW_ITEMS = reviewItemsFactory();
+
 const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   uuid: destructionListFactory().uuid,
   reviewResponse: null,
@@ -62,7 +66,13 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   review: reviewFactory(),
   reviewItems: reviewItemsFactory(),
 
-  selectieLijstKlasseChoicesMap: FIXTURE_SELECTIELIJSTKLASSE_CHOICES_MAP,
+  selectieLijstKlasseChoicesMap: REVIEW_ITEMS.reduce(
+    (acc, ri) => ({
+      ...acc,
+      [ri.destructionListItem.zaak!.url]: selectieLijstKlasseFactory(),
+    }),
+    {},
+  ),
 };
 
 export const ProcessReview: Story = {

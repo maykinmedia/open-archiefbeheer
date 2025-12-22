@@ -8,9 +8,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.external_registers.utils import get_plugin_for_related_object
-from openarchiefbeheer.zaken.utils import pagination_helper
+from openarchiefbeheer.zaken.utils import (
+    fetch_zaakobjects,
+)
 
 from ..constants import ListStatus
 from ..models import DestructionListItem
@@ -58,27 +59,25 @@ class RelatedObjectsView(APIView):
         ):
             return Response([])
 
-        with zrc_client() as client:
-            response = client.get("zaakobjecten", params={"zaak": zaak_url})
-            response.raise_for_status()
-            data_iterator = pagination_helper(client, response.json())
-            results = []
-            for page in data_iterator:
-                for zaakobject in page["results"]:
-                    plugin = get_plugin_for_related_object(zaakobject["object"])
-                    supported = plugin is not None
-                    results.append(
-                        {
-                            "url": zaakobject["url"],
-                            "selected": (
-                                supported
-                                and zaakobject["url"]
-                                not in destruction_list_item.excluded_relations
-                            ),
-                            "supported": supported,
-                            "result": zaakobject,
-                        }
-                    )
+        zaakobjects = fetch_zaakobjects(zaak_url)
+
+        results = []
+        for zaakobject in zaakobjects:
+            plugin = get_plugin_for_related_object(zaakobject["object"])
+            supported = plugin is not None
+
+            results.append(
+                {
+                    "url": zaakobject["url"],
+                    "selected": (
+                        supported
+                        and zaakobject["url"]
+                        not in destruction_list_item.excluded_relations
+                    ),
+                    "supported": supported,
+                    "result": zaakobject,
+                }
+            )
 
         serializer = RelatedObjectSerializer(data=results, many=True)
         serializer.is_valid(raise_exception=True)

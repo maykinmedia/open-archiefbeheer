@@ -7,14 +7,17 @@ from openarchiefbeheer.destruction.constants import (
 )
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
 @tag("issue")
 @tag("gh-618")
+@AsyncCapableRequestsMock()
 class Issue618NoHerbeoordelingForArchivaris(GherkinLikeTestCase):
-    async def test_scenario_approval_with_rereview(self):
+    async def test_scenario_approval_with_rereview(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             zaken = await self.given.zaken_are_indexed(1)
 
             archivist = await self.given.archivist_exists()

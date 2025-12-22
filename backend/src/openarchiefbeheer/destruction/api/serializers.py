@@ -1,5 +1,6 @@
 from typing import Any, Iterable
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +19,10 @@ from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.utils import retrieve_selectielijstklasse_resultaat
+from openarchiefbeheer.zaken.utils import (
+    fetch_supported_zaakobjects,
+    retrieve_selectielijstklasse_resultaat,
+)
 
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
 from ..constants import (
@@ -326,6 +330,35 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         ),
         allow_null=True,
     )
+    supported_related_objects_count = serializers.SerializerMethodField(
+        help_text=_("The number of related objects that can be destroyed")
+    )
+
+    selected_related_objects_count = serializers.SerializerMethodField(
+        help_text=_("The number of related objects that will be destroyed")
+    )
+
+    def get_supported_related_objects_count(
+        self, item: DestructionListItem
+    ) -> int | None:
+        # This is an expensive call, allow disabling it.
+        if settings.FEATURE_RELATED_COUNT_DISABLED:
+            return None
+
+        if item.zaak is None:
+            return 0
+        return len(fetch_supported_zaakobjects(item.zaak.url))
+
+    def get_selected_related_objects_count(
+        self, item: DestructionListItem
+    ) -> int | None:
+        # This is an expensive call, allow disabling it.
+        if settings.FEATURE_RELATED_COUNT_DISABLED:
+            return None
+
+        supported_count = self.get_supported_related_objects_count(item)
+        excluded_count = len(item.excluded_relations)
+        return supported_count - excluded_count
 
     class Meta:
         model = DestructionListItem
@@ -334,6 +367,8 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
             "status",
             "extra_zaak_data",
             "zaak",
+            "supported_related_objects_count",
+            "selected_related_objects_count",
             "processing_status",
             "review_advice_ignored",
             "review_response_comment",
@@ -699,16 +734,15 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
 
 class DestructionListItemReviewSerializer(serializers.ModelSerializer):
-    zaak = serializers.SerializerMethodField(
-        help_text=_(
-            "In the case that the zaak has already been deleted, this field will be null."
-        ),
-        allow_null=True,
-    )
+    destruction_list_item = DestructionListItemReadSerializer()
 
     class Meta:
         model = DestructionListItemReview
-        fields = ("pk", "destruction_list_item", "zaak", "feedback")
+        fields = (
+            "pk",
+            "destruction_list_item",
+            "feedback",
+        )
 
     @extend_schema_field(ZaakSerializer)
     def get_zaak(self, obj) -> dict | None:

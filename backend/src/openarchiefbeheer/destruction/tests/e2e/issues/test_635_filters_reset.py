@@ -3,11 +3,13 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
 @tag("issue")
 @tag("gh-635")
+@AsyncCapableRequestsMock()
 class Issue635FiltersReset(GherkinLikeTestCase):
     async def when_user_navigates_to_page_with_filter(self, page):
         await self.given.selectielijstklasse_choices_are_available(page)
@@ -81,8 +83,9 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             f"No div with title '{title}' and first input placeholder '{placeholder}' found."
         )
 
-    async def test_reset(self):
+    async def test_reset(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.when_user_navigates_to_page_with_filter(page)
 
             # Zaaktype

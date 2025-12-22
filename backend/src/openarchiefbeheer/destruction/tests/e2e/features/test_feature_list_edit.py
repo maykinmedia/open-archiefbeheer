@@ -7,15 +7,18 @@ from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ...factories import DestructionListFactory, DestructionListItemFactory
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListEditTests(GherkinLikeTestCase):
-    async def test_scenario_user_edits_multi_page_destruction_list(self):
+    async def test_scenario_user_edits_multi_page_destruction_list(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             await self.given.zaken_are_indexed(300, recreate=True)
             reviewer = await self.given.reviewer_exists()
@@ -91,7 +94,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Volgende")
             await self.then.not_.page_should_contain_text(page, "ZAAK-0")
 
-    async def test_zaaktype_filter(self):
+    async def test_zaaktype_filter(self, requests_mock: AsyncCapableRequestsMock):
         @sync_to_async
         def create_data():
             record_manager = UserFactory.create(
@@ -170,6 +173,7 @@ class FeatureListEditTests(GherkinLikeTestCase):
             self.destruction_list = destruction_list
 
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.data_exists(create_data)
             await self.when.record_manager_logs_in(page, **{
                 "username": "record_manager",

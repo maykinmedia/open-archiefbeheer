@@ -263,8 +263,9 @@ export function useSecondaryNavigation<
           comment: comment as string,
           itemsResponses:
             reviewItems?.map<ReviewItemResponse>((ri) => {
-              const detail = zaakSelection[ri.zaak?.url || ""]
-                ?.detail as ProcessZaakReviewSelectionDetail;
+              const detail = zaakSelection[
+                ri.destructionListItem.zaak?.url || ""
+              ]?.detail as ProcessZaakReviewSelectionDetail;
 
               return {
                 reviewItem: ri.pk,

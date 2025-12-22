@@ -37,8 +37,7 @@ export function paginatedDestructionListItems2DestructionDetailData(
           processingStatus: dli.processingStatus,
           "Gerelateerde objecten": (
             <RelatedObjectsSelectionModal
-              amount={zaak.zaakobjecten?.length || 0}
-              destructionListItemPk={dli.pk}
+              destructionListItem={dli}
               destructionList={destructionList}
               user={user}
             />

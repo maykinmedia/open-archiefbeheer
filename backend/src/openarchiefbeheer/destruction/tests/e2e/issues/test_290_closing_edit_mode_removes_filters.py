@@ -3,6 +3,7 @@ from django.test import tag
 
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 from ....constants import ListStatus
 
@@ -10,9 +11,11 @@ from ....constants import ListStatus
 @tag("e2e")
 @tag("issue")
 @tag("gh-290")
+@AsyncCapableRequestsMock()
 class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
-    async def test_scenario_user_cancels_filtered_edit_mode(self):
+    async def test_scenario_user_cancels_filtered_edit_mode(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             zaken = await self.given.zaken_are_indexed(3)
             await self.given.list_exists(
                 name="Destruction list to edit",

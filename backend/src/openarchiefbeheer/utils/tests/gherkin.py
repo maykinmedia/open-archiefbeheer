@@ -3,6 +3,7 @@ from typing import Callable
 
 from asgiref.sync import sync_to_async
 from playwright.async_api import Locator, Page, TimeoutError, expect
+from zgw_consumers.api_models.zaken import ZaakObject
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -102,6 +103,7 @@ class GerkinMixin:
             statustypen: list | None = None,
             resultaattypen: list | None = None,
             informatieobjecttypen: list | None = None,
+            zaakobjecten: list[ZaakObject] | None = None,
         ):
             """
             Mock Services implementation.
@@ -124,6 +126,10 @@ class GerkinMixin:
             m.get(
                 "http://zaken.nl/catalogi/api/v1/informatieobjecttypen",
                 json={"results": informatieobjecttypen or []},
+            )
+            m.get(
+                "http://zaken.nl/zaken/api/v1/zaakobjecten",
+                json={"results": zaakobjecten or []},
             )
 
             await self._get_or_create(

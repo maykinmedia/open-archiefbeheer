@@ -1,4 +1,5 @@
 import { Option } from "@maykin-ui/admin-ui";
+import { invariant } from "@maykin-ui/client-common";
 import { ActionFunctionArgs } from "@remix-run/router/utils";
 
 import { listArchivists } from "../../../lib/api/archivist";
@@ -9,7 +10,7 @@ import {
   listDestructionListItems,
 } from "../../../lib/api/destructionListsItem";
 import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
-import { Review, ReviewItemWithZaak } from "../../../lib/api/review";
+import { Review, ReviewItem } from "../../../lib/api/review";
 import { ReviewResponse } from "../../../lib/api/reviewResponse";
 import { PaginatedZaken, searchZaken } from "../../../lib/api/zaken";
 import {
@@ -23,7 +24,7 @@ import { getBaseDestructionListLoaderData } from "../abstract/loaderutils";
 export interface DestructionListDetailContext {
   destructionList: DestructionList;
   review?: Review | null;
-  reviewItems: ReviewItemWithZaak[] | null;
+  reviewItems: ReviewItem[] | null;
   reviewResponse: ReviewResponse | null;
   storageKey: string;
   user: User;
@@ -111,19 +112,21 @@ export const destructionListDetailLoader = loginRequired(
                 async () =>
                   Object.fromEntries(
                     await Promise.all(
-                      reviewItems.map(async (ri) => {
-                        const choices = await listSelectielijstKlasseChoices(
-                          {
-                            zaak: ri.zaak.url,
-                          },
-                          true,
-                        );
-                        return [ri.zaak.url, choices];
-                      }),
+                      reviewItems
+                        .filter((ri) => ri.destructionListItem.zaak)
+                        .map(async (ri) => {
+                          invariant(ri.destructionListItem.zaak);
+                          const choices = await listSelectielijstKlasseChoices(
+                            {
+                              zaak: ri.destructionListItem.zaak.url,
+                            },
+                            true,
+                          );
+                          return [ri.destructionListItem.zaak.url, choices];
+                        }),
                     ),
                   ),
-                // @ts-expect-error - Params not used in function but in case key only.
-                reviewItems.map((ri) => ri.pk),
+                reviewItems.map((ri) => String(ri.pk)),
               )
             : null;
         });

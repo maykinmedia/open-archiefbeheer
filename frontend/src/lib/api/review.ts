@@ -1,6 +1,6 @@
-import { Zaak } from "../../types";
 import { User } from "./auth";
 import { DestructionList } from "./destructionLists";
+import { DestructionListItem } from "./destructionListsItem";
 import { request } from "./request";
 
 export type Review = {
@@ -20,15 +20,7 @@ export type ZaakReview = {
 
 export type ReviewItem = {
   pk: number;
-  destructionListItem: number;
-  zaak: Zaak | null;
-  feedback: string;
-};
-
-export type ReviewItemWithZaak = {
-  pk: number;
-  destructionListItem: number;
-  zaak: Zaak;
+  destructionListItem: DestructionListItem;
   feedback: string;
 };
 

@@ -6,6 +6,7 @@ from asgiref.sync import sync_to_async
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @sync_to_async()
@@ -14,9 +15,11 @@ def get_list(name):
 
 
 @tag("e2e")
+@AsyncCapableRequestsMock()
 class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
-    async def test_scenario_record_manager_creates_list_with_select_all(self):
+    async def test_scenario_record_manager_creates_list_with_select_all(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
             await self.given.zaken_are_indexed(200)
@@ -41,8 +44,9 @@ class FeatureListCreateSelectAllTests(GherkinLikeTestCase):
 
             await self.then.list_should_have_number_of_items(destruction_list, 200)
 
-    async def test_scenario_record_manager_creates_list_with_select_all_and_filters(self):
+    async def test_scenario_record_manager_creates_list_with_select_all_and_filters(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.record_manager_exists()
             reviewer = await self.given.reviewer_exists(username="Beoordelaar")
             # This creates a zaak that should NOT be added to the list (since it's already in a list)

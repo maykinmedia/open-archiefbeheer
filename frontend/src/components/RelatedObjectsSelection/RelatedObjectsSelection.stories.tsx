@@ -62,7 +62,7 @@ let MOCK_STATE = INITIAL_MOCK_STATE;
 export const HappyFlow: Story = {
   args: {
     destructionList: destructionListFactory(),
-    destructionListItemPk: destructionListItemFactory().pk,
+    destructionListItem: destructionListItemFactory(),
     user: recordManagerFactory(),
   },
   parameters: {
@@ -176,7 +176,7 @@ export const ReadOnly: Story = {
 export const ErrorWhileFetchingSelection: Story = {
   args: {
     destructionList: destructionListFactory(),
-    destructionListItemPk: destructionListItemFactory().pk,
+    destructionListItem: destructionListItemFactory(),
     user: recordManagerFactory(),
   },
   parameters: {
@@ -206,7 +206,7 @@ export const ErrorWhileFetchingSelection: Story = {
 export const ErrorWhileSubmittingData: Story = {
   args: {
     destructionList: destructionListFactory(),
-    destructionListItemPk: destructionListItemFactory().pk,
+    destructionListItem: destructionListItemFactory(),
     user: recordManagerFactory(),
   },
   parameters: {
@@ -271,14 +271,21 @@ export const ErrorWhileSubmittingData: Story = {
 
 export const RelatedObjectsSelectionModal: Story = {
   ...HappyFlow,
+  args: {
+    ...HappyFlow.args,
+    destructionListItem: destructionListItemFactory({
+      selectedRelatedObjectsCount: 3,
+      supportedRelatedObjectsCount: 3,
+    }),
+  },
   render(args) {
-    return <RelatedObjectsSelectionModalComponent amount={3} {...args} />;
+    return <RelatedObjectsSelectionModalComponent {...args} />;
   },
   play: async (ctx) => {
     MOCK_STATE = INITIAL_MOCK_STATE;
 
     // Check initial state.
-    const button = await within(ctx.canvasElement).findByText("3");
+    const button = await within(ctx.canvasElement).findByText("3 / 3");
     await userEvent.click(button);
     await delay(300);
     HappyFlow.play?.(ctx);

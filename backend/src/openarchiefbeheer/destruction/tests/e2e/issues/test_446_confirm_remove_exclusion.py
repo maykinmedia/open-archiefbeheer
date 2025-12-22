@@ -4,14 +4,17 @@ from django.test import tag
 from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
+from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 
 
 @tag("e2e")
 @tag("issue")
 @tag("gh-446")
+@AsyncCapableRequestsMock()
 class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
-    async def test_scenario_user_approves_and_deselects_single_item(self):
+    async def test_scenario_user_approves_and_deselects_single_item(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -38,8 +41,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
-    async def test_scenario_user_approves_and_deselects_all_items_individually(self):
+    async def test_scenario_user_approves_and_deselects_all_items_individually(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -84,8 +88,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
-    async def test_scenario_user_excludes_and_deselects_single_item(self):
+    async def test_scenario_user_excludes_and_deselects_single_item(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -120,8 +125,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Niet beoordeeld")
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
-    async def test_scenario_user_excludes_and_keeps_single_item(self):
+    async def test_scenario_user_excludes_and_keeps_single_item(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -156,8 +162,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, "Uitgezonderd")
             await self.then.page_should_contain_text(page, "Afwijzen")
 
-    async def test_scenario_user_approves_and_deselects_all_items_in_batch(self):
+    async def test_scenario_user_approves_and_deselects_all_items_in_batch(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -185,8 +192,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
-    async def test_scenario_user_approves_items_hybrid(self):
+    async def test_scenario_user_approves_items_hybrid(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()
@@ -216,8 +224,9 @@ class Issue446ConfirmRemoveExclusion(GherkinLikeTestCase):
 
             await self.then.page_should_contain_text(page, "Goedkeuren")
 
-    async def test_scenario_user_approves_and_deselect_unexcluded_items_in_batch(self):
+    async def test_scenario_user_approves_and_deselect_unexcluded_items_in_batch(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
+            await self.given.services_are_configured(requests_mock)
             await self.given.zaak_selection_api_is_empty()
             zaken = await self.given.zaken_are_indexed(3)
             reviewer = await self.given.reviewer_exists()

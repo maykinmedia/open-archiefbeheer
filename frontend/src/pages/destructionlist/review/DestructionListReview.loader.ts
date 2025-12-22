@@ -6,7 +6,7 @@ import {
   PaginatedDestructionListItems,
   listDestructionListItems,
 } from "../../../lib/api/destructionListsItem";
-import { Review, ReviewItemWithZaak } from "../../../lib/api/review";
+import { Review, ReviewItem } from "../../../lib/api/review";
 import { ReviewResponse } from "../../../lib/api/reviewResponse";
 import { listReviewers } from "../../../lib/api/reviewers";
 import {
@@ -18,13 +18,13 @@ import { getBaseDestructionListLoaderData } from "../abstract/loaderutils";
 export type DestructionListReviewContext = {
   destructionList: DestructionList;
   review: Review | null;
-  reviewItems: ReviewItemWithZaak[] | null;
+  reviewItems: ReviewItem[] | null;
   reviewResponse: ReviewResponse | null;
   storageKey: string;
   user: User;
   uuid: string;
 
-  paginatedZaken: PaginatedDestructionListItems;
+  paginatedDestructionListItems: PaginatedDestructionListItems;
   reviewers: User[];
 };
 
@@ -88,7 +88,7 @@ export const destructionListReviewLoader = loginRequired(
         user,
         uuid,
 
-        paginatedZaken: zaken,
+        paginatedDestructionListItems: zaken,
         reviewers,
       };
     },
