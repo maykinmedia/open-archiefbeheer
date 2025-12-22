@@ -1,17 +1,17 @@
-import { Badge, Button, Solid, useDialog } from "@maykin-ui/admin-ui";
-import React, { useCallback } from "react";
+import { Badge, Body, Button, Modal, Solid } from "@maykin-ui/admin-ui";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
+import { DestructionListItem } from "../../lib/api/destructionListsItem";
 import { RelatedObjectsSelection } from "./RelatedObjectsSelection";
 
 /**
  * Props for `<RelatedObjectsSelectionModal/>` component.
  */
 export type ZaakObjectSelectionModalProps = {
-  amount: number;
   destructionList: DestructionList;
-  destructionListItemPk: number;
+  destructionListItem: DestructionListItem;
   user: User;
 };
 
@@ -20,35 +20,58 @@ export type ZaakObjectSelectionModalProps = {
  */
 export const RelatedObjectsSelectionModal: React.FC<
   ZaakObjectSelectionModalProps
-> = ({ amount, destructionList, destructionListItemPk, user }) => {
-  const dialog = useDialog();
+> = ({ destructionList, destructionListItem, user }) => {
+  const [destructionListItemState, setDestructionListItemState] =
+    useState(destructionListItem);
+  useEffect(() => {
+    setDestructionListItemState(destructionListItem);
+  }, [destructionListItem]);
 
-  const handleClick = useCallback(
-    () =>
-      dialog(
-        "Gerelateerde objecten",
-        <RelatedObjectsSelection
-          destructionList={destructionList}
-          destructionListItemPk={destructionListItemPk}
-          user={user}
-        />,
-      ),
-    [dialog, destructionListItemPk],
+  const [modalOpenState, setModalOpenState] = useState(false);
+
+  const handleOpen = () => setModalOpenState(true);
+  const handleClose = () => setModalOpenState(false);
+
+  const handleChange = useCallback(
+    (selectedRelatedObjectsCount) => {
+      setDestructionListItemState({
+        ...destructionListItemState,
+        selectedRelatedObjectsCount,
+      });
+      setModalOpenState(false);
+    },
+    [destructionListItem],
   );
 
-  return amount ? (
+  return (
     <>
       <Button
         aria-label="Toon gerelateerde objecten"
         variant="transparent"
         pad={"h"}
-        onClick={handleClick}
+        onClick={handleOpen}
       >
-        <Badge>{amount}</Badge>
+        <Badge>
+          {destructionListItemState.selectedRelatedObjectsCount} /{" "}
+          {destructionListItemState.supportedRelatedObjectsCount}
+        </Badge>
         <Solid.EyeIcon />
       </Button>
+      <Modal
+        title="Gerelateerde objecten"
+        open={modalOpenState}
+        size={"m"}
+        onClose={handleClose}
+      >
+        <Body>
+          <RelatedObjectsSelection
+            destructionList={destructionList}
+            destructionListItem={destructionListItemState}
+            user={user}
+            onChange={handleChange}
+          />
+        </Body>
+      </Modal>
     </>
-  ) : (
-    amount
   );
 };

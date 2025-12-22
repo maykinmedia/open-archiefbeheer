@@ -6,6 +6,7 @@ import { useAlertOnError } from "../../hooks/useAlertOnError";
 import { useDataFetcher } from "../../hooks/useDataFetcher";
 import { User } from "../../lib/api/auth";
 import { DestructionList } from "../../lib/api/destructionLists";
+import { DestructionListItem } from "../../lib/api/destructionListsItem";
 import {
   RelatedObjectsSelectionItem,
   RelatedObjectsSelectionItemMutation,
@@ -19,8 +20,9 @@ import { canUpdateDestructionList } from "../../lib/auth/permissions";
  */
 export type ZaakObjectSelectionProps = {
   destructionList: DestructionList;
-  destructionListItemPk: number;
+  destructionListItem: DestructionListItem;
   user: User;
+  onChange?: (selectedRelatedObjectsCount: number) => void;
 };
 
 /**
@@ -33,8 +35,9 @@ export type RelatedObjectsSelectionForm = { zaakobjecten: string[] };
  */
 export const RelatedObjectsSelection: React.FC<ZaakObjectSelectionProps> = ({
   destructionList,
-  destructionListItemPk,
+  destructionListItem,
   user,
+  onChange,
 }) => {
   const [mutationsState, setMutationsState] = useState<
     RelatedObjectsSelectionItemMutation[]
@@ -44,13 +47,13 @@ export const RelatedObjectsSelection: React.FC<ZaakObjectSelectionProps> = ({
   const { data: zaakObjectSelectionState, fetch } = useDataFetcher<
     RelatedObjectsSelectionItem[]
   >(
-    (signal) => listRelatedObjectsSelection(destructionListItemPk, signal),
+    (signal) => listRelatedObjectsSelection(destructionListItem.pk, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van gerelateerde objecten!",
       initialState: [],
     },
-    [destructionListItemPk, mutationsState.length],
+    [destructionListItem.pk, mutationsState.length],
   );
 
   //
@@ -92,13 +95,14 @@ export const RelatedObjectsSelection: React.FC<ZaakObjectSelectionProps> = ({
     let fetchController: AbortController;
 
     updateRelatedObjectsSelection(
-      destructionListItemPk,
+      destructionListItem.pk,
       mutationsState,
       updateController.signal,
     )
       .then(async () => {
         // Clear mutations.
         setMutationsState([]);
+        onChange?.(mutationsState.filter((m) => m.selected).length);
 
         // Update selection.
         fetchController = fetch();
@@ -108,7 +112,7 @@ export const RelatedObjectsSelection: React.FC<ZaakObjectSelectionProps> = ({
       updateController.abort();
       fetchController?.abort();
     };
-  }, [destructionListItemPk, mutationsState]);
+  }, [destructionListItem.pk, mutationsState]);
 
   //
   // Interaction.

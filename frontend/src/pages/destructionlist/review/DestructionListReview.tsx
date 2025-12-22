@@ -63,13 +63,13 @@ export function DestructionListReviewPage() {
     storageKey,
     uuid,
     destructionList,
-    paginatedZaken,
+    paginatedDestructionListItems,
     reviewItems,
     reviewResponse,
     user,
   } = useLoaderData() as DestructionListReviewContext;
 
-  const zakenResults = paginatedZaken.results
+  const zakenResults = paginatedDestructionListItems.results
     .map((zaak) => zaak.zaak)
     .filter((zaak) => zaak !== null) as Zaak[];
 
@@ -146,7 +146,7 @@ export function DestructionListReviewPage() {
     );
 
   const reviewAdviceIgnoredResults = Object.fromEntries(
-    paginatedZaken.results.map((result) => [
+    paginatedDestructionListItems.results.map((result) => [
       result.zaak?.url as string,
       result.reviewAdviceIgnored || false,
     ]),
@@ -158,7 +158,7 @@ export function DestructionListReviewPage() {
   );
 
   const zaakReviewStatusBadges = useZaakReviewStatusBadges(
-    paginatedZaken.results,
+    paginatedDestructionListItems.results,
     {
       ...approvedZaakSelection,
       ...excludedZaakSelection,
@@ -369,30 +369,29 @@ export function DestructionListReviewPage() {
    * Retrieves a paginated list of objects.
    */
   function getPaginatedObjectList(): PaginatedResults<DestructionListReviewData> {
-    const objectList = paginatedZaken.results
+    const objectList = paginatedDestructionListItems.results
       .filter((r) => r.zaak)
-      .map(({ pk, zaak }) => {
-        invariant(zaak, "zaak is undefined!");
+      .map((dli) => {
+        invariant(dli.zaak, "zaak is undefined!");
 
         const gerelateerdeObjecten = (
           <RelatedObjectsSelectionModal
-            amount={zaak?.zaakobjecten?.length || 0}
             destructionList={destructionList}
-            destructionListItemPk={pk}
+            destructionListItem={dli}
             user={user}
           />
         );
-        const badge = zaakReviewStatusBadges[zaak.url].badge;
-        const actions = getActionsToolbarForZaak(zaak);
+        const badge = zaakReviewStatusBadges[dli.zaak.url].badge;
+        const actions = getActionsToolbarForZaak(dli.zaak);
         return {
-          ...zaak,
+          ...dli.zaak,
           "Gerelateerde objecten": gerelateerdeObjecten,
           Beoordeling: badge,
           Acties: actions,
         };
       });
 
-    return { ...paginatedZaken, results: objectList };
+    return { ...paginatedDestructionListItems, results: objectList };
   }
 
   /**

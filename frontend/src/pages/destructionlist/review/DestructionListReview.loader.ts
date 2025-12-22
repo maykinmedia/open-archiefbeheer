@@ -24,7 +24,7 @@ export type DestructionListReviewContext = {
   user: User;
   uuid: string;
 
-  paginatedZaken: PaginatedDestructionListItems;
+  paginatedDestructionListItems: PaginatedDestructionListItems;
   reviewers: User[];
 };
 
@@ -88,7 +88,7 @@ export const destructionListReviewLoader = loginRequired(
         user,
         uuid,
 
-        paginatedZaken: zaken,
+        paginatedDestructionListItems: zaken,
         reviewers,
       };
     },

@@ -15,6 +15,8 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM: DestructionListItem = {
   plannedDestructionDate: null,
   reviewAdviceIgnored: null,
   reviewResponseComment: "",
+  selectedRelatedObjectsCount: 0,
+  supportedRelatedObjectsCount: 0,
 };
 export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   pk: 2,
@@ -25,6 +27,8 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   plannedDestructionDate: "2026-01-01T00:00:00Z",
   reviewAdviceIgnored: null,
   reviewResponseComment: "",
+  selectedRelatedObjectsCount: 0,
+  supportedRelatedObjectsCount: 0,
 };
 export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   pk: 3,
@@ -35,6 +39,8 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   plannedDestructionDate: "2026-01-01T00:00:00Z",
   reviewAdviceIgnored: null,
   reviewResponseComment: "",
+  selectedRelatedObjectsCount: 0,
+  supportedRelatedObjectsCount: 0,
 };
 
 export const destructionListItemFactory = createObjectFactory(
