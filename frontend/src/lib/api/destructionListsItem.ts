@@ -12,6 +12,8 @@ export type DestructionListItem = {
   plannedDestructionDate: string | null;
   reviewAdviceIgnored: boolean | null;
   reviewResponseComment: string;
+  selectedRelatedObjectsCount: number;
+  supportedRelatedObjectsCount: number;
 };
 
 export interface ZaakItem extends Zaak {

@@ -127,9 +127,8 @@ export function DestructionListProcessReviewPage() {
       ...destructionListItem.zaak,
       "Gerelateerde objecten": (
         <RelatedObjectsSelectionModal
-          amount={destructionListItem.zaak.zaakobjecten?.length || 0}
           destructionList={destructionList}
-          destructionListItemPk={destructionListItem.pk}
+          destructionListItem={destructionListItem}
           user={user}
         />
       ),
