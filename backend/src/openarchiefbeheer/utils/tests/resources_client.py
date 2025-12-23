@@ -33,13 +33,7 @@ class ZaaktypeWithRelations(TypedDict):
     statustypen: Iterable[Mapping[str, JSONEncodable]]
 
 
-@dataclass
-class OpenZaakDataCreationHelper:
-    zrc_service_slug: str = ""
-    ztc_service_slug: str = ""
-    drc_service_slug: str = ""
-    openklant_service_slug: str = ""
-
+class CommonGroundDataCreationHelperMixin:
     def _create_resource(
         self,
         data: Mapping[str, JSONEncodable],
@@ -62,6 +56,13 @@ class OpenZaakDataCreationHelper:
             response.raise_for_status()
 
         return response.json()
+
+
+@dataclass
+class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
+    zrc_service_slug: str
+    ztc_service_slug: str
+    drc_service_slug: str
 
     def create_zaak(
         self, zaaktype_url: str = "", **overrides: Mapping[str, JSONEncodable]
@@ -316,6 +317,11 @@ class OpenZaakDataCreationHelper:
             data, "enkelvoudiginformatieobjecten", drc_client(self.drc_service_slug)
         )
 
+
+@dataclass
+class OpenKlantCreationHelper(CommonGroundDataCreationHelperMixin):
+    openklant_service_slug: str
+
     def create_klantcontact(
         self, **overrides: Mapping[str, JSONEncodable]
     ) -> Mapping[str, JSONEncodable]:
@@ -347,4 +353,24 @@ class OpenZaakDataCreationHelper:
             data,
             "onderwerpobjecten",
             build_client(Service.objects.get(slug=self.openklant_service_slug)),
+        )
+
+
+@dataclass
+class ObjectenCreationHelper(CommonGroundDataCreationHelperMixin):
+    objecten_service_slug: str
+
+    def create_object(
+        self, **overrides: Mapping[str, JSONEncodable]
+    ) -> Mapping[str, JSONEncodable]:
+        data: Mapping[str, JSONEncodable] = {
+            # The "tree" objecttype configured in the docker compose of the Objecttypes API
+            "type": "http://objecttypes:8000/api/v2/objecttypes/35fc8d64-956c-411d-a894-428d98fea3a2",
+            "record": {"typeVersion": 1, "startAt": "2025-01-01"},
+        } | overrides
+
+        return self._create_resource(
+            data,
+            "objects",
+            build_client(Service.objects.get(slug=self.objecten_service_slug)),
         )

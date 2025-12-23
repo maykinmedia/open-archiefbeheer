@@ -20,4 +20,6 @@ def make_model_with_plugins() -> type[ConfigurationModel]:
 
 class ExternalRegisterConfigurationModel(ConfigurationModel):
     enabled: bool = DjangoModelRef(ExternalRegisterConfig, "enabled")
-    services_identifiers: list[str] = DjangoModelRef(ExternalRegisterConfig, "services")
+    services_identifiers: list[str] = DjangoModelRef(
+        ExternalRegisterConfig, "services", default=list
+    )

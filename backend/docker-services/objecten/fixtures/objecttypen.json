@@ -1,0 +1,54 @@
+[
+{
+  "model": "core.objecttype",
+  "pk": 1,
+  "fields": {
+    "uuid": "35fc8d64-956c-411d-a894-428d98fea3a2",
+    "name": "Tree",
+    "name_plural": "Trees",
+    "description": "",
+    "data_classification": "open",
+    "maintainer_organization": "",
+    "maintainer_department": "",
+    "contact_person": "",
+    "contact_email": "",
+    "source": "",
+    "update_frequency": "unknown",
+    "provider_organization": "",
+    "documentation_url": "",
+    "labels": {},
+    "created_at": "2025-12-22",
+    "modified_at": "2025-12-22",
+    "allow_geometry": true,
+    "linkable_to_zaken": false
+  }
+},
+{
+  "model": "core.objectversion",
+  "pk": 1,
+  "fields": {
+    "object_type": 1,
+    "version": 1,
+    "created_at": "2025-12-22",
+    "modified_at": "2025-12-22",
+    "published_at": "2025-12-22",
+    "json_schema": {
+      "$id": "https://example.com/tree.schema.json",
+      "type": "object",
+      "title": "Tree",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "description": "The width of the tree."
+        },
+        "height": {
+          "type": "integer",
+          "description": "The height of the tree."
+        }
+      }
+    },
+    "status": "published"
+  }
+}
+]

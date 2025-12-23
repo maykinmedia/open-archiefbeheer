@@ -53,6 +53,17 @@ api_configuration_enabled: true
 api_configuration:
   selectielijst_service_identifier: selectielijst
 
+external_registers_enabled: true
+external_registers:
+  openklant:
+    enabled: true
+    services_identifiers:
+    - openklant-klantinteracties
+  objecten:
+    enabled: true
+    services_identifiers: 
+    - objecten-api
+
 
 oidc_db_config_enable: true
 oidc_db_config_admin_auth:

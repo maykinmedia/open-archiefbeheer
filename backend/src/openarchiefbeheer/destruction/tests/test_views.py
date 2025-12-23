@@ -14,7 +14,9 @@ from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
 from openarchiefbeheer.external_registers.models import ExternalRegisterConfig
-from openarchiefbeheer.utils.tests.resources_client import OpenZaakDataCreationHelper
+from openarchiefbeheer.utils.tests.resources_client import (
+    OpenZaakDataCreationHelper,
+)
 from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
 from openarchiefbeheer.zaken.models import Zaak
@@ -86,7 +88,6 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
             zrc_service_slug="zaken",
             ztc_service_slug="catalogi",
             drc_service_slug="documents",
-            openklant_service_slug="openklant",
         )
         resources = helper.create_zaaktype_with_relations()
         zaaktype = resources["zaaktype"]

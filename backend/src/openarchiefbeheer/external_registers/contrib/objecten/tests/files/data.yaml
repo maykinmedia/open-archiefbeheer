@@ -1,9 +1,9 @@
 external_registers_enabled: true
 external_registers:
   openklant:
+    enabled: false
+  objecten:
     enabled: true
     services_identifiers: 
-    - openklant_service1
-    - openklant_service2
-  objecten:
-    enabled: false
+    - objecten_service1
+    - objecten_service2
