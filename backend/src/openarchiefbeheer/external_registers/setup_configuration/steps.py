@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from django_setup_configuration.exceptions import ConfigurationRunFailed
@@ -12,8 +12,21 @@ from openarchiefbeheer.external_registers.setup_configuration.models import (
 from .models import make_model_with_plugins
 
 
+class NestedConfigurationStepType(ABCMeta):
+    """
+    This metaclass is needed because setup configuration calls `step_class.config_model` when
+    building the documentation examples.
+    However, we want this to be a lazy property, because the external plugin register needs
+    to be fully populated first.
+    """
+
+    @property
+    def config_model(cls) -> type[ConfigurationModel]:
+        return make_model_with_plugins()
+
+
 class ExternalRegisterPluginsConfigurationStep(
-    BaseConfigurationStep[ConfigurationModel]
+    BaseConfigurationStep[ConfigurationModel], metaclass=NestedConfigurationStepType
 ):
     """Configure the settings of the external registers.
 
@@ -29,7 +42,7 @@ class ExternalRegisterPluginsConfigurationStep(
     def config_model(self) -> type[ConfigurationModel]:  # pyright: ignore[reportIncompatibleVariableOverride]
         # This needs to run after initialisation, otherwise the risk is that not all plugins have been
         # added to the registry yet.
-        return make_model_with_plugins()
+        return self.__class__.config_model
 
     def execute(self, model: ConfigurationModel) -> None:
         for plugin in register.iter_automatically_configurable():
