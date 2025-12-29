@@ -45,6 +45,7 @@ services:
       DB_CONN_MAX_AGE: "0"
       DB_POOL_ENABLED: True
       OTEL_SDK_DISABLED: True
+      NOTIFICATIONS_DISABLED: True
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
       interval: 30s
@@ -85,7 +86,7 @@ services:
     networks:
       - objects-dev
 
-  objecttypes_web:
+  objecttypes: # DO NOT add underscores to this name. Otherwise Django considers it an invalid hostname.
     image: maykinmedia/objecttypes-api:3.4.0
     environment: &app-env
       DB_NAME: objecttypes
@@ -114,9 +115,11 @@ services:
       #
       # Django-setup-configuration
       RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
-    command: /setup_configuration.sh
+    command: >
+      sh -c "/setup_configuration.sh && src/manage.py loaddata /tmp/fixtures/objecttypen.json"
     volumes:
       - ./setup_configuration/objecttypes_data.yaml:/app/setup_configuration/data.yaml
+      - ./fixtures:/tmp/fixtures
     depends_on:
       - objecten_db
       - objecten_redis

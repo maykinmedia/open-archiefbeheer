@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     "openarchiefbeheer.external_registers",
     # Plugins for external registers
     "openarchiefbeheer.external_registers.contrib.openklant",
+    "openarchiefbeheer.external_registers.contrib.objecten",
 ]
 
 MIDDLEWARE = [

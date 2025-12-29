@@ -10,7 +10,7 @@ zgw_consumers:
   services:
   - identifier: objecttypes-api
     label: Objecttypes API
-    api_root: http://objecttypes_web:8007/api/v2/
+    api_root: http://objecttypes:8000/api/v2/
     api_connection_check_path: objecttypes
     api_type: orc
     auth_type: api_key
@@ -21,12 +21,8 @@ zgw_consumers:
 objecttypes_config_enable: true
 objecttypes:
   items:
-    - uuid: b427ef84-189d-43aa-9efd-7bb2c459e281
-      name: Object Type 1
-      service_identifier: objecttypes-api
-
-    - uuid: b0e8553f-8b1a-4d55-ab90-6d02f1bcf2c2
-      name: Object Type 2
+    - uuid: 35fc8d64-956c-411d-a894-428d98fea3a2
+      name: Tree
       service_identifier: objecttypes-api
 
 
@@ -40,10 +36,7 @@ tokenauth:
       organization: Maykin
       application: Open Archiefbeheer
       administration: OAB
-      permissions:
-        - object_type: b0e8553f-8b1a-4d55-ab90-6d02f1bcf2c2
-          mode: read_and_write
-          use_fields: false
+      is_superuser: true
 
 
 oidc_db_config_enable: false

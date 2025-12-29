@@ -1,17 +1,19 @@
 from abc import ABC, abstractmethod
 from typing import (
     Iterable,
-    Mapping,
     NoReturn,
     Protocol,
     TypedDict,
     TypeVar,
 )
 
+from django.utils.translation import gettext as _
+
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from maykin_health_checks.types import HealthCheckResult
 from zgw_consumers.models import Service
 
+from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import ExternalRegisterConfig
@@ -62,20 +64,43 @@ class AbstractBasePlugin[T](ABC):
             and self.setup_configuration_step is not None
         )
 
-    @abstractmethod
     def check_config(self) -> HealthCheckResult:
-        raise NotImplementedError()
+        config = self.get_or_create_config()
+        if not config.enabled:
+            return CheckResult(
+                identifier=self.identifier,
+                success=True,
+                message=_("The {plugin_name} plugin is disabled.").format(
+                    plugin_name=self.verbose_name
+                ),
+            )
+
+        if not config.services.count() > 0:
+            return CheckResult(
+                identifier=self.identifier,
+                success=False,
+                message=_(
+                    "No service(s) configured for the {plugin_name} plugin."
+                ).format(plugin_name=self.verbose_name),
+                extra=[
+                    ExtraInfo(
+                        code="missing_service",
+                        model="openarchiefbeheer.external_registers.contrib.openklant.models.OpenKlantConfig",
+                        field="services",
+                    )
+                ],
+            )
+        return CheckResult(
+            identifier=self.identifier,
+            success=True,
+            message=_(
+                "The {plugin_name} plugin settings are properly configured."
+            ).format(plugin_name=self.verbose_name),
+        )
 
     @abstractmethod
     def get_admin_url(self, resource_url: str) -> str:
         """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_related_resources(
-        self, zaak_url: str
-    ) -> Mapping[ServiceSlug, RelatedResourceList[T]]:
-        """Return the resources in the external register related to this zaak."""
         raise NotImplementedError()
 
     @abstractmethod

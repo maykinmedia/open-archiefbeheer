@@ -16,7 +16,9 @@ from openarchiefbeheer.external_registers.contrib.openklant.constants import (
 )
 from openarchiefbeheer.external_registers.models import ExternalRegisterConfig
 from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.utils.tests.resources_client import OpenZaakDataCreationHelper
+from openarchiefbeheer.utils.tests.resources_client import (
+    OpenKlantCreationHelper,
+)
 from openarchiefbeheer.zaken.utils import (
     delete_external_relations,
     delete_zaak_and_related_objects,
@@ -237,7 +239,7 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
         config.enabled = True
         config.services.add(ok_service)
         config.save()
-        helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
+        helper = OpenKlantCreationHelper(openklant_service_slug="openklant")
         onderwerpobject = helper.create_onderwerpobject()
         assert isinstance(onderwerpobject["url"], str)
 
@@ -295,7 +297,7 @@ class DeleteExternalRelationsTests(VCRMixin, TestCase):
         config.enabled = True
         config.services.add(ok_service)
         config.save()
-        helper = OpenZaakDataCreationHelper(openklant_service_slug="openklant")
+        helper = OpenKlantCreationHelper(openklant_service_slug="openklant")
         onderwerpobject1 = helper.create_onderwerpobject()
         onderwerpobject2 = helper.create_onderwerpobject()
         assert isinstance(onderwerpobject1["url"], str) and isinstance(

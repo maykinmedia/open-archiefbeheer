@@ -6,9 +6,6 @@ from django.db.models.functions import Length
 
 from zgw_consumers.client import build_client
 
-from openarchiefbeheer.external_registers.contrib.openklant.constants import (
-    OPENKLANT_IDENTIFIER,
-)
 from openarchiefbeheer.external_registers.plugin import (
     AbstractBasePlugin,
 )
@@ -21,14 +18,15 @@ from openarchiefbeheer.utils.results_store import (
     delete_object_and_store_result,
 )
 
-from .setup_configuration.steps import OpenKlantConfigurationStep
+from .constants import OBJECTEN_IDENTIFIER
+from .setup_configuration.steps import ObjectenPluginConfigurartionStep
 
 
-@register(OPENKLANT_IDENTIFIER)
-class OpenKlantPlugin(AbstractBasePlugin):
-    verbose_name = "Open Klant"
+@register(OBJECTEN_IDENTIFIER)
+class ObjectenPlugin(AbstractBasePlugin):
+    verbose_name = "Objecten"
     setup_configuration_model = ExternalRegisterConfigurationModel
-    setup_configuration_step = OpenKlantConfigurationStep
+    setup_configuration_step = ObjectenPluginConfigurartionStep
 
     def get_admin_url(self, resource_url: str) -> str:
         """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
@@ -54,7 +52,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
 
                 delete_object_and_store_result(
                     result_store,
-                    "onderwerpobjecten",
+                    "objecten",
                     resource_url,
                     partial(
                         clients[service.slug].delete,

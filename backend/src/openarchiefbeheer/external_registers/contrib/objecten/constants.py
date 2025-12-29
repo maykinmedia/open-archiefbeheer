@@ -1,0 +1,1 @@
+OBJECTEN_IDENTIFIER = "objecten"

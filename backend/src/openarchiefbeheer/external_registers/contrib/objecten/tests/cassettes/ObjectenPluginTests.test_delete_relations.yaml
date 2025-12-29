@@ -1,0 +1,109 @@
+interactions:
+- request:
+    body: '{"type": "http://objecttypes:8000/api/v2/objecttypes/35fc8d64-956c-411d-a894-428d98fea3a2",
+      "record": {"typeVersion": 1, "startAt": "2025-01-01"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '146'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.4
+    method: POST
+    uri: http://localhost:8006/api/v2/objects
+  response:
+    body:
+      string: '{"url":"http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab","uuid":"5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab","type":"http://objecttypes:8000/api/v2/objecttypes/35fc8d64-956c-411d-a894-428d98fea3a2","record":{"index":1,"typeVersion":1,"data":{},"geometry":null,"startAt":"2025-01-01","endAt":null,"registrationAt":"2025-12-22","correctionFor":null,"correctedBy":null}}'
+    headers:
+      API-version:
+      - 2.5.0
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '387'
+      Content-Security-Policy:
+      - 'frame-src ''self''; font-src ''self'' fonts.gstatic.com; frame-ancestors
+        ''none''; worker-src ''self'' blob:; script-src ''self'' ''unsafe-inline'';
+        default-src ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        base-uri ''self''; form-action ''self''; object-src ''none''; img-src ''self''
+        data: cdn.redoc.ly'
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Location:
+      - http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.32.4
+    method: DELETE
+    uri: http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab
+  response:
+    body:
+      string: ''
+    headers:
+      API-version:
+      - 2.5.0
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - 'frame-src ''self''; font-src ''self'' fonts.gstatic.com; frame-ancestors
+        ''none''; worker-src ''self'' blob:; script-src ''self'' ''unsafe-inline'';
+        default-src ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        base-uri ''self''; form-action ''self''; object-src ''none''; img-src ''self''
+        data: cdn.redoc.ly'
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 204
+      message: No Content
+version: 1
