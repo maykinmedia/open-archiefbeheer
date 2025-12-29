@@ -32,3 +32,9 @@ something that went wrong during deployment, but it means that the application s
 
 This configuration is meant to be done by Administrators with specific domain-knowledge of the processes. For this reason,
 this part of the configuration was not automated via ``django-setup-configuration``.
+
+FEATURE_FLAGS
+=============
+
+- ``FEATURE_RELATED_COUNT_DISABLED``: Setting this environment value to `True` will disabled inline presentation of the
+  related objects selection, this may significantly reduce load on external registers.
