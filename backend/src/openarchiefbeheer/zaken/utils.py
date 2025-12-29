@@ -15,7 +15,6 @@ from glom import glom
 from requests import HTTPError
 from rest_framework import status
 from zgw_consumers.api_models.selectielijst import Resultaat
-from zgw_consumers.api_models.zaken import ZaakObject
 from zgw_consumers.client import build_client
 from zgw_consumers.concurrent import parallel
 from zgw_consumers.utils import PaginatedResponseData
@@ -89,7 +88,7 @@ def get_resource_with_prebuilt_client(client: APIClient, url: str) -> dict | Non
 
 
 @_cached_with_args
-def fetch_supported_zaakobjects(zaak_url: str) -> list[ZaakObject]:
+def fetch_supported_zaakobjects(zaak_url: str) -> list[dict]:
     """
     Fetches and returns the list of supported related objects for a given Zaak.
 
@@ -112,7 +111,7 @@ def fetch_supported_zaakobjects(zaak_url: str) -> list[ZaakObject]:
 
 
 @_cached_with_args
-def fetch_zaakobjects(zaak_url: str) -> list[ZaakObject]:
+def fetch_zaakobjects(zaak_url: str) -> list[dict]:
     zaakobjects = []
 
     with zrc_client() as client:
