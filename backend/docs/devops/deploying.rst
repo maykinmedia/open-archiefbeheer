@@ -36,5 +36,5 @@ this part of the configuration was not automated via ``django-setup-configuratio
 FEATURE_FLAGS
 =============
 
-- ``FEATURE_RELATED_COUNT_DISABLED``: Setting this environment value to `True` will disabled inline presentation of the
-  related objects selection, this may significantly reduce load on external registers.
+- ``FEATURE_RELATED_COUNT_DISABLED``: Setting this environment variable to `True` will disable the inline presentation
+  of the related objects selection. This may significantly reduce load on external registers and improve performance.

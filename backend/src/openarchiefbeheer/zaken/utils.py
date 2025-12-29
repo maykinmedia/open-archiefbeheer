@@ -30,6 +30,7 @@ from openarchiefbeheer.clients import (
     ztc_client,
 )
 from openarchiefbeheer.external_registers.registry import register as registry
+from openarchiefbeheer.external_registers.utils import get_plugin_for_related_object
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.utils.datastructure import HashableDict
 from openarchiefbeheer.utils.results_store import (
@@ -37,7 +38,6 @@ from openarchiefbeheer.utils.results_store import (
     delete_object_and_store_result,
 )
 
-from ..external_registers.utils import get_plugin_for_related_object
 from .models import Zaak
 from .types import DropDownChoice
 
@@ -88,7 +88,7 @@ def get_resource_with_prebuilt_client(client: APIClient, url: str) -> dict | Non
 
 
 @_cached_with_args
-def fetch_supported_zaakobjects(zaak_url: str) -> list[dict]:
+def fetch_supported_zaakobjects(zaak_url: str) -> list[dict[str, JSONValue]]:
     """
     Fetches and returns the list of supported related objects for a given Zaak.
 
@@ -111,7 +111,7 @@ def fetch_supported_zaakobjects(zaak_url: str) -> list[dict]:
 
 
 @_cached_with_args
-def fetch_zaakobjects(zaak_url: str) -> list[dict]:
+def fetch_zaakobjects(zaak_url: str) -> list[dict[str, JSONValue]]:
     zaakobjects = []
 
     with zrc_client() as client:
