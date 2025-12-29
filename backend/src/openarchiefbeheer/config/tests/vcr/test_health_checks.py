@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from maykin_health_checks.runner import HealthChecksRunner
+from maykin_config_checks import run_checks
 from vcr.unittest import VCRMixin
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -57,10 +57,9 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
                 ArchiveConfigHealthCheck(),
             ]
 
-        runner = HealthChecksRunner(
-            checks_collector=checks_collector, include_success=False
+        failed_checks = list(
+            run_checks(checks_collector=checks_collector, include_success=False)
         )
-        failed_checks = list(runner.run_checks())
 
         self.assertEqual(len(failed_checks), 1)
         self.assertEqual(failed_checks[0].identifier, "services_configuration")
@@ -125,9 +124,8 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
                 ArchiveConfigHealthCheck(),
             ]
 
-        runner = HealthChecksRunner(
-            checks_collector=checks_collector, include_success=False
+        failed_checks = list(
+            run_checks(checks_collector=checks_collector, include_success=False)
         )
-        failed_checks = list(runner.run_checks())
 
         self.assertEqual(len(failed_checks), 0)

@@ -1,5 +1,6 @@
 from typing import Literal
 
+from maykin_config_checks import Slug
 from msgspec import UNSET, Struct, UnsetType, to_builtins
 
 from openarchiefbeheer.types import JSONValue
@@ -14,7 +15,8 @@ class ExtraInfo(Struct):
 
 
 class CheckResult(Struct):
-    identifier: str
+    identifier: Slug
+    verbose_name: str
     success: bool
     message: str
     extra: list[ExtraInfo] | UnsetType = UNSET

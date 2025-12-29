@@ -5,7 +5,7 @@ from drf_spectacular.views import (
     SpectacularJSONAPIView,
     SpectacularRedocView,
 )
-from maykin_health_checks.api.views import HealthChecksView
+from maykin_config_checks.api.views import HealthChecksView
 from rest_framework import routers
 
 from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView

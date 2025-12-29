@@ -4,7 +4,6 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from maykin_health_checks.types import HealthCheckResult
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.utils.results_store import ResultStore
@@ -15,9 +14,6 @@ from ..utils import get_plugin_for_related_object
 
 
 class DummyPlugin(AbstractBasePlugin):
-    def check_config(self) -> HealthCheckResult:
-        return
-
     def get_admin_url(self, resource_url: str) -> str:
         return ""
 
@@ -27,7 +23,7 @@ class DummyPlugin(AbstractBasePlugin):
         return {}
 
     def delete_related_resources(
-        self, related_resources: Iterable[str], result_store: ResultStore
+        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
     ) -> None | NoReturn:
         return
 

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from maykin_health_checks.runner import HealthChecksRunner
+from maykin_config_checks import run_checks
 from zgw_consumers.models import Service
 
 from openarchiefbeheer.config.health_checks import (
@@ -36,10 +36,9 @@ class TestHealthChecks(TestCase):
                 ArchiveConfigHealthCheck(),
             ]
 
-        runner = HealthChecksRunner(
-            checks_collector=checks_collector, include_success=False
+        failed_checks = list(
+            run_checks(checks_collector=checks_collector, include_success=False)
         )
-        failed_checks = list(runner.run_checks())
 
         self.assertEqual(len(failed_checks), 3)
         self.assertEqual(failed_checks[0].identifier, "services_presence")
