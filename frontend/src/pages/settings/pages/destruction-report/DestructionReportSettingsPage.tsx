@@ -18,13 +18,14 @@ import { useDataFetcher } from "../../../../hooks/useDataFetcher";
 import { ArchiveConfiguration } from "../../../../lib/api/config";
 import {
   clearBackendCache,
-  listInformatieObjectTypeChoices,
-  listResultaatTypeChoices,
-  listStatusTypeChoices,
+  listDestructionReportInformatieObjectTypeChoices,
+  listDestructionReportResultaatTypeChoices,
+  listDestructionReportStatusTypeChoices,
 } from "../../../../lib/api/private";
 import { UpdateSettingsAction } from "../../Settings.action";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { DestructionReportSettingsPageContext } from "./DestructionReportSettingsPage.loader";
+import { invariant } from "@maykin-ui/client-common";
 
 interface DestructionReportSetting {
   zaaktype: string;
@@ -64,7 +65,13 @@ export function DestructionReportSettingsPage() {
   );
 
   const { data: statusTypeChoices } = useDataFetcher(
-    (signal) => listStatusTypeChoices(valuesState?.zaaktype, signal),
+    (signal) => {
+      if (!valuesState?.zaaktype) return [];
+      return listDestructionReportStatusTypeChoices(
+        valuesState?.zaaktype,
+        signal,
+      );
+    },
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van de statustypen!",
@@ -74,12 +81,13 @@ export function DestructionReportSettingsPage() {
   );
 
   const { data: resultaatTypeChoices } = useDataFetcher(
-    (signal) =>
-      listResultaatTypeChoices(
-        { zaaktypeIdentificatie: valuesState?.zaaktype },
-        true,
+    (signal) => {
+      if (!valuesState?.zaaktype) return [];
+      return listDestructionReportResultaatTypeChoices(
+        valuesState?.zaaktype,
         signal,
-      ),
+      );
+    },
     {
       initialState: [],
       errorMessage:
@@ -88,7 +96,13 @@ export function DestructionReportSettingsPage() {
     [valuesState.zaaktype],
   );
   const { data: informatieObjectTypeChoices } = useDataFetcher(
-    (signal) => listInformatieObjectTypeChoices(valuesState.zaaktype, signal),
+    (signal) => {
+      if (!valuesState?.zaaktype) return [];
+      return listDestructionReportInformatieObjectTypeChoices(
+        valuesState.zaaktype,
+        signal,
+      );
+    },
     {
       initialState: [],
       errorMessage:
@@ -126,6 +140,7 @@ export function DestructionReportSettingsPage() {
       required: false,
       options: statusTypeChoices,
       value: valuesState.statustype,
+      disabled: valuesState.zaaktype == "",
     },
     {
       label: "Resultaattype",
@@ -144,7 +159,19 @@ export function DestructionReportSettingsPage() {
       const newValues = Object.assign({ ...valuesState }, values);
 
       setIsValidState(isValid);
-      setValuesState(newValues);
+      
+      invariant("zaaktype" in values, "No zaaktype found in the form values!")
+      if (values.zaaktype == valuesState.zaaktype) {
+        setValuesState(newValues);
+      } else {
+        // The zaaktype has changed, we need to reset the related resources.
+        setValuesState({
+          ...newValues,
+          resultaattype: "",
+          statustype: "",
+          informatieobjecttype: "",
+        });
+      }
       return errors;
     },
     [valuesState],

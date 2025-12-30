@@ -136,7 +136,7 @@ export function useFields<T extends Zaak = Zaak>(
 
   const resultaatTypeParams = getZaakFilterParams("resultaatType");
   const { data: resultaatTypeChoices } = useDataFetcher(
-    (signal) => listResultaatTypeChoices(resultaatTypeParams, false, signal),
+    (signal) => listResultaatTypeChoices(resultaatTypeParams, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van resultaattypen!",
@@ -147,7 +147,7 @@ export function useFields<T extends Zaak = Zaak>(
 
   const zaaktypeParams = getZaakFilterParams("zaaktype");
   const { data: zaaktypeChoices } = useDataFetcher(
-    (signal) => listZaaktypeChoices(zaaktypeParams, false, signal),
+    (signal) => listZaaktypeChoices(zaaktypeParams, signal),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
       initialState: [],
