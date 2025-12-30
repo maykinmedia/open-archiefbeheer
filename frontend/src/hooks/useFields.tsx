@@ -147,7 +147,7 @@ export function useFields<T extends Zaak = Zaak>(
 
   const zaaktypeParams = getZaakFilterParams("zaaktype");
   const { data: zaaktypeChoices } = useDataFetcher(
-    (signal) => listZaaktypeChoices(zaaktypeParams, false, signal),
+    (signal) => listZaaktypeChoices(zaaktypeParams, signal),
     {
       errorMessage: "Er is een fout opgetreden bij het ophalen van zaaktypen!",
       initialState: [],
