@@ -13,6 +13,7 @@ pytest  # documentation tests
 testfixtures
 vcrpy
 pytest-playwright 
+pytest-django
 docker
 # XlsxWriter is more suitable for writing large files, but doesn't support reading them. 
 # So for the tests we use openpyxl to check the created excel files.
