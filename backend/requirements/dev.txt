@@ -152,7 +152,6 @@ django==4.2.27
     #   django-extensions
     #   django-filter
     #   django-formtools
-    #   django-health-checks
     #   django-hijack
     #   django-jenkins
     #   django-jsonform
@@ -172,6 +171,7 @@ django==4.2.27
     #   drf-nested-routers
     #   drf-spectacular
     #   maykin-2fa
+    #   maykin-config-checks
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
     #   zgw-consumers
@@ -209,10 +209,6 @@ django-formtools==2.5.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-two-factor-auth
-django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@99b5ce57917abc40e16543b7fb251ba710524b31
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 django-hijack==3.4.5
     # via
     #   -c requirements/ci.txt
@@ -396,7 +392,6 @@ idna==3.7
     #   anyio
     #   httpx
     #   requests
-    #   yarl
 imagesize==1.4.1
     # via
     #   -c requirements/ci.txt
@@ -453,6 +448,10 @@ maykin-2fa==1.0.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+maykin-config-checks==0.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 mdurl==0.1.2
     # via markdown-it-py
 mozilla-django-oidc==4.0.1
@@ -468,11 +467,6 @@ msgspec==0.19.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-multidict==6.0.5
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   yarl
 openpyxl==3.1.5
     # via
     #   -c requirements/ci.txt
@@ -819,7 +813,7 @@ uritemplate==4.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
-urllib3==2.6.0
+urllib3==2.6.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -827,12 +821,11 @@ urllib3==2.6.0
     #   elastic-apm
     #   requests
     #   sentry-sdk
-    #   vcrpy
 uwsgi==2.0.25.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-vcrpy==7.0.0
+vcrpy==8.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -882,11 +875,6 @@ xlsxwriter==3.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-yarl==1.9.4
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   vcrpy
 zgw-consumers==0.36.1
     # via
     #   -c requirements/ci.txt

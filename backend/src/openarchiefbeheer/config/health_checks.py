@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
 
-from maykin_health_checks.types import HealthCheck, HealthCheckResult
+from maykin_config_checks import HealthCheck, HealthCheckResult, Slug
 from msgspec import UNSET
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -19,8 +19,9 @@ ZGW_REQUIRED_SERVICE_TYPES = [APITypes.zrc, APITypes.drc, APITypes.ztc, APITypes
 @dataclass
 class ServiceHealthCheck:
     identifier = "services_presence"
+    verbose_name = _("Services presence")
 
-    def run(self) -> CheckResult:
+    def __call__(self) -> CheckResult:
         missing_services = []
 
         for needed_service_type in ZGW_REQUIRED_SERVICE_TYPES:
@@ -36,8 +37,9 @@ class ServiceHealthCheck:
         if missing_services:
             return CheckResult(
                 identifier=self.identifier,
+                verbose_name=self.verbose_name,
                 message=_("Missing service(s): {missing_services}").format(
-                    missing_services=missing_services
+                    missing_services=",".join(missing_services)
                 ),
                 success=False,
                 extra=[
@@ -50,16 +52,18 @@ class ServiceHealthCheck:
 
         return CheckResult(
             identifier=self.identifier,
+            verbose_name=self.verbose_name,
             success=True,
-            message=_("All expected services configured correctly."),
+            message=_("All expected services are present."),
         )
 
 
 @dataclass
 class ServiceConfigurationHealthCheck:
     identifier = "services_configuration"
+    verbose_name = _("Services configuration")
 
-    def run(self) -> CheckResult:
+    def __call__(self) -> CheckResult:
         errors = []
         for service in Service.objects.all():
             service_connection_result = service.connection_check
@@ -78,6 +82,7 @@ class ServiceConfigurationHealthCheck:
         has_errors = len(errors) > 0
         return CheckResult(
             identifier=self.identifier,
+            verbose_name=self.verbose_name,
             success=not has_errors,
             extra=errors if has_errors else UNSET,
             message=(
@@ -91,13 +96,15 @@ class ServiceConfigurationHealthCheck:
 @dataclass
 class APIConfigCheck:
     identifier = "apiconfig"
+    verbose_name = _("API configuration")
 
-    def run(self) -> CheckResult:
+    def __call__(self) -> CheckResult:
         api_config = APIConfig.get_solo()
 
         if not api_config.selectielijst_api_service:
             return CheckResult(
                 identifier=self.identifier,
+                verbose_name=self.verbose_name,
                 success=False,
                 message=_(
                     "No selectielijst API services selected in the API configuration page."
@@ -112,6 +119,7 @@ class APIConfigCheck:
             )
         return CheckResult(
             identifier=self.identifier,
+            verbose_name=self.verbose_name,
             success=True,
             message=_("The API settings are properly configured."),
         )
@@ -120,8 +128,9 @@ class APIConfigCheck:
 @dataclass
 class ArchiveConfigHealthCheck:
     identifier = "archiveconfig"
+    verbose_name = _("Archive configuration")
 
-    def run(self) -> CheckResult:
+    def __call__(self) -> CheckResult:
         errors = []
         archive_config = ArchiveConfig.get_solo()
         if not archive_config.bronorganisatie:
@@ -160,6 +169,7 @@ class ArchiveConfigHealthCheck:
         if errors:
             return CheckResult(
                 identifier=self.identifier,
+                verbose_name=self.verbose_name,
                 success=False,
                 message=_("Missing settings(s): {missing_fields}").format(
                     missing_fields=errors
@@ -168,6 +178,7 @@ class ArchiveConfigHealthCheck:
             )
         return CheckResult(
             identifier=self.identifier,
+            verbose_name=self.verbose_name,
             success=True,
             message=_("The archiving settings are properly configured."),
         )
@@ -175,10 +186,11 @@ class ArchiveConfigHealthCheck:
 
 @dataclass
 class PluginHealthCheck:
-    identifier: str
+    identifier: Slug
+    verbose_name: str
     plugin: AbstractBasePlugin
 
-    def run(self) -> HealthCheckResult:
+    def __call__(self) -> HealthCheckResult:
         return self.plugin.check_config()
 
 
@@ -193,6 +205,7 @@ def checks_collector() -> list[HealthCheck]:
         [
             PluginHealthCheck(
                 identifier=identifier,
+                verbose_name=plugin.verbose_name,
                 plugin=plugin,
             )
             for identifier, plugin in registry.iterate()

@@ -10,7 +10,7 @@ from typing import (
 from django.utils.translation import gettext as _
 
 from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
-from maykin_health_checks.types import HealthCheckResult
+from maykin_config_checks import HealthCheckResult
 from zgw_consumers.models import Service
 
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
@@ -69,6 +69,7 @@ class AbstractBasePlugin[T](ABC):
         if not config.enabled:
             return CheckResult(
                 identifier=self.identifier,
+                verbose_name=self.verbose_name,
                 success=True,
                 message=_("The {plugin_name} plugin is disabled.").format(
                     plugin_name=self.verbose_name
@@ -78,6 +79,7 @@ class AbstractBasePlugin[T](ABC):
         if not config.services.count() > 0:
             return CheckResult(
                 identifier=self.identifier,
+                verbose_name=self.verbose_name,
                 success=False,
                 message=_(
                     "No service(s) configured for the {plugin_name} plugin."
@@ -92,6 +94,7 @@ class AbstractBasePlugin[T](ABC):
             )
         return CheckResult(
             identifier=self.identifier,
+            verbose_name=self.verbose_name,
             success=True,
             message=_(
                 "The {plugin_name} plugin settings are properly configured."

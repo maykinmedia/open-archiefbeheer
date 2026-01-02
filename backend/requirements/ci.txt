@@ -123,7 +123,6 @@ django==4.2.27
     #   django-csp
     #   django-filter
     #   django-formtools
-    #   django-health-checks
     #   django-hijack
     #   django-jenkins
     #   django-jsonform
@@ -143,6 +142,7 @@ django==4.2.27
     #   drf-nested-routers
     #   drf-spectacular
     #   maykin-2fa
+    #   maykin-config-checks
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
     #   zgw-consumers
@@ -176,10 +176,6 @@ django-formtools==2.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-django-health-checks @ git+https://github.com/maykinmedia/django-health-checks.git@99b5ce57917abc40e16543b7fb251ba710524b31
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
 django-hijack==3.4.5
     # via
     #   -c requirements/base.txt
@@ -335,7 +331,6 @@ idna==3.7
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests
-    #   yarl
 imagesize==1.4.1
     # via sphinx
 inflection==0.5.1
@@ -375,6 +370,10 @@ maykin-2fa==1.0.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+maykin-config-checks==0.1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 mozilla-django-oidc==4.0.1
     # via
     #   -c requirements/base.txt
@@ -388,8 +387,6 @@ msgspec==0.19.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-multidict==6.0.5
-    # via yarl
 openpyxl==3.1.5
     # via -r requirements/test-tools.in
 orderedmultidict==1.0.1
@@ -639,7 +636,7 @@ uritemplate==4.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
-urllib3==2.6.0
+urllib3==2.6.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -647,12 +644,11 @@ urllib3==2.6.0
     #   elastic-apm
     #   requests
     #   sentry-sdk
-    #   vcrpy
 uwsgi==2.0.25.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-vcrpy==7.0.0
+vcrpy==8.1.0
     # via -r requirements/test-tools.in
 vine==5.1.0
     # via
@@ -687,8 +683,6 @@ xlsxwriter==3.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-yarl==1.9.4
-    # via vcrpy
 zgw-consumers==0.36.1
     # via
     #   -c requirements/base.txt
