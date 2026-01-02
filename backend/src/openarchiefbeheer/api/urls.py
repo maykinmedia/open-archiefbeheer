@@ -25,7 +25,7 @@ from openarchiefbeheer.destruction.api.viewsets import (
     DestructionListItemReviewViewSet,
     DestructionListItemsViewSet,
     DestructionListReviewViewSet,
-    DestructionListViewSet,
+    InProgressDestructionListsViewSet,
     ReviewResponseViewSet,
 )
 from openarchiefbeheer.logging.api.viewsets import LogsViewset
@@ -54,7 +54,7 @@ from .routers import BulkNestedRouter
 app_name = "api"
 
 router = routers.DefaultRouter()
-router.register(r"destruction-lists", DestructionListViewSet)
+router.register(r"destruction-lists", InProgressDestructionListsViewSet)
 router.register(
     r"destruction-list-items",
     DestructionListItemsViewSet,

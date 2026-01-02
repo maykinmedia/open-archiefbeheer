@@ -226,7 +226,7 @@ logger = logging.getLogger(__name__)
         responses={200: None},
     ),
 )
-class DestructionListViewSet(
+class InProgressDestructionListsViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
