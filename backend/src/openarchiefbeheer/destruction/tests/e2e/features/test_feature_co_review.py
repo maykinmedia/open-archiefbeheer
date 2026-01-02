@@ -83,6 +83,7 @@ class FeatureCoReviewTests(GherkinLikeTestCase):
 
             # Reviewer should see second case rejected.
             await self.when.reviewer_logs_in(page)
+            await self.then.page_should_contain_text(page, "Nu") # Wait for destruction list to appear in dashboard.
             await self.when.user_clicks_button(page, "Destruction list to co review")
             await self.then.page_should_contain_text(page, "Uitgezonderd")
 
