@@ -19,6 +19,7 @@ export const FIXTURE_DESTRUCTION_LIST: DestructionList = {
   assignees: defaultAssignees,
   assignee: defaultAssignees[0].user,
   created: "2024-07-11T16:57",
+  end: null,
   statusChanged: "2024-07-11:16:57",
   deletableItemsCount: 0,
 };

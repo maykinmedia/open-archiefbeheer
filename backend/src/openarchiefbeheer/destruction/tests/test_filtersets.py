@@ -230,7 +230,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names = [list["name"] for list in data]
+        names = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names,
@@ -263,7 +263,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names = [list["name"] for list in data]
+        names = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names,
@@ -297,7 +297,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names = [list["name"] for list in data]
+        names = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names,
@@ -342,7 +342,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names = [list["name"] for list in data]
+        names = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names,
@@ -376,7 +376,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names = [list["name"] for list in data]
+        names = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names,
@@ -416,7 +416,7 @@ class DestructionListEndpoint(APITestCase):
 
         data = response.json()
 
-        names_in_order = [list["name"] for list in data]
+        names_in_order = [list["name"] for list in data["results"]]
 
         self.assertEqual(
             names_in_order,

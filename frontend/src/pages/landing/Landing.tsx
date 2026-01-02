@@ -9,18 +9,17 @@ import {
   Solid,
   Tooltip,
 } from "@maykin-ui/admin-ui";
-import { string2Title } from "@maykin-ui/client-common";
+import { string2Title, ucFirst } from "@maykin-ui/client-common";
 import { useMemo } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 
-import { ProcessingStatusBadge } from "../../components/ProcessingStatusBadge";
-import { useCombinedSearchParams } from "../../hooks";
-import { useDataFetcher } from "../../hooks/useDataFetcher";
-import { usePoll } from "../../hooks/usePoll";
+import { ProcessingStatusBadge } from "../../components";
+import { useCombinedSearchParams, useDataFetcher, usePoll } from "../../hooks";
 import { User } from "../../lib/api/auth";
 import {
   DESTRUCTION_LIST_STATUSES,
   DestructionList,
+  getDestructionListsKanban,
 } from "../../lib/api/destructionLists";
 import { listRecordManagers } from "../../lib/api/recordManagers";
 import { API_BASE_URL } from "../../lib/api/request";
@@ -41,7 +40,7 @@ import { timeAgo } from "../../lib/format/date";
 import { formatUser } from "../../lib/format/user";
 import { STATUS_MAPPING } from "../constants";
 import "./Landing.css";
-import { LandingContext, getStatusMap } from "./Landing.loader";
+import { LandingContext } from "./Landing.loader";
 
 export type LandingKanbanEntry = {
   key: string;
@@ -54,56 +53,16 @@ export type LandingKanbanEntry = {
   onClick?: () => void;
 };
 
-export const STATUSES: FieldSet<LandingKanbanEntry>[] = [
-  [
-    STATUS_MAPPING.new,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.changes_requested,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.ready_to_review,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.internally_reviewed,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.ready_for_archivist,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.ready_to_delete,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-  [
-    STATUS_MAPPING.deleted,
-    {
-      fields: ["slotAssignees"],
-    },
-  ],
-];
-
 export const Landing = () => {
   const { statusMap, user } = useLoaderData() as LandingContext;
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useCombinedSearchParams();
+
+  if (!searchParams.has("ordering")) {
+    searchParams.set("ordering", "-created");
+  }
+
   const { data: recordManagers } = useDataFetcher(
     (signal) => listRecordManagers(signal),
     {
@@ -130,8 +89,8 @@ export const Landing = () => {
     [],
   );
 
-  usePoll(async () => {
-    const _statusMap = await getStatusMap(searchParams);
+  usePoll(async (signal) => {
+    const _statusMap = await getDestructionListsKanban(searchParams, signal);
     const equal = JSON.stringify(_statusMap) === JSON.stringify(statusMap);
     if (!equal) {
       revalidator.revalidate();
@@ -254,17 +213,16 @@ export const Landing = () => {
     setSearchParams({ ...searchParams, [name]: value });
   };
 
-  const fieldsets = STATUSES.map(
-    (fieldset) =>
-      [
-        fieldset[0],
-        {
-          ...fieldset[1],
-          component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
-            <KanbanButton {...props} title={props.object.title} />
-          ),
-        },
-      ] as FieldSet,
+  const fieldsets: FieldSet<LandingKanbanEntry>[] = Object.keys(statusMap).map(
+    (s) => [
+      ucFirst(s),
+      {
+        component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
+          <KanbanButton {...props} title={props.object.title} />
+        ),
+        fields: ["slotAssignees"],
+      },
+    ],
   );
 
   return (

@@ -3,6 +3,7 @@ import { URLSearchParams } from "url";
 
 import { Zaak } from "../../types";
 import { User } from "./auth";
+import { PaginatedResults } from "./paginatedResults";
 import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
 
@@ -14,6 +15,7 @@ export type DestructionList = {
   comment: string;
   containsSensitiveInfo: boolean;
   created: string;
+  end: string | null;
   plannedDestructionDate: string | null;
   name: string;
   status: DestructionListStatus;
@@ -130,22 +132,50 @@ export async function getDestructionList(uuid: string) {
 }
 
 /**
+ * Gets destruction lists in Kanban ready mapping between human-readable status
+ * and `DestructionList[]`.
+ */
+export async function getDestructionListsKanban(
+  params?: URLSearchParams,
+  signal?: AbortSignal,
+) {
+  const response = await request(
+    "GET",
+    `/destruction-lists/kanban/`,
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
+  const promise: Promise<Record<string, DestructionList[]>> = response.json();
+  return promise;
+}
+
+/**
  * List destruction lists.
  */
 export async function listDestructionLists(
   params?:
     | URLSearchParams
     | {
-        name: string;
-        status: DestructionListStatus;
-        author: number;
-        reviewer: number;
-        assignee: number;
+        name?: string;
+        status?: DestructionListStatus;
+        author?: number;
+        reviewer?: number;
+        assignee?: number;
         ordering?: string;
       },
+  signal?: AbortSignal,
 ) {
-  const response = await request("GET", "/destruction-lists/", params);
-  const promise: Promise<DestructionList[]> = response.json();
+  const response = await request(
+    "GET",
+    "/destruction-lists/",
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
+  const promise: Promise<PaginatedResults<DestructionList>> = response.json();
   return promise;
 }
 

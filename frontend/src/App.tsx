@@ -122,6 +122,12 @@ function App() {
                 // size: "xl",
                 onClick: () => navigate("/destruction-lists/create"),
               },
+              {
+                children: <Solid.DocumentCheckIcon />,
+                title: "Afgeronde vernietigingslijsten",
+                hidden: user ? !canStartDestructionList(user) : true,
+                onClick: () => navigate("/completed-destruction-lists"),
+              },
               "spacer",
               <>
                 {state !== "idle" ? (

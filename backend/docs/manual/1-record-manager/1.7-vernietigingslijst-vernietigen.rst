@@ -51,6 +51,8 @@ Stappen
       verklaring van vernietiging is gegenereerd.
     - Een vernietigingsrapport kan worden gedownload door op de knop van de vernietigingslijst te klikken op de
       overzichtspagina.
+    - Na een vastgestelde periode zal de vernietigingslijst verdwijnen uit het overzicht en alleen nog te zien zijn via
+      :ref:`afgeronde vernietigingslijsten <manual_1-record-manager_1.9-afgeronde-vernietigingslijsten>`).
 
       |rapport_downloaden|
 

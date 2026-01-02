@@ -49,6 +49,19 @@ from ..signals import co_reviewers_added
 from ..tasks import process_review_response
 
 
+class DestructionListKanbanSerializer(serializers.Serializer):
+    def to_representation(self, queryset):
+        data = {status.label: [] for status in ListStatus}
+
+        for destruction_list in queryset.iterator():
+            label = ListStatus(destruction_list.status).label
+            data[label].append(DestructionListReadSerializer(destruction_list).data)
+
+        # The queryset only includes recently destroyed lists, update the label.
+        data[_("recently destroyed")] = data.pop(ListStatus.deleted.label)
+        return data
+
+
 class ReviewerAssigneeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestructionListAssignee
@@ -594,6 +607,7 @@ class DestructionListReadSerializer(serializers.ModelSerializer):
             "status",
             "processing_status",
             "created",
+            "end",
             "status_changed",
             "planned_destruction_date",
             "deletable_items_count",
