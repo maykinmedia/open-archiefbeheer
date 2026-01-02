@@ -73,7 +73,8 @@ class ServiceConfigurationHealthCheck:
                 errors.append(
                     ExtraInfo(
                         code="improperly_configured_service",
-                        message=service.label,
+                        message=_("Connection check failed for Service: %(label)s")
+                        % {"label": service.label},
                         severity="error",
                         model="zgw_consumers.models.Service",
                     )
