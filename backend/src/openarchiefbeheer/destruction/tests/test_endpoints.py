@@ -1,10 +1,13 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
+import freezegun
 import requests_mock
 from furl import furl
 from rest_framework import status
@@ -927,6 +930,35 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @freezegun.freeze_time("2023-09-15")
+    @override_settings(POST_DESTRUCTION_VISIBILITY_PERIOD=1)
+    def test_post_destruction_visibility_period(self):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+
+        in_progress = DestructionListFactory.create(status=ListStatus.new)
+        recent_deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=1),
+        )
+        deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destructionlist-list"))
+        response = self.client.get(endpoint.url)
+        lists = response.json()
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 2)
+        self.assertEqual(uuids[0], str(in_progress.uuid))
+        self.assertEqual(uuids[1], str(recent_deleted.uuid))
+        self.assertNotIn(str(deleted.uuid), uuids)
 
 
 class DestructionListReviewViewSetTest(APITestCase):
