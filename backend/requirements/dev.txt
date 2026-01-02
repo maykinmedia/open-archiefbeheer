@@ -585,12 +585,17 @@ pytest==8.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest-base-url
+    #   pytest-django
     #   pytest-playwright
 pytest-base-url==2.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest-playwright
+pytest-django==4.11.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 pytest-playwright==0.5.2
     # via
     #   -c requirements/ci.txt

@@ -35,77 +35,24 @@ interactions:
       Content-Length:
       - '3418'
       Content-Security-Policy:
-      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
-        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com cdnjs.cloudflare.com
+        cdn.jsdelivr.net; frame-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none''; base-uri ''self'';
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; form-action ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Thu, 18 Dec 2025 13:33:01 GMT
+      - Fri, 02 Jan 2026 13:57:33 GMT
       Referrer-Policy:
       - same-origin
       Server:
       - nginx/1.29.2
       Vary:
       - origin, Cookie
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc4MSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.wv0qZVIkHYv4czPQPnCM_uUYwLnI2gGdB6Jbqm7TF0o
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.4
-    method: GET
-    uri: http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F7eac038c-6675-4273-b794-7849508db496
-  response:
-    body:
-      string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348","uuid":"d0b27cb0-ec3d-44c0-9683-b53471834348","zaak":"http://localhost:8003/zaken/api/v1/zaken/7eac038c-6675-4273-b794-7849508db496","object":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6","zaakobjecttype":null,"objectType":"overige","objectTypeOverige":"Onderwerpobject","objectTypeOverigeDefinitie":{"url":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6","schema":"{}","objectData":"{}"},"relatieomschrijving":"","objectIdentificatie":null}]}'
-    headers:
-      API-version:
-      - 1.5.1
-      Allow:
-      - GET, POST, HEAD, OPTIONS
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '698'
-      Content-Security-Policy:
-      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
-        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net'
-      Content-Type:
-      - application/json
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Date:
-      - Thu, 18 Dec 2025 13:33:01 GMT
-      Referrer-Policy:
-      - same-origin
-      Server:
-      - nginx/1.29.2
-      Vary:
-      - Accept, origin, Cookie
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:

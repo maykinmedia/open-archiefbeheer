@@ -475,9 +475,12 @@ pytest==8.2.0
     # via
     #   -r requirements/test-tools.in
     #   pytest-base-url
+    #   pytest-django
     #   pytest-playwright
 pytest-base-url==2.1.0
     # via pytest-playwright
+pytest-django==4.11.1
+    # via -r requirements/test-tools.in
 pytest-playwright==0.5.2
     # via -r requirements/test-tools.in
 python-dateutil==2.9.0.post0
