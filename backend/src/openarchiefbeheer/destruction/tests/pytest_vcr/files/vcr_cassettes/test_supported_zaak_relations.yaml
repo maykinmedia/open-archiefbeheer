@@ -35,18 +35,18 @@ interactions:
       Content-Length:
       - '3418'
       Content-Security-Policy:
-      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
-        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com cdnjs.cloudflare.com
+        cdn.jsdelivr.net; frame-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none''; base-uri ''self'';
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; form-action ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Thu, 18 Dec 2025 13:33:00 GMT
+      - Fri, 02 Jan 2026 13:51:24 GMT
       Referrer-Policy:
       - same-origin
       Server:
@@ -68,7 +68,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NjA2NDc4MSwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.wv0qZVIkHYv4czPQPnCM_uUYwLnI2gGdB6Jbqm7TF0o
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NzM2MTg4NCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.MOEfg1XTinTFbsZ-t-ROoXfbuTOCmEu2L09_y9PVoKU
       Connection:
       - keep-alive
       User-Agent:
@@ -88,18 +88,18 @@ interactions:
       Content-Length:
       - '698'
       Content-Security-Policy:
-      - 'form-action ''self''; base-uri ''self''; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; frame-src ''self''; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; style-src ''self'' ''unsafe-inline''
-        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none'';
-        worker-src ''self'' blob:; default-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net'
+      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com cdnjs.cloudflare.com
+        cdn.jsdelivr.net; frame-src ''self''; script-src ''self'' ''unsafe-inline''
+        cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none''; base-uri ''self'';
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly
+        cdnjs.cloudflare.com tile.openstreetmap.org; font-src ''self'' fonts.gstatic.com;
+        frame-ancestors ''none''; form-action ''self'''
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Thu, 18 Dec 2025 13:33:01 GMT
+      - Fri, 02 Jan 2026 13:51:24 GMT
       Referrer-Policy:
       - same-origin
       Server:

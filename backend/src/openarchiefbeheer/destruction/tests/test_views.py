@@ -1,6 +1,5 @@
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
-from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -17,12 +16,7 @@ from openarchiefbeheer.external_registers.models import ExternalRegisterConfig
 from openarchiefbeheer.utils.tests.resources_client import (
     OpenZaakDataCreationHelper,
 )
-from openarchiefbeheer.utils.utils_decorators import reload_openzaak_fixtures
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
-from openarchiefbeheer.zaken.models import Zaak
-from openarchiefbeheer.zaken.tasks import (
-    retrieve_and_cache_zaken,
-)
 
 
 class StatusViewTests(APITestCase):
@@ -135,77 +129,6 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
                 "result": zaakobject,
             },
         )
-
-    @reload_openzaak_fixtures(["RelatedObjectsViewTests_test_supported_relation.json"])
-    def test_supported_relation(self):
-        user = UserFactory.create()
-
-        with freeze_time("2025-12-12"):
-            retrieve_and_cache_zaken(is_full_resync=True)
-
-        item = DestructionListItemFactory.create(
-            zaak=Zaak.objects.get(identificatie="ZAAK-2000-0000000001")
-        )
-
-        endpoint = reverse("api:destruction-items-relations", args=(item.pk,))
-        self.client.force_authenticate(user)
-        response = self.client.get(endpoint)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.json()
-
-        self.assertEqual(len(data), 1)
-        self.assertTrue(data[0]["supported"])
-        self.assertTrue(data[0]["selected"])
-        self.assertEqual(
-            data[0]["url"],
-            "http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348",
-        )
-        self.assertEqual(
-            data[0]["result"],
-            {
-                "url": "http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348",
-                "uuid": "d0b27cb0-ec3d-44c0-9683-b53471834348",
-                "zaak": "http://localhost:8003/zaken/api/v1/zaken/7eac038c-6675-4273-b794-7849508db496",
-                "object": "http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6",
-                "zaakobjecttype": None,
-                "objectType": "overige",
-                "objectTypeOverige": "Onderwerpobject",
-                "objectTypeOverigeDefinitie": {
-                    "url": "http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/1dfca717-ae24-4ba6-b656-695b121723a6",
-                    "schema": "{}",
-                    "objectData": "{}",
-                },
-                "relatieomschrijving": "",
-                "objectIdentificatie": None,
-            },
-        )
-
-    @reload_openzaak_fixtures(["RelatedObjectsViewTests_test_supported_relation.json"])
-    def test_supported_not_selected(self):
-        user = UserFactory.create()
-
-        with freeze_time("2025-12-12"):
-            retrieve_and_cache_zaken(is_full_resync=True)
-
-        item = DestructionListItemFactory.create(
-            zaak=Zaak.objects.get(identificatie="ZAAK-2000-0000000001"),
-            excluded_relations=[
-                "http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348"
-            ],
-        )
-
-        endpoint = reverse("api:destruction-items-relations", args=(item.pk,))
-        self.client.force_authenticate(user)
-        response = self.client.get(endpoint)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.json()
-
-        self.assertEqual(len(data), 1)
-        self.assertFalse(data[0]["selected"])
 
     def test_no_related_zaak(self):
         item = DestructionListItemFactory.create(
