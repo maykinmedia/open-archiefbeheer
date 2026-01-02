@@ -214,7 +214,7 @@ export async function listShortProcessZaaktypeChoices(signal?: AbortSignal) {
 
 /**
  * Retrieve the zaaktypen that can be used to configure the destruction report.
- * The label is the 'omschrijving' field with a counter to specify the version and the value is the URL of the zaaktype.
+ * The label is the 'omschrijving' field with the 'beginGeldigheid' and the value is the URL of the zaaktype.
  * The response may be cached.
  * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.
  * @returns {Promise<Option[]>} A promise resolving to an array of options with `value` and `label`.

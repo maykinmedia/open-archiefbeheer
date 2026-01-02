@@ -10,6 +10,7 @@ import {
   useDialog,
   validateForm,
 } from "@maykin-ui/admin-ui";
+import { invariant } from "@maykin-ui/client-common";
 import { useCallback, useEffect, useState } from "react";
 import { useActionData, useLoaderData } from "react-router-dom";
 
@@ -25,7 +26,6 @@ import {
 import { UpdateSettingsAction } from "../../Settings.action";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";
 import { DestructionReportSettingsPageContext } from "./DestructionReportSettingsPage.loader";
-import { invariant } from "@maykin-ui/client-common";
 
 interface DestructionReportSetting {
   zaaktype: string;
@@ -159,8 +159,8 @@ export function DestructionReportSettingsPage() {
       const newValues = Object.assign({ ...valuesState }, values);
 
       setIsValidState(isValid);
-      
-      invariant("zaaktype" in values, "No zaaktype found in the form values!")
+
+      invariant("zaaktype" in values, "No zaaktype found in the form values!");
       if (values.zaaktype == valuesState.zaaktype) {
         setValuesState(newValues);
       } else {
