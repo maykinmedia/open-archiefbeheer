@@ -32,6 +32,7 @@ from ..constants import (
     ListRole,
     ListStatus,
 )
+from ..managers import DestructionListQuerySet
 from ..models import (
     DestructionList,
     DestructionListAssignee,
@@ -244,6 +245,7 @@ class DestructionListViewSet(
     lookup_field = "uuid"
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DestructionListFilterset
+    pagination_class = PageNumberPagination
 
     def get_permissions(self):
         if self.action == "create":
@@ -268,7 +270,7 @@ class DestructionListViewSet(
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    def get_queryset(self):
+    def get_queryset(self) -> DestructionListQuerySet:
         return DestructionList.objects.permitted_for_user(
             self.request.user
         ).annotate_user_permissions()

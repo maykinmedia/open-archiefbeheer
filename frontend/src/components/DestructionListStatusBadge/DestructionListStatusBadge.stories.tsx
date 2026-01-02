@@ -71,6 +71,6 @@ export const DestructionListStatusDeleted: Story = {
     destructionList: destructionListFactory({ status: "deleted" }),
   },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText("Vernietigd");
+    await within(canvasElement).findByText("Recent vernietigd");
   },
 };

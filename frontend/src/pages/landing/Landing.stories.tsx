@@ -5,8 +5,8 @@ import {
   ClearSessionStorageDecorator,
   ReactRouterDecorator,
 } from "../../../.storybook/decorators";
-import { MOCKS, MOCK_BASE } from "../../../.storybook/mockData";
-import { recordManagerFactory } from "../../fixtures/user";
+import { MOCKS } from "../../../.storybook/mockData";
+import { recordManagerFactory } from "../../fixtures";
 import { Landing } from "./Landing";
 import { landingLoader } from "./Landing.loader";
 
@@ -28,9 +28,47 @@ export default meta;
 export const LandingPage: StoryObj<typeof Landing> = {
   parameters: {
     mockData: [
-      ...MOCK_BASE,
+      MOCKS.HEALTH_CHECK,
+      MOCKS.REVIEWERS,
+      MOCKS.OIDC_INFO,
       {
         url: "http://localhost:8000/api/v1/whoami/",
+        method: "GET",
+        status: 200,
+        response: recordManagerFactory(),
+      },
+      {
+        url:
+          "\n" +
+          "http://localhost:8000/api/v1/destruction-lists/kanban/?viewMode=story&id=pages-landing--landing-page&globals=&ordering=-created",
+        method: "GET",
+        status: 200,
+        response: {
+          nieuw: MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "new",
+          ),
+          "klaar voor beoordeling": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "ready_to_review",
+          ),
+          "wijzigingen aangevraagd": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "changes_requested",
+          ),
+          "intern beoordeeld": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "internally_reviewed",
+          ),
+          "klaar voor archivaris": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "ready_for_archivist",
+          ),
+          "klaar om te vernietigen": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "ready_to_delete",
+          ),
+          "recently destroyed": MOCKS.DESTRUCTION_LISTS.response.filter(
+            (d) => d.status === "deleted",
+          ),
+        },
+      },
+      {
+        url: "http://localhost:8000/api/v1/whoami",
         method: "GET",
         status: 200,
         response: recordManagerFactory(),

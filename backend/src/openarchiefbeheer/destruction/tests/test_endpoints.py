@@ -207,7 +207,7 @@ class DestructionListViewSetTest(APITestCase):
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 0)
+        self.assertEqual(response.json()["count"], 0)
 
     def test_list_destruction_lists_record_manager(self):
         user = UserFactory.create(post__can_start_destruction=True)
@@ -219,7 +219,7 @@ class DestructionListViewSetTest(APITestCase):
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 3)
+        self.assertEqual(response.json()["count"], 3)
 
     def test_list_destruction_lists_assignee(self):
         user = UserFactory.create(username="author")
@@ -233,7 +233,7 @@ class DestructionListViewSetTest(APITestCase):
         response = self.client.get(endpoint)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(response.json()["count"], 2)
 
     def test_zaak_already_in_another_destruction_list(self):
         record_manager = UserFactory.create(post__can_start_destruction=True)
@@ -643,9 +643,12 @@ class DestructionListViewSetTest(APITestCase):
         response = self.client.get(endpoint.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(response.json()["count"], 2)
         self.assertEqual(
-            [destruction_list["uuid"] for destruction_list in response.json()].sort(),
+            [
+                destruction_list["uuid"]
+                for destruction_list in response.json()["results"]
+            ].sort(),
             [lists[0].uuid, lists[1].uuid].sort(),
         )
 

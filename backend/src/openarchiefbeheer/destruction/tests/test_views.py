@@ -1,5 +1,13 @@
+from datetime import timedelta
+
+from django.test import override_settings
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+import freezegun
 from djangorestframework_camel_case.parser import CamelCaseJSONParser
 from djangorestframework_camel_case.util import underscoreize
+from furl import furl
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -8,7 +16,11 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.destruction.constants import ListStatus
+from openarchiefbeheer.destruction.tests.factories import (
+    DestructionListFactory,
+    DestructionListItemFactory,
+)
 from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
@@ -17,6 +29,51 @@ from openarchiefbeheer.utils.tests.resources_client import (
     OpenZaakDataCreationHelper,
 )
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
+
+
+class DestructionListKanbanViewTest(APITestCase):
+    @freezegun.freeze_time("2023-09-15")
+    @override_settings(POST_DESTRUCTION_VISIBILITY_PERIOD=1)
+    def test_post_destruction_visibility_period(self):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+
+        active = DestructionListFactory.create(status=ListStatus.new)
+        recent_deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=1),
+        )
+
+        # Should not appear
+        DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = furl(reverse("api:destruction-list-kanban"))
+        response = self.client.get(endpoint.url)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(data), 7)
+        self.assertIn(ListStatus.new.label, data)
+        self.assertIn(ListStatus.changes_requested.label, data)
+        self.assertIn(ListStatus.ready_to_review.label, data)
+        self.assertIn(ListStatus.internally_reviewed.label, data)
+        self.assertIn(ListStatus.ready_for_archivist.label, data)
+        self.assertIn(ListStatus.ready_to_delete.label, data)
+        self.assertIn(_("recently destroyed"), data)
+
+        self.assertEqual(len(data[ListStatus.new.label]), 1)
+        self.assertEqual(data[ListStatus.new.label][0]["uuid"], str(active.uuid))
+
+        self.assertEqual(len(data[_("recently destroyed")]), 1)
+        self.assertEqual(
+            data[_("recently destroyed")][0]["uuid"], str(recent_deleted.uuid)
+        )
 
 
 class StatusViewTests(APITestCase):

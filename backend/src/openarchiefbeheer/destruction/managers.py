@@ -1,9 +1,45 @@
-from django.db.models import Manager, Prefetch, QuerySet
+from datetime import timedelta
+
+from django.conf import settings
+from django.db.models import Manager, Prefetch, Q, QuerySet
+from django.utils import timezone
 
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.destruction.constants import InternalStatus, ListStatus
 
 
 class DestructionListQuerySet(QuerySet):
+    def active(self):
+        """
+        Returns a queryset filtered to items that are visible based on whether the destruction list is "active".
+        A destruction list is considered to be active if:
+
+        - The `status` field IS NOT set to ListStatus.deleted
+
+        OR
+
+        - The `status` field IS set to ListStatus.deleted, AND the `end` field is less than
+          `settings.POST_DESTRUCTION_VISIBILITY_PERIOD` days ago ANG the processing_status IS NOT set to
+          InternalStatus.failed
+        """
+        today = timezone.now()
+        threshold = today - timedelta(days=settings.POST_DESTRUCTION_VISIBILITY_PERIOD)
+        return self.exclude(
+            Q(status=ListStatus.deleted, end__lt=threshold)  # Old lists
+            & ~Q(processing_status=InternalStatus.failed)  # Not failed
+        )
+
+    def completed(self):
+        """
+        Returns a queryset filtered to items that are "completed".
+        A destruction list is considered to be in completed:
+
+        - The `status` field IS NOT set to ListStatus.deleted
+        """
+        return self.filter(status=ListStatus.deleted).exclude(
+            processing_status=InternalStatus.failed
+        )
+
     def permitted_for_user(self, user: User):
         """
         Returns a queryset filtered to items visible to the given user.

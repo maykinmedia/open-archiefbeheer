@@ -21,6 +21,7 @@ from openarchiefbeheer.config.api.views import (
 )
 from openarchiefbeheer.config.health_checks import checks_collector
 from openarchiefbeheer.destruction.api.views import (
+    DestructionListKanbanView,
     ListStatusesListView,
     RelatedObjectsView,
 )
@@ -131,6 +132,11 @@ urlpatterns = [
                 ),
                 path("whoami/", WhoAmIView.as_view(), name="whoami"),
                 path("app-info/", ApplicationInfoView.as_view(), name="app-info"),
+                path(
+                    "destruction-lists/kanban/",
+                    DestructionListKanbanView.as_view(),
+                    name="destruction-list-kanban",
+                ),
                 path(
                     "destruction-list-statuses/",
                     ListStatusesListView.as_view(),

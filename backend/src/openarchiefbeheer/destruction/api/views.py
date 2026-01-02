@@ -1,9 +1,15 @@
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.plumbing import build_array_type, build_basic_type
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiExample, extend_schema
+from drf_spectacular.utils import (
+    OpenApiExample,
+    extend_schema,
+    inline_serializer,
+)
+from rest_framework.generics import ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,8 +20,46 @@ from openarchiefbeheer.zaken.utils import (
 )
 
 from ..constants import ListStatus
-from ..models import DestructionListItem
-from .serializers import RelatedObjectSerializer, SelectionRelatedObjectSerializer
+from ..managers import DestructionListQuerySet
+from ..models import DestructionList, DestructionListItem
+from .filtersets import DestructionListFilterset
+from .serializers import (
+    DestructionListKanbanSerializer,
+    DestructionListReadSerializer,
+    RelatedObjectSerializer,
+    SelectionRelatedObjectSerializer,
+)
+
+
+@extend_schema(
+    tags=["Destruction list"],
+    summary=_("Destruction list kanban"),
+    description=_(
+        'Returns "active" destruction lists, per status. Intended for use with the kanban-style presentation on the landing page.'
+    ),
+    responses={
+        200: inline_serializer(
+            name="DestructionMappingResponse",
+            fields={"*": DestructionListReadSerializer(many=True)},
+        )
+    },
+)
+class DestructionListKanbanView(ListAPIView):
+    """
+    Returns "active" destruction lists, per status. Intended for use with the kanban-style presentation on the
+    landing page.
+
+    TODO: (gh-980), improve the API schema.
+    """
+
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListFilterset
+
+    def get_queryset(self) -> DestructionListQuerySet:
+        return DestructionList.objects.active().annotate_user_permissions()
+
+    def get_serializer(self, qs: DestructionListQuerySet, *args, **kwargs):
+        return DestructionListKanbanSerializer(qs)
 
 
 @extend_schema(

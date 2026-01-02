@@ -1,4 +1,5 @@
 export * from "./useCombinedSearchParams";
+export * from "./useDataFetcher";
 export * from "./useFields";
 export * from "./useFilter";
 export * from "./usePage";
