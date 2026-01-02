@@ -1,8 +1,14 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.utils import timezone
+
+import freezegun
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.constants import ListStatus
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
@@ -11,6 +17,26 @@ from openarchiefbeheer.destruction.tests.factories import (
 
 
 class DestructionListQuerySetTests(TestCase):
+    @freezegun.freeze_time("2023-09-15")
+    @override_settings(POST_DESTRUCTION_VISIBILITY_PERIOD=1)
+    def test_in_progress(self):
+        in_progress = DestructionListFactory.create(status=ListStatus.new)
+        recent_deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=1),
+        )
+        deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        lists = DestructionList.objects.in_progress()
+
+        self.assertEqual(len(lists), 2)
+        self.assertEqual(lists[0], in_progress)
+        self.assertEqual(lists[1], recent_deleted)
+        self.assertNotIn(deleted, lists)
+
     def test_permitted_for_user_unprivileged(self):
         user = UserFactory.create(post__can_start_destruction=False)
         DestructionListFactory.create()

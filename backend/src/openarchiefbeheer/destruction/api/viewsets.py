@@ -269,9 +269,11 @@ class DestructionListViewSet(
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return DestructionList.objects.permitted_for_user(
-            self.request.user
-        ).annotate_user_permissions()
+        return (
+            DestructionList.objects.in_progress()
+            .permitted_for_user(self.request.user)
+            .annotate_user_permissions()
+        )
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:

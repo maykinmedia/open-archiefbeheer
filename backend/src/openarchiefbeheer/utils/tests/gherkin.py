@@ -629,12 +629,15 @@ class GerkinMixin:
                 page, merged_kwargs["username"], merged_kwargs["password"]
             )
 
-        async def _user_logs_in(self, page, username, password="ANic3Password"):
+        async def _user_logs_in(
+            self, page: Page, username: str, password: str = "ANic3Password"
+        ):
             await self.user_logs_out(page)
             await page.goto(f"{self.testcase.live_server_url}/login")
             await page.get_by_label("Gebruikersnaam").fill(username)
             await page.get_by_label("Wachtwoord").fill(password)
             await page.get_by_role("button", name="Inloggen").click()
+            await page.wait_for_load_state("networkidle")
 
         async def user_logs_out(self, page):
             await page.goto(f"{self.testcase.live_server_url}/logout")
