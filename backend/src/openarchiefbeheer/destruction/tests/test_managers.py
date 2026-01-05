@@ -37,6 +37,24 @@ class DestructionListQuerySetTests(TestCase):
         self.assertEqual(lists[1], recent_deleted)
         self.assertNotIn(deleted, lists)
 
+    def test_completed(self):
+        in_progress = DestructionListFactory.create(status=ListStatus.new)
+        recent_deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=1),
+        )
+        deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        lists = DestructionList.objects.completed()
+
+        self.assertEqual(len(lists), 2)
+        self.assertEqual(lists[0], recent_deleted)
+        self.assertEqual(lists[1], deleted)
+        self.assertNotIn(in_progress, lists)
+
     def test_permitted_for_user_unprivileged(self):
         user = UserFactory.create(post__can_start_destruction=False)
         DestructionListFactory.create()

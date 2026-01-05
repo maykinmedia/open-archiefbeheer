@@ -25,6 +25,15 @@ class DestructionListQuerySet(QuerySet):
         threshold = today - timedelta(days=settings.POST_DESTRUCTION_VISIBILITY_PERIOD)
         return self.exclude(status=ListStatus.deleted, end__lt=threshold)
 
+    def completed(self):
+        """
+        Returns a queryset filtered to items that are "completed".
+        A destruction list is considered to be in completed:
+
+        - The `status` field IS NOT set to ListStatus.deleted
+        """
+        return self.filter(status=ListStatus.deleted)
+
     def permitted_for_user(self, user: User):
         """
         Returns a queryset filtered to items visible to the given user.
