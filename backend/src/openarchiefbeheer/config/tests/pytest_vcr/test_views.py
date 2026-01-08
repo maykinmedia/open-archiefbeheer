@@ -13,6 +13,49 @@ from openarchiefbeheer.utils.tests.resources_client import OpenZaakDataCreationH
 
 
 @pytest.mark.django_db
+def test_retrieve_statustypen_choices_not_authenticated(client: Client) -> None:
+    response = client.get(reverse("api:retrieve-destructionreport-statustype-choices"))
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_retrieve_resultaattypen_choices_not_authenticated(client: Client) -> None:
+    response = client.get(
+        reverse("api:retrieve-destructionreport-resultaattype-choices")
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_retrieve_informatieobjecttypen_choices_not_authenticated(
+    client: Client,
+) -> None:
+    response = client.get(
+        reverse("api:retrieve-destructionreport-informatieobjecttype-choices")
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_retrieve_zaaktypen_shortprocess_not_authenticated(client: Client) -> None:
+    response = client.get(reverse("api:retrieve-shortprocess-zaaktypen-choices"))
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_retrieve_zaaktypen_destruction_report_not_authenticated(
+    client: Client,
+) -> None:
+    response = client.get(reverse("api:retrieve-destructionreport-zaaktypen-choices"))
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
 def test_retrieve_statustypen_choices(
     openzaak_reload: None, vcr: None, client: Client
 ) -> None:
