@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
 
 from drf_spectacular.utils import extend_schema
+from maykin_config_checks import JSONValue
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -48,9 +49,12 @@ class ShortProcessZaaktypeChoicesView(APIView):
     def get(self, request, *args, **kwargs):
         zaaktypen = retrieve_zaaktypen()
         zaaktypen_choices = {}
-        for zaaktype in sorted(
-            zaaktypen, key=lambda x: x["begin_geldigheid"], reverse=True
-        ):
+
+        def _sort_key(item: dict[str, JSONValue]) -> str:
+            assert isinstance(item["begin_geldigheid"], str)
+            return item["begin_geldigheid"]
+
+        for zaaktype in sorted(zaaktypen, key=_sort_key, reverse=True):
             if (
                 identificatie := zaaktype.get("identificatie", "")
             ) in zaaktypen_choices:
@@ -87,10 +91,12 @@ class DestructionReportZaaktypeChoicesView(APIView):
     def get(self, request, *args, **kwargs):
         zaaktypen = retrieve_zaaktypen()
 
+        def _sort_key(item: dict[str, JSONValue]) -> str:
+            assert isinstance(item["begin_geldigheid"], str)
+            return item["begin_geldigheid"]
+
         formatted_choices = defaultdict(list)
-        for zaaktype in sorted(
-            zaaktypen, key=lambda x: x["begin_geldigheid"], reverse=True
-        ):
+        for zaaktype in sorted(zaaktypen, key=_sort_key, reverse=True):
             identificatie = zaaktype.get("identificatie", "")
             omschrijving = zaaktype["omschrijving"]
             label = f"{zaaktype['begin_geldigheid']} - {omschrijving}"
