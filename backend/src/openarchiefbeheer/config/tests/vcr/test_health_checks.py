@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.translation import gettext as _
 
 from maykin_config_checks import run_checks
 from vcr.unittest import VCRMixin
@@ -68,11 +69,16 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
             sorted([extra_info.message for extra_info in failed_checks[0].extra]),
             sorted(
                 [
-                    service_zrc.label,
-                    service_brc.label,
-                    service_drc.label,
-                    service_ztc.label,
-                    service.label,
+                    _("Connection check failed for Service: %(label)s")
+                    % {"label": service_zrc.label},
+                    _("Connection check failed for Service: %(label)s")
+                    % {"label": service_brc.label},
+                    _("Connection check failed for Service: %(label)s")
+                    % {"label": service_drc.label},
+                    _("Connection check failed for Service: %(label)s")
+                    % {"label": service_ztc.label},
+                    _("Connection check failed for Service: %(label)s")
+                    % {"label": service.label},
                 ]
             ),
         )
