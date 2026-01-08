@@ -23,7 +23,7 @@ boltons==24.0.0
     # via
     #   face
     #   glom
-cbor2==5.6.3
+cbor2==5.8.0
     # via webauthn
 celery==5.4.0
     # via -r requirements/base.in
@@ -292,7 +292,7 @@ tzdata==2024.1
     #   kombu
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   elastic-apm
     #   requests
