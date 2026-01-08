@@ -50,7 +50,7 @@ boltons==24.0.0
     #   -r requirements/base.txt
     #   face
     #   glom
-cbor2==5.6.3
+cbor2==5.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -636,7 +636,7 @@ uritemplate==4.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
-urllib3==2.6.2
+urllib3==2.6.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
