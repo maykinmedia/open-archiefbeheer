@@ -961,6 +961,160 @@ class DestructionListViewSetTest(APITestCase):
         self.assertNotIn(str(deleted.uuid), uuids)
 
 
+class CompletedDestructionListViewSet(APITestCase):
+    def test_not_authenticated(self):
+        endpoint = reverse("api:completed-destructionlist-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authenticated_without_permission(self):
+        user = UserFactory.create(post__can_start_destruction=False)
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:completed-destructionlist-list")
+
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_list(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        in_progress = DestructionListFactory.create(status=ListStatus.new)
+        recent_deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=1),
+        )
+        deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse("api:completed-destructionlist-list")
+
+        response = self.client.get(endpoint)
+        lists = response.json()["results"]
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 2)
+        self.assertEqual(uuids[0], str(recent_deleted.uuid))
+        self.assertEqual(uuids[1], str(deleted.uuid))
+        self.assertNotIn(in_progress.uuid, uuids)
+
+    def test_retrieve(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        deleted = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            end=timezone.now() - timedelta(days=2),
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = reverse(
+            "api:completed-destructionlist-detail", kwargs={"uuid": deleted.uuid}
+        )
+
+        response = self.client.get(endpoint)
+        destruction_list = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(destruction_list["uuid"], str(deleted.uuid))
+
+    def test_filter_name(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        match = DestructionListFactory.create(name="foo", status=ListStatus.deleted)
+        no_match = DestructionListFactory.create(name="bar", status=ListStatus.deleted)
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:completed-destructionlist-list"))
+        endpoint.args["name"] = "fo"
+
+        response = self.client.get(endpoint.url)
+        lists = response.json()["results"]
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 1)
+        self.assertEqual(uuids[0], str(match.uuid))
+        self.assertNotIn(no_match.uuid, uuids)
+
+    def test_filter_comment(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        match = DestructionListFactory.create(comment="foo", status=ListStatus.deleted)
+        no_match = DestructionListFactory.create(
+            comment="bar", status=ListStatus.deleted
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:completed-destructionlist-list"))
+        endpoint.args["comment"] = "fo"
+
+        response = self.client.get(endpoint.url)
+        lists = response.json()["results"]
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 1)
+        self.assertEqual(uuids[0], str(match.uuid))
+        self.assertNotIn(no_match.uuid, uuids)
+
+    def test_filter_created(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        match = DestructionListFactory.create(
+            status=ListStatus.deleted,
+        )
+        no_match = DestructionListFactory.create(
+            status=ListStatus.deleted,
+        )
+        no_match.created = timezone.now() - timedelta(days=2)
+        no_match.save()
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:completed-destructionlist-list"))
+        today = timezone.localdate().isoformat()
+        tomorrow = (timezone.localdate() + timedelta(days=1)).isoformat()
+        endpoint.args["created__gte"] = today
+        endpoint.args["created__lte"] = tomorrow
+
+        response = self.client.get(endpoint.url)
+        lists = response.json()["results"]
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 1)
+        self.assertEqual(uuids[0], str(match.uuid))
+        self.assertNotIn(no_match.uuid, uuids)
+
+    def test_filter_planned_destruction_date(self):
+        user = UserFactory.create(post__can_start_destruction=True)
+        match = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            planned_destruction_date=timezone.now(),
+        )
+        no_match = DestructionListFactory.create(
+            status=ListStatus.deleted,
+            planned_destruction_date=timezone.now() - timedelta(days=2),
+        )
+
+        self.client.force_authenticate(user=user)
+        endpoint = furl(reverse("api:completed-destructionlist-list"))
+        today = timezone.localdate().isoformat()
+        tomorrow = (timezone.localdate() + timedelta(days=1)).isoformat()
+        endpoint.args["plannedDestructionDate__gte"] = today
+        endpoint.args["plannedDestructionDate_lte"] = tomorrow
+
+        response = self.client.get(endpoint.url)
+        lists = response.json()["results"]
+        uuids = [list["uuid"] for list in lists]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(lists), 1)
+        self.assertEqual(uuids[0], str(match.uuid))
+        self.assertNotIn(no_match.uuid, uuids)
+
+
 class DestructionListReviewViewSetTest(APITestCase):
     def test_no_auth(self):
         endpoint = reverse("api:destruction-list-reviews-list")

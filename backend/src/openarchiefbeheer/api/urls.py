@@ -20,6 +20,7 @@ from openarchiefbeheer.destruction.api.views import (
     RelatedObjectsView,
 )
 from openarchiefbeheer.destruction.api.viewsets import (
+    CompletedDestructionListViewSet,
     CoReviewersViewSet,
     DestructionListCoReviewViewSet,
     DestructionListItemReviewViewSet,
@@ -55,6 +56,11 @@ app_name = "api"
 
 router = routers.DefaultRouter()
 router.register(r"destruction-lists", InProgressDestructionListsViewSet)
+router.register(
+    r"completed-destruction-lists",
+    CompletedDestructionListViewSet,
+    basename="completed-destructionlist",
+)
 router.register(
     r"destruction-list-items",
     DestructionListItemsViewSet,

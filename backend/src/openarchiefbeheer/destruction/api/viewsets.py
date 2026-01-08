@@ -492,6 +492,30 @@ class InProgressDestructionListsViewSet(
 
 @extend_schema_view(
     list=extend_schema(
+        tags=["Completed destruction list"],
+        summary=_("List completed destruction lists"),
+        description=_("List all completed destruction lists."),
+        responses={200: DestructionListReadSerializer(many=True)},
+    ),
+    retrieve=extend_schema(
+        tags=["Completed destruction list"],
+        summary=_("Retrieve completed destruction list"),
+        description=_("Retrieve details about a completed destruction list."),
+        responses={200: DestructionListReadSerializer},
+    ),
+)
+class CompletedDestructionListViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListFilterset
+    lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated, CanStartDestructionPermission]
+    queryset = DestructionList.objects.completed()
+    serializer_class = DestructionListReadSerializer
+
+
+@extend_schema_view(
+    list=extend_schema(
         tags=["Destruction list"],
         summary=_("List destruction list items"),
         description=_(
