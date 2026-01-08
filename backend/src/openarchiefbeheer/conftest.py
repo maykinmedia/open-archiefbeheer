@@ -76,6 +76,9 @@ def openzaak_reload(request, settings: SettingsWrapper) -> None:
         raise CleanDatabaseError(result.output)
 
     marker = request.node.get_closest_marker("openzaak")
+    if not marker:
+        return
+
     web_container = client.containers.get(container_id="open-zaak-openzaak-web.local-1")
     for fixture in marker.kwargs.get("fixtures", []):
         result = web_container.exec_run(
