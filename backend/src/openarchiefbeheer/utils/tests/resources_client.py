@@ -145,6 +145,16 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
 
             response.raise_for_status()
 
+    def publish_informatieobjecttype(self, informatieobjecttype_url: str) -> None:
+        with ztc_client(self.ztc_service_slug) as client:
+            uuid = furl(informatieobjecttype_url).path.segments[-1]
+            response = client.post(f"informatieobjecttypen/{uuid}/publish")
+
+            if response.status_code == 400:
+                raise Exception(response.json())
+
+            response.raise_for_status()
+
     def create_zaaktype(
         self, catalogus: str = "", **overrides: Mapping[str, JSONEncodable]
     ) -> Mapping[str, JSONEncodable]:
