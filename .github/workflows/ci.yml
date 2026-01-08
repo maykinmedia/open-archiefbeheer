@@ -89,8 +89,10 @@ jobs:
         run: |
           python src/manage.py compilemessages
           python src/manage.py collectstatic --noinput --link
-          coverage run src/manage.py test openarchiefbeheer --exclude-tag=e2e --exclude-tag=performance
-          coverage xml -o coverage.xml
+          coverage run --data-file=coverage_pytest -m pytest src/
+          coverage run --data-file=coverage_django src/manage.py test openarchiefbeheer --exclude-tag=e2e --exclude-tag=performance
+          coverage combine --data-file=coverage_combined coverage_django coverage_pytest
+          coverage xml --data-file=coverage_combined -o coverage.xml
         env:
           DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
           SECRET_KEY: dummy
