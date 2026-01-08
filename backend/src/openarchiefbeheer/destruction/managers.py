@@ -1,9 +1,30 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.db.models import Manager, Prefetch, QuerySet
+from django.utils import timezone
 
 from openarchiefbeheer.accounts.models import User
+from openarchiefbeheer.destruction.constants import ListStatus
 
 
 class DestructionListQuerySet(QuerySet):
+    def in_progress(self):
+        """
+        Returns a queryset filtered to items that are visible based on whether the destruction list is "in progress".
+        A destruction list is considered to be in progress if:
+
+        - The `status` field IS NOT set to ListStatus.deleted
+
+        OR
+
+        - The `status` field IS set to ListStatus.deleted, AND the `end` field is less than
+          `settings.POST_DESTRUCTION_VISIBILITY_PERIOD` days ago.
+        """
+        today = timezone.now()
+        threshold = today - timedelta(days=settings.POST_DESTRUCTION_VISIBILITY_PERIOD)
+        return self.exclude(status=ListStatus.deleted, end__lt=threshold)
+
     def permitted_for_user(self, user: User):
         """
         Returns a queryset filtered to items visible to the given user.
