@@ -33,9 +33,7 @@ This involves 2 pytest fixtures:
   be enabled/disabled with the environment variable ``RECORDING_CASSETTES_VCR``.
 
 We introduced these as pytest fixtures in order to be able to control the order on which they are executed. If the VCR context is entered
-first, this causes problems when trying to make API calls to the Docker API.
-
-So they should be used as follows:
+first, this causes problems when trying to make API calls to the Docker API. So they should be used as follows:
 
 .. code:: python
 
@@ -50,6 +48,7 @@ So they should be used as follows:
     def test_something_else_with_openzaak(openzaak_reload: None, vcr: None) -> None:
         ...
 
+Pytests will be picked up only if they are in a folder ``pytest_vcr``, as configured in the ``backend/pyproject.toml`` file.
 
 **Note**
 

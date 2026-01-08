@@ -66,7 +66,6 @@ replace = "version = \"{new_version}\""
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "openarchiefbeheer.conf.ci"
-# -- recommended but optional:
 python_files = ["tests/pytest_vcr/test_*.py"]
 markers = [
     "openzaak",
