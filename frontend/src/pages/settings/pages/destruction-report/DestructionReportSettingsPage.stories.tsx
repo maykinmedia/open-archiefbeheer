@@ -8,15 +8,14 @@ import {
 import { MOCKS } from "../../../../../.storybook/mockData";
 import { clickButton, fillForm } from "../../../../../.storybook/playFunctions";
 import {
+  FIXTURE_DESTRUCTION_REPORT_ZAAKTYPE_CHOICES,
   FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES,
   FIXTURE_RESULTAATTYPE_CHOICES,
   FIXTURE_STATUSTYPE_CHOICES,
-  FIXTURE_ZAAKTYPE_CHOICES,
   administratorFactory,
   informatieObjectTypeChoicesFactory,
   resultaatTypeChoicesFactory,
   statusTypeChoicesFactory,
-  zaaktypeChoicesFactory,
 } from "../../../../fixtures";
 import { settingsAction } from "../../Settings.action";
 import { DestructionReportSettingsPage } from "./DestructionReportSettingsPage";
@@ -31,10 +30,10 @@ const FIXTURE: DestructionReportSettingsPageContext = {
     informatieobjecttype: FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES[0].value,
     resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[0].value,
     statustype: FIXTURE_STATUSTYPE_CHOICES[0].value,
-    zaaktype: FIXTURE_ZAAKTYPE_CHOICES[0].value as string,
+    zaaktype: FIXTURE_DESTRUCTION_REPORT_ZAAKTYPE_CHOICES[0].value as string,
     zaaktypesShortProcess: [],
   },
-  zaaktypeChoices: zaaktypeChoicesFactory(),
+  zaaktypeChoices: FIXTURE_DESTRUCTION_REPORT_ZAAKTYPE_CHOICES,
 };
 
 const meta: Meta<typeof DestructionReportSettingsPage> = {
@@ -63,25 +62,25 @@ const meta: Meta<typeof DestructionReportSettingsPage> = {
         response: FIXTURE,
       },
       {
-        url: "http://localhost:8000/api/v1/_external-zaaktypen-choices/?notInDestructionList=true",
+        url: "http://localhost:8000/api/v1/destructionreport-zaaktypen-choices/",
         method: "GET",
         status: 200,
-        response: zaaktypeChoicesFactory(),
+        response: FIXTURE_DESTRUCTION_REPORT_ZAAKTYPE_CHOICES,
       },
       {
-        url: `http://localhost:8000/api/v1/_statustype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
+        url: `http://localhost:8000/api/v1/destructionreport-statustype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
         method: "GET",
         status: 200,
         response: statusTypeChoicesFactory(),
       },
       {
-        url: `http://localhost:8000/api/v1/_external-resultaattype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
+        url: `http://localhost:8000/api/v1/destructionreport-resultaattype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
         method: "GET",
         status: 200,
         response: resultaatTypeChoicesFactory(),
       },
       {
-        url: `http://localhost:8000/api/v1/_informatieobjecttype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
+        url: `http://localhost:8000/api/v1/destructionreport-informatieobjecttype-choices/?zaaktype=${FIXTURE.zaaktypeChoices[1].value}`,
         method: "GET",
         status: 200,
         response: informatieObjectTypeChoicesFactory(),
@@ -107,7 +106,7 @@ export const UpdateDestructionReportSettings: Story = {
     fillForm: {
       formValues: {
         Bronorganisatie: "123456782",
-        Zaaktype: FIXTURE_ZAAKTYPE_CHOICES[1].label,
+        Zaaktype: FIXTURE_DESTRUCTION_REPORT_ZAAKTYPE_CHOICES[1].label,
         Statustype: FIXTURE_STATUSTYPE_CHOICES[1].label,
         Resultaattype: FIXTURE_RESULTAATTYPE_CHOICES[1].label,
         Informatieobjecttype: FIXTURE_INFORMATIE_OBJECTTYPE_CHOICES[1].label,
