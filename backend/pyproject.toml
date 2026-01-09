@@ -63,3 +63,11 @@ replace = "\"version\": \"{new_version}\""
 filename = "./pyproject.toml"
 search = "version = \"{current_version}\""
 replace = "version = \"{new_version}\""
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "openarchiefbeheer.conf.ci"
+python_files = ["tests/pytest_vcr/test_*.py"]
+markers = [
+    "openzaak",
+]
+pythonpath = ["src"]

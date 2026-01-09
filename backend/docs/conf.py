@@ -6,20 +6,26 @@
 
 # -- Path setup --------------------------------------------------------------
 import os
+import pathlib
 import sys
 
 import django
 
-sys.path.insert(0, os.path.abspath("../src"))
+root_folder = pathlib.Path(__file__).parent.parent
+src_folder = root_folder / pathlib.Path("src")
+
+sys.path.insert(0, str(src_folder))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openarchiefbeheer.conf.ci")
 os.environ["LOG_REQUESTS"] = "false"
-os.environ["DJANGO_SETTINGS_MODULE"] = "openarchiefbeheer.conf.ci"
+
+django.setup()
 
 import openarchiefbeheer  # noqa isort:skip
 
 from openarchiefbeheer.setup import setup_env  # noqa isort:skip
 
 setup_env()
-django.setup()
+
 
 # -- Project information -----------------------------------------------------
 
