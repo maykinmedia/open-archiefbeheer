@@ -567,11 +567,10 @@ class GerkinMixin:
                 await self.when.record_manager_logs_in(page)
         """
 
-        def __init__(self, testcase: PlaywrightTestCase):
+        def __init__(self, testcase: "GherkinLikeTestCase"):
             self.testcase = testcase
 
         async def page_has_finished_loading(self, page: Page):
-            await page.wait_for_load_state("networkidle")
             await expect(
                 page.get_by_role("img", name="Bezig met laden...")
             ).to_have_count(0)
@@ -629,12 +628,17 @@ class GerkinMixin:
                 page, merged_kwargs["username"], merged_kwargs["password"]
             )
 
-        async def _user_logs_in(self, page, username, password="ANic3Password"):
+        async def _user_logs_in(
+            self, page: Page, username: str, password: str = "ANic3Password"
+        ):
             await self.user_logs_out(page)
             await page.goto(f"{self.testcase.live_server_url}/login")
             await page.get_by_label("Gebruikersnaam").fill(username)
             await page.get_by_label("Wachtwoord").fill(password)
             await page.get_by_role("button", name="Inloggen").click()
+            await self.testcase.then.page_should_contain_text(
+                page, "Vernietigingslijsten"
+            )
 
         async def user_logs_out(self, page):
             await page.goto(f"{self.testcase.live_server_url}/logout")

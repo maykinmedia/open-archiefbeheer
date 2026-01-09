@@ -35,6 +35,10 @@ import {
   settingsAction,
   shortProcedureSettingsPageLoader,
 } from "./pages";
+import {
+  DestructionListCompletedListPage,
+  destructionListCompletedListLoader,
+} from "./pages/destructionlist/completed";
 import { SettingsPage } from "./pages/settings/Settings";
 import {
   HealthCheckSettingsPage,
@@ -59,6 +63,19 @@ const router = createBrowserRouter([
           breadcrumbItems: [
             {
               label: "Vernietigingslijsten",
+              href: "/destruction-lists",
+            },
+          ] as BreadcrumbItem[],
+        },
+      },
+      {
+        path: "/completed-destruction-lists",
+        loader: destructionListCompletedListLoader,
+        element: <DestructionListCompletedListPage />,
+        handle: {
+          breadcrumbItems: [
+            {
+              label: "Afgehandelde vernietigingslijsten",
               href: "/destruction-lists",
             },
           ] as BreadcrumbItem[],

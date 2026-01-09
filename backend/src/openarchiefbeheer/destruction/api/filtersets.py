@@ -96,6 +96,7 @@ class DestructionListItemFilterset(FilterSet):
 
 class DestructionListFilterset(FilterSet):
     name = CharFilter(lookup_expr="icontains")
+    comment = CharFilter(lookup_expr="icontains")
     status = ChoiceFilter(choices=ListStatus.choices)
     author = NumberFilter()
     reviewer = NumberFilter(
@@ -118,7 +119,11 @@ class DestructionListFilterset(FilterSet):
 
     class Meta:
         model = DestructionList
-        fields = ("name", "status", "author", "reviewer", "assignee", "ordering")
+        fields = {
+            "comment": ["icontains"],
+            "created": ["exact", "gt", "lt", "gte", "lte", "isnull"],
+            "planned_destruction_date": ["exact", "gt", "lt", "gte", "lte", "isnull"],
+        }
 
 
 class DestructionListReviewFilterset(FilterSet):

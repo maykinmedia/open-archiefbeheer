@@ -226,7 +226,7 @@ logger = logging.getLogger(__name__)
         responses={200: None},
     ),
 )
-class DestructionListViewSet(
+class InProgressDestructionListsViewSet(
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -269,9 +269,11 @@ class DestructionListViewSet(
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return DestructionList.objects.permitted_for_user(
-            self.request.user
-        ).annotate_user_permissions()
+        return (
+            DestructionList.objects.in_progress()
+            .permitted_for_user(self.request.user)
+            .annotate_user_permissions()
+        )
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
@@ -486,6 +488,28 @@ class DestructionListViewSet(
                     {"detail": _("Open Zaak errored while retrieving the report.")},
                     status=502,
                 )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Completed destruction list"],
+        summary=_("List completed destruction lists"),
+        description=_("List all completed destruction lists."),
+    ),
+    retrieve=extend_schema(
+        tags=["Completed destruction list"],
+        summary=_("Retrieve completed destruction list"),
+        description=_("Retrieve details about a completed destruction list."),
+    ),
+)
+class CompletedDestructionListViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DestructionListFilterset
+    lookup_field = "uuid"
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated, CanStartDestructionPermission]
+    queryset = DestructionList.objects.completed()
+    serializer_class = DestructionListReadSerializer
 
 
 @extend_schema_view(

@@ -43,7 +43,7 @@ export const STATUS_MAPPING: { [key in DestructionListStatus]: string } = {
   ready_to_delete: "klaar om te vernietigen",
   internally_reviewed: "intern beoordeeld",
   ready_for_archivist: "klaar voor archivaris",
-  deleted: "vernietigd",
+  deleted: "Recent vernietigd",
 };
 
 export const STATUS_LEVEL_MAPPING: {
