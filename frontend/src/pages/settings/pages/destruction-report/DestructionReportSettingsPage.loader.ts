@@ -4,7 +4,7 @@ import {
   ArchiveConfiguration,
   getArchiveConfiguration,
 } from "../../../../lib/api/config";
-import { listZaaktypeChoices } from "../../../../lib/api/private";
+import { listDestructionReportZaaktypeChoices } from "../../../../lib/api/private";
 import {
   canViewAndEditSettingsRequired,
   loginRequired,
@@ -22,7 +22,7 @@ export const destructionReportSettingsPageLoader = loginRequired(
       const abortSignal = abortController.signal;
       const [archiveConfiguration, zaaktypeChoices] = await Promise.all([
         getArchiveConfiguration(abortSignal),
-        listZaaktypeChoices(undefined, true, abortSignal),
+        listDestructionReportZaaktypeChoices(abortSignal),
       ]);
 
       return {

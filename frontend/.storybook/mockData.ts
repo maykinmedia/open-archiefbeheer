@@ -10,7 +10,7 @@ import {
   recordManagerFactory,
   userFactory,
   usersFactory,
-  zaaktypeChoicesFactory,
+  internalZaaktypeChoicesFactory,
 } from "../src/fixtures";
 
 export const MOCKS = {
@@ -61,13 +61,13 @@ export const MOCKS = {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inDestructionList=00000000-0000-0000-0000-000000000000",
     method: "GET",
     status: 200,
-    response: zaaktypeChoicesFactory(),
+    response: internalZaaktypeChoicesFactory(),
   },
   DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES: {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
     method: "POST",
     status: 200,
-    response: zaaktypeChoicesFactory(),
+    response: internalZaaktypeChoicesFactory(),
   },
   DESTRUCTION_LISTS: {
     url: "http://localhost:8000/api/v1/destruction-lists/?ordering=-created",
@@ -200,19 +200,19 @@ export const MOCKS = {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
     method: "GET",
     status: 200,
-    response: zaaktypeChoicesFactory(),
+    response: internalZaaktypeChoicesFactory(),
   },
   ZAAKTYPE_CHOICES_POST: {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
     method: "POST",
     status: 200,
-    response: zaaktypeChoicesFactory(),
+    response: internalZaaktypeChoicesFactory(),
   },
   ZAAKTYPE_CHOICES_IN_REVIEW: {
     url: "http://localhost:8000/api/v1/_zaaktypen-choices/?inReview=1",
     method: "GET",
     status: 200,
-    response: zaaktypeChoicesFactory(),
+    response: internalZaaktypeChoicesFactory(),
   },
 
   // WRITES

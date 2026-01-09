@@ -12,7 +12,12 @@ from openarchiefbeheer.accounts.api.views import UsersView, WhoAmIView
 from openarchiefbeheer.config.api.views import (
     ApplicationInfoView,
     ArchiveConfigView,
+    DestructionReportInformatieobjecttypeChoicesView,
+    DestructionReportResultaattypeChoicesView,
+    DestructionReportStatustypeChoicesView,
+    DestructionReportZaaktypeChoicesView,
     OIDCInfoView,
+    ShortProcessZaaktypeChoicesView,
 )
 from openarchiefbeheer.config.health_checks import checks_collector
 from openarchiefbeheer.destruction.api.views import (
@@ -38,11 +43,7 @@ from openarchiefbeheer.zaken.api.views import (
     BehandelendAfdelingInternalChoicesView,
     CacheZakenView,
     ClearDefaultCacheView,
-    ExternalInformatieobjecttypeChoicesView,
-    ExternalResultaattypeChoicesView,
     ExternalSelectielijstklasseChoicesView,
-    ExternalStatustypeChoicesView,
-    ExternalZaaktypenChoicesView,
     InternalResultaattypeChoicesView,
     InternalSelectielijstklasseChoicesView,
     InternalZaaktypenChoicesView,
@@ -171,9 +172,14 @@ urlpatterns = [
                     name="retrieve-zaaktypen-choices",
                 ),
                 path(
-                    "_external-zaaktypen-choices/",
-                    ExternalZaaktypenChoicesView.as_view(),
-                    name="retrieve-external-zaaktypen-choices",
+                    "shortprocess-zaaktypen-choices/",
+                    ShortProcessZaaktypeChoicesView.as_view(),
+                    name="retrieve-shortprocess-zaaktypen-choices",
+                ),
+                path(
+                    "destructionreport-zaaktypen-choices/",
+                    DestructionReportZaaktypeChoicesView.as_view(),
+                    name="retrieve-destructionreport-zaaktypen-choices",
                 ),
                 path(
                     "_selectielijstklasse-choices/",
@@ -186,19 +192,19 @@ urlpatterns = [
                     name="retrieve-internal-selectielijstklasse-choices",
                 ),
                 path(
-                    "_statustype-choices/",
-                    ExternalStatustypeChoicesView.as_view(),
-                    name="retrieve-statustype-choices",
+                    "destructionreport-statustype-choices/",
+                    DestructionReportStatustypeChoicesView.as_view(),
+                    name="retrieve-destructionreport-statustype-choices",
                 ),
                 path(
-                    "_informatieobjecttype-choices/",
-                    ExternalInformatieobjecttypeChoicesView.as_view(),
-                    name="retrieve-informatieobjecttype-choices",
+                    "destructionreport-informatieobjecttype-choices/",
+                    DestructionReportInformatieobjecttypeChoicesView.as_view(),
+                    name="retrieve-destructionreport-informatieobjecttype-choices",
                 ),
                 path(
-                    "_external-resultaattype-choices/",
-                    ExternalResultaattypeChoicesView.as_view(),
-                    name="retrieve-external-resultaattype-choices",
+                    "destructionreport-resultaattype-choices/",
+                    DestructionReportResultaattypeChoicesView.as_view(),
+                    name="retrieve-destructionreport-resultaattype-choices",
                 ),
                 path(
                     "_internal-resultaattype-choices/",

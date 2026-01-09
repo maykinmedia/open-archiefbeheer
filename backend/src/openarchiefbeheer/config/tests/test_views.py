@@ -13,6 +13,7 @@ from openarchiefbeheer.config.tests.factories import (
     APIConfigFactory,
     ArchiveConfigFactory,
 )
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..api.validators import RSIN_LENGTH
 from ..models import ArchiveConfig
@@ -257,3 +258,33 @@ class ApplicationInfoTests(APITestCase):
 
         self.assertEqual(data["release"], "1.0.0")
         self.assertEqual(data["gitSha"], "123")
+
+
+class ClearChoicesEndpointsTests(ClearCacheMixin, APITestCase):
+    def test_not_authenticated(self):
+        response = self.client.post(reverse("api:clear-default-cache"))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cache_is_cleared(self):
+        user = UserFactory.create()
+
+        self.client.force_authenticate(user=user)
+
+        with patch(
+            "openarchiefbeheer.config.api.views.retrieve_zaaktypen", return_value=[]
+        ) as m:
+            response = self.client.get(
+                reverse("api:retrieve-shortprocess-zaaktypen-choices")
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            response = self.client.post(reverse("api:clear-default-cache"))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+            response = self.client.get(
+                reverse("api:retrieve-shortprocess-zaaktypen-choices")
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            self.assertEqual(m.call_count, 2)

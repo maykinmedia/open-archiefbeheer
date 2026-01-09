@@ -29,7 +29,7 @@ export function useZaaktypeChoices<T = Option[]>(
     setZaaktypeChoicesState(initial);
     const abortController = new AbortController();
 
-    listZaaktypeChoices(params, external, abortController.signal)
+    listZaaktypeChoices(params, abortController.signal)
       .then((z) => setZaaktypeChoicesState(z))
       .catch(alertOnError);
 

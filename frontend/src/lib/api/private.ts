@@ -39,18 +39,18 @@ export async function listBehandelendAfdelingChoices(
  * Retrieve informatieobjecttypen from Open Zaak and return a value and a label per informatieobjecttype. The label is
  * the field 'omschrijving'.
  */
-export async function listInformatieObjectTypeChoices(
-  zaaktypeIdentificatie?: string,
+export async function listDestructionReportInformatieObjectTypeChoices(
+  zaaktype?: string,
   signal?: AbortSignal,
 ) {
   return cacheMemo(
-    "listInformatieObjectTypeChoices",
+    "listDestructionReportInformatieObjectTypeChoices",
     async () => {
       const response = await request(
         "GET",
-        "/_informatieobjecttype-choices/",
+        "/destructionreport-informatieobjecttype-choices/",
         {
-          zaaktypeIdentificatie: zaaktypeIdentificatie,
+          zaaktype: zaaktype,
         },
         undefined,
         undefined,
@@ -60,7 +60,7 @@ export async function listInformatieObjectTypeChoices(
 
       return promise;
     },
-    [zaaktypeIdentificatie],
+    [zaaktype],
   );
 }
 
@@ -68,18 +68,18 @@ export async function listInformatieObjectTypeChoices(
  * Retrieve statustypen from Open Zaak and return a value and a label per statustype. The label is the field
  * 'omschrijving'.
  */
-export async function listStatusTypeChoices(
-  zaaktypeIdentificatie?: string,
+export async function listDestructionReportStatusTypeChoices(
+  zaaktype?: string,
   signal?: AbortSignal,
 ) {
   return cacheMemo(
-    "listStatusTypeChoices",
+    "listDestructionReportStatusTypeChoices",
     async () => {
       const response = await request(
         "GET",
-        "/_statustype-choices/",
+        "/destructionreport-statustype-choices/",
         {
-          zaaktypeIdentificatie: zaaktypeIdentificatie,
+          zaaktype: zaaktype,
         },
         undefined,
         undefined,
@@ -89,7 +89,32 @@ export async function listStatusTypeChoices(
 
       return promise;
     },
-    [zaaktypeIdentificatie],
+    [zaaktype],
+  );
+}
+
+export async function listDestructionReportResultaatTypeChoices(
+  zaaktype?: string,
+  signal?: AbortSignal,
+) {
+  return cacheMemo(
+    "listDestructionReportResultaatTypeChoices",
+    async () => {
+      const response = await request(
+        "GET",
+        "/destructionreport-resultaattype-choices/",
+        {
+          zaaktype: zaaktype,
+        },
+        undefined,
+        undefined,
+        signal,
+      );
+      const promise: Promise<Option[]> = response.json();
+
+      return promise;
+    },
+    [zaaktype],
   );
 }
 
@@ -98,15 +123,7 @@ export async function listStatusTypeChoices(
  * resultaattype. The label is the field 'omschrijving'.
  */
 export async function listResultaatTypeChoices(
-  params: {
-    zaaktypeIdentificatie: string;
-  },
-  external: true,
-  signal?: AbortSignal,
-): Promise<Option[]>;
-export async function listResultaatTypeChoices(
   params?: URLSearchParams | Record<string, string | number | undefined>,
-  external?: false,
   signal?: AbortSignal,
 ): Promise<Option[]>;
 export async function listResultaatTypeChoices(
@@ -116,18 +133,14 @@ export async function listResultaatTypeChoices(
       }
     | URLSearchParams
     | Record<string, string | number | undefined>,
-  external: boolean = false,
   signal?: AbortSignal,
 ): Promise<Option[]> {
   return cacheMemo(
     "listResultaatTypeChoices",
     async () => {
-      const endpoint = external
-        ? "/_external-resultaattype-choices/"
-        : "/_internal-resultaattype-choices/";
       const response = await request(
         "GET",
-        endpoint,
+        "/_internal-resultaattype-choices/",
         params || {},
         undefined,
         undefined,
@@ -178,10 +191,55 @@ export async function listSelectielijstKlasseChoices(
 }
 
 /**
- * Retrieve zaaktypen from Open Zaak and return a value and a label per zaaktype.
+ * Retrieve the zaaktypen that can be used to configure the short archiving process.
+ * The label is the 'omschrijving' field, and the value is the identificatie, because the identificatie is the same across versions.
+ * The response may be cached.
+ * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.
+ * @returns {Promise<Option[]>} A promise resolving to an array of options with `value` and `label`.
+ */
+export async function listShortProcessZaaktypeChoices(signal?: AbortSignal) {
+  return cacheMemo("listShortProcessZaaktypeChoices", async () => {
+    const response = await request(
+      "GET",
+      "/shortprocess-zaaktypen-choices/",
+      undefined,
+      undefined,
+      undefined,
+      signal,
+    );
+    const promise: Promise<Option[]> = response.json();
+    return promise;
+  });
+}
+
+/**
+ * Retrieve the zaaktypen that can be used to configure the destruction report.
+ * The label is the 'omschrijving' field with the 'beginGeldigheid' and the value is the URL of the zaaktype.
+ * The response may be cached.
+ * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.
+ * @returns {Promise<Option[]>} A promise resolving to an array of options with `value` and `label`.
+ */
+export async function listDestructionReportZaaktypeChoices(
+  signal?: AbortSignal,
+) {
+  return cacheMemo("listDestructionReportZaaktypeChoices", async () => {
+    const response = await request(
+      "GET",
+      "/destructionreport-zaaktypen-choices/",
+      undefined,
+      undefined,
+      undefined,
+      signal,
+    );
+    const promise: Promise<Option[]> = response.json();
+    return promise;
+  });
+}
+
+/**
+ * Retrieve the "internal" zaaktypen, i.e - the zaaktypen of the zaken in the backend of OAB.
  * The label is the 'omschrijving' field, and the value is the identificatie. The response may be cached.
  * @param [params] - Additional search parameters for filtering (this keeps filters in sync with objects on page).
- * @param [external=false] - Fetch zaaktypen from ZRC Service (Open Zaak) (slower/can't be combined with other filtering options).
  * @param signal - Abort signal, should be called in cleanup function in React `useEffect()` hooks.
  * @returns {Promise<Option[]>} A promise resolving to an array of options with `value` and `label`.
  */
@@ -193,7 +251,6 @@ export async function listZaaktypeChoices(
         inDestructionList: string;
         notInDestructionList: boolean;
       },
-  external = false,
   signal?: AbortSignal,
 ) {
   const cacheParams = params2CacheKey(params || {});
@@ -202,33 +259,19 @@ export async function listZaaktypeChoices(
     "listZaaktypeChoices",
     async () => {
       const data = params2Object(params || {});
-      let response;
-
-      if (external) {
-        response = await request(
-          "GET",
-          "/_external-zaaktypen-choices/",
-          data,
-          undefined,
-          undefined,
-          signal,
-        );
-      } else {
-        response = await request(
-          "POST",
-          "/_zaaktypen-choices/",
-          {},
-          data,
-          undefined,
-          signal,
-        );
-      }
+      const response = await request(
+        "POST",
+        "/_zaaktypen-choices/",
+        {},
+        data,
+        undefined,
+        signal,
+      );
 
       const promise: Promise<Option[]> = response.json();
-
       return promise;
     },
-    external ? [cacheParams, "external"] : [cacheParams],
+    [cacheParams],
   );
 }
 

@@ -18,7 +18,7 @@ class FeatureConfigureDestructionReport(GherkinLikeTestCase):
             await self.given.resultaattype_choices_are_available(page)
             await self.given.selectielijstklasse_choices_are_available(page)
             await self.given.statustype_choices_are_available(page)
-            await self.given.external_zaaktype_choices_are_available(page)
+            await self.given.destructionreport_zaaktype_choices_are_available(page)
 
             await self.when.administrator_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
@@ -37,7 +37,7 @@ class FeatureConfigureDestructionReport(GherkinLikeTestCase):
             await self.then.archive_configuration_should_be(
                 page,
                 bronorganisatie="123456782",
-                zaaktype="ZAAKTYPE-02",
+                zaaktype="http://zaken.nl/catalogi/api/v1/zaaktypen/fb8bef7a-ba83-469e-aa9d-6bd1c2c45ca7",
                 statustype="http://zaken.nl/catalogi/api/v1/statustypen/0b016f1a-e10a-4dad-9090-c06bac6ef7e7",
                 resultaattype="http://zaken.nl/catalogi/api/v1/resultaattypen/2af00ef7-d865-4166-9efc-19ab95fed618",
                 informatieobjecttype="http://zaken.nl/catalogi/api/v1/informatieobjecttypen/3007e984-c529-4a07-b32e-555b4c882ce5",
