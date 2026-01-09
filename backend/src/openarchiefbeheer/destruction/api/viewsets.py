@@ -495,13 +495,11 @@ class InProgressDestructionListsViewSet(
         tags=["Completed destruction list"],
         summary=_("List completed destruction lists"),
         description=_("List all completed destruction lists."),
-        responses={200: DestructionListReadSerializer(many=True)},
     ),
     retrieve=extend_schema(
         tags=["Completed destruction list"],
         summary=_("Retrieve completed destruction list"),
         description=_("Retrieve details about a completed destruction list."),
-        responses={200: DestructionListReadSerializer},
     ),
 )
 class CompletedDestructionListViewSet(viewsets.ReadOnlyModelViewSet):
