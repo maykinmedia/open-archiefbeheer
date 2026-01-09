@@ -70,3 +70,4 @@ python_files = ["tests/pytest_vcr/test_*.py"]
 markers = [
     "openzaak",
 ]
+pythonpath = ["src"]

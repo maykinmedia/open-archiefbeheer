@@ -11,7 +11,7 @@ import sys
 
 import django
 
-root_folder = pathlib.Path(__file__).parent
+root_folder = pathlib.Path(__file__).parent.parent
 src_folder = root_folder / pathlib.Path("src")
 
 sys.path.insert(0, str(src_folder))

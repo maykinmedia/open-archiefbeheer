@@ -390,7 +390,6 @@ jobs:
 
      - name: Build and test docs
        run: |
-        export PYTHONPATH=$PYTHONPATH:`pwd`/../src
         pytest check_sphinx.py -v --tb=auto
        working-directory: open-archiefbeheer/backend/docs
 
