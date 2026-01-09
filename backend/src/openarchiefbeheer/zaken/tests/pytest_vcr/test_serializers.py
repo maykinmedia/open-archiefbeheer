@@ -34,11 +34,13 @@ def test_zaak_serializer_selectielijstklasse_derived(openzaak_reload: None, vcr:
 
     assert zaak.selectielijstklasse == ""
 
-    serialiser = ZaakMetadataSerializer(instance=zaak)
+    serializer = ZaakMetadataSerializer(instance=zaak)
+
+    assert isinstance(serializer.data, dict)
 
     assert (
-        serialiser.data["selectielijstklasse"]
+        serializer.data["selectielijstklasse"]
         == "1.1 - Ingericht - vernietigen - P10Y (2017)"
     )
 
-    assert serialiser.data["selectielijstklasse_versie"] == "2017"
+    assert serializer.data["selectielijstklasse_versie"] == "2017"

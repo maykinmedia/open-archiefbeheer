@@ -19,6 +19,16 @@ So now we have two ways of adding data in Open Zaak:
 The advantage of the JSON fixtures is that they are quick to load. The disadvantage is that they are more annoying to keep in sync with
 any database schema changes in Open Zaak. 
 
+.. note::
+
+  We unfortunately can't yet transition completely to JSON fixtures, because we cannot create
+  ``ZaakObject`` with links to other test external registers running with Docker compose. 
+  Open Zaak makes a request to check that the ``object`` field of the ``ZaakObject`` references a real resource. 
+  When we have the systems running as containers with docker compose, the address that Open Zaak should use to reach 
+  these resources is not the same as the address used by OAB running on the host (e.g. ``http://objecten:8000`` vs ``http://localhost:8005``).
+  So this check fails in Open Zaak and prevents creating the ``ZaakObject``. 
+  Therefore, we still have to use JSON fixtures in this case. 
+
 Since it is quite difficult to clean up just using the Open Zaak API, we have introduced an approach that makes use of the Docker API.
 
 This involves 2 pytest fixtures:
@@ -77,6 +87,8 @@ Next steps
 
 We still have other VCR tests that don't require fixtures that still use Django tests with the ``VCRMixin``. It would be great to 
 make them all consistent.
+
+The next steps are tracked in this issue: https://github.com/maykinmedia/open-archiefbeheer/issues/966
 
 Environment variables
 =====================
