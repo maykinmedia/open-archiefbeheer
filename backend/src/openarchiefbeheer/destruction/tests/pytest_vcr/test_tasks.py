@@ -2,6 +2,7 @@ import pytest
 from freezegun import freeze_time
 from pytest_django.fixtures import SettingsWrapper
 from timeline_logger.models import TimelineLog
+from vcr.cassette import Cassette
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -27,7 +28,7 @@ from ..factories import (
 
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["complex_relations.json", "zaken.json"])
-def test_process_review_response(openzaak_reload: None, vcr: None):
+def test_process_review_response(openzaak_reload: None, vcr: Cassette):
     zrc_service = ServiceFactory.create(
         api_type=APITypes.zrc,
         api_root="http://localhost:8003/zaken/api/v1",
@@ -94,7 +95,7 @@ def test_process_review_response(openzaak_reload: None, vcr: None):
 
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["complex_relations.json", "zaken.json"])
-def test_document_deleted(openzaak_reload: None, vcr: None):
+def test_document_deleted(openzaak_reload: None, vcr: Cassette):
     """
     Issue 594: Test deletion race conditions
 
@@ -157,7 +158,7 @@ def test_document_deleted(openzaak_reload: None, vcr: None):
 
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["complex_relations.json", "zaken.json"])
-def test_delete_list(settings: SettingsWrapper, openzaak_reload: None, vcr: None):
+def test_delete_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cassette):
     """
     Issue 770: the zaaktype is an identificatie instead of a URL
     """

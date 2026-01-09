@@ -1,5 +1,6 @@
 import pytest
 from freezegun import freeze_time
+from vcr.cassette import Cassette
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -12,7 +13,9 @@ from ...tasks import retrieve_and_cache_zaken_from_openzaak
 
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["resultaattype_and_rollen.json"])
-def test_zaak_serializer_selectielijstklasse_derived(openzaak_reload: None, vcr: None):
+def test_zaak_serializer_selectielijstklasse_derived(
+    openzaak_reload: None, vcr: Cassette
+):
     APIConfigFactory.create()
     ServiceFactory.create(
         api_type=APITypes.zrc,

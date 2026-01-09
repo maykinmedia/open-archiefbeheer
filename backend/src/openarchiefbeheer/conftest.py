@@ -6,6 +6,7 @@ import docker
 import pytest
 from docker.errors import DockerException
 from pytest_django.fixtures import SettingsWrapper
+from vcr.cassette import Cassette
 from vcr.config import VCR
 
 
@@ -28,15 +29,15 @@ def _get_cassettes_dir(request: pytest.FixtureRequest):
 
 
 @pytest.fixture
-def vcr(request: pytest.FixtureRequest) -> Generator[None, None, None]:
+def vcr(request: pytest.FixtureRequest) -> Generator[Cassette, None, None]:
     marker = request.node.get_closest_marker("vcr")
     kwargs = marker.kwargs if marker else {}
     kwargs.setdefault("cassette_library_dir", _get_cassettes_dir(request))
     cassette_name = f"{request.function.__qualname__}.yaml"
 
     myvcr = VCR(**kwargs)
-    with myvcr.use_cassette(cassette_name):
-        yield
+    with myvcr.use_cassette(cassette_name) as cassette:
+        yield cassette
 
 
 @pytest.fixture
@@ -60,6 +61,14 @@ def openzaak_reload(request, settings: SettingsWrapper) -> None:
     """
     if not settings.RECORDING_CASSETTES_VCR:
         return
+
+    if "vcr" in request.fixturenames and (
+        request.fixturenames.index("vcr")
+        < request.fixturenames.index("openzaak_reload")
+    ):
+        raise Exception(
+            "The pytest fixture openzaak_reload should be used BEFORE the vcr fixture."
+        )
 
     try:
         client = docker.from_env()

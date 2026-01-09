@@ -4,6 +4,7 @@ import pytest
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.reverse import reverse
+from vcr.cassette import Cassette
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -21,7 +22,7 @@ from openarchiefbeheer.zaken.tasks import (
 
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["RelatedObjectsViewTests_test_supported_relation.json"])
-def test_supported_zaak_relations(openzaak_reload: None, vcr: None, client: Client):
+def test_supported_zaak_relations(openzaak_reload: None, vcr: Cassette, client: Client):
     ServiceFactory.create(
         slug="zaken",
         api_type=APITypes.zrc,
@@ -85,7 +86,7 @@ def test_supported_zaak_relations(openzaak_reload: None, vcr: None, client: Clie
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["RelatedObjectsViewTests_test_supported_relation.json"])
 def test_supported_zaak_relations_not_selected(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ):
     user = UserFactory.create()
     ServiceFactory.create(

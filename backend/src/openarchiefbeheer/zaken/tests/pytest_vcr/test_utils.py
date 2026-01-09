@@ -1,5 +1,6 @@
 import pytest
 from freezegun import freeze_time
+from vcr.cassette import Cassette
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -15,7 +16,7 @@ from ...utils import delete_zaak_and_related_objects
 @pytest.mark.django_db
 @pytest.mark.openzaak(fixtures=["complex_relations.json"])
 def test_delete_zaak_related_to_besluit_related_to_document(
-    openzaak_reload: None, vcr: None
+    openzaak_reload: None, vcr: Cassette
 ):
     ServiceFactory.create(
         api_type=APITypes.zrc,

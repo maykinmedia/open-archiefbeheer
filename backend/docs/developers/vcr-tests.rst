@@ -49,13 +49,13 @@ first, this causes problems when trying to make API calls to the Docker API. So 
 
     # Note: openzaak_reload first, then vcr!
     @pytest.mark.django_db
-    def test_something_with_openzaak(openzaak_reload: None, vcr: None) -> None:
+    def test_something_with_openzaak(openzaak_reload: None, vcr: Cassette) -> None:
         ...
 
     # Or with fixtures
     @pytest.mark.django_db
     @pytest.mark.openzaak(fixtures=["fixture.json"])
-    def test_something_else_with_openzaak(openzaak_reload: None, vcr: None) -> None:
+    def test_something_else_with_openzaak(openzaak_reload: None, vcr: Cassette) -> None:
         ...
 
 Pytests will be picked up only if they are in a folder ``pytest_vcr``, as configured in the ``backend/pyproject.toml`` file.
