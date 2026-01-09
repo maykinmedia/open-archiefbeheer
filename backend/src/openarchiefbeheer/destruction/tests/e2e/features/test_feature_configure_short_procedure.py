@@ -14,7 +14,7 @@ class FeatureConfigureShortProcedure(GherkinLikeTestCase):
         async with browser_page() as page:
             await self.given.services_are_configured(requests_mock)
             await self.given.administrator_exists()
-            await self.given.zaaktype_choices_are_available(page)
+            await self.given.shortprocess_zaaktype_choices_are_available(page)
 
             await self.when.administrator_logs_in(page)
             await self.then.path_should_be(page, "/destruction-lists")
