@@ -334,7 +334,9 @@ class GerkinMixin:
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_informatieobjecttype-choices/*", handle)
+            await page.route(
+                "**/*/api/v1/destructionreport-informatieobjecttype-choices/*", handle
+            )
 
         async def resultaattype_choices_are_available(self, page):
             async def handle(route):
@@ -354,7 +356,9 @@ class GerkinMixin:
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_external-resultaattype-choices/*", handle)
+            await page.route(
+                "**/*/api/v1/destructionreport-resultaattype-choices/*", handle
+            )
 
         async def selectielijstklasse_choices_are_available(self, page):
             async def handle(route):
@@ -428,7 +432,9 @@ class GerkinMixin:
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_statustype-choices/*", handle)
+            await page.route(
+                "**/*/api/v1/destructionreport-statustype-choices/*", handle
+            )
 
         async def zaaktype_choices_are_available(self, page):
             async def handle(route):
@@ -453,7 +459,7 @@ class GerkinMixin:
 
             await page.route("**/*/api/v1/_zaaktypen-choices/*", handle)
 
-        async def external_zaaktype_choices_are_available(self, page):
+        async def shortprocess_zaaktype_choices_are_available(self, page):
             async def handle(route):
                 json = [
                     {
@@ -474,7 +480,32 @@ class GerkinMixin:
                 ]
                 await route.fulfill(json=json)
 
-            await page.route("**/*/api/v1/_external-zaaktypen-choices/*", handle)
+            await page.route("**/*/api/v1/shortprocess-zaaktypen-choices/*", handle)
+
+        async def destructionreport_zaaktype_choices_are_available(self, page):
+            async def handle(route):
+                json = [
+                    {
+                        "label": "Aangifte behandelen 1",
+                        "value": "http://zaken.nl/catalogi/api/v1/zaaktypen/575dd69e-7ada-431f-8337-e3a70bf41511",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 2",
+                        "value": "http://zaken.nl/catalogi/api/v1/zaaktypen/fb8bef7a-ba83-469e-aa9d-6bd1c2c45ca7",
+                        "extra": "",
+                    },
+                    {
+                        "label": "Aangifte behandelen 3",
+                        "value": "http://zaken.nl/catalogi/api/v1/zaaktypen/bc30a34d-197f-4e63-91f8-892772311146",
+                        "extra": "",
+                    },
+                ]
+                await route.fulfill(json=json)
+
+            await page.route(
+                "**/*/api/v1/destructionreport-zaaktypen-choices/*", handle
+            )
 
         async def zaken_are_indexed(self, amount, **kwargs) -> list[Zaak]:
             return await self._get_or_create_batch(ZaakFactory, amount, **kwargs)
