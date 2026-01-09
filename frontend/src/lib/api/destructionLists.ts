@@ -3,6 +3,7 @@ import { URLSearchParams } from "url";
 
 import { Zaak } from "../../types";
 import { User } from "./auth";
+import { PaginatedResults } from "./paginatedResults";
 import { ProcessingStatus } from "./processingStatus";
 import { request } from "./request";
 
@@ -146,6 +147,25 @@ export async function listDestructionLists(
 ) {
   const response = await request("GET", "/destruction-lists/", params);
   const promise: Promise<DestructionList[]> = response.json();
+  return promise;
+}
+
+/**
+ * List completed destruction lists.
+ */
+export async function listCompletedDestructionLists(
+  params?: URLSearchParams,
+  signal?: AbortSignal,
+) {
+  const response = await request(
+    "GET",
+    "/completed-destruction-lists/",
+    params,
+    undefined,
+    undefined,
+    signal,
+  );
+  const promise: Promise<PaginatedResults<DestructionList>> = response.json();
   return promise;
 }
 
