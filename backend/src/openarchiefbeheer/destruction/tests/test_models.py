@@ -413,6 +413,20 @@ class DestructionListTest(TestCase):
                 "selectielijstklasse": "3.2 - Niet vastgesteld - vernietigen",
                 "selectielijstklasse_versie": "2020",
             },
+            internal_results={
+                "traceback": "",
+                "created_resources": {},
+                "deleted_resources": {
+                    "zaken": [
+                        "http://localhost:8003/zaken/api/v1/zaken/43d776c6-69f1-417b-bfe2-a851765b0bbf"
+                    ],
+                    "onderwerpobjecten": [
+                        "http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/4b78537d-21f2-4f18-903e-2d3e9114fc7f"
+                    ],
+                    "other_related_resource": ["http://register.nl/cant/extract/uuid"],
+                },
+                "resources_to_delete": {},
+            },
         )
         DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -568,6 +582,31 @@ class DestructionListTest(TestCase):
                 "John Doe (jdoe1)",
                 None,
                 3,
+            ),
+        )
+
+        sheet_related_resources = wb[gettext("Related resources")]
+        rows = list(sheet_related_resources.iter_rows(values_only=True))
+
+        self.assertEqual(
+            rows[0][:2],
+            (
+                gettext("Resource Type"),
+                gettext("Resource UUID"),
+            ),
+        )
+        self.assertEqual(
+            rows[1][:2],
+            (
+                "onderwerpobjecten",
+                "4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+            ),
+        )
+        self.assertEqual(
+            rows[2][:2],
+            (
+                "other_related_resource",
+                "http://register.nl/cant/extract/uuid",
             ),
         )
 
