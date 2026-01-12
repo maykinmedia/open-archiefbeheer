@@ -50,3 +50,24 @@ class TestHealthChecks(TestCase):
         self.assertEqual(failed_checks[2].extra[1].field, "zaaktype")
         self.assertEqual(failed_checks[2].extra[2].field, "resultaattype")
         self.assertEqual(failed_checks[2].extra[3].field, "informatieobjecttype")
+
+    def test_zaaktype_identificatie_instead_of_url(self):
+        ArchiveConfigFactory.create(
+            zaaktypes_short_process=[],
+            bronorganisatie="123456782",
+            zaaktype="INVALID-IDENTIFICATIE",
+            statustype="http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
+            resultaattype="http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+            informatieobjecttype="http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
+        )
+
+        check_result = list(
+            run_checks(
+                checks_collector=lambda: [ArchiveConfigHealthCheck()],
+                include_success=True,
+            )
+        )[0]
+
+        self.assertFalse(check_result.success)
+        self.assertEqual(check_result.extra[0].field, "zaaktype")
+        self.assertEqual(check_result.extra[0].code, "invalid_field")

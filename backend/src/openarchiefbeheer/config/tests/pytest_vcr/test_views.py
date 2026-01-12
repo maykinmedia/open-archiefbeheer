@@ -5,6 +5,7 @@ from django.test import Client
 import pytest
 from rest_framework import status
 from rest_framework.reverse import reverse
+from vcr.cassette import Cassette
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -57,7 +58,7 @@ def test_retrieve_zaaktypen_destruction_report_not_authenticated(
 
 @pytest.mark.django_db
 def test_retrieve_statustypen_choices(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ) -> None:
     ServiceFactory.create(
         slug="catalogi",
@@ -132,7 +133,7 @@ def test_retrieve_statustypen_choices(
 
 @pytest.mark.django_db
 def test_retrieve_zaaktypen_shortprocess(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ) -> None:
     ServiceFactory.create(
         slug="catalogi",
@@ -171,7 +172,7 @@ def test_retrieve_zaaktypen_shortprocess(
 
 @pytest.mark.django_db
 def test_retrieve_zaaktypen_destruction_report(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ) -> None:
     ServiceFactory.create(
         slug="catalogi",
@@ -210,7 +211,7 @@ def test_retrieve_zaaktypen_destruction_report(
 
 @pytest.mark.django_db
 def test_retrieve_informatieobjecttypen_destruction_report(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ) -> None:
     ServiceFactory.create(
         slug="catalogi",
@@ -290,7 +291,7 @@ def test_retrieve_informatieobjecttypen_destruction_report(
 
 @pytest.mark.django_db
 def test_retrieve_resultaattypen_destruction_report(
-    openzaak_reload: None, vcr: None, client: Client
+    openzaak_reload: None, vcr: Cassette, client: Client
 ) -> None:
     ServiceFactory.create(
         slug="catalogi",
