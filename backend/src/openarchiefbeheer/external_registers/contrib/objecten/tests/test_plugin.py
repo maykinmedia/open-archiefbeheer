@@ -52,16 +52,16 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
     def test_delete_relations(self):
         service = ServiceFactory.create(
-            slug="openklant",
+            slug="objecten",
             api_type=APITypes.orc,
             api_root="http://localhost:8006/api/v2/",
             auth_type=AuthTypes.api_key,
             header_key="Authorization",
             header_value="Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
         )
-        helper = ObjectenCreationHelper(objecten_service_slug="openklant")
-        onderwerpobject = helper.create_object()
-        assert isinstance(onderwerpobject["url"], str)
+        helper = ObjectenCreationHelper(objecten_service_slug="objecten")
+        object_resource = helper.create_object()
+        assert isinstance(object_resource["url"], str)
         item = DestructionListItemFactory.create(
             with_zaak=True,
             zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
@@ -75,12 +75,12 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
         plugin = register[OBJECTEN_IDENTIFIER]
         plugin.delete_related_resources(
             zaak_url=item.zaak.url,
-            related_resources=[onderwerpobject["url"]],
+            related_resources=[object_resource["url"]],
             result_store=result_store,
         )
 
         results = result_store.get_internal_results()
         self.assertEqual(
             results["deleted_resources"]["objecten"][0],
-            onderwerpobject["url"],
+            object_resource["url"],
         )
