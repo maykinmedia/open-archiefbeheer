@@ -150,6 +150,19 @@ class ArchiveConfigHealthCheck:
                     field="zaaktype",
                 )
             )
+        # Github issue 884: zaaktype field was changed from the identificatie to the URL.
+        # Let's warn the user if the configuration is wrong.
+        if archive_config.zaaktype and not (
+            archive_config.zaaktype.startswith("http://")
+            or archive_config.zaaktype.startswith("https://")
+        ):
+            errors.append(
+                ExtraInfo(
+                    model="openarchiefbeheer.config.ArchiveConfig",
+                    code="invalid_field",
+                    field="zaaktype",
+                )
+            )
         if not archive_config.resultaattype:
             errors.append(
                 ExtraInfo(
