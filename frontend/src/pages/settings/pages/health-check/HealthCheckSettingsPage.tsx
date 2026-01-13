@@ -22,6 +22,7 @@ export function HealthCheckSettingsPage() {
             }}
           >
             <Solid.XCircleIcon role="img" aria-label="Error" />
+            Fout
           </Badge>
         );
       case "warning":
@@ -35,6 +36,7 @@ export function HealthCheckSettingsPage() {
             }}
           >
             <Solid.ExclamationTriangleIcon role="img" aria-label="Warning" />
+            Waarschuwing
           </Badge>
         );
       case "info":
@@ -48,6 +50,7 @@ export function HealthCheckSettingsPage() {
             }}
           >
             <Solid.InformationCircleIcon role="img" aria-label="Info" />
+            Informatie
           </Badge>
         );
       default:
