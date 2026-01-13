@@ -140,6 +140,9 @@ class ArchiveConfigHealthCheck:
                     model="openarchiefbeheer.config.ArchiveConfig",
                     code="missing_field",
                     field="bronorganisatie",
+                    message=_(
+                        "The bronorganisatie field is missing in the destruction report settings."
+                    ),
                 )
             )
         if not archive_config.zaaktype:
@@ -148,6 +151,9 @@ class ArchiveConfigHealthCheck:
                     model="openarchiefbeheer.config.ArchiveConfig",
                     code="missing_field",
                     field="zaaktype",
+                    message=_(
+                        "The zaaktype field is missing in the destruction report settings."
+                    ),
                 )
             )
         # Github issue 884: zaaktype field was changed from the identificatie to the URL.
@@ -161,6 +167,10 @@ class ArchiveConfigHealthCheck:
                     model="openarchiefbeheer.config.ArchiveConfig",
                     code="invalid_field",
                     field="zaaktype",
+                    message=_(
+                        "The configuration for the destruction report has an invalid zaaktype. "
+                        "Reconfigure the zaaktype and save the destruction report settings."
+                    ),
                 )
             )
         if not archive_config.resultaattype:
@@ -169,6 +179,9 @@ class ArchiveConfigHealthCheck:
                     model="openarchiefbeheer.config.ArchiveConfig",
                     code="missing_field",
                     field="resultaattype",
+                    message=_(
+                        "The resultaattype field is missing in the destruction report settings."
+                    ),
                 )
             )
         if not archive_config.informatieobjecttype:
@@ -177,6 +190,9 @@ class ArchiveConfigHealthCheck:
                     model="openarchiefbeheer.config.ArchiveConfig",
                     code="missing_field",
                     field="informatieobjecttype",
+                    message=_(
+                        "The informatieobjecttype field is missing in the destruction report settings."
+                    ),
                 )
             )
 
@@ -185,8 +201,8 @@ class ArchiveConfigHealthCheck:
                 identifier=self.identifier,
                 verbose_name=self.verbose_name,
                 success=False,
-                message=_("Missing settings(s): {missing_fields}").format(
-                    missing_fields=errors
+                message=_(
+                    "Missing or invalid settings(s) for the Archive configuration."
                 ),
                 extra=errors,
             )
@@ -194,7 +210,7 @@ class ArchiveConfigHealthCheck:
             identifier=self.identifier,
             verbose_name=self.verbose_name,
             success=True,
-            message=_("The archiving settings are properly configured."),
+            message=_("The Archive configuration is properly configured."),
         )
 
 
