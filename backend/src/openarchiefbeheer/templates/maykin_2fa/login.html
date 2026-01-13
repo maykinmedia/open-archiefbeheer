@@ -1,5 +1,5 @@
 {% extends "maykin_2fa/login.html" %}
-{% load i18n solo_tags %}
+{% load i18n mozilla_django_oidc_db %}
 
 {% block footer %}
     <div id="footer"></div>
@@ -7,7 +7,7 @@
 
 
 {% block extra_login_options %}
-{% get_solo 'mozilla_django_oidc_db.OpenIDConnectConfig' as oidc_config %}
+{% get_oidc_admin_client as oidc_config %}
 
 {% if oidc_config.enabled %}
 <div class="submit-row">

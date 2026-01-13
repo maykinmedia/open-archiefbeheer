@@ -7,7 +7,8 @@ from django.views.decorators.cache import cache_page
 
 from drf_spectacular.utils import extend_schema
 from maykin_config_checks import JSONValue
-from mozilla_django_oidc_db.models import OpenIDConnectConfig
+from mozilla_django_oidc_db.constants import OIDC_ADMIN_CONFIG_IDENTIFIER
+from mozilla_django_oidc_db.models import OIDCClient
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -250,7 +251,7 @@ class OIDCInfoView(APIView):
         },
     )
     def get(self, request: Request, *args, **kwargs):
-        config = OpenIDConnectConfig.get_solo()
+        config = OIDCClient.objects.get(identifier=OIDC_ADMIN_CONFIG_IDENTIFIER)
         serializer = OIDCInfoSerializer(instance=config, context={"request": request})
         return Response(serializer.data)
 
