@@ -4,7 +4,7 @@ import {
   ArchiveConfiguration,
   getArchiveConfiguration,
 } from "../../../../lib/api/config";
-import { listZaaktypeChoices } from "../../../../lib/api/private";
+import { listShortProcessZaaktypeChoices } from "../../../../lib/api/private";
 import {
   canViewAndEditSettingsRequired,
   loginRequired,
@@ -21,11 +21,8 @@ export const shortProcedureSettingsPageLoader = loginRequired(
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
       const archiveConfigPromise = getArchiveConfiguration(abortSignal);
-      const zaaktypeChoicesPromise = listZaaktypeChoices(
-        undefined,
-        false,
-        abortSignal,
-      );
+      const zaaktypeChoicesPromise =
+        listShortProcessZaaktypeChoices(abortSignal);
 
       const [archiveConfig, zaaktypeChoices] = await Promise.all([
         archiveConfigPromise,

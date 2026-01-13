@@ -12,12 +12,12 @@ import {
   coReviewFactory,
   destructionListAssigneeFactory,
   destructionListFactory,
+  internalZaaktypeChoicesFactory,
   paginatedDestructionListItemsFactory,
   reviewFactory,
   roleFactory,
   userFactory,
   zaakFactory,
-  zaaktypeChoicesFactory,
 } from "../../../fixtures";
 import { DestructionListReviewPage } from "./DestructionListReview";
 import { destructionListReviewAction } from "./DestructionListReview.action";
@@ -535,7 +535,7 @@ export const PollExternalChanges: Story = {
         url: "http://localhost:8000/api/v1/_zaaktypen-choices/",
         method: "POST",
         status: 200,
-        response: zaaktypeChoicesFactory(),
+        response: internalZaaktypeChoicesFactory(),
       },
       {
         url: "http://localhost:8000/api/v1/selections/destruction-list-review-00000000-0000-0000-0000-000000000000-ready_to_review/?",

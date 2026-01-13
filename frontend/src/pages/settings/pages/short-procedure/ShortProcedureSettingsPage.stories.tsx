@@ -10,8 +10,8 @@ import {
   clickButton,
 } from "../../../../../.storybook/playFunctions";
 import {
+  FIXTURE_SHORT_PROCESS_ZAAKTYPE_CHOICES,
   administratorFactory,
-  zaaktypeChoicesFactory,
 } from "../../../../fixtures";
 import { settingsAction } from "../../Settings.action";
 import { ShortProcedureSettingsPage } from "./ShortProcedureSettingsPage";
@@ -52,10 +52,10 @@ const meta: Meta<typeof ShortProcedureSettingsPage> = {
         response: FIXTURE,
       },
       {
-        url: "http://localhost:8000/api/v1/_zaaktypen-choices/?notInDestructionList=true",
+        url: "http://localhost:8000/api/v1/shortprocess-zaaktypen-choices/",
         method: "GET",
         status: 200,
-        response: zaaktypeChoicesFactory(),
+        response: FIXTURE_SHORT_PROCESS_ZAAKTYPE_CHOICES,
       },
     ],
   },

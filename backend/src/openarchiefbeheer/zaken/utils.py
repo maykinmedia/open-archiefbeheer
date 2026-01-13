@@ -506,25 +506,15 @@ def get_zaak_metadata(zaak: Zaak) -> dict:
     return serializer.data
 
 
-@_cached_with_args
-def retrieve_zaaktypen(zaaktype_identificatie: str = "") -> list[dict]:
+@_cached
+def retrieve_zaaktypen() -> list[dict[str, JSONValue]]:
     with ztc_client() as client:
-        query_params = (
-            {"identificatie": zaaktype_identificatie} if zaaktype_identificatie else {}
-        )
-        response = client.get("zaaktypen", params=query_params)
+        response = client.get("zaaktypen")
         response.raise_for_status()
         data_iterator = pagination_helper(client, response.json())
 
     results = []
     for page in data_iterator:
         results += page["results"]
-
-    if zaaktype_identificatie:
-        # If the identificatie was provided, sort by begin geldigheid so that the
-        # latest version is first.
-        results = sorted(
-            results, key=lambda zaaktype: zaaktype["begin_geldigheid"], reverse=True
-        )
 
     return results
