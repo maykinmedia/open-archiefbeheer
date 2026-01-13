@@ -52,6 +52,9 @@ class OpenKlantPlugin(AbstractBasePlugin):
                 if not resource_url.startswith(service.api_root):
                     continue
 
+                # Onderwerpobjecten are always deleted. The linked klantcontact not always
+                # Right now we have no way of telling which klantcontacten are deleted,
+                # so they don't appear in the destruction report. See #971.
                 delete_object_and_store_result(
                     result_store,
                     "onderwerpobjecten",
