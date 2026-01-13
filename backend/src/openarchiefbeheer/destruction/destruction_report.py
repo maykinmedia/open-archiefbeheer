@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import IO
+from uuid import UUID
 
 from django.utils.translation import gettext as _
 
 import xlsxwriter
+from furl import furl
 from glom import glom
 from timeline_logger.models import TimelineLog
 from xlsxwriter.worksheet import Worksheet
@@ -15,10 +17,11 @@ from openarchiefbeheer.logging.logevent import (
 )
 from openarchiefbeheer.logging.utils import get_event_template
 from openarchiefbeheer.utils.formatting import get_readable_timestamp
+from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
 from .constants import InternalStatus, ListItemStatus
-from .models import DestructionList, DestructionListItem
+from .models import DestructionList
 
 
 @dataclass
@@ -88,28 +91,55 @@ class DestructionReportGenerator:
             start_row, 0, [field["name"] for field in ZAAK_METADATA_FIELDS_MAPPINGS]
         )
 
-        def format_fn(field: dict, item: DestructionListItem) -> str:
-            return glom(item.extra_zaak_data, field["path"], default="")
-
         for row_count, item in enumerate(
             self.destruction_list.items.filter(
                 processing_status=InternalStatus.succeeded
             ).iterator(chunk_size=1000)
         ):
             data = [
-                field.get("format", format_fn)(field, item)
+                glom(item.extra_zaak_data, field["path"], default="")
                 for field in ZAAK_METADATA_FIELDS_MAPPINGS
             ]
             worksheet.write_row(start_row + row_count + 1, 0, data)
+
+    def add_related_resources(self, worksheet: Worksheet, start_row: int = 0) -> None:
+        worksheet.write_row(start_row, 0, [_("Resource Type"), _("Resource UUID")])
+
+        row_count = start_row + 1
+        for item in self.destruction_list.items.filter(
+            processing_status=InternalStatus.succeeded
+        ).iterator(chunk_size=1000):
+            result_store = ResultStore(store=item)
+
+            for resource_type, resources_urls in result_store.deleted_resources.items():
+                if resource_type == "zaken":
+                    # Zaken are added to a different table with additional metadata
+                    continue
+
+                for url in resources_urls:
+                    try:
+                        uuid_resource = furl(url).path.segments[-1]
+                        UUID(uuid_resource)
+                        identifier = uuid_resource
+                    except ValueError:
+                        # We can't extract the UUID from the URL of the resource. Fallback on the URL
+                        identifier = url
+
+                    worksheet.write_row(row_count, 0, [resource_type, identifier])
+                    row_count += 1
 
     def generate_destruction_report(self, file: IO) -> None:
         workbook = xlsxwriter.Workbook(file.name, options={"in_memory": False})
 
         worksheet_zaken = workbook.add_worksheet(name=_("Deleted zaken"))
         worksheet_process_details = workbook.add_worksheet(name=_("Process details"))
+        worksheet_related_resources = workbook.add_worksheet(
+            name=_("Related resources")
+        )
 
         self.add_zaken_table(worksheet_zaken)
         self.add_general_info_table(worksheet_process_details)
         self.add_review_process_table(worksheet_process_details, start_row=3)
+        self.add_related_resources(worksheet=worksheet_related_resources)
 
         workbook.close()

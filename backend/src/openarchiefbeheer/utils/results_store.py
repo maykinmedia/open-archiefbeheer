@@ -12,7 +12,7 @@ class InternalResults(TypedDict):
     deleted_resources: dict[str, list]
     created_resources: dict[str, list]
     resources_to_delete: dict[str, list]
-    traceback: str = ""
+    traceback: str
 
 
 class Store(Protocol):
@@ -99,6 +99,11 @@ class ResultStore:
         results = self.get_internal_results()
         results["traceback"] = ""
         self.save()
+
+    @property
+    def deleted_resources(self) -> dict[str, list]:
+        results = self.get_internal_results()
+        return results["deleted_resources"]
 
 
 def delete_object_and_store_result(
