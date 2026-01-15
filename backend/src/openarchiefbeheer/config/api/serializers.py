@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from drf_spectacular.utils import extend_schema_field
-from mozilla_django_oidc_db.models import OpenIDConnectConfig
+from mozilla_django_oidc_db.models import OIDCClient
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -43,14 +43,14 @@ class OIDCInfoSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = OpenIDConnectConfig
+        model = OIDCClient
         fields = (
             "enabled",
             "login_url",
         )
 
     @extend_schema_field(serializers.URLField)
-    def get_login_url(self, config: OpenIDConnectConfig) -> str:
+    def get_login_url(self, config: OIDCClient) -> str:
         if not config.enabled:
             return ""
 

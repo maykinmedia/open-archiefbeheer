@@ -67,23 +67,33 @@ external_registers:
 
 oidc_db_config_enable: true
 oidc_db_config_admin_auth:
+  providers:
+  - identifier: admin-oidc-provider
+    endpoint_config:
+      oidc_op_discovery_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/"
+    oidc_token_use_basic_auth: false
   items:
     - identifier: admin-oidc
       enabled: true
+      oidc_provider_identifier: admin-oidc-provider
       oidc_rp_client_id: openarchiefbeheer-dev
       oidc_rp_client_secret: very-secret-bla
       oidc_rp_sign_algo: "RS256"
-      oidc_token_use_basic_auth: false
       oidc_rp_idp_sign_key: ""
-      endpoint_config:
-        oidc_op_discovery_endpoint: "http://localhost:28080/realms/openarchiefbeheer-dev/"
-      username_claim: 
-        - preferred_username   
-      groups_claim:
-        - resource_access
-        - openarchiefbeheer-dev
-        - roles
-      superuser_group_names:
-        - Superuser
-      userinfo_claims_source: userinfo_endpoint
+      options:
+        user_settings:
+          claim_mappings:
+            username:
+            - preferred_username
+          username_case_sensitive: false
+        groups_settings:
+          superuser_group_names:
+          - Superuser
+          claim_mapping:
+          - resource_access
+          - openarchiefbeheer-dev
+          - roles
+          make_users_staff: true
+
+
       

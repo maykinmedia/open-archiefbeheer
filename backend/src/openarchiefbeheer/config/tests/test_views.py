@@ -3,7 +3,8 @@ from unittest.mock import patch
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
-from mozilla_django_oidc_db.models import OpenIDConnectConfig
+from mozilla_django_oidc_db.constants import OIDC_ADMIN_CONFIG_IDENTIFIER
+from mozilla_django_oidc_db.tests.factories import OIDCClientFactory
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -187,11 +188,11 @@ class ArchiveConfigViews(APITestCase):
 class OIDCInfoViewTests(APITestCase):
     def test_oidc_info_view_not_enabled(self):
         config_url = reverse("api:oidc-info")
-        with patch(
-            "openarchiefbeheer.config.api.views.OpenIDConnectConfig.get_solo",
-            return_value=OpenIDConnectConfig(enabled=False),
-        ):
-            response = self.client.get(config_url)
+        config = OIDCClientFactory.create(identifier=OIDC_ADMIN_CONFIG_IDENTIFIER)
+        config.enabled = False
+        config.save()
+
+        response = self.client.get(config_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -202,11 +203,11 @@ class OIDCInfoViewTests(APITestCase):
 
     def test_oidc_info_view_enabled(self):
         config_url = reverse("api:oidc-info")
-        with patch(
-            "openarchiefbeheer.config.api.views.OpenIDConnectConfig.get_solo",
-            return_value=OpenIDConnectConfig(enabled=True),
-        ):
-            response = self.client.get(config_url)
+        config = OIDCClientFactory.create(identifier=OIDC_ADMIN_CONFIG_IDENTIFIER)
+        config.enabled = True
+        config.save()
+
+        response = self.client.get(config_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

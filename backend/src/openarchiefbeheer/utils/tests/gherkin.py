@@ -736,17 +736,24 @@ class GerkinMixin:
             if element_role == "combobox":
                 await locator.click()
 
-                options = await page.query_selector_all(".mykn-option")
+                await expect(page.locator("div.mykn-option")).not_to_have_count(0)
 
-                for option in options:
-                    text_content = await option.text_content()
-                    if text_content != value:
-                        continue
+                option = page.locator("div.mykn-option").get_by_text(value)
 
-                    return await option.click()
+                return await option.click()
 
             # It's not a dropdown, it's a textbox then
             return await locator.fill(value)
+
+        async def user_select_first_dropdown_option(
+            self, page: Page, name: str
+        ) -> None:
+            locator = page.get_by_role("combobox", name=f'filter veld "{name}"')
+            await locator.click()
+
+            await expect(page.locator("div.mykn-option")).not_to_have_count(0)
+
+            await page.locator("div.mykn-option").locator("nth=0").click()
 
     class Then:
         """
