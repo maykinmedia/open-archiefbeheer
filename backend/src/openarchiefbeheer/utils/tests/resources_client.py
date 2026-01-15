@@ -34,7 +34,7 @@ class ZaaktypeWithRelations(TypedDict):
 
 
 class CommonGroundDataCreationHelperMixin:
-    def _create_resource(
+    def _post_resource(
         self,
         data: Mapping[str, JSONEncodable],
         resource_path: str,
@@ -81,8 +81,32 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "archiefactiedatum": "2020-01-01",
         }
 
-        return self._create_resource(
+        return self._post_resource(
             data | overrides, "zaken", zrc_client(self.zrc_service_slug)
+        )
+
+    def close_zaak(
+        self,
+        zaak_url: str,
+        resultaattype_url: str,
+        statustype_url: str,
+        toelichting: str = "",
+    ) -> Mapping[str, JSONEncodable]:
+        data = {
+            "zaak": {},
+            "resultaat": {
+                "resultaattype": resultaattype_url,
+                "toelichting": toelichting or "Closed",
+            },
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2022-01-01",  # Needs to be in the past
+            },
+        }
+
+        zaak_uuid = furl(zaak_url).path.segments[-1]
+        return self._post_resource(
+            data, f"zaak_afsluiten/{zaak_uuid}", zrc_client(self.zrc_service_slug)
         )
 
     def _get_catalogus(self, catalogus_url="", **_) -> str:
@@ -105,7 +129,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "naam": faker.sentence(),
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "catalogussen", ztc_client(self.ztc_service_slug)
         )
 
@@ -183,9 +207,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "selectielijstProcestype": "https://selectielijst.openzaak.nl/api/v1/procestypen/aa8aa2fd-b9c6-4e34-9a6c-58a677f60ea0",
         } | overrides
 
-        return self._create_resource(
-            data, "zaaktypen", ztc_client(self.ztc_service_slug)
-        )
+        return self._post_resource(data, "zaaktypen", ztc_client(self.ztc_service_slug))
 
     def create_roltype(
         self,
@@ -198,9 +220,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "omschrijvingGeneriek": "adviseur",
             **overrides,
         }
-        return self._create_resource(
-            data, "roltypen", ztc_client(self.ztc_service_slug)
-        )
+        return self._post_resource(data, "roltypen", ztc_client(self.ztc_service_slug))
 
     def create_statustype(
         self, zaaktype_url: str = "", **overrides: Mapping[str, JSONEncodable]
@@ -215,7 +235,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "checklistitem_statustype": [],
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "statustypen", ztc_client(self.ztc_service_slug)
         )
 
@@ -240,7 +260,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             },
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "resultaattypen", ztc_client(self.ztc_service_slug)
         )
 
@@ -255,7 +275,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "informatieobjectcategorie": "Blue",
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "informatieobjecttypen", ztc_client(self.ztc_service_slug)
         )
 
@@ -272,7 +292,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "zaaktype": zaaktype_url,
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "zaakobjecttypen", ztc_client(self.ztc_service_slug)
         )
 
@@ -289,7 +309,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "richting": "inkomend",
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "zaaktype-informatieobjecttypen", ztc_client(self.ztc_service_slug)
         )
 
@@ -307,7 +327,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "objectIdentificatie": {"overigeData": "Bla"},
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "zaakobjecten", zrc_client(self.zrc_service_slug)
         )
 
@@ -323,7 +343,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "informatieobjecttype": informatieobjecttype_url,
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data, "enkelvoudiginformatieobjecten", drc_client(self.drc_service_slug)
         )
 
@@ -342,7 +362,7 @@ class OpenKlantCreationHelper(CommonGroundDataCreationHelperMixin):
             "vertrouwelijk": False,
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data,
             "klantcontacten",
             build_client(Service.objects.get(slug=self.openklant_service_slug)),
@@ -359,7 +379,7 @@ class OpenKlantCreationHelper(CommonGroundDataCreationHelperMixin):
             "onderwerpobjectidentificator": None,
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data,
             "onderwerpobjecten",
             build_client(Service.objects.get(slug=self.openklant_service_slug)),
@@ -379,7 +399,7 @@ class ObjectenCreationHelper(CommonGroundDataCreationHelperMixin):
             "record": {"typeVersion": 1, "startAt": "2025-01-01"},
         } | overrides
 
-        return self._create_resource(
+        return self._post_resource(
             data,
             "objects",
             build_client(Service.objects.get(slug=self.objecten_service_slug)),
