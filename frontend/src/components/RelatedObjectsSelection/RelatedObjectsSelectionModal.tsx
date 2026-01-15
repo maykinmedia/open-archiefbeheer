@@ -73,12 +73,14 @@ export const RelatedObjectsSelectionModal: React.FC<
         onClose={handleClose}
       >
         <Body>
-          <RelatedObjectsSelection
-            destructionList={destructionList}
-            destructionListItem={destructionListItemState}
-            user={user}
-            onChange={handleChange}
-          />
+          {modalOpenState && (
+            <RelatedObjectsSelection
+              destructionList={destructionList}
+              destructionListItem={destructionListItemState}
+              user={user}
+              onChange={handleChange}
+            />
+          )}
         </Body>
       </Modal>
     </>
