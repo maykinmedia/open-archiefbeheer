@@ -81,6 +81,7 @@ class Issue667CancelFilteredEditMode(GherkinLikeTestCase):
 
             await self.when.record_manager_logs_in(page)
             await self.when.user_clicks_button(page, "Destruction list to sort")
+            await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit")
             await self.when.user_clicks_button(page, "Bewerken", 2)
             await self.then.zaken_should_have_order(page, ["ZAAK-0", "ZAAK-1", "ZAAK-2"])
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true")

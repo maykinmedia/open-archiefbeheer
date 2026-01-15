@@ -11,36 +11,6 @@ from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
 @tag("gh-635")
 @AsyncCapableRequestsMock()
 class Issue635FiltersReset(GherkinLikeTestCase):
-    async def when_user_navigates_to_page_with_filter(self, page):
-        await self.given.selectielijstklasse_choices_are_available(page)
-        await self.given.behandelende_afdeling_choices_are_available(page)
-        zaken = await self.given.zaken_are_indexed(amount=500)
-        record_manager = await self.given.record_manager_exists()
-
-        await self.given.list_exists(
-            name="Destruction list to reset filters for",
-            status=ListStatus.ready_to_review,
-            uuid="00000000-0000-0000-0000-000000000000",
-            zaken=zaken,
-        )
-
-        await self.when.user_logs_in(page, record_manager)
-        await self.then.path_should_be(page, "/destruction-lists")
-        await self.when.user_clicks_button(
-            page, "Destruction list to reset filters for"
-        )
-        await self.then.url_should_contain_text(page, "destruction-lists/")
-
-    async def when_user_selects_filter_dropdown_by_index(self, page, name, index):
-        locator = page.get_by_label(f'filter veld "{name}"')
-        await locator.click()
-        options = await page.query_selector_all(".mykn-option")
-        for option in options:
-            if options.index(option) == index:
-                return await option.click()
-            return None
-        return None
-
     async def when_user_types_in_date(self, page, title, placeholder, dd, mm, jjjj):
         divs = await page.query_selector_all(f'div[title="{title}"]')
 
@@ -86,10 +56,26 @@ class Issue635FiltersReset(GherkinLikeTestCase):
     async def test_reset(self, requests_mock: AsyncCapableRequestsMock):
         async with browser_page() as page:
             await self.given.services_are_configured(requests_mock)
-            await self.when_user_navigates_to_page_with_filter(page)
+            record_manager = await self.given.record_manager_exists()
+            await self.given.selectielijstklasse_choices_are_available(page)
+            await self.given.behandelende_afdeling_choices_are_available(page)
+            zaken = await self.given.zaken_are_indexed(amount=500)
+            await self.given.list_exists(
+                name="Destruction list to reset filters for",
+                status=ListStatus.ready_to_review,
+                uuid="00000000-0000-0000-0000-000000000000",
+                zaken=zaken,
+            )
+
+            await self.when.user_logs_in(page, record_manager)
+            await self.then.path_should_be(page, "/destruction-lists")
+            await self.when.user_clicks_button(
+                page, "Destruction list to reset filters for"
+            )
+            await self.then.url_should_contain_text(page, "destruction-lists/")
 
             # Zaaktype
-            await self.when_user_selects_filter_dropdown_by_index(page, "Zaaktype", 0)
+            await self.when.user_select_first_dropdown_option(page, "Zaaktype")
             await self.then.url_should_contain_text(page, "zaaktype")
 
             # Selectielijstklasse
@@ -107,8 +93,8 @@ class Issue635FiltersReset(GherkinLikeTestCase):
             await self.then.url_should_contain_text(page, "omschrijving__icontains")
 
             # Behandelende afdeling
-            await self.when_user_selects_filter_dropdown_by_index(
-                page, "Behandelende afdeling", 0
+            await self.when.user_select_first_dropdown_option(
+                page, "Behandelende afdeling"
             )
             await self.then.url_should_contain_text(page, "behandelend_afdeling")
 
