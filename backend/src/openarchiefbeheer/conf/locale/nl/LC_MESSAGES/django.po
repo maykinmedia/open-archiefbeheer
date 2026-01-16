@@ -155,11 +155,11 @@ msgstr "De selectielijst service is niet correct ingesteld."
 
 #: openarchiefbeheer/config/admin.py:13
 msgid "Short procedure"
-msgstr "Korte procedure"
+msgstr "Verkorte procedure"
 
 #: openarchiefbeheer/config/admin.py:19
 msgid "Zaak report destruction settings"
-msgstr "Instellingen vernietigingsrapportage"
+msgstr "Instellingen verklaring van vernietiging"
 
 #: openarchiefbeheer/config/api/serializers.py:39
 msgid "OIDC authentication URL"
@@ -748,7 +748,7 @@ msgid ""
 "archiefactiedatum should be null."
 msgstr ""
 "De selectielijstklasse heeft waardering 'blijvend_bewaren', dus de "
-"archiefactiedatum moet leeg (null) zijn."
+"archiefactiedatum moet null zijn."
 
 #: openarchiefbeheer/destruction/api/serializers.py:877
 msgid ""
@@ -784,7 +784,7 @@ msgid ""
 "This user is either not allowed to update the destruction list or the "
 "destruction list cannot currently be updated."
 msgstr ""
-"Deze gebruiker is ofwel niet gemachtigd om de vernietigingslijst bij te "
+"Deze gebruiker heeft geen rechten om de vernietigingslijst bij te "
 "werken, of de vernietigingslijst kan momenteel niet worden bijgewerkt."
 
 #: openarchiefbeheer/destruction/api/serializers.py:988
@@ -1867,7 +1867,7 @@ msgstr "Er zijn geen services geconfigureerd voor de {plugin_name} plugin."
 #, fuzzy, python-brace-format
 #| msgid "The selectielijst service is improperly configured."
 msgid "The {plugin_name} plugin settings are properly configured."
-msgstr "De selectielijst service is niet correct ingesteld."
+msgstr "De instellingen van de {plugin_name}-plugin zijn correct geconfigureerd."
 
 #: openarchiefbeheer/logging/api/filtersets.py:15
 msgid "Retrieve the logs of a particular destruction list."
