@@ -148,7 +148,6 @@ msgid "No {formatted_api_type} service configured"
 msgstr "Geen {formatted_api_type} service geconfigureerd"
 
 #: openarchiefbeheer/clients.py:75
-#, fuzzy
 #| msgid "The selectielijst service is improperly configured."
 msgid "No Selectielijst service configured"
 msgstr "De selectielijst service is niet correct ingesteld."
@@ -328,7 +327,6 @@ msgid "All expected services are present."
 msgstr "Alle verwachte services zijn aanwezig."
 
 #: openarchiefbeheer/config/health_checks.py:64
-#, fuzzy
 #| msgid "email configuration"
 msgid "Services configuration"
 msgstr "E-mail configuratie"
@@ -352,19 +350,16 @@ msgid "API configuration"
 msgstr "API-configuratie"
 
 #: openarchiefbeheer/config/health_checks.py:111
-#, fuzzy
 #| msgid "No selectielijst service selected in the API configuration."
 msgid "No selectielijst API services selected in the API configuration page."
 msgstr "De selectielijst service ontbreekt in de API configuratie."
 
 #: openarchiefbeheer/config/health_checks.py:125
-#, fuzzy
 #| msgid "The ZRC service is improperly configured."
 msgid "The API settings are properly configured."
 msgstr "De API-instellingen zijn correct geconfigureerd."
 
 #: openarchiefbeheer/config/health_checks.py:132
-#, fuzzy
 #| msgid "API configuration"
 msgid "Archive configuration"
 msgstr "Archiefconfiguratie"
@@ -413,7 +408,6 @@ msgid "Missing or invalid settings(s) for the Archive configuration."
 msgstr ""
 
 #: openarchiefbeheer/config/health_checks.py:213
-#, fuzzy
 #| msgid "The ZRC service is improperly configured."
 msgid "The Archive configuration is properly configured."
 msgstr "De archiveringsinstellingen zijn correct geconfigureerd."
@@ -1842,13 +1836,11 @@ msgid "Services needed to talk to the external register instances."
 msgstr ""
 
 #: openarchiefbeheer/external_registers/models.py:26
-#, fuzzy
 #| msgid "email configuration"
 msgid "External register plugin configuration"
 msgstr "E-mail configuratie"
 
 #: openarchiefbeheer/external_registers/models.py:27
-#, fuzzy
 #| msgid "email configurations"
 msgid "External register plugin configurations"
 msgstr "E-mail configuraties"
@@ -1864,7 +1856,7 @@ msgid "No service(s) configured for the {plugin_name} plugin."
 msgstr "Er zijn geen services geconfigureerd voor de {plugin_name} plugin."
 
 #: openarchiefbeheer/external_registers/plugin.py:100
-#, fuzzy, python-brace-format
+#, python-brace-format
 #| msgid "The selectielijst service is improperly configured."
 msgid "The {plugin_name} plugin settings are properly configured."
 msgstr "De instellingen van de {plugin_name}-plugin zijn correct geconfigureerd."
