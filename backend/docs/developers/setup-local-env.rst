@@ -10,12 +10,15 @@ Prerequisites
 You need the following libraries and/or programs:
 
 * `Python`_ – check the ``Dockerfile`` for the required version.
-* Python `Virtualenv`_ and `Pip`_
+* A Python virtual environment (created with `Virtualenv`_ or `pyenv`_)
+* `UV`_
 * `PostgreSQL`_ (with `PostGIS`_) and `GDAL`_ – check the ``Dockerfile`` for the required version.
 * `Node.js`_
 * `npm`_
 
 .. _Python: https://www.python.org/
+.. _pyenv: https://github.com/pyenv/pyenv
+.. _UV: https://docs.astral.sh/uv/
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
 .. _Pip: https://packaging.python.org/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date
 .. _PostgreSQL: https://www.postgresql.org
@@ -25,17 +28,9 @@ You need the following libraries and/or programs:
 .. _npm: https://www.npmjs.com/
 
 
-#. Navigate to the location where you want to place your project.
-#. Get the code:
-
-    .. code:: bash
-
-       git clone git@bitbucket.org:maykinmedia/openarchiefbeheer.git
-       cd openarchiefbeheer
-
+#. Navigate to the location where you want to place your project and clone it from github.
 #. Create the database. The default database/postgres user/password that will be used is ``openarchiefbeheer`` (see ``src/openarchiefbeheer/conf/dev.py`` for the settings). 
-
-#. Activate your virtual environment 
+#. Activate your virtual environment.
 #. Install the requirements ``uv pip install -r requirements/dev.txt``.
 #. Build the frontend (needed for the styling of the admin):
 
@@ -74,27 +69,6 @@ You need the following libraries and/or programs:
       src/manage.py compilemessages --locale nl
 
 #. Run the development server with ``src/manage.py runserver``
-
-#. Optionally, you can load initial zaak data to populate your database.
-
-   .. note::
-
-      This is a time-consuming process, depending on how many zaken there are in Open Zaak.
-
-      - ~2 h with about 10000 zaken
-      - <1 min with about 100 zaken
-
-   .. important::
-
-      For this to work, the services need to be set up correctly. You can either do this manually in the admin, 
-      or load the fixture provided in the instructions to :ref:`start a local Open Zaak instance <open-zaak-section>`.
-
-   To load the data, run:
-
-   .. code:: bash
-
-      src/manage.py cache_zaken
-
 #. Optionally, you can load fixtures for the email templates and for the admin index configuration:
 
    .. code:: bash
@@ -118,13 +92,20 @@ This is how you can run the tests locally:
    # Only VCR tests
    src/manage.py tests openarchiefbeheer --no-input --tag=vcr
 
+Tests running with PyTest can be run with:
+
+.. code:: bash
+
+   pytest src/
+
 To check test coverage:
 
 .. code:: bash
 
-   coverage run src/manage.py test openarchiefbeheer --exclude-tag=e2e
-   coverage xml -o coverage.xml
-
+   coverage run --data-file=coverage_pytest -m pytest src/
+   coverage run --data-file=coverage_django src/manage.py test openarchiefbeheer --exclude-tag=e2e --exclude-tag=performance
+   coverage combine --data-file=coverage_combined coverage_django coverage_pytest
+   coverage xml --data-file=coverage_combined -o coverage.xml
 
 The ``coverage.xml`` file can then, for example, be used in IDEs 
 like VSCode with extension ``Coverage Gutters`` with ``ctrl+shift+7``.
@@ -143,151 +124,27 @@ To start the environment:
 
 .. _open-zaak-section:
 
-Open Zaak
-=========
+External Registers
+==================
 
-It is also possible to start a local Open Zaak instance. 
-
-In the folder ``backend/docker-services/openzaak`` run:
+To start Open Zaak, Open Klant and the Objects API with docker compose run the following command from
+the ``backend/docker-services`` folder:
 
 .. code:: bash
 
-   docker compose up
+   sudo ./start_services.sh
 
-This loads fixtures (located in ``backend/docker-services/openzaak/fixtures``).
-To get your local openarchiefbeheer environment to talk to this Open Zaak instance, 
-use this fixture (you may need to update the primary key field ``pk``):
+It is possible to create demo data in these external services with this management command:
 
-.. code:: json
+.. code:: bash
 
-   [
-      {
-         "model": "zgw_consumers.service",
-         "pk": 1,
-         "fields": {
-            "label": "Open Zaak - Zaken API",
-            "oas": "http://localhost:8003/zaken/api/v1/schema/openapi.yaml",
-            "oas_file": "",
-            "uuid": "73d10dfb-d17b-45ad-b8ac-9a1041b08f1e",
-            "slug": "open-zaak-zaken-api",
-            "api_type": "zrc",
-            "api_root": "http://localhost:8003/zaken/api/v1/",
-            "api_connection_check_path": "",
-            "client_id": "test-vcr",
-            "secret": "test-vcr",
-            "auth_type": "zgw",
-            "header_key": "",
-            "header_value": "",
-            "nlx": "",
-            "user_id": "",
-            "user_representation": "",
-            "client_certificate": null,
-            "server_certificate": null,
-            "timeout": 10
-         }
-      }
-      {
-         "model": "zgw_consumers.service",
-         "pk": 2,
-         "fields": {
-            "label": "Open Zaak - Catalogi API",
-            "oas": "http://localhost:8003/catalogi/api/v1/schema/openapi.json",
-            "oas_file": "",
-            "uuid": "24ef5de1-5fcc-4716-a295-6ebdd5e9425c",
-            "slug": "open-zaak-catalogi-api",
-            "api_type": "ztc",
-            "api_root": "http://localhost:8003/catalogi/api/v1/",
-            "api_connection_check_path": "",
-            "client_id": "test-vcr",
-            "secret": "test-vcr",
-            "auth_type": "zgw",
-            "header_key": "",
-            "header_value": "",
-            "nlx": "",
-            "user_id": "",
-            "user_representation": "",
-            "client_certificate": null,
-            "server_certificate": null,
-            "timeout": 10
-         }
-      },
-      {
-         "model": "zgw_consumers.service",
-         "pk": 3,
-         "fields": {
-            "label": "Open Zaak - Besluiten API",
-            "oas": "http://localhost:8003/besluiten/api/v1/schema/openapi.yaml",
-            "oas_file": "",
-            "uuid": "b0eebf57-7f1b-49ef-8e2e-de53a28f1056",
-            "slug": "open-zaak-besluiten-api",
-            "api_type": "brc",
-            "api_root": "http://localhost:8003/besluiten/api/v1/",
-            "api_connection_check_path": "",
-            "client_id": "test-vcr",
-            "secret": "test-vcr",
-            "auth_type": "zgw",
-            "header_key": "",
-            "header_value": "",
-            "nlx": "",
-            "user_id": "",
-            "user_representation": "",
-            "client_certificate": null,
-            "server_certificate": null,
-            "timeout": 10
-         }
-      },
-      {
-         "model": "zgw_consumers.service",
-         "pk": 4,
-         "fields": {
-            "label": "Open Zaak - Documenten API",
-            "oas": "http://localhost:8003/documenten/api/v1/schema/openapi.yaml",
-            "oas_file": "",
-            "uuid": "037c1de8-4749-483b-916d-dfa0aa95fa00",
-            "slug": "open-zaak-documenten-api",
-            "api_type": "drc",
-            "api_root": "http://localhost:8003/documenten/api/v1/",
-            "api_connection_check_path": "",
-            "client_id": "test-vcr",
-            "secret": "test-vcr",
-            "auth_type": "zgw",
-            "header_key": "",
-            "header_value": "",
-            "nlx": "",
-            "user_id": "",
-            "user_representation": "",
-            "client_certificate": null,
-            "server_certificate": null,
-            "timeout": 10
-         }
-      }, 
-      {
-         "model": "zgw_consumers.service",
-         "pk": 5,
-         "fields": {
-            "label": "Open Zaak (public) - Selectielijst API",
-            "oas": "https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
-            "oas_file": "",
-            "uuid": "6e0be7db-d19c-43a6-a004-43953420f2cd",
-            "slug": "open-zaak-public-selectielijst-api",
-            "api_type": "orc",
-            "api_root": "https://selectielijst.openzaak.nl/api/v1/",
-            "api_connection_check_path": "",
-            "client_id": "",
-            "secret": "",
-            "auth_type": "no_auth",
-            "header_key": "",
-            "header_value": "",
-            "nlx": "",
-            "user_id": "",
-            "user_representation": "",
-            "client_certificate": null,
-            "server_certificate": null,
-            "timeout": 10
-         }
-      }
-   ]
+   src/manage.py demo_data 
 
-.. note::
+To index the newly created zaken in OAB, make sure that you have celery running 
+(from the ``backend`` folder run `./bin/celery_worker.sh`) and then run:
 
-   This Open Zaak instance and these fixtures have been used to record the VCR cassettes!
+.. code:: bash
+
+   src/manage.py resync_zaken
+
+
