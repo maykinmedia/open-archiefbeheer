@@ -278,40 +278,40 @@ msgstr ""
 
 #: openarchiefbeheer/config/api/views.py:198
 msgid "Retrieve archive configuration"
-msgstr ""
+msgstr "Archiefconfiguratie ophalen"
 
 #: openarchiefbeheer/config/api/views.py:199
 msgid "Retrieve archive configuration."
-msgstr ""
+msgstr "Haal de archiefconfiguratie op."
 
 #: openarchiefbeheer/config/api/views.py:221
 #: openarchiefbeheer/config/api/views.py:231
 msgid "Update archive configuration"
-msgstr ""
+msgstr "Archiefconfiguratie bijwerken"
 
 #: openarchiefbeheer/config/api/views.py:222
 msgid "Update archive configuration."
-msgstr ""
+msgstr "Werk de archiefconfiguratie bij."
 
 #: openarchiefbeheer/config/api/views.py:232
 msgid "Partially update archive configuration."
-msgstr ""
+msgstr "Werk de archiefconfiguratie gedeeltelijk bij."
 
 #: openarchiefbeheer/config/api/views.py:245
 msgid "Retrieve OIDC info"
-msgstr ""
+msgstr "OIDC-informatie ophalen"
 
 #: openarchiefbeheer/config/api/views.py:246
 msgid "Returns info about OIDC that is needed by the frontend. "
-msgstr ""
+msgstr "Geeft informatie over OIDC terug die nodig is voor de frontend. "
 
 #: openarchiefbeheer/config/api/views.py:260
 msgid "App info"
-msgstr ""
+msgstr "Applicatie-informatie"
 
 #: openarchiefbeheer/config/api/views.py:261
 msgid "Returns information about the application."
-msgstr ""
+msgstr "Geeft informatie over de applicatie terug."
 
 #: openarchiefbeheer/config/health_checks.py:22
 msgid "Services presence"
@@ -329,7 +329,7 @@ msgstr "Alle verwachte services zijn aanwezig."
 #: openarchiefbeheer/config/health_checks.py:64
 #| msgid "email configuration"
 msgid "Services configuration"
-msgstr "E-mail configuratie"
+msgstr "Services configuratie"
 
 #: openarchiefbeheer/config/health_checks.py:76
 #, python-format
@@ -970,7 +970,7 @@ msgstr ""
 #: openarchiefbeheer/destruction/api/viewsets.py:312
 #, python-format
 msgid "This list is already planned to be destroyed on %(destruction_date)s."
-msgstr ""
+msgstr "Deze lijst is al gepland om vernietigd te worden op %(destruction_date)s."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:378
 msgid ""
@@ -1151,19 +1151,19 @@ msgstr "vernietigd"
 
 #: openarchiefbeheer/destruction/constants.py:16
 msgid "suggested for destruction"
-msgstr ""
+msgstr "voorgesteld voor vernietiging"
 
 #: openarchiefbeheer/destruction/constants.py:17
 msgid "removed from the destruction list during review"
-msgstr ""
+msgstr "verwijderd van de vernietigingslijst tijdens beoordeling"
 
 #: openarchiefbeheer/destruction/constants.py:21
 msgid "accepted"
-msgstr ""
+msgstr "geaccepteerd"
 
 #: openarchiefbeheer/destruction/constants.py:22
 msgid "rejected"
-msgstr ""
+msgstr "afgewezen"
 
 #: openarchiefbeheer/destruction/constants.py:26
 msgid "main reviewer"
@@ -1171,50 +1171,50 @@ msgstr "hoofd beoordelaar"
 
 #: openarchiefbeheer/destruction/constants.py:27
 msgid "co-reviewer"
-msgstr ""
+msgstr "medebeoordelaar"
 
 #: openarchiefbeheer/destruction/constants.py:28
 #: openarchiefbeheer/destruction/models.py:57
 #: openarchiefbeheer/destruction/models.py:496
 #: openarchiefbeheer/destruction/models.py:565
 msgid "author"
-msgstr ""
+msgstr "auteur"
 
 #: openarchiefbeheer/destruction/constants.py:29
 msgid "archivist"
-msgstr ""
+msgstr "archivaris"
 
 #: openarchiefbeheer/destruction/constants.py:33
 msgid "keep"
-msgstr ""
+msgstr "behouden"
 
 #: openarchiefbeheer/destruction/constants.py:34
 msgid "remove"
-msgstr ""
+msgstr "verwijderen"
 
 #: openarchiefbeheer/destruction/constants.py:40
 msgid "selectielijstklasse and bewaartermijn"
-msgstr ""
+msgstr "selectielijstklasse en bewaartermijn"
 
 #: openarchiefbeheer/destruction/constants.py:42
 msgid "bewaartermijn"
-msgstr ""
+msgstr "bewaartermijn"
 
 #: openarchiefbeheer/destruction/constants.py:47
 msgid "queued"
-msgstr ""
+msgstr "in wachtrij"
 
 #: openarchiefbeheer/destruction/constants.py:48
 msgid "processing"
-msgstr ""
+msgstr "in verwerking"
 
 #: openarchiefbeheer/destruction/constants.py:49
 msgid "failed"
-msgstr ""
+msgstr "mislukt"
 
 #: openarchiefbeheer/destruction/constants.py:50
 msgid "succeeded"
-msgstr ""
+msgstr "geslaagd"
 
 #: openarchiefbeheer/destruction/destruction_report.py:32
 msgid "Group"
@@ -1270,7 +1270,7 @@ msgstr "naam"
 
 #: openarchiefbeheer/destruction/models.py:52
 msgid "uuid"
-msgstr ""
+msgstr "uuid"
 
 #: openarchiefbeheer/destruction/models.py:58
 msgid "Creator of destruction list."
@@ -1288,15 +1288,15 @@ msgstr "Toelichting bij de vernietigingslijst."
 
 #: openarchiefbeheer/destruction/models.py:68
 msgid "end"
-msgstr ""
+msgstr "einde"
 
 #: openarchiefbeheer/destruction/models.py:72
 msgid "The timestamp at which all the cases in the list have been deleted."
-msgstr ""
+msgstr "Het tijdstip waarop alle zaken in de lijst zijn verwijderd."
 
 #: openarchiefbeheer/destruction/models.py:76
 msgid "contains sensitive information"
-msgstr ""
+msgstr "bevat gevoelige informatie"
 
 #: openarchiefbeheer/destruction/models.py:78
 msgid ""
@@ -1304,14 +1304,17 @@ msgid ""
 "set to true, the report of destruction will NOT contain case descriptions or "
 "the remarks by the reviewers."
 msgstr ""
+"Geef aan of deze vernietigingslijst privacygevoelige gegevens bevat. Indien "
+"ingesteld op waar, zal de verklaring van vernietiging GEEN zaakbeschrijvingen "
+"of opmerkingen van beoordelaars bevatten."
 
 #: openarchiefbeheer/destruction/models.py:90
 msgid "assignee"
-msgstr ""
+msgstr "toegewezen persoon"
 
 #: openarchiefbeheer/destruction/models.py:91
 msgid "Currently assigned user."
-msgstr ""
+msgstr "Momenteel toegewezen gebruiker."
 
 #: openarchiefbeheer/destruction/models.py:94
 #: openarchiefbeheer/destruction/models.py:342
@@ -1320,39 +1323,41 @@ msgstr "status"
 
 #: openarchiefbeheer/destruction/models.py:100
 msgid "status changed"
-msgstr ""
+msgstr "status gewijzigd"
 
 #: openarchiefbeheer/destruction/models.py:101
 msgid "Tracks when the status was changed."
-msgstr ""
+msgstr "Houdt bij wanneer de status is gewijzigd."
 
 #: openarchiefbeheer/destruction/models.py:106
 msgid "zaak destruction report URL"
-msgstr ""
+msgstr "zaak verklaring van vernietiging URL"
 
 #: openarchiefbeheer/destruction/models.py:108
 msgid ""
 "The URL of the case containing the destruction report for this destruction "
 "list."
 msgstr ""
+"De URL van de zaak die de verklaring van vernietiging voor deze "
+"vernietigingslijst bevat."
 
 #: openarchiefbeheer/destruction/models.py:114
 #: openarchiefbeheer/destruction/models.py:354
 #: openarchiefbeheer/destruction/models.py:673
 msgid "processing status"
-msgstr ""
+msgstr "verwerkingsstatus"
 
 #: openarchiefbeheer/destruction/models.py:118
 msgid "Field used to track the status of the deletion of a destruction list."
-msgstr ""
+msgstr "Veld gebruikt om de status van de verwijdering van een vernietigingslijst bij te houden."
 
 #: openarchiefbeheer/destruction/models.py:123
 msgid "planned destruction date"
-msgstr ""
+msgstr "geplande vernietigingsdatum"
 
 #: openarchiefbeheer/destruction/models.py:124
 msgid "Date from which this destruction list can be deleted."
-msgstr ""
+msgstr "Datum vanaf wanneer deze vernietigingslijst kan worden verwijderd."
 
 #: openarchiefbeheer/destruction/models.py:129
 msgid "destruction report"
@@ -1361,13 +1366,16 @@ msgstr "verklaring van vernietiging"
 #: openarchiefbeheer/destruction/models.py:135
 #: openarchiefbeheer/destruction/models.py:363
 msgid "internal result"
-msgstr ""
+msgstr "intern resultaat"
 
 #: openarchiefbeheer/destruction/models.py:137
 msgid ""
 "After this list is processed, the URL of the resources created in Open Zaak "
 "to store the destruction report are stored here."
 msgstr ""
+"Nadat deze lijst is verwerkt, worden hier de URL's opgeslagen van de "
+"resources die in Open Zaak zijn aangemaakt om de verklaring van vernietiging "
+"op te slaan."
 
 #: openarchiefbeheer/destruction/models.py:148
 #: openarchiefbeheer/destruction/models.py:323
@@ -1380,179 +1388,189 @@ msgstr "vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:149
 msgid "destruction lists"
-msgstr ""
+msgstr "vernietigingslijsten"
 
 #: openarchiefbeheer/destruction/models.py:329
 msgid "zaak"
-msgstr ""
+msgstr "zaak"
 
 #: openarchiefbeheer/destruction/models.py:334
 #: openarchiefbeheer/selection/models.py:15
 msgid "zaak url"
-msgstr ""
+msgstr "zaak-URL"
 
 #: openarchiefbeheer/destruction/models.py:337
 msgid ""
 "Keep a relation to the zaak for when the zaken cached are being re-synced."
 msgstr ""
+"Behoud een relatie met de zaak voor wanneer de gecachte zaken opnieuw "
+"worden gesynchroniseerd."
 
 #: openarchiefbeheer/destruction/models.py:348
 msgid "extra zaak data"
-msgstr ""
+msgstr "extra zaakgegevens"
 
 #: openarchiefbeheer/destruction/models.py:349
 msgid "Additional information of the zaak"
-msgstr ""
+msgstr "Aanvullende informatie van de zaak"
 
 #: openarchiefbeheer/destruction/models.py:358
 msgid ""
 "Field used to track the status of the deletion of a destruction list item."
-msgstr ""
+msgstr "Veld gebruikt om de status van de verwijdering van een vernietigingslijst-item bij te houden."
 
 #: openarchiefbeheer/destruction/models.py:365
 msgid ""
 "When this item gets processed, the URL of the resources deleted from Open "
 "Zaak get stored here."
 msgstr ""
+"Wanneer dit item wordt verwerkt, worden hier de URL's opgeslagen van de "
+"resources die uit Open Zaak zijn verwijderd."
 
 #: openarchiefbeheer/destruction/models.py:375
 msgid ""
 "URLs of the related resources (Zaak Objecten) that will not be destroyed "
 "when destroying the zaak."
 msgstr ""
+"URL's van de gerelateerde resources (Zaak Objecten) die niet worden "
+"vernietigd bij het vernietigen van de zaak."
 
 #: openarchiefbeheer/destruction/models.py:381
 #: openarchiefbeheer/destruction/models.py:531
 msgid "destruction list item"
-msgstr ""
+msgstr "vernietigingslijst-item"
 
 #: openarchiefbeheer/destruction/models.py:382
 msgid "destruction list items"
-msgstr ""
+msgstr "vernietigingslijst-items"
 
 #: openarchiefbeheer/destruction/models.py:453
 msgid "The user assigned to the destruction list."
-msgstr ""
+msgstr "De gebruiker toegewezen aan de vernietigingslijst."
 
 #: openarchiefbeheer/destruction/models.py:455
 msgid "assigned on"
-msgstr ""
+msgstr "toegewezen op"
 
 #: openarchiefbeheer/destruction/models.py:457
 msgid "role"
-msgstr ""
+msgstr "rol"
 
 #: openarchiefbeheer/destruction/models.py:464
 msgid "destruction list assignee"
-msgstr ""
+msgstr "toegewezen persoon vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:465
 msgid "destruction list assignees"
-msgstr ""
+msgstr "toegewezen personen vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:497
 #: openarchiefbeheer/destruction/models.py:566
 msgid "User who created the review."
-msgstr ""
+msgstr "Gebruiker die de beoordeling heeft aangemaakt."
 
 #: openarchiefbeheer/destruction/models.py:500
 msgid "decision"
-msgstr ""
+msgstr "beslissing"
 
 #: openarchiefbeheer/destruction/models.py:506
 #: openarchiefbeheer/destruction/models.py:570
 msgid "list feedback"
-msgstr ""
+msgstr "feedback op lijst"
 
 #: openarchiefbeheer/destruction/models.py:509
 #: openarchiefbeheer/destruction/models.py:573
 msgid "Feedback about the destruction list as a whole."
-msgstr ""
+msgstr "Feedback over de vernietigingslijst als geheel."
 
 #: openarchiefbeheer/destruction/models.py:513
 msgid "destruction list review"
-msgstr ""
+msgstr "beoordeling vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:514
 msgid "destruction list reviews"
-msgstr ""
+msgstr "beoordelingen vernietigingslijst"
 
 #: openarchiefbeheer/destruction/models.py:537
 #: openarchiefbeheer/destruction/models.py:585
 msgid "review"
-msgstr ""
+msgstr "beoordeling"
 
 #: openarchiefbeheer/destruction/models.py:540
 msgid "feedback"
-msgstr ""
+msgstr "feedback"
 
 #: openarchiefbeheer/destruction/models.py:543
 msgid "What needs to be changed about the case."
-msgstr ""
+msgstr "Wat er aan de zaak moet worden gewijzigd."
 
 #: openarchiefbeheer/destruction/models.py:547
 msgid "destruction list item review"
-msgstr ""
+msgstr "beoordeling vernietigingslijst-item"
 
 #: openarchiefbeheer/destruction/models.py:548
 msgid "destruction list item reviews"
-msgstr ""
+msgstr "beoordelingen vernietigingslijst-items"
 
 #: openarchiefbeheer/destruction/models.py:591
 msgid "The response of the author of the destruction list to a review."
-msgstr ""
+msgstr "De reactie van de auteur van de vernietigingslijst op een beoordeling."
 
 #: openarchiefbeheer/destruction/models.py:596
 msgid "review response"
-msgstr ""
+msgstr "reactie op beoordeling"
 
 #: openarchiefbeheer/destruction/models.py:597
 msgid "review responses"
-msgstr ""
+msgstr "reacties op beoordelingen"
 
 #: openarchiefbeheer/destruction/models.py:642
 msgid "review item"
-msgstr ""
+msgstr "beoordelingsitem"
 
 #: openarchiefbeheer/destruction/models.py:645
 msgid "action item"
-msgstr ""
+msgstr "actie-item"
 
 #: openarchiefbeheer/destruction/models.py:650
 msgid "action zaak type"
-msgstr ""
+msgstr "actietype zaak"
 
 #: openarchiefbeheer/destruction/models.py:653
 msgid "What type of change to do on the case. "
-msgstr ""
+msgstr "Welk type wijziging op de zaak moet worden toegepast. "
 
 #: openarchiefbeheer/destruction/models.py:657
 msgid "action case"
-msgstr ""
+msgstr "actie zaak"
 
 #: openarchiefbeheer/destruction/models.py:659
 msgid "Fields that should be changed on the case."
-msgstr ""
+msgstr "Velden die op de zaak moeten worden gewijzigd."
 
 #: openarchiefbeheer/destruction/models.py:668
 msgid ""
 "The response of the author of the destruction list to feedback of the "
 "reviewer on a specific case."
 msgstr ""
+"De reactie van de auteur van de vernietigingslijst op feedback van de "
+"beoordelaar op een specifieke zaak."
 
 #: openarchiefbeheer/destruction/models.py:677
 msgid ""
 "Field used to track the status of the changes that should be made to a "
 "destruction list item and the corresponding case."
 msgstr ""
+"Veld gebruikt om de status bij te houden van de wijzigingen die moeten "
+"worden aangebracht aan een vernietigingslijst-item en de bijbehorende zaak."
 
 #: openarchiefbeheer/destruction/models.py:683
 msgid "review item response"
-msgstr ""
+msgstr "reactie op beoordelingsitem"
 
 #: openarchiefbeheer/destruction/models.py:684
 msgid "review item responses"
-msgstr ""
+msgstr "reacties op beoordelingsitems"
 
 #: openarchiefbeheer/destruction/utils.py:205
 msgid "Destruction report"
@@ -1567,237 +1585,283 @@ msgstr ""
 
 #: openarchiefbeheer/emails/admin.py:13
 msgid "Template review request"
-msgstr ""
+msgstr "Sjabloon beoordelingsverzoek"
 
 #: openarchiefbeheer/emails/admin.py:26
 msgid "Template review reminder"
-msgstr ""
+msgstr "Sjabloon beoordelingsherinnering"
 
 #: openarchiefbeheer/emails/admin.py:36
 msgid "Template changes requested"
-msgstr ""
+msgstr "Sjabloon wijzigingen aangevraagd"
 
 #: openarchiefbeheer/emails/admin.py:46
 msgid "Templates positive review"
-msgstr ""
+msgstr "Sjabloon positieve beoordeling"
 
 #: openarchiefbeheer/emails/admin.py:56
 msgid "Templates error during deletion"
-msgstr ""
+msgstr "Sjabloon fout tijdens vernietiging"
 
 #: openarchiefbeheer/emails/admin.py:66
 msgid "Templates successful deletion"
-msgstr ""
+msgstr "Sjabloon succesvolle vernietiging"
 
 #: openarchiefbeheer/emails/models.py:10
 msgid "subject review required"
-msgstr ""
+msgstr "onderwerp beoordeling vereist"
 
 #: openarchiefbeheer/emails/models.py:12
 msgid ""
 "Subject of the email that will be sent to a reviewer when there is a "
 "destruction list ready to be reviewed."
 msgstr ""
+"Onderwerp van de e-mail die naar een beoordelaar wordt gestuurd wanneer er "
+"een vernietigingslijst klaar is voor beoordeling."
 
 #: openarchiefbeheer/emails/models.py:18
 msgid "html body review required"
-msgstr ""
+msgstr "html-inhoud beoordeling vereist"
 
 #: openarchiefbeheer/emails/models.py:20
 msgid ""
 "HTML body of the email that will be sent to a reviewer when there is a "
 "destruction list ready to be reviewed."
 msgstr ""
+"HTML-inhoud van de e-mail die naar een beoordelaar wordt gestuurd wanneer er "
+"een vernietigingslijst klaar is voor beoordeling."
 
 #: openarchiefbeheer/emails/models.py:26
 msgid "text body review required"
-msgstr ""
+msgstr "tekstinhoud beoordeling vereist"
 
 #: openarchiefbeheer/emails/models.py:28
 msgid ""
 "Plain text body of the email that will be sent to a reviewer when there is a "
 "destruction list ready to be reviewed."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar een beoordelaar wordt gestuurd "
+"wanneer er een vernietigingslijst klaar is voor beoordeling."
 
 #: openarchiefbeheer/emails/models.py:35
 msgid "subject review reminder"
-msgstr ""
+msgstr "onderwerp beoordelingsherinnering"
 
 #: openarchiefbeheer/emails/models.py:37
 msgid ""
 "Subject of the email that will be sent to a reviewer after a configured "
 "period of time if they still haven't reviewed a destruction list."
 msgstr ""
+"Onderwerp van de e-mail die naar een beoordelaar wordt gestuurd nadat een "
+"geconfigureerde periode is verstreken als ze een vernietigingslijst nog niet "
+"hebben beoordeeld."
 
 #: openarchiefbeheer/emails/models.py:43
 msgid "html body review reminder"
-msgstr ""
+msgstr "html-inhoud beoordelingsherinnering"
 
 #: openarchiefbeheer/emails/models.py:45
 msgid ""
 "HTML body of the email that will be sent to a reviewer after a configured "
 "period of time if they still haven't reviewed a destruction list."
 msgstr ""
+"HTML-inhoud van de e-mail die naar een beoordelaar wordt gestuurd nadat een "
+"geconfigureerde periode is verstreken als ze een vernietigingslijst nog niet "
+"hebben beoordeeld."
 
 #: openarchiefbeheer/emails/models.py:51
 msgid "text body review reminder"
-msgstr ""
+msgstr "tekstinhoud beoordelingsherinnering"
 
 #: openarchiefbeheer/emails/models.py:53
 msgid ""
 "Plain text body of the email that will be sent to a reviewer after a "
 "configured period of time if they still haven't reviewed a destruction list."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar een beoordelaar wordt gestuurd na "
+"een geconfigureerde periode als ze een vernietigingslijst nog niet hebben "
+"beoordeeld."
 
 #: openarchiefbeheer/emails/models.py:60
 msgid "subject changes requested"
-msgstr ""
+msgstr "onderwerp wijzigingen aangevraagd"
 
 #: openarchiefbeheer/emails/models.py:62
 msgid ""
 "Subject of the email that will be sent to the record manager when a reviewer "
 "has requested changes to a destruction list."
 msgstr ""
+"Onderwerp van de e-mail die naar de record manager wordt gestuurd wanneer een "
+"beoordelaar wijzigingen heeft aangevraagd voor een vernietigingslijst."
 
 #: openarchiefbeheer/emails/models.py:68
 msgid "html body changes requested"
-msgstr ""
+msgstr "html-inhoud wijzigingen aangevraagd"
 
 #: openarchiefbeheer/emails/models.py:70
 msgid ""
 "HTML body of the email that will be sent to the record manager when a "
 "reviewer has requested changes to a destruction list."
 msgstr ""
+"HTML-inhoud van de e-mail die naar de record manager wordt gestuurd wanneer "
+"een beoordelaar wijzigingen heeft aangevraagd voor een vernietigingslijst."
 
 #: openarchiefbeheer/emails/models.py:76
 msgid "text body changes requested"
-msgstr ""
+msgstr "tekstinhoud wijzigingen aangevraagd"
 
 #: openarchiefbeheer/emails/models.py:78
 msgid ""
 "Plain text body of the email that will be sent to the record manager when a "
 "reviewer has requested changes to a destruction list."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar de record manager wordt gestuurd "
+"wanneer een beoordelaar wijzigingen heeft aangevraagd voor een "
+"vernietigingslijst."
 
 #: openarchiefbeheer/emails/models.py:85
 msgid "subject positive review"
-msgstr ""
+msgstr "onderwerp positieve beoordeling"
 
 #: openarchiefbeheer/emails/models.py:87
 msgid ""
 "Subject of the email that will be sent to the record manager when a reviewer "
 "has approved a destruction list."
 msgstr ""
+"Onderwerp van de e-mail die naar de record manager wordt gestuurd wanneer een "
+"beoordelaar een vernietigingslijst heeft goedgekeurd."
 
 #: openarchiefbeheer/emails/models.py:93
 msgid "html body positive review"
-msgstr ""
+msgstr "html-inhoud positieve beoordeling"
 
 #: openarchiefbeheer/emails/models.py:95
 msgid ""
 "HTML body of the email that will be sent to the record manager when a "
 "reviewer has approved a destruction list."
 msgstr ""
+"HTML-inhoud van de e-mail die naar de record manager wordt gestuurd wanneer "
+"een beoordelaar een vernietigingslijst heeft goedgekeurd."
 
 #: openarchiefbeheer/emails/models.py:101
 msgid "text body positive review"
-msgstr ""
+msgstr "tekstinhoud positieve beoordeling"
 
 #: openarchiefbeheer/emails/models.py:103
 msgid ""
 "Plain text body of the email that will be sent to the record manager when a "
 "reviewer has approved a destruction list."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar de record manager wordt gestuurd "
+"wanneer een beoordelaar een vernietigingslijst heeft goedgekeurd."
 
 #: openarchiefbeheer/emails/models.py:110
 msgid "subject co-review request"
-msgstr ""
+msgstr "onderwerp verzoek medebeoordeling"
 
 #: openarchiefbeheer/emails/models.py:112
 msgid ""
 "Subject of the email that will be sent to the co-reviewer(s) when the main "
 "reviewer assigns them."
 msgstr ""
+"Onderwerp van de e-mail die naar de medebeoordelaar(s) wordt gestuurd wanneer "
+"de hoofdbeoordelaar deze toewijst."
 
 #: openarchiefbeheer/emails/models.py:118
 msgid "HTML body co-review request"
-msgstr ""
+msgstr "html-inhoud verzoek medebeoordeling"
 
 #: openarchiefbeheer/emails/models.py:120
 msgid ""
 "HTML body of the email that will be sent to the co-reviewer(s) when the main "
 "reviewer assigns them."
 msgstr ""
+"HTML-inhoud van de e-mail die naar de medebeoordelaar(s) wordt gestuurd wanneer "
+"de hoofdbeoordelaar deze toewijst."
 
 #: openarchiefbeheer/emails/models.py:126
 msgid "text body co-review request"
-msgstr ""
+msgstr "tekstinhoud verzoek medebeoordeling"
 
 #: openarchiefbeheer/emails/models.py:128
 msgid ""
 "Plain text body of the email that will be sent to the co-reviewer(s) when "
 "the main reviewer assigns them."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar de medebeoordelaar(s) wordt gestuurd "
+"wanneer de hoofdbeoordelaar deze toewijst."
 
 #: openarchiefbeheer/emails/models.py:135
 msgid "subject error during deletion"
-msgstr ""
+msgstr "onderwerp fout tijdens vernietiging"
 
 #: openarchiefbeheer/emails/models.py:137
 msgid ""
 "Subject of the email that will be sent to the record manager when an error "
 "happened during deletion."
 msgstr ""
+"Onderwerp van de e-mail die naar de record manager wordt gestuurd wanneer er "
+"een fout is opgetreden tijdens de vernietiging."
 
 #: openarchiefbeheer/emails/models.py:143
 msgid "HTML body error during deletion"
-msgstr ""
+msgstr "html-inhoud fout tijdens vernietiging"
 
 #: openarchiefbeheer/emails/models.py:145
 msgid ""
 "HTML body of the email that will be sent to the record manager when an error "
 "happened during deletion."
 msgstr ""
+"HTML-inhoud van de e-mail die naar de record manager wordt gestuurd wanneer er "
+"een fout is opgetreden tijdens de vernietiging."
 
 #: openarchiefbeheer/emails/models.py:151
 msgid "text body error during deletion"
-msgstr ""
+msgstr "tekstinhoud fout tijdens vernietiging"
 
 #: openarchiefbeheer/emails/models.py:153
 msgid ""
 "Plain text body of the email that will be sent to the record manager when an "
 "error happened during deletion."
 msgstr ""
+"Platte tekstinhoud van de e-mail die naar de record manager wordt gestuurd "
+"wanneer er een fout is opgetreden tijdens de vernietiging."
 
 #: openarchiefbeheer/emails/models.py:160
 msgid "subject successful deletion"
-msgstr ""
+msgstr "onderwerp succesvolle vernietiging"
 
 #: openarchiefbeheer/emails/models.py:162
 msgid ""
 "Subject of the email that will be sent to all the assignees when a list is "
 "successfully deleted."
 msgstr ""
+"Onderwerp van de e-mail die naar alle toegewezen personen wordt gestuurd wanneer "
+"een lijst succesvol is vernietigd."
 
 #: openarchiefbeheer/emails/models.py:168
 msgid "HTML body successful deletion"
-msgstr ""
+msgstr "html-inhoud succesvolle vernietiging"
 
 #: openarchiefbeheer/emails/models.py:170
 msgid ""
 "HTML body of the email that will be sent to all the assignees when a list is "
 "successfully deleted."
 msgstr ""
+"HTML-inhoud van de e-mail die naar alle toegewezen personen wordt gestuurd "
+"wanneer een lijst succesvol is vernietigd."
 
 #: openarchiefbeheer/emails/models.py:176
 msgid "text body successful deletion"
-msgstr ""
+msgstr "tekstinhoud succesvolle vernietiging"
 
 #: openarchiefbeheer/emails/models.py:178
 msgid ""
 "Text body of the email that will be sent to all the assignees when a list is "
 "successfully deleted."
 msgstr ""
+"Tekstinhoud van de e-mail die naar alle toegewezen personen wordt gestuurd "
+"wanneer een lijst succesvol is vernietigd."
 
 #: openarchiefbeheer/emails/models.py:185
 msgid "email configuration"
@@ -1809,31 +1873,31 @@ msgstr "E-mail configuraties"
 
 #: openarchiefbeheer/external_registers/admin.py:30
 msgid "One or more of the selected services are already used by another plugin"
-msgstr ""
+msgstr "Een of meer van de geselecteerde services worden al gebruikt door een andere plugin"
 
 #: openarchiefbeheer/external_registers/models.py:9
 msgid "identifier"
-msgstr ""
+msgstr "identifier"
 
 #: openarchiefbeheer/external_registers/models.py:11
 msgid "Identifier that used as a reference from the plugin."
-msgstr ""
+msgstr "Identifier die wordt gebruikt als referentie door de plugin."
 
 #: openarchiefbeheer/external_registers/models.py:14
 msgid "enabled"
-msgstr ""
+msgstr "ingeschakeld"
 
 #: openarchiefbeheer/external_registers/models.py:16
 msgid "Specifies whether the plugin is enabled."
-msgstr ""
+msgstr "Geeft aan of de plugin is ingeschakeld."
 
 #: openarchiefbeheer/external_registers/models.py:20
 msgid "services"
-msgstr ""
+msgstr "services"
 
 #: openarchiefbeheer/external_registers/models.py:22
 msgid "Services needed to talk to the external register instances."
-msgstr ""
+msgstr "Services die nodig zijn om te communiceren met de externe registers."
 
 #: openarchiefbeheer/external_registers/models.py:26
 #| msgid "email configuration"
@@ -1863,15 +1927,15 @@ msgstr "De instellingen van de {plugin_name}-plugin zijn correct geconfigureerd.
 
 #: openarchiefbeheer/logging/api/filtersets.py:15
 msgid "Retrieve the logs of a particular destruction list."
-msgstr ""
+msgstr "Haal de logs op van een specifieke vernietigingslijst."
 
 #: openarchiefbeheer/logging/api/filtersets.py:20
 msgid "Retrieve the logs for a particular event."
-msgstr ""
+msgstr "Haal de logs op voor een specifieke gebeurtenis."
 
 #: openarchiefbeheer/logging/api/viewsets.py:16
 msgid "List logs"
-msgstr ""
+msgstr "Logs tonen"
 
 #: openarchiefbeheer/logging/templates/logging/destruction_list_aborted.txt:3
 #, python-format
@@ -2009,20 +2073,20 @@ msgstr "Uw sessie is verlopen, log alstublieft opnieuw in."
 
 #: openarchiefbeheer/selection/api/filtersets.py:18
 msgid "Filter on selected items."
-msgstr ""
+msgstr "Filter op geselecteerde items."
 
 #: openarchiefbeheer/selection/api/filtersets.py:23
 msgid "Filter on annotated items."
-msgstr ""
+msgstr "Filter op geannoteerde items."
 
 #: openarchiefbeheer/selection/api/filtersets.py:28
 msgid "Filter on the zaak url of one of more items separated by commas"
-msgstr ""
+msgstr "Filter op de zaak-URL van een of meerdere items, gescheiden door komma’s."
 
 #: openarchiefbeheer/selection/api/serializers.py:47
 #, python-format
 msgid "Too much data passed, limit is %(max_size)s bytes"
-msgstr ""
+msgstr "Te veel data meegegeven, limiet is %(max_size)s bytes"
 
 #: openarchiefbeheer/destruction/api/views.py:38
 msgid ""
@@ -2034,94 +2098,100 @@ msgstr ""
 
 #: openarchiefbeheer/selection/api/views.py:45
 msgid "Get selection"
-msgstr ""
+msgstr "Selectie ophalen"
 
 #: openarchiefbeheer/selection/api/views.py:47
 msgid "Get the zaken in a selection and whether they are checked or not."
-msgstr ""
+msgstr "Haal de zaken in een selectie op en of ze aangevinkt zijn of niet."
 
 #: openarchiefbeheer/selection/api/views.py:62
 msgid "Update to selection"
-msgstr ""
+msgstr "Selectie bijwerken"
 
 #: openarchiefbeheer/selection/api/views.py:63
 msgid "Fully update a selection."
-msgstr ""
+msgstr "Selectie volledig bijwerken."
 
 #: openarchiefbeheer/selection/api/views.py:82
 msgid "Partial update to selection"
-msgstr ""
+msgstr "Selectie gedeeltelijk bijwerken"
 
 #: openarchiefbeheer/selection/api/views.py:83
 msgid "Partially update a selection."
-msgstr ""
+msgstr "Selectie gedeeltelijk bijwerken."
 
 #: openarchiefbeheer/selection/api/views.py:102
 msgid "Clear selection"
-msgstr ""
+msgstr "Selectie wissen"
 
 #: openarchiefbeheer/selection/api/views.py:103
 msgid "Clear a selection."
-msgstr ""
+msgstr "Wis een selectie."
 
 #: openarchiefbeheer/selection/api/views.py:126
 msgid "Count selected items"
-msgstr ""
+msgstr "Aantal geselecteerde items"
 
 #: openarchiefbeheer/selection/api/views.py:128
 msgid ""
 "Retrieve how many items are selected. It does not take into account the "
 "'selected all' toggle."
 msgstr ""
+"Haalt op hoeveel items geselecteerd zijn. Houdt geen rekening met de "
+"'selecteer alles' toggle."
 
 #: openarchiefbeheer/selection/api/views.py:148
 msgid "Select all (on)"
-msgstr ""
+msgstr "Selecteer alles (aan)"
 
 #: openarchiefbeheer/selection/api/views.py:149
 msgid "Toggle the selected_all property to true."
-msgstr ""
+msgstr "Zet de selected_all eigenschap op waar."
 
 #: openarchiefbeheer/selection/api/views.py:167
 msgid "Select all (off)"
-msgstr ""
+msgstr "Selecteer alles (uit)"
 
 #: openarchiefbeheer/selection/api/views.py:168
 msgid "Toggle the selected_all property to false."
-msgstr ""
+msgstr "Zet de selected_all eigenschap op onwaar."
 
 #: openarchiefbeheer/selection/api/views.py:186
 msgid "Get select all value"
-msgstr ""
+msgstr "Selecteer alles waarde ophalen"
 
 #: openarchiefbeheer/selection/api/views.py:188
 msgid ""
 "Check if all the items in a selection are selected with the 'select all' "
 "toggle."
 msgstr ""
+"Controleer of alle items in een selectie geselecteerd zijn met de 'selecteer "
+"alles' toggle."
 
 #: openarchiefbeheer/selection/models.py:7
 #: openarchiefbeheer/selection/models.py:30
 msgid "key"
-msgstr ""
+msgstr "sleutel"
 
 #: openarchiefbeheer/selection/models.py:9
 msgid ""
 "The key to access this selection. It should be the uuid of a destruction "
 "list and an action name."
 msgstr ""
+"De sleutel om deze selectie te openen. Dit moet de uuid zijn van een "
+"vernietigingslijst en een actienaam."
 
 #: openarchiefbeheer/selection/models.py:15
 msgid "The url of a zaak in the list."
-msgstr ""
+msgstr "De URL van een zaak in de lijst."
 
 #: openarchiefbeheer/selection/models.py:18
 msgid "selection data"
-msgstr ""
+msgstr "selectiegegevens"
 
 #: openarchiefbeheer/selection/models.py:19
 msgid "Data about this item in the selection"
-msgstr ""
+msgstr "Gegevens over dit item in de selectie"
 
 #: openarchiefbeheer/selection/models.py:24
 msgid "selection item"
@@ -2133,23 +2203,23 @@ msgstr "selectie items"
 
 #: openarchiefbeheer/selection/models.py:31
 msgid "The key to access this selection. "
-msgstr ""
+msgstr "De sleutel om deze selectie te openen."
 
 #: openarchiefbeheer/selection/models.py:36
 msgid "all selected"
-msgstr ""
+msgstr "alles geselecteerd"
 
 #: openarchiefbeheer/selection/models.py:37
 msgid "Toggle to set all the items in the selection to 'selected'."
-msgstr ""
+msgstr "Schakel om alle items in de selectie op 'geselecteerd' te zetten."
 
 #: openarchiefbeheer/selection/models.py:42
 msgid "all selected toggle"
-msgstr ""
+msgstr "toggle alles geselecteerd"
 
 #: openarchiefbeheer/selection/models.py:43
 msgid "all selected toggles"
-msgstr ""
+msgstr "toggles alles geselecteerd"
 
 #: openarchiefbeheer/templates/admin/base_site.html:5
 #: openarchiefbeheer/templates/admin/base_site.html:22
@@ -2158,11 +2228,11 @@ msgstr "Beheer"
 
 #: openarchiefbeheer/templates/admin/base_site.html:33
 msgid "View site"
-msgstr ""
+msgstr "Bekijk site"
 
 #: openarchiefbeheer/templates/admin/base_site.html:39
 msgid "Account security"
-msgstr ""
+msgstr "Accountbeveiliging"
 
 #: openarchiefbeheer/templates/admin/base_site.html:42
 msgid "Change password"
@@ -2211,11 +2281,11 @@ msgstr "Inloggen als %(username)s"
 
 #: openarchiefbeheer/templates/maykin_2fa/login.html:14
 msgid "Login with OIDC"
-msgstr ""
+msgstr "Inloggen met OIDC"
 
 #: openarchiefbeheer/templates/maykin_2fa/login.html:23
 msgid "Contact support"
-msgstr ""
+msgstr "Neem contact op met support"
 
 #: openarchiefbeheer/templates/maykin_2fa/login.html:30
 #, python-format
@@ -2246,12 +2316,12 @@ msgstr "Leeg alleen de opgegeven cache"
 #: openarchiefbeheer/utils/templates/utils/includes/version_info.html:4
 #, python-format
 msgid "version %(RELEASE)s"
-msgstr ""
+msgstr "versie %(RELEASE)s"
 
 #: openarchiefbeheer/utils/templates/utils/includes/version_info.html:8
 #, python-format
 msgid "GIT SHA: %(GIT_SHA)s"
-msgstr ""
+msgstr "GIT SHA: %(GIT_SHA)s"
 
 #: openarchiefbeheer/utils/validators.py:23
 #, python-format
@@ -2268,21 +2338,25 @@ msgstr "Ongeldige postcode."
 
 #: openarchiefbeheer/zaken/admin.py:30
 msgid "Only POST request supported."
-msgstr ""
+msgstr "Alleen POST verzoek ondersteund."
 
 #: openarchiefbeheer/zaken/admin.py:39
 msgid ""
 "Syncing of the zaken will happen in the background. It may take a while."
 msgstr ""
+"Het synchroniseren van de zaken gebeurt op de achtergrond. Dit kan even "
+"duren."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:38
 msgid ""
 "If True, only cases not already included in a destruction list are returned."
 msgstr ""
+"Als True, worden alleen zaken teruggegeven die nog niet in een "
+"vernietigingslijst zijn opgenomen."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:44
 msgid "All cases included in a destruction list are returned."
-msgstr ""
+msgstr "Alle zaken die in een vernietigingslijst zijn opgenomen worden teruggegeven."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:50
 msgid ""
@@ -2290,10 +2364,13 @@ msgid ""
 "specified are returned. The cases that are included in the 'exception' list "
 "are returned first."
 msgstr ""
+"Alleen zaken die nog niet in een vernietigingslijst zijn opgenomen, behalve de "
+"specifieke, worden teruggegeven. De zaken die zijn opgenomen in de "
+"'exception'-lijst worden eerst teruggegeven."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:55
 msgid "Filter on the exact URL of resultaattype."
-msgstr ""
+msgstr "Filter op de exacte URL van het resultaattype."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:61
 msgid ""
@@ -2301,63 +2378,71 @@ msgid ""
 "'resultaat.resultaattype.archiefactietermijn'. This field is expressed in "
 "Open Zaak as a ISO8601 duration."
 msgstr ""
+"Filter op bewaartermijn. Dit komt overeen met de eigenschap "
+"'resultaat.resultaattype.archiefactietermijn'. Dit veld wordt in Open Zaak "
+"uitgedrukt als een ISO8601-duur."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:70
 msgid ""
 "Filter on VCS. This stands for 'Vernietigings-Categorie Selectielijst'. It "
 "is obtained through 'zaaktype.procestype.nummer'."
 msgstr ""
+"Filter op VCS. Dit staat voor 'Vernietigings-Categorie Selectielijst'. Het "
+"wordt verkregen via 'zaaktype.procestype.nummer'."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:79
 msgid ""
 "Filter on whether this case has other related cases. This is done by looking "
 "at the property 'relevanteAndereZaken'."
 msgstr ""
+"Filter op of deze zaak andere gerelateerde zaken heeft. Dit wordt gedaan "
+"door te kijken naar de eigenschap 'relevanteAndereZaken'."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:86
 msgid "Filter on the zaaktype identificatie."
-msgstr ""
+msgstr "Filter op de zaaktype identificatie."
 
 #: openarchiefbeheer/zaken/api/filtersets.py:93
 msgid "Filter on zaken that have received negative feedback in a review."
-msgstr ""
+msgstr "Filter op zaken die negatieve feedback hebben ontvangen in een beoordeling."
 
 #: openarchiefbeheer/zaken/api/serializers.py:78
 msgid "The description field of the choice."
-msgstr ""
+msgstr "Het beschrijvingsveld van de keuze."
 
 #: openarchiefbeheer/zaken/api/serializers.py:80
 msgid "The URL of the choice."
-msgstr ""
+msgstr "De URL van de keuze."
 
 #: openarchiefbeheer/zaken/api/serializers.py:83
 msgid "Any extra information about this choice."
-msgstr ""
+msgstr "Eventuele extra informatie over deze keuze."
 
 #: openarchiefbeheer/zaken/api/serializers.py:92
 msgid ""
 "The URL of the zaak for which the selectielijstklasse choices are needed."
 msgstr ""
+"De URL van de zaak waarvoor de selectielijstklasse-keuzes nodig zijn."
 
 #: openarchiefbeheer/zaken/api/serializers.py:100
 msgid "The URL of the zaaktype on which to filter."
-msgstr ""
+msgstr "De URL van het zaaktype waarop gefilterd moet worden."
 
 #: openarchiefbeheer/zaken/api/serializers.py:104
 msgid "The identificatie of the zaaktype on which to filter."
-msgstr ""
+msgstr "De identificatie van het zaaktype waarop gefilterd moet worden."
 
 #: openarchiefbeheer/zaken/api/views.py:36
 msgid "Retrieve and cache zaken"
-msgstr ""
+msgstr "Zaken ophalen en cachen"
 
 #: openarchiefbeheer/zaken/api/views.py:37
 msgid "Retrieve and cache zaken from OpenZaak in the background."
-msgstr ""
+msgstr "Haal zaken uit OpenZaak op en cache ze op de achtergrond."
 
 #: openarchiefbeheer/zaken/api/views.py:73
 msgid "Retrieve local zaaktypen choices"
-msgstr ""
+msgstr "Lokale zaaktypen keuzes ophalen"
 
 #: openarchiefbeheer/zaken/api/views.py:75
 #: openarchiefbeheer/zaken/api/views.py:92
@@ -2370,14 +2455,21 @@ msgid ""
 "returned. All the filters for the zaken are available to limit which "
 "zaaktypen should be returned."
 msgstr ""
+"Haal zaaktypen op van de zaken die zijn opgeslagen in de OAB-database en "
+"geef een waarde en een label per zaaktype terug. Het label is het veld "
+"'identificatie' en de waarde is een string van door komma's gescheiden URL's. "
+"Er zijn meerdere URL's per identificatie als er meerdere versies van een "
+"zaaktype zijn. Als er geen zaken van een bepaald zaaktype in de database "
+"staan, wordt dat zaaktype niet teruggegeven. Alle filters voor de zaken zijn "
+"beschikbaar om te beperken welke zaaktypen moeten worden teruggegeven."
 
 #: openarchiefbeheer/zaken/api/views.py:90
 msgid "Search local zaaktypen choices"
-msgstr ""
+msgstr "Zoek lokale zaaktypen keuzes"
 
 #: openarchiefbeheer/zaken/api/views.py:111
 msgid "Retrieve selectielijstklasse choices"
-msgstr ""
+msgstr "Selectielijstklasse keuzes ophalen"
 
 #: openarchiefbeheer/zaken/api/views.py:113
 msgid ""
@@ -2386,10 +2478,14 @@ msgid ""
 "the 'resultaten' possible for the given 'selectielijstprocestype' from the "
 "'zaaktype' of the zaak."
 msgstr ""
+"Geeft alle resultaten terug van de geconfigureerde selectielijst API met een "
+"geformatteerd label. Als de parameter 'zaak' wordt opgegeven, worden alle "
+"resultaten teruggegeven die mogelijk zijn voor het gegeven "
+"'selectielijstprocestype' van het 'zaaktype' van de zaak."
 
 #: openarchiefbeheer/zaken/api/views.py:143
 msgid "Retrieve internal selectielijstklasse choices"
-msgstr ""
+msgstr "Interne selectielijstklasse keuzes ophalen"
 
 #: openarchiefbeheer/zaken/api/views.py:145
 msgid ""
@@ -2397,56 +2493,70 @@ msgid ""
 "a zaak does not have a selectielijstklasse specified, it is deduced from the "
 "resultaat -> resultaattype -> selectielijstklasse."
 msgstr ""
+"Haal de selectielijstklasse-keuzes op voor zaken in de database. Opmerking: "
+"als een zaak geen selectielijstklasse heeft opgegeven, wordt deze afgeleid "
+"van resultaat -> resultaattype -> selectielijstklasse."
 
 #: openarchiefbeheer/zaken/api/views.py:201
 msgid "Retrieve internal resultaattype choices"
-msgstr ""
+msgstr "Interne resultaattype keuzes ophalen"
 
 #: openarchiefbeheer/zaken/api/views.py:202
 msgid "Retrieve the resultaattypen of the zaken in the database. "
-msgstr ""
+msgstr "Haal de resultaattypen van de zaken in de database op."
 
 #: openarchiefbeheer/zaken/api/views.py:240
 msgid "Retrieve behandelend afdeling choices"
-msgstr ""
+msgstr "Behandelend afdeling keuzes ophalen"
 
 #: openarchiefbeheer/zaken/api/views.py:242
 msgid ""
 "Retrieve the behandelend afdelingen the zaken in the database. These are "
 "rollen with betrokkeneType equal to \"organisatorische_eenheid\"."
 msgstr ""
+"Haal de behandelend afdelingen op van de zaken in de database. Dit zijn "
+"rollen met betrokkeneType gelijk aan \"organisatorische_eenheid\"."
 
 #: openarchiefbeheer/zaken/api/views.py:282
 msgid "Clear Django default cache"
-msgstr ""
+msgstr "Django standaard cache leegmaken"
 
 #: openarchiefbeheer/zaken/api/views.py:284
 msgid ""
 "Clear the backend Django default cache. This is useful when configuring "
 "resources in the Catalogi API have changed."
 msgstr ""
+"Maak de backend Django standaard cache leeg. Dit is handig wanneer de "
+"resources in de Catalogi API zijn aangepast."
 
 #: openarchiefbeheer/zaken/api/viewsets.py:25
 msgid "List zaken"
-msgstr ""
+msgstr "Zaken weergeven"
 
 #: openarchiefbeheer/zaken/api/viewsets.py:27
 msgid "List cases retrieved and cached from Open Zaak."
-msgstr ""
+msgstr "Toon zaken die zijn opgehaald en gecached uit Open Zaak."
 
 #: openarchiefbeheer/zaken/api/viewsets.py:31
 msgid "Search zaken"
-msgstr ""
+msgstr "Zoek zaken"
 
 #: openarchiefbeheer/zaken/api/viewsets.py:33
 msgid ""
 "Search cases retrieved and cached from Open Zaak. You can use the same "
 "arguments in the JSON body as the query params of the 'List Zaken' endpoint "
 msgstr ""
+"Zoek zaken die zijn opgehaald en gecached uit Open Zaak. Je kunt dezelfde "
+"argumenten gebruiken in de JSON-body als de queryparams van de 'List Zaken' "
+"endpoint."
 
 #: openarchiefbeheer/zaken/templates/admin/zaken/change_list_object_tools.html:8
 msgid "Resync cases"
-msgstr ""
+msgstr "Zaken opnieuw synchroniseren"
+
+#: openarchiefbeheer/zaken/utils.py:172
+msgid "no identificatie"
+msgstr "geen identificatie"
 
 #: openarchiefbeheer/conf/django_standard_messages.py:4
 #, python-format
