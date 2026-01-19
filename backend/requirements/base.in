@@ -23,6 +23,7 @@ django-csp
 # API libraries
 djangorestframework
 drf-spectacular
+drf-spectacular[sidecar]
 djangorestframework-camel-case
 django-cors-headers
 django-filter
