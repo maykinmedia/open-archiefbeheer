@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_gis",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
     "zgw_consumers",
     "simple_certmanager",
     "timeline_logger",
@@ -599,6 +600,7 @@ SPECTACULAR_SETTINGS = {
         "openarchiefbeheer.zaken.api.drf_spectacular.hooks.camelize_serializer_fields_but_not_query_parameters",
         "openarchiefbeheer.selection.api.drf_spectacular.hooks.update_schema_for_dynamic_keys",
     ],
+    "REDOC_DIST": "SIDECAR",
 }
 
 #
@@ -696,12 +698,29 @@ SETUP_CONFIGURATION_STEPS = [
 #
 # Django CSP
 #
+
+# There are (still) issues with this in combination with Redoc (`/api/docs`) however, this config seams to work for now.
+#
+# - Google fonts are not whitelisted as the only host + path can be used and fonts is identified using query parameters.
+#   this means allowing some Google Fonts allows ALL Google fonts without narrow control. Not having the corrct font
+#   does not break the API documentation.
+# - A Worker cannot be created from a blob, this does not seem to break the API documentation.
+# - Redoc logo cannot be loaded, this does not break the API documentation.
 CONTENT_SECURITY_POLICY = {
-    "EXCLUDE_URL_PREFIXES": [],
     "DIRECTIVES": {
         "default-src": [SELF],
         "frame-ancestors": [SELF],
         "form-action": [SELF],
+        "style-src": [
+            SELF,
+            "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
+            "'sha256-GvZq6XrzMRhFZ2MvEI09Lw7QbE3DnWuVQTMYafGYLcg='",
+            "'sha256-QMIg+bpjm3JdElJ388KYke01izlUW0UoNOeKjpMxdgc='",
+        ],
+        "img-src": [
+            SELF,
+            "data:",  # This is used by admin-ui to draw on checkboxes.
+        ],
     },
 }
 
