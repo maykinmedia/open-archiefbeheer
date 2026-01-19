@@ -226,7 +226,7 @@ msgstr ""
 #: openarchiefbeheer/config/api/views.py:65
 #: openarchiefbeheer/zaken/utils.py:172
 msgid "no identificatie"
-msgstr ""
+msgstr "geen identificatie"
 
 #: openarchiefbeheer/config/api/views.py:78
 #| msgid "No zaaktype for the destruction report case configured."
@@ -2548,10 +2548,6 @@ msgstr ""
 #: openarchiefbeheer/zaken/templates/admin/zaken/change_list_object_tools.html:8
 msgid "Resync cases"
 msgstr "Zaken opnieuw synchroniseren"
-
-#: openarchiefbeheer/zaken/utils.py:172
-msgid "no identificatie"
-msgstr "geen identificatie"
 
 #: openarchiefbeheer/conf/django_standard_messages.py:4
 #, python-format
