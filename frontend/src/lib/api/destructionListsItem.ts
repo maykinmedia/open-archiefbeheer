@@ -6,7 +6,6 @@ import { request } from "./request";
 export type DestructionListItem = {
   pk: number;
   status?: DestructionListItemStatus;
-  extraZaakData?: Record<string, unknown> | null;
   zaak: Zaak | null;
   processingStatus: ProcessingStatus;
   plannedDestructionDate: string | null;

@@ -50,6 +50,12 @@ class InternalStatus(models.TextChoices):
     succeeded = "succeeded", _("succeeded")
 
 
+class ResourceDestructionResultStatus(models.TextChoices):
+    deleted = "deleted", _("Deleted")
+    unlinked = "unlinked", _("Unlinked")
+    to_be_deleted = "to_be_deleted", _("To be deleted")
+
+
 MAPPING_ROLE_PERMISSIONS = {
     ListRole.author: "accounts.can_start_destruction",
     ListRole.main_reviewer: "accounts.can_review_destruction",

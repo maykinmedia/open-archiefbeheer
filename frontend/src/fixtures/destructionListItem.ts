@@ -9,7 +9,6 @@ import { zaakFactory } from "./zaak";
 export const FIXTURE_DESTRUCTION_LIST_ITEM: DestructionListItem = {
   pk: 1,
   status: "suggested",
-  extraZaakData: null,
   zaak: zaakFactory(),
   processingStatus: "new",
   plannedDestructionDate: null,
@@ -21,7 +20,6 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM: DestructionListItem = {
 export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
   pk: 2,
   status: "suggested",
-  extraZaakData: null,
   zaak: null,
   processingStatus: "succeeded",
   plannedDestructionDate: "2026-01-01T00:00:00Z",
@@ -33,7 +31,6 @@ export const FIXTURE_DESTRUCTION_LIST_ITEM_DELETED: DestructionListItem = {
 export const FIXTURE_DESTRUCTION_LIST_ITEM_FAILED: DestructionListItem = {
   pk: 3,
   status: "suggested",
-  extraZaakData: null,
   zaak: zaakFactory(),
   processingStatus: "failed",
   plannedDestructionDate: "2026-01-01T00:00:00Z",
