@@ -229,7 +229,6 @@ msgid "no identificatie"
 msgstr ""
 
 #: openarchiefbeheer/config/api/views.py:78
-#, fuzzy
 #| msgid "No zaaktype for the destruction report case configured."
 msgid "Retrieve zaaktypen choices for configuring the destruction report."
 msgstr ""
@@ -365,7 +364,6 @@ msgid "Archive configuration"
 msgstr "Archiefconfiguratie"
 
 #: openarchiefbeheer/config/health_checks.py:144
-#, fuzzy
 #| msgid "No source organisation for the destruction report case configured."
 msgid ""
 "The bronorganisatie field is missing in the destruction report settings."
@@ -374,7 +372,6 @@ msgstr ""
 "vernietiging."
 
 #: openarchiefbeheer/config/health_checks.py:155
-#, fuzzy
 #| msgid "No zaaktype for the destruction report case configured."
 msgid "The zaaktype field is missing in the destruction report settings."
 msgstr ""
@@ -387,7 +384,6 @@ msgid ""
 msgstr ""
 
 #: openarchiefbeheer/config/health_checks.py:183
-#, fuzzy
 #| msgid "No resultaattype for the destruction report case configured."
 msgid "The resultaattype field is missing in the destruction report settings."
 msgstr ""
@@ -395,7 +391,6 @@ msgstr ""
 "vernietiging."
 
 #: openarchiefbeheer/config/health_checks.py:194
-#, fuzzy
 #| msgid ""
 #| "No informatieobjecttype for the destruction report document configured."
 msgid ""
