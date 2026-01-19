@@ -113,7 +113,8 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.json()[0],
-            _("This list is already planned to be destroyed on 08/01/2024."),
+            _("This list is already planned to be destroyed on %(destruction_date)s.")
+            % {"destruction_date": "08/01/2024"},
         )
 
     def test_can_start_destruction_if_not_author(self):

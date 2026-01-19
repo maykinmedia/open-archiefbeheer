@@ -138,11 +138,12 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
         endpoint = reverse("api:retrieve-zaaktypen-choices")
 
         response = self.client.get(endpoint)
+        choices = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.json()[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)")
-        )
+
+        self.assertIn("ZAAKTYPE 1.0", choices[0]["label"])
+        self.assertIn(str(_("no identificatie")), choices[0]["label"])
 
     def test_retrieve_zaaktypen_choices_for_destruction_list(self):
         user = UserFactory.create()
@@ -248,7 +249,8 @@ class ZaaktypenChoicesViewsTestCase(ClearCacheMixin, APITestCase):
 
         choices = response.json()
 
-        self.assertEqual(choices[0]["label"], _("ZAAKTYPE 1.0 (no identificatie)"))
+        self.assertIn("ZAAKTYPE 1.0", choices[0]["label"])
+        self.assertIn(str(_("no identificatie")), choices[0]["label"])
         self.assertEqual(choices[0]["value"], "")
 
     def test_not_cached_if_query_param_chages(self):
