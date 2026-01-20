@@ -1,5 +1,3 @@
-from django.test import tag
-
 import requests_mock
 from furl import furl
 from rest_framework import status
@@ -222,63 +220,6 @@ class DestructionListItemsViewSetTest(APITestCase):
         self.assertEqual(data["results"][0]["pk"], item3.pk)
         self.assertEqual(data["results"][1]["pk"], item2.pk)
         self.assertEqual(data["results"][2]["pk"], item1.pk)
-
-    @tag("gh-471")
-    @requests_mock.Mocker()
-    def test_item_with_extra_zaak_data(self, m: requests_mock.Mocker):
-        ServiceFactory.create(
-            api_root="http://zaken.nl/zaken/api/v1/", api_type=APITypes.zrc
-        )
-        m.get(
-            "http://zaken.nl/zaken/api/v1/zaakobjecten",
-            json={"results": []},
-        )
-        record_manager = UserFactory.create(username="record_manager")
-
-        destruction_list = DestructionListFactory.create()
-        DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://localhost:8003/zaken/api/v1/zaken/eafc5f37-4524-43ce-872f-39ff3df11e1e",
-            destruction_list=destruction_list,
-            status=ListItemStatus.suggested,
-            processing_status=InternalStatus.failed,
-            extra_zaak_data={
-                "url": "http://localhost:8003/zaken/api/v1/zaken/eafc5f37-4524-43ce-872f-39ff3df11e1e",
-                "zaaktype": {
-                    "url": "http://localhost:8003/catalogi/api/v1/zaaktypen/be210495-20b6-48ff-8d3d-3e44f74c43a4",
-                    "omschrijving": "brand world-class initiatives",
-                    "selectielijst_procestype": {"nummer": 1},
-                },
-                "einddatum": "2024-08-28",
-                "resultaat": None,
-                "startdatum": "2024-07-14",
-                "omschrijving": "",
-                "identificatie": "ZAAK-ID-89",
-            },
-            internal_results={
-                "traceback": "",
-                "created_resources": {},
-                "deleted_resources": {},
-                "resources_to_delete": {},
-            },
-        )
-
-        self.client.force_authenticate(user=record_manager)
-        endpoint = furl(reverse("api:destruction-list-items-list"))
-        endpoint.args["item-destruction_list"] = str(destruction_list.uuid)
-
-        response = self.client.get(
-            endpoint.url,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.json()
-
-        self.assertEqual(
-            data["results"][0]["extraZaakData"]["url"],
-            "http://localhost:8003/zaken/api/v1/zaken/eafc5f37-4524-43ce-872f-39ff3df11e1e",
-        )
 
     def test_retrieve_items_with_review_responses(self):
         reviewer = UserFactory.create(post__can_review_destruction=True)

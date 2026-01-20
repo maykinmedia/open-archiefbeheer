@@ -91,6 +91,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
         resultaattype_url: str,
         statustype_url: str,
         toelichting: str = "",
+        einddatum: str = "2022-01-01",
     ) -> Mapping[str, JSONEncodable]:
         data = {
             "zaak": {},
@@ -100,7 +101,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             },
             "status": {
                 "statustype": statustype_url,
-                "datumStatusGezet": "2022-01-01",  # Needs to be in the past
+                "datumStatusGezet": einddatum,  # Needs to be in the past
             },
         }
 

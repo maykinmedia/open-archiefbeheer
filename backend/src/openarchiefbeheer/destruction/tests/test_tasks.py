@@ -17,11 +17,11 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
-from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import (
@@ -30,6 +30,7 @@ from ..constants import (
     ListItemStatus,
     ListRole,
     ListStatus,
+    ResourceDestructionResultStatus,
     ReviewDecisionChoices,
     ZaakActionType,
 )
@@ -349,124 +350,6 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             logs[0],
         )
 
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_process_list(self):
-        record_manager = UserFactory.create(
-            first_name="John",
-            last_name="Doe",
-            username="jdoe1",
-            post__can_start_destruction=True,
-        )
-        ServiceFactory.create(
-            api_root="http://zaken.nl/api/v1", label="Open Zaak - Zaken API"
-        )
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete, author=record_manager
-        )
-        review = DestructionListReviewFactory.create(
-            destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted
-        )
-
-        with freeze_time("2024-10-06T12:00:00+02:00"):
-            logevent.destruction_list_reviewed(
-                destruction_list, review, "some comment", review.author
-            )
-        with freeze_time("2024-12-01T12:00:00+01:00"):
-            logevent.destruction_list_deletion_triggered(
-                destruction_list, record_manager
-            )
-
-        item1 = DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
-            zaak__omschrijving="Test description 1",
-            zaak__identificatie="ZAAK-01",
-            zaak__startdatum=date(2020, 1, 1),
-            zaak__einddatum=date(2022, 1, 1),
-            zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-111",
-            destruction_list=destruction_list,
-            status=ListItemStatus.suggested,
-        )
-        item2 = DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://zaken.nl/api/v1/zaken/222-222-222",
-            zaak__omschrijving="Test description 2",
-            zaak__identificatie="ZAAK-02",
-            zaak__startdatum=date(2020, 1, 2),
-            zaak__einddatum=date(2022, 1, 2),
-            zaak__resultaat="http://zaken.nl/api/v1/resultaten/111-111-222",
-            destruction_list=destruction_list,
-            status=ListItemStatus.suggested,
-        )
-
-        with (
-            patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects"
-            ) as m_delete,
-            patch(
-                "openarchiefbeheer.destruction.utils.create_zaak_for_report"
-            ) as m_zaak,
-            patch(
-                "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
-            ) as m_eio,
-            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
-            freeze_time("2024-12-02T12:00:00+01:00"),
-        ):
-            delete_destruction_list(destruction_list)
-
-        destruction_list.refresh_from_db()
-        item1.refresh_from_db()
-        item2.refresh_from_db()
-
-        m_delete.assert_called()
-
-        calls_kwargs = [
-            {
-                "zaak_url": call.kwargs["zaak"].url,
-                "result_store": call.kwargs["result_store"].store.pk,
-            }
-            for call in m_delete.call_args_list
-        ]
-
-        self.assertIn(
-            {
-                "zaak_url": "http://zaken.nl/api/v1/zaken/111-111-111",
-                "result_store": item1.pk,
-            },
-            calls_kwargs,
-        )
-        self.assertIn(
-            {
-                "zaak_url": "http://zaken.nl/api/v1/zaken/222-222-222",
-                "result_store": item2.pk,
-            },
-            calls_kwargs,
-        )
-        self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
-        self.assertEqual(destruction_list.status, ListStatus.deleted)
-        self.assertEqual(item1.processing_status, InternalStatus.succeeded)
-        self.assertEqual(item2.processing_status, InternalStatus.succeeded)
-        self.assertEqual(item1._zaak_url, "")
-        self.assertEqual(item2._zaak_url, "")
-
-        self.assertFalse(
-            Zaak.objects.filter(
-                url__in=[
-                    "http://zaken.nl/api/v1/zaken/111-111-111",
-                    "http://zaken.nl/api/v1/zaken/222-222-222",
-                ]
-            ).exists()
-        )
-
-        m_zaak.assert_called()
-        m_eio.assert_called()
-        m_zio.assert_called()
-
-        self.assertEqual(item1.extra_zaak_data, {})
-        self.assertEqual(item2.extra_zaak_data, {})
-        with self.assertRaises(ValueError):
-            destruction_list.destruction_report.file  # noqa: B018
-
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
         item = DestructionListItemFactory.create(
@@ -484,63 +367,6 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             logs[0],
         )
 
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_processing_list_with_failed_item(self):
-        author = UserFactory.create(post__can_start_destruction=True)
-        ServiceFactory.create(
-            api_root="http://zaak-test.nl/api/v1", label="Open Zaak - Zaken API"
-        )
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete,
-            processing_status=InternalStatus.failed,
-            author=author,
-        )
-        logevent.destruction_list_deletion_triggered(destruction_list, author)
-
-        DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://zaak-test.nl/api/v1/zaken/111-111-111",
-            destruction_list=destruction_list,
-            processing_status=InternalStatus.failed,
-            internal_results={"traceback": "Some traceback"},
-        )
-
-        with (
-            patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
-            ),
-            patch(
-                "openarchiefbeheer.destruction.utils.create_zaak_for_report"
-            ) as m_zaak,
-            patch(
-                "openarchiefbeheer.destruction.utils.create_eio_destruction_report"
-            ) as m_eio,
-            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak") as m_zio,
-        ):
-            delete_destruction_list(destruction_list)
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.processing_status, InternalStatus.succeeded)
-        self.assertEqual(destruction_list.status, ListStatus.deleted)
-
-        item = destruction_list.items.first()
-
-        self.assertEqual(item.processing_status, InternalStatus.succeeded)
-        self.assertEqual(
-            item.internal_results,
-            {
-                "deleted_resources": {},
-                "resources_to_delete": {},
-                "traceback": "",
-                "created_resources": {},
-            },
-        )
-
-        m_zaak.assert_called()
-        m_eio.assert_called()
-        m_zio.assert_called()
-
     def test_complete_and_notify(self):
         record_manager = UserFactory.create(
             first_name="John",
@@ -554,10 +380,15 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             status=ListStatus.ready_to_delete,
             author=record_manager,
         )
-        DestructionListItemFactory.create(
+        item = DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
             destruction_list=destruction_list,
-            extra_zaak_data={
+        )
+        ResourceDestructionResult.objects.create(
+            item=item,
+            resource_type="zaken",
+            url="http://zaken.nl/api/v1/zaken/111-111-111",
+            metadata={
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
                 "omschrijving": "Test description 1",
                 "identificatie": "ZAAK-01",
@@ -583,6 +414,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
                     },
                 },
             },
+            status=ResourceDestructionResultStatus.deleted,
         )
         review = DestructionListReviewFactory.create(
             destruction_list=destruction_list, decision=ReviewDecisionChoices.accepted
@@ -610,9 +442,9 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
                     body_successful_deletion_html="Wohoo deleted list",
                 ),
             ),
-            patch("openarchiefbeheer.destruction.utils.create_zaak_for_report"),
-            patch("openarchiefbeheer.destruction.utils.create_eio_destruction_report"),
-            patch("openarchiefbeheer.destruction.utils.attach_report_to_zaak"),
+            patch(
+                "openarchiefbeheer.destruction.tasks.upload_destruction_report_to_openzaak"
+            ),
             freeze_time("2024-10-09T12:00:00+02:00"),
         ):
             complete_and_notify(destruction_list.pk)
@@ -636,100 +468,6 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
         with self.assertRaises(ValueError):
             destruction_list.destruction_report.file  # noqa: B018
-
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_other_items_processed_if_one_fails(self):
-        destruction_list = DestructionListFactory.create(
-            status=ListStatus.ready_to_delete
-        )
-        ServiceFactory.create(
-            api_root="http://zaken.nl/api/v1", label="Open Zaak - Zaken API"
-        )
-
-        item1 = DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://zaken.nl/api/v1/zaken/111-111-111",
-            destruction_list=destruction_list,
-        )
-        item2 = DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__url="http://zaken.nl/api/v1/zaken/222-222-222",
-            destruction_list=destruction_list,
-        )
-
-        def mock_exceptions(zaak, excluded_relations, result_store):
-            if zaak.url == item1.zaak.url:
-                raise Exception("An error occurred!")
-
-        with patch(
-            "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
-            side_effect=mock_exceptions,
-        ):
-            delete_destruction_list(destruction_list)
-
-        destruction_list.refresh_from_db()
-        item1.refresh_from_db()
-        item2.refresh_from_db()
-
-        self.assertEqual(destruction_list.processing_status, InternalStatus.failed)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
-        self.assertEqual(item1.processing_status, InternalStatus.failed)
-        self.assertEqual(item2.processing_status, InternalStatus.succeeded)
-        self.assertTrue(
-            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/111-111-111").exists()
-        )
-        self.assertFalse(
-            Zaak.objects.filter(url="http://zaken.nl/api/v1/zaken/222-222-222").exists()
-        )
-
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_deleting_list_with_zaken_archiefactiedatum_in_the_future(self):
-        record_manager = UserFactory.create(
-            username="record_manager", post__can_start_destruction=True
-        )
-        destruction_list = DestructionListFactory.create(
-            name="A test list",
-            author=record_manager,
-            status=ListStatus.ready_to_delete,
-        )
-
-        ServiceFactory.create(
-            api_root="http://zaak-test.nl/api/v1", label="Open Zaak - Zaken API"
-        )
-        DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__archiefactiedatum=date(2025, 1, 1),
-            zaak__url="http://zaak-test.nl/api/v1/zaken/111-111-111",
-            destruction_list=destruction_list,
-        )
-        DestructionListItemFactory.create(
-            with_zaak=True,
-            zaak__archiefactiedatum=date(2023, 1, 1),
-            zaak__url="http://zaak-test.nl/api/v1/zaken/222-222-222",
-            destruction_list=destruction_list,
-        )
-
-        with (
-            freeze_time("2024-01-01T21:36:00+02:00"),
-            patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
-            ),
-        ):
-            delete_destruction_list(destruction_list)
-
-        destruction_list.refresh_from_db()
-
-        self.assertEqual(destruction_list.processing_status, InternalStatus.failed)
-        self.assertEqual(destruction_list.status, ListStatus.ready_to_delete)
-
-        items = destruction_list.items.all().order_by("pk")
-
-        self.assertEqual(items[0].processing_status, InternalStatus.failed)
-        self.assertEqual(items[1].processing_status, InternalStatus.succeeded)
-        self.assertEqual(
-            items[0]._zaak_url, "http://zaak-test.nl/api/v1/zaken/111-111-111"
-        )
-        self.assertEqual(items[1]._zaak_url, "")
 
     def test_queuing_lists_to_delete(self):
         destruction_list = DestructionListFactory.create(
@@ -797,7 +535,8 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
 
     @tag("gh-473")
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_traceback_from_failure_is_saved(self):
+    @log_capture(level=logging.ERROR)
+    def test_traceback_from_failure_is_saved(self, logs):
         record_manager = UserFactory.create(
             username="record_manager", post__can_start_destruction=True
         )
@@ -819,7 +558,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         with (
             freeze_time("2024-01-01T21:36:00+02:00"),
             patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+                "openarchiefbeheer.destruction.tasks.delete_external_relations",
                 side_effect=HTTPError,
             ),
         ):
@@ -827,9 +566,15 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
 
         item.refresh_from_db()
 
-        self.assertNotEqual(item.internal_results["traceback"], "")
-        self.assertIn("HTTPError", item.internal_results["traceback"])
-
+        self.assertEqual(
+            "openarchiefbeheer.destruction.tasks",
+            logs[0][0],
+        )
+        self.assertEqual(
+            "ERROR",
+            logs[0][1],
+        )
+        self.assertIn("HTTPError", logs[0][2])
         logs = TimelineLog.objects.for_object(destruction_list)
 
         self.assertEqual(logs.count(), 1)

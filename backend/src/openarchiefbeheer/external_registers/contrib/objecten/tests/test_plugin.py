@@ -4,9 +4,10 @@ from vcr.unittest import VCRMixin
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.external_registers.registry import register
-from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.utils.tests.resources_client import (
     ObjectenCreationHelper,
@@ -66,7 +67,6 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
             with_zaak=True,
             zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
         )
-        result_store = ResultStore(store=item)
         config = ExternalRegisterConfig.objects.get(identifier=OBJECTEN_IDENTIFIER)
         config.enabled = True
         config.services.add(service)
@@ -74,13 +74,17 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         plugin = register[OBJECTEN_IDENTIFIER]
         plugin.delete_related_resources(
-            zaak_url=item.zaak.url,
+            item=item,
             related_resources=[object_resource["url"]],
-            result_store=result_store,
         )
 
-        results = result_store.get_internal_results()
+        result = ResourceDestructionResult.objects.get(
+            item=item,
+            resource_type="objecten",
+            status=ResourceDestructionResultStatus.deleted,
+        )
+
         self.assertEqual(
-            results["deleted_resources"]["objecten"][0],
+            result.url,
             object_resource["url"],
         )

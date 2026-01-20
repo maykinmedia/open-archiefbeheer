@@ -1,14 +1,14 @@
 from collections.abc import Iterable
-from typing import Mapping, NoReturn
+from typing import NoReturn
 from unittest.mock import patch
 
 from django.test import TestCase
 
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.utils.results_store import ResultStore
+from openarchiefbeheer.destruction.models import DestructionListItem
 
-from ..plugin import AbstractBasePlugin, RelatedResourceList, ServiceSlug
+from ..plugin import AbstractBasePlugin
 from ..registry import Registry
 from ..utils import get_plugin_for_related_object
 
@@ -17,13 +17,8 @@ class DummyPlugin(AbstractBasePlugin):
     def get_admin_url(self, resource_url: str) -> str:
         return ""
 
-    def get_related_resources(
-        self, zaak_url: str
-    ) -> Mapping[ServiceSlug, RelatedResourceList[object]]:
-        return {}
-
     def delete_related_resources(
-        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
+        self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:
         return
 
