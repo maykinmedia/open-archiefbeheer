@@ -22,13 +22,16 @@ class ServiceHealthCheck:
     verbose_name = _("Services presence")
 
     def __call__(self) -> CheckResult:
-        missing_services = []
-
-        for needed_service_type in ZGW_REQUIRED_SERVICE_TYPES:
-            service = Service.objects.filter(api_type=needed_service_type).first()
-
-            if not service:
-                missing_services.append(needed_service_type)
+        found_api_types = set(
+            Service.objects.filter(api_type__in=ZGW_REQUIRED_SERVICE_TYPES).values_list(
+                "api_type", flat=True
+            )
+        )
+        missing_services = [
+            api_type
+            for api_type in ZGW_REQUIRED_SERVICE_TYPES
+            if api_type not in found_api_types
+        ]
 
         api_config = APIConfig.get_solo()
         if not api_config.selectielijst_api_service:

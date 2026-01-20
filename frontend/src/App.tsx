@@ -17,7 +17,7 @@ import {
   P,
   Solid,
 } from "@maykin-ui/admin-ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Outlet,
   useLocation,
@@ -60,6 +60,10 @@ function App() {
     null,
   );
 
+  useEffect(() => {
+    getHealthCheck().then(setHealthCheck);
+  }, []);
+
   useAsync(async () => {
     const abortController = new AbortController();
     const user = await whoAmI(abortController.signal);
@@ -70,12 +74,6 @@ function App() {
     const abortController = new AbortController();
     const info = await getOIDCInfo(abortController.signal);
     setOidcInfo(info);
-  }, [state]);
-
-  // TODO: remove `useAsync` and create a custom implementation
-  useAsync(async () => {
-    const healthCheck = await getHealthCheck();
-    setHealthCheck(healthCheck);
   }, [state]);
 
   const breadcrumbItems = (
