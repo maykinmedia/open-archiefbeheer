@@ -525,6 +525,10 @@ class DestructionListItemsViewSet(
         qs = (
             DestructionListItem.objects.all()
             .select_related("zaak")
+            # NOTE: `zaakgeometrie` is not used in OAB but costly to retrieve.
+            # NOTE: this is disabled to improve performance.
+            # NOTE: if restored, make sure to restore `ZaakSerializer` in `serializers.py`.
+            .defer("zaak__zaakgeometrie")
             .annotate(
                 last_review_comment=Subquery(
                     review_response_items.values("comment")[:1]

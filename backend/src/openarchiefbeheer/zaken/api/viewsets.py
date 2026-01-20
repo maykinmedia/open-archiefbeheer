@@ -36,7 +36,10 @@ from .serializers import ZaakSerializer
     ),
 )
 class ZakenViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = Zaak.objects.all().order_by("pk")
+    # NOTE: `zaakgeometrie` is not used in OAB but costly to retrieve.
+    # NOTE: this is disabled to improve performance.
+    # NOTE: if restored, make sure to restore `ZaakSerializer` in `serializers.py`.
+    queryset = Zaak.objects.all().defer("zaakgeometrie").order_by("pk")
     serializer_class = ZaakSerializer
     permission_classes = [
         IsAuthenticated
