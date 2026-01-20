@@ -396,7 +396,7 @@ msgstr "De archiveringsinstellingen zijn correct geconfigureerd."
 
 #: openarchiefbeheer/config/models.py:11
 msgid "zaaktypes short process"
-msgstr "zaaktypen met kort proces"
+msgstr "zaaktypen met verkorte procedure"
 
 #: openarchiefbeheer/config/models.py:13
 msgid ""
