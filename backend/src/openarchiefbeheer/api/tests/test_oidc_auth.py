@@ -1,4 +1,5 @@
 from django.test import tag
+from django.utils.translation import gettext_lazy as _
 
 from playwright.async_api import expect
 
@@ -14,7 +15,7 @@ class OIDCLoginTest(GherkinLikeTestCase):
         async with browser_page() as page:
             await page.goto(f"{self.live_server_url}/admin")
 
-            link = page.get_by_role("link", name="Login with OIDC")
+            link = page.get_by_role("link", name=_("Login with OIDC"))
 
             await expect(link).to_be_visible()
 
@@ -40,7 +41,7 @@ class OIDCLoginTest(GherkinLikeTestCase):
         async with browser_page() as page:
             await page.goto(f"{self.live_server_url}/admin")
 
-            link = page.get_by_role("link", name="Login with OIDC")
+            link = page.get_by_role("link", name=_("Login with OIDC"))
 
             await expect(link).to_be_visible()
 

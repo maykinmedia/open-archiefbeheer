@@ -197,7 +197,7 @@ class FormatZaaktypeChoicesTests(TestCase):
         # Should fall back to using "no identificatie" in the label
         expected_result = [
             {
-                "label": "Zaaktype without ID (no identificatie)",
+                "label": "Zaaktype without ID (geen identificatie)",
                 "value": "",
             }
         ]
