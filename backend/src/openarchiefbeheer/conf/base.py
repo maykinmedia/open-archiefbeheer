@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import TypedDict
 
 # Django-hijack (and Django-hijack-admin)
 from django.urls import reverse_lazy
@@ -8,8 +9,9 @@ import sentry_sdk
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from csp.constants import NONCE, SELF
+from maykin_common.config import config
 
-from .utils import config, get_git_sha, get_release, get_sentry_integrations
+from .utils import get_git_sha, get_release, get_sentry_integrations
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
@@ -30,7 +32,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False)
 
 # = domains we're running on
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", split=True)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=[], split=True)
 FRONTEND_URL = config("FRONTEND_URL", default="")
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default=False)
 
@@ -60,12 +62,12 @@ USE_THOUSAND_SEPARATOR = True
 #
 DATABASES = {
     "default": {
-        "ENGINE": config("DB_ENGINE", "django.contrib.gis.db.backends.postgis"),
-        "NAME": config("DB_NAME", "openarchiefbeheer"),
-        "USER": config("DB_USER", "openarchiefbeheer"),
-        "PASSWORD": config("DB_PASSWORD", "openarchiefbeheer"),
-        "HOST": config("DB_HOST", "localhost"),
-        "PORT": config("DB_PORT", 5432),
+        "ENGINE": config("DB_ENGINE", default="django.contrib.gis.db.backends.postgis"),
+        "NAME": config("DB_NAME", default="openarchiefbeheer"),
+        "USER": config("DB_USER", default="openarchiefbeheer"),
+        "PASSWORD": config("DB_PASSWORD", default="openarchiefbeheer"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432", cast=lambda s: s and int(s)),
     }
 }
 
@@ -74,7 +76,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{config('CACHE_DEFAULT', 'localhost:6379/0')}",
+        "LOCATION": f"redis://{config('CACHE_DEFAULT', default='localhost:6379/0')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
@@ -82,7 +84,7 @@ CACHES = {
     },
     "axes": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{config('CACHE_AXES', 'localhost:6379/0')}",
+        "LOCATION": f"redis://{config('CACHE_AXES', default='localhost:6379/0')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
@@ -91,8 +93,8 @@ CACHES = {
 }
 
 # Geospatial libraries
-GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", None)
-GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", None)
+GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", default=None)
+GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", default=None)
 
 
 #
@@ -366,13 +368,13 @@ LOGOUT_REDIRECT_URL = reverse_lazy("admin:index")
 #
 # SECURITY settings
 #
-SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", "Lax")
-SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", IS_HTTPS)
+SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="Lax")
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=IS_HTTPS)
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", 1209600)  # 2 weeks in seconds
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", default=1209600)  # 2 weeks in seconds
 
-CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", "Lax")
-CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", IS_HTTPS)
+CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", default="Lax")
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=IS_HTTPS)
 CSRF_FAILURE_VIEW = "openarchiefbeheer.accounts.views.csrf_failure"
 
 X_FRAME_OPTIONS = "DENY"
@@ -387,7 +389,7 @@ FIXTURE_DIRS = (DJANGO_PROJECT_DIR / "fixtures",)
 # Custom settings
 #
 PROJECT_NAME = "openarchiefbeheer"
-ENVIRONMENT = config("ENVIRONMENT", "")
+ENVIRONMENT = config("ENVIRONMENT", default="")
 SHOW_ALERT = True
 ENABLE_ADMIN_NAV_SIDEBAR = config("ENABLE_ADMIN_NAV_SIDEBAR", default=False)
 
@@ -398,34 +400,36 @@ ENABLE_ADMIN_NAV_SIDEBAR = config("ENABLE_ADMIN_NAV_SIDEBAR", default=False)
 LOGIN_URLS = [reverse_lazy("admin:login")]
 
 if "GIT_SHA" in os.environ:  # noqa: SIM108
-    GIT_SHA = config("GIT_SHA", "")
+    GIT_SHA = config("GIT_SHA", default="")
 else:
     GIT_SHA = get_git_sha()
 
 if "RELEASE" in os.environ:  # noqa: SIM108
-    RELEASE = config("RELEASE", "")
+    RELEASE = config("RELEASE", default="")
 else:
     RELEASE = get_release() or GIT_SHA
 
 
-REQUESTS_READ_TIMEOUT = config("REQUESTS_READ_TIMEOUT", 30)
+REQUESTS_READ_TIMEOUT = config("REQUESTS_READ_TIMEOUT", default=30)
 # Default (connection timeout, read timeout) for the requests library (in seconds)
 REQUESTS_DEFAULT_TIMEOUT = (10, REQUESTS_READ_TIMEOUT)
 
-ZAKEN_CHUNK_SIZE = config("ZAKEN_CHUNK_SIZE", 10)
+ZAKEN_CHUNK_SIZE = config("ZAKEN_CHUNK_SIZE", default=10)
 
 E2E_SERVE_FRONTEND = False
 
-RETRY_TOTAL = config("RETRY_TOTAL", 5)
-RETRY_BACKOFF_FACTOR = config("RETRY_BACKOFF_FACTOR", 5)
+RETRY_TOTAL = config("RETRY_TOTAL", default=5)
+RETRY_BACKOFF_FACTOR = config("RETRY_BACKOFF_FACTOR", default=5)
 RETRY_STATUS_FORCELIST = config(
-    "RETRY_STATUS_FORCELIST", "502,503,504", split=True, csv_cast=int
+    "RETRY_STATUS_FORCELIST", default=[502, 503, 504], split=True
 )
 
-WAITING_PERIOD = config("WAITING_PERIOD", 7)
-POST_DESTRUCTION_VISIBILITY_PERIOD = config("POST_DESTRUCTION_VISIBILITY_PERIOD", 7)
+WAITING_PERIOD = config("WAITING_PERIOD", default=7)
+POST_DESTRUCTION_VISIBILITY_PERIOD = config(
+    "POST_DESTRUCTION_VISIBILITY_PERIOD", default=7
+)
 
-RECORDING_CASSETTES_VCR = config("RECORDING_CASSETTES_VCR", False)
+RECORDING_CASSETTES_VCR = config("RECORDING_CASSETTES_VCR", default=False)
 
 ##############################
 #                            #
@@ -510,10 +514,19 @@ HIJACK_INSERT_BEFORE = (
 #
 # SENTRY - error monitoring
 #
-SENTRY_DSN = config("SENTRY_DSN", None)
+SENTRY_DSN = config("SENTRY_DSN", default=None)
+
+
+class SentryConfig(TypedDict):
+    # sentry sdk could use TypedDict and Unpack to annotate their init
+    # instead of the clever hack they use now.
+    dsn: str | None
+    release: str | None
+    environment: str | None
+
 
 if SENTRY_DSN:
-    SENTRY_CONFIG = {
+    SENTRY_CONFIG: SentryConfig = {
         "dsn": SENTRY_DSN,
         "release": RELEASE,
         "environment": ENVIRONMENT,
@@ -527,7 +540,7 @@ if SENTRY_DSN:
 ELASTIC_APM_SERVER_URL = os.getenv("ELASTIC_APM_SERVER_URL", None)
 ELASTIC_APM = {
     "SERVICE_NAME": f"openarchiefbeheer {ENVIRONMENT}",
-    "SECRET_TOKEN": config("ELASTIC_APM_SECRET_TOKEN", "default"),
+    "SECRET_TOKEN": config("ELASTIC_APM_SECRET_TOKEN", default="default"),
     "SERVER_URL": ELASTIC_APM_SERVER_URL,
 }
 if not ELASTIC_APM_SERVER_URL:
@@ -536,7 +549,7 @@ if not ELASTIC_APM_SERVER_URL:
 
 # Subpath (optional)
 # This environment variable can be configured during deployment.
-SUBPATH = config("SUBPATH", None)
+SUBPATH = config("SUBPATH", default=None)
 if SUBPATH:
     SUBPATH = f"/{SUBPATH.strip('/')}"
 
@@ -639,10 +652,12 @@ CSRF_TRUSTED_ORIGINS = config(
 #
 # CELERY
 #
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = config(
+    "CELERY_RESULT_BACKEND", default="redis://localhost:6379/0"
+)
 # Add a 2 hours timeout to all Celery tasks.
-CELERY_TASK_SOFT_TIME_LIMIT = config("CELERY_TASK_SOFT_TIME_LIMIT", 7200)
+CELERY_TASK_SOFT_TIME_LIMIT = config("CELERY_TASK_SOFT_TIME_LIMIT", default=7200)
 
 CELERY_BEAT_SCHEDULE = {
     "retrieve-and-cache-zaken": {
@@ -668,7 +683,7 @@ CELERY_BEAT_SCHEDULE = {
 OIDC_AUTHENTICATE_CLASS = "mozilla_django_oidc_db.views.OIDCAuthenticationRequestView"
 OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
 OIDC_REDIRECT_ALLOWED_HOSTS = config(
-    "OIDC_REDIRECT_ALLOWED_HOSTS", default="", split=True
+    "OIDC_REDIRECT_ALLOWED_HOSTS", default=[], split=True
 )
 # See issue #422 and https://mozilla-django-oidc.readthedocs.io/en/2.0.0/installation.html#validate-id-tokens-by-renewing-them
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = config(
