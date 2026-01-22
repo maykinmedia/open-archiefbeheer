@@ -6,8 +6,6 @@ python-decouple  # processing of envvar configs
 
 # Framework libraries
 django ~= 4.2
-django-admin-index
-django-axes
 django-hijack
 django-redis
 django-rosetta
@@ -19,6 +17,7 @@ django-privates
 django-setup-configuration
 maykin-config-checks
 django-csp
+maykin-common[axes,health-checks,mfa,otel]
 
 # API libraries
 djangorestframework
