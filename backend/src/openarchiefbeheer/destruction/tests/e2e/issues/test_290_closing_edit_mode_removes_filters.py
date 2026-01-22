@@ -39,7 +39,7 @@ class Issue290CancelFilteredEditMode(GherkinLikeTestCase):
                                            "/destruction-lists/00000000-0000-0000-0000-000000000000/edit?page=1&is_editing=true&identificatie__icontains=non-matching-identifier")
 
             await self.then.url_should_contain_text(page, ".*non-matching-identifier.*")
-            await self.then.not_.page_should_contain_text(page, "Zaak-", timeout=10000)
+            await self.then.page_should_contain_text(page, "/ 0")
 
             await self.when.user_clicks_button(page, "Annuleren")
             await self.then.path_should_be(page, "/destruction-lists/00000000-0000-0000-0000-000000000000/edit")
