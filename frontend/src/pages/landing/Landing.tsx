@@ -54,7 +54,9 @@ export type LandingKanbanEntry = {
 };
 
 export const Landing = () => {
-  const { statusMap, user } = useLoaderData() as LandingContext;
+  const loaderData = useLoaderData() as LandingContext;
+  const { statusMap, user } = loaderData;
+
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useCombinedSearchParams();
@@ -213,178 +215,167 @@ export const Landing = () => {
     setSearchParams({ ...searchParams, [name]: value });
   };
 
-  const fieldsets: FieldSet<LandingKanbanEntry>[] = Object.keys(statusMap).map(
-    (s) => [
-      ucFirst(s),
-      {
-        component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
-          <KanbanButton {...props} title={props.object.title} />
-        ),
-        fields: ["slotAssignees"],
-      },
-    ],
+  const fieldsets: FieldSet<LandingKanbanEntry>[] = useMemo(
+    () =>
+      Object.keys(statusMap).map((s) => [
+        ucFirst(s),
+        {
+          component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
+            <KanbanButton {...props} title={props.object.title} />
+          ),
+          fields: ["slotAssignees"],
+        },
+      ]),
+    [statusMap],
   );
 
-  return (
-    <KanbanTemplate<LandingKanbanEntry>
-      kanbanProps={{
-        title: "Vernietigingslijsten",
-        fieldsets: fieldsets,
-        buttonLinkProps: {
-          download: true,
-        },
-        objectLists: objectLists,
-        toolbarProps: {
-          variant: "normal",
-          items: [
-            {
-              icon: <Outline.MagnifyingGlassIcon />,
-              name: "name",
-              placeholder: "Zoeken…",
-              title: "Zoeken",
-              type: "search",
-              value: searchParams.get("name") || "",
-              onBlur: handleFilter,
-              onKeyUp: (e: React.KeyboardEvent) => {
-                if (e.key === "Enter") {
-                  handleFilter(e);
-                }
+  return useMemo(
+    () => (
+      <KanbanTemplate<LandingKanbanEntry>
+        kanbanProps={{
+          title: "Vernietigingslijsten",
+          fieldsets: fieldsets,
+          buttonLinkProps: {
+            download: true,
+          },
+          objectLists: objectLists,
+          toolbarProps: {
+            variant: "normal",
+            items: [
+              {
+                icon: <Outline.MagnifyingGlassIcon />,
+                name: "name",
+                placeholder: "Zoeken…",
+                title: "Zoeken",
+                type: "search",
+                value: searchParams.get("name") || "",
+                onBlur: handleFilter,
+                onKeyUp: (e: React.KeyboardEvent) => {
+                  if (e.key === "Enter") {
+                    handleFilter(e);
+                  }
+                },
               },
-            },
-            {
-              icon: <Outline.DocumentIcon />,
-              name: "status",
-              options: useMemo(
-                () =>
-                  DESTRUCTION_LIST_STATUSES.map((status) => ({
-                    label: string2Title(STATUS_MAPPING[status]),
-                    value: status,
-                  })),
-                [],
-              ),
-              placeholder: "Status…",
-              required: false,
-              title: "Status",
-              value: searchParams.get("status") || "",
-              onChange: handleFilter,
-            },
-            {
-              icon: <Outline.DocumentPlusIcon />,
-              name: "author",
-              options: useMemo(
-                () => [
-                  ...recordManagers.map((rm) => {
-                    return {
-                      label: formatUser(rm, { showUsername: false }),
-                      value: rm.pk,
-                    };
-                  }),
+              {
+                icon: <Outline.DocumentIcon />,
+                name: "status",
+                options: DESTRUCTION_LIST_STATUSES.map((status) => ({
+                  label: string2Title(STATUS_MAPPING[status]),
+                  value: status,
+                })),
+                placeholder: "Status…",
+                required: false,
+                title: "Status",
+                value: searchParams.get("status") || "",
+                onChange: handleFilter,
+              },
+              {
+                icon: <Outline.DocumentPlusIcon />,
+                name: "author",
+                options: recordManagers.map((rm) => ({
+                  label: formatUser(rm, { showUsername: false }),
+                  value: rm.pk,
+                })),
+                placeholder: "Auteur…",
+                required: false,
+                title: "Auteur",
+                value: searchParams.get("author") || "",
+                onChange: handleFilter,
+              },
+              {
+                icon: <Outline.DocumentArrowUpIcon />,
+                name: "reviewer",
+                options: reviewers.map((rm) => ({
+                  label: formatUser(rm, { showUsername: false }),
+                  value: rm.pk,
+                })),
+                placeholder: "Beoordelaar…",
+                required: false,
+                title: "Beoordelaar",
+                value: searchParams.get("reviewer") || "",
+                onChange: handleFilter,
+              },
+              {
+                icon: <Outline.UserIcon />,
+                name: "assignee",
+                options: users.map((rm) => ({
+                  label: formatUser(rm, { showUsername: false }),
+                  value: rm.pk,
+                })),
+                placeholder: "Toegewezen aan…",
+                required: false,
+                title: "Toegewezen aan",
+                value: searchParams.get("assignee") || "",
+                onChange: handleFilter,
+              },
+              {
+                icon: <Outline.ChevronUpDownIcon />,
+                direction: "h",
+                name: "ordering",
+                options: [
+                  { label: "Nieuwste eerst", value: "-created" },
+                  { label: "Oudste eerst", value: "created" },
                 ],
-                [recordManagers],
-              ),
-              placeholder: "Auteur…",
-              required: false,
-              title: "Auteur",
-              value: searchParams.get("author") || "",
-              onChange: handleFilter,
-            },
-            {
-              icon: <Outline.DocumentArrowUpIcon />,
-              name: "reviewer",
-              options: useMemo(
-                () => [
-                  ...reviewers.map((rm) => {
-                    return {
-                      label: formatUser(rm, { showUsername: false }),
-                      value: rm.pk,
-                    };
-                  }),
-                ],
-                [reviewers],
-              ),
-              placeholder: "Beoordelaar…",
-              required: false,
-              title: "Beoordelaar",
-              value: searchParams.get("reviewer") || "",
-              onChange: handleFilter,
-            },
-            {
-              icon: <Outline.UserIcon />,
-              name: "assignee",
-              options: useMemo(
-                () => [
-                  ...users.map((rm) => {
-                    return {
-                      label: formatUser(rm, { showUsername: false }),
-                      value: rm.pk,
-                    };
-                  }),
-                ],
-                [users],
-              ),
-              placeholder: "Toegewezen aan…",
-              required: false,
-              title: "Toegewezen aan",
-              value: searchParams.get("assignee") || "",
-              onChange: handleFilter,
-            },
-            {
-              icon: <Outline.ChevronUpDownIcon />,
-              direction: "h",
-              name: "ordering",
-              options: [
-                { label: "Nieuwste eerst", value: "-created" },
-                { label: "Oudste eerst", value: "created" },
-              ],
-              required: true,
-              title: "Sorteren",
-              value: searchParams.get("ordering") || "-created",
-              onChange: handleFilter,
-            },
-            "spacer",
-            {
-              children: (
-                <>
-                  <Solid.DocumentPlusIcon />
-                  Vernietigingslijst opstellen
-                </>
-              ),
-              size: "xs",
-              variant: "primary",
-              hidden: !canStartDestructionList(user),
-              onClick: () => navigate("/destruction-lists/create"),
-            },
-          ],
-        },
-        renderPreview: (entry) => {
-          if (canDownloadReport(user, entry.destructionList)) {
+                required: true,
+                title: "Sorteren",
+                value: searchParams.get("ordering") || "-created",
+                onChange: handleFilter,
+              },
+              "spacer",
+              {
+                children: (
+                  <>
+                    <Solid.DocumentPlusIcon />
+                    Vernietigingslijst opstellen
+                  </>
+                ),
+                size: "xs",
+                variant: "primary",
+                hidden: !canStartDestructionList(user),
+                onClick: () => navigate("/destruction-lists/create"),
+              },
+            ],
+          },
+          renderPreview: (entry) => {
+            if (canDownloadReport(user, entry.destructionList)) {
+              return (
+                <Badge variant="success">
+                  <Outline.CloudArrowDownIcon /> Download rapport
+                </Badge>
+              );
+            }
+            if (
+              entry.destructionList.processingStatus === "new" &&
+              !entry.destructionList.plannedDestructionDate
+            ) {
+              return (
+                <Badge aria-label="opgesteld">
+                  <Outline.DocumentPlusIcon />
+                  {entry.timeAgo as string}
+                </Badge>
+              );
+            }
             return (
-              <Badge variant="success">
-                <Outline.CloudArrowDownIcon /> Download rapport
-              </Badge>
+              <ProcessingStatusBadge
+                processingStatus={entry.destructionList.processingStatus}
+                plannedDestructionDate={
+                  entry.destructionList.plannedDestructionDate
+                }
+              />
             );
-          }
-          if (
-            entry.destructionList.processingStatus === "new" &&
-            !entry.destructionList.plannedDestructionDate
-          ) {
-            return (
-              <Badge aria-label="opgesteld">
-                <Outline.DocumentPlusIcon />
-                {entry.timeAgo as string}
-              </Badge>
-            );
-          }
-          return (
-            <ProcessingStatusBadge
-              processingStatus={entry.destructionList.processingStatus}
-              plannedDestructionDate={
-                entry.destructionList.plannedDestructionDate
-              }
-            />
-          );
-        },
-      }}
-    />
+          },
+        }}
+      />
+    ),
+    [
+      loaderData,
+      searchParams,
+      fieldsets,
+      objectLists,
+      recordManagers,
+      reviewers,
+      users,
+      user,
+    ],
   );
 };
