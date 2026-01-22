@@ -11,6 +11,7 @@ Temporary changelog entry to keep track of changes that need to be mentioned:
 - [#871] Upgraded mozilla-django-oidc-db to version 1.1.1
 - [#884] The configuration page of the destruction report was reworked. This means that it needs to be reconfigured.
 - [#958] The landing page now only shows recently deleted destruction lists, older lists are visible on the completed destruction lists page. The amount of days (default 7) a list remains visible after deletion can be configured using the POST_DESTRUCTION_VISIBILITY_PERIOD environment variable.
+- [#978] Breaking change of the internal structure of how we keep track of data during the destruction of a list. This will require making sure that there are no lists being processed or that are failed and need retrying when performing the upgrade! 
 
 1.1.1 (2025-10-03)
 ==================
