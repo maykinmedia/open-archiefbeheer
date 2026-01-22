@@ -24,7 +24,9 @@ class UsersView(ListAPIView):
     filterset_class = UsersFilterset
 
     def get_queryset(self) -> QuerySet[User]:
-        return User.objects.annotate_permissions()
+        qs = User.objects.annotate_permissions()
+        ordering = User._meta.ordering
+        return qs.order_by(*ordering) if ordering else qs
 
 
 @extend_schema(
