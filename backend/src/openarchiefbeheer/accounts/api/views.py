@@ -24,7 +24,7 @@ class UsersView(ListAPIView):
     filterset_class = UsersFilterset
 
     def get_queryset(self) -> QuerySet[User]:
-        return User.objects.all()
+        return User.objects.annotate_permissions()
 
 
 @extend_schema(
