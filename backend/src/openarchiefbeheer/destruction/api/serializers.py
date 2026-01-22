@@ -53,7 +53,7 @@ class DestructionListKanbanSerializer(serializers.Serializer):
     def to_representation(self, queryset):
         data = {status.label: [] for status in ListStatus}
 
-        for destruction_list in queryset.iterator():
+        for destruction_list in queryset:
             label = ListStatus(destruction_list.status).label
             data[label].append(DestructionListReadSerializer(destruction_list).data)
 
