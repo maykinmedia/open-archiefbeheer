@@ -215,16 +215,18 @@ export const Landing = () => {
     setSearchParams({ ...searchParams, [name]: value });
   };
 
-  const fieldsets: FieldSet<LandingKanbanEntry>[] = Object.keys(statusMap).map(
-    (s) => [
-      ucFirst(s),
-      {
-        component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
-          <KanbanButton {...props} title={props.object.title} />
-        ),
-        fields: ["slotAssignees"],
-      },
-    ],
+  const fieldsets: FieldSet<LandingKanbanEntry>[] = useMemo(
+    () =>
+      Object.keys(statusMap).map((s) => [
+        ucFirst(s),
+        {
+          component: (props: KanbanButtonProps<LandingKanbanEntry>) => (
+            <KanbanButton {...props} title={props.object.title} />
+          ),
+          fields: ["slotAssignees"],
+        },
+      ]),
+    [statusMap],
   );
 
   return useMemo(
@@ -365,6 +367,15 @@ export const Landing = () => {
         }}
       />
     ),
-    [loaderData, searchParams],
+    [
+      loaderData,
+      searchParams,
+      fieldsets,
+      objectLists,
+      recordManagers,
+      reviewers,
+      users,
+      user,
+    ],
   );
 };
