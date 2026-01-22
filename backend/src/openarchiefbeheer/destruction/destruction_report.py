@@ -129,12 +129,15 @@ def _add_related_resources_worksheet(
 ) -> None:
     worksheet = workbook.add_worksheet(name=_("Related resources"))
 
-    worksheet.write_row(start_row, 0, [_("Resource Type"), _("Resource UUID")])
+    worksheet.write_row(
+        start_row, 0, [_("Resource Type"), _("Resource UUID"), _("Operation")]
+    )
 
     results = ResourceDestructionResult.objects.filter(
         ~Q(resource_type="zaken"),
+        Q(status=ResourceDestructionResultStatus.deleted)
+        | Q(status=ResourceDestructionResultStatus.unlinked),
         item__destruction_list=destruction_list,
-        status=ResourceDestructionResultStatus.deleted,
     )
 
     row_count = start_row + 1
@@ -147,7 +150,15 @@ def _add_related_resources_worksheet(
             # We can't extract the UUID from the URL of the resource. Fallback on the URL
             identifier = result.url
 
-        worksheet.write_row(row_count, 0, [result.resource_type, identifier])
+        worksheet.write_row(
+            row_count,
+            0,
+            [
+                result.resource_type,
+                identifier,
+                str(ResourceDestructionResultStatus(result.status).label),
+            ],
+        )
         row_count += 1
 
 
