@@ -56,7 +56,17 @@ class DestructionListKanbanView(ListAPIView):
     filterset_class = DestructionListFilterset
 
     def get_queryset(self) -> DestructionListQuerySet:
-        return DestructionList.objects.active().annotate_user_permissions()
+        return (
+            DestructionList.objects.active()
+            .annotate_user_permissions()
+            .select_related("author", "assignee")
+            .prefetch_related(
+                "assignees",
+                "assignees__user",
+                "assignees__user__groups__permissions",
+                "assignees__user__user_permissions",
+            )
+        )
 
     def get_serializer(self, qs: DestructionListQuerySet, *args, **kwargs):
         return DestructionListKanbanSerializer(qs)
