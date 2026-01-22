@@ -11,7 +11,7 @@ requests-mock
 tblib
 pytest  # documentation tests
 testfixtures
-vcrpy
+maykin-common[vcr]
 pytest-playwright 
 pytest-django
 docker
