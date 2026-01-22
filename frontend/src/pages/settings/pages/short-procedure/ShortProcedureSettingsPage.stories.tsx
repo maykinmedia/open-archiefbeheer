@@ -31,6 +31,7 @@ const meta: Meta<typeof ShortProcedureSettingsPage> = {
   decorators: [ClearSessionStorageDecorator, ReactRouterDecorator],
   parameters: {
     mockData: [
+      MOCKS.HEALTH_CHECK,
       MOCKS.OIDC_INFO,
       MOCKS.DESTRUCTION_SEARCH_ZAAKTYPE_CHOICES,
       {

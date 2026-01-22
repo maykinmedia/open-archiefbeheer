@@ -4,7 +4,6 @@ from djangorestframework_camel_case.util import camelize
 from drf_spectacular.utils import extend_schema_field
 from furl import furl
 from rest_framework import serializers
-from rest_framework_gis.fields import GeometryField
 
 from openarchiefbeheer.clients import get_service_from_url
 
@@ -23,7 +22,10 @@ class ZaakListSerializer(serializers.ListSerializer):
 
 
 class ZaakSerializer(serializers.ModelSerializer):
-    zaakgeometrie = GeometryField(required=False, allow_null=True)
+    # NOTE: `zaakgeometrie` is not used in OAB but costly to retrieve.
+    # NOTE: this is disabled to improve performance.
+    # NOTE: if restored, make sure to remove all occurrences of `.defer("zaakgeometrie")` (see `viewsets.py`).
+    # zaakgeometrie = GeometryField(required=False, allow_null=True)
 
     class Meta:
         model = Zaak
@@ -49,7 +51,7 @@ class ZaakSerializer(serializers.ModelSerializer):
             "eigenschappen",
             "identificatie",
             "processobject",
-            "zaakgeometrie",
+            # "zaakgeometrie",
             "bronorganisatie",
             "publicatiedatum",
             "archiefnominatie",

@@ -51,6 +51,7 @@ const REVIEW = reviewFactory({
 });
 
 const baseMocks = [
+  MOCKS.HEALTH_CHECK,
   MOCKS.OIDC_INFO,
   MOCKS.AUDIT_LOG,
   MOCKS.DESTRUCTION_LIST_CO_REVIEWERS,
@@ -118,6 +119,7 @@ export const WithArchivarisMenu: Story = {
   },
   parameters: {
     mockData: [
+      MOCKS.HEALTH_CHECK,
       MOCKS.OIDC_INFO,
       MOCKS.AUDIT_LOG,
       MOCKS.ARCHIVISTS,

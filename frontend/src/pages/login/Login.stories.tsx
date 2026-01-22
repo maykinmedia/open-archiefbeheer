@@ -24,6 +24,7 @@ const meta: Meta<typeof LoginPage> = {
       },
     },
     mockData: [
+      MOCKS.HEALTH_CHECK,
       MOCKS.WHOAMI,
       MOCKS.OIDC_INFO,
       {
