@@ -57,6 +57,10 @@ Het proces wordt uitgevoerd door verschillende rollen, waarbij elke rol specifie
     - Als de lijst door de beoordelaar is goedgekeurd, stuurt de **record manager** deze door naar de **archivaris**
       voor de laatste goedkeuring.
 
+- **Administrator**:
+    - De **administrator** heeft alle verantwoordelijkheden en bevoegdheden van de **record manager**, **beoordelaar**, **mede-beoordelaar** en **archivaris**.
+    - De **administrator** kan instellingen van de applicatie wijzigen.
+
 Processtappen
 -------------
 
