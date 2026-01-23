@@ -1,3 +1,5 @@
+from django.core.cache import DEFAULT_CACHE_ALIAS, caches
+
 import pytest
 from freezegun import freeze_time
 from vcr.cassette import Cassette
@@ -29,6 +31,8 @@ def test_zaak_serializer_selectielijstklasse_derived(
         client_id="test-vcr",
         secret="test-vcr",
     )
+    # Needed for retrieve_selectielijstklasse_choices which may be cached
+    caches[DEFAULT_CACHE_ALIAS].clear()
 
     with freeze_time("2024-08-29T16:00:00+02:00"):
         retrieve_and_cache_zaken_from_openzaak()

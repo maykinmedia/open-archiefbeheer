@@ -1,32 +1,22 @@
 import logging
-import traceback
 import uuid as _uuid
 from datetime import date
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterable, Optional
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.files import File
 from django.db import models, transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
-from glom import glom
 from privates.fields import PrivateMediaFileField
-from slugify import slugify
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.utils.results_store import ResultStore
-from openarchiefbeheer.zaken.utils import (
-    delete_zaak_and_related_objects,
-    get_zaak_metadata,
-)
 
 from .assignment_logic import STATE_MANAGER
 from .constants import (
@@ -35,10 +25,10 @@ from .constants import (
     ListItemStatus,
     ListRole,
     ListStatus,
+    ResourceDestructionResultStatus,
     ReviewDecisionChoices,
     ZaakActionType,
 )
-from .exceptions import ZaakArchiefactiedatumInFutureError, ZaakNotFoundError
 from .managers import DestructionListManager
 
 if TYPE_CHECKING:
@@ -130,14 +120,6 @@ class DestructionList(models.Model):
         upload_to="destruction_reports/%Y/%m/%d/",
         blank=True,
         null=True,
-    )
-    internal_results = models.JSONField(
-        verbose_name=_("internal result"),
-        help_text=_(
-            "After this list is processed, the URL of the resources created in Open Zaak "
-            "to store the destruction report are stored here."
-        ),
-        default=dict,
     )
 
     logs = GenericRelation(TimelineLog, related_query_name="destruction_list")
@@ -233,61 +215,7 @@ class DestructionList(models.Model):
 
             self.save()
 
-    def generate_destruction_report(self) -> None:
-        from .destruction_report import DestructionReportGenerator
-
-        if self.status != ListStatus.deleted:
-            logger.warning("The destruction list has not been deleted yet.")
-            return
-
-        generator = DestructionReportGenerator(destruction_list=self)
-        with NamedTemporaryFile(mode="wb", delete_on_close=False) as f_tmp:
-            generator.generate_destruction_report(f_tmp)
-            f_tmp.close()
-
-            with open(f_tmp.name, mode="rb") as f:
-                django_file = File(f)
-                self.destruction_report.save(
-                    f"report_{slugify(self.name)}.xlsx", django_file
-                )
-
-        self.save()
-
-    def create_report_zaak(self) -> None:
-        from .utils import (
-            attach_report_to_zaak,
-            create_eio_destruction_report,
-            create_zaak_for_report,
-        )
-
-        if self.processing_status == InternalStatus.succeeded:
-            return
-
-        destruction_list = self
-        store = ResultStore(store=destruction_list)
-
-        create_zaak_for_report(destruction_list, store)
-        create_eio_destruction_report(destruction_list, store)
-
-        attach_report_to_zaak(destruction_list, store)
-
-    def clear_local_metadata(self) -> None:
-        self.items.update(extra_zaak_data={})
-
-        self.destruction_report.delete()
-
     def get_destruction_report_url(self) -> str | None:
-        if created_documents := glom(
-            self.internal_results,
-            "created_resources.enkelvoudiginformatieobjecten",
-            default=None,
-        ):
-            if not len(created_documents):
-                return
-
-            endpoint = furl(created_documents[0]) / "download"
-            return endpoint.url
-
         if not self.zaak_destruction_report_url:
             return
 
@@ -344,12 +272,6 @@ class DestructionListItem(models.Model):
         choices=ListItemStatus.choices,
         max_length=80,
     )
-    extra_zaak_data = models.JSONField(
-        verbose_name=_("extra zaak data"),
-        help_text=_("Additional information of the zaak"),
-        null=True,
-        blank=True,
-    )
     processing_status = models.CharField(
         _("processing status"),
         choices=InternalStatus.choices,
@@ -358,14 +280,6 @@ class DestructionListItem(models.Model):
             "Field used to track the status of the deletion of a destruction list item."
         ),
         default=InternalStatus.new,
-    )
-    internal_results = models.JSONField(
-        verbose_name=_("internal result"),
-        help_text=_(
-            "When this item gets processed, "
-            "the URL of the resources deleted from Open Zaak get stored here."
-        ),
-        default=dict,
     )
     excluded_relations = ArrayField(
         models.URLField("excluded_relations", max_length=1000, blank=True),
@@ -394,48 +308,6 @@ class DestructionListItem(models.Model):
 
     def set_processing_status(self, status: InternalStatus) -> None:
         self.processing_status = status
-        self.save()
-
-    def _delete_zaak(self):
-        if not self.zaak:
-            logger.error("Could not find the zaak. Aborting deletion.")
-            raise ZaakNotFoundError()
-
-        if self.zaak.archiefactiedatum > date.today():
-            logger.error(
-                "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
-            )
-            raise ZaakArchiefactiedatumInFutureError()
-
-        store = ResultStore(store=self)
-        store.clear_traceback()
-
-        try:
-            delete_zaak_and_related_objects(
-                zaak=self.zaak,
-                excluded_relations=self.excluded_relations,
-                result_store=store,
-            )
-        except Exception as exc:
-            store.add_traceback(traceback.format_exc())
-            raise exc
-
-        self.zaak.delete()
-
-    def process_deletion(self) -> None:
-        self.processing_status = InternalStatus.processing
-        self.extra_zaak_data = get_zaak_metadata(self.zaak)
-        self.save()
-
-        try:
-            self._delete_zaak()
-        except Exception:
-            self.set_processing_status(InternalStatus.failed)
-            return
-
-        self.zaak = None
-        self.processing_status = InternalStatus.succeeded
-        self._zaak_url = ""
         self.save()
 
 
@@ -703,3 +575,70 @@ class ReviewItemResponse(models.Model):
 
         self.processing_status = InternalStatus.succeeded
         self.save()
+
+
+class ResourceDestructionResult(models.Model):
+    item = models.ForeignKey(
+        to="destruction.DestructionListItem",
+        on_delete=models.CASCADE,
+        related_name="results",
+        verbose_name=_("destruction list item"),
+        help_text=_(
+            "Destruction list item whose processing resulted in the deletion/unlinking of this ZGW resource."
+        ),
+    )
+    url = models.URLField(
+        verbose_name=_("URL"),
+        help_text=_(
+            "The URL to the ZGW resource that was deleted/unlinked or that still needs to be deleted/unlinked."
+        ),
+    )
+    resource_type = models.CharField(
+        _("resource type"),
+        max_length=255,
+        help_text=_(
+            "The type of the resource, for example 'enkelvoudiginformatieobject' or 'zaak'."
+        ),
+    )
+    status = models.CharField(
+        _("status"),
+        choices=ResourceDestructionResultStatus.choices,
+        max_length=80,
+    )
+    metadata = models.JSONField(
+        verbose_name=_("Metadata"),
+        help_text=_(
+            "After deletion/unlinking of this resource, any metadata that is needed "
+            "for the destruction report is temporarily stored here. "
+        ),
+        default=dict,
+    )
+
+    class Meta:
+        verbose_name = _("Resource destruction result")
+        verbose_name_plural = _("Resource destruction results")
+
+
+class ResourceCreationResult(models.Model):
+    destruction_list = models.ForeignKey(
+        to="destruction.DestructionList",
+        on_delete=models.CASCADE,
+        related_name="results",
+        verbose_name=_("destruction list"),
+        help_text=_(
+            "Destruction list whose processing resulted in the creation of this ZGW resource."
+        ),
+    )
+    url = models.URLField(
+        verbose_name=_("URL"),
+        help_text=_("The URL to the ZGW resource that was created."),
+    )
+    resource_type = models.CharField(
+        _("resource type"),
+        max_length=255,
+        help_text=_("The type of the ZGW resource, for example 'resultaat' or 'zaak'."),
+    )
+
+    class Meta:
+        verbose_name = _("Resource creation result")
+        verbose_name_plural = _("Resource creation results")

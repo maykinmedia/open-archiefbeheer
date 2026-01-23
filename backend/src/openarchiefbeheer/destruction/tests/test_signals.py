@@ -46,7 +46,7 @@ class SignalsTests(TestCase):
 
         with (
             patch(
-                "openarchiefbeheer.destruction.models.delete_zaak_and_related_objects",
+                "openarchiefbeheer.destruction.tasks.delete_external_relations",
                 side_effect=Exception,
             ),
             patch(

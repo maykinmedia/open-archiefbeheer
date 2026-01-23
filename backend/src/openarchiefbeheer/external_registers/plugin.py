@@ -3,7 +3,6 @@ from typing import (
     Iterable,
     NoReturn,
     Protocol,
-    TypedDict,
     TypeVar,
 )
 
@@ -13,8 +12,8 @@ from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
 from maykin_config_checks import HealthCheckResult
 from zgw_consumers.models import Service
 
+from openarchiefbeheer.destruction.models import DestructionListItem
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
-from openarchiefbeheer.utils.results_store import ResultStore
 
 from .models import ExternalRegisterConfig
 
@@ -27,13 +26,6 @@ class PluginConfig(Protocol):
     identifier: str
     enabled: bool
     services: Iterable[Service]
-
-
-class RelatedResourceList[T](TypedDict):
-    next: str
-    previous: str
-    results: list[T]
-    count: int
 
 
 class AbstractBasePlugin[T](ABC):
@@ -108,7 +100,7 @@ class AbstractBasePlugin[T](ABC):
 
     @abstractmethod
     def delete_related_resources(
-        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
+        self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:
         """Delete/Unlink the resources from the register that are related to the zaak.
 

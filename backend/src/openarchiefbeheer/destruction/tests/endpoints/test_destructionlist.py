@@ -118,39 +118,6 @@ class DestructionListViewsetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     @Mocker()
-    def test_destruction_report_url_in_internal_result(self, m):
-        user = UserFactory.create(post__can_start_destruction=True)
-        ServiceFactory.create(
-            api_type=APITypes.drc,
-            api_root="http://localhost:8003/documenten/api/v1",
-        )
-        destruction_list = DestructionListFactory.create(
-            name="A deleted list",
-            status=ListStatus.deleted,
-            internal_results={
-                "created_resources": {
-                    "enkelvoudiginformatieobjecten": [
-                        "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/61a914a2-db24-4a53-acbc-5306e5c346a6"
-                    ]
-                }
-            },
-        )
-
-        m.get(
-            "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/61a914a2-db24-4a53-acbc-5306e5c346a6/download"
-        )
-
-        self.client.force_authenticate(user=user)
-        response = self.client.get(
-            reverse(
-                "api:destructionlist-download-report",
-                kwargs={"uuid": destruction_list.uuid},
-            ),
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    @Mocker()
     def test_destruction_report_url_retrieved_from_openzaak(self, m):
         user = UserFactory.create(post__can_start_destruction=True)
         ServiceFactory.create(

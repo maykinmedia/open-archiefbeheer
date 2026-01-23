@@ -1,22 +1,31 @@
 import pytest
 from freezegun import freeze_time
-from pytest_django.fixtures import SettingsWrapper
-from timeline_logger.models import TimelineLog
 from vcr.cassette import Cassette
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.clients import brc_client, drc_client, zrc_client
 from openarchiefbeheer.config.tests.factories import APIConfigFactory
+from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.zaken.models import Zaak
 from openarchiefbeheer.zaken.tasks import (
     retrieve_and_cache_zaken_from_openzaak,
 )
 
-from ...constants import DestructionListItemAction, InternalStatus, ListRole, ListStatus
-from ...tasks import delete_destruction_list, process_review_response
+from ...constants import (
+    DestructionListItemAction,
+    InternalStatus,
+    ListRole,
+    ListStatus,
+    ResourceDestructionResultStatus,
+)
+from ...tasks import (
+    complete_and_notify,
+    delete_destruction_list_item,
+    process_review_response,
+)
 from ..factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -139,17 +148,16 @@ def test_document_deleted(openzaak_reload: None, vcr: Cassette):
         zaak=zaak,
         destruction_list=destruction_list,
         processing_status=InternalStatus.failed,
-        internal_results={
-            "resources_to_delete": {
-                "enkelvoudiginformatieobjecten": [
-                    # Doesn't exist in OZ
-                    "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0"
-                ]
-            }
-        },
+    )
+    ResourceDestructionResult.objects.create(
+        item=item,
+        resource_type="enkelvoudiginformatieobjecten",
+        # Doesn't exist in OZ
+        url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0",
+        status=ResourceDestructionResultStatus.to_be_deleted,
     )
 
-    item.process_deletion()
+    delete_destruction_list_item(item.pk)
 
     item.refresh_from_db()
 
@@ -157,21 +165,13 @@ def test_document_deleted(openzaak_reload: None, vcr: Cassette):
 
 
 @pytest.mark.django_db
-@pytest.mark.openzaak(fixtures=["complex_relations.json", "zaken.json"])
-def test_delete_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cassette):
-    """
-    Issue 770: the zaaktype is an identificatie instead of a URL
-    """
-    settings.CELERY_TASK_ALWAYS_EAGER = True
+@pytest.mark.openzaak(fixtures=["complex_relations.json"])
+def test_delete_zaak_related_to_besluit_related_to_document(
+    openzaak_reload: None, vcr: Cassette
+):
     ServiceFactory.create(
         api_type=APITypes.zrc,
         api_root="http://localhost:8003/zaken/api/v1",
-        client_id="test-vcr",
-        secret="test-vcr",
-    )
-    ServiceFactory.create(
-        api_type=APITypes.ztc,
-        api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -190,33 +190,49 @@ def test_delete_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cass
     with freeze_time("2024-08-29T16:00:00+02:00"):
         retrieve_and_cache_zaken_from_openzaak()
 
-    zaak = Zaak.objects.get(identificatie="ZAAK-01")
+    assert Zaak.objects.count() == 2
+    zaak = Zaak.objects.get(identificatie="ZAAK-00")
+    destruction_list_item = DestructionListItemFactory.create(zaak=zaak)
 
-    record_manager = UserFactory.create()
-    destruction_list = DestructionListFactory.create(status=ListStatus.ready_to_delete)
-    DestructionListItemFactory.create(zaak=zaak, destruction_list=destruction_list)
+    delete_destruction_list_item(destruction_list_item.pk)
 
-    TimelineLog.objects.create(
-        content_object=destruction_list,
-        template="logging/destruction_list_deletion_triggered.txt",
-        extra_data={
-            "user": {"username": record_manager.username},
-            "user_groups": [],
-        },
-        user=record_manager,
+    with zrc_client() as client:
+        response = client.get("zaken", headers={"Accept-Crs": "EPSG:4326"})
+        response.raise_for_status()
+
+        data = response.json()
+
+        assert data["count"] == 1
+
+    with drc_client() as client:
+        response = client.get("enkelvoudiginformatieobjecten")
+        response.raise_for_status()
+
+        data = response.json()
+
+        assert data["count"] == 2
+
+        identificaties = [item["identificatie"] for item in data["results"]]
+
+        assert "DOCUMENT-01" in identificaties
+        assert "DOCUMENT-03" in identificaties
+
+    with brc_client() as client:
+        response = client.get("besluiten")
+        response.raise_for_status()
+
+        data = response.json()
+
+        assert data["count"] == 1
+        assert data["results"][0]["identificatie"] == "BESLUIT-02"
+
+
+@pytest.mark.django_db
+def test_zaak_creation_skipped_if_internal_status_succeeded(vcr: Cassette):
+    destruction_list = DestructionListFactory.create(
+        processing_status=InternalStatus.succeeded
     )
 
-    config = ArchiveConfig.get_solo()
-    config.bronorganisatie = "000000000"
-    config.zaaktype = "ZAAKTYPE-2018-0000000002"
-    config.statustype = "http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016"
-    config.resultaattype = "http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e"
-    config.informatieobjecttype = "http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485"
-    config.save()
+    complete_and_notify(destruction_list.pk)
 
-    delete_destruction_list(destruction_list)
-
-    destruction_list.refresh_from_db()
-
-    assert destruction_list.status == ListStatus.deleted
-    assert destruction_list.processing_status == InternalStatus.succeeded
+    assert len(vcr.requests) == 0

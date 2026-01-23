@@ -1,26 +1,19 @@
-from base64 import b64encode
 from typing import Protocol
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import OuterRef, Q, QuerySet, Subquery
-from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import (
     _cached_with_args,
-    drc_client,
-    zrc_client,
     ztc_client,
 )
-from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
-from openarchiefbeheer.utils.results_store import ResultStore
 from openarchiefbeheer.zaken.models import Zaak
 
 from .constants import (
@@ -185,118 +178,6 @@ def get_selectielijstklasse(resultaattype_url: str) -> str:
         resultaattype = response.json()
 
     return resultaattype["selectielijstklasse"]
-
-
-def create_zaak_for_report(
-    destruction_list: DestructionList, store: ResultStore
-) -> None:
-    config = ArchiveConfig.get_solo()
-
-    with zrc_client() as client:
-        if not destruction_list.zaak_destruction_report_url:
-            response = client.post(
-                "zaken",
-                headers={
-                    "Accept-Crs": "EPSG:4326",
-                    "Content-Crs": "EPSG:4326",
-                },
-                json={
-                    "bronorganisatie": config.bronorganisatie,
-                    "omschrijving": _("Destruction report"),
-                    "toelichting": _("Destruction report of list: %(list_name)s")
-                    % {"list_name": destruction_list.name},
-                    "zaaktype": config.zaaktype,
-                    "vertrouwelijkheidaanduiding": "openbaar",
-                    "startdatum": timezone.now().date().isoformat(),
-                    "verantwoordelijkeOrganisatie": config.bronorganisatie,
-                    "archiefnominatie": "blijvend_bewaren",
-                    "selectielijstklasse": get_selectielijstklasse(
-                        config.resultaattype
-                    ),
-                },
-                timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
-            )
-            response.raise_for_status()
-            new_zaak = response.json()
-
-            destruction_list.zaak_destruction_report_url = new_zaak["url"]
-            destruction_list.save()
-
-        if config.resultaattype and not store.has_created_resource("resultaten"):
-            response = client.post(
-                "resultaten",
-                json={
-                    "zaak": destruction_list.zaak_destruction_report_url,
-                    "resultaattype": config.resultaattype,
-                },
-            )
-            response.raise_for_status()
-            store.add_created_resource("resultaten", response.json()["url"])
-
-        if config.statustype and not store.has_created_resource("statussen"):
-            response = client.post(
-                "statussen",
-                json={
-                    "zaak": destruction_list.zaak_destruction_report_url,
-                    "statustype": config.statustype,
-                    "datum_status_gezet": timezone.now().date().isoformat(),
-                },
-            )
-            response.raise_for_status()
-            store.add_created_resource("statussen", response.json()["url"])
-
-
-def create_eio_destruction_report(
-    destruction_list: DestructionList, store: ResultStore
-) -> None:
-    if store.has_created_resource("enkelvoudiginformatieobjecten"):
-        return
-
-    config = ArchiveConfig.get_solo()
-
-    with (
-        drc_client() as client,
-        destruction_list.destruction_report.open("rb") as f_report,
-    ):
-        response = client.post(
-            "enkelvoudiginformatieobjecten",
-            json={
-                "bronorganisatie": config.bronorganisatie,
-                "creatiedatum": timezone.now().date().isoformat(),
-                "titel": _("Destruction report of list: %(list_name)s")
-                % {"list_name": destruction_list.name},
-                "auteur": "Open Archiefbeheer",
-                "taal": "nld",
-                "formaat": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                "inhoud": b64encode(f_report.read()).decode("utf-8"),
-                "informatieobjecttype": config.informatieobjecttype,
-                "indicatie_gebruiksrecht": False,
-            },
-        )
-        response.raise_for_status()
-        new_document = response.json()
-
-        store.add_created_resource("enkelvoudiginformatieobjecten", new_document["url"])
-
-
-def attach_report_to_zaak(
-    destruction_list: DestructionList, store: ResultStore
-) -> None:
-    if store.has_created_resource("zaakinformatieobjecten"):
-        return
-
-    with zrc_client() as client:
-        response = client.post(
-            "zaakinformatieobjecten",
-            json={
-                "zaak": destruction_list.zaak_destruction_report_url,
-                "informatieobject": store.get_created_resources(
-                    "enkelvoudiginformatieobjecten"
-                )[0],
-            },
-        )
-        response.raise_for_status()
-        store.add_created_resource("zaakinformatieobjecten", response.json()["url"])
 
 
 def get_selection_key_for_review(

@@ -1,11 +1,15 @@
 from collections.abc import Iterable
-from functools import partial
 from typing import NoReturn
 
 from django.db.models.functions import Length
 
 from zgw_consumers.client import build_client
 
+from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.models import (
+    DestructionListItem,
+    ResourceDestructionResult,
+)
 from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
@@ -15,10 +19,6 @@ from openarchiefbeheer.external_registers.plugin import (
 from openarchiefbeheer.external_registers.registry import register
 from openarchiefbeheer.external_registers.setup_configuration.models import (
     ExternalRegisterConfigurationModel,
-)
-from openarchiefbeheer.utils.results_store import (
-    ResultStore,
-    delete_object_and_store_result,
 )
 
 from .setup_configuration.steps import OpenKlantConfigurationStep
@@ -35,7 +35,7 @@ class OpenKlantPlugin(AbstractBasePlugin):
         raise NotImplementedError()
 
     def delete_related_resources(
-        self, zaak_url: str, related_resources: Iterable[str], result_store: ResultStore
+        self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:
         config = self.get_or_create_config()
         services_candidates = (
@@ -55,13 +55,16 @@ class OpenKlantPlugin(AbstractBasePlugin):
                 # Onderwerpobjecten are always deleted. The linked klantcontact not always
                 # Right now we have no way of telling which klantcontacten are deleted,
                 # so they don't appear in the destruction report. See #971.
-                delete_object_and_store_result(
-                    result_store,
-                    "onderwerpobjecten",
-                    resource_url,
-                    partial(
-                        clients[service.slug].delete,
-                        resource_url.replace(service.api_root, ""),
-                    ),
+                response = clients[service.slug].delete(
+                    resource_url.replace(service.api_root, ""),
+                )
+                if response.status_code != 204 or response.status_code != 404:
+                    response.raise_for_status()
+
+                ResourceDestructionResult.objects.create(
+                    item=item,
+                    resource_type="onderwerpobjecten",
+                    url=resource_url,
+                    status=ResourceDestructionResultStatus.deleted,
                 )
                 break

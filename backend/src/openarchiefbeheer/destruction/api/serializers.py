@@ -378,7 +378,6 @@ class DestructionListItemReadSerializer(serializers.ModelSerializer):
         fields = (
             "pk",
             "status",
-            "extra_zaak_data",
             "zaak",
             "supported_related_objects_count",
             "selected_related_objects_count",
