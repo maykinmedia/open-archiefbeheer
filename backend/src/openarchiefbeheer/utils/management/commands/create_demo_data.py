@@ -50,6 +50,16 @@ class Command(BaseCommand):
         "(Open Zaak, Objecten and Open Klant) with which the development server of OAB can talk to."
     )
 
+    def add_arguments(self, parser):
+        super().add_arguments(parser)
+
+        parser.add_argument(
+            "--zaken",
+            help="Configure the number of zaken that will be created. Defaults to 5.",
+            default=5,
+            type=int,
+        )
+
     def _configure_services(self) -> LocalServices:
         """Create/update all ZGW services needed for the functioning of OAB."""
         self.stdout.write("Creating/updating the ZGW services in OAB...")
@@ -155,9 +165,9 @@ class Command(BaseCommand):
         helper.publish_zaaktype(resources["zaaktype"]["url"])
 
     def _generate_zaken(
-        self, helper: OpenZaakDataCreationHelper
+        self, helper: OpenZaakDataCreationHelper, number_of_zaken: int
     ) -> list[Mapping[str, JSONEncodable]]:
-        """Generate 5 closed zaken with unsupported relations that OAB can retrieve."""
+        """Generate closed zaken with unsupported relations that OAB can retrieve."""
         self.stdout.write("Generating zaken in Open Zaak...")
 
         resources = helper.create_zaaktype_with_relations(
@@ -170,7 +180,7 @@ class Command(BaseCommand):
             helper.create_zaak(
                 zaaktype_url=resources["zaaktype"]["url"]  # pyright: ignore[reportArgumentType]
             )
-            for _ in range(5)
+            for _ in range(number_of_zaken)
         ]
 
         # Add some unsupported relations. Chuck norris quotes!
@@ -230,7 +240,7 @@ class Command(BaseCommand):
         )
 
         self._generate_reources_for_destructionreport_config(oz_helper)
-        self._generate_zaken(oz_helper)
+        self._generate_zaken(oz_helper, number_of_zaken=options["zaken"])
         self._generate_objecten(objecten_helper)
         self._generate_onderwerpobjecten(openklant_helper)
 

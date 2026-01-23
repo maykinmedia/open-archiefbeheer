@@ -76,6 +76,29 @@ You need the following libraries and/or programs:
       src/manage.py loaddata default_emails.json
       src/manage.py loaddata default_admin_index.json
 
+External Registers
+==================
+
+To start Open Zaak, Open Klant and the Objects API with docker compose run the following command from
+the ``backend/docker-services`` folder:
+
+.. code:: bash
+
+   sudo ./start_services.sh
+
+It is possible to create demo data in these external services with this management command:
+
+.. code:: bash
+
+   src/manage.py create_demo_data 
+
+To index the newly created zaken in OAB, make sure that you have celery running 
+(from the ``backend`` folder run `./bin/celery_worker.sh`) and then run:
+
+.. code:: bash
+
+   src/manage.py resync_zaken
+
 Running tests
 =============
 
@@ -124,27 +147,5 @@ To start the environment:
 
 .. _open-zaak-section:
 
-External Registers
-==================
-
-To start Open Zaak, Open Klant and the Objects API with docker compose run the following command from
-the ``backend/docker-services`` folder:
-
-.. code:: bash
-
-   sudo ./start_services.sh
-
-It is possible to create demo data in these external services with this management command:
-
-.. code:: bash
-
-   src/manage.py demo_data 
-
-To index the newly created zaken in OAB, make sure that you have celery running 
-(from the ``backend`` folder run `./bin/celery_worker.sh`) and then run:
-
-.. code:: bash
-
-   src/manage.py resync_zaken
 
 
