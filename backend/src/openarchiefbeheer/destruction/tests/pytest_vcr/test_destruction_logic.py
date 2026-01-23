@@ -10,6 +10,7 @@ from freezegun import freeze_time
 from furl import furl
 from pytest_django.fixtures import SettingsWrapper
 from vcr.cassette import Cassette
+from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -80,6 +81,7 @@ def test_destroy_external_relations(vcr: Cassette):
 
     with requests_mock.mock(real_http=True) as m:
         # TODO: Replace with real interactions once it is possible to do this in Open Zaak
+        # (https://github.com/open-zaak/open-zaak/issues/2269)
         m.get(
             "http://localhost:8003/zaken/api/v1/zaakobjecten"
             "?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F111-111-111",
@@ -105,6 +107,11 @@ def test_destroy_external_relations(vcr: Cassette):
     )
 
     assert result.url == onderwerpobject["url"]
+
+    client = build_client(ok_service)
+    response = client.get(onderwerpobject["url"])
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
@@ -141,6 +148,7 @@ def test_delete_external_relations_except_excluded(vcr: Cassette):
 
     with requests_mock.mock(real_http=True) as m:
         # TODO: Replace with real interactions once it is possible to do this in Open Zaak
+        # (https://github.com/open-zaak/open-zaak/issues/2269)
         m.get(
             "http://localhost:8003/zaken/api/v1/zaakobjecten"
             "?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F111-111-111",
@@ -198,7 +206,8 @@ def test_item_deletion(openzaak_reload: None, vcr: Cassette):
         client_id="test-vcr",
         secret="test-vcr",
     )
-    resync_zaken()
+    with freeze_time("2026-01-22"):
+        resync_zaken()
 
     item = DestructionListItemFactory.create(
         zaak=Zaak.objects.get(identificatie="ZAAK-ID-0"),
@@ -316,7 +325,8 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
         toelichting="Closing zaak.",
     )
 
-    resync_zaken()
+    with freeze_time("2026-01-22"):
+        resync_zaken()
 
     # ---------- Testing destruction
 
@@ -517,7 +527,8 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         toelichting="Closing zaak.",
     )
 
-    resync_zaken()
+    with freeze_time("2026-01-22"):
+        resync_zaken()
 
     destruction_list = DestructionListFactory.create(
         name="A test list",
@@ -621,7 +632,8 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         toelichting="Closing zaak.",
     )
 
-    resync_zaken()
+    with freeze_time("2026-01-22"):
+        resync_zaken()
 
     destruction_list = DestructionListFactory.create(
         name="A test list",
@@ -724,7 +736,8 @@ def test_retry_destroying_list_with_previously_failed_item(
         toelichting="Closing zaak.",
     )
 
-    resync_zaken()
+    with freeze_time("2026-01-22"):
+        resync_zaken()
 
     author = UserFactory.create(post__can_start_destruction=True)
     destruction_list = DestructionListFactory.create(

@@ -7,6 +7,7 @@ from django.utils.translation import gettext
 
 from freezegun import freeze_time
 from openpyxl import load_workbook
+from privates.test import temp_private_root
 
 from openarchiefbeheer.destruction.destruction_report import generate_destruction_report
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
@@ -27,6 +28,7 @@ from .factories import (
 )
 
 
+@temp_private_root()
 class DestructionReportTests(TestCase):
     def test_generate_destruction_report(self):
         record_manager = UserFactory.create(
@@ -259,7 +261,7 @@ class DestructionReportTests(TestCase):
                 "2024-12-02 12:00+01:00",
                 "John Doe (jdoe1)",
                 None,
-                3,
+                "3",
             ),
         )
 
@@ -340,7 +342,7 @@ class DestructionReportTests(TestCase):
                 "2024-12-02 12:00+01:00",
                 "Jane Doe (jdoe2)",
                 None,
-                0,
+                "0",
             ),
         )
 

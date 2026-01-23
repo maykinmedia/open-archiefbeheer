@@ -1,5 +1,7 @@
+import itertools
 from base64 import b64encode
 from tempfile import NamedTemporaryFile
+from typing import Generator
 from uuid import UUID
 
 from django.conf import settings
@@ -36,62 +38,67 @@ def _add_review_process_worksheet(
 ) -> None:
     worksheet = workbook.add_worksheet(name=_("Process details"))
 
-    column_names = [
-        # When the record manager starts the deletion process
-        _("Date/Time starting destruction"),
-        _("Date/Time of destruction"),
-        _("User who started the destruction"),
-        _("Groups"),
-        _("Number of deleted cases"),
-    ]
-    worksheet.write_row(0, 0, column_names)
+    def general_info() -> Generator[tuple[str, str, str, str, str], None, None]:
+        yield (
+            # When the record manager starts the deletion process
+            _("Date/Time starting destruction"),
+            _("Date/Time of destruction"),
+            _("User who started the destruction"),
+            _("Groups"),
+            _("Number of deleted cases"),
+        )
 
-    log = (
-        TimelineLog.objects.for_object(destruction_list)
-        .filter(template=get_event_template(destruction_list_deletion_triggered))
-        .order_by("timestamp")
-        .last()
-    )
-    number_of_cases = ResourceDestructionResult.objects.filter(
-        item__destruction_list=destruction_list,
-        resource_type="zaken",
-        status=ResourceDestructionResultStatus.deleted,
-    ).count()
+        log = (
+            TimelineLog.objects.for_object(destruction_list)
+            .filter(template=get_event_template(destruction_list_deletion_triggered))
+            .order_by("timestamp")
+            .last()
+        )
+        number_of_cases = ResourceDestructionResult.objects.filter(
+            item__destruction_list=destruction_list,
+            resource_type="zaken",
+            status=ResourceDestructionResultStatus.deleted,
+        ).count()
 
-    assert destruction_list.end
+        assert destruction_list.end
 
-    general_info_data = [
-        get_readable_timestamp(log.timestamp),
-        get_readable_timestamp(destruction_list.end),
-        format_user(log.extra_data["user"]) if log else "",
-        format_user_groups(log.extra_data["user_groups"]) if log else "",
-        number_of_cases,
-    ]
-    worksheet.write_row(1, 0, general_info_data)
-
-    column_names = [
-        _("Group"),
-        _("Name"),
-        _("Date/Time"),
-        _("Changes"),
-    ]
-    worksheet.write_row(3, 0, column_names)
-
-    logs = TimelineLog.objects.for_object(destruction_list).filter(
-        template=get_event_template(destruction_list_reviewed),
-        extra_data__approved=True,
-    )
-    for row_count, log in enumerate(logs):
-        # Not using the FK because the user might have been deleted in the mean time
-        data = [
-            format_user_groups(log.extra_data["user_groups"]),
-            format_user(log.extra_data["user"]),
+        yield (
             get_readable_timestamp(log.timestamp),
-            # This column is not useful, since we are filtering on approved reviews.
-            # But it was specifically requested.
-            _("Has approved"),
-        ]
-        worksheet.write_row(3 + row_count + 1, 0, data)
+            get_readable_timestamp(destruction_list.end),
+            format_user(log.extra_data["user"]) if log else "",
+            format_user_groups(log.extra_data["user_groups"]) if log else "",
+            str(number_of_cases),
+        )
+
+    def events_data() -> Generator[tuple[str, str, str, str], None, None]:
+        yield (
+            _("Group"),
+            _("Name"),
+            _("Date/Time"),
+            _("Changes"),
+        )
+
+        logs = TimelineLog.objects.for_object(destruction_list).filter(
+            template=get_event_template(destruction_list_reviewed),
+            extra_data__approved=True,
+        )
+        for log in logs:
+            # Not using the FK because the user might have been deleted in the mean time
+            yield (
+                format_user_groups(log.extra_data["user_groups"]),
+                format_user(log.extra_data["user"]),
+                get_readable_timestamp(log.timestamp),
+                # This column is not useful, since we are filtering on approved reviews.
+                # But it was specifically requested.
+                _("Has approved"),
+            )
+
+    empty_row = ("",)
+
+    for row_number, row in enumerate(
+        itertools.chain(general_info(), empty_row, events_data())
+    ):
+        worksheet.write_row(row_number, 0, row)
 
 
 def _add_zaken_worksheet(
@@ -240,9 +247,12 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
                 url=response.json()["url"],
             )
 
-    if not ResourceCreationResult.objects.filter(
-        destruction_list=destruction_list, resource_type="enkelvoudiginformatieobjecten"
-    ).exists():
+    if not (
+        informatieobject := ResourceCreationResult.objects.filter(
+            destruction_list=destruction_list,
+            resource_type="enkelvoudiginformatieobjecten",
+        ).last()
+    ):
         with (
             drc_client() as client,
             destruction_list.destruction_report.open("rb") as f_report,
@@ -264,7 +274,7 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
                 timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
             )
             response.raise_for_status()
-            ResourceCreationResult.objects.create(
+            informatieobject = ResourceCreationResult.objects.create(
                 destruction_list=destruction_list,
                 resource_type="enkelvoudiginformatieobjecten",
                 url=response.json()["url"],
@@ -275,10 +285,7 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
             "zaakinformatieobjecten",
             json={
                 "zaak": destruction_list.zaak_destruction_report_url,
-                "informatieobject": ResourceCreationResult.objects.get(
-                    destruction_list=destruction_list,
-                    resource_type="enkelvoudiginformatieobjecten",
-                ).url,
+                "informatieobject": informatieobject.url,
             },
         )
         response.raise_for_status()
