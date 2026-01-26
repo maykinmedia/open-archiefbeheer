@@ -135,7 +135,7 @@ Stappen
     - Controleer of de melding **"De instellingen zijn succesvol opgeslagen"** verschijnt.
 
 5. **Controleer de configuratie**
-    - Nadat de configuratie van het vernietigingsrapport is opgeslagen staan de ingevulde gegevens
+    - Nadat de configuratie van het verklaring van vernietiging is opgeslagen staan de ingevulde gegevens
       in de bijbehorende invoervelden.
 
 Let op
