@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "django_setup_configuration",
     "maykin_config_checks",
     "csp",
+    "maykin_common",
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
