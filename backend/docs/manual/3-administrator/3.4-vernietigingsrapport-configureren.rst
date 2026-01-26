@@ -24,7 +24,7 @@ De voorwaarden zijn per objecttype beschreven. Geneste opsommingen geven afhanke
 
 Rapport
 ^^^^^^^
-Het vernietigingsrapport bestaat uit de volgende configuratieonderdelen:
+Om het verklaring van vernietiging te kunnen aanmaken, heeft Open Archiefbeheer de volgende configuratieonderdelen nodig:
 
 - **Bronorganisatie**
 - **Zaaktype**
