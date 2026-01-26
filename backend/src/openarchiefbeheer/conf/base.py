@@ -444,7 +444,7 @@ ADMIN_INDEX_SHOW_REMAINING_APPS = False
 ADMIN_INDEX_AUTO_CREATE_APP_GROUP = False
 ADMIN_INDEX_SHOW_REMAINING_APPS_TO_SUPERUSERS = True
 ADMIN_INDEX_DISPLAY_DROP_DOWN_MENU_CONDITION_FUNCTION = (
-    "openarchiefbeheer.utils.django_two_factor_auth.should_display_dropdown_menu"
+    "maykin_common.django_two_factor_auth.should_display_dropdown_menu"
 )
 
 #
