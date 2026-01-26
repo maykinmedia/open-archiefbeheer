@@ -19,7 +19,7 @@ Voorwaarden
 Configuratievoorwaarden
 -----------------------
 
-Voor het configureren van een vernietigingsrapport moeten de geselecteerde instellingen aan specifieke voorwaarden voldoen.
+Voor het configureren van een verklaring van vernietiging moeten de geselecteerde instellingen aan specifieke voorwaarden voldoen.
 De voorwaarden zijn per objecttype beschreven. Geneste opsommingen geven afhankelijkheden aan.
 
 Rapport
