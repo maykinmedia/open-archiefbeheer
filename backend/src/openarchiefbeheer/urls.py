@@ -17,7 +17,7 @@ from openarchiefbeheer.accounts.views.password_reset import PasswordResetView
 
 monkeypatch_admin()
 
-handler500 = "openarchiefbeheer.utils.views.server_error"
+handler500 = "maykin_common.views.server_error"
 admin.site.site_header = "openarchiefbeheer admin"
 admin.site.site_title = "openarchiefbeheer admin"
 admin.site.index_title = "Welcome to the openarchiefbeheer admin"
