@@ -14,7 +14,8 @@ Voorwaarden
 ------------
 - De administrator moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
 - Externe services moeten zijn :ref:`geconfigureerd<manual_3-administrator_3.2-external-apis>`.
-- Open Zaak moet beschikken over correct ingerichte en gepubliceerde objecttypen die voldoen aan de hieronder beschreven voorwaarden.
+- Open Zaak moet beschikken over correct ingerichte en gepubliceerde gegevensobjecten die voldoen aan de hieronder
+  beschreven voorwaarden.
 
 Configuratievoorwaarden
 -----------------------
@@ -93,8 +94,8 @@ Wanneer een verklaring van vernietiging wordt aangemaakt:
   _“blijvend bewaren”_**.
 - De zaak krijgt:
 
-  - Het geconfigureerde resultaattype.
-  - Optioneel het geconfigureerde statustype.
+  - Een resultaat met het geconfigureerde resultaattype.
+  - Optioneel een status met het geconfigureerde statustype.
 
 - De verklaring van vernietiging wordt opgeslagen als een **enkelvoudiginformatieobject**
   met het geconfigureerde informatieobjecttype.
