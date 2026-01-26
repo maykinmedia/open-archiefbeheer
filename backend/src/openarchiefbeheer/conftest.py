@@ -1,5 +1,6 @@
 import inspect
 import pathlib
+from time import time
 from typing import Generator
 
 import docker
@@ -16,6 +17,27 @@ class FixtureLoadingError(Exception):
 
 class CleanDatabaseError(Exception):
     pass
+
+
+@pytest.fixture(autouse=True, scope="session")
+def patch_drf_throttle_timer():
+    # work around
+    # https://github.com/encode/django-rest-framework/pull/7955
+    #
+    # When run with ./manage.py test SimpleRateThrottle doesn't actually use freeze_gun.fake_time
+    # but uses time.time, because it's already bound to the class at import time
+    #
+    # pytest imports later, and then fake_time will get self passed as an arg.
+
+    # just importing at pytest session start replicates ./manage.py behaviour
+    from rest_framework.throttling import SimpleRateThrottle
+
+    # but binding a staticmethod fixes it, so `self` won't get passed, and
+    # fake_time will get called, as the test intended.
+    def timer():
+        return time()
+
+    SimpleRateThrottle.timer = staticmethod(timer)
 
 
 def _get_cassettes_dir(request: pytest.FixtureRequest):
