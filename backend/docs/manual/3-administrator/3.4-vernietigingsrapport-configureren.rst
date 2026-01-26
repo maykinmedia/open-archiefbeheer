@@ -85,7 +85,7 @@ Het geselecteerde resultaattype moet:
 De bijbehorende selectielijstklasse wordt afgeleid van dit resultaattype.
 
 Gedrag bij aanmaken verklaring van vernietiging
-------------------------------------------------
+-----------------------------------------------
 Wanneer een verklaring van vernietiging wordt aangemaakt:
 
 - Wordt automatisch een **zaak** aangemaakt met het geconfigureerde zaaktype.
