@@ -36,12 +36,10 @@ class DestructionListQuerySetTests(TestCase):
             processing_status=InternalStatus.failed,
         )
 
-        lists = DestructionList.objects.active()
+        lists = set(DestructionList.objects.active())
 
         self.assertEqual(len(lists), 3)
-        self.assertEqual(lists[0], active)
-        self.assertEqual(lists[1], recent_deleted)
-        self.assertEqual(lists[2], failed)
+        self.assertSetEqual(lists, {active, recent_deleted, failed})
         self.assertNotIn(deleted, lists)
 
     def test_completed(self):
