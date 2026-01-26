@@ -25,6 +25,7 @@ class UsersView(ListAPIView):
 
     def get_queryset(self) -> QuerySet[User]:
         qs = User.objects.annotate_permissions()
+        # `annotate_permissions()` affects the (default) ordering so we explicitly restore it.
         ordering = User._meta.ordering
         return qs.order_by(*ordering) if ordering else qs
 
