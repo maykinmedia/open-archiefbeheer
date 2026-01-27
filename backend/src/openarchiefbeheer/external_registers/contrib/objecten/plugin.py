@@ -35,6 +35,8 @@ class ObjectenPlugin(AbstractBasePlugin):
     def delete_related_resources(
         self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:
+        assert item.zaak
+
         config = self.get_or_create_config()
         services_candidates = (
             config.services.all()
@@ -51,15 +53,22 @@ class ObjectenPlugin(AbstractBasePlugin):
                     continue
 
                 response = clients[service.slug].delete(
-                    resource_url.replace(service.api_root, "")
+                    resource_url.replace(service.api_root, ""),
+                    params={"zaak": item.zaak.url},
                 )
-                if response.status_code != 204 or response.status_code != 404:
+                if response.status_code != 404:
                     response.raise_for_status()
+
+                status_resource = (
+                    ResourceDestructionResultStatus.deleted
+                    if response.status_code == 204
+                    else ResourceDestructionResultStatus.unlinked
+                )
 
                 ResourceDestructionResult.objects.create(
                     item=item,
                     resource_type="objecten",
                     url=resource_url,
-                    status=ResourceDestructionResultStatus.deleted,
+                    status=status_resource,
                 )
                 break

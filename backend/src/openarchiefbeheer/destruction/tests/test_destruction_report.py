@@ -93,7 +93,7 @@ class DestructionReportTests(TestCase):
         ResourceDestructionResult.objects.create(
             item=item1,
             resource_type="other_related_resource",
-            status=ResourceDestructionResultStatus.deleted,
+            status=ResourceDestructionResultStatus.unlinked,
             url="http://register.nl/cant/extract/uuid",
         )
         item2 = DestructionListItemFactory.create(
@@ -269,24 +269,27 @@ class DestructionReportTests(TestCase):
         rows = list(sheet_related_resources.iter_rows(values_only=True))
 
         self.assertEqual(
-            rows[0][:2],
+            rows[0][:3],
             (
                 gettext("Resource Type"),
                 gettext("Resource UUID"),
+                gettext("Operation"),
             ),
         )
         self.assertEqual(
-            rows[1][:2],
+            rows[1][:3],
             (
                 "onderwerpobjecten",
                 "4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+                gettext("Deleted"),
             ),
         )
         self.assertEqual(
-            rows[2][:2],
+            rows[2][:3],
             (
                 "other_related_resource",
                 "http://register.nl/cant/extract/uuid",
+                gettext("Unlinked"),
             ),
         )
 
