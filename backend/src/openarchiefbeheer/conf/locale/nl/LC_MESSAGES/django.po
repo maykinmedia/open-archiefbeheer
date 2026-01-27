@@ -1916,11 +1916,11 @@ msgstr "Services die nodig zijn om te communiceren met de externe registers."
 
 #: openarchiefbeheer/external_registers/models.py:26
 msgid "External register plugin configuration"
-msgstr "E-mail configuratie"
+msgstr "Externe register plugin configuratie"
 
 #: openarchiefbeheer/external_registers/models.py:27
 msgid "External register plugin configurations"
-msgstr "E-mail configuraties"
+msgstr "Externe register plugin configuraties"
 
 #: openarchiefbeheer/external_registers/plugin.py:74
 #, python-brace-format
