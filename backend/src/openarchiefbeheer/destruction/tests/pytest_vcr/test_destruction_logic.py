@@ -1,8 +1,6 @@
-import os
 from unittest.mock import patch
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
 
 import pytest
 import requests_mock
@@ -17,6 +15,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.tests.factories import (
     APIConfigFactory,
+    ArchiveConfigFactory,
 )
 from openarchiefbeheer.destruction.constants import (
     InternalStatus,
@@ -385,15 +384,16 @@ def test_clean_local_metadata(vcr: Cassette):
         client_id="test-vcr",
         secret="test-vcr",
     )
+    record_manager = UserFactory.create(
+        post__can_start_destruction=True,
+    )
     destruction_list = DestructionListFactory.create(
         processing_status=InternalStatus.processing,
         status=ListStatus.deleted,
-        destruction_report=ContentFile(b"Hello I am a report.", name="report_test.txt"),
+        author=record_manager,
     )
-
-    path = destruction_list.destruction_report.path
-    assert destruction_list.destruction_report
-    assert os.path.isfile(path)
+    with freeze_time("2026-01-22T12:00:00+01:00"):
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
     item1 = DestructionListItemFactory.create(
         processing_status=InternalStatus.succeeded,
@@ -453,9 +453,8 @@ def test_clean_local_metadata(vcr: Cassette):
         complete_and_notify(destruction_list.pk)
 
     assert ResourceDestructionResult.objects.all().count() == 0
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ValueError):
         destruction_list.destruction_report.file  # noqa: B018
-    assert not os.path.isfile(path)
 
 
 @pytest.mark.django_db
@@ -565,6 +564,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
 
 
 @pytest.mark.django_db
+@pytest.mark.openzaak(fixtures=["complex_relations.json"])
 def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cassette):
     settings.CELERY_TASK_ALWAYS_EAGER = True
     # ---------- Setting up test data
@@ -597,7 +597,13 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         client_id="test-vcr",
         secret="test-vcr",
     )
-    APIConfigFactory.create()
+    ArchiveConfigFactory.create(
+        bronorganisatie="000000000",
+        zaaktype="http://localhost:8003/catalogi/api/v1/zaaktypen/ce9feadd-00cb-46c8-a0ef-1d1dfc78586a",
+        statustype="http://localhost:8003/catalogi/api/v1/statustypen/835a2a13-f52f-4339-83e5-b7250e5ad016",
+        resultaattype="http://localhost:8003/catalogi/api/v1/resultaattypen/5d39b8ac-437a-475c-9a76-0f6ae1540d0e",
+        informatieobjecttype="http://localhost:8003/catalogi/api/v1/informatieobjecttypen/9dee6712-122e-464a-99a3-c16692de5485",
+    )
     helper = OpenZaakDataCreationHelper(
         zrc_service_slug="zaken",
         ztc_service_slug="catalogi",
@@ -635,9 +641,11 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
     with freeze_time("2026-01-22"):
         resync_zaken()
 
+    record_manager = UserFactory.create(
+        post__can_start_destruction=True,
+    )
     destruction_list = DestructionListFactory.create(
-        name="A test list",
-        status=ListStatus.ready_to_delete,
+        name="A test list", status=ListStatus.ready_to_delete, author=record_manager
     )
     item1 = DestructionListItemFactory.create(
         zaak=Zaak.objects.get(identificatie=zaak1["identificatie"]),
@@ -647,14 +655,11 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         zaak=Zaak.objects.get(identificatie=zaak2["identificatie"]),
         destruction_list=destruction_list,
     )
+    with freeze_time("2026-01-22T12:00:00+01:00"):
+        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
 
     # ---------- Testing deletion
-    with (
-        patch(
-            "openarchiefbeheer.destruction.tasks.upload_destruction_report_to_openzaak"
-        ),
-    ):
-        delete_destruction_list(destruction_list)
+    delete_destruction_list(destruction_list)
 
     destruction_list.refresh_from_db()
 
@@ -675,6 +680,21 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
 
     with pytest.raises(ValueError):
         destruction_list.destruction_report.file  # noqa: B018
+
+    assert (
+        destruction_list.zaak_destruction_report_url
+        == "http://localhost:8003/zaken/api/v1/zaken/b1570af1-bfe5-4da5-8a6e-c28835fa32ae"
+    )
+    assert vcr.requests[-1].method == "POST"
+    assert (
+        vcr.requests[-1].url
+        == "http://localhost:8003/zaken/api/v1/zaakinformatieobjecten"
+    )
+    assert vcr.requests[-2].method == "POST"
+    assert (
+        vcr.requests[-2].url
+        == "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten"
+    )
 
 
 @pytest.mark.django_db
