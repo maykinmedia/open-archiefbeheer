@@ -15,6 +15,7 @@ from openarchiefbeheer.destruction.destruction_logic import (
     delete_zaakinformatieobjecten,
 )
 from openarchiefbeheer.destruction.destruction_report import (
+    generate_destruction_report,
     upload_destruction_report_to_openzaak,
 )
 from openarchiefbeheer.logging import logevent
@@ -201,6 +202,7 @@ def complete_and_notify(pk: int) -> None:
 
     destruction_list.set_status(ListStatus.deleted)
 
+    generate_destruction_report(destruction_list)
     upload_destruction_report_to_openzaak(destruction_list)
 
     # Uploading the destruction report has succeeded.
