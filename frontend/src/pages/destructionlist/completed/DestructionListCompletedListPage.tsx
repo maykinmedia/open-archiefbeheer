@@ -1,6 +1,6 @@
 import { Badge, ListTemplate, Outline, TypedField } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
-import { NavLink, useLoaderData, useSearchParams } from "react-router-dom";
+import { useLoaderData, useSearchParams } from "react-router-dom";
 
 import { API_BASE_URL } from "../../../lib/api/request";
 import { formatDate } from "../../../lib/format/date";
@@ -65,11 +65,9 @@ export function DestructionListCompletedListPage() {
       name: "vernietigingsrapport",
       type: "jsx",
       valueTransform: (object) => (
-        <NavLink to={object.vernietigingsrapport} download>
-          <Badge variant="success">
-            <Outline.CloudArrowDownIcon /> Download rapport
-          </Badge>
-        </NavLink>
+        <Badge href={object.vernietigingsrapport} variant="success" download>
+          <Outline.CloudArrowDownIcon /> Download rapport
+        </Badge>
       ),
     },
   ];
