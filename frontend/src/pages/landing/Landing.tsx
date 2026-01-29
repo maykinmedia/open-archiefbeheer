@@ -199,7 +199,7 @@ export const Landing = () => {
           footer
         ),
         href: href.startsWith("http") ? href : undefined,
-        onClick: () => (href.startsWith("http") ? undefined : navigate(href)),
+        onClick: href.startsWith("http") ? undefined : () => navigate(href),
       };
     }),
   );
@@ -235,9 +235,6 @@ export const Landing = () => {
         kanbanProps={{
           title: "Vernietigingslijsten",
           fieldsets: fieldsets,
-          buttonLinkProps: {
-            download: true,
-          },
           objectLists: objectLists,
           toolbarProps: {
             variant: "normal",
