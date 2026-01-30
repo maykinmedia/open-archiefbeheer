@@ -2,16 +2,30 @@
 Change history
 ==============
 
-X.X.X (TBD)
-===========
+2.0.0 (2026-02-02)
+=============
 
-Temporary changelog entry to keep track of changes that need to be mentioned:
+New features:
 
-- [#871] Upgraded django-setup-configuration to version 0.11.0
-- [#871] Upgraded mozilla-django-oidc-db to version 1.1.1
-- [#884] The configuration page of the destruction report was reworked. This means that it needs to be reconfigured.
-- [#958] The landing page now only shows recently deleted destruction lists, older lists are visible on the completed destruction lists page. The amount of days (default 7) a list remains visible after deletion can be configured using the POST_DESTRUCTION_VISIBILITY_PERIOD environment variable.
-- [#978] Breaking change of the internal structure of how we keep track of data during the destruction of a list. This will require making sure that there are no lists being processed or that are failed and need retrying when performing the upgrade! 
+* Plugins are now available to support destruction in external registries:
+  * [#940] Object API plugin, enabling destruction of resources stored in the Object API.
+  * [#905] OpenKlant plugin, enabling destruction of resource stored in OpenKlant.
+* [#958] The landing page now only shows recently deleted destruction lists.
+  * Older lists are available on the completed destruction lists page.
+  * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the `POST_DESTRUCTION_VISIBILITY_PERIOD` environment variable.
+
+Breaking changes:
+
+* [#871] Upgraded `django-setup-configuration` to version 0.11.0.
+  * ⚠️ This introduces changes to the format of `setup_configuration` data for OpenID connect
+* [#884] The configuration page of the destruction report has been reworked.
+  * ⚠️ Existing installations need to reconfigure this page after upgrading.
+* [#978] Internal improvements to how data is tracked during the destruction of a list.
+  * ⚠️ When upgrading, make sure there are no destruction lists currently being processed or waiting for retry.
+
+Changes & improvements:
+
+* [#871] Upgraded `mozilla-django-oidc-db` to version 1.1.1.
 
 1.1.1 (2025-10-03)
 ==================
