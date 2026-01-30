@@ -589,7 +589,7 @@ _DESCRIPTION = """
 Open Archiefbeheer provides an API to manage archiving cases.
 """
 
-API_VERSION = "1.1.1"
+API_VERSION = "2.0.0"
 
 SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v1",
