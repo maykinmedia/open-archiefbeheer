@@ -1,10 +1,14 @@
 import { getCookie } from "../cookie/cookie";
 
+// Keep these separate from the exported consts as the compiler may over optimize.
+const ENV_OAB_API_URL = import.meta.env.OAB_API_URL;
+const ENV_OAB_API_PATH = import.meta.env.OAB_API_PATH;
+
 /** The base origin for all API requests. */
-export const API_URL = import.meta.env.OAB_API_URL || window.location.origin;
+export const API_URL = ENV_OAB_API_URL || window.location.origin;
 
 /** The base path for all API requests. */
-export const API_PATH = import.meta.env.OAB_API_PATH || "/api/v1";
+export const API_PATH = ENV_OAB_API_PATH || "/api/v1";
 
 /** The base url for all API requests. */
 export const API_BASE_URL = `${API_URL}${API_PATH}`;
