@@ -45,6 +45,12 @@ export const DESTRUCTION_LIST_STATUSES = [
 
 // Inferring the type of the array, so that we don't have to repeat the same.
 export type DestructionListStatus = (typeof DESTRUCTION_LIST_STATUSES)[number];
+export type InternalStatus =
+  | "new"
+  | "queued"
+  | "processing"
+  | "failed"
+  | "succeeded";
 
 // TODO: Is this correct? Shouldn't this have the keys:
 // add,
@@ -160,6 +166,7 @@ export async function listDestructionLists(
     | {
         name?: string;
         status?: DestructionListStatus;
+        processing_status?: InternalStatus;
         author?: number;
         reviewer?: number;
         assignee?: number;

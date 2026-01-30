@@ -98,6 +98,7 @@ class DestructionListFilterset(FilterSet):
     name = CharFilter(lookup_expr="icontains")
     comment = CharFilter(lookup_expr="icontains")
     status = ChoiceFilter(choices=ListStatus.choices)
+    processing_status = ChoiceFilter(choices=InternalStatus.choices)
     author = NumberFilter()
     reviewer = NumberFilter(
         field_name="assignees__user",
@@ -131,6 +132,7 @@ class DestructionListFilterset(FilterSet):
             "created": ["exact", "gt", "lt", "gte", "lte", "isnull"],
             "end": ["exact", "gt", "lt", "gte", "lte", "isnull"],
             "status": ["exact"],
+            "processing_status": ["exact"],
         }
 
 
