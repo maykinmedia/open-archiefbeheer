@@ -1,6 +1,6 @@
 import re
 from contextlib import asynccontextmanager
-from typing import Iterable
+from typing import AsyncIterator, Iterable
 
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -8,11 +8,11 @@ from django.core.cache import cache
 from django.db import connection
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
 
-from playwright.async_api import async_playwright
+from playwright.async_api import Page, async_playwright
 
 
 @asynccontextmanager
-async def browser_page(log_levels: Iterable[str] = ["debug"]):
+async def browser_page(log_levels: Iterable[str] = ["debug"]) -> AsyncIterator[Page]:
     async with async_playwright() as p:
         launch_kwargs = {
             "headless": settings.PLAYWRIGHT_HEADLESS,

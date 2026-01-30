@@ -17,7 +17,11 @@ export const destructionListCompletedListLoader = loginRequired(
   async ({ request }): Promise<DestructionListCompletedListContext> => {
     const searchParams = new URL(request.url).searchParams;
     const destructionLists = await listDestructionLists(
-      { ...Object.fromEntries(searchParams), status: "deleted" },
+      {
+        ...Object.fromEntries(searchParams),
+        status: "deleted",
+        processing_status: "succeeded",
+      },
       request.signal,
     );
 
