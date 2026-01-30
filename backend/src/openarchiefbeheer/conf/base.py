@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 import sentry_sdk
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
-from csp.constants import SELF
+from csp.constants import NONCE, SELF
 
 from .utils import config, get_git_sha, get_release, get_sentry_integrations
 
@@ -130,7 +130,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_gis",
     "drf_spectacular",
-    "drf_spectacular_sidecar",
     "zgw_consumers",
     "simple_certmanager",
     "timeline_logger",
@@ -600,7 +599,6 @@ SPECTACULAR_SETTINGS = {
         "openarchiefbeheer.zaken.api.drf_spectacular.hooks.camelize_serializer_fields_but_not_query_parameters",
         "openarchiefbeheer.selection.api.drf_spectacular.hooks.update_schema_for_dynamic_keys",
     ],
-    "REDOC_DIST": "SIDECAR",
 }
 
 #
@@ -698,9 +696,7 @@ SETUP_CONFIGURATION_STEPS = [
 #
 # Django CSP
 #
-
 # There are (still) issues with this in combination with Redoc (`/api/docs`) however, this config seams to work for now.
-#
 # - Google fonts are not whitelisted as the only host + path can be used and fonts is identified using query parameters.
 #   this means allowing some Google Fonts allows ALL Google fonts without narrow control. Not having the corrct font
 #   does not break the API documentation.
@@ -713,14 +709,17 @@ CONTENT_SECURITY_POLICY = {
         "form-action": [SELF],
         "style-src": [
             SELF,
+            "'sha256-4O8piI8EEQZuIlSmkQuKg6dr5B8W/i09nQqas2zzgI8='",
             "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
-            "'sha256-GvZq6XrzMRhFZ2MvEI09Lw7QbE3DnWuVQTMYafGYLcg='",
             "'sha256-QMIg+bpjm3JdElJ388KYke01izlUW0UoNOeKjpMxdgc='",
+            "'sha256-r4KPdXTvkukujMCXuJjErvhGetwsZ/bkuT5jpu5ketY='",
         ],
         "img-src": [
             SELF,
             "data:",  # This is used by admin-ui to draw on checkboxes.
         ],
+        "font-src": [SELF, "data:"],
+        "script-src": [SELF, NONCE],
     },
 }
 
