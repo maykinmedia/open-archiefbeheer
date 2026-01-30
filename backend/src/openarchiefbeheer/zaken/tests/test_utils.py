@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.translation import gettext_lazy as _
 
 from openarchiefbeheer.zaken.utils import (
     format_zaaktype_choices,
@@ -18,9 +19,10 @@ class FormatZaaktypeChoicesTests(TestCase):
         ]
 
         # Should fall back to using "no identificatie" in the label
+        default_identificatie = _("no identificatie")
         expected_result = [
             {
-                "label": "Zaaktype without ID (geen identificatie)",
+                "label": f"Zaaktype without ID ({default_identificatie})",
                 "value": "",
             }
         ]
