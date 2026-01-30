@@ -405,9 +405,7 @@ msgstr "Geen resultaattype is ingesteld voor de zaak van de verklaring van "
 #: openarchiefbeheer/config/health_checks.py:197
 msgid ""
 "The informatieobjecttype field is missing in the destruction report settings."
-msgstr ""
-"Het veld informatieobjecttype ontbreekt in de instellingen van de verklaring "
-"van vernietiging."
+msgstr "Geen informatieobjecttype is ingesteld voor de verklaring van vernietiging."
 
 #: openarchiefbeheer/config/health_checks.py:208
 msgid "Missing or invalid settings(s) for the Archive configuration."
@@ -910,9 +908,7 @@ msgstr "Maak de vernietigingslijst definitief"
 msgid ""
 "Change the status of a destruction list to 'final' and assign an archivist "
 "to it."
-msgstr ""
-"De vernietigingslijst is definitief gemaakt en toegewezen aan de archivaris %"
-"(archivist)s."
+msgstr "Wijzig de status van de vernietigingslijst naar 'definitief' en wijs een archivaris toe."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:208
 msgid "Mark as ready to review."
@@ -983,7 +979,6 @@ msgstr "Het gevraagde rapport kon niet worden gevonden in Open Zaak."
 msgid "Error response received from Open Zaak."
 msgstr "Foutmelding ontvangen van Open Zaak."
 
-# …continued exactly as in your input, preserving all entries and spacing…
 #: openarchiefbeheer/destruction/api/viewsets.py:488
 msgid "Open Zaak timed out."
 msgstr "Timeout gekregen van Open Zaak."
@@ -1203,7 +1198,7 @@ msgstr "geslaagd"
 
 #: openarchiefbeheer/destruction/constants.py:54
 msgid "Deleted"
-msgstr "Verwijderd:"
+msgstr "Verwijderd"
 
 #: openarchiefbeheer/destruction/constants.py:55
 msgid "Unlinked"
