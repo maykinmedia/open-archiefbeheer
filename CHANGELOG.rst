@@ -33,13 +33,13 @@ Change history
 * [#958] The landing page now only shows recently deleted destruction lists.
 
   * Older lists are available on the completed destruction lists page.
-  * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the `POST_DESTRUCTION_VISIBILITY_PERIOD` environment variable.
-  
+  * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the ``POST_DESTRUCTION_VISIBILITY_PERIOD`` environment variable.
+
 * Added a new management command to generate demo data for developers.
 
 **Maintenance**
 
-* [#871] Upgraded ``django-setup-configuration`` to version ``0.11.0``. It is now possible to specify environment variables in the ``yaml`` of ``django-setup-configuration`` to pass sensitive values. For more details, see the `django-setup-configuration changelog<https://github.com/maykinmedia/django-setup-configuration/blob/main/CHANGELOG.rst#090-2025-09-03>`.
+* [#871] Upgraded ``django-setup-configuration`` to version ``0.11.0``. It is now possible to specify environment variables in the ``yaml`` of ``django-setup-configuration`` to pass sensitive values. For more details, see the `django-setup-configuration changelog <https://github.com/maykinmedia/django-setup-configuration/blob/main/CHANGELOG.rst#090-2025-09-03>`__.
 * Improved the performance of multiple endpoints.
 * Refactored the application configuration checks.
 * Improved test isolation and introduced ``pytest`` for tests that interact with Open Zaak and use VCR.
