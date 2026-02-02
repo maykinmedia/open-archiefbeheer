@@ -26,11 +26,15 @@ Change history
 **New features**
 
 * Plugins are now available to support destruction in external registries:
+
   * [#940] Object API plugin, enabling destruction of resources stored in the Object API.
   * [#905] OpenKlant plugin, enabling destruction of resource stored in OpenKlant.
+
 * [#958] The landing page now only shows recently deleted destruction lists.
+
   * Older lists are available on the completed destruction lists page.
   * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the `POST_DESTRUCTION_VISIBILITY_PERIOD` environment variable.
+  
 * Added a new management command to generate demo data for developers.
 
 **Maintenance**
