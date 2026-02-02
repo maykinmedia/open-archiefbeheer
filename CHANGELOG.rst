@@ -3,9 +3,27 @@ Change history
 ==============
 
 2.0.0 (2026-02-02)
-=============
+==================
 
-New features:
+⚠️ This release contains **breaking changes**. See below the actions needed for the upgrade procedure:
+
+* [#871] Upgraded ``mozilla-django-oidc-db`` to version ``1.1.1``. The structure of the ``yaml`` used to configure ``mozilla-django-oidc-db`` with setup configuration has a different structure:
+
+    .. code:: yaml
+
+      providers:
+        - identifier: example-provider
+          # other provider settings
+
+      clients:
+        - identifier: admin-oidc
+          oidc_provider_identifier: example-provider
+          # other client settings
+
+* [#884] The configuration page of the destruction report has been reworked. Existing installations need to reconfigure the destruction report settings after upgrading.
+* [#978] The structure of how the data is tracked internally during the destruction of a list has been reworked. Ensure that there are no destruction lists currently being processed or waiting for retry.
+
+**New features**
 
 * Plugins are now available to support destruction in external registries:
   * [#940] Object API plugin, enabling destruction of resources stored in the Object API.
@@ -13,19 +31,18 @@ New features:
 * [#958] The landing page now only shows recently deleted destruction lists.
   * Older lists are available on the completed destruction lists page.
   * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the `POST_DESTRUCTION_VISIBILITY_PERIOD` environment variable.
+* Added a new management command to generate demo data for developers.
 
-Breaking changes:
+**Maintenance**
 
-* [#871] Upgraded `django-setup-configuration` to version 0.11.0.
-  * ⚠️ This introduces changes to the format of `setup_configuration` data for OpenID connect
-* [#884] The configuration page of the destruction report has been reworked.
-  * ⚠️ Existing installations need to reconfigure this page after upgrading.
-* [#978] Internal improvements to how data is tracked during the destruction of a list.
-  * ⚠️ When upgrading, make sure there are no destruction lists currently being processed or waiting for retry.
+* [#871] Upgraded ``django-setup-configuration`` to version ``0.11.0``. It is now possible to specify environment variables in the ``yaml`` of ``django-setup-configuration`` to pass sensitive values. For more details, see the `django-setup-configuration changelog<https://github.com/maykinmedia/django-setup-configuration/blob/main/CHANGELOG.rst#090-2025-09-03>`.
+* Improved the performance of multiple endpoints.
+* Refactored the application configuration checks.
+* Improved test isolation and introduced ``pytest`` for tests that interact with Open Zaak and use VCR.
+* Replaced black, isort and flake8 with ruff.
+* Improved destruction list filtering behaviour.
+* Rework caching of resources coming from Open Zaak and Selectielijst API.
 
-Changes & improvements:
-
-* [#871] Upgraded `mozilla-django-oidc-db` to version 1.1.1.
 
 1.1.1 (2025-10-03)
 ==================
