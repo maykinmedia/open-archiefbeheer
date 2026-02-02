@@ -13,18 +13,10 @@ class FeatureListCompleted(GherkinLikeTestCase):
         async with browser_page() as page:
             await self.given.record_manager_exists()
             await self.given.list_exists(name="Completed destruction list (succeeded)", status=ListStatus.deleted, processing_status=InternalStatus.succeeded, end=timezone.now())
-
-            await self.when.record_manager_logs_in(page)
-            await self.when.user_clicks_button(page, "Afgeronde vernietigingslijsten")
-            await self.then.path_should_be(page, "/completed-destruction-lists")
-            await self.then.page_should_contain_text(page, "Completed destruction list (")  # Selector according to Playwright Inspector.
-
-    async def test_list_completed_failed(self):
-        async with browser_page() as page:
-            await self.given.record_manager_exists()
             await self.given.list_exists(name="Completed destruction list (failed)", status=ListStatus.deleted, processing_status=InternalStatus.failed, end=timezone.now())
 
             await self.when.record_manager_logs_in(page)
             await self.when.user_clicks_button(page, "Afgeronde vernietigingslijsten")
             await self.then.path_should_be(page, "/completed-destruction-lists")
-            await self.then.page_should_not_contain_text(page, "Completed destruction list (")  # Selector according to Playwright Inspector.
+            await self.then.page_should_contain_text(page, "Completed destruction list (succeeded)")
+            await self.then.page_should_not_contain_text(page, "Completed destruction list (failed)")
