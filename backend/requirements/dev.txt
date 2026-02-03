@@ -493,7 +493,7 @@ pillow==10.3.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-pip==25.3
+pip==26.0
     # via pip-tools
 pip-tools==7.4.1
     # via -r requirements/dev.in
