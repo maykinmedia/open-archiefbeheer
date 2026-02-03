@@ -697,10 +697,9 @@ SETUP_CONFIGURATION_STEPS = [
 # Django CSP
 #
 # There are (still) issues with this in combination with Redoc (`/api/docs`) however, this config seams to work for now.
-# - Google fonts are not whitelisted as the only host + path can be used and fonts is identified using query parameters.
-#   this means allowing some Google Fonts allows ALL Google fonts without narrow control. Not having the corrct font
+# - Google fonts are not whitelisted as the only host + path can be used and fonts are identified using query parameters.
+#   this means allowing some Google Fonts allows ALL Google fonts without narrow control. Not having the correct font
 #   does not break the API documentation.
-# - A Worker cannot be created from a blob, this does not seem to break the API documentation.
 # - Redoc logo cannot be loaded, this does not break the API documentation.
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
@@ -720,6 +719,7 @@ CONTENT_SECURITY_POLICY = {
         ],
         "font-src": [SELF, "data:"],
         "script-src": [SELF, NONCE],
+        "worker-src": [SELF, "blob:"],
     },
 }
 
