@@ -8,3 +8,8 @@ DB_USER="openarchiefbeheer"
 DB_PASSWORD=""
 DB_HOST=""
 DB_PORT=""
+
+# On Mac geospatial libs live in homebrew casks (or a different path if you're
+# using MacPorts)
+# GEOS_LIBRARY_PATH=/opt/homebrew/opt/geos/lib/libgeos_c.dylib
+# GDAL_LIBRARY_PATH=/opt/homebrew/opt/gdal/lib/libgdal.dylib

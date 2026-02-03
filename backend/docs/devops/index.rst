@@ -16,3 +16,4 @@ Content
     django-setup-configuration
     2fa
     oidc
+    otel
