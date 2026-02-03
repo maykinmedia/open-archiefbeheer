@@ -13,6 +13,22 @@ We currently have 2 ways to deploy:
 
 Please see the respective (private) repositories mentioned above for more information on deployment.
 
+Ngnix
+=====
+
+In Open Archiefbeheer, the frontend does not add CSP headers to the responses, which means that this has to be done with Nginx.
+However, one has to be careful that Nginx does not override the headers added by the backend to the api endpoints and to the 
+admin pages.
+
+We have an example of a simple configuration that does this in our docker-compose.yaml file:
+
+.. literalinclude:: ../../../docker-nginx-default.conf
+  
+
+Here we define a variable ``$csp_headers`` which contains either the default CSP headers that nginx should add to the response (needed for the frontend)
+or the CSP headers that are already present in the response (in the case that the backend has already added the headers).
+In this way we don't override the backend CSP headers.
+
 Open Zaak
 =========
 
