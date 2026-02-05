@@ -300,7 +300,7 @@ polib==1.2.0
     # via django-rosetta
 prompt-toolkit==3.0.43
     # via click-repl
-protobuf==6.33.4
+protobuf==6.33.5
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto

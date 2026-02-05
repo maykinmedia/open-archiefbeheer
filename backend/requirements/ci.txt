@@ -565,7 +565,7 @@ prompt-toolkit==3.0.43
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   click-repl
-protobuf==6.33.4
+protobuf==6.33.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
