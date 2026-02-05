@@ -36,6 +36,15 @@ Change history
   * The number of days (default: 7) a deleted list remains visible in the kanban view can be configured using the ``POST_DESTRUCTION_VISIBILITY_PERIOD`` environment variable.
 
 * Added a new management command to generate demo data for developers.
+* [#946] Introduce ``maykin-common``. This adds among other things OTEL capabilities. 
+  This requires setting the following environment variables (check the documentation for their definitions):
+
+  * ``OTEL_EXPORTER_OTLP_ENDPOINT``
+  * ``OTEL_EXPORTER_OTLP_METRICS_INSECURE``
+  * ``OTEL_EXPORTER_OTLP_HEADERS``
+  * ``OTEL_EXPORTER_OTLP_PROTOCOL``
+  * ``OTEL_METRIC_EXPORT_INTERVAL``
+  * ``_OTEL_ENABLE_CONTAINER_RESOURCE_DETECTOR``
 
 **Maintenance**
 
