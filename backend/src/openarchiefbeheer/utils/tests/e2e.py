@@ -25,8 +25,9 @@ async def browser_page(log_levels: Iterable[str] = ["debug"]) -> AsyncIterator[P
         page = await context.new_page()
         page.on(
             "console",
-            lambda message: message.type in log_levels
-            and print(message.type.upper(), message),
+            lambda message: (
+                message.type in log_levels and print(message.type.upper(), message)
+            ),
         )
 
         save_trace = settings.PLAYWRIGHT_SAVE_TRACE
