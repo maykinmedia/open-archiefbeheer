@@ -26,3 +26,13 @@ Release flow
 #. Create a tag with ``git tag -a 1.0.0 -m ":bookmark: Release 1.0.0"``. 
 #. Push the tag with ``git push origin 1.0.0``.
 #. Once the new image has been pushed to Dockerhub, celebrate! 🎉
+
+Stable branch
+=============
+
+To port a fix, you can ``git cherry-pick`` the commit to the stable branch. The stable branches have format ``stable/1.1.x``.
+
+If you want to release a patch release for a stable branch, checkout the stable branch and follow the same 
+procedure as above (except that everything you do is merged into the stable branch and not in main).
+
+⚠️ Remember that any changes made to the changelog should be reflected in the ``main`` changelog!
