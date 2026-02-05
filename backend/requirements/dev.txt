@@ -839,7 +839,7 @@ ruamel-yaml-clib==0.2.12
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   ruamel-yaml
-ruff==0.14.6
+ruff==0.15.0
     # via -r requirements/dev.in
 sentry-sdk==2.11.0
     # via
