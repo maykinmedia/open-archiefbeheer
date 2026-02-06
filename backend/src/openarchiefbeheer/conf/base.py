@@ -710,7 +710,8 @@ SETUP_CONFIGURATION_STEPS = [
 
 
 #
-# Django CSP
+# Django CSP, `docker-nginx-default.conf` for frontend CSP.
+#
 #
 # There are (still) issues with this in combination with Redoc (`/api/docs`) however, this config seams to work for now.
 # - Google fonts are not whitelisted as the only host + path can be used and fonts are identified using query parameters.
@@ -731,7 +732,6 @@ CONTENT_SECURITY_POLICY = {
         ],
         "img-src": [
             SELF,
-            "data:",  # This is used by admin-ui to draw on checkboxes.
         ],
         "font-src": [SELF, "data:"],
         "script-src": [SELF, NONCE],
