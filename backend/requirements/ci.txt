@@ -66,7 +66,7 @@ certifi==2024.7.4
     #   elastic-apm
     #   requests
     #   sentry-sdk
-cffi==1.16.0
+cffi==2.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -101,7 +101,7 @@ click-repl==0.3.0
     #   celery
 coverage==7.5.4
     # via -r requirements/test-tools.in
-cryptography==44.0.1
+cryptography==46.0.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -547,7 +547,7 @@ phonenumberslite==8.13.35
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-pillow==10.3.0
+pillow==12.1.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -605,7 +605,7 @@ pyjwt==2.8.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   zgw-consumers
-pyopenssl==25.0.0
+pyopenssl==25.3.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
