@@ -9,4 +9,9 @@ export default defineConfig({
   build: {
     assetsDir: "static/assets",
   },
+  // Uncomment this in local `maykin-ui/admin-ui` development when having
+  // issues like: "Cannot read properties of null (reading 'useId')"
+  // resolve: {
+  //   dedupe: ["react", "react-dom"],
+  // },
 });
