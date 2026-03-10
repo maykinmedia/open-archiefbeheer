@@ -139,7 +139,7 @@ cssselect==1.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pyquery
-django==4.2.28
+django==4.2.29
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -580,7 +580,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-resource-detector-containerid==0.60b1
+opentelemetry-resource-detector-containerid==0.61b0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

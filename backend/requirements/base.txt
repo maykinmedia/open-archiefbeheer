@@ -55,7 +55,7 @@ cryptography==46.0.5
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
-django==4.2.28
+django==4.2.29
     # via
     #   -r requirements/base.in
     #   django-admin-index
@@ -263,7 +263,7 @@ opentelemetry-proto==1.39.1
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-resource-detector-containerid==0.60b1
+opentelemetry-resource-detector-containerid==0.61b0
     # via maykin-common
 opentelemetry-sdk==1.39.1
     # via
