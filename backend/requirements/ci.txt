@@ -600,7 +600,7 @@ pyee==11.1.0
     # via playwright
 pygments==2.19.2
     # via sphinx
-pyjwt==2.8.0
+pyjwt==2.12.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
