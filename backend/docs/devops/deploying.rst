@@ -54,3 +54,21 @@ FEATURE_FLAGS
 
 - ``FEATURE_RELATED_COUNT_DISABLED``: Setting this environment variable to `True` will disable the inline presentation
   of the related objects selection. This may significantly reduce load on external registers and improve performance.
+
+Frontend environment variables
+==============================
+
+The frontend has its own set of environment variables. These are prefixed with ``OAB_`` and are picked up by Vite at
+build/runtime. See ``frontend/.env.example`` for the full list and example values.
+
+- ``OAB_ZAAK_URL_TEMPLATE``: A URL template used to render the clickable links to cases (zaken) in the destruction list
+  UI. The template may contain ``{fieldname}`` placeholders that are replaced with the corresponding field of the case,
+  for example ``{identificatie}`` (the case identification number, e.g. ``ZAAK-2026-0000000411``) or ``{url}`` (the raw
+  Open Zaak API URL of the case).
+
+  This is useful when systems such as GZAC or IKO are available: the links can then point to a
+  case-viewing UI instead of the raw Open Zaak API URL.
+
+  Example::
+
+      OAB_ZAAK_URL_TEMPLATE=https://example.com/iko/zaakbeeld/zaaknummer?zaaknummer={identificatie}
