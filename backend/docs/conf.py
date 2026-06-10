@@ -11,6 +11,7 @@ import sys
 import django
 
 sys.path.insert(0, os.path.abspath("../src"))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openarchiefbeheer.conf.ci")
 os.environ["LOG_OUTGOING_REQUESTS"] = "false"
 
 import openarchiefbeheer  # noqa isort:skip
