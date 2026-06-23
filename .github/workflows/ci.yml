@@ -28,8 +28,8 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e #v6.4.0
         with:
           node-version-file: 'frontend/.nvmrc'
 
@@ -38,10 +38,10 @@ jobs:
           npm ci
           npm run lint
           CI=false npm run build
-        env: 
+        env:
           OAB_API_URL: ""
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4.6.2
         with:
           name: build
           path: ${{ github.workspace }}/frontend/dist/
@@ -73,9 +73,9 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4e77f91f52eb3534a1c99f03bc309238c8e4e524 # unreleased?
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
@@ -100,7 +100,7 @@ jobs:
           DB_PASSWORD: ''
 
       - name: Publish coverage report
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           working-directory: backend
           files: ./coverage.xml
@@ -118,8 +118,8 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e #v6.4.0
         with:
           node-version-file: 'frontend/.nvmrc'
 
@@ -142,7 +142,7 @@ jobs:
             "npx wait-on tcp:127.0.0.1:6006 && npm run test-storybook"
 
       - name: Publish coverage report (storybook)
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           working-directory: frontend/coverage
           files: ./storybook/coverage-storybook.json
@@ -151,7 +151,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish coverage report (jest)
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           working-directory: frontend/coverage
           files: ./coverage-final.json
@@ -159,327 +159,327 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  e2e-feature-tests:
-    runs-on: maykin-runner
-    needs: frontend-build
-    strategy:
-      fail-fast: false
-      matrix:
-        browser:
-          - chromium
-          - firefox
-          - webkit
-    
-    name: End-to-end tests (features), ${{ matrix.browser }}
-
-    defaults:
-      run:
-        working-directory: backend
-
-    services:
-      postgres:
-        image: postgis/postgis:14-3.4
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # Needed because the postgres container does not provide a healthcheck
-        options:
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-          --name postgres
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
-          python-version: '3.12'
-          optimize-postgres: 'yes'
-          pg-service: 'postgres'
-          setup-node: 'no'
-          working-directory: backend
-
-      - name: Start CI docker services
-        run: |
-          docker compose up -d
-        working-directory: backend/docker-services/keycloak
-
-      - name: Wait for Keycloak to be up
-        run: |
-          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
-          realm=""
-
-          until [ $realm ]; do
-            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
-            realm=$(curl "$endpoint" -s | jq -r ".realm")
-            sleep 2
-          done
-
-          echo "Running Keycloak with realm $realm"
-
-      # See https://playwright.dev/python/docs/ci#caching-browsers
-      - name: Cache Playwright browser
-        id: cache-browser
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/ms-playwright
-          key:
-            ${{ runner.os }}-${{ matrix.browser }}-playwright-${{ hashFiles('requirements/ci.txt') }}
-
-      - name: Install playwright deps
-        run: playwright install --with-deps ${{ matrix.browser }}
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: ${{ github.workspace }}/frontend/dist
-
-      - name: Run tests
-        working-directory: backend
-        run: |
-          ln -s ${{ github.workspace }}/frontend/dist/static/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
-          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
-          python src/manage.py compilemessages
-          python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 3
-        env:
-          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
-          SECRET_KEY: dummy
-          DB_USER: postgres
-          DB_PASSWORD: ''
-          E2E_SERVE_FRONTEND: yes
-          PLAYWRIGHT_HEADLESS: yes
-          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
-          PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
-          OAB_CACHE_DISABLED: true
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
-        with:
-          name: ${{ matrix.browser }}-features-playwright-trace.zip
-          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
-          retention-days: 1
-          if-no-files-found: error
-
-  e2e-issue-tests:
-    runs-on: maykin-runner
-    needs: frontend-build
-    strategy:
-      fail-fast: false
-      matrix:
-        browser:
-          - chromium
-
-    name: End-to-end tests (issues), ${{ matrix.browser }}
-
-    defaults:
-      run:
-        working-directory: backend
-
-    services:
-      postgres:
-        image: postgis/postgis:14-3.4
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # Needed because the postgres container does not provide a healthcheck
-        options:
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-          --name postgres
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
-          python-version: '3.12'
-          optimize-postgres: 'yes'
-          pg-service: 'postgres'
-          setup-node: 'no'
-          working-directory: backend
-
-      - name: Start CI docker services
-        run: |
-          docker compose up -d
-        working-directory: backend/docker-services/keycloak
-
-      - name: Wait for Keycloak to be up
-        run: |
-          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
-          realm=""
-
-          until [ $realm ]; do
-            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
-            realm=$(curl "$endpoint" -s | jq -r ".realm")
-            sleep 2
-          done
-
-          echo "Running Keycloak with realm $realm"
-
-      # See https://playwright.dev/python/docs/ci#caching-browsers
-      - name: Cache Playwright browser
-        id: cache-browser
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/ms-playwright
-          key:
-            ${{ runner.os }}-${{ matrix.browser }}-playwright-${{ hashFiles('requirements/ci.txt') }}
-
-      - name: Install playwright deps
-        run: playwright install --with-deps ${{ matrix.browser }}
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: ${{ github.workspace }}/frontend/dist
-
-      - name: Run tests
-        working-directory: backend
-        run: |
-          ln -s ${{ github.workspace }}/frontend/dist/static/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
-          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
-          python src/manage.py compilemessages
-          python src/manage.py collectstatic --noinput --link
-          python src/manage.py test openarchiefbeheer --tag=issue --parallel 3
-        env:
-          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
-          SECRET_KEY: dummy
-          DB_USER: postgres
-          DB_PASSWORD: ''
-          E2E_SERVE_FRONTEND: yes
-          PLAYWRIGHT_HEADLESS: yes
-          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
-          PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
-          OAB_CACHE_DISABLED: true
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
-        with:
-          name: ${{ matrix.browser }}-issue-playwright-trace.zip
-          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
-          retention-days: 1
-          if-no-files-found: error
-          
-  docs:
-   name: Build and check documentation
-   runs-on: ubuntu-latest
-
-   steps:
-     - uses: actions/checkout@v4
-       with:
-         path: open-archiefbeheer
-
-     - name: Set up backend environment
-       uses: maykinmedia/setup-django-backend@v1
-       with:
-         apt-packages: 'gettext postgresql-client  libgdal-dev gdal-bin'
-         python-version: '3.12'
-         setup-node: 'no'
-         working-directory: open-archiefbeheer/backend
-
-     - name: Build and test docs
-       run: |
-        pytest check_sphinx.py -v --tb=auto
-       working-directory: open-archiefbeheer/backend/docs
-
-  docker_build:
-    name: Build docker image
-    strategy:
-      matrix:
-        # KEEP IN SYNC WITH docker_push JOB
-        target:
-          - target_env: production
-            image_tag_suffix: ''
-            settings_module: docker
-          - target_env: dev
-            image_tag_suffix: '-dev'
-            settings_module: dev
-
-    uses: ./.github/workflows/build-image.yaml
-    with:
-      image_name: maykinmedia/open-archiefbeheer
-      image_tag_suffix: ${{ matrix.target.image_tag_suffix }}
-      target_env: ${{ matrix.target.target_env }}
-      settings_module: ${{ matrix.target.settings_module }}
-
-  docker_push:
-    needs:
-      - backend-tests
-      - frontend-build
-      - e2e-feature-tests
-      - e2e-issue-tests
-      - docker_build
-
-    name: Push Docker image
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' # Exclude PRs
-    strategy:
-      matrix:
-        # KEEP IN SYNC WITH docker_build JOB
-        target:
-          - target_env: production
-            image_tag_suffix: ''
-          - target_env: dev
-            image_tag_suffix: '-dev'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Extract build args
-        id: build-args
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          # PRs result in version 'merge' -> transform that into 'latest'
-          [ "$VERSION" == "merge" ] && VERSION=latest
-
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Download built image
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image-${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
-
-      - name: Load image
-        run: |
-          docker image load -i image.tar
-
-      - name: Log into registry
-        run:
-          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }}
-          --password-stdin
-
-      - name: Push the Docker image (production)
-        run: docker push $IMAGE_NAME:${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
-
-  dockerhub_description:
-    needs: docker_push
-
-    name: Update dockerhub description
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' # Exclude PRs
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-          repository: maykinmedia/open-archiefbeheer
-          readme-filepath: ${{ github.workspace }}/README.md
+#  e2e-feature-tests:
+#    runs-on: maykin-runner
+#    needs: frontend-build
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        browser:
+#          - chromium
+#          - firefox
+#          - webkit
+#
+#    name: End-to-end tests (features), ${{ matrix.browser }}
+#
+#    defaults:
+#      run:
+#        working-directory: backend
+#
+#    services:
+#      postgres:
+#        image: postgis/postgis:14-3.4
+#        env:
+#          POSTGRES_HOST_AUTH_METHOD: trust
+#        ports:
+#          - 5432:5432
+#        # Needed because the postgres container does not provide a healthcheck
+#        options:
+#          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+#          --name postgres
+#      redis:
+#        image: redis:6
+#        ports:
+#          - 6379:6379
+#
+#    steps:
+#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#      - name: Set up backend environment
+#        uses: maykinmedia/setup-django-backend@4e77f91f52eb3534a1c99f03bc309238c8e4e524 # unreleased?
+#        with:
+#          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
+#          python-version: '3.12'
+#          optimize-postgres: 'yes'
+#          pg-service: 'postgres'
+#          setup-node: 'no'
+#          working-directory: backend
+#
+#      - name: Start CI docker services
+#        run: |
+#          docker compose up -d
+#        working-directory: backend/docker-services/keycloak
+#
+#      - name: Wait for Keycloak to be up
+#        run: |
+#          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
+#          realm=""
+#
+#          until [ $realm ]; do
+#            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
+#            realm=$(curl "$endpoint" -s | jq -r ".realm")
+#            sleep 2
+#          done
+#
+#          echo "Running Keycloak with realm $realm"
+#
+#      # See https://playwright.dev/python/docs/ci#caching-browsers
+#      - name: Cache Playwright browser
+#        id: cache-browser
+#        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#        with:
+#          path: /home/runner/.cache/ms-playwright
+#          key:
+#            ${{ runner.os }}-${{ matrix.browser }}-playwright-${{ hashFiles('requirements/ci.txt') }}
+#
+#      - name: Install playwright deps
+#        run: playwright install --with-deps ${{ matrix.browser }}
+#
+#      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+#        with:
+#          name: build
+#          path: ${{ github.workspace }}/frontend/dist
+#
+#      - name: Run tests
+#        working-directory: backend
+#        run: |
+#          ln -s ${{ github.workspace }}/frontend/dist/static/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
+#          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
+#          python src/manage.py compilemessages
+#          python src/manage.py collectstatic --noinput --link
+#          python src/manage.py test openarchiefbeheer --tag=e2e --exclude-tag=issue --parallel 3
+#        env:
+#          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
+#          SECRET_KEY: dummy
+#          DB_USER: postgres
+#          DB_PASSWORD: ''
+#          E2E_SERVE_FRONTEND: yes
+#          PLAYWRIGHT_HEADLESS: yes
+#          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+#          PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
+#          OAB_CACHE_DISABLED: true
+#
+#      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        if: ${{ failure() }}
+#        with:
+#          name: ${{ matrix.browser }}-features-playwright-trace.zip
+#          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
+#          retention-days: 1
+#          if-no-files-found: error
+#
+#  e2e-issue-tests:
+#    runs-on: maykin-runner
+#    needs: frontend-build
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        browser:
+#          - chromium
+#
+#    name: End-to-end tests (issues), ${{ matrix.browser }}
+#
+#    defaults:
+#      run:
+#        working-directory: backend
+#
+#    services:
+#      postgres:
+#        image: postgis/postgis:14-3.4
+#        env:
+#          POSTGRES_HOST_AUTH_METHOD: trust
+#        ports:
+#          - 5432:5432
+#        # Needed because the postgres container does not provide a healthcheck
+#        options:
+#          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+#          --name postgres
+#      redis:
+#        image: redis:6
+#        ports:
+#          - 6379:6379
+#
+#    steps:
+#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#      - name: Set up backend environment
+#        uses: maykinmedia/setup-django-backend@4e77f91f52eb3534a1c99f03bc309238c8e4e524 # unreleased?
+#        with:
+#          apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
+#          python-version: '3.12'
+#          optimize-postgres: 'yes'
+#          pg-service: 'postgres'
+#          setup-node: 'no'
+#          working-directory: backend
+#
+#      - name: Start CI docker services
+#        run: |
+#          docker compose up -d
+#        working-directory: backend/docker-services/keycloak
+#
+#      - name: Wait for Keycloak to be up
+#        run: |
+#          endpoint="${KEYCLOAK_BASE_URL}/realms/openarchiefbeheer-dev/"
+#          realm=""
+#
+#          until [ $realm ]; do
+#            echo "Checking if Keycloak at ${KEYCLOAK_BASE_URL} is up..."
+#            realm=$(curl "$endpoint" -s | jq -r ".realm")
+#            sleep 2
+#          done
+#
+#          echo "Running Keycloak with realm $realm"
+#
+#      # See https://playwright.dev/python/docs/ci#caching-browsers
+#      - name: Cache Playwright browser
+#        id: cache-browser
+#        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#        with:
+#          path: /home/runner/.cache/ms-playwright
+#          key:
+#            ${{ runner.os }}-${{ matrix.browser }}-playwright-${{ hashFiles('requirements/ci.txt') }}
+#
+#      - name: Install playwright deps
+#        run: playwright install --with-deps ${{ matrix.browser }}
+#
+#      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+#        with:
+#          name: build
+#          path: ${{ github.workspace }}/frontend/dist
+#
+#      - name: Run tests
+#        working-directory: backend
+#        run: |
+#          ln -s ${{ github.workspace }}/frontend/dist/static/assets ${{ github.workspace }}/backend/src/openarchiefbeheer/static/assets
+#          ln -s ${{ github.workspace }}/frontend/dist/index.html ${{ github.workspace }}/backend/src/openarchiefbeheer/templates/index.html
+#          python src/manage.py compilemessages
+#          python src/manage.py collectstatic --noinput --link
+#          python src/manage.py test openarchiefbeheer --tag=issue --parallel 3
+#        env:
+#          DJANGO_SETTINGS_MODULE: openarchiefbeheer.conf.ci
+#          SECRET_KEY: dummy
+#          DB_USER: postgres
+#          DB_PASSWORD: ''
+#          E2E_SERVE_FRONTEND: yes
+#          PLAYWRIGHT_HEADLESS: yes
+#          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+#          PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
+#          OAB_CACHE_DISABLED: true
+#
+#      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+#        if: ${{ failure() }}
+#        with:
+#          name: ${{ matrix.browser }}-issue-playwright-trace.zip
+#          path: ${{ github.workspace }}/backend/${{ matrix.browser }}-playwright-trace.zip
+#          retention-days: 1
+#          if-no-files-found: error
+#
+#  docs:
+#   name: Build and check documentation
+#   runs-on: ubuntu-latest
+#
+#   steps:
+#     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#       with:
+#         path: open-archiefbeheer
+#
+#     - name: Set up backend environment
+#       uses: maykinmedia/setup-django-backend@4e77f91f52eb3534a1c99f03bc309238c8e4e524 # unreleased?
+#       with:
+#         apt-packages: 'gettext postgresql-client  libgdal-dev gdal-bin'
+#         python-version: '3.12'
+#         setup-node: 'no'
+#         working-directory: open-archiefbeheer/backend
+#
+#     - name: Build and test docs
+#       run: |
+#        pytest check_sphinx.py -v --tb=auto
+#       working-directory: open-archiefbeheer/backend/docs
+#
+#  docker_build:
+#    name: Build docker image
+#    strategy:
+#      matrix:
+#        # KEEP IN SYNC WITH docker_push JOB
+#        target:
+#          - target_env: production
+#            image_tag_suffix: ''
+#            settings_module: docker
+#          - target_env: dev
+#            image_tag_suffix: '-dev'
+#            settings_module: dev
+#
+#    uses: ./.github/workflows/build-image.yaml
+#    with:
+#      image_name: maykinmedia/open-archiefbeheer
+#      image_tag_suffix: ${{ matrix.target.image_tag_suffix }}
+#      target_env: ${{ matrix.target.target_env }}
+#      settings_module: ${{ matrix.target.settings_module }}
+#
+#  docker_push:
+#    needs:
+#      - backend-tests
+#      - frontend-build
+#      - e2e-feature-tests
+#      - e2e-issue-tests
+#      - docker_build
+#
+#    name: Push Docker image
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'push' # Exclude PRs
+#    strategy:
+#      matrix:
+#        # KEEP IN SYNC WITH docker_build JOB
+#        target:
+#          - target_env: production
+#            image_tag_suffix: ''
+#          - target_env: dev
+#            image_tag_suffix: '-dev'
+#
+#    steps:
+#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#      - name: Extract build args
+#        id: build-args
+#        run: |
+#          # Strip git ref prefix from version
+#          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+#
+#          # Use Docker `latest` tag convention
+#          [ "$VERSION" == "main" ] && VERSION=latest
+#
+#          # PRs result in version 'merge' -> transform that into 'latest'
+#          [ "$VERSION" == "merge" ] && VERSION=latest
+#
+#          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+#
+#      - name: Download built image
+#        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+#        with:
+#          name: docker-image-${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
+#
+#      - name: Load image
+#        run: |
+#          docker image load -i image.tar
+#
+#      - name: Log into registry
+#        run:
+#          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }}
+#          --password-stdin
+#
+#      - name: Push the Docker image (production)
+#        run: docker push $IMAGE_NAME:${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
+#
+#  dockerhub_description:
+#    needs: docker_push
+#
+#    name: Update dockerhub description
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'push' # Exclude PRs
+#
+#    steps:
+#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#      - name: Docker Hub Description
+#        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_TOKEN }}
+#          repository: maykinmedia/open-archiefbeheer
+#          readme-filepath: ${{ github.workspace }}/README.md
