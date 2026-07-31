@@ -28,8 +28,10 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: 'frontend/.nvmrc'
 
@@ -41,7 +43,7 @@ jobs:
         env: 
           OAB_API_URL: ""
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build
           path: ${{ github.workspace }}/frontend/dist/
@@ -73,9 +75,11 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
@@ -100,13 +104,12 @@ jobs:
           DB_PASSWORD: ''
 
       - name: Publish coverage report
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           working-directory: backend
           files: ./coverage.xml
           flags: backend
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   frontend-tests:
     name: Run storybook tests
@@ -118,8 +121,10 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: 'frontend/.nvmrc'
 
@@ -142,22 +147,20 @@ jobs:
             "npx wait-on tcp:127.0.0.1:6006 && npm run test-storybook"
 
       - name: Publish coverage report (storybook)
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           working-directory: frontend/coverage
           files: ./storybook/coverage-storybook.json
           flags: storybook
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish coverage report (jest)
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           working-directory: frontend/coverage
           files: ./coverage-final.json
           flags: jest
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   e2e-feature-tests:
     runs-on: maykin-runner
@@ -193,9 +196,11 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
@@ -225,7 +230,7 @@ jobs:
       # See https://playwright.dev/python/docs/ci#caching-browsers
       - name: Cache Playwright browser
         id: cache-browser
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: /home/runner/.cache/ms-playwright
           key:
@@ -234,7 +239,7 @@ jobs:
       - name: Install playwright deps
         run: playwright install --with-deps ${{ matrix.browser }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build
           path: ${{ github.workspace }}/frontend/dist
@@ -258,7 +263,7 @@ jobs:
           PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
           OAB_CACHE_DISABLED: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() }}
         with:
           name: ${{ matrix.browser }}-features-playwright-trace.zip
@@ -298,9 +303,11 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: 'gettext postgresql-client libgdal-dev libyaml-dev gdal-bin'
           python-version: '3.12'
@@ -330,7 +337,7 @@ jobs:
       # See https://playwright.dev/python/docs/ci#caching-browsers
       - name: Cache Playwright browser
         id: cache-browser
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: /home/runner/.cache/ms-playwright
           key:
@@ -339,7 +346,7 @@ jobs:
       - name: Install playwright deps
         run: playwright install --with-deps ${{ matrix.browser }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build
           path: ${{ github.workspace }}/frontend/dist
@@ -363,7 +370,7 @@ jobs:
           PLAYWRIGHT_TRACE_PATH: ${{ matrix.browser }}-playwright-trace.zip
           OAB_CACHE_DISABLED: true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() }}
         with:
           name: ${{ matrix.browser }}-issue-playwright-trace.zip
@@ -376,14 +383,15 @@ jobs:
    runs-on: ubuntu-latest
 
    steps:
-     - uses: actions/checkout@v4
+     - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
        with:
+         persist-credentials: false
          path: open-archiefbeheer
 
      - name: Set up backend environment
-       uses: maykinmedia/setup-django-backend@v1
+       uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
        with:
-         apt-packages: 'gettext postgresql-client  libgdal-dev gdal-bin'
+         apt-packages: 'gettext postgresql-client libgdal-dev gdal-bin'
          python-version: '3.12'
          setup-node: 'no'
          working-directory: open-archiefbeheer/backend
@@ -434,7 +442,9 @@ jobs:
             image_tag_suffix: '-dev'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Extract build args
         id: build-args
@@ -451,7 +461,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Download built image
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: docker-image-${{ steps.build-args.outputs.version }}${{ matrix.target.image_tag_suffix }}
 
@@ -475,9 +485,11 @@ jobs:
     if: github.event_name == 'push' # Exclude PRs
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
