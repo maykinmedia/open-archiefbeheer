@@ -25,7 +25,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "Open Archiefbeheer"
-copyright = "2022, Maykin Media"
+copyright = "2022, Maykin"
 author = openarchiefbeheer.__author__
 
 # The full version, including alpha/beta/rc tags

@@ -8,7 +8,7 @@
 Create, manage and execute destruction lists, for use with "Zaakgericht
 werken" (case-oriented working).
 
-Developed by [Maykin Media B.V.](https://www.maykinmedia.nl).
+Developed by [Maykin B.V.](https://www.maykin.nl).
 
 
 # Introduction
