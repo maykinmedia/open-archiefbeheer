@@ -1,5 +1,7 @@
 # Open Archiefbeheer
 
+<img src=".github/assets/open-archiefbeheer-logo.svg" alt="Open Archiefbeheer" height="100"/>
+
 ## Quick reference
 
 - **Documentation**: https://open-archiefbeheer.readthedocs.io/
