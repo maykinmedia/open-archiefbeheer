@@ -9,7 +9,7 @@ zgw_consumers:
   services:
     - identifier: selectielijst-api
       label: Selectielijst API
-      api_root: https://selectielijst.local/api/v1/
+      api_root: https://selectielijst.openzaak.nl/api/v1/
       api_connection_check_path: selectielijst
       api_type: orc
       auth_type: no_auth
