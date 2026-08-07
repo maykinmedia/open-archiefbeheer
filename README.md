@@ -1,5 +1,7 @@
 # Open Archiefbeheer
 
+<img src=".github/assets/open-archiefbeheer-logo.svg" alt="Open Archiefbeheer" height="100"/>
+
 ## Quick reference
 
 - **Documentation**: https://open-archiefbeheer.readthedocs.io/
@@ -8,7 +10,7 @@
 Create, manage and execute destruction lists, for use with "Zaakgericht
 werken" (case-oriented working).
 
-Developed by [Maykin Media B.V.](https://www.maykinmedia.nl).
+Developed by [Maykin B.V.](https://www.maykin.nl).
 
 
 # Introduction

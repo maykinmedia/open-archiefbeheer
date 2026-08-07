@@ -13,7 +13,7 @@ Open Archiefbeheer
 Create, manage and execute destruction lists, for use with "Zaakgericht
 werken" (case-oriented working).
 
-Developed by `Maykin Media B.V.`_.
+Developed by `Maykin B.V.`_.
 
 
 Introduction
@@ -33,7 +33,7 @@ traceability of user and system actions.
 
 
 
-.. _Maykin Media B.V.: https://www.maykinmedia.nl
+.. _Maykin B.V.: https://www.maykin.nl
 
 .. |build-status| image:: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/ci.yml/badge.svg
     :alt: Build status

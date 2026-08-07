@@ -25,7 +25,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "Open Archiefbeheer"
-copyright = "2022, Maykin Media"
+copyright = "2022, Maykin"
 author = openarchiefbeheer.__author__
 
 # The full version, including alpha/beta/rc tags
@@ -89,7 +89,7 @@ intersphinx_mapping = {
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_logo = "logo.svg"
+html_logo = "../../.github/assets/open-archiefbeheer-icon.svg"
 html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,

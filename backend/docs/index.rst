@@ -4,6 +4,11 @@
 Open Archiefbeheer
 ==================
 
+.. image:: ../../.github/assets/open-archiefbeheer-logo.svg
+    :height: 100px
+    :alt: Open Archiefbeheer
+    :class: no-scaled-link product-logo
+
 Welcome to the documentation for the  project.
 
 Only the latest version (the numbered version, not the technical latest-tag) is actively maintained and supported.

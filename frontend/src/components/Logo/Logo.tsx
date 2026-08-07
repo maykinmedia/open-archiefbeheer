@@ -2,19 +2,26 @@ import { AttributeList, Button, Card, P, useDialog } from "@maykin-ui/admin-ui";
 import { useCallback } from "react";
 
 import { useDataFetcher } from "../../hooks/useDataFetcher";
-import { getAppInfo } from "../../lib/api/app-info";
 // eslint-disable-next-line import/no-unresolved
-import logoUrl from "/logo.svg";
+import iconUrl from "../../img/open-archiefbeheer-icon.svg";
+// eslint-disable-next-line import/no-unresolved
+import logoUrl from "../../img/open-archiefbeheer-logo.svg";
+import { getAppInfo } from "../../lib/api/app-info";
 
 export type LogoProps = {
   width?: number | string;
   withDialog?: boolean;
+  withIcon?: boolean;
 };
 
 /**
  * Implementation of the LogoImage with optional interactivity
  */
-export function Logo({ width = 128, withDialog = false }: LogoProps) {
+export function Logo({
+  width = 128,
+  withDialog = false,
+  withIcon = false,
+}: LogoProps) {
   const dialog = useDialog();
 
   const onClick = useCallback(() => {
@@ -23,10 +30,10 @@ export function Logo({ width = 128, withDialog = false }: LogoProps) {
 
   return withDialog ? (
     <Button variant="transparent" onClick={onClick} pad={false}>
-      <LogoImage width={width} />
+      <LogoImage width={width} withIcon={withIcon} />
     </Button>
   ) : (
-    <LogoImage width={width} />
+    <LogoImage width={width} withIcon={withIcon} />
   );
 }
 
@@ -59,6 +66,18 @@ function DialogBody() {
 /**
  * Purely the image of the logo, without any interactivity.
  */
-function LogoImage({ width }: { width: number | string }) {
-  return <img src={logoUrl} alt="Open Archiefbeheer Logo" width={width} />;
+function LogoImage({
+  width,
+  withIcon = false,
+}: {
+  width: number | string;
+  withIcon?: boolean;
+}) {
+  return (
+    <img
+      src={withIcon ? iconUrl : logoUrl}
+      alt={withIcon ? "Open Archiefbeheer Icon" : "Open Archiefbeheer Logo"}
+      width={width}
+    />
+  );
 }
