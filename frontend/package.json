@@ -29,6 +29,7 @@
     "storybook": "OAB_API_URL=http://localhost:8000 storybook dev -p 6006",
     "build-storybook": "OAB_API_URL=http://localhost:8000 storybook build",
     "test-storybook": "test-storybook --coverage",
+    "chromatic": "npx chromatic",
     "prepare": "cd .. && husky frontend/.husky",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src"
