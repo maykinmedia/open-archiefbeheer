@@ -13,6 +13,7 @@ Content
     :maxdepth: 3
 
     setup-local-env
+    health-checks
     e2e-tests
     gherkin-like-tests
     vcr-tests

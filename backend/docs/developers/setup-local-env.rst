@@ -178,6 +178,15 @@ To index the newly created zaken in OAB use the following command from the ``bac
 
    src/manage.py resync_zaken
 
+Health checks
+=============
+
+When you start the app a set of health checks is run to check the configuration.
+If some configuration is missing or incorrect you will see an error "We hebben problemen gevonden
+in je instellingen" on the top of the page.
+
+You can find a documentation about it here - :ref:`developers_health-checks`.
+
 Running tests
 =============
 
