@@ -79,7 +79,7 @@ class AbstractBasePlugin[T](ABC):
                 extra=[
                     ExtraInfo(
                         code="missing_service",
-                        model="openarchiefbeheer.external_registers.contrib.openklant.models.OpenKlantConfig",
+                        model="openarchiefbeheer.external_registers.models.ExternalRegisterConfig",
                         field="services",
                     )
                 ],
