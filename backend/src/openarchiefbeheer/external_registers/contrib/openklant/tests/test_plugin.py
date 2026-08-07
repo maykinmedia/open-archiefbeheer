@@ -38,6 +38,10 @@ class OpenKlantPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         self.assertFalse(result.success)
         self.assertEqual(result.extra[0].code, "missing_service")
+        self.assertEqual(
+            result.extra[0].model,
+            "openarchiefbeheer.external_registers.models.ExternalRegisterConfig",
+        )
 
     def test_fully_configured(self):
         service = ServiceFactory.create()
