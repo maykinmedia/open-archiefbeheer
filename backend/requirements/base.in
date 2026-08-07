@@ -37,6 +37,7 @@ elastic-apm  # Elastic APM integration
 
 # Queueing
 celery
+flower
 
 # Additional libraries
 zgw-consumers[setup-configuration]
