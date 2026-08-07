@@ -187,6 +187,34 @@ in je instellingen" on the top of the page.
 
 You can find a documentation about it here - :ref:`developers_health-checks`.
 
+Running background and periodic tasks
+=====================================
+
+We use `Celery`_ as background task queue.
+
+You can run celery beat and worker in a shell to activate the asynchronous task
+queue processing:
+
+To start beat which triggers periodic tasks:
+
+.. code:: bash
+
+   ./backend/bin/celery_beat.sh
+
+To start the background worker executing tasks:
+
+.. code:: bash
+
+   ./backend/bin/celery_worker.sh
+
+To start flower for task monitoring:
+
+.. code:: bash
+
+   ./backend/bin/celery_flower.sh
+
+.. _Celery: https://docs.celeryq.dev/en/stable/
+
 Running tests
 =============
 
