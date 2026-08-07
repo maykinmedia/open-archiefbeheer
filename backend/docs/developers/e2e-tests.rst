@@ -10,6 +10,8 @@ static files provided by the ``staticfiles`` finders (so you don't need to run `
 
 .. _documentation: https://docs.djangoproject.com/en/5.0/topics/testing/tools/#django.test.LiveServerTestCase
 
+.. _developers_e2e-tests_locally:
+
 Running locally
 ===============
 
