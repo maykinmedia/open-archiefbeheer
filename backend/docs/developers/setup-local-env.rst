@@ -5,7 +5,7 @@ Development environment
 =======================
 
 Prerequisites
--------------
+=============
 
 You need the following libraries and/or programs:
 
@@ -28,18 +28,57 @@ You need the following libraries and/or programs:
 .. _npm: https://www.npmjs.com/
 
 
-#. Navigate to the location where you want to place your project and clone it from github.
-#. Create the database. The default database/postgres user/password that will be used is ``openarchiefbeheer`` (see ``src/openarchiefbeheer/conf/dev.py`` for the settings). 
-#. Activate your virtual environment.
-#. Install the requirements ``uv pip install -r requirements/dev.txt``.
-#. Build the frontend (needed for the styling of the admin):
+Getting started
+===============
 
-    .. code:: bash
-        
-       npm install
-       npm run build
+Navigate to the location where you want to place your project and clone it from github.
 
-#. Run the migrations with ``src/manage.py migrate``
+.. code-block:: bash
+
+    $ git clone git@github.com:maykinmedia/open-archiefbeheer.git
+    $ cd open-archiefbeheer
+
+Open Archiefbeheer is a single page application with one repository, containing both backend and frontend parts.
+
+In the root you can find two folders:
+
+* ``backend`` - developed in Python using Django Web Framework.
+* ``frontend`` - build with TypeScript and React.
+
+In this guide we install first backend and then frontend.
+
+Backend
+-------
+
+Backend provides API used by frontend and the admin interface.
+
+#. Navigate to the backend folder:
+
+   .. code:: bash
+
+      cd backend
+
+#. Create the database. The default database/postgres user/password that will be used is ``openarchiefbeheer`` (see ``src/openarchiefbeheer/conf/dev.py`` for the settings).
+#. Activate your virtual environment:
+
+   .. code:: bash
+
+      virtualenv env
+      source env/bin/activate
+
+#. Install the requirements:
+
+   .. code:: bash
+
+      pip install uv
+      uv pip install -r requirements/dev.txt
+
+#. Create the statics and run the migrations:
+
+   .. code:: bash
+
+      src/manage.py collectstatic --link
+      src/manage.py migrate
 
    .. note::
 
@@ -68,13 +107,54 @@ You need the following libraries and/or programs:
       ./bin/make_translations.sh
       src/manage.py compilemessages --locale nl
 
-#. Run the development server with ``src/manage.py runserver``
+#. Run the development server:
+
+   .. code:: bash
+
+      src/manage.py runserver
+
 #. Optionally, you can load fixtures for the email templates and for the admin index configuration:
 
    .. code:: bash
 
       src/manage.py loaddata default_emails.json
       src/manage.py loaddata default_admin_index.json
+
+Frontend
+--------
+
+Frontent implements a single page application with React framework.
+The frontend build provides ``dist/index.html`` file which is the entry point to the OAB web interface.
+
+#. Navigate to the frontend folder.
+
+   .. code:: bash
+
+      cd ../frontend
+
+#. Install dependencies. We recomment to use NVM for it:
+
+   .. code:: bash
+
+      nvm use
+      npm i
+
+#. To change environment variables settings, create a ``.env`` file.
+   :ref:`Here <devops_deploying_frontend_env>` you can read about environment variables used by frontend.
+
+   .. code:: bash
+
+      cp .env.example .env
+
+#. Run local server.
+
+   .. code:: bash
+
+      npm run start
+
+#. Alternatively you may want to serve frontend urls from the backend server. You need to build a frontend,
+   link frontend build in the backend and turn on the backend setting ``E2E_SERVE_FRONTEND``.
+   :ref:`Here <developers_e2e-tests_locally>` is a detailed documentation how to do it.
 
 External Registers
 ==================
@@ -92,12 +172,48 @@ It is possible to create demo data in these external services with this manageme
 
    src/manage.py create_demo_data 
 
-To index the newly created zaken in OAB, make sure that you have celery running 
-(from the ``backend`` folder run `./bin/celery_worker.sh`) and then run:
+To index the newly created zaken in OAB use the following command from the ``backend`` folder:
 
 .. code:: bash
 
    src/manage.py resync_zaken
+
+Health checks
+=============
+
+When you start the app a set of health checks is run to check the configuration.
+If some configuration is missing or incorrect you will see an error "We hebben problemen gevonden
+in je instellingen" on the top of the page.
+
+You can find a documentation about it here - :ref:`developers_health-checks`.
+
+Running background and periodic tasks
+=====================================
+
+We use `Celery`_ as background task queue.
+
+You can run celery beat and worker in a shell to activate the asynchronous task
+queue processing:
+
+To start beat which triggers periodic tasks:
+
+.. code:: bash
+
+   ./backend/bin/celery_beat.sh
+
+To start the background worker executing tasks:
+
+.. code:: bash
+
+   ./backend/bin/celery_worker.sh
+
+To start flower for task monitoring:
+
+.. code:: bash
+
+   ./backend/bin/celery_flower.sh
+
+.. _Celery: https://docs.celeryq.dev/en/stable/
 
 Running tests
 =============

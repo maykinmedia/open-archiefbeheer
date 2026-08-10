@@ -55,6 +55,8 @@ FEATURE_FLAGS
 - ``FEATURE_RELATED_COUNT_DISABLED``: Setting this environment variable to `True` will disable the inline presentation
   of the related objects selection. This may significantly reduce load on external registers and improve performance.
 
+.. _devops_deploying_frontend_env:
+
 Frontend environment variables
 ==============================
 
