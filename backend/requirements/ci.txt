@@ -107,7 +107,6 @@ cryptography==46.0.5
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-simple-certmanager
-    #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
@@ -374,11 +373,6 @@ iniconfig==2.0.0
     # via pytest
 jinja2==3.1.6
     # via sphinx
-josepy==1.14.0
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   mozilla-django-oidc
 jsonschema==4.21.1
     # via
     #   -c requirements/base.txt
@@ -411,12 +405,12 @@ maykin-config-checks==0.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-mozilla-django-oidc==4.0.1
+mozilla-django-oidc==5.0.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==1.1.1
+mozilla-django-oidc-db==2.0.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -615,12 +609,12 @@ pyjwt==2.12.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   mozilla-django-oidc
     #   zgw-consumers
 pyopenssl==25.3.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   josepy
     #   webauthn
 pypng==0.20220715.0
     # via
