@@ -61,12 +61,13 @@ class Command(BaseCommand):
         )
 
     def _configure_services(self) -> LocalServices:
-        """Create/update all ZGW services needed for the functioning of OAB."""
+        """Create/get all ZGW services needed for the functioning of OAB."""
         self.stdout.write("Creating/updating the ZGW services in OAB...")
 
         ztc_service, _ = Service.objects.get_or_create(
             api_root="http://localhost:8003/catalogi/api/v1/",
             defaults={
+                "label": "Catalogi API",
                 "slug": "catalogi",
                 "api_type": APITypes.ztc,
                 "client_id": "test-vcr",
@@ -76,6 +77,7 @@ class Command(BaseCommand):
         zrc_service, _ = Service.objects.get_or_create(
             api_root="http://localhost:8003/zaken/api/v1/",
             defaults={
+                "label": "Zaken API",
                 "slug": "zaken",
                 "api_type": APITypes.zrc,
                 "client_id": "test-vcr",
@@ -85,6 +87,7 @@ class Command(BaseCommand):
         Service.objects.update_or_create(
             api_root="http://localhost:8003/besluiten/api/v1/",
             defaults={
+                "label": "Besluiten API",
                 "slug": "besluiten",
                 "api_type": APITypes.brc,
                 "client_id": "test-vcr",
@@ -94,6 +97,7 @@ class Command(BaseCommand):
         drc_service, _ = Service.objects.get_or_create(
             api_root="http://localhost:8003/documenten/api/v1/",
             defaults={
+                "label": "Documenten API",
                 "slug": "documenten",
                 "api_type": APITypes.drc,
                 "client_id": "test-vcr",
@@ -103,6 +107,7 @@ class Command(BaseCommand):
         Service.objects.update_or_create(
             api_root="https://selectielijst.openzaak.nl/api/v1/",
             defaults={
+                "label": "Selectielijst API",
                 "slug": "selectielijst",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.no_auth,
@@ -111,6 +116,7 @@ class Command(BaseCommand):
         objecten_service, _ = Service.objects.get_or_create(
             api_root="http://localhost:8006/api/v2/",
             defaults={
+                "label": "Objecten API",
                 "slug": "objecten",
                 "api_type": APITypes.orc,
                 "api_root": "http://localhost:8006/api/v2/",
@@ -122,6 +128,7 @@ class Command(BaseCommand):
         openklant_service, _ = Service.objects.get_or_create(
             api_root="http://localhost:8005/klantinteracties/api/v1/",
             defaults={
+                "label": "Klantinteracties API (Open Klant)",
                 "slug": "openklant",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.api_key,
