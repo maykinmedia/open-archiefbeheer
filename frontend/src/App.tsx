@@ -79,7 +79,10 @@ function App() {
   const breadcrumbItems = (
     (handle?.breadcrumbItems || []) as BreadcrumbItem[]
   ).map((b) => ({
-    label: formatMessage(b.label, match?.params as Record<string, string>),
+    label: formatMessage(
+      b.label as string,
+      match?.params as Record<string, string>,
+    ),
     href: formatMessage(b.href, match?.params as Record<string, string>),
   }));
 

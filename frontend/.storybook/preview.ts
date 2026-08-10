@@ -1,4 +1,5 @@
 import "@maykin-ui/admin-ui/style";
+import "@maykin-ui/admin-ui/style/themes/purple-rain.css";
 import type { Preview } from "@storybook/react-vite";
 
 import { MOCK_BASE } from "./mockData";
