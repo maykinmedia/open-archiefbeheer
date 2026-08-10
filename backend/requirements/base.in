@@ -22,7 +22,6 @@ maykin-common[axes,health-checks,mfa,otel]
 # API libraries
 djangorestframework
 drf-spectacular
-drf-spectacular
 djangorestframework-camel-case
 django-cors-headers
 django-filter
@@ -45,6 +44,3 @@ furl
 python-slugify
 XlsxWriter
 GitPython
-
-# FIXME waiting for celery release 5.5 which includes the fix of kombu
-kombu>=5.4.0
