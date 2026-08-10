@@ -1,9 +1,11 @@
 from typing import Mapping, TypedDict
 
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandParser
 
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
+
+from openarchiefbeheer.config.models import APIConfig
 
 from ...tests.resources_client import (
     JSONEncodable,
@@ -19,6 +21,7 @@ class LocalServices(TypedDict):
     ztc_service: Service
     objecten_service: Service
     openklant_service: Service
+    sl_service: Service
 
 
 class Command(BaseCommand):
@@ -43,6 +46,12 @@ class Command(BaseCommand):
 
     * ZaakObjecten in Open Zaak to the objects in Objecten API and to the onderwerpobjecten in Open Klant. This is because the linkchecker in Open Zaak makes this impossible with the docker compose setup.
 
+    The configuration of following models is updated with created resources:
+
+    * config.APIConfig
+    * config.ArchiveConfig
+    * external_registers.ExternalRegisterConfig
+
     """
 
     help = (
@@ -50,7 +59,7 @@ class Command(BaseCommand):
         "(Open Zaak, Objecten and Open Klant) with which the development server of OAB can talk to."
     )
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         super().add_arguments(parser)
 
         parser.add_argument(
@@ -58,6 +67,12 @@ class Command(BaseCommand):
             help="Configure the number of zaken that will be created. Defaults to 5.",
             default=5,
             type=int,
+        )
+
+        parser.add_argument(
+            "--update-config",
+            action="store_true",
+            help="Update configuration models with created services and resources.",
         )
 
     def _configure_services(self) -> LocalServices:
@@ -104,7 +119,7 @@ class Command(BaseCommand):
                 "secret": "test-vcr",
             },
         )
-        Service.objects.update_or_create(
+        sl_service = Service.objects.update_or_create(
             api_root="https://selectielijst.openzaak.nl/api/v1/",
             defaults={
                 "label": "Selectielijst API",
@@ -143,11 +158,12 @@ class Command(BaseCommand):
             "zrc_service": zrc_service,
             "ztc_service": ztc_service,
             "drc_service": drc_service,
+            "sl_service": sl_service,
         }
 
-    def _generate_reources_for_destructionreport_config(
+    def _generate_resources_for_destructionreport_config(
         self, helper: OpenZaakDataCreationHelper
-    ) -> None:
+    ):
         """Generate a zaaktype with a related resultaattype, two statustypen and informatieobjecttype
 
         These can be used to configure the destruction report settings."""
@@ -231,6 +247,18 @@ class Command(BaseCommand):
         self.stdout.write("Generating onderwerpobjecten in Open Klant...")
         return [helper.create_onderwerpobject() for _ in range(5)]
 
+    def _update_configuration(self, services: LocalServices) -> None:
+        """
+        update APIConfig, ArchiveConfig and ExternalRegisterConfig
+        """
+        self.stdout.write("Updating configuration models...")
+
+        # update APIConfig
+        config = APIConfig.get_solo()
+        config.selectielijst_api_service = services["sl_service"]
+        config.save()
+
+
     def handle(self, *args, **options):
         services = self._configure_services()
 
@@ -246,7 +274,7 @@ class Command(BaseCommand):
             openklant_service_slug=services["openklant_service"].slug
         )
 
-        self._generate_reources_for_destructionreport_config(oz_helper)
+        self._generate_resources_for_destructionreport_config(oz_helper)
         self._generate_zaken(oz_helper, number_of_zaken=options["zaken"])
         self._generate_objecten(objecten_helper)
         self._generate_onderwerpobjecten(openklant_helper)
@@ -254,6 +282,16 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS("Generated resources in the external registers!")
         )
+
+        if options["update_config"]:
+            self._update_configuration(services)
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Configuration models are updated with generated_resources"
+                )
+            )
+
         self.stdout.write(
             self.style.SUCCESS(
                 "Run src/manage.py resync_zaken to index the new zaken in OAB."
