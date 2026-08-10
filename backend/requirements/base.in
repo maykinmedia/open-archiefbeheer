@@ -5,7 +5,7 @@ python-dotenv  # environment variables for secrets
 python-decouple  # processing of envvar configs
 
 # Framework libraries
-django ~= 4.2
+django ~= 5.2
 django-hijack
 django-redis
 django-rosetta
