@@ -209,7 +209,7 @@ django-phonenumber-field==7.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-django-privates==2.0.0.post1
+django-privates==4.0.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
