@@ -146,7 +146,7 @@ django-timeline-logger==5.0.0
     # via -r requirements/base.in
 django-two-factor-auth==1.18.1
     # via maykin-2fa
-djangorestframework==3.18.0
+djangorestframework==3.17.2
     # via
     #   -r requirements/base.in
     #   djangorestframework-gis
