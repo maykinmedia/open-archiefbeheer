@@ -5,7 +5,7 @@ python-dotenv  # environment variables for secrets
 python-decouple  # processing of envvar configs
 
 # Framework libraries
-django ~= 4.2
+django ~= 5.2
 django-hijack
 django-redis
 django-rosetta
@@ -21,7 +21,6 @@ maykin-common[axes,health-checks,mfa,otel]
 
 # API libraries
 djangorestframework
-drf-spectacular
 drf-spectacular
 djangorestframework-camel-case
 django-cors-headers
@@ -45,6 +44,3 @@ furl
 python-slugify
 XlsxWriter
 GitPython
-
-# FIXME waiting for celery release 5.5 which includes the fix of kombu
-kombu>=5.4.0
