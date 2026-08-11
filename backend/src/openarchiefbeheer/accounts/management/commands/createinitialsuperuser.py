@@ -1,6 +1,8 @@
 # Taken from github.com/open-zaak/open-zaak project
 # Copyright (C) 2020 Dimpact
 import os
+import secrets
+import string
 
 import django
 from django.conf import settings
@@ -67,7 +69,8 @@ class Command(BaseCommand):
         user = qs.get()
 
         if not password and options["generate_password"]:
-            options["password"] = self.UserModel.objects.make_random_password(length=20)
+            alphabet = string.ascii_letters + string.digits
+            options["password"] = "".join(secrets.choice(alphabet) for _ in range(20))
 
         if options["password"] or not PASSWORD_FROM_ENV_SUPPORTED:
             self.stdout.write("Setting user password...")

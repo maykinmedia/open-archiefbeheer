@@ -171,7 +171,8 @@ class DestructionReportTests(TestCase):
 
         destruction_list.refresh_from_db()
 
-        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        with destruction_list.destruction_report.open(mode="rb") as f:
+            wb = load_workbook(filename=f)
         sheet_deleted_zaken = wb[gettext("Deleted zaken")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
@@ -323,7 +324,8 @@ class DestructionReportTests(TestCase):
 
         destruction_list.refresh_from_db()
 
-        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        with destruction_list.destruction_report.open(mode="rb") as f:
+            wb = load_workbook(filename=f)
         sheet_deleted_zaken = wb[gettext("Process details")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 
@@ -414,7 +416,8 @@ class DestructionReportTests(TestCase):
 
         destruction_list.refresh_from_db()
 
-        wb = load_workbook(filename=destruction_list.destruction_report.path)
+        with destruction_list.destruction_report.open(mode="rb") as f:
+            wb = load_workbook(filename=f)
         sheet_deleted_zaken = wb[gettext("Process details")]
         rows = list(sheet_deleted_zaken.iter_rows(values_only=True))
 

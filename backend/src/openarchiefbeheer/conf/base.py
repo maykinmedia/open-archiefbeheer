@@ -694,9 +694,23 @@ OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = config(
 #
 # Django privates
 #
-PRIVATE_MEDIA_ROOT = os.path.join(BASE_DIR, "private_media")
-
-PRIVATE_MEDIA_URL = "/private-media/"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    "privates": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": os.path.join(BASE_DIR, "private_media"),
+            "base_url": "/private-media/",
+        },
+    },
+}
+SENDFILE_ROOT = STORAGES["privates"]["OPTIONS"]["location"]
+SENDFILE_URL = STORAGES["privates"]["OPTIONS"]["base_url"]
 
 #
 # Django setup configuration
