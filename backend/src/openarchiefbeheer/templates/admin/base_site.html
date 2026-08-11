@@ -49,9 +49,5 @@
 
 {# Override footer block to display version information if you're a logged in staff user #}
 {% block footer %}
-    <div id="footer">
-        {% if user.is_authenticated and user.is_staff %}
-            {% show_version_info %}
-        {% endif %}
-    </div>
+    {% include "maykin_common/includes/footer.html" %}
 {% endblock %}

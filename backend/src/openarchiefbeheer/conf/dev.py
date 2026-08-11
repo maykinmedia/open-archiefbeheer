@@ -12,6 +12,7 @@ os.environ.setdefault(
 )
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("VERSION_TAG", "dev")
+os.environ.setdefault("RELEASE", "dev")
 
 os.environ.setdefault("DB_NAME", "openarchiefbeheer")
 os.environ.setdefault("DB_USER", "openarchiefbeheer")

@@ -9,6 +9,7 @@ import sentry_sdk
 from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from csp.constants import NONCE, SELF
+from maykin_common.branding import ProductDefinition
 from maykin_common.config import config
 
 from .utils import get_git_sha, get_release, get_sentry_integrations
@@ -754,3 +755,12 @@ CONTENT_SECURITY_POLICY = {
 }
 
 CONTENT_SECURITY_POLICY_REPORT_ONLY = {}
+
+#
+# MAYKIN-COMMON branding
+#
+MKN_BRANDING_PRODUCT_DEFINITION = ProductDefinition(
+    name="Open Archiefbeheer",
+    hyperlink="https://github.com/maykinmedia/open-archiefbeheer",
+    logo_path="ico/open-archiefbeheer-icon.svg",
+)
