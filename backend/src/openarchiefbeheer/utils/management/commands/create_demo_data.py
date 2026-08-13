@@ -5,7 +5,14 @@ from django.core.management import BaseCommand, CommandParser
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.config.models import APIConfig
+from openarchiefbeheer.config.models import APIConfig, ArchiveConfig
+from openarchiefbeheer.external_registers.contrib.objecten.constants import (
+    OBJECTEN_IDENTIFIER,
+)
+from openarchiefbeheer.external_registers.contrib.openklant.constants import (
+    OPENKLANT_IDENTIFIER,
+)
+from openarchiefbeheer.external_registers.registry import register as registry
 
 from ...tests.resources_client import (
     JSONEncodable,
@@ -22,6 +29,13 @@ class LocalServices(TypedDict):
     objecten_service: Service
     openklant_service: Service
     sl_service: Service
+
+
+class DestructionReportResources(TypedDict):
+    zaaktype_url: str
+    statustype_url: str
+    resultaattype_url: str
+    iotype_url: str
 
 
 class Command(BaseCommand):
@@ -119,7 +133,7 @@ class Command(BaseCommand):
                 "secret": "test-vcr",
             },
         )
-        sl_service = Service.objects.update_or_create(
+        sl_service, _ = Service.objects.update_or_create(
             api_root="https://selectielijst.openzaak.nl/api/v1/",
             defaults={
                 "label": "Selectielijst API",
@@ -163,7 +177,7 @@ class Command(BaseCommand):
 
     def _generate_resources_for_destructionreport_config(
         self, helper: OpenZaakDataCreationHelper
-    ):
+    ) -> DestructionReportResources:
         """Generate a zaaktype with a related resultaattype, two statustypen and informatieobjecttype
 
         These can be used to configure the destruction report settings."""
@@ -186,6 +200,13 @@ class Command(BaseCommand):
         )
         helper.publish_informatieobjecttype(iot["url"])
         helper.publish_zaaktype(resources["zaaktype"]["url"])
+
+        return {
+            "zaaktype_url": resources["zaaktype"]["url"],
+            "statustype_url": resources["statustypen"][0]["url"],
+            "resultaattype_url": resources["resultaattype"]["url"],
+            "iotype_url": iot["url"],
+        }
 
     def _generate_zaken(
         self, helper: OpenZaakDataCreationHelper, number_of_zaken: int
@@ -247,17 +268,30 @@ class Command(BaseCommand):
         self.stdout.write("Generating onderwerpobjecten in Open Klant...")
         return [helper.create_onderwerpobject() for _ in range(5)]
 
-    def _update_configuration(self, services: LocalServices) -> None:
+    def _update_configuration(
+        self, services: LocalServices, resources: DestructionReportResources
+    ) -> None:
         """
         update APIConfig, ArchiveConfig and ExternalRegisterConfig
         """
         self.stdout.write("Updating configuration models...")
 
-        # update APIConfig
-        config = APIConfig.get_solo()
-        config.selectielijst_api_service = services["sl_service"]
-        config.save()
+        api_config = APIConfig.get_solo()
+        api_config.selectielijst_api_service = services["sl_service"]
+        api_config.save()
 
+        archive_config = ArchiveConfig.get_solo()
+        archive_config.bronorganisatie = archive_config.bronorganisatie or "100000009"
+        archive_config.zaaktype = resources["zaaktype_url"]
+        archive_config.statustype = resources["statustype_url"]
+        archive_config.resultaattype = resources["resultaattype_url"]
+        archive_config.informatieobjecttype = resources["iotype_url"]
+        archive_config.save()
+
+        objects_config = registry[OBJECTEN_IDENTIFIER].get_or_create_config()
+        objects_config.services.set([services["objecten_service"]])
+        openklant_config = registry[OPENKLANT_IDENTIFIER].get_or_create_config()
+        openklant_config.services.set([services["openklant_service"]])
 
     def handle(self, *args, **options):
         services = self._configure_services()
@@ -274,7 +308,9 @@ class Command(BaseCommand):
             openklant_service_slug=services["openklant_service"].slug
         )
 
-        self._generate_resources_for_destructionreport_config(oz_helper)
+        destruction_report_resources = (
+            self._generate_resources_for_destructionreport_config(oz_helper)
+        )
         self._generate_zaken(oz_helper, number_of_zaken=options["zaken"])
         self._generate_objecten(objecten_helper)
         self._generate_onderwerpobjecten(openklant_helper)
@@ -284,7 +320,7 @@ class Command(BaseCommand):
         )
 
         if options["update_config"]:
-            self._update_configuration(services)
+            self._update_configuration(services, destruction_report_resources)
 
             self.stdout.write(
                 self.style.SUCCESS(
