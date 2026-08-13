@@ -197,7 +197,8 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.assertEqual(
             response.json()[0],
             _(
-                "This list contains cases with archiving date later than %(destruction_date)s, "
+                "This list contains cases without an archiving date and/or "
+                "cases with an archiving date later than %(destruction_date)s, "
                 "so the destruction cannot be planned yet."
             )
             % {"destruction_date": "08/01/2024"},
@@ -276,7 +277,8 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.assertEqual(
             response.json()[0],
             _(
-                "This list contains cases with archiving date later than %(destruction_date)s, "
+                "This list contains cases without an archiving date and/or "
+                "cases with an archiving date later than %(destruction_date)s, "
                 "so the destruction cannot be planned yet."
             )
             % {"destruction_date": "20/08/2026"},

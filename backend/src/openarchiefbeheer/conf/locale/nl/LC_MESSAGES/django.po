@@ -942,11 +942,13 @@ msgstr "Download verklaring van vernietiging"
 #: openarchiefbeheer/destruction/api/viewsets.py:303
 #, python-format
 msgid ""
-"This list contains cases with archiving date later than "
-"%(destruction_date)s, so the destruction cannot be planned yet."
+"This list contains cases without an archiving date and/or "
+"cases with an archiving date later than %(destruction_date)s, "
+"so the destruction cannot be planned yet."
 msgstr ""
-"Deze lijst bevat zaken met een archiveringsdatum later dan "
-"%(destruction_date)s, dus de vernietiging kan nog niet worden gepland."
+"Deze lijst bevat zaken zonder archiveringsdatum en/of zaken met "
+"een archiveringsdatum later dan %(destruction_date)s, dus de "
+"vernietiging kan nog niet worden gepland."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:315
 #, python-format
