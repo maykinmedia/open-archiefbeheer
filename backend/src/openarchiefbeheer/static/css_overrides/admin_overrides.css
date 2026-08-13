@@ -175,15 +175,6 @@ div.breadcrumbs a:focus, div.breadcrumbs a:hover {
   background: url("../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
 }
 
-/* Footer */
-.version {
-  color: var(--body-fg);
-  padding: 0 30px;
-  font-size: smaller;
-  display: flex;
-  flex-direction: column;
-}
-
 /**
  * Environment banner
  */
