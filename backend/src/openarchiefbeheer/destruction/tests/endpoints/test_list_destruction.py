@@ -62,7 +62,9 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             processing_status=InternalStatus.failed,
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, processing_status=InternalStatus.failed
+            with_zaak=True,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
         )
 
         self.client.force_authenticate(user=record_manager)
@@ -99,7 +101,9 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             planned_destruction_date=date(2026, 1, 1),
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, processing_status=InternalStatus.failed
+            with_zaak=True,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
         )
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
