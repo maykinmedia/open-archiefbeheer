@@ -148,7 +148,6 @@ class Command(BaseCommand):
                 "label": "Objecten API",
                 "slug": "objecten",
                 "api_type": APITypes.orc,
-                "api_root": "http://localhost:8006/api/v2/",
                 "auth_type": AuthTypes.api_key,
                 "header_key": "Authorization",
                 "header_value": "Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
