@@ -23,6 +23,7 @@
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
+    "build:typecheck": "tsc",
     "serve": "vite preview",
     "test": "OAB_API_URL=http://localhost:8000 vitest",
     "test:coverage": "OAB_API_URL=http://localhost:8000 vitest run --coverage --watch=false",
@@ -31,6 +32,8 @@
     "test-storybook": "test-storybook --coverage",
     "chromatic": "npx chromatic",
     "prepare": "cd .. && husky frontend/.husky",
+    "format": "prettier --write 'src/**/*.{ts,tsx,scss}'",
+    "checkformat": "prettier --check 'src/**/*.{ts,tsx,scss}'",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src"
   },
