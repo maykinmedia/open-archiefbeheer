@@ -1,6 +1,6 @@
 # Stage 1 - Backend build environment
 # includes compilers and build tooling to create the environment
-FROM python:3.12-slim-bullseye AS backend-build
+FROM python:3.12-slim-bookworm AS backend-build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         pkg-config \
@@ -19,7 +19,7 @@ COPY ./backend/requirements /app/requirements
 RUN uv pip install --system -r requirements/${ENVIRONMENT}.txt
 
 # Stage 2 - Build the Front end
-FROM node:20-bullseye-slim AS frontend-build
+FROM node:20-bookworm-slim AS frontend-build
 
 RUN mkdir /frontend
 WORKDIR /frontend
@@ -39,7 +39,7 @@ COPY ./frontend/.env.production.template ./.env.production
 RUN npm run build
 
 # Stage 3 - Build docker image suitable for production
-FROM python:3.12-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 # Stage 3.1 - Set up the needed production dependencies
 # install all the dependencies for GeoDjango
@@ -50,8 +50,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         postgresql-client \
         gettext \
         gdal-bin \
-        # TODO: temporary for the git dependency
-        git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
