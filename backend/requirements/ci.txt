@@ -102,7 +102,7 @@ click-repl==0.3.0
     #   celery
 coverage==7.5.4
     # via -r requirements/test-tools.in
-cryptography==48.0.1
+cryptography==50.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -610,7 +610,7 @@ pydantic-settings==2.6.1
     #   django-setup-configuration
 pyee==11.1.0
     # via playwright
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   pytest
     #   sphinx
@@ -620,7 +620,7 @@ pyjwt==2.13.0
     #   -r requirements/base.txt
     #   mozilla-django-oidc
     #   zgw-consumers
-pyopenssl==26.2.0
+pyopenssl==26.4.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -770,7 +770,7 @@ sphinxcontrib-qthelp==1.0.7
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
-sqlparse==0.5.0
+sqlparse==0.6.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
