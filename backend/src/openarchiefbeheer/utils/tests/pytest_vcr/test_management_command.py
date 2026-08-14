@@ -109,7 +109,8 @@ def test_demo_data_command_with_config_update(
         stdout=StringIO(),
     )
 
-    resync_zaken()
+    with freeze_time("2026-08-13"):
+        resync_zaken()
 
     # check services
     for expected_service in EXPECTED_SERVICES:
