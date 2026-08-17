@@ -126,7 +126,7 @@ coverage==7.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-cryptography==48.0.1
+cryptography==50.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -709,7 +709,7 @@ pyee==11.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   playwright
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -722,7 +722,7 @@ pyjwt==2.13.0
     #   -r requirements/ci.txt
     #   mozilla-django-oidc
     #   zgw-consumers
-pyopenssl==26.2.0
+pyopenssl==26.4.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -936,7 +936,7 @@ sphinxcontrib-serializinghtml==1.1.10
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
-sqlparse==0.5.0
+sqlparse==0.6.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
