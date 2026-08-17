@@ -1,5 +1,4 @@
-import { ActionFunctionArgs } from "@remix-run/router/utils";
-import { redirect } from "react-router-dom";
+import { ActionFunctionArgs, redirect } from "react-router";
 
 import { JsonValue, TypedAction } from "../../../hooks";
 import {

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, redirect } from "react-router-dom";
+import { ActionFunctionArgs, redirect } from "react-router";
 
 import { TypedAction } from "../../../hooks";
 import { CoReviewBase, createCoReview } from "../../../lib/api/coReview";

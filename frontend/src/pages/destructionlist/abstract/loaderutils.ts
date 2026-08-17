@@ -1,5 +1,5 @@
 import { invariant } from "@maykin-ui/client-common";
-import { ActionFunctionArgs } from "@remix-run/router/utils";
+import { ActionFunctionArgs } from "react-router";
 
 import { whoAmI } from "../../../lib/api/auth";
 import {

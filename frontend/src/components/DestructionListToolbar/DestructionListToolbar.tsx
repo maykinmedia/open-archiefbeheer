@@ -15,7 +15,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { string2Title } from "@maykin-ui/client-common";
 import { useEffect, useState } from "react";
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator } from "react-router";
 
 import { useDataFetcher } from "../../hooks/useDataFetcher";
 import { listAuditLog } from "../../lib/api/auditLog";

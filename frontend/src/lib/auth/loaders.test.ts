@@ -1,4 +1,4 @@
-import { redirect } from "react-router-dom";
+import { redirect } from "react-router";
 
 import { userFactory } from "../../fixtures/user";
 import { whoAmI } from "../api/auth";
@@ -36,7 +36,7 @@ vi.mock("./permissions", () => ({
   canConfigureApplication: vi.fn(),
 }));
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router", () => ({
   redirect: vi.fn(),
 }));
 

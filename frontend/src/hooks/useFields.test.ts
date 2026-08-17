@@ -7,7 +7,7 @@ import { useFields } from "./useFields";
 
 let mockUrlSearchParams = new URLSearchParams();
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router", () => ({
   useSearchParams: () => [
     mockUrlSearchParams,
     (params: Record<string, string>) => {

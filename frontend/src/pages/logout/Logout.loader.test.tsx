@@ -1,4 +1,4 @@
-import { redirect } from "react-router-dom";
+import { redirect } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
 import { logout } from "../../lib/api/auth";
@@ -8,7 +8,7 @@ vi.mock("../../lib/api/auth", () => ({
   logout: vi.fn(),
 }));
 
-vi.mock("react-router-dom", () => ({
+vi.mock("react-router", () => ({
   redirect: vi.fn(),
 }));
 

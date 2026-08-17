@@ -1,6 +1,6 @@
 import { Badge, ListTemplate, Outline, TypedField } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
-import { useLoaderData, useSearchParams } from "react-router-dom";
+import { useLoaderData, useSearchParams } from "react-router";
 
 import { API_BASE_URL } from "../../../lib/api/request";
 import { formatDate } from "../../../lib/format/date";

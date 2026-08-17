@@ -1,5 +1,5 @@
 import { Badge, Body, Solid } from "@maykin-ui/admin-ui";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 
 import { HealthCheckResult, Severity } from "../../../../lib/api/health-check";
 import { BaseSettingsView } from "../../abstract/BaseSettingsView";

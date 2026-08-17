@@ -3,11 +3,7 @@ import "@maykin-ui/admin-ui/style";
 import "@maykin-ui/admin-ui/style/themes/purple-rain.css";
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import {
-  Navigate,
-  RouterProvider,
-  createBrowserRouter,
-} from "react-router-dom";
+import { Navigate, RouterProvider, createBrowserRouter } from "react-router";
 
 import App from "./App";
 import { appLoader } from "./App.loader";

@@ -1,6 +1,6 @@
 import { useAlert } from "@maykin-ui/admin-ui";
 import { useEffect } from "react";
-import { SubmitOptions, useActionData, useSubmit } from "react-router-dom";
+import { SubmitOptions, useActionData, useSubmit } from "react-router";
 
 import { collectErrors } from "../lib/format/error";
 

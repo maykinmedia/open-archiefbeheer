@@ -10,7 +10,7 @@ import {
   useNavigation,
   useRouteLoaderData,
   useSearchParams,
-} from "react-router-dom";
+} from "react-router";
 
 import { ProcessingStatusBadge } from "../../../../../components";
 import { useSubmitAction } from "../../../../../hooks";

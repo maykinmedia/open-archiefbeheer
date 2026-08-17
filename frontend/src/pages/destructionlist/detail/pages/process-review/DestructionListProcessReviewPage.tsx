@@ -9,7 +9,7 @@ import {
   TypedField,
 } from "@maykin-ui/admin-ui";
 import { JSX, useMemo, useState } from "react";
-import { useRevalidator, useRouteLoaderData } from "react-router-dom";
+import { useRevalidator, useRouteLoaderData } from "react-router";
 
 import { RelatedObjectsSelectionModal } from "../../../../../components";
 import { useZaakReviewStatuses, useZaakSelection } from "../../../../../hooks";

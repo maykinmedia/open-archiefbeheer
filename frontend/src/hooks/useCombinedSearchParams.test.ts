@@ -1,11 +1,11 @@
 import { act, renderHook } from "@testing-library/react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { Mock, vi } from "vitest";
 
 import { useCombinedSearchParams } from "./useCombinedSearchParams";
 
-// Mock the useSearchParams from react-router-dom
-vi.mock("react-router-dom", () => ({
+// Mock the useSearchParams from react-router
+vi.mock("react-router", () => ({
   useSearchParams: vi.fn(),
 }));
 

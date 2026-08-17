@@ -5,7 +5,7 @@ import {
   ToolbarItem,
 } from "@maykin-ui/admin-ui";
 import React from "react";
-import { useMatches, useNavigate } from "react-router-dom";
+import { useMatches, useNavigate } from "react-router";
 
 export type BaseSettingsPageProps<T extends object> = React.PropsWithChildren<{
   dataGridProps?: DataGridProps<T>;
