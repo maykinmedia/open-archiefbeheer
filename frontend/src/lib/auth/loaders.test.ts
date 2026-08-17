@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { RouterContextProvider, redirect } from "react-router";
 
 import { userFactory } from "../../fixtures/user";
 import { whoAmI } from "../api/auth";
@@ -38,6 +38,7 @@ vi.mock("./permissions", () => ({
 
 vi.mock("react-router", () => ({
   redirect: vi.fn(),
+  RouterContextProvider: vi.fn(),
 }));
 
 describe("loginRequired", () => {
@@ -47,10 +48,11 @@ describe("loginRequired", () => {
     };
 
     loginRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
     expect(redirect).toHaveBeenCalledWith("/login?next=/");
   });
@@ -61,10 +63,11 @@ describe("loginRequired", () => {
     };
 
     loginRequired(loader)({
-      request: {
-        url: "http://zaken.nl/destruction-lists/",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl/destruction-lists/"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl/destruction-lists/"),
+      pattern: "/",
     });
     expect(redirect).toHaveBeenCalledWith("/login?next=/destruction-lists/");
   });
@@ -75,10 +78,11 @@ describe("loginRequired", () => {
     };
 
     loginRequired(loader)({
-      request: {
-        url: "http://zaken.nl/?next=destruction-lists/",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl/?next=destruction-lists/"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl/?next=destruction-lists/"),
+      pattern: "/",
     });
     expect(redirect).toHaveBeenCalledWith("/login?next=/");
   });
@@ -90,10 +94,11 @@ describe("canStartDestructionListRequired", () => {
     vi.mocked(canStartDestructionList).mockReturnValueOnce(true);
 
     await canStartDestructionListRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -109,10 +114,11 @@ describe("canStartDestructionListRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>
@@ -129,10 +135,11 @@ describe("canReviewDestructionListRequired", () => {
     vi.mocked(canReviewDestructionList).mockReturnValueOnce(true);
 
     await canReviewDestructionListRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -148,10 +155,11 @@ describe("canReviewDestructionListRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>
@@ -167,10 +175,11 @@ describe("canUpdateDestructionListRequired", () => {
     vi.mocked(canUpdateDestructionList).mockReturnValueOnce(true);
 
     await canUpdateDestructionListRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -186,10 +195,11 @@ describe("canUpdateDestructionListRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>
@@ -205,10 +215,11 @@ describe("canViewDestructionListRequired", () => {
     vi.mocked(canViewDestructionList).mockReturnValueOnce(true);
 
     await canViewDestructionListRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -224,10 +235,11 @@ describe("canViewDestructionListRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>
@@ -243,10 +255,11 @@ describe("canTriggerDestructionRequired", () => {
     vi.mocked(canTriggerDestruction).mockReturnValueOnce(true);
 
     await canTriggerDestructionRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -262,10 +275,11 @@ describe("canTriggerDestructionRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>
@@ -281,10 +295,11 @@ describe("canViewAndEditSettingsRequired", () => {
     vi.mocked(canConfigureApplication).mockReturnValueOnce(true);
 
     await canViewAndEditSettingsRequired(loader)({
-      request: {
-        url: "http://zaken.nl",
-      } as unknown as Request,
+      request: new Request("http://zaken.nl"),
       params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
     });
 
     expect(loader).toHaveBeenCalled();
@@ -300,10 +315,11 @@ describe("canViewAndEditSettingsRequired", () => {
 
     await expect(
       wrappedLoader({
-        request: {
-          url: "http://zaken.nl",
-        } as unknown as Request,
+        request: new Request("http://zaken.nl"),
         params: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://zaken.nl"),
+        pattern: "/",
       }),
     ).rejects.toSatisfy(
       (response: Response) =>

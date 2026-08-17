@@ -14,13 +14,14 @@ export type UpdateSettingsAction<T = JsonValue> = TypedAction<
 /**
  * React Router action.
  */
-export async function settingsAction({ request, params }: ActionFunctionArgs) {
+export async function settingsAction(args: ActionFunctionArgs) {
+  const { request } = args;
   const data = await request.clone().json();
   const action = data as UpdateSettingsAction<unknown>;
 
   switch (action.type) {
     case "PATCH-ARCHIVE-CONFIG":
-      return await patchArchiveConfigAction({ request, params });
+      return await patchArchiveConfigAction(args);
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }

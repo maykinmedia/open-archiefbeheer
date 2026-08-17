@@ -30,31 +30,26 @@ export type UpdateDestructionListAction<P = JsonValue> = TypedAction<
 /**
  * React Router action.
  */
-export async function destructionListUpdateAction({
-  request,
-  params,
-}: ActionFunctionArgs) {
+export async function destructionListUpdateAction(args: ActionFunctionArgs) {
+  const { request } = args;
   const data = await request.clone().json();
   const action = data as UpdateDestructionListAction<unknown>;
 
   switch (action.type) {
     case "DELETE_LIST":
-      return await destructionListDeleteAction({ request, params });
+      return await destructionListDeleteAction(args);
     case "QUEUE_DESTRUCTION":
-      return await destructionListQueueDestructionAction({ request, params });
+      return await destructionListQueueDestructionAction(args);
     case "MAKE_FINAL":
-      return await destructionListMakeFinalAction({ request, params });
+      return await destructionListMakeFinalAction(args);
     case "PROCESS_REVIEW":
-      return await destructionListProcessReviewAction({ request, params });
+      return await destructionListProcessReviewAction(args);
     case "READY_TO_REVIEW":
-      return await destructionListProcessReadyToReviewAction({
-        request,
-        params,
-      });
+      return await destructionListProcessReadyToReviewAction(args);
     case "UPDATE_ZAKEN":
-      return await destructionListUpdateZakenAction({ request, params });
+      return await destructionListUpdateZakenAction(args);
     case "CANCEL_DESTROY":
-      return await destructionListCancelDestroyAction({ request, params });
+      return await destructionListCancelDestroyAction(args);
     default:
       throw new Error("INVALID ACTION TYPE SPECIFIED!");
   }
