@@ -2,6 +2,14 @@
 Change history
 ==============
 
+2.0.1 (TBD)
+===========
+
+Bugfix release.
+
+* [#1032] Fixed being able to create, and queue the deletion of, a destruction list if it contains a case without an archiving date.
+
+
 2.0.0 (2026-02-02)
 ==================
 
