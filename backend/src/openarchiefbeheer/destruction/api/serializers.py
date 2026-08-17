@@ -324,6 +324,11 @@ class DestructionListItemWriteSerializer(serializers.ModelSerializer):
                 }
             )
 
+        if attrs["zaak"].archiefactiedatum is None:
+            raise ValidationError(
+                {"zaak": _("This case does not contain an archiving date.")}
+            )
+
         return attrs
 
 
