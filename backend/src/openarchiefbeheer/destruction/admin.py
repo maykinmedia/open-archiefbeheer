@@ -14,13 +14,51 @@ from .models import (
 )
 
 
+class DestructionListItemInline(admin.TabularInline):
+    model = DestructionListItem
+    fk_name = "destruction_list"
+    readonly_fields = (
+        "zaak",
+        "processing_status",
+        "processing_status_clarification",
+    )
+    fields = (
+        "zaak",
+        "processing_status",
+        "processing_status_clarification",
+    )
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj):
+        return False
+
+
 @admin.register(DestructionList)
 class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
-    list_display = ("name", "status", "created", "end")
-    list_filter = ("status", "assignee")
+    list_display = ("name", "status", "processing_status", "created", "end")
+    list_filter = ("status", "processing_status", "assignee")
     search_fields = ("name",)
-    readonly_fields = ("uuid",)
+    readonly_fields = ("uuid", "created")
+    fields = (
+        "name",
+        "uuid",
+        "comment",
+        "contains_sensitive_info",
+        "created",
+        "end",
+        "planned_destruction_date",
+        "assignee",
+        "status",
+        "status_changed",
+        "processing_status",
+    )
     exclude = ["destruction_report"]
+    inlines = (DestructionListItemInline,)
 
 
 @admin.register(DestructionListItem)
