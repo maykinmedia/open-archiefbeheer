@@ -136,6 +136,25 @@ def handle_processing_error(pk: int) -> None:
 
 @app.task
 def delete_destruction_list_item(pk: int) -> None:
+    """
+    Delete a zaak and related objects with error handling.
+
+    See :func:`_delete_destruction_list_item` for details about which objects
+    will be deleted.
+    """
+    item = DestructionListItem.objects.get(pk=pk)
+
+    try:
+        _delete_destruction_list_item(item)
+    except Exception as exc:
+        logger.error(msg="".join(traceback.format_exception(exc)))
+        item.set_processing_status(
+            InternalStatus.failed,
+            _("Something unexpected went wrong: {e}").format(e=exc),
+        )
+
+
+def _delete_destruction_list_item(item: DestructionListItem) -> None:
     """Delete a zaak and related objects
 
     The procedure to delete all objects related to a zaak (in Open Zaak) is as follows:
@@ -157,10 +176,8 @@ def delete_destruction_list_item(pk: int) -> None:
     The `ResourceDestructionResult` objects keep track temporarily of which objects have been deleted/unlinked
     from Open Zaak and the external registers so that we can log them in the destruction report.
     """
-    item = DestructionListItem.objects.get(pk=pk)
-
     if item.processing_status == InternalStatus.succeeded:
-        logger.info("Item %s already successfully processed. Skipping.", pk)
+        logger.info("Item %s already successfully processed. Skipping.", item.pk)
         return
 
     if not item.zaak:
@@ -182,19 +199,11 @@ def delete_destruction_list_item(pk: int) -> None:
 
     item.set_processing_status(InternalStatus.processing)
 
-    try:
-        delete_external_relations(item)
-        delete_besluiten_and_besluiteninformatieobjecten(item)
-        delete_zaakinformatieobjecten(item)
-        delete_enkelvoudiginformatieobjecten(item)
-        delete_zaak(item)
-    except Exception as exc:
-        logger.error(msg="".join(traceback.format_exception(exc)))
-        item.set_processing_status(
-            InternalStatus.failed,
-            _("Something unexpected went wrong: {e}").format(e=exc),
-        )
-        return
+    delete_external_relations(item)
+    delete_besluiten_and_besluiteninformatieobjecten(item)
+    delete_zaakinformatieobjecten(item)
+    delete_enkelvoudiginformatieobjecten(item)
+    delete_zaak(item)
 
     item.set_processing_status(InternalStatus.succeeded)
 
