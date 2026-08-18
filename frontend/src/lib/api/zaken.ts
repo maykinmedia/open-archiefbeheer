@@ -9,14 +9,14 @@ export type PaginatedZaken = PaginatedResults<Zaak>;
  * request body, look at query params of the '/zaken/api/v1/zaken' list endpoint of Open Zaak.
  */
 export async function searchZaken(
-  params?: Record<string, string>,
+  data?: Record<string, string>,
   signal?: AbortSignal,
 ) {
   const response = await request(
     "POST",
     "/zaken/search/",
     new URLSearchParams(),
-    params,
+    data,
     undefined,
     signal,
   );

@@ -3,6 +3,7 @@ import { setupServer } from "msw/node";
 
 // The msw mock server.
 const server = setupServer();
+let isServerListening: boolean = false;
 
 /**
  * Mocks single `method` call to `url` faking `response` using msw.
@@ -32,7 +33,7 @@ export function mockRejectOnce(method: keyof typeof http, url: string) {
 }
 
 /**
- * Sets up `method` mock for`url` using msw.
+ * Sets up `method` mock for` url` using msw.
  *
  * @param method - The method to use, use "all" to mock all methods.
  * @param url - The url to mock.
@@ -40,18 +41,20 @@ export function mockRejectOnce(method: keyof typeof http, url: string) {
  * @private
  */
 function _mock(method: keyof typeof http, url: string, response: Response) {
-  const handlers = [
-    http[method](
-      url,
-      ({ request }) => {
-        _addInterceptedRequest(request);
-        return response;
-      },
-      { once: true },
-    ),
-  ];
-  server.use(...server.listHandlers(), ...handlers); // Move to separate?
-  server.listen(); // Move to separate?
+  const handler = http[method](
+    url,
+    ({ request }) => {
+      _addInterceptedRequest(request);
+      return response;
+    },
+    { once: true },
+  );
+  // `server.listen` can only be called once
+  if (!isServerListening) {
+    isServerListening = true;
+    server.listen();
+  }
+  server.use(handler);
 }
 
 /**
@@ -60,6 +63,7 @@ function _mock(method: keyof typeof http, url: string, response: Response) {
 export function resetMocks() {
   server.resetHandlers();
   server.close();
+  isServerListening = false;
   _clearInterceptedRequest();
 }
 

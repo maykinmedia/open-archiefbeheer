@@ -1,7 +1,7 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils.translation import gettext_lazy as _
 
 import freezegun
@@ -62,7 +62,9 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             processing_status=InternalStatus.failed,
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, processing_status=InternalStatus.failed
+            with_zaak=True,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
         )
 
         self.client.force_authenticate(user=record_manager)
@@ -99,7 +101,9 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             planned_destruction_date=date(2026, 1, 1),
         )
         DestructionListItemFactory.create(
-            destruction_list=destruction_list, processing_status=InternalStatus.failed
+            with_zaak=True,
+            destruction_list=destruction_list,
+            processing_status=InternalStatus.failed,
         )
         self.client.force_authenticate(user=record_manager)
         with freezegun.freeze_time("2024-01-01T21:36:00+02:00"):
@@ -197,7 +201,8 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
         self.assertEqual(
             response.json()[0],
             _(
-                "This list contains cases with archiving date later than %(destruction_date)s, "
+                "This list contains cases without an archiving date and/or "
+                "cases with an archiving date later than %(destruction_date)s, "
                 "so the destruction cannot be planned yet."
             )
             % {"destruction_date": "08/01/2024"},
@@ -242,3 +247,43 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
 
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0].extra_data["user"]["username"], "record_manager")
+
+    @tag("gh-1032")
+    @override_settings(WAITING_PERIOD=7)
+    def test_cannot_start_destruction_if_list_contains_zaak_without_archiving_date(
+        self,
+    ):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.ready_to_delete,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__archiefactiedatum=None,
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with freezegun.freeze_time("2026-08-13T15:04:00+02:00"):
+            response = self.client.post(
+                reverse(
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
+                ),
+            )
+
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+        self.assertEqual(
+            response.json()[0],
+            _(
+                "This list contains cases without an archiving date and/or "
+                "cases with an archiving date later than %(destruction_date)s, "
+                "so the destruction cannot be planned yet."
+            )
+            % {"destruction_date": "20/08/2026"},
+        )

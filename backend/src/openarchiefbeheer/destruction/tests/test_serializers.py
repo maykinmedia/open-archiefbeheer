@@ -744,6 +744,49 @@ class DestructionListSerializerTests(TestCase):
             ).exists()
         )
 
+    def test_create_destruction_list_with_zaak_without_archiving_date(self):
+        reviewer = UserFactory.create(
+            username="reviewer",
+            email="reviewer@oab.nl",
+            post__can_review_destruction=True,
+        )
+        record_manager = UserFactory.create(
+            first_name="Jeffrey",
+            last_name="Jones",
+            username="record_manager",
+            post__can_start_destruction=True,
+        )
+        ZaakFactory.create(
+            url="http://localhost:8003/zaken/api/v1/zaken/foo-123",
+            archiefactiedatum=None,
+        )
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        data = {
+            "name": "A test list",
+            "contains_sensitive_info": True,
+            "reviewer": {"user": reviewer.pk},
+            "comment": "Een zaak zonder archiefactiedatum",
+            "add": [
+                {
+                    "zaak": "http://localhost:8003/zaken/api/v1/zaken/foo-123",
+                    "extra_zaak_data": {},
+                },
+            ],
+        }
+
+        serializer = DestructionListWriteSerializer(
+            data=data, context={"request": request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["add"][0]["zaak"],
+            [_("This case does not contain an archiving date.")],
+        )
+
 
 class DestructionListReviewSerializerTests(TestCase):
     def test_create_review_accepted(self):

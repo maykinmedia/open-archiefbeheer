@@ -24,19 +24,15 @@ export const destructionListCreateLoader = loginRequired(
     }: LoaderFunctionArgs): Promise<DestructionListCreateContext> => {
       const abortController = new AbortController();
       const searchParams = new URL(request.url).searchParams;
-
-      const searchParamsZakenEndpoint: Record<string, string> = {
+      const data: Record<string, string> = {
+        ...Object.fromEntries(searchParams),
         not_in_destruction_list: "true",
+        archiefactiedatum__isnull: "false",
       };
-
-      for (const [key, value] of searchParams) {
-        searchParamsZakenEndpoint[key] = value;
-      }
-      searchParams.set("not_in_destruction_list", "true");
 
       // Fetch reviewers, zaken, and choices concurrently
       const [zaken, reviewers] = await Promise.all([
-        searchZaken(searchParamsZakenEndpoint, abortController.signal),
+        searchZaken(data, abortController.signal),
         listReviewers(abortController.signal),
       ]);
 

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Iterable, Optional
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -196,9 +196,10 @@ class DestructionList(models.Model):
             for status in self.items.values_list("processing_status", flat=True)
         )
 
-    def all_items_can_be_deleted_by_date(self, destruction_date: date) -> bool:
+    def can_all_items_be_deleted_by_date(self, destruction_date: date) -> bool:
         return not self.items.filter(
-            zaak__archiefactiedatum__gt=destruction_date,
+            Q(zaak__archiefactiedatum__gt=destruction_date)
+            | Q(zaak__archiefactiedatum__isnull=True),
             status=ListItemStatus.suggested,
         ).exists()
 
