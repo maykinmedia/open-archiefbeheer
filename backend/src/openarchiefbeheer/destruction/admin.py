@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 
@@ -18,11 +21,13 @@ class DestructionListItemInline(admin.TabularInline):
     model = DestructionListItem
     fk_name = "destruction_list"
     readonly_fields = (
+        "id_with_link",
         "zaak",
         "processing_status",
         "processing_status_clarification",
     )
     fields = (
+        "id_with_link",
         "zaak",
         "processing_status",
         "processing_status_clarification",
@@ -30,12 +35,18 @@ class DestructionListItemInline(admin.TabularInline):
     extra = 0
     can_delete = False
     show_change_link = True
+    template = "destruction/tabular.html"
 
     def has_add_permission(self, request, obj):
         return False
 
     def has_change_permission(self, request, obj):
         return False
+
+    @admin.display(description=_("Identifier"))
+    def id_with_link(self, obj: DestructionListItem):
+        url = reverse("admin:destruction_destructionlistitem_change", args=(obj.id,))
+        return format_html("<a href={}>{}</a>", url, str(obj))
 
 
 @admin.register(DestructionList)
