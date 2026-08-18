@@ -585,3 +585,40 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             _("The destruction failed."),
             message,
         )
+
+    def test_delete_destruction_list_item_without_zaak(self):
+        item = DestructionListItemFactory.create(with_zaak=False)
+
+        delete_destruction_list_item(item.pk)
+        item.refresh_from_db()
+        self.assertEqual(InternalStatus.failed, item.processing_status)
+        self.assertEqual(
+            _("The related case could not be found."),
+            item.processing_status_clarification,
+        )
+
+    def test_delete_destruction_list_item_with_archiving_date_in_the_future(self):
+        item = DestructionListItemFactory.create(
+            with_zaak=True, zaak__archiefactiedatum=date(2027, 1, 1)
+        )
+
+        with freeze_time("2026-08-18T14:25:00+02:00"):
+            delete_destruction_list_item(item.pk)
+        item.refresh_from_db()
+        self.assertEqual(InternalStatus.failed, item.processing_status)
+        self.assertEqual(
+            _("The archiving date of the case lies in the future."),
+            item.processing_status_clarification,
+        )
+
+    def test_delete_destruction_list_item_unexpected_failure(self):
+        item = DestructionListItemFactory.create(with_zaak=True)
+
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_external_relations",
+            side_effect=ValueError("crash :("),
+        ):
+            delete_destruction_list_item(item.pk)
+        item.refresh_from_db()
+        self.assertEqual(InternalStatus.failed, item.processing_status)
+        self.assertIn("crash :(", item.processing_status_clarification)
