@@ -31,6 +31,16 @@ class DestructionListItemAdmin(admin.ModelAdmin):
         "processing_status",
     )
     list_filter = ("status", "processing_status")
+    readonly_fields = ("processing_status_clarification", "_zaak_url")
+    fields = (
+        "destruction_list",
+        "zaak",
+        "_zaak_url",
+        "status",
+        "processing_status",
+        "processing_status_clarification",
+        "excluded_relations",
+    )
     search_fields = ("destruction_list__name",)
     raw_id_fields = ("destruction_list", "zaak")
 
