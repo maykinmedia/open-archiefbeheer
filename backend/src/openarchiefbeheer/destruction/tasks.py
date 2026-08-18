@@ -3,6 +3,7 @@ import traceback
 from datetime import date
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from celery import chain
 
@@ -164,14 +165,19 @@ def delete_destruction_list_item(pk: int) -> None:
 
     if not item.zaak:
         logger.error("Could not find the zaak. Aborting deletion.")
-        item.set_processing_status(InternalStatus.failed)
+        item.set_processing_status(
+            InternalStatus.failed, _("The related case could not be found.")
+        )
         return
 
     if item.zaak.archiefactiedatum > date.today():
         logger.error(
             "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
         )
-        item.set_processing_status(InternalStatus.failed)
+        item.set_processing_status(
+            InternalStatus.failed,
+            _("The archiving date of the case lies in the future."),
+        )
         return
 
     item.set_processing_status(InternalStatus.processing)
@@ -184,7 +190,10 @@ def delete_destruction_list_item(pk: int) -> None:
         delete_zaak(item)
     except Exception as exc:
         logger.error(msg="".join(traceback.format_exception(exc)))
-        item.set_processing_status(InternalStatus.failed)
+        item.set_processing_status(
+            InternalStatus.failed,
+            _("Something unexpected went wrong: {e}").format(e=exc),
+        )
         return
 
     item.set_processing_status(InternalStatus.succeeded)
