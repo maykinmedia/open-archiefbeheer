@@ -2,10 +2,16 @@
 Change history
 ==============
 
-2.0.1 (TBD)
+2.1.0 (TBD)
 ===========
 
-Bugfix release.
+Feature release.
+
+**New features**
+
+* [#1059] Improved destruction list status monitoring for admins, with a destruction list item table in the destruction list admin view.
+
+**Bugfixes**
 
 * [#1032] Fixed being able to create, and queue the deletion of, a destruction list if it contains a case without an archiving date.
 
