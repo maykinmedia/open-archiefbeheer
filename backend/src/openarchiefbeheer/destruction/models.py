@@ -54,7 +54,7 @@ class DestructionList(models.Model):
         blank=True,
         help_text=_("Explanation of the destruction list."),
     )
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(_("created"), auto_now_add=True)
     end = models.DateTimeField(
         _("end"),
         blank=True,
