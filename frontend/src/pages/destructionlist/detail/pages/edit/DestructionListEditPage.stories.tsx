@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, waitFor } from "storybook/test";
 
 import {
   ClearSessionStorageDecorator,
@@ -88,14 +89,23 @@ export const EditDestructionList: Story = {
       ...context,
       parameters: { clickButton: { name: "Bewerken" } },
     });
+    const checkboxes = await context.canvas.findAllByRole("checkbox");
     await clickCheckbox({
       ...context,
       parameters: { clickCheckbox: { elementIndex: 2 } },
     });
-    await clickButton({
-      ...context,
-      parameters: { clickButton: { name: "Vernietigingslijst aanpassen" } },
+
+    await expect(checkboxes[2]).toBeChecked();
+
+    const updateButton = context.canvas.getByRole("button", {
+      name: "Vernietigingslijst aanpassen",
     });
+
+    await waitFor(() => {
+      expect(updateButton).toBeEnabled();
+    });
+
+    await context.userEvent.click(updateButton);
   },
 };
 
