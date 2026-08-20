@@ -2,6 +2,7 @@ import contextlib
 
 import pytest
 import requests_mock
+from django.conf import settings
 from requests.exceptions import HTTPError
 from vcr.cassette import Cassette
 from zgw_consumers.constants import APITypes
@@ -17,6 +18,11 @@ from openarchiefbeheer.destruction.models import (
 
 from ...constants import InternalStatus, ListStatus
 from ..factories import DestructionListFactory
+
+
+def test_debug():
+    print(settings.PRIVATE_MEDIA_ROOT)
+    assert settings.PRIVATE_MEDIA_ROOT
 
 
 @pytest.mark.django_db
