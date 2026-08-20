@@ -10,7 +10,7 @@ import {
   validateForm,
 } from "@maykin-ui/admin-ui";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigation, useRevalidator } from "react-router-dom";
+import { useNavigation, useRevalidator } from "react-router";
 
 import { useDataFetcher } from "../../hooks/useDataFetcher";
 import { listArchivists } from "../../lib/api/archivist";

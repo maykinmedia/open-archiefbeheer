@@ -11,7 +11,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { string2Title, ucFirst } from "@maykin-ui/client-common";
 import { useMemo } from "react";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 
 import { ProcessingStatusBadge } from "../../components";
 import { useCombinedSearchParams, useDataFetcher, usePoll } from "../../hooks";

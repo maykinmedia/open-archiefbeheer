@@ -1,10 +1,5 @@
 import { useEffect } from "react";
-import {
-  Outlet,
-  useLoaderData,
-  useNavigate,
-  useOutlet,
-} from "react-router-dom";
+import { Outlet, useLoaderData, useNavigate, useOutlet } from "react-router";
 
 import { DestructionListDetailContext } from "./DestructionListDetail.loader";
 

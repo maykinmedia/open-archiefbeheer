@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, redirect } from "react-router-dom";
+import { ActionFunctionArgs, redirect } from "react-router";
 
 import { TypedAction } from "../../../hooks";
 import { CoReviewBase, createCoReview } from "../../../lib/api/coReview";
@@ -44,30 +44,28 @@ export type ReviewDestructionListCompleteCoReviewPayload = {
 
 /**
  * React Router action.
- * @param request
- * @param params
+ * @param args
  */
-export const destructionListReviewAction = async ({
-  request,
-  params,
-}: ActionFunctionArgs<DestructionListReviewActionContext>) => {
+export const destructionListReviewAction = async (
+  args: ActionFunctionArgs<DestructionListReviewActionContext>,
+) => {
+  const { request } = args;
   const data = await request.clone().json();
   const action = data as ReviewDestructionListAction;
 
   switch (action.type) {
     case "APPROVE_LIST":
-      return destructionListApproveListAction({ request, params });
+      return destructionListApproveListAction(args);
     case "REJECT_LIST":
-      return destructionListRejectListAction({ request, params });
+      return destructionListRejectListAction(args);
     case "COMPLETE_CO_REVIEW":
-      return destructionListCompleteCoReviewAction({ request, params });
+      return destructionListCompleteCoReviewAction(args);
   }
 };
 
 /**
  * React Router action, user intends to reject a list.
  * @param request
- * @param params
  */
 export async function destructionListApproveListAction({
   request,
@@ -105,7 +103,6 @@ export async function destructionListApproveListAction({
 /**
  * React Router action, user intends to reject a list.
  * @param request
- * @param params
  */
 export async function destructionListRejectListAction({
   request,
@@ -144,7 +141,6 @@ export async function destructionListRejectListAction({
 /**
  * React Router action, user intends to complete a co-review.
  * @param request
- * @param params
  */
 export async function destructionListCompleteCoReviewAction({
   request,

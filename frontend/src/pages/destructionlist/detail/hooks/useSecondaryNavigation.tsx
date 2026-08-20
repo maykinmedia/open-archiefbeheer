@@ -8,7 +8,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
 import { useContext, useMemo } from "react";
-import { useNavigation, useRouteLoaderData } from "react-router-dom";
+import { useNavigation, useRouteLoaderData } from "react-router";
 
 import {
   DestructionListStatusBadge,

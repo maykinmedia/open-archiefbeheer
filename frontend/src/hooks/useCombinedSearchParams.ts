@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { SetURLSearchParams, useSearchParams } from "react-router-dom";
+import { SetURLSearchParams, useSearchParams } from "react-router";
 
 /**
  * Wraps `useSearchParams()`, combines instead of replaces current URLSearchParams.

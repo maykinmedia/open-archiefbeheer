@@ -5,7 +5,7 @@ import {
   TypedSerializedFormData,
 } from "@maykin-ui/admin-ui";
 import React, { JSX, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 import { ExpandableText } from "../components/ExpandableText";
 import { DestructionList } from "../lib/api/destructionLists";

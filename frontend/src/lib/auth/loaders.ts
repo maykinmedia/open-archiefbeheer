@@ -1,5 +1,4 @@
-import { LoaderFunction } from "@remix-run/router/utils";
-import { redirect } from "react-router-dom";
+import { LoaderFunction, redirect } from "react-router";
 
 import { whoAmI } from "../api/auth";
 import { DestructionList } from "../api/destructionLists";

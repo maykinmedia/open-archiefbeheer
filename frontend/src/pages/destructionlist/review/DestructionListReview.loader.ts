@@ -1,4 +1,4 @@
-import { ActionFunctionArgs } from "react-router-dom";
+import { ActionFunctionArgs } from "react-router";
 
 import { User } from "../../../lib/api/auth";
 import { DestructionList } from "../../../lib/api/destructionLists";

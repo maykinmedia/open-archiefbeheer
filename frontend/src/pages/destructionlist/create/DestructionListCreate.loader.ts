@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/router/utils";
+import { LoaderFunctionArgs } from "react-router";
 
 import { User } from "../../../lib/api/auth";
 import { listReviewers } from "../../../lib/api/reviewers";

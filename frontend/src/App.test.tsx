@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router";
 
 import App from "./App";
 import { HealthCheckResult } from "./lib/api/health-check";

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, useNavigate, useOutlet } from "react-router-dom";
+import { Outlet, useNavigate, useOutlet } from "react-router";
 
 /**
  * Destruction list detail page

@@ -1,10 +1,10 @@
 import { ModalService } from "@maykin-ui/admin-ui";
-import { LoaderFunction } from "@remix-run/router/utils";
 import {
+  LoaderFunction,
   RouterProvider,
   createBrowserRouter,
   redirect,
-} from "react-router-dom";
+} from "react-router";
 import { DecoratorFunction } from "storybook/internal/types";
 
 import App from "../src/App";

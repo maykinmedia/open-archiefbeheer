@@ -1,3 +1,5 @@
+import { RouterContextProvider } from "react-router";
+
 import { recordManagerFactory, userFactory } from "../../../fixtures";
 import {
   getInterceptedRequest,
@@ -26,7 +28,13 @@ describe("destructionListCreateLoader", () => {
     );
     mockResponseOnce("post", "http://localhost:8000/api/v1/zaken/search/", []);
 
-    await destructionListCreateLoader({ request, params: {} });
+    await destructionListCreateLoader({
+      request,
+      params: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://zaken.nl"),
+      pattern: "/",
+    });
     const requests = getInterceptedRequest();
     await expect(requests[1].json()).resolves.toEqual({
       not_in_destruction_list: "true",

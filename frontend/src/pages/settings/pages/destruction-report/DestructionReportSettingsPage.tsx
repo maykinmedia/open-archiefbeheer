@@ -12,7 +12,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
 import { useCallback, useEffect, useState } from "react";
-import { useActionData, useLoaderData } from "react-router-dom";
+import { useActionData, useLoaderData } from "react-router";
 
 import { JsonValue, useSubmitAction } from "../../../../hooks";
 import { useDataFetcher } from "../../../../hooks/useDataFetcher";

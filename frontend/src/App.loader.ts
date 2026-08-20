@@ -1,4 +1,4 @@
-import type { LoaderFunction } from "@remix-run/router/utils";
+import type { LoaderFunction } from "react-router";
 
 import { cacheDelete } from "./lib/cache/cache";
 

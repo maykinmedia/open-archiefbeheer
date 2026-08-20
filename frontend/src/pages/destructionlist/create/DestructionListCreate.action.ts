@@ -1,5 +1,4 @@
-import { ActionFunctionArgs } from "@remix-run/router/utils";
-import { redirect } from "react-router-dom";
+import { ActionFunctionArgs, redirect } from "react-router";
 
 import { TypedAction } from "../../../hooks";
 import { createDestructionList } from "../../../lib/api/destructionLists";

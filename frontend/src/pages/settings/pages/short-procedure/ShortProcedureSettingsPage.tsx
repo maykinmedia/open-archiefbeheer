@@ -1,6 +1,6 @@
 import { Body, H2, P, Solid, useAlert } from "@maykin-ui/admin-ui";
 import { useCallback, useMemo, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 
 import { useSubmitAction } from "../../../../hooks";
 import { UpdateSettingsAction } from "../../Settings.action";

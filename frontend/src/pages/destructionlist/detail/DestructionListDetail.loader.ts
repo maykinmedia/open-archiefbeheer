@@ -1,6 +1,6 @@
 import { Option } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
-import { ActionFunctionArgs } from "@remix-run/router/utils";
+import { ActionFunctionArgs } from "react-router";
 
 import { listArchivists } from "../../../lib/api/archivist";
 import { User } from "../../../lib/api/auth";

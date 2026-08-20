@@ -8,7 +8,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { invariant } from "@maykin-ui/client-common";
 import { JSX } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 
 import { RelatedObjectsSelectionModal } from "../../../components";
 import {

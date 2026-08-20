@@ -8,7 +8,7 @@ import {
 } from "@maykin-ui/admin-ui";
 import { distinctArray } from "@maykin-ui/client-common";
 import React, { useCallback, useMemo, useRef } from "react";
-import { useNavigation } from "react-router-dom";
+import { useNavigation } from "react-router";
 
 import { DestructionListToolbar } from "../../../components";
 import {
