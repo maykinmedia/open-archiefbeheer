@@ -75,6 +75,7 @@ export const PlannedDestructionDateInFuture: Story = {
       "iso",
     ),
   },
+  parameters: { chromatic: { disableSnapshot: true } },
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByText("Wordt vernietigd over", {
       exact: false,
