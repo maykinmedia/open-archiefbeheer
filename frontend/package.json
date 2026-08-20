@@ -15,7 +15,6 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^7.18.2",
-    "react-router-dom": "^7.18.2",
     "react-use": "^17.6.1",
     "tinyduration": "^3.3.1",
     "typescript": "^5.9.3",
