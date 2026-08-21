@@ -150,7 +150,9 @@ def delete_destruction_list_item(pk: int) -> None:
         logger.error(msg="".join(traceback.format_exception(exc)))
         item.set_processing_status(
             InternalStatus.failed,
-            _("Something unexpected went wrong: {e}").format(e=exc),
+            _("Something went wrong unexpectedly:\n{e}").format(
+                e=traceback.format_exc()
+            ),
         )
 
 
