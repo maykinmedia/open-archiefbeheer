@@ -22,7 +22,7 @@ services:
       - openklant_dev
 
   openklant-web.local:
-    image: maykinmedia/open-klant:latest
+    image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
     environment: &web_env
       DJANGO_SETTINGS_MODULE: openklant.conf.docker
       IS_HTTPS: no
@@ -60,7 +60,7 @@ services:
       - openklant_dev
 
   web-init:
-    image: maykinmedia/open-klant:latest
+    image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
     environment:
       <<: *web_env
       RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
@@ -76,7 +76,7 @@ services:
       - openklant_dev
 
   celery:
-    image: maykinmedia/open-klant:latest
+    image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
     environment: *web_env
     command: /celery_worker.sh
     depends_on:
@@ -85,8 +85,6 @@ services:
     volumes: *web_volumes
     networks:
       - openklant_dev
-
-
 
 volumes:
   open-klant-db:
