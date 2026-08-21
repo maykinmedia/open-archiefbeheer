@@ -622,3 +622,6 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         item.refresh_from_db()
         self.assertEqual(InternalStatus.failed, item.processing_status)
         self.assertIn("crash :(", item.processing_status_clarification)
+        self.assertIn(
+            "Traceback (most recent call last):", item.processing_status_clarification
+        )
