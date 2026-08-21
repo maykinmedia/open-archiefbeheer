@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 
@@ -14,13 +17,60 @@ from .models import (
 )
 
 
+class DestructionListItemInline(admin.TabularInline):
+    model = DestructionListItem
+    fk_name = "destruction_list"
+    readonly_fields = (
+        "id_with_link",
+        "zaak",
+        "processing_status",
+        "processing_status_clarification",
+    )
+    fields = (
+        "id_with_link",
+        "zaak",
+        "processing_status",
+        "processing_status_clarification",
+    )
+    extra = 0
+    can_delete = False
+    show_change_link = True
+    template = "destruction/tabular.html"
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj):
+        return False
+
+    @admin.display(description=_("Identifier"))
+    def id_with_link(self, obj: DestructionListItem):
+        url = reverse("admin:destruction_destructionlistitem_change", args=(obj.id,))
+        return format_html("<a href={}>{}</a>", url, str(obj))
+
+
 @admin.register(DestructionList)
 class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
-    list_display = ("name", "status", "created", "end")
-    list_filter = ("status", "assignee")
+    list_display = ("name", "status", "processing_status", "created", "end")
+    list_filter = ("status", "processing_status", "assignee")
     search_fields = ("name",)
-    readonly_fields = ("uuid",)
+    readonly_fields = ("uuid", "created", "processing_status_clarification")
+    fields = (
+        "name",
+        "uuid",
+        "comment",
+        "contains_sensitive_info",
+        "created",
+        "end",
+        "planned_destruction_date",
+        "assignee",
+        "status",
+        "status_changed",
+        "processing_status",
+        "processing_status_clarification",
+    )
     exclude = ["destruction_report"]
+    inlines = (DestructionListItemInline,)
 
 
 @admin.register(DestructionListItem)
@@ -31,6 +81,16 @@ class DestructionListItemAdmin(admin.ModelAdmin):
         "processing_status",
     )
     list_filter = ("status", "processing_status")
+    readonly_fields = ("processing_status_clarification", "_zaak_url")
+    fields = (
+        "destruction_list",
+        "zaak",
+        "_zaak_url",
+        "status",
+        "processing_status",
+        "processing_status_clarification",
+        "excluded_relations",
+    )
     search_fields = ("destruction_list__name",)
     raw_id_fields = ("destruction_list", "zaak")
 

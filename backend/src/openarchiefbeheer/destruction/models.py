@@ -18,6 +18,7 @@ from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
 
+from ..types import StrOrPromise
 from .assignment_logic import STATE_MANAGER
 from .constants import (
     DestructionListItemAction,
@@ -53,7 +54,7 @@ class DestructionList(models.Model):
         blank=True,
         help_text=_("Explanation of the destruction list."),
     )
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(_("created"), auto_now_add=True)
     end = models.DateTimeField(
         _("end"),
         blank=True,
@@ -109,6 +110,14 @@ class DestructionList(models.Model):
         ),
         default=InternalStatus.new,
     )
+    processing_status_clarification = models.TextField(
+        _("processing status clarification"),
+        help_text=_(
+            "Field used to give additional information about the status of the "
+            "deletion of a destruction list."
+        ),
+        blank=True,
+    )
     planned_destruction_date = models.DateField(
         _("planned destruction date"),
         help_text=_("Date from which this destruction list can be deleted."),
@@ -142,6 +151,13 @@ class DestructionList(models.Model):
         self.status_changed = timezone.now()
         if status == ListStatus.deleted:
             self.end = timezone.now()
+        self.save()
+
+    def set_processing_status(
+        self, status: InternalStatus, clarification: StrOrPromise = ""
+    ) -> None:
+        self.processing_status = status
+        self.processing_status_clarification = clarification
         self.save()
 
     def add_items(
@@ -208,6 +224,7 @@ class DestructionList(models.Model):
             self.set_status(ListStatus.new)
             self.planned_destruction_date = None
             self.processing_status = InternalStatus.new
+            self.processing_status_clarification = ""
 
             self.assign(self.assignees.get(role=ListRole.author))
             self.assignees.filter(
@@ -282,6 +299,14 @@ class DestructionListItem(models.Model):
         ),
         default=InternalStatus.new,
     )
+    processing_status_clarification = models.TextField(
+        _("processing status clarification"),
+        help_text=_(
+            "Field used to give additional information about the status of the "
+            "deletion of a destruction list item."
+        ),
+        blank=True,
+    )
     excluded_relations = ArrayField(
         models.URLField("excluded_relations", max_length=1000, blank=True),
         blank=True,
@@ -307,8 +332,11 @@ class DestructionListItem(models.Model):
             self._zaak_url = self.zaak.url
         return super().save(*args, **kwargs)
 
-    def set_processing_status(self, status: InternalStatus) -> None:
+    def set_processing_status(
+        self, status: InternalStatus, clarification: StrOrPromise = ""
+    ) -> None:
         self.processing_status = status
+        self.processing_status_clarification = clarification
         self.save()
 
 

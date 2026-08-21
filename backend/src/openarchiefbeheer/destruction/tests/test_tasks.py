@@ -576,12 +576,134 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
         self.assertIn("HTTPError", logs[0][2])
         logs = TimelineLog.objects.for_object(destruction_list)
-
         self.assertEqual(logs.count(), 1)
 
         message = logs[0].get_message()
-
         self.assertIn(
             _("The destruction failed."),
             message,
         )
+
+    def test_delete_destruction_list_item_without_zaak(self):
+        item = DestructionListItemFactory.create(with_zaak=False)
+
+        delete_destruction_list_item(item.pk)
+        item.refresh_from_db()
+        self.assertEqual(InternalStatus.failed, item.processing_status)
+        self.assertEqual(
+            _("The related case could not be found."),
+            item.processing_status_clarification,
+        )
+
+    def test_delete_destruction_list_item_with_archiving_date_in_the_future(self):
+        item = DestructionListItemFactory.create(
+            with_zaak=True, zaak__archiefactiedatum=date(2027, 1, 1)
+        )
+
+        with freeze_time("2026-08-18T14:25:00+02:00"):
+            delete_destruction_list_item(item.pk)
+        item.refresh_from_db()
+        self.assertEqual(InternalStatus.failed, item.processing_status)
+        self.assertEqual(
+            _("The archiving date of the case lies in the future."),
+            item.processing_status_clarification,
+        )
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_delete_destruction_list_with_unexpected_failure_in_item(self):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete
+        )
+        item = DestructionListItemFactory.create(
+            destruction_list=destruction_list, with_zaak=True
+        )
+
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_external_relations",
+            side_effect=ValueError("crash :("),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+        item.refresh_from_db()
+
+        with self.subTest("destruction list"):
+            self.assertEqual(InternalStatus.failed, destruction_list.processing_status)
+            self.assertEqual(
+                _("One or more destruction list items failed to process successfully."),
+                destruction_list.processing_status_clarification,
+            )
+
+        with self.subTest("destruction list item"):
+            self.assertEqual(InternalStatus.failed, item.processing_status)
+            self.assertIn("crash :(", item.processing_status_clarification)
+            self.assertIn(
+                "Traceback (most recent call last):",
+                item.processing_status_clarification,
+            )
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_delete_destruction_list_with_failure_in_generating_destruction_report(
+        self,
+    ):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete
+        )
+
+        with patch(
+            "openarchiefbeheer.destruction.tasks.generate_destruction_report",
+            side_effect=ValueError("crash :("),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(InternalStatus.failed, destruction_list.processing_status)
+        self.assertIn(
+            _("Something went wrong while generating or uploading destruction report:"),
+            destruction_list.processing_status_clarification,
+        )
+        self.assertIn(
+            "Traceback (most recent call last):",
+            destruction_list.processing_status_clarification,
+        )
+        log = TimelineLog.objects.for_object(destruction_list).get()
+        self.assertIn(_("The destruction failed."), log.get_message())
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_delete_destruction_list_with_failure_in_notifying_assignees(
+        self,
+    ):
+        destruction_list = DestructionListFactory.create(
+            status=ListStatus.ready_to_delete
+        )
+
+        with (
+            # To avoid a bloated test setup, just mock the routines to generate
+            # and upload a report
+            patch(
+                "openarchiefbeheer.destruction.tasks.generate_destruction_report",
+            ),
+            patch(
+                "openarchiefbeheer.destruction.tasks.upload_destruction_report_to_openzaak"
+            ),
+            patch(
+                "openarchiefbeheer.destruction.tasks.notify_assignees_successful_deletion",
+                side_effect=ValueError("crash :("),
+            ),
+        ):
+            delete_destruction_list(destruction_list)
+
+        destruction_list.refresh_from_db()
+
+        self.assertEqual(InternalStatus.failed, destruction_list.processing_status)
+        self.assertIn(
+            _("Something went wrong while notifying assignees:"),
+            destruction_list.processing_status_clarification,
+        )
+        self.assertIn(
+            "Traceback (most recent call last):",
+            destruction_list.processing_status_clarification,
+        )
+        log = TimelineLog.objects.for_object(destruction_list).get()
+        self.assertIn(_("The destruction failed."), log.get_message())

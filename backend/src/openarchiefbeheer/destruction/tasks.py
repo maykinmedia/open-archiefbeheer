@@ -3,6 +3,7 @@ import traceback
 from datetime import date
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from celery import chain
 
@@ -86,8 +87,7 @@ def delete_destruction_list(destruction_list: DestructionList) -> None:
         )
         return
 
-    destruction_list.processing_status = InternalStatus.processing
-    destruction_list.save()
+    destruction_list.set_processing_status(InternalStatus.processing)
 
     items_pks = [
         (item.pk,)
@@ -125,6 +125,10 @@ def queue_destruction_lists_for_deletion():
 @app.task
 def handle_processing_error(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
+    # Deliberately do not use `.set_processing_status`, because we don't want
+    # to override whatever clarification was set previously. It is unlikely that
+    # the status will not be set to "failed" anyway, because the (most relevant)
+    # errors should have been caught already.
     destruction_list.processing_status = InternalStatus.failed
     destruction_list.save()
 
@@ -135,6 +139,27 @@ def handle_processing_error(pk: int) -> None:
 
 @app.task
 def delete_destruction_list_item(pk: int) -> None:
+    """
+    Delete a zaak and related objects with error handling.
+
+    See :func:`_delete_destruction_list_item` for details about which objects
+    will be deleted.
+    """
+    item = DestructionListItem.objects.get(pk=pk)
+
+    try:
+        _delete_destruction_list_item(item)
+    except Exception as exc:
+        logger.error(msg="".join(traceback.format_exception(exc)))
+        item.set_processing_status(
+            InternalStatus.failed,
+            _("Something went wrong unexpectedly:\n{e}").format(
+                e=traceback.format_exc()
+            ),
+        )
+
+
+def _delete_destruction_list_item(item: DestructionListItem) -> None:
     """Delete a zaak and related objects
 
     The procedure to delete all objects related to a zaak (in Open Zaak) is as follows:
@@ -156,36 +181,34 @@ def delete_destruction_list_item(pk: int) -> None:
     The `ResourceDestructionResult` objects keep track temporarily of which objects have been deleted/unlinked
     from Open Zaak and the external registers so that we can log them in the destruction report.
     """
-    item = DestructionListItem.objects.get(pk=pk)
-
     if item.processing_status == InternalStatus.succeeded:
-        logger.info("Item %s already successfully processed. Skipping.", pk)
+        logger.info("Item %s already successfully processed. Skipping.", item.pk)
         return
 
     if not item.zaak:
         logger.error("Could not find the zaak. Aborting deletion.")
-        item.set_processing_status(InternalStatus.failed)
+        item.set_processing_status(
+            InternalStatus.failed, _("The related case could not be found.")
+        )
         return
 
     if item.zaak.archiefactiedatum > date.today():
         logger.error(
             "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
         )
-        item.set_processing_status(InternalStatus.failed)
+        item.set_processing_status(
+            InternalStatus.failed,
+            _("The archiving date of the case lies in the future."),
+        )
         return
 
     item.set_processing_status(InternalStatus.processing)
 
-    try:
-        delete_external_relations(item)
-        delete_besluiten_and_besluiteninformatieobjecten(item)
-        delete_zaakinformatieobjecten(item)
-        delete_enkelvoudiginformatieobjecten(item)
-        delete_zaak(item)
-    except Exception as exc:
-        logger.error(msg="".join(traceback.format_exception(exc)))
-        item.set_processing_status(InternalStatus.failed)
-        return
+    delete_external_relations(item)
+    delete_besluiten_and_besluiteninformatieobjecten(item)
+    delete_zaakinformatieobjecten(item)
+    delete_enkelvoudiginformatieobjecten(item)
+    delete_zaak(item)
 
     item.set_processing_status(InternalStatus.succeeded)
 
@@ -194,6 +217,10 @@ def delete_destruction_list_item(pk: int) -> None:
 def complete_and_notify(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
     if destruction_list.has_failures():
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _("One or more destruction list items failed to process successfully."),
+        )
         raise DeletionProcessingError()
 
     if destruction_list.processing_status == InternalStatus.succeeded:
@@ -202,8 +229,19 @@ def complete_and_notify(pk: int) -> None:
 
     destruction_list.set_status(ListStatus.deleted)
 
-    generate_destruction_report(destruction_list)
-    upload_destruction_report_to_openzaak(destruction_list)
+    try:
+        generate_destruction_report(destruction_list)
+        upload_destruction_report_to_openzaak(destruction_list)
+    except Exception:
+        exc = traceback.format_exc()
+        logger.error(msg="".join(exc))
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _(
+                "Something went wrong while generating or uploading destruction report:\n{e}"
+            ).format(e=exc),
+        )
+        raise
 
     # Uploading the destruction report has succeeded.
     # Delete all the local metadata that we had stored.
@@ -211,8 +249,16 @@ def complete_and_notify(pk: int) -> None:
         item__destruction_list=destruction_list
     ).delete()
 
-    destruction_list.processing_status = InternalStatus.succeeded
-    destruction_list.save()
     destruction_list.destruction_report.delete()
+    destruction_list.set_processing_status(InternalStatus.succeeded)
 
-    notify_assignees_successful_deletion(destruction_list)
+    try:
+        notify_assignees_successful_deletion(destruction_list)
+    except Exception:
+        exc = traceback.format_exc()
+        logger.error(msg="".join(exc))
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _("Something went wrong while notifying assignees:\n{e}").format(e=exc),
+        )
+        raise
