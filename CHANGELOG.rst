@@ -8,6 +8,7 @@ Change history
 Bugfix release.
 
 * [#1032] Fixed being able to create, and queue the deletion of, a destruction list if it contains a case without an archiving date.
+* [#1078] Fixed a crash when queuing an already-processed destruction list for deletion, to recreate a destruction report (regression of #1032).
 
 
 2.0.0 (2026-02-02)

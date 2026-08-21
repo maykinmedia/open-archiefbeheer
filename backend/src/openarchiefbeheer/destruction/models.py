@@ -200,6 +200,7 @@ class DestructionList(models.Model):
         return not self.items.filter(
             Q(zaak__archiefactiedatum__gt=destruction_date)
             | Q(zaak__archiefactiedatum__isnull=True),
+            zaak__isnull=False,
             status=ListItemStatus.suggested,
         ).exists()
 
