@@ -287,3 +287,39 @@ class DestructionListStartDestructionEndpointTest(APITestCase):
             )
             % {"destruction_date": "20/08/2026"},
         )
+
+    @tag("gh-1078")
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    def test_should_be_able_to_restart_queueing_destruction_list_that_was_already_deleted(
+        self,
+    ):
+        """Ensures it is possible to retrigger destruction report generation."""
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            author=record_manager,
+            status=ListStatus.deleted,
+            processing_status=InternalStatus.failed,
+        )
+        DestructionListItemFactory.create(
+            with_zaak=False,  # already deleted before
+            destruction_list=destruction_list,
+            status=ListItemStatus.suggested,
+            processing_status=InternalStatus.succeeded,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        with patch(
+            "openarchiefbeheer.destruction.tasks.generate_destruction_report"
+        ) as m:
+            response = self.client.post(
+                reverse(
+                    "api:destructionlist-queue-destruction",
+                    kwargs={"uuid": destruction_list.uuid},
+                ),
+            )
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        m.assert_called_once_with(destruction_list)
