@@ -87,8 +87,7 @@ def delete_destruction_list(destruction_list: DestructionList) -> None:
         )
         return
 
-    destruction_list.processing_status = InternalStatus.processing
-    destruction_list.save()
+    destruction_list.set_processing_status(InternalStatus.processing)
 
     items_pks = [
         (item.pk,)
@@ -126,6 +125,10 @@ def queue_destruction_lists_for_deletion():
 @app.task
 def handle_processing_error(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
+    # Deliberately do not use `.set_processing_status`, because we don't want
+    # to override whatever clarification was set previously. It is unlikely that
+    # the status will not be set to "failed" anyway, because the (most relevant)
+    # errors should have been caught already.
     destruction_list.processing_status = InternalStatus.failed
     destruction_list.save()
 
@@ -214,6 +217,10 @@ def _delete_destruction_list_item(item: DestructionListItem) -> None:
 def complete_and_notify(pk: int) -> None:
     destruction_list = DestructionList.objects.get(pk=pk)
     if destruction_list.has_failures():
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _("One or more destruction list items failed to process successfully."),
+        )
         raise DeletionProcessingError()
 
     if destruction_list.processing_status == InternalStatus.succeeded:
@@ -222,8 +229,19 @@ def complete_and_notify(pk: int) -> None:
 
     destruction_list.set_status(ListStatus.deleted)
 
-    generate_destruction_report(destruction_list)
-    upload_destruction_report_to_openzaak(destruction_list)
+    try:
+        generate_destruction_report(destruction_list)
+        upload_destruction_report_to_openzaak(destruction_list)
+    except Exception:
+        exc = traceback.format_exc()
+        logger.error(msg="".join(exc))
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _(
+                "Something went wrong while generating or uploading destruction report:\n{e}"
+            ).format(e=exc),
+        )
+        raise
 
     # Uploading the destruction report has succeeded.
     # Delete all the local metadata that we had stored.
@@ -231,8 +249,16 @@ def complete_and_notify(pk: int) -> None:
         item__destruction_list=destruction_list
     ).delete()
 
-    destruction_list.processing_status = InternalStatus.succeeded
-    destruction_list.save()
     destruction_list.destruction_report.delete()
+    destruction_list.set_processing_status(InternalStatus.succeeded)
 
-    notify_assignees_successful_deletion(destruction_list)
+    try:
+        notify_assignees_successful_deletion(destruction_list)
+    except Exception:
+        exc = traceback.format_exc()
+        logger.error(msg="".join(exc))
+        destruction_list.set_processing_status(
+            InternalStatus.failed,
+            _("Something went wrong while notifying assignees:\n{e}").format(e=exc),
+        )
+        raise

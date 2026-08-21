@@ -54,7 +54,7 @@ class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
     list_display = ("name", "status", "processing_status", "created", "end")
     list_filter = ("status", "processing_status", "assignee")
     search_fields = ("name",)
-    readonly_fields = ("uuid", "created")
+    readonly_fields = ("uuid", "created", "processing_status_clarification")
     fields = (
         "name",
         "uuid",
@@ -67,6 +67,7 @@ class DestructionListAdmin(PrivateMediaMixin, admin.ModelAdmin):
         "status",
         "status_changed",
         "processing_status",
+        "processing_status_clarification",
     )
     exclude = ["destruction_report"]
     inlines = (DestructionListItemInline,)
