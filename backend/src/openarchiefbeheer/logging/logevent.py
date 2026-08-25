@@ -279,6 +279,33 @@ def destruction_list_items_deleted(
     )
 
 
+def destruction_list_processing_status_updated(
+    destruction_list: DestructionList,
+) -> None:
+    _create_log(
+        model=destruction_list,
+        event="destruction_list_processing_status_updated",
+        extra_data={
+            "status": destruction_list.processing_status.label,
+            "clarification": destruction_list.processing_status_clarification,
+        },
+    )
+
+
+def destruction_list_item_processing_status_updated(
+    destruction_list_item: DestructionListItem,
+) -> None:
+    _create_log(
+        model=destruction_list_item.destruction_list,
+        event="destruction_list_item_processing_status_updated",
+        extra_data={
+            "status": destruction_list_item.processing_status.label,
+            "clarification": destruction_list_item.processing_status_clarification,
+            "item_pk": destruction_list_item.pk,
+        },
+    )
+
+
 def resync_started() -> None:
     return TimelineLog.objects.create(
         template="logging/resync_started.txt",

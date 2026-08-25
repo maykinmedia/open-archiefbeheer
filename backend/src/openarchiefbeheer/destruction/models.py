@@ -17,6 +17,7 @@ from timeline_logger.models import TimelineLog
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
+from openarchiefbeheer.logging import logevent
 
 from ..types import StrOrPromise
 from .assignment_logic import STATE_MANAGER
@@ -164,6 +165,7 @@ class DestructionList(models.Model):
         self.save(
             update_fields=["processing_status", "processing_status_clarification"]
         )
+        logevent.destruction_list_processing_status_updated(self)
 
     def add_items(
         self, zaken: Iterable["Zaak"], ignore_conflicts: bool = False
@@ -349,6 +351,7 @@ class DestructionListItem(models.Model):
         self.save(
             update_fields=["processing_status", "processing_status_clarification"]
         )
+        logevent.destruction_list_item_processing_status_updated(self)
 
 
 class DestructionListAssignee(models.Model):

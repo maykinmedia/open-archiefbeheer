@@ -576,13 +576,30 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
         self.assertIn("HTTPError", logs[0][2])
         logs = TimelineLog.objects.for_object(destruction_list)
-        self.assertEqual(logs.count(), 1)
 
-        message = logs[0].get_message()
-        self.assertIn(
-            _("The destruction failed."),
-            message,
+        self.assertEqual(logs.count(), 5)
+        # Log breakdown:
+        #  1. Set processing status of destruction list (processing)
+        #  2. Set processing status of list item (processing)
+        #  3. Set processing status of list item (failed)
+        #  4. Set processing status of destruction list (failed)
+        #  5. General destruction failed message
+        self.assertEqual(
+            _("Processing status was updated to '{status}'").format(
+                status=_("processing")
+            ),
+            logs[0].get_message().strip(),
         )
+        self.assertEqual(
+            _(
+                "Destruction list item {item_pk} processing status was updated to '{status}'"
+            ).format(item_pk=item.pk, status=_("processing")),
+            logs[1].get_message().strip(),
+        )
+        self.assertIn(_("failed"), logs[2].get_message())
+        self.assertIn("Traceback (most recent call last):", logs[2].get_message())
+        self.assertIn(_("failed"), logs[3].get_message())
+        self.assertEqual(_("The destruction failed."), logs[4].get_message())
 
     def test_delete_destruction_list_item_without_zaak(self):
         item = DestructionListItemFactory.create(with_zaak=False)
@@ -667,8 +684,8 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             "Traceback (most recent call last):",
             destruction_list.processing_status_clarification,
         )
-        log = TimelineLog.objects.for_object(destruction_list).get()
-        self.assertIn(_("The destruction failed."), log.get_message())
+        log = TimelineLog.objects.for_object(destruction_list).last()
+        self.assertEqual(_("The destruction failed."), log.get_message())
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_delete_destruction_list_with_failure_in_notifying_assignees(
@@ -705,5 +722,5 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             "Traceback (most recent call last):",
             destruction_list.processing_status_clarification,
         )
-        log = TimelineLog.objects.for_object(destruction_list).get()
-        self.assertIn(_("The destruction failed."), log.get_message())
+        log = TimelineLog.objects.for_object(destruction_list).last()
+        self.assertEqual(_("The destruction failed."), log.get_message())
