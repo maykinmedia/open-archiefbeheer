@@ -1,0 +1,9 @@
+{% load i18n %}
+{% blocktranslate trimmed with status=log.extra_data.status item_pk=log.extra_data.item_pk %}
+Destruction list item {{ item_pk }} processing status was updated to '{{ status }}'
+{% endblocktranslate %}
+{% if log.extra_data.clarification %}
+    {% blocktranslate trimmed with clarification=log.extra_data.clarification %}
+    with clarification: {{ clarification }}
+    {% endblocktranslate %}
+{% endif %}

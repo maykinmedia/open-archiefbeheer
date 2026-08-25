@@ -3,10 +3,12 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from requests_mock import Mocker
+from timeline_logger.models import TimelineLog
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -60,6 +62,18 @@ class DestructionListItemTest(ClearCacheMixin, TestCase):
         item.refresh_from_db()
 
         self.assertEqual(item._zaak_url, "http://zaken.nl/1")
+
+    def test_set_processing_status(self):
+        item = DestructionListItemFactory.create()
+
+        item.set_processing_status(
+            InternalStatus.failed, "Something failed catastrophically"
+        )
+
+        log = TimelineLog.objects.for_object(item.destruction_list).get()
+        message = log.get_message()
+        self.assertIn(_("failed"), message)
+        self.assertIn("Something failed catastrophically", message)
 
 
 class ReviewResponseTests(TestCase):
@@ -310,6 +324,18 @@ class DestructionListTest(TestCase):
                 destruction_list=destruction_list
             ).exists()
         )
+
+    def test_set_processing_status(self):
+        list_ = DestructionListFactory.create()
+
+        list_.set_processing_status(
+            InternalStatus.failed, "Something failed catastrophically"
+        )
+
+        log = TimelineLog.objects.for_object(list_).get()
+        message = log.get_message()
+        self.assertIn(_("failed"), message)
+        self.assertIn("Something failed catastrophically", message)
 
 
 class DestructionListCoReviewTest(TestCase):
