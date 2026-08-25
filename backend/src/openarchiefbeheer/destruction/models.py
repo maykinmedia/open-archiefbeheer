@@ -154,11 +154,16 @@ class DestructionList(models.Model):
         self.save()
 
     def set_processing_status(
-        self, status: InternalStatus, clarification: StrOrPromise = ""
+        self, status: InternalStatus, clarification: StrOrPromise
     ) -> None:
+        assert status != InternalStatus.failed or clarification, (
+            "Failed status must have a clarification."
+        )
         self.processing_status = status
         self.processing_status_clarification = clarification
-        self.save()
+        self.save(
+            update_fields=["processing_status", "processing_status_clarification"]
+        )
 
     def add_items(
         self, zaken: Iterable["Zaak"], ignore_conflicts: bool = False
@@ -334,11 +339,16 @@ class DestructionListItem(models.Model):
         return super().save(*args, **kwargs)
 
     def set_processing_status(
-        self, status: InternalStatus, clarification: StrOrPromise = ""
+        self, status: InternalStatus, clarification: StrOrPromise
     ) -> None:
+        assert status != InternalStatus.failed or clarification, (
+            "Failed status must have a clarification."
+        )
         self.processing_status = status
         self.processing_status_clarification = clarification
-        self.save()
+        self.save(
+            update_fields=["processing_status", "processing_status_clarification"]
+        )
 
 
 class DestructionListAssignee(models.Model):
