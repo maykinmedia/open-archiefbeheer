@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import (
+    TYPE_CHECKING,
     Iterable,
     NoReturn,
     Protocol,
@@ -8,11 +11,6 @@ from typing import (
 
 from django.utils.translation import gettext as _
 
-from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
-from maykin_config_checks import HealthCheckResult
-from zgw_consumers.models import Service
-
-from openarchiefbeheer.destruction.models import DestructionListItem
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
 from .models import ExternalRegisterConfig
@@ -20,6 +18,14 @@ from .models import ExternalRegisterConfig
 type Identifier = str
 type ServiceSlug = str
 T = TypeVar("T", covariant=True)
+
+
+if TYPE_CHECKING:
+    from django_setup_configuration import BaseConfigurationStep, ConfigurationModel
+    from maykin_config_checks import HealthCheckResult
+    from zgw_consumers.models import Service
+
+    from openarchiefbeheer.destruction.models import DestructionListItem
 
 
 class PluginConfig(Protocol):
