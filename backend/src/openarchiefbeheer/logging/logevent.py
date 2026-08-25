@@ -1,23 +1,31 @@
+from __future__ import annotations
+
 import traceback
+from typing import TYPE_CHECKING
 
 from django.db.models import Max, Min, Model
 
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
-from openarchiefbeheer.accounts.models import User
-from openarchiefbeheer.destruction.constants import ListItemStatus
-from openarchiefbeheer.destruction.models import (
-    DestructionList,
-    DestructionListAssignee,
-    DestructionListCoReview,
-    DestructionListReview,
+from openarchiefbeheer.destruction.constants import (
+    ListItemStatus,
     ReviewDecisionChoices,
 )
 from openarchiefbeheer.zaken.utils import (
     format_resultaten_choices,
     format_zaaktype_choices,
 )
+
+if TYPE_CHECKING:
+    from openarchiefbeheer.accounts.models import User
+    from openarchiefbeheer.destruction.models import (
+        DestructionList,
+        DestructionListAssignee,
+        DestructionListCoReview,
+        DestructionListItem,
+        DestructionListReview,
+    )
 
 TEMPLATE_FORMAT = "logging/%(event)s.txt"
 
