@@ -1,0 +1,101 @@
+#
+# DISCLAIMER: THIS IS FOR DEVELOPMENT PURPOSES ONLY AND NOT SUITABLE FOR PRODUCTION.
+#
+# You can use this docker-compose to spin up a local stack for demo/try-out
+# purposes, or to get some insight in the various components involved (e.g. to build
+# your Helm charts from). Note that various environment variables are UNSAFE and merely
+# specified so that you can get up and running with the least amount of friction.
+services:
+  openproduct-db:
+    image: postgres:17
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./docker-init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - openproduct-dev
+
+  openproduct-redis:
+    image: redis
+    networks:
+      - openproduct-dev
+
+  openproduct-web:
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    environment: &web_env
+      DJANGO_SETTINGS_MODULE: openproduct.conf.docker
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-@4wj9(+*bu7*v&%on7+e_8!d1ckl%r=6+sz#d2!pw^@lb0+=}
+      DB_NAME: openproduct
+      DB_USER: openproduct
+      DB_HOST: openproduct-db
+      IS_HTTPS: no
+      ALLOWED_HOSTS: '*'
+      DISABLE_2FA: True
+      SITE_DOMAIN: openproduct-web:8000
+      CACHE_DEFAULT: openproduct-redis:6379/0
+      CELERY_BROKER_URL: redis://openproduct-redis:6379/1
+      CELERY_RESULT_BACKEND: redis://openproduct-redis:6379/1
+      NOTIFICATIONS_DISABLED: True
+      OTEL_SDK_DISABLED: True
+      OPENPRODUCT_SUPERUSER_USERNAME: admin
+      OPENPRODUCT_SUPERUSER_PASSWORD: admin
+      OPENPRODUCT_SUPERUSER_EMAIL: admin@admin.org
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - 8007:8000
+    depends_on:
+      - openproduct-db
+      - openproduct-redis
+    networks:
+      - openproduct-dev
+
+  # mount fixtures dir to automatically populate the DB
+  openproduct-web-fixtures:
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    environment: *web_env
+    command: sh -c "python src/manage.py loaddata ./fixtures/authtoken.json"
+    volumes:
+      - ./fixtures/:/app/fixtures/
+    depends_on:
+      openproduct-web:
+        condition: service_healthy
+    networks:
+      - openproduct-dev
+
+  openproduct-celery:
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    environment: *web_env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      openproduct-web:
+        condition: service_healthy
+    networks:
+      - openproduct-dev
+
+  openproduct-celery-beat:
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    environment: *web_env
+    command: /celery_beat.sh
+    depends_on:
+      - openproduct-celery
+    networks:
+      - openproduct-dev
+
+
+networks:
+  openproduct-dev:
+    name: openproduct-dev
