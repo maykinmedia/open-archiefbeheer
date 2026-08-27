@@ -20,33 +20,33 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: POST
     uri: http://localhost:8006/api/v2/objects
   response:
     body:
-      string: '{"url":"http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab","uuid":"5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab","type":"http://objecttypes:8000/api/v2/objecttypes/35fc8d64-956c-411d-a894-428d98fea3a2","record":{"index":1,"typeVersion":1,"data":{},"geometry":null,"startAt":"2025-01-01","endAt":null,"registrationAt":"2025-12-22","correctionFor":null,"correctedBy":null}}'
+      string: '{"url":"http://localhost:8006/api/v2/objects/04043150-dc4f-4f1f-b850-23482bf193de","uuid":"04043150-dc4f-4f1f-b850-23482bf193de","type":"http://localhost:8006/api/v2/objecttypes/35fc8d64-956c-411d-a894-428d98fea3a2","record":{"index":1,"typeVersion":1,"data":{},"geometry":null,"references":[],"startAt":"2025-01-01","endAt":null,"registrationAt":"2026-08-24","correctionFor":null,"correctedBy":null}}'
     headers:
       API-version:
-      - 2.5.0
+      - 2.8.0
       Allow:
       - GET, POST, HEAD, OPTIONS
       Content-Crs:
       - EPSG:4326
       Content-Length:
-      - '387'
+      - '401'
       Content-Security-Policy:
-      - 'frame-src ''self''; font-src ''self'' fonts.gstatic.com; frame-ancestors
-        ''none''; worker-src ''self'' blob:; script-src ''self'' ''unsafe-inline'';
-        default-src ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
-        base-uri ''self''; form-action ''self''; object-src ''none''; img-src ''self''
+      - 'base-uri ''self''; script-src ''self'' ''unsafe-inline''; form-action ''self'';
+        frame-src ''self''; default-src ''self''; frame-ancestors ''none''; object-src
+        ''none''; worker-src ''self'' blob:; font-src ''self'' fonts.gstatic.com;
+        style-src ''self'' ''unsafe-inline'' fonts.googleapis.com; img-src ''self''
         data: cdn.redoc.ly'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Location:
-      - http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab
+      - http://localhost:8006/api/v2/objects/04043150-dc4f-4f1f-b850-23482bf193de
       Referrer-Policy:
       - same-origin
       Vary:
@@ -58,52 +58,4 @@ interactions:
     status:
       code: 201
       message: Created
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '0'
-      User-Agent:
-      - python-requests/2.32.4
-    method: DELETE
-    uri: http://localhost:8006/api/v2/objects/5e8e9d9f-dbab-475f-8a8b-3e5a1b74d3ab
-  response:
-    body:
-      string: ''
-    headers:
-      API-version:
-      - 2.5.0
-      Allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      Content-Crs:
-      - EPSG:4326
-      Content-Length:
-      - '0'
-      Content-Security-Policy:
-      - 'frame-src ''self''; font-src ''self'' fonts.gstatic.com; frame-ancestors
-        ''none''; worker-src ''self'' blob:; script-src ''self'' ''unsafe-inline'';
-        default-src ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
-        base-uri ''self''; form-action ''self''; object-src ''none''; img-src ''self''
-        data: cdn.redoc.ly'
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Referrer-Policy:
-      - same-origin
-      Vary:
-      - origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-    status:
-      code: 204
-      message: No Content
 version: 1
