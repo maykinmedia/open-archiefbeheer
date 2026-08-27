@@ -26,10 +26,12 @@ const meta: Meta<typeof DestructionListAuditLogHistory> = {
         timestamp: formatDate(new Date("1988-08-02"), "iso"),
         user: userFactory({
           username: "janedoe",
-          firstName: "Jane",
+          firstName: "Jaaaaaaaaaaaaaaaaaane",
           lastName: "Doe",
         }),
-        extraData: { userGroups: ["Record Manager", "Reviewer"] },
+        extraData: {
+          userGroups: ["Record Manager", "Reviewer", "Co-reviewer"],
+        },
         message: "Destruction list deleted.",
       }),
 
@@ -64,8 +66,12 @@ export const AuditLogItemsVisible: Story = {
         await expect(rows[1]).toHaveTextContent("Destruction list created.");
 
         await expect(rows[2]).toHaveTextContent("02/08/1988");
-        await expect(rows[2]).toHaveTextContent("Jane Doe (janedoe)");
-        await expect(rows[2]).toHaveTextContent("Record Manager, Reviewer");
+        await expect(rows[2]).toHaveTextContent(
+          "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+        );
+        await expect(rows[2]).toHaveTextContent(
+          "Record Manager, Reviewer, Co-reviewer",
+        );
         await expect(rows[2]).toHaveTextContent("Destruction list deleted.");
 
         await expect(rows[3]).toHaveTextContent("15/09/2023");
@@ -90,8 +96,12 @@ export const AuditLogItemsSortDate: Story = {
       await expect(asc).toHaveLength(4);
 
       await expect(asc[1]).toHaveTextContent("02/08/1988");
-      await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(asc[1]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(asc[1]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
       await expect(asc[2]).toHaveTextContent("31/10/1990");
@@ -120,8 +130,12 @@ export const AuditLogItemsSortDate: Story = {
       await expect(desc[2]).toHaveTextContent("Destruction list created.");
 
       await expect(desc[3]).toHaveTextContent("02/08/1988");
-      await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(desc[3]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(desc[3]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
     });
   },
@@ -140,8 +154,12 @@ export const AuditLogItemsSortName: Story = {
 
       await expect(asc).toHaveLength(4);
       await expect(asc[1]).toHaveTextContent("02/08/1988");
-      await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(asc[1]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(asc[1]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
       await expect(asc[2]).toHaveTextContent("15/09/2023");
@@ -170,8 +188,12 @@ export const AuditLogItemsSortName: Story = {
       await expect(desc[2]).toHaveTextContent("Destruction list updated.");
 
       await expect(desc[3]).toHaveTextContent("02/08/1988");
-      await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(desc[3]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(desc[3]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
     });
   },
@@ -191,8 +213,12 @@ export const AuditLogItemsSortMessage: Story = {
       await expect(asc).toHaveLength(4);
 
       await expect(asc[1]).toHaveTextContent("02/08/1988");
-      await expect(asc[1]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(asc[1]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(asc[1]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(asc[1]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(asc[1]).toHaveTextContent("Destruction list deleted.");
 
       await expect(asc[2]).toHaveTextContent("15/09/2023");
@@ -221,8 +247,12 @@ export const AuditLogItemsSortMessage: Story = {
       await expect(desc[2]).toHaveTextContent("Destruction list updated.");
 
       await expect(desc[3]).toHaveTextContent("02/08/1988");
-      await expect(desc[3]).toHaveTextContent("Jane Doe (janedoe)");
-      await expect(desc[3]).toHaveTextContent("Record Manager, Reviewer");
+      await expect(desc[3]).toHaveTextContent(
+        "Jaaaaaaaaaaaaaaaaaane Doe (janedoe)",
+      );
+      await expect(desc[3]).toHaveTextContent(
+        "Record Manager, Reviewer, Co-reviewer",
+      );
       await expect(desc[3]).toHaveTextContent("Destruction list deleted.");
     });
   },
