@@ -1,13 +1,15 @@
-import { DataGrid, sortDataArray } from "@maykin-ui/admin-ui";
+import { DataGrid, TypedField, sortDataArray } from "@maykin-ui/admin-ui";
 import { useEffect, useState } from "react";
 
 import { AuditLogItem } from "../../lib/api/auditLog";
 import { formatDateAndTime } from "../../lib/format/date";
 import { formatGroups, formatUser } from "../../lib/format/user";
+import { ExpandableText } from "../ExpandableText";
 
 type DestructionListAuditLogHistoryItem = {
   Datum: string;
   "Gewijzigd door": string;
+  Rol: string;
   Wijziging: string;
 };
 
@@ -19,6 +21,37 @@ export function DestructionListAuditLogHistory({
   const [objectList, setObjectList] = useState<
     DestructionListAuditLogHistoryItem[]
   >([]);
+
+  const overflowRowData = (fieldName: string, text: string) => {
+    return <ExpandableText text={text} fieldName={fieldName} />;
+  };
+
+  const fields: TypedField<DestructionListAuditLogHistoryItem>[] = [
+    {
+      name: "Datum",
+      type: "string",
+      width: "150px",
+    },
+    {
+      name: "Gewijzigd door",
+      type: "string",
+      width: "250px",
+      valueTransform: (rd) =>
+        overflowRowData("gewijzigdDoorOverflowButton", rd["Gewijzigd door"]),
+    },
+    {
+      name: "Rol",
+      type: "string",
+      width: "250px",
+      valueTransform: (rd) => overflowRowData("rolOverflowButton", rd.Rol),
+    },
+    {
+      name: "Wijziging",
+      type: "string",
+      valueTransform: (rd) =>
+        overflowRowData("wijzigingOverflowButton", rd.Wijziging),
+    },
+  ];
 
   useEffect(() => {
     const data: DestructionListAuditLogHistoryItem[] = logItems.map(
@@ -63,5 +96,13 @@ export function DestructionListAuditLogHistory({
     }
   };
 
-  return <DataGrid objectList={objectList} sort={true} onSort={handleSort} />;
+  return (
+    <DataGrid
+      fields={fields}
+      objectList={objectList}
+      sort={true}
+      onSort={handleSort}
+      tableLayout="fixed"
+    />
+  );
 }
