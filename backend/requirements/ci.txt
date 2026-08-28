@@ -754,7 +754,7 @@ sphinx==8.2.3
     #   -r requirements/test-tools.in
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
-sphinx-rtd-theme==3.0.2
+sphinx-rtd-theme==3.1.0
     # via -r requirements/test-tools.in
 sphinxcontrib-applehelp==1.0.8
     # via sphinx
