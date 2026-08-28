@@ -5,8 +5,6 @@ from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
     Iterable,
-    Protocol,
-    TypeVar,
 )
 
 from django.db.models.functions import Length
@@ -20,9 +18,6 @@ from ..destruction.constants import ResourceDestructionResultStatus
 from .models import ExternalRegisterConfig
 
 type Identifier = str
-type ServiceSlug = str
-T = TypeVar("T", covariant=True)
-
 
 if TYPE_CHECKING:
     from ape_pie import APIClient
@@ -34,13 +29,7 @@ if TYPE_CHECKING:
     from openarchiefbeheer.destruction.models import DestructionListItem
 
 
-class PluginConfig(Protocol):
-    identifier: str
-    enabled: bool
-    services: Iterable[Service]
-
-
-class AbstractBasePlugin[T](ABC):
+class AbstractBasePlugin(ABC):
     identifier: Identifier
     verbose_name: str
     resource_type: str
