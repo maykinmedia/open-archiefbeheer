@@ -1,14 +1,11 @@
 from collections.abc import Iterable
 from typing import NoReturn
 
-from django.db.models.functions import Length
+from ape_pie import APIClient
+from requests import Response
 
-from zgw_consumers.client import build_client
-
-from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
 from openarchiefbeheer.destruction.models import (
     DestructionListItem,
-    ResourceDestructionResult,
 )
 from openarchiefbeheer.external_registers.plugin import (
     AbstractBasePlugin,
@@ -25,6 +22,7 @@ from .setup_configuration.steps import ObjectenPluginConfigurartionStep
 @register(OBJECTEN_IDENTIFIER)
 class ObjectenPlugin(AbstractBasePlugin):
     verbose_name = "Objecten"
+    resource_type = "objecten"
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = ObjectenPluginConfigurartionStep
 
@@ -32,43 +30,18 @@ class ObjectenPlugin(AbstractBasePlugin):
         """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
         raise NotImplementedError()
 
+    @staticmethod
+    def delete_related_resource(
+        resource_url: str, client: APIClient, item: DestructionListItem
+    ) -> Response:
+        return client.delete(
+            resource_url,
+            params={"zaak": item.zaak.url},
+        )
+
     def delete_related_resources(
         self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:
         assert item.zaak
 
-        config = self.get_or_create_config()
-        services_candidates = (
-            config.services.all()
-            .annotate(api_root_length=Length("api_root"))
-            .order_by("-api_root_length")
-        )
-        clients = {
-            service.slug: build_client(service) for service in services_candidates
-        }
-
-        for resource_url in related_resources:
-            for service in services_candidates:
-                if not resource_url.startswith(service.api_root):
-                    continue
-
-                response = clients[service.slug].delete(
-                    resource_url.replace(service.api_root, ""),
-                    params={"zaak": item.zaak.url},
-                )
-                if response.status_code != 404:
-                    response.raise_for_status()
-
-                status_resource = (
-                    ResourceDestructionResultStatus.deleted
-                    if response.status_code == 204
-                    else ResourceDestructionResultStatus.unlinked
-                )
-
-                ResourceDestructionResult.objects.create(
-                    item=item,
-                    resource_type="objecten",
-                    url=resource_url,
-                    status=status_resource,
-                )
-                break
+        super().delete_related_resources(item, related_resources)
