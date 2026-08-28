@@ -14,9 +14,6 @@ from ..utils import get_plugin_for_related_object
 
 
 class DummyPlugin(AbstractBasePlugin):
-    def get_admin_url(self, resource_url: str) -> str:
-        return ""
-
     def delete_related_resources(
         self, item: DestructionListItem, related_resources: Iterable[str]
     ) -> None | NoReturn:

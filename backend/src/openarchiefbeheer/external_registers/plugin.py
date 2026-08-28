@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
@@ -95,11 +95,6 @@ class AbstractBasePlugin(ABC):
                 "The {plugin_name} plugin settings are properly configured."
             ).format(plugin_name=self.verbose_name),
         )
-
-    @abstractmethod
-    def get_admin_url(self, resource_url: str) -> str:
-        """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
-        raise NotImplementedError()
 
     def delete_related_resources(
         self, item: DestructionListItem, related_resources: Iterable[ResourceURL]

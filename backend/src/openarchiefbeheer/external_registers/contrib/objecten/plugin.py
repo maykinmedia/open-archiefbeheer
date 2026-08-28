@@ -27,10 +27,6 @@ class ObjectenPlugin(AbstractBasePlugin):
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = ObjectenPluginConfigurartionStep
 
-    def get_admin_url(self, resource_url: str) -> str:
-        """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
-        raise NotImplementedError()
-
     @staticmethod
     def delete_related_resource(
         resource_url: ResourceURL, client: APIClient, item: DestructionListItem

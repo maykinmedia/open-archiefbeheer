@@ -18,7 +18,3 @@ class OpenKlantPlugin(AbstractBasePlugin):
     resource_type = "onderwerpobjecten"
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = OpenKlantConfigurationStep
-
-    def get_admin_url(self, resource_url: str) -> str:
-        """From the URL of the resource in the API, return the URL to the resource in the admin of the register."""
-        raise NotImplementedError()

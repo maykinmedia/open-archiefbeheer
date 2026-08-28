@@ -14,7 +14,3 @@ class OpenProductPlugin(AbstractBasePlugin):
     resource_type = "producten"
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = OpenProductConfigurationStep
-
-    def get_admin_url(self, resource_url: str) -> str:
-        # TODO should we just remove this method? It's not implemented in all plugins
-        raise NotImplementedError()
