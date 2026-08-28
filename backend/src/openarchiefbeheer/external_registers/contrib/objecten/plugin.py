@@ -9,6 +9,7 @@ from openarchiefbeheer.destruction.models import (
 )
 from openarchiefbeheer.external_registers.plugin import (
     AbstractBasePlugin,
+    ResourceURL,
 )
 from openarchiefbeheer.external_registers.registry import register
 from openarchiefbeheer.external_registers.setup_configuration.models import (
@@ -32,7 +33,7 @@ class ObjectenPlugin(AbstractBasePlugin):
 
     @staticmethod
     def delete_related_resource(
-        resource_url: str, client: APIClient, item: DestructionListItem
+        resource_url: ResourceURL, client: APIClient, item: DestructionListItem
     ) -> Response:
         return client.delete(
             resource_url,
@@ -40,7 +41,7 @@ class ObjectenPlugin(AbstractBasePlugin):
         )
 
     def delete_related_resources(
-        self, item: DestructionListItem, related_resources: Iterable[str]
+        self, item: DestructionListItem, related_resources: Iterable[ResourceURL]
     ) -> None | NoReturn:
         assert item.zaak
 

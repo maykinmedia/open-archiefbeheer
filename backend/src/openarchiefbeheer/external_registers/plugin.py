@@ -18,6 +18,7 @@ from ..destruction.constants import ResourceDestructionResultStatus
 from .models import ExternalRegisterConfig
 
 type Identifier = str
+type ResourceURL = str
 
 if TYPE_CHECKING:
     from ape_pie import APIClient
@@ -101,7 +102,7 @@ class AbstractBasePlugin(ABC):
         raise NotImplementedError()
 
     def delete_related_resources(
-        self, item: DestructionListItem, related_resources: Iterable[str]
+        self, item: DestructionListItem, related_resources: Iterable[ResourceURL]
     ) -> None:
         """
         Delete/Unlink the resources from the register that are related to the zaak.
@@ -136,8 +137,8 @@ class AbstractBasePlugin(ABC):
                 )
 
     def group_resources_by_service(
-        self, related_resources: Iterable[str]
-    ) -> dict[Service, Iterable[str]]:
+        self, related_resources: Iterable[ResourceURL]
+    ) -> dict[Service, Iterable[ResourceURL]]:
         """
         group all related_resources urls by related services
         """
@@ -169,6 +170,6 @@ class AbstractBasePlugin(ABC):
 
     @staticmethod
     def delete_related_resource(
-        resource_url: str, client: APIClient, item: DestructionListItem
+        resource_url: ResourceURL, client: APIClient, item: DestructionListItem
     ) -> Response:
         return client.delete(resource_url)
