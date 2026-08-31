@@ -4,28 +4,6 @@ sites_config:
   - domain: localhost:8006
     name: Objecten API
 
-
-zgw_consumers_config_enable: true
-zgw_consumers:
-  services:
-  - identifier: objecttypes-api
-    label: Objecttypes API
-    api_root: http://objecttypes:8000/api/v2/
-    api_connection_check_path: objecttypes
-    api_type: orc
-    auth_type: api_key
-    header_key: Authorization
-    header_value: Token b9f100590925b529664ed9d370f5f8da124b2c20
-
-
-objecttypes_config_enable: true
-objecttypes:
-  items:
-    - uuid: 35fc8d64-956c-411d-a894-428d98fea3a2
-      name: Tree
-      service_identifier: objecttypes-api
-
-
 tokenauth_config_enable: true
 tokenauth:
   items:
@@ -37,6 +15,5 @@ tokenauth:
       application: Open Archiefbeheer
       administration: OAB
       is_superuser: true
-
 
 oidc_db_config_enable: false

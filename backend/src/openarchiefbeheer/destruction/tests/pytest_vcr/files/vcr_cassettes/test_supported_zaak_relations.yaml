@@ -9,13 +9,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NTQ5NzYwMCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.7-QDP1B3K5yuCpJ-yech4LIfSK66njti3IIAMcWrIWg
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc4NzgxNTczMCwiZXhwIjoxNzg3ODU4OTMwLCJjbGllbnRfaWQiOiJ0ZXN0LXZjciIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.g3yFXyiMffTW-tVPCaPtgZOe68IPIThOaMQUecC3OEg
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: GET
-    uri: http://localhost:8003/zaken/api/v1/zaken?expand=resultaat%2Cresultaat.resultaattype%2Czaaktype%2Crollen&archiefnominatie=vernietigen&einddatum__isnull=False&einddatum__lt=2025-12-12
+    uri: http://localhost:8003/zaken/api/v1/zaken?expand=resultaat%2Cresultaat.resultaattype%2Czaaktype%2Crollen&archiefnominatie=vernietigen&einddatum__isnull=False&einddatum__lt=2026-08-27
   response:
     body:
       string: '{"count":1,"next":null,"previous":null,"results":[{"url":"http://localhost:8003/zaken/api/v1/zaken/7eac038c-6675-4273-b794-7849508db496","uuid":"7eac038c-6675-4273-b794-7849508db496","identificatie":"ZAAK-2000-0000000001","bronorganisatie":"000000000","omschrijving":"","toelichting":"","zaaktype":"http://localhost:8003/catalogi/api/v1/zaaktypen/b61ccb36-6bc0-4b61-a44f-936c723fd497","registratiedatum":"2025-12-12","verantwoordelijkeOrganisatie":"000000000","startdatum":"2000-01-01","einddatum":"2010-01-01","einddatumGepland":null,"uiterlijkeEinddatumAfdoening":"2000-02-10","publicatiedatum":null,"laatstGemuteerd":"2025-12-12T14:45:36.645000Z","laatstGeopend":null,"communicatiekanaal":"","communicatiekanaalNaam":"","productenOfDiensten":[],"vertrouwelijkheidaanduiding":"geheim","betalingsindicatie":"","betalingsindicatieWeergave":"","laatsteBetaaldatum":null,"zaakgeometrie":null,"verlenging":null,"opschorting":{"indicatie":false,"eerdereOpschorting":false,"reden":""},"selectielijstklasse":"","hoofdzaak":null,"deelzaken":[],"relevanteAndereZaken":[],"eigenschappen":[],"rollen":[],"status":null,"zaakinformatieobjecten":[],"zaakobjecten":["http://localhost:8003/zaken/api/v1/zaakobjecten/d0b27cb0-ec3d-44c0-9683-b53471834348"],"kenmerken":[],"archiefnominatie":"vernietigen","archiefstatus":"nog_te_archiveren","archiefactiedatum":"2020-01-01","resultaat":null,"opdrachtgevendeOrganisatie":"","processobjectaard":"","startdatumBewaartermijn":null,"processobject":{"datumkenmerk":"","identificatie":"","objecttype":"","registratie":""},"_expand":{"zaaktype":{"url":"http://localhost:8003/catalogi/api/v1/zaaktypen/b61ccb36-6bc0-4b61-a44f-936c723fd497","identificatie":"ZAAKTYPE-2025-0000000001","omschrijving":"Hand
@@ -35,22 +35,22 @@ interactions:
       Content-Length:
       - '3418'
       Content-Security-Policy:
-      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com cdnjs.cloudflare.com
-        cdn.jsdelivr.net; frame-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none''; base-uri ''self'';
-        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; form-action ''self'''
+      - 'frame-ancestors ''none''; frame-src ''self''; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; img-src ''self''
+        data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org; script-src
+        ''self'' ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net; object-src
+        ''none''; base-uri ''self''; default-src ''self''; worker-src ''self'' blob:;
+        form-action ''self''; font-src ''self'' fonts.gstatic.com'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 02 Jan 2026 13:51:24 GMT
+      - Thu, 27 Aug 2026 07:28:51 GMT
       Referrer-Policy:
       - same-origin
       Server:
-      - nginx/1.29.2
+      - nginx/1.29.5
       Vary:
       - origin, Cookie
       X-Content-Type-Options:
@@ -68,11 +68,11 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc2NzM2MTg4NCwiY2xpZW50X2lkIjoidGVzdC12Y3IiLCJ1c2VyX2lkIjoiIiwidXNlcl9yZXByZXNlbnRhdGlvbiI6IiJ9.MOEfg1XTinTFbsZ-t-ROoXfbuTOCmEu2L09_y9PVoKU
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0ZXN0LXZjciIsImlhdCI6MTc4NzgxNTczMSwiZXhwIjoxNzg3ODU4OTMxLCJjbGllbnRfaWQiOiJ0ZXN0LXZjciIsInVzZXJfaWQiOiIiLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiIn0.u9zGlQn2mCX-g91g4S9yUn7QSL6uVlLiLXipwksxdt8
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: GET
     uri: http://localhost:8003/zaken/api/v1/zaakobjecten?zaak=http%3A%2F%2Flocalhost%3A8003%2Fzaken%2Fapi%2Fv1%2Fzaken%2F7eac038c-6675-4273-b794-7849508db496
   response:
@@ -88,22 +88,22 @@ interactions:
       Content-Length:
       - '698'
       Content-Security-Policy:
-      - 'style-src ''self'' ''unsafe-inline'' fonts.googleapis.com cdnjs.cloudflare.com
-        cdn.jsdelivr.net; frame-src ''self''; script-src ''self'' ''unsafe-inline''
-        cdnjs.cloudflare.com cdn.jsdelivr.net; object-src ''none''; base-uri ''self'';
-        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly
-        cdnjs.cloudflare.com tile.openstreetmap.org; font-src ''self'' fonts.gstatic.com;
-        frame-ancestors ''none''; form-action ''self'''
+      - 'frame-ancestors ''none''; frame-src ''self''; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com cdnjs.cloudflare.com cdn.jsdelivr.net; img-src ''self''
+        data: cdn.redoc.ly cdnjs.cloudflare.com tile.openstreetmap.org; script-src
+        ''self'' ''unsafe-inline'' cdnjs.cloudflare.com cdn.jsdelivr.net; object-src
+        ''none''; base-uri ''self''; default-src ''self''; worker-src ''self'' blob:;
+        form-action ''self''; font-src ''self'' fonts.gstatic.com'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Date:
-      - Fri, 02 Jan 2026 13:51:24 GMT
+      - Thu, 27 Aug 2026 07:28:51 GMT
       Referrer-Policy:
       - same-origin
       Server:
-      - nginx/1.29.2
+      - nginx/1.29.5
       Vary:
       - Accept, origin, Cookie
       X-Content-Type-Options:

@@ -41,6 +41,7 @@ def test_supported_zaak_relations(openzaak_reload: None, vcr: Cassette, client: 
         slug="zaken",
         api_type=APITypes.zrc,
         api_root="http://localhost:8003/zaken/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -56,7 +57,7 @@ def test_supported_zaak_relations(openzaak_reload: None, vcr: Cassette, client: 
     config.services.add(openklant_service.pk)
     user = UserFactory.create()
 
-    with freeze_time("2025-12-12"):
+    with freeze_time("2026-08-27"):
         retrieve_and_cache_zaken(is_full_resync=True)
 
     item = DestructionListItemFactory.create(

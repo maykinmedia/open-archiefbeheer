@@ -20,30 +20,30 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: POST
     uri: http://localhost:8005/klantinteracties/api/v1/klantcontacten
   response:
     body:
-      string: '{"uuid":"3511ea69-8ba1-451e-ab73-ecd92844591c","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/3511ea69-8ba1-451e-ab73-ecd92844591c","gingOverOnderwerpobjecten":[],"hadBetrokkenActoren":[],"omvatteBijlagen":[],"hadBetrokkenen":[],"leiddeTotInterneTaken":[],"nummer":"0000000037","kanaal":"telefoon","onderwerp":"Testing","inhoud":"","indicatieContactGelukt":null,"taal":"dut","vertrouwelijk":false,"plaatsgevondenOp":"2026-01-23T14:22:12.211885Z"}'
+      string: '{"uuid":"710a77f9-8424-442b-a892-763d1a1bf6b2","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/710a77f9-8424-442b-a892-763d1a1bf6b2","gingOverOnderwerpobjecten":[],"hadBetrokkenActoren":[],"omvatteBijlagen":[],"hadBetrokkenen":[],"leiddeTotInterneTaken":[],"nummer":null,"referentienummer":null,"kanaal":"telefoon","onderwerp":"Testing","inhoud":"","reactie":"","indicatieContactGelukt":null,"hoofdOnderwerpType":"","verdereActieOndernomen":false,"taal":"dut","vertrouwelijk":false,"plaatsgevondenOp":"2026-08-24T10:34:54.110010Z","metadata":{}}'
     headers:
       API-version:
-      - 0.4.1
+      - 0.9.0
       Allow:
       - GET, POST, HEAD, OPTIONS
       Content-Length:
-      - '467'
+      - '565'
       Content-Security-Policy:
-      - 'frame-ancestors ''none''; base-uri ''self''; img-src ''self'' data: cdn.redoc.ly;
-        worker-src ''self'' blob:; object-src ''none''; form-action ''self''; script-src
-        ''self'' ''unsafe-inline''; default-src ''self''; frame-src ''self''; style-src
-        ''self'' ''unsafe-inline'' fonts.googleapis.com; font-src ''self'' fonts.gstatic.com'
+      - 'base-uri ''self''; script-src ''self'' ''unsafe-inline''; object-src ''none'';
+        frame-ancestors ''none''; font-src ''self'' fonts.gstatic.com; frame-src ''self'';
+        form-action ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Location:
-      - http://localhost:8005/klantinteracties/api/v1/klantcontacten/3511ea69-8ba1-451e-ab73-ecd92844591c
+      - http://localhost:8005/klantinteracties/api/v1/klantcontacten/710a77f9-8424-442b-a892-763d1a1bf6b2
       Referrer-Policy:
       - same-origin
       Vary:
@@ -56,7 +56,7 @@ interactions:
       code: 201
       message: Created
 - request:
-    body: '{"klantcontact": {"uuid": "3511ea69-8ba1-451e-ab73-ecd92844591c"}, "wasKlantcontact":
+    body: '{"klantcontact": {"uuid": "710a77f9-8424-442b-a892-763d1a1bf6b2"}, "wasKlantcontact":
       null, "onderwerpobjectidentificator": null}'
     headers:
       Accept:
@@ -76,30 +76,30 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: POST
     uri: http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten
   response:
     body:
-      string: '{"uuid":"2cae3dd8-d551-4d80-9a66-50215aa2328f","url":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/2cae3dd8-d551-4d80-9a66-50215aa2328f","klantcontact":{"uuid":"3511ea69-8ba1-451e-ab73-ecd92844591c","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/3511ea69-8ba1-451e-ab73-ecd92844591c"},"wasKlantcontact":null,"onderwerpobjectidentificator":{"objectId":"","codeObjecttype":"","codeRegister":"","codeSoortObjectId":""}}'
+      string: '{"uuid":"0bf8d8c9-4578-4d7d-bfa5-a26da5b1daa1","url":"http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/0bf8d8c9-4578-4d7d-bfa5-a26da5b1daa1","klantcontact":{"uuid":"710a77f9-8424-442b-a892-763d1a1bf6b2","url":"http://localhost:8005/klantinteracties/api/v1/klantcontacten/710a77f9-8424-442b-a892-763d1a1bf6b2"},"wasKlantcontact":null,"onderwerpobjectidentificator":{"objectId":"","codeObjecttype":"","codeRegister":"","codeSoortObjectId":""}}'
     headers:
       API-version:
-      - 0.4.1
+      - 0.9.0
       Allow:
       - GET, POST, HEAD, OPTIONS
       Content-Length:
       - '456'
       Content-Security-Policy:
-      - 'frame-ancestors ''none''; base-uri ''self''; img-src ''self'' data: cdn.redoc.ly;
-        worker-src ''self'' blob:; object-src ''none''; form-action ''self''; script-src
-        ''self'' ''unsafe-inline''; default-src ''self''; frame-src ''self''; style-src
-        ''self'' ''unsafe-inline'' fonts.googleapis.com; font-src ''self'' fonts.gstatic.com'
+      - 'base-uri ''self''; script-src ''self'' ''unsafe-inline''; object-src ''none'';
+        frame-ancestors ''none''; font-src ''self'' fonts.gstatic.com; frame-src ''self'';
+        form-action ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
       - same-origin
       Location:
-      - http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/2cae3dd8-d551-4d80-9a66-50215aa2328f
+      - http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/0bf8d8c9-4578-4d7d-bfa5-a26da5b1daa1
       Referrer-Policy:
       - same-origin
       Vary:
@@ -125,24 +125,24 @@ interactions:
       Content-Length:
       - '0'
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: DELETE
-    uri: http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/2cae3dd8-d551-4d80-9a66-50215aa2328f
+    uri: http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/0bf8d8c9-4578-4d7d-bfa5-a26da5b1daa1
   response:
     body:
       string: ''
     headers:
       API-version:
-      - 0.4.1
+      - 0.9.0
       Allow:
       - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
       Content-Length:
       - '0'
       Content-Security-Policy:
-      - 'frame-ancestors ''none''; base-uri ''self''; img-src ''self'' data: cdn.redoc.ly;
-        worker-src ''self'' blob:; object-src ''none''; form-action ''self''; script-src
-        ''self'' ''unsafe-inline''; default-src ''self''; frame-src ''self''; style-src
-        ''self'' ''unsafe-inline'' fonts.googleapis.com; font-src ''self'' fonts.gstatic.com'
+      - 'base-uri ''self''; script-src ''self'' ''unsafe-inline''; object-src ''none'';
+        frame-ancestors ''none''; font-src ''self'' fonts.gstatic.com; frame-src ''self'';
+        form-action ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly'
       Cross-Origin-Opener-Policy:
       - same-origin
       Referrer-Policy:
@@ -168,25 +168,25 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.4
+      - python-requests/2.34.2
     method: GET
-    uri: http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/2cae3dd8-d551-4d80-9a66-50215aa2328f
+    uri: http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/0bf8d8c9-4578-4d7d-bfa5-a26da5b1daa1
   response:
     body:
       string: '{"type":"http://localhost:8005/ref/fouten/NotFound/","code":"not_found","title":"Niet
-        gevonden.","status":404,"detail":"Niet gevonden.","instance":"urn:uuid:71c3f899-8591-420d-8501-055aeac59c18"}'
+        gevonden.","status":404,"detail":"Niet gevonden.","instance":"urn:uuid:3474d102-b4c1-4cbf-abed-897e0f81cfb6"}'
     headers:
       API-version:
-      - 0.4.1
+      - 0.9.0
       Allow:
       - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
       Content-Length:
       - '195'
       Content-Security-Policy:
-      - 'frame-ancestors ''none''; base-uri ''self''; img-src ''self'' data: cdn.redoc.ly;
-        worker-src ''self'' blob:; object-src ''none''; form-action ''self''; script-src
-        ''self'' ''unsafe-inline''; default-src ''self''; frame-src ''self''; style-src
-        ''self'' ''unsafe-inline'' fonts.googleapis.com; font-src ''self'' fonts.gstatic.com'
+      - 'base-uri ''self''; script-src ''self'' ''unsafe-inline''; object-src ''none'';
+        frame-ancestors ''none''; font-src ''self'' fonts.gstatic.com; frame-src ''self'';
+        form-action ''self''; style-src ''self'' ''unsafe-inline'' fonts.googleapis.com;
+        default-src ''self''; worker-src ''self'' blob:; img-src ''self'' data: cdn.redoc.ly'
       Content-Type:
       - application/json
       Cross-Origin-Opener-Policy:
