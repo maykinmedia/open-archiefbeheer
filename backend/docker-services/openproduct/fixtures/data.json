@@ -1,0 +1,106 @@
+[
+{
+    "model": "authtoken.token",
+    "pk": "ba9d233e95e04c4a8a661a27daffe7c9bd019067",
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "created": "2026-08-27T13:57:41.121Z"
+    }
+},
+{
+    "model": "producttypen.jsonschema",
+    "pk": 1,
+    "fields": {
+        "naam": "parkeervergunning-data",
+        "schema": {
+            "type": "object",
+            "title": "parkeervergunning-data",
+            "required": [
+                "kenteken"
+            ],
+            "properties": {
+                "kenteken": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+},
+{
+    "model": "producttypen.jsonschema",
+    "pk": 2,
+    "fields": {
+        "naam": "parkeervergunning-verbruik",
+        "schema": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "datum",
+                    "parkeerplaats"
+                ],
+                "properties": {
+                    "datum": {
+                        "type": "string"
+                    },
+                    "parkeerplaats": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+},
+{
+    "model": "producttypen.thema",
+    "pk": 1,
+    "fields": {
+        "uuid": "5542dbd7-a696-4ab2-8111-7c8f2d140fba",
+        "aanmaak_datum": "2026-09-02T14:20:54.287Z",
+        "update_datum": "2026-09-02T14:20:54.287Z",
+        "naam": "Parkeren",
+        "hoofd_thema": null,
+        "beschrijving": "U leest hier hoe u een parkeerkaart kunt aanvragen of verlengen\\.",
+        "gepubliceerd": true
+    }
+},
+{
+    "model": "producttypen.producttype",
+    "pk": 1,
+    "fields": {
+        "uuid": "68faeb6a-8745-4eeb-b387-c9daabbeeb17",
+        "aanmaak_datum": "2026-09-02T14:25:03.501Z",
+        "update_datum": "2026-09-02T14:25:03.501Z",
+        "code": "PARKVER",
+        "verbruiksobject_schema": 2,
+        "dataobject_schema": 1,
+        "toegestane_statussen": "[\"actief\", \"verlopen\"]",
+        "keywords": "[]",
+        "uniforme_product_naam": null,
+        "doelgroep": "samenwerkingspartners",
+        "eigenaar": null,
+        "interne_opmerkingen": "",
+        "publicatie_start_datum": "2026-09-02",
+        "publicatie_eind_datum": null,
+        "themas": [
+            1
+        ],
+        "organisaties": [],
+        "contacten": [],
+        "locaties": []
+    }
+},
+{
+    "model": "producttypen.producttypetranslation",
+    "pk": 1,
+    "fields": {
+        "language_code": "nl",
+        "master": 1,
+        "naam": "Parkeervergunning",
+        "samenvatting": "Woont u in een buurt met betaald parkeren\\? Dan kunt u een parkeervergunning bewoner aanvragen\\. Als u aan de voorwaarden voldoet\\, dan krijgt u de parkeervergunning meteen\\. Tenzij er een wachtlijst is in uw buurt\\. Of als de auto niet op uw naam staat\\."
+    }
+}
+]
