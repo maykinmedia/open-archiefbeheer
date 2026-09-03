@@ -417,8 +417,10 @@ class OpenProductCreationHelper(CommonGroundDataCreationHelperMixin):
         data: Mapping[str, JSONEncodable] = {
             # The "parkeervergunning" producttype configured in the docker compose of the Open Product API
             "producttype_uuid": "68faeb6a-8745-4eeb-b387-c9daabbeeb17",
+            "naam": faker.word(),
             "eigenaren": [{"bsn": "111222333"}],
             "status": "actief",
+            "aanvraag_zaak_url": faker.url(),
         } | overrides
 
         return self._post_resource(

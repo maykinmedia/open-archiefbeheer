@@ -56,6 +56,12 @@ EXPECTED_SERVICES = [
         "slug": "openklant",
         "api_type": APITypes.orc,
     },
+    {
+        "api_root": "http://localhost:8007/producten/api/v1/",
+        "label": "Producten API (Open Product)",
+        "slug": "openproduct",
+        "api_type": APITypes.orc,
+    },
 ]
 
 
@@ -66,7 +72,7 @@ def test_demo_data_command(openzaak_reload: None, vcr: Cassette) -> None:
         stdout=StringIO(),
     )
 
-    with freeze_time("2026-08-21"):
+    with freeze_time("2026-09-03"):
         resync_zaken()
 
     # check services
@@ -109,7 +115,7 @@ def test_demo_data_command_with_config_update(
         stdout=StringIO(),
     )
 
-    with freeze_time("2026-08-21"):
+    with freeze_time("2026-09-03"):
         resync_zaken()
 
     # check services
