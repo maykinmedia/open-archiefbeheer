@@ -1,0 +1,91 @@
+from django.test import TestCase
+
+from vcr.unittest import VCRMixin
+from zgw_consumers.constants import APITypes, AuthTypes
+from zgw_consumers.test.factories import ServiceFactory
+
+from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.models import ResourceDestructionResult
+from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
+from openarchiefbeheer.external_registers.registry import register
+from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
+from openarchiefbeheer.utils.tests.resources_client import OpenProductCreationHelper
+
+from ....models import ExternalRegisterConfig
+from ..constants import OPENPRODUCT_IDENTIFIER
+
+
+class OpenProductPluginTests(ClearCacheMixin, VCRMixin, TestCase):
+    def test_plugin_disabled(self):
+        config = ExternalRegisterConfig.objects.get(identifier=OPENPRODUCT_IDENTIFIER)
+        config.enabled = False
+        config.save()
+
+        plugin = register[OPENPRODUCT_IDENTIFIER]
+        result = plugin.check_config()
+
+        self.assertTrue(result.success)
+
+    def test_no_services_configured(self):
+        config = ExternalRegisterConfig.objects.get(identifier=OPENPRODUCT_IDENTIFIER)
+        config.enabled = True
+        config.save()
+
+        plugin = register[OPENPRODUCT_IDENTIFIER]
+        result = plugin.check_config()
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.extra[0].code, "missing_service")
+        self.assertEqual(
+            result.extra[0].model,
+            "openarchiefbeheer.external_registers.models.ExternalRegisterConfig",
+        )
+
+    def test_fully_configured(self):
+        service = ServiceFactory.create()
+        config = ExternalRegisterConfig.objects.get(identifier=OPENPRODUCT_IDENTIFIER)
+        config.enabled = True
+        config.services.add(service)
+        config.save()
+
+        plugin = register[OPENPRODUCT_IDENTIFIER]
+        result = plugin.check_config()
+
+        self.assertTrue(result.success)
+
+    def test_delete_relations(self):
+        service = ServiceFactory.create(
+            slug="openproduct",
+            api_type=APITypes.orc,
+            api_root="http://localhost:8007/producten/api/v1/",
+            auth_type=AuthTypes.api_key,
+            header_key="Authorization",
+            header_value="Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
+        )
+        helper = OpenProductCreationHelper(openproduct_service_slug="openproduct")
+        product = helper.create_product(
+            aanvraag_zaak_url="http://localhost:8003/zaken/api/v1/zaken/111-111-111"
+        )
+        assert isinstance(product["url"], str)
+        item = DestructionListItemFactory.create(
+            with_zaak=True,
+            zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
+        )
+        config = ExternalRegisterConfig.objects.get(identifier=OPENPRODUCT_IDENTIFIER)
+        config.enabled = True
+        config.services.add(service)
+        config.save()
+
+        plugin = register[OPENPRODUCT_IDENTIFIER]
+        plugin.delete_related_resources(
+            item=item,
+            related_resources=[product["url"]],
+        )
+
+        result = ResourceDestructionResult.objects.get(
+            item=item,
+            resource_type="producten",
+            status=ResourceDestructionResultStatus.deleted,
+        )
+
+        self.assertEqual(result.url, product["url"])

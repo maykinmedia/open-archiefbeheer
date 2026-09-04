@@ -48,6 +48,13 @@ zgw_consumers:
     auth_type: api_key
     header_key: Authorization
     header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+  - identifier: producten-api
+    label: Open Product Producten API
+    api_root: http://localhost:8007/producten/api/v1/
+    api_type: orc
+    auth_type: api_key
+    header_key: Authorization
+    header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
 
 api_configuration_enabled: true
 api_configuration:
@@ -63,6 +70,10 @@ external_registers:
     enabled: true
     services_identifiers: 
     - objecten-api
+  openproduct:
+    enabled: true
+    services_identifiers:
+      - producten-api
 
 
 oidc_db_config_enable: true
@@ -94,6 +105,3 @@ oidc_db_config_admin_auth:
           - openarchiefbeheer-dev
           - roles
           make_users_staff: true
-
-
-      

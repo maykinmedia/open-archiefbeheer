@@ -12,12 +12,16 @@ from openarchiefbeheer.external_registers.contrib.objecten.constants import (
 from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
+from openarchiefbeheer.external_registers.contrib.openproduct.constants import (
+    OPENPRODUCT_IDENTIFIER,
+)
 from openarchiefbeheer.external_registers.registry import register as registry
 
 from ...tests.resources_client import (
     JSONEncodable,
     ObjectenCreationHelper,
     OpenKlantCreationHelper,
+    OpenProductCreationHelper,
     OpenZaakDataCreationHelper,
 )
 
@@ -28,6 +32,7 @@ class LocalServices(TypedDict):
     ztc_service: Service
     objecten_service: Service
     openklant_service: Service
+    openproduct_service: Service
     sl_service: Service
 
 
@@ -55,10 +60,12 @@ class Command(BaseCommand):
 
     * Objecten: 5 objects
     * Open Klant: 5 onderwerpobjecten
+    * Open Product: 5 products
 
     The following resources are NOT created:
 
-    * ZaakObjecten in Open Zaak to the objects in Objecten API and to the onderwerpobjecten in Open Klant. This is because the linkchecker in Open Zaak makes this impossible with the docker compose setup.
+    * ZaakObjecten in Open Zaak to the objects in Objecten API, to the onderwerpobjecten in Open Klant and to producten in Open Product.
+    This is because the linkchecker in Open Zaak makes this impossible with the docker compose setup.
 
     The configuration of following models is updated with created resources:
 
@@ -99,6 +106,7 @@ class Command(BaseCommand):
                 "label": "Catalogi API",
                 "slug": "catalogi",
                 "api_type": APITypes.ztc,
+                "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
@@ -109,6 +117,7 @@ class Command(BaseCommand):
                 "label": "Zaken API",
                 "slug": "zaken",
                 "api_type": APITypes.zrc,
+                "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
@@ -119,6 +128,7 @@ class Command(BaseCommand):
                 "label": "Besluiten API",
                 "slug": "besluiten",
                 "api_type": APITypes.brc,
+                "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
@@ -129,6 +139,7 @@ class Command(BaseCommand):
                 "label": "Documenten API",
                 "slug": "documenten",
                 "api_type": APITypes.drc,
+                "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
@@ -164,10 +175,22 @@ class Command(BaseCommand):
                 "header_value": "Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
             },
         )
+        openproduct_service, _ = Service.objects.get_or_create(
+            api_root="http://localhost:8007/producten/api/v1/",
+            defaults={
+                "label": "Producten API (Open Product)",
+                "slug": "openproduct",
+                "api_type": APITypes.orc,
+                "auth_type": AuthTypes.api_key,
+                "header_key": "Authorization",
+                "header_value": "Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
+            },
+        )
 
         return {
             "objecten_service": objecten_service,
             "openklant_service": openklant_service,
+            "openproduct_service": openproduct_service,
             "zrc_service": zrc_service,
             "ztc_service": ztc_service,
             "drc_service": drc_service,
@@ -267,6 +290,12 @@ class Command(BaseCommand):
         self.stdout.write("Generating onderwerpobjecten in Open Klant...")
         return [helper.create_onderwerpobject() for _ in range(5)]
 
+    def _generate_producten(
+        self, helper: OpenProductCreationHelper
+    ) -> list[Mapping[str, JSONEncodable]]:
+        self.stdout.write("Generating producten in Open Product...")
+        return [helper.create_product() for _ in range(5)]
+
     def _update_configuration(
         self, services: LocalServices, resources: DestructionReportResources
     ) -> None:
@@ -291,6 +320,8 @@ class Command(BaseCommand):
         objects_config.services.set([services["objecten_service"]])
         openklant_config = registry[OPENKLANT_IDENTIFIER].get_or_create_config()
         openklant_config.services.set([services["openklant_service"]])
+        openproduct_config = registry[OPENPRODUCT_IDENTIFIER].get_or_create_config()
+        openproduct_config.services.set([services["openproduct_service"]])
 
     def handle(self, *args, **options):
         services = self._configure_services()
@@ -306,6 +337,9 @@ class Command(BaseCommand):
         openklant_helper = OpenKlantCreationHelper(
             openklant_service_slug=services["openklant_service"].slug
         )
+        openproduct_helper = OpenProductCreationHelper(
+            openproduct_service_slug=services["openproduct_service"].slug
+        )
 
         destruction_report_resources = (
             self._generate_resources_for_destructionreport_config(oz_helper)
@@ -313,6 +347,7 @@ class Command(BaseCommand):
         self._generate_zaken(oz_helper, number_of_zaken=options["zaken"])
         self._generate_objecten(objecten_helper)
         self._generate_onderwerpobjecten(openklant_helper)
+        self._generate_producten(openproduct_helper)
 
         self.stdout.write(
             self.style.SUCCESS("Generated resources in the external registers!")

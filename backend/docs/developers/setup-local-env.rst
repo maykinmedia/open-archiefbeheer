@@ -159,7 +159,7 @@ The frontend build provides ``dist/index.html`` file which is the entry point to
 External Registers
 ==================
 
-To start Open Zaak, Open Klant and the Objects API with docker compose run the following command from
+To start Open Zaak, Open Klant, Open Product and the Objects API with docker compose run the following command from
 the ``backend/docker-services`` folder:
 
 .. code:: bash
@@ -171,6 +171,12 @@ It is possible to create demo data in these external services with this manageme
 .. code:: bash
 
    src/manage.py create_demo_data 
+
+If you want to update the configuration tables when you can use ``--update-config`` option:
+
+.. code:: bash
+
+   src/manage.py create_demo_data --update-config
 
 To index the newly created zaken in OAB use the following command from the ``backend`` folder:
 

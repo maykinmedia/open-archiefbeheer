@@ -7,3 +7,5 @@ external_registers:
     - openklant_service2
   objecten:
     enabled: false
+  openproduct:
+    enabled: false
