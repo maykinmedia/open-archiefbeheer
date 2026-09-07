@@ -1,6 +1,3 @@
-from collections.abc import Iterable
-from typing import NoReturn
-
 from ape_pie import APIClient
 from requests import Response
 
@@ -35,10 +32,3 @@ class ObjectenPlugin(AbstractBasePlugin):
             resource_url,
             params={"zaak": item.zaak.url},
         )
-
-    def delete_related_resources(
-        self, item: DestructionListItem, related_resources: Iterable[ResourceURL]
-    ) -> None | NoReturn:
-        assert item.zaak
-
-        super().delete_related_resources(item, related_resources)

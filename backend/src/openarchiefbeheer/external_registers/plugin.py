@@ -167,4 +167,9 @@ class AbstractBasePlugin(ABC):
     def delete_related_resource(
         resource_url: ResourceURL, client: APIClient, item: DestructionListItem
     ) -> Response:
+        """
+        Request to the external API, which contains deleting of the resource.
+
+        Can be overridden to pass additional params.
+        """
         return client.delete(resource_url)

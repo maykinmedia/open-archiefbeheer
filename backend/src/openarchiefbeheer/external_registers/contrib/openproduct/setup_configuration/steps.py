@@ -1,7 +1,4 @@
-from openarchiefbeheer.external_registers.setup_configuration.steps import (
-    ExternalRegisterPluginConfigurartionStep,
-)
-
+from ....setup_configuration.steps import ExternalRegisterPluginConfigurartionStep
 from ..constants import OPENPRODUCT_IDENTIFIER
 
 

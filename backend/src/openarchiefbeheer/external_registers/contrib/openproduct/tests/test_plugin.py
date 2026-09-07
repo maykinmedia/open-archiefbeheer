@@ -7,11 +7,11 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
-from openarchiefbeheer.external_registers.registry import register
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.utils.tests.resources_client import OpenProductCreationHelper
 
 from ....models import ExternalRegisterConfig
+from ....registry import register
 from ..constants import OPENPRODUCT_IDENTIFIER
 
 
