@@ -1,0 +1,178 @@
+#
+# DISCLAIMER: THIS IS FOR DEVELOPMENT PURPOSES ONLY AND NOT SUITABLE FOR PRODUCTION.
+#
+# You can use this docker-compose to spin up a local stack for demo/try-out
+# purposes, or to get some insight in the various components involved (e.g. to build
+# your Helm charts from). Note that various environment variables are UNSAFE and merely
+# specified so that you can get up and running with the least amount of friction.
+
+services:
+  notificaties-db:
+    image: postgis/postgis:17-3.5
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - notificaties-db:/var/lib/postgresql/data
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opennotificaties -d opennotificaties"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "11234:5432"
+    networks:
+      - open-notificaties-dev
+
+  notificaties-redis:
+    image: redis:8
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 1s
+      retries: 3
+    networks:
+      - open-notificaties-dev
+
+  notificaties-web:
+    image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
+    environment: &app-env
+      DJANGO_SETTINGS_MODULE: nrc.conf.docker
+      SECRET_KEY: ${SECRET_KEY:-\(,gc7VE(#CO<zCR3e(lRtOsw5q+U2DpG5o\X#P4PVRm*=u|E%}
+      IS_HTTPS: no
+      ALLOWED_HOSTS: '*'
+      CACHE_DEFAULT: notificaties-redis:6379/0
+      CACHE_AXES: notificaties-redis:6379/0
+      DB_NAME: opennotificaties
+      DB_USER: opennotificaties
+      DB_HOST: notificaties-db
+      OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
+      OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@localhost
+      DJANGO_SUPERUSER_PASSWORD: admin
+      # Celery
+      CELERY_BROKER_URL: redis://notificaties-redis:6379/0
+      CELERY_WORKER_NAME: celery@docker
+      CELERY_RESULT_EXPIRES: 3600
+      CELERY_RESULT_BACKEND: redis://notificaties-redis:6379/0
+      CELERY_LOGLEVEL: DEBUG
+      CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-100}
+      NOTIFICATION_SEC_INTERVAL: 20
+      NOTIFICATION_LIMIT: 500
+
+      SUBPATH: ${SUBPATH:-/}
+      DISABLE_2FA: yes
+      LOG_NOTIFICATIONS_IN_DB: no
+      DB_CONN_MAX_AGE: "0"
+      DB_POOL_ENABLED: True
+      OTEL_SDK_DISABLED: true
+    healthcheck:
+      test: ["CMD", "maykin-common", "health-check"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
+    ports:
+      - 8008:8000
+    volumes: &app-volumes
+      - media:/app/media  # Shared media volume to get access to saved OAS files
+    depends_on:
+      notificaties-db:
+        condition: service_healthy
+      notificaties-web-init:
+        condition: service_completed_successfully
+    networks:
+      - open-notificaties-dev
+
+  notificaties-web-init:
+    image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
+    environment:
+      <<: *app-env
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    depends_on:
+      notificaties-db:
+        condition: service_healthy
+      notificaties-redis:
+        condition: service_started
+    volumes:
+      - ./setup_configuration:/app/setup_configuration
+    networks:
+      - open-notificaties-dev
+
+  notificaties-celery:
+    image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
+    environment: *app-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [
+        "CMD",
+        "maykin-common",
+        "worker-health-check",
+        "--liveness-file=/app/tmp/celery_worker_event_loop.live",
+        "--max-age=70",
+        "--broker=redis://redis:6379/0",
+        "--worker-name=celery@docker",
+      ]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes: *app-volumes
+    depends_on:
+      - notificaties-web
+    networks:
+      - open-notificaties-dev
+
+  notificaties-celery-beat:
+    image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
+    environment: *app-env
+    command: /celery_beat.sh
+    healthcheck:
+      test: [
+        "CMD",
+        "maykin-common",
+        "beat-health-check",
+        "--file=/app/tmp/celery_beat.live",
+        "--max-age=120"
+      ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - notificaties-celery
+      - notificaties-db
+      - notificaties-redis
+    volumes: *app-volumes
+    networks:
+      - open-notificaties-dev
+
+  notificaties-celery-flower:
+    image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
+    environment: *app-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - notificaties-redis
+      - notificaties-celery
+    healthcheck:
+      test: [
+        "CMD",
+        "maykin-common",
+        "health-check",
+        "--endpoint=http://localhost:5555/"
+      ]
+    networks:
+      - open-notificaties-dev
+
+volumes:
+  media:
+  notificaties-db:
+
+networks:
+  open-notificaties-dev:
+    name: open-notificaties-dev

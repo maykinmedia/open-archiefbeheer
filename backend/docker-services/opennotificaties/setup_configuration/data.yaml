@@ -1,0 +1,5 @@
+vng_api_common_credentials_config_enable: true
+vng_api_common_credentials:
+  items:
+    - identifier: open-notificaties
+      secret: this-secret-is-very-secure
