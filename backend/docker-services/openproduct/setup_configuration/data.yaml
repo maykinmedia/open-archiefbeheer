@@ -1,0 +1,18 @@
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+    - identifier: open-notificaties-api
+      label: Open Notificaties API
+      api_root: http://localhost:8008/api/v1
+      api_type: nrc
+      auth_type: zgw
+      client_id: open-product
+      secret: this-secret-is-very-secure
+
+notifications_config_enable: true
+notifications_config:
+  notification_delivery_max_retries: 7
+  notification_delivery_retry_backoff: 25
+  notification_delivery_retry_backoff_max: 52000
+  notification_delivery_base_factor: 4
+  notifications_api_service_identifier: open-notificaties-api

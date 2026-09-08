@@ -1,5 +1,50 @@
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+    - identifier: open-zaak-auth
+      label: Open Zaak Auth
+      api_root: http://localhost:8003/autorisaties/api/v1
+      api_type: ac
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: this-secret-is-very-secure
+    - identifier: open-notificaties-api
+      label: Open Notificaties
+      api_root: http://localhost:8008/api/v1
+      api_type: nrc
+      auth_type: zgw
+      client_id: open-notificaties
+      secret: this-secret-is-very-secure
+
+autorisaties_api_config_enable: true
+autorisaties_api:
+  authorizations_api_service_identifier: open-zaak-auth
+
 vng_api_common_credentials_config_enable: true
 vng_api_common_credentials:
   items:
     - identifier: open-notificaties
+      secret: this-secret-is-very-secure
+    - identifier: open-product
+      secret: this-secret-is-very-secure
+    - identifier: open-zaak
+      secret: this-secret-is-very-secure
+
+notifications_config_enable: true
+notifications_config:
+  notification_delivery_max_retries: 7
+  notification_delivery_retry_backoff: 25
+  notification_delivery_retry_backoff_max: 52000
+  notification_delivery_base_factor: 4
+  notifications_api_service_identifier: open-notificaties-api
+
+notifications_subscriptions_config_enable: true
+notifications_subscriptions_config:
+  items:
+    - uuid: aa4be394-9f89-4291-a0e8-f18b4e7b5ae1
+      channels:
+        - autorisaties
+      identifier: open-notificaties
+      callback_url: http://localhost:8008/api/v1/callbacks
+      client_id: open-notificaties
       secret: this-secret-is-very-secure
