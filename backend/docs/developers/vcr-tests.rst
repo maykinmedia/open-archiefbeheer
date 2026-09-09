@@ -4,7 +4,8 @@
 VCR tests
 =========
 
-We use VCR to record the interactions of Open Archiefbeheer with external systems, such as Open Zaak, Objecten API, Open Klant and the Selectielijst API. 
+We use VCR to record the interactions of Open Archiefbeheer with external systems, such as Open Zaak, Objecten API,
+Open Klant, Open Product and the Selectielijst API.
 
 Usually, we want to have specific data in these external systems when running a test, so we need a way of adding data before the test and cleaning up the results after the test.
 This would be possible with API calls before and after the test, but this is really cumbersome especially with Open Zaak.

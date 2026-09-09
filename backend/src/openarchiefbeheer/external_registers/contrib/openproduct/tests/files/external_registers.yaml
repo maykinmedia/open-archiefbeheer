@@ -1,0 +1,11 @@
+external_registers_enabled: true
+external_registers:
+  openproduct:
+    enabled: true
+    services_identifiers:
+      - openproduct_service1
+      - openproduct_service2
+  openklant:
+    enabled: false
+  objecten:
+    enabled: false

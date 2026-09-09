@@ -1,0 +1,1 @@
+OPENPRODUCT_IDENTIFIER = "openproduct"

@@ -1,0 +1,110 @@
+interactions:
+- request:
+    body: '{"producttype_uuid": "68faeb6a-8745-4eeb-b387-c9daabbeeb17", "eigenaren":
+      [{"bsn": "111222333"}], "status": "actief", "aanvraag_zaak_url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Crs:
+      - EPSG:4326
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Crs:
+      - EPSG:4326
+      Content-Length:
+      - '194'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.34.2
+    method: POST
+    uri: http://localhost:8007/producten/api/v1/producten
+  response:
+    body:
+      string: '{"uuid":"f11ef28f-8138-41e7-8c1d-e6e60f79821c","url":"http://localhost:8007/producten/api/v1/producten/f11ef28f-8138-41e7-8c1d-e6e60f79821c","naam":"","start_datum":null,"eind_datum":null,"aanmaak_datum":"2026-09-02T16:38:18.066079+02:00","update_datum":"2026-09-02T16:38:18.066096+02:00","producttype":{"uuid":"68faeb6a-8745-4eeb-b387-c9daabbeeb17","code":"PARKVER","naam":"Parkeervergunning","keywords":[],"uniforme_product_naam":null,"toegestane_statussen":["actief","verlopen"],"gepubliceerd":true,"publicatie_start_datum":"2026-09-02","publicatie_eind_datum":null,"aanmaak_datum":"2026-09-02T16:25:03.501387+02:00","update_datum":"2026-09-02T16:25:03.501402+02:00","themas":[{"uuid":"5542dbd7-a696-4ab2-8111-7c8f2d140fba","naam":"Parkeren","beschrijving":"U
+        leest hier hoe u een parkeerkaart kunt aanvragen of verlengen\\.","gepubliceerd":true,"aanmaak_datum":"2026-09-02T16:20:54.287378+02:00","update_datum":"2026-09-02T16:20:54.287393+02:00","hoofd_thema":null}],"taal":"nl"},"gepubliceerd":false,"eigenaren":[{"uuid":"ec2d98d9-e457-435b-be95-df945e081297","bsn":"111222333","kvk_nummer":"","vestigingsnummer":"","klantnummer":""}],"documenten":[],"zaken":[],"taken":[],"status":"actief","prijs":null,"frequentie":"","verbruiksobject":null,"dataobject":null,"aanvraag_zaak_urn":null,"aanvraag_zaak_url":"http://localhost:8003/zaken/api/v1/zaken/111-111-111"}'
+    headers:
+      API-version:
+      - 1.7.0
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Content-Language:
+      - nl
+      Content-Length:
+      - '1366'
+      Content-Security-Policy:
+      - 'script-src ''self'' ''unsafe-inline''; default-src ''self''; img-src ''self''
+        data: cdn.redoc.ly; object-src ''none''; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com; frame-src ''self''; font-src ''self'' fonts.gstatic.com;
+        worker-src ''self'' blob:; form-action ''self''; base-uri ''self''; frame-ancestors
+        ''none'''
+      Content-Type:
+      - application/json
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Location:
+      - http://localhost:8007/producten/api/v1/producten/f11ef28f-8138-41e7-8c1d-e6e60f79821c
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Accept-Language, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.34.2
+    method: DELETE
+    uri: http://localhost:8007/producten/api/v1/producten/f11ef28f-8138-41e7-8c1d-e6e60f79821c
+  response:
+    body:
+      string: ''
+    headers:
+      API-version:
+      - 1.7.0
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Content-Language:
+      - nl
+      Content-Length:
+      - '0'
+      Content-Security-Policy:
+      - 'script-src ''self'' ''unsafe-inline''; default-src ''self''; img-src ''self''
+        data: cdn.redoc.ly; object-src ''none''; style-src ''self'' ''unsafe-inline''
+        fonts.googleapis.com; frame-src ''self''; font-src ''self'' fonts.gstatic.com;
+        worker-src ''self'' blob:; form-action ''self''; base-uri ''self''; frame-ancestors
+        ''none'''
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Accept-Language, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 204
+      message: No Content
+version: 1

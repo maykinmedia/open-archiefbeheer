@@ -405,3 +405,26 @@ class ObjectenCreationHelper(CommonGroundDataCreationHelperMixin):
             "objects",
             build_client(Service.objects.get(slug=self.objecten_service_slug)),
         )
+
+
+@dataclass
+class OpenProductCreationHelper(CommonGroundDataCreationHelperMixin):
+    openproduct_service_slug: str
+
+    def create_product(
+        self, **overrides: Mapping[str, JSONEncodable]
+    ) -> Mapping[str, JSONEncodable]:
+        data: Mapping[str, JSONEncodable] = {
+            # The "parkeervergunning" producttype configured in the docker compose of the Open Product API
+            "producttype_uuid": "68faeb6a-8745-4eeb-b387-c9daabbeeb17",
+            "naam": faker.word(),
+            "eigenaren": [{"bsn": "111222333"}],
+            "status": "actief",
+            "aanvraag_zaak_url": faker.url(),
+        } | overrides
+
+        return self._post_resource(
+            data,
+            "producten",
+            build_client(Service.objects.get(slug=self.openproduct_service_slug)),
+        )

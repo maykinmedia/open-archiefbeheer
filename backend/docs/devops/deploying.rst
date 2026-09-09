@@ -43,6 +43,7 @@ API               Supported versions
 ================  ===================
 Open Objecten     4.2
 Open Klant        2.18
+Open Product      1.8
 ================  ===================
 
 .. _devops-deploying-configuration:
