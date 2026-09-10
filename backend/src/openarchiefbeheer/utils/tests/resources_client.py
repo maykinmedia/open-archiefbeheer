@@ -251,6 +251,7 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/3a0a9c3c-0847-4e7e-b7d9-765b9434094c",
             "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
             "archiefnominatie": "vernietigen",
+            "archiefactietermijn": "P1D",
             "brondatumArchiefprocedure": {
                 "afleidingswijze": "afgehandeld",
                 "procestermijn": None,
