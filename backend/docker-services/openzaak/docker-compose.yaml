@@ -46,9 +46,19 @@ services:
       CELERY_RESULT_BACKEND: redis://openzaak-redis:6379/1
       NOTIFICATIONS_DISABLED: true
       JWT_EXPIRY: 99999999999  # Roughly 3170 years. This is required for tests with time frozen to work
+      TIME_LEEWAY: 99999999999  # Clock drift can cause a JWT that’s valid on the client to be considered not valid (yet, or anymore) on the server, leading to unexpected HTTP 403 errors.
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
       DISABLE_2FA: yes
       OTEL_SDK_DISABLED: True
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
     volumes: &openzaak_web_volumes
       - ./fixtures/:/app/test_fixtures
       - media:/app/media  # Shared media volume to get access to saved OAS files
@@ -59,17 +69,18 @@ services:
     networks:
       - openzaak_dev
 
-  web-init:
+  openzaak-web-init:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: ["/bin/sh", "-c", "echo \"This is a destruction report\" > /app/private-media/uploads/2024/12/01219b90-0d13-4e25-b463-ab1545b05f05.bin"]
     depends_on:
-      - openzaak-web.local
+      openzaak-web.local:
+        condition: service_healthy
     networks:
       - openzaak_dev
 
-  web-setup-config:
+  openzaak-web-setup-config:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment:
       <<: *openzaak_web_env
@@ -78,18 +89,19 @@ services:
     volumes:
       - ./setup_configuration:/app/setup_configuration
     depends_on:
-      - openzaak-web.local
+      openzaak-web.local:
+        condition: service_healthy
     networks:
       - openzaak_dev
 
-  celery:
+  openzaak-celery:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: /celery_worker.sh
     depends_on:
-      - openzaak-db
-      - openzaak-redis
+      openzaak-web.local:
+        condition: service_healthy
     networks:
       - openzaak_dev
 
