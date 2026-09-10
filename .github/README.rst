@@ -2,13 +2,17 @@
 Open Archiefbeheer
 ==================
 
+.. image:: https://raw.githubusercontent.com/maykinmedia/open-archiefbeheer/refs/heads/main/.github/assets/open-archiefbeheer-logo.svg
+    :height: 100px
+    :alt: Open Archiefbeheer
+
 :Version: 2.0.0
 :Source: https://github.com/maykinmedia/open-archiefbeheer
 :Docker hub: https://hub.docker.com/r/maykinmedia/open-archiefbeheer
 :Keywords: ``open-archiefbeheer archiveren zaken``
 :PythonVersion: 3.12
 
-|build-status| |code-quality| |black| |coverage| |python-versions| |docker| |docs|
+|build-status| |code-quality| |ruff| |coverage| |python-versions| |docker| |docs|
 
 Create, manage and execute destruction lists, for use with "Zaakgericht
 werken" (case-oriented working).
@@ -31,6 +35,11 @@ Attention is paid to the user experience of the staff using the app, with
 notifications to inform you of pending work-load, full audit logging and
 traceability of user and system actions.
 
+References
+==========
+
+- `Documentation <https://open-archiefbeheer.readthedocs.io/>`_
+- `Source <https://github.com/maykinmedia/open-archiefbeheer>`_
 
 
 .. _Maykin B.V.: https://www.maykin.nl
@@ -43,9 +52,9 @@ traceability of user and system actions.
     :alt: Code quality checks
     :target: https://github.com/maykinmedia/open-archiefbeheer/actions/workflows/code_quality.yml
 
-.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :alt: Code style
-    :target: https://github.com/psf/black
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff
 
 .. |coverage| image:: https://codecov.io/github/maykinmedia/open-archiefbeheer/branch/main/graphs/badge.svg?branch=main
     :alt: Coverage
