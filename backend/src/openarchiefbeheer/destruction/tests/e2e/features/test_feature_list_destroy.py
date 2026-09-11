@@ -1,13 +1,8 @@
 # fmt: off
-from unittest.mock import patch
-
 from django.test import override_settings, tag
 
-from asgiref.sync import sync_to_async
-from celery.beat import Scheduler
 from celery.schedules import schedule
 
-from openarchiefbeheer.celery import app as celery_app
 from openarchiefbeheer.utils.tests.e2e import browser_page
 from openarchiefbeheer.utils.tests.gherkin import GherkinLikeTestCase
 from openarchiefbeheer.utils.utils_decorators import AsyncCapableRequestsMock
@@ -32,7 +27,8 @@ class FeatureListDestroyTests(GherkinLikeTestCase):
         WAITING_PERIOD=0
     )
     async def test_scenario_record_manager_destroys_list(self, requests_mock: AsyncCapableRequestsMock):
-        scheduler = Scheduler(app=celery_app)
+        scheduler = await self.given.celery_beat_is_configured()
+        mock_delete_task = await self.given.destruction_execution_is_mocked()
 
         async with browser_page() as page:
             await self.given.services_are_configured(requests_mock)
@@ -63,12 +59,5 @@ class FeatureListDestroyTests(GherkinLikeTestCase):
         # Here we test that after the user clicks on the button "Vernietigen starten" this process really kicks off
         # So we mock celery beat schedule and test that task to destroy the list is called.
         # The task itself is tested in the separate unittest with VCR.
-        with patch(
-                "openarchiefbeheer.destruction.tasks.delete_destruction_list"
-        ) as mock_task_delete:
-            await sync_to_async(
-                scheduler.tick,
-                thread_sensitive=True,
-            )()
-
-        mock_task_delete.assert_called_once_with(destruction_list)
+        await self.when.celery_beat_runs_once(scheduler)
+        await self.then.destruction_should_be_queued(mock_delete_task, destruction_list)
