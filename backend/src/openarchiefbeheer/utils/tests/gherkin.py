@@ -1,13 +1,16 @@
 import re
 from typing import Callable
+from unittest.mock import MagicMock, patch
 
 from asgiref.sync import sync_to_async
+from celery.beat import Scheduler
 from playwright.async_api import Locator, Page, TimeoutError, expect
 from zgw_consumers.api_models.zaken import ZaakObject
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
+from openarchiefbeheer.celery import app as celery_app
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.models import DestructionList
 from openarchiefbeheer.destruction.tests.factories import (
@@ -587,6 +590,14 @@ class GerkinMixin:
 
             return await self._factory_create_batch(factory, amount, **kwargs)
 
+        async def celery_beat_is_configured(self) -> Scheduler:
+            return Scheduler(app=celery_app)
+
+        async def destruction_execution_is_mocked(self) -> MagicMock:
+            return self.testcase.enterContext(
+                patch("openarchiefbeheer.destruction.tasks.delete_destruction_list")
+            )
+
     class When:
         """
         The "When" steps describe the actions or events that occur.
@@ -755,6 +766,12 @@ class GerkinMixin:
             await expect(page.locator("div.mykn-option")).not_to_have_count(0)
 
             await page.locator("div.mykn-option").locator("nth=0").click()
+
+        async def celery_beat_runs_once(self, scheduler):
+            await sync_to_async(
+                scheduler.tick,
+                thread_sensitive=True,
+            )()
 
     class Then:
         """
@@ -989,6 +1006,11 @@ class GerkinMixin:
             select = page.get_by_label(f'filter veld "{name}"')
             value = await select.get_attribute("value")
             self.testcase.assertEqual(value, None)
+
+        async def destruction_should_be_queued(
+            self, mock_delete_task, destruction_list
+        ):
+            mock_delete_task.assert_called_once_with(destruction_list)
 
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
