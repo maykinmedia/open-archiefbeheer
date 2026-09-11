@@ -48,3 +48,17 @@ notifications_subscriptions_config:
       callback_url: http://localhost:8008/api/v1/callbacks
       client_id: open-notificaties
       secret: this-secret-is-very-secure
+
+notifications_abonnementen_config_enable: true
+notifications_abonnementen_config:
+  items:
+    - uuid: c7fea6b4-451d-49b8-8dbc-39c9264746ad
+      callback_url: http://localhost:8003/events
+      cloudevent_filters:
+        # TODO: this also needs to include the product date-change notification
+        - nl.overheid.zaken.zaak-gekoppeld
+        - nl.overheid.zaken.zaak-ontkoppeld
+      auth_type: zgw
+      auth_client_id: open-zaak
+      secret: this-secret-is-very-secure
+      send_cloudevents: true

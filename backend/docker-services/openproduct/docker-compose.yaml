@@ -41,6 +41,9 @@ services:
       OPENPRODUCT_SUPERUSER_USERNAME: admin
       OPENPRODUCT_SUPERUSER_PASSWORD: admin
       OPENPRODUCT_SUPERUSER_EMAIL: admin@admin.org
+      # Cloudevents
+      ENABLE_CLOUD_EVENTS: True
+      NOTIFICATIONS_SOURCE: open-product-docker
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
