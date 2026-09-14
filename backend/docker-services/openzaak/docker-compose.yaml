@@ -50,6 +50,10 @@ services:
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
       DISABLE_2FA: yes
       OTEL_SDK_DISABLED: True
+      # Cloudevents
+      ENABLE_CLOUD_EVENTS: True
+      NOTIFICATIONS_SOURCE: open-zaak-docker
+      SITE_DOMAIN: openzaak-web.local:8000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s

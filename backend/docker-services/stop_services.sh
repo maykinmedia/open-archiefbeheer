@@ -1,9 +1,7 @@
 #!/bin/bash
 
 docker compose -f openzaak/docker-compose.yaml down
-
 docker compose -f openklant/docker-compose.yaml down
-
 docker compose -f objecten/docker-compose.yaml down
-
 docker compose -f openproduct/docker-compose.yaml down
+docker compose -f opennotificaties/docker-compose.yaml down

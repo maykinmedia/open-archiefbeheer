@@ -25,7 +25,7 @@ check_docker() {
 }
 
 check_docker_linux() {
-    if ! curl -s -X GET http://127.0.0.1:2375/_ping | grep -q "OK"; then
+   if ! docker info >/dev/null 2>&1; then
         log_info "Docker not running. Restarting..."
         sudo systemctl stop docker.service
         sudo dockerd \
@@ -66,3 +66,4 @@ docker compose -f openzaak/docker-compose.yaml up -d
 docker compose -f openklant/docker-compose.yaml up -d
 docker compose -f objecten/docker-compose.yaml up -d
 docker compose -f openproduct/docker-compose.yaml up -d
+docker compose -f opennotificaties/docker-compose.yaml up -d

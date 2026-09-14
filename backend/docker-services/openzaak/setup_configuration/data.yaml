@@ -4,13 +4,35 @@ sites_config:
     - domain: localhost:8003
       name: Open Zaak Docker compose
 
-notifications_config_enable: false
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+    - identifier: open-notificaties-api
+      label: Open Notificaties API
+      api_root: http://localhost:8008/api/v1
+      api_type: nrc
+      auth_type: zgw
+      client_id: open-zaak
+      secret: this-secret-is-very-secure
+
+
+notifications_config_enable: true
+notifications_config:
+  notification_delivery_max_retries: 7
+  notification_delivery_retry_backoff: 25
+  notification_delivery_retry_backoff_max: 52000
+  notification_delivery_base_factor: 4
+  notifications_api_service_identifier: open-notificaties-api
 
 vng_api_common_credentials_config_enable: true
 vng_api_common_credentials:
   items:
     - identifier: test-vcr
       secret: test-vcr
+    - identifier: open-notificaties
+      secret: this-secret-is-very-secure
+    - identifier: open-zaak
+      secret: this-secret-is-very-secure
 
 vng_api_common_applicaties_config_enable: true
 vng_api_common_applicaties:
@@ -19,6 +41,16 @@ vng_api_common_applicaties:
       client_ids:
         - test-vcr
       label: Open Archiefbeheer test
+      heeft_alle_autorisaties: true
+    - uuid: 19638c8d-04a0-4ad7-bddd-46432c48c1b9
+      client_ids:
+        - open-notificaties
+      label: Open Notificaties
+      heeft_alle_autorisaties: true
+    - uuid: 3f5373ed-b698-42f3-b96b-2246e8f48a54
+      client_ids:
+        - open-zaak
+      label: Open Zaak
       heeft_alle_autorisaties: true
 
 oidc_db_config_enable: false

@@ -41,6 +41,9 @@ services:
       OPENPRODUCT_SUPERUSER_USERNAME: admin
       OPENPRODUCT_SUPERUSER_PASSWORD: admin
       OPENPRODUCT_SUPERUSER_EMAIL: admin@admin.org
+      # Cloudevents
+      ENABLE_CLOUD_EVENTS: True
+      NOTIFICATIONS_SOURCE: open-product-docker
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 30s
@@ -53,10 +56,28 @@ services:
     ports:
       - 8007:8000
     depends_on:
-      - openproduct-db
-      - openproduct-redis
+      openproduct-db:
+        condition: service_started
+      openproduct-redis:
+        condition: service_started
+      openproduct-web-init:
+        condition: service_completed_successfully
     volumes: &web_volumes
       - ./fixtures/:/app/fixtures/
+    networks:
+      - openproduct-dev
+
+  openproduct-web-init:
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    environment:
+      <<: *web_env
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
+    command: /setup_configuration.sh
+    depends_on:
+      - openproduct-db
+      - openproduct-redis
+    volumes:
+      - ./setup_configuration:/app/setup_configuration
     networks:
       - openproduct-dev
 
