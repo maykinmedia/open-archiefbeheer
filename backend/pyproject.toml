@@ -45,7 +45,7 @@ optional_value = "final"
 filename = "src/openarchiefbeheer/__init__.py"
 
 [[tool.bumpversion.files]]
-filename = "../.github/README.rst"
+filename = "../README.rst"
 search = ":Version: {current_version}"
 replace = ":Version: {new_version}"
 
