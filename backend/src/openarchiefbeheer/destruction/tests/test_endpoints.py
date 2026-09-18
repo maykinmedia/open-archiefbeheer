@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils.translation import gettext as _, ngettext
 
 import requests_mock
@@ -810,6 +810,59 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             response.json()["user"][0],
             _("The chosen user does not have the permission to review a final list."),
+        )
+
+    @tag("gh-1086")
+    def test_mark_as_final_sends_email_to_archivist(self):
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
+        archivist = UserFactory.create(
+            username="archivist",
+            post__can_review_final_list=True,
+            email="archivist@example.com",
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.internally_reviewed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        with patch(
+            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
+            return_value=EmailConfig(
+                subject_review_required="Destruction list review request",
+                body_review_required_text="Please review the list",
+                body_review_required_html="Please review the list",
+            ),
+        ):
+            response = self.client.post(
+                endpoint,
+                data={
+                    "user": archivist.pk,
+                    "comment": "The list is ready for the archivist",
+                },
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Ensure the email is sent
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Destruction list review request")
+        self.assertEqual(mail.outbox[0].body, "Please review the list")
+        self.assertEqual(
+            mail.outbox[0].recipients(),
+            ["archivist@example.com"],
         )
 
     @override_settings(FRONTEND_URL="https://openarchiefbeheer.nl/")
