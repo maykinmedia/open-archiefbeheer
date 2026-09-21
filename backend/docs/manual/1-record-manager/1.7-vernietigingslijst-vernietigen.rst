@@ -16,7 +16,7 @@ Voorwaarden
 ------------
 - De record manager moet beschikken over een actieve gebruikersaccount met de juiste toegangsrechten.
 - Er moet een bestaande vernietigingslijst zijn met de status **"Klaar voor vernietigen"**.
-- De archiveringsdatum van de zaken in de lijst moet zijn verstreken.
+- De archiefactiedatum van de zaken in de lijst moet zijn verstreken.
 
 Stappen
 -------

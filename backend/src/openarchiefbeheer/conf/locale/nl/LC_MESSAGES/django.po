@@ -946,8 +946,8 @@ msgid ""
 "cases with an archiving date later than %(destruction_date)s, "
 "so the destruction cannot be planned yet."
 msgstr ""
-"Deze lijst bevat zaken zonder archiveringsdatum en/of zaken met "
-"een archiveringsdatum later dan %(destruction_date)s, dus de "
+"Deze lijst bevat zaken zonder archiefactiedatum en/of zaken met "
+"een archiefactiedatum later dan %(destruction_date)s, dus de "
 "vernietiging kan nog niet worden gepland."
 
 #: openarchiefbeheer/destruction/api/viewsets.py:315
