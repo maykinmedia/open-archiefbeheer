@@ -17,3 +17,4 @@ Content
     2fa
     oidc
     otel
+    email
