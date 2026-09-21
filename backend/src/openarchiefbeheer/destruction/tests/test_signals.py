@@ -4,7 +4,7 @@ from django.core import mail
 from django.test import TestCase, override_settings
 
 from openarchiefbeheer.destruction.tasks import delete_destruction_list
-from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 
 from ..constants import ListStatus, ReviewDecisionChoices
 from .factories import (
@@ -15,15 +15,12 @@ from .factories import (
 
 
 class SignalsTests(TestCase):
-    @patch(
-        "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-        return_value=EmailConfig(
+    def test_no_email_sent_if_not_review_created(self):
+        EmailConfigFactory.create(
             subject_changes_requested="Changes requested",
             body_changes_requested_text="Changes requested",
             body_changes_requested_html="Changes requested",
-        ),
-    )
-    def test_no_email_sent_if_not_review_created(self, m):
+        )
         review = DestructionListReviewFactory.create(
             decision=ReviewDecisionChoices.rejected,
             destruction_list__author__email="record_manager@oab.nl",
@@ -39,24 +36,19 @@ class SignalsTests(TestCase):
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_failure_during_deletion_sends_signal(self):
+        EmailConfigFactory.create(
+            subject_error_during_deletion="FAILURE!!",
+            body_error_during_deletion_text="ERROR AAAh!",
+            body_error_during_deletion_html="ERROR AAAh!",
+        )
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_delete, author__email="aaa@aaa.aaa"
         )
         DestructionListItemFactory.create_batch(2, destruction_list=destruction_list)
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.tasks.delete_external_relations",
-                side_effect=Exception,
-            ),
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_error_during_deletion="FAILURE!!",
-                    body_error_during_deletion_text="ERROR AAAh!",
-                    body_error_during_deletion_html="ERROR AAAh!",
-                ),
-            ),
+        with patch(
+            "openarchiefbeheer.destruction.tasks.delete_external_relations",
+            side_effect=Exception,
         ):
             delete_destruction_list(destruction_list)
 
