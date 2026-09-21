@@ -5,6 +5,11 @@ from solo.models import SingletonModel
 
 
 class EmailConfig(SingletonModel):
+    enable_email_notifications = models.BooleanField(
+        verbose_name=_("enable e-mail notifications"),
+        help_text=_("Whether to enable e-mail notifications."),
+        default=True,
+    )
     subject_review_required = models.CharField(
         max_length=250,
         verbose_name=_("subject review required"),

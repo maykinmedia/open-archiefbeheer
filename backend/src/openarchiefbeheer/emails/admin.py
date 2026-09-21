@@ -55,16 +55,27 @@ class EmailConfigAdmin(SingletonModelAdmin):
     form = EmailConfigForm
     fieldsets = [
         (
+            _("General"),
+            {"fields": ["enable_email_notifications"]},
+        ),
+        (
             _("Template review request"),
             {
                 "fields": [
                     "subject_review_required",
                     "body_review_required_html",
                     "body_review_required_text",
+                ],
+            },
+        ),
+        (
+            _("Template co-review request"),
+            {
+                "fields": [
                     "subject_co_review_request",
                     "body_co_review_request_html",
                     "body_co_review_request_text",
-                ],
+                ]
             },
         ),
         (
