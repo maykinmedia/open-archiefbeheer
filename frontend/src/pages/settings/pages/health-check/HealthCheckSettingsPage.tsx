@@ -91,7 +91,7 @@ export function HealthCheckSettingsPage() {
       ]}
     >
       {failedChecks.length === 0 && (
-        <Body>Geen configuratie fouten gevonden. </Body>
+        <Body>Geen configuratiefouten gevonden. </Body>
       )}
     </BaseSettingsView>
   );
