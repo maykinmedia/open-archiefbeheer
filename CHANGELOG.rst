@@ -10,11 +10,21 @@ Feature release.
 **New features**
 
 * [#1059] Improved destruction list status monitoring for admins, with a destruction list item table in the destruction list admin view.
+* [#1068] Add plugin for Open Product.
 
 **Bugfixes**
 
+* [#1029] Fixed plugin health check result containing incorrect model references.
 * [#1032] Fixed being able to create, and queue the deletion of, a destruction list if it contains a case without an archiving date.
+* [#1086] Fixed various issues related to mail notification and improved documentation on mail configuration.
 * [#1078] Fixed a crash when queuing an already-processed destruction list for deletion, to recreate a destruction report (regression of #1032).
+* [#1105] Use "archiefactiedatum" instead of "archiveringsdatum" in various places.
+
+**Maintenance**
+
+Improve (developer) documentation.
+Update docker image debian from 11 to 12.
+Update various dependencies.
 
 
 2.0.0 (2026-02-02)
