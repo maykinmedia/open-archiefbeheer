@@ -14,6 +14,7 @@ from openarchiefbeheer.config.tests.factories import (
     APIConfigFactory,
     ArchiveConfigFactory,
 )
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 
 from ..api.validators import RSIN_LENGTH
@@ -238,6 +239,51 @@ class HealthCheckViewTests(APITestCase):
 
         failed_checks = response.json()
         self.assertGreater(len(failed_checks), 0)
+
+    def test_email_health_check_when_notifications_are_disabled(self):
+        user = UserFactory.create()
+        self.client.force_login(user)
+        EmailConfigFactory.create(enable_email_notifications=False)
+
+        response = self.client.get(reverse("api:health-check"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # With the notifications disabled, the health check shouldn't complain
+        # about broken configuration.
+        self.assertEqual(
+            list(
+                filter(
+                    lambda check: check["identifier"] == "emailconfig", response.json()
+                )
+            ),
+            [],
+        )
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
+        EMAIL_HOST="some-fake-host",
+        EMAIL_TIMEOUT=1,
+    )
+    def test_email_failed_health_check(self):
+        user = UserFactory.create()
+        self.client.force_login(user)
+        EmailConfigFactory.create()
+
+        response = self.client.get(reverse("api:health-check"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        email_check = next(
+            filter(lambda check: check["identifier"] == "emailconfig", response.json())
+        )
+        self.assertEqual(
+            email_check,
+            {
+                "identifier": "emailconfig",
+                "message": "Connection with the SMTP server failed: [Errno -3] Temporary failure in name resolution",
+                "success": False,
+                "verbose_name": _("E-mail configuration"),
+            },
+        )
 
 
 @override_settings(RELEASE="1.0.0", GIT_SHA="123")

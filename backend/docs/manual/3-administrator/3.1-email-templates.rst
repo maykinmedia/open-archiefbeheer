@@ -1,27 +1,27 @@
 .. _manual_3-administrator_3.1-email-templates:
 
 ==========================================
-Email Sjablonen Configureren als Beheerder
+E-mailsjablonen configureren als beheerder
 ==========================================
 
-Deze handleiding beschrijft hoe een **functioneel beheerder** de sjablonen voor emails kan instellen 
-in de admin interface van de applicatie en welke sjabloonvariabelen beschikbaar zijn voor gebruik per template.
+Deze handleiding beschrijft hoe een **functioneel beheerder** de sjablonen voor e-mails kan instellen
+in de admin-interface van de applicatie en welke sjabloonvariabelen beschikbaar zijn voor gebruik per template.
 
-Locatie van de Email Configuratie
+Locatie van de e-mailconfiguratie
 ---------------------------------
-1. Log in op de admin pagina van de applicatie.
+1. Log in op de adminpagina van de applicatie.
 2. Ga naar **Overige** > **Email Configuratie** of navigeer direct naar ``/admin/emails/emailconfig/``.
    
-Hier kun je de onderwerpen en de emailteksten voor de emails die worden gestuurd naar:
+Hier kun je de onderwerpen en de e-mailteksten instellen voor de e-mails die worden gestuurd naar:
 
-- De beoordelaar als een review wordt aangevraagd.
+- De beoordelaar (of archivaris) als een review wordt aangevraagd.
 - De beoordelaar als een herinnering voor een review nodig is.
 - De record manager als een beoordelaar een lijst heeft goedgekeurd.
 - De record manager als een beoordelaar aanpassingen heeft aangevraagd op een lijst.
 - De record manager en de beoordelaars als een lijst succesvol is vernietigd.
 
-Tekst en HTML sjablonen moeten geconfigureerd worden voor elke email. Een voorbeeld voor de email
-die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zou kunnen is:
+Tekst- en HTML-sjablonen moeten worden geconfigureerd voor elke -. Zie hieronder een voorbeeld van de e-mail
+die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden:
 
 - Tekst:
 
@@ -29,7 +29,7 @@ die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zo
 
    Beste {{ user_name }},
    
-   Uw accordering van een vernietigingslijst wordt gevraagd. 
+   Uw beoordeling van een vernietigingslijst wordt gevraagd.
    U kunt hier {% destruction_list_link list_name 'review' %} de lijst bekijken om te controleren of de zaken op de lijst daadwerkelijk vernietigd kunnen worden.
 
 - HTML:
@@ -38,33 +38,32 @@ die wordt gestuurd naar een beoordelaar als een lijst goedgekeurd moet worden zo
 
    Beste {{ user_name }},
    
-   Uw accordering van een vernietigingslijst wordt gevraagd. 
+   Uw beoordeling van een vernietigingslijst wordt gevraagd.
    U kunt <a href="{% destruction_list_link list_name 'review' %}">hier</a> de lijst bekijken om te controleren of de zaken op de lijst daadwerkelijk vernietigd kunnen worden.
 
 .. warning::
 
-   In het geval dat een email sjanbloon of het onderwerp niet geconfigureerd zijn, 
-   dan wordt de email niet gestuurd.
+   De e-mail wordt alleen verstuurd wanneer het onderwerp en tekst- en HTML-sjablonen zijn geconfigureerd (per individuele categorie).
 
-Beschikbare Sjabloonvariabelen
+Beschikbare sjabloonvariabelen
 ------------------------------
 
-In de tekst van de emailsjablonen is het mogelijk om variabelen en templatetags te gebruiken.
-Deze zijn de beschikbare templatetags:
+In de tekst van de e-mailsjablonen is het mogelijk om variabelen en templatetags te gebruiken.
+De volgende templatetags zijn beschikbaar:
 
-.. csv-table:: Templatetags emailsjablonen
+.. csv-table:: Templatetags e-mailsjablonen
    :header: "Tag", "Beschrijving"
    :widths: 1 1
 
    "``{% destruction_list_link list_name 'edit' %}``", "Geeft de link naar een vernietigingslijst. Het is mogelijk om naar de 'edit', 'review', of 'process-review' pagina te linken."
 
 
-Voor elke emailtekst sjabloon, deze variabelen zijn beschikbaar:
+De volgende variabelen zijn beschikbaar:
 
-.. csv-table:: Variabelen emailsjablonen
+.. csv-table:: Variabelen e-mailsjablonen
    :header: "Variabel", "Beschrijving"
    :widths: 100, 70
 
    "``{{ list_name }}``",   "Geeft de naam van de vernietigingslijst."
    "``{{ user_name }}``",   "Geeft de voornaam en de achternaam van de persoon die de email ontvangt."
-   "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de beoordelaar van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de email naar de record manager na een goedkeuring van de beoordelaar."
+   "``{{ reviewer }}``",   "Geeft de voornaam, de achternaam en de gebruikersnaam (tussen haakjes) van de beoordelaar van de vernietigingslijst. Deze variabele is alleen beschikbaar in de sjabloon voor de e-mail naar de record manager na een goedkeuring van de beoordelaar."

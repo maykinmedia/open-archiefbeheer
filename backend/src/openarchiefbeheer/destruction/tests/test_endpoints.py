@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils.translation import gettext as _, ngettext
 
 import requests_mock
@@ -16,7 +16,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
 
 from ..constants import ListItemStatus, ListRole, ListStatus, ReviewDecisionChoices
@@ -812,8 +812,63 @@ class DestructionListViewSetTest(APITestCase):
             _("The chosen user does not have the permission to review a final list."),
         )
 
+    @tag("gh-1086")
+    def test_mark_as_final_sends_email_to_archivist(self):
+        EmailConfigFactory.create(
+            subject_review_required="Destruction list review request",
+            body_review_required_text="Please review the list",
+            body_review_required_html="Please review the list",
+        )
+        record_manager = UserFactory.create(
+            username="record_manager", post__can_start_destruction=True
+        )
+        record_manager_group, created = Group.objects.get_or_create(
+            name="Record Manager"
+        )
+        record_manager.groups.add(record_manager_group)
+        archivist = UserFactory.create(
+            username="archivist",
+            post__can_review_final_list=True,
+            email="archivist@example.com",
+        )
+        destruction_list = DestructionListFactory.create(
+            name="A test list",
+            contains_sensitive_info=True,
+            author=record_manager,
+            status=ListStatus.internally_reviewed,
+        )
+
+        self.client.force_authenticate(user=record_manager)
+        endpoint = reverse(
+            "api:destructionlist-make-final", kwargs={"uuid": destruction_list.uuid}
+        )
+        response = self.client.post(
+            endpoint,
+            data={
+                "user": archivist.pk,
+                "comment": "The list is ready for the archivist",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Ensure the email is sent
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Destruction list review request")
+        self.assertEqual(mail.outbox[0].body, "Please review the list")
+        self.assertEqual(
+            mail.outbox[0].recipients(),
+            ["archivist@example.com"],
+        )
+
     @override_settings(FRONTEND_URL="https://openarchiefbeheer.nl/")
     def test_mark_as_ready_to_review(self):
+        EmailConfigFactory.create(
+            subject_review_required="Destruction list review request",
+            body_review_required_text="Please review the list here: {% destruction_list_link list_name 'review' %}",
+            body_review_required_html="Please review the list <a href=\"{% destruction_list_link list_name 'review' %}\">here</a>.",
+        )
         record_manager = UserFactory.create(
             username="dolly123",
             first_name="Dolly",
@@ -839,22 +894,12 @@ class DestructionListViewSetTest(APITestCase):
         )
 
         self.client.force_authenticate(user=record_manager)
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_review_required="Destruction list review request",
-                    body_review_required_text="Please review the list here: {% destruction_list_link list_name 'review' %}",
-                    body_review_required_html="Please review the list <a href=\"{% destruction_list_link list_name 'review' %}\">here</a>.",
-                ),
+        response = self.client.post(
+            reverse(
+                "api:destructionlist-mark-ready-review",
+                kwargs={"uuid": destruction_list.uuid},
             ),
-        ):
-            response = self.client.post(
-                reverse(
-                    "api:destructionlist-mark-ready-review",
-                    kwargs={"uuid": destruction_list.uuid},
-                ),
-            )
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

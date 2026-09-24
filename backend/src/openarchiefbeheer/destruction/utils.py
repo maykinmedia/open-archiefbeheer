@@ -33,7 +33,14 @@ from .models import (
 def notify(
     subject: str, body_html: str, body_text: str, context: dict, recipients: list[str]
 ) -> None:
-    if body_text == "" or body_html == "" or subject == "" or len(recipients) == 0:
+    config = EmailConfig.get_solo()
+    if (
+        not config.enable_email_notifications
+        or body_text == ""
+        or body_html == ""
+        or subject == ""
+        or len(recipients) == 0
+    ):
         return
 
     backend = get_sandboxed_backend()

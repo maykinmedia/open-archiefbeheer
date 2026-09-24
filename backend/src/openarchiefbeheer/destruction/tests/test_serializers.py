@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import TestCase, override_settings, tag
@@ -10,7 +8,7 @@ from rest_framework.test import APIRequestFactory
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
-from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 
 from ...zaken.tests.factories import ZaakFactory
 from ..api.constants import MAX_NUMBER_CO_REVIEWERS
@@ -790,6 +788,11 @@ class DestructionListSerializerTests(TestCase):
 
 class DestructionListReviewSerializerTests(TestCase):
     def test_create_review_accepted(self):
+        EmailConfigFactory.create(
+            subject_positive_review="Review accepted",
+            body_positive_review_text="Yuppiii reviewer accepted!",
+            body_positive_review_html="Yuppiii reviewer accepted!",
+        )
         reviewer = UserFactory.create(
             username="reviewer",
             email="reviewer@oab.nl",
@@ -823,16 +826,7 @@ class DestructionListReviewSerializerTests(TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
-
-        with patch(
-            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-            return_value=EmailConfig(
-                subject_positive_review="Review accepted",
-                body_positive_review_text="Yuppiii reviewer accepted!",
-                body_positive_review_html="Yuppiii reviewer accepted!",
-            ),
-        ):
-            serializer.save()
+        serializer.save()
 
         destruction_list.refresh_from_db()
 

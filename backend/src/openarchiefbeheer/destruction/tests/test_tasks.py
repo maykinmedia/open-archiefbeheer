@@ -18,7 +18,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
-from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
@@ -95,6 +95,12 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(review_item_response.processing_status, InternalStatus.failed)
 
     def test_changes_to_both_zaak_and_destruction_list_item(self, m):
+        EmailConfigFactory.create(
+            subject_review_required="Destruction list review request",
+            body_review_required_text="Please review the list",
+            body_review_required_html="Please review the list",
+            subject_changes_requested="",  # prevent review e-mail from being sent
+        )
         ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="http://zaken-api.nl/",
@@ -103,6 +109,7 @@ class ProcessReviewResponseTests(TestCase):
         review_response = ReviewResponseFactory.create(
             review__destruction_list__status=ListStatus.changes_requested,
             review__author__email="reviewer1@oab.nl",
+            review__decision=ReviewDecisionChoices.rejected,
         )
         zaak = ZaakFactory.create(archiefactiedatum="2025-01-01")
         review_item_response = ReviewItemResponseFactory.create(
@@ -126,16 +133,7 @@ class ProcessReviewResponseTests(TestCase):
         )
 
         m.patch(zaak.url, json={"archiefactiedatum": "2026-01-01"})
-
-        with patch(
-            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-            return_value=EmailConfig(
-                subject_review_required="Destruction list review request",
-                body_review_required_text="Please review the list",
-                body_review_required_html="Please review the list",
-            ),
-        ):
-            process_review_response(review_response.pk)
+        process_review_response(review_response.pk)
 
         review_response.refresh_from_db()
         review_item_response.refresh_from_db()
@@ -161,6 +159,11 @@ class ProcessReviewResponseTests(TestCase):
         self.assertEqual(mail.outbox[0].recipients(), ["reviewer1@oab.nl"])
 
     def test_reject_suggestion_does_not_change_zaak(self, m):
+        EmailConfigFactory.create(
+            subject_review_required="Destruction list review request",
+            body_review_required_text="Please review the list",
+            body_review_required_html="Please review the list",
+        )
         review_response = ReviewResponseFactory.create(
             review__destruction_list__status=ListStatus.changes_requested,
             review__author__email="reviewer1@oab.nl",
@@ -183,15 +186,7 @@ class ProcessReviewResponseTests(TestCase):
             role=ListRole.main_reviewer,
         )
 
-        with patch(
-            "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-            return_value=EmailConfig(
-                subject_review_required="Destruction list review request",
-                body_review_required_text="Please review the list",
-                body_review_required_html="Please review the list",
-            ),
-        ):
-            process_review_response(review_response.pk)
+        process_review_response(review_response.pk)
 
         review_response.refresh_from_db()
         review_item_response.refresh_from_db()
@@ -368,6 +363,12 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
 
     def test_complete_and_notify(self):
+        EmailConfigFactory.create(
+            subject_successful_deletion="DELETED!",
+            body_successful_deletion_text="Wohoo deleted list",
+            body_successful_deletion_html="Wohoo deleted list",
+            subject_positive_review="",  # prevent review e-mail from being sent
+        )
         record_manager = UserFactory.create(
             first_name="John",
             last_name="Doe",
@@ -434,14 +435,6 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             )
 
         with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_successful_deletion="DELETED!",
-                    body_successful_deletion_text="Wohoo deleted list",
-                    body_successful_deletion_html="Wohoo deleted list",
-                ),
-            ),
             patch(
                 "openarchiefbeheer.destruction.tasks.upload_destruction_report_to_openzaak"
             ),

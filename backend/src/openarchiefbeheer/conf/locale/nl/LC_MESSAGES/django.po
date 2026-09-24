@@ -1931,11 +1931,11 @@ msgstr ""
 
 #: openarchiefbeheer/emails/models.py:185
 msgid "email configuration"
-msgstr "E-mail configuratie"
+msgstr "E-mailconfiguratie"
 
 #: openarchiefbeheer/emails/models.py:186
 msgid "email configurations"
-msgstr "E-mail configuraties"
+msgstr "E-mailconfiguraties"
 
 #: openarchiefbeheer/external_registers/admin.py:30
 msgid "One or more of the selected services are already used by another plugin"

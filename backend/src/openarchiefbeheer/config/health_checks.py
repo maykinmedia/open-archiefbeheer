@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.core.mail import get_connection
 from django.utils.translation import gettext as _
 
 from maykin_config_checks import HealthCheck, HealthCheckResult, Slug
@@ -11,6 +12,7 @@ from openarchiefbeheer.external_registers.plugin import AbstractBasePlugin
 from openarchiefbeheer.external_registers.registry import register as registry
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
+from ..emails.models import EmailConfig
 from .models import APIConfig, ArchiveConfig
 
 ZGW_REQUIRED_SERVICE_TYPES = [APITypes.zrc, APITypes.drc, APITypes.ztc, APITypes.brc]
@@ -227,12 +229,48 @@ class PluginHealthCheck:
         return self.plugin.check_config()
 
 
+@dataclass
+class EmailConfigurationCheck:
+    identifier = "emailconfig"
+    verbose_name = _("E-mail configuration")
+
+    def __call__(self) -> HealthCheckResult:
+        email_config = EmailConfig.get_solo()
+        if not email_config.enable_email_notifications:
+            return CheckResult(
+                identifier=self.identifier,
+                verbose_name=self.verbose_name,
+                success=True,
+                message=_("Sending of e-mails is not enabled."),
+            )
+
+        connection = get_connection()
+        try:
+            connection.open()
+        except Exception as exc:
+            return CheckResult(
+                identifier=self.identifier,
+                verbose_name=self.verbose_name,
+                success=False,
+                message=_("Connection with the SMTP server failed: {e}").format(e=exc),
+            )
+        else:
+            connection.close()
+            return CheckResult(
+                identifier=self.identifier,
+                verbose_name=self.verbose_name,
+                success=True,
+                message=_("The e-mail configuration is properly configured."),
+            )
+
+
 def checks_collector() -> list[HealthCheck]:
     checks = [
         ServiceHealthCheck(),
         ServiceConfigurationHealthCheck(),
         APIConfigCheck(),
         ArchiveConfigHealthCheck(),
+        EmailConfigurationCheck(),
     ]
     checks.extend(
         [

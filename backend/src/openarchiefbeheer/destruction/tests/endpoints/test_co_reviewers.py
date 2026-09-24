@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import tag
@@ -10,7 +8,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from timeline_logger.models import TimelineLog
 
-from openarchiefbeheer.emails.models import EmailConfig
+from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
 
 from ...api.constants import MAX_NUMBER_CO_REVIEWERS
 from ...constants import ListRole, ListStatus
@@ -58,6 +56,11 @@ class CoReviewersViewSetTest(APITestCase):
         )
 
     def test_fully_update_co_reviewers(self):
+        EmailConfigFactory.create(
+            subject_co_review_request="Please co-review!",
+            body_co_review_request_text="You have been invited to co-review.",
+            body_co_review_request_html="You have been invited to co-review.",
+        )
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, name="A beautiful list"
         )
@@ -86,29 +89,17 @@ class CoReviewersViewSetTest(APITestCase):
 
         self.client.force_authenticate(user=main_reviewer.user)
 
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_co_review_request="Please co-review!",
-                    body_co_review_request_text="You have been invited to co-review.",
-                    body_co_review_request_html="You have been invited to co-review.",
-                ),
+        response = self.client.put(
+            reverse(
+                "api:co-reviewers-list",
+                kwargs={"destruction_list_uuid": destruction_list.uuid},
             ),
-        ):
-            response = self.client.put(
-                reverse(
-                    "api:co-reviewers-list",
-                    kwargs={"destruction_list_uuid": destruction_list.uuid},
-                ),
-                data={
-                    "comment": "test",
-                    "add": [
-                        {"user": co_reviewer.pk} for co_reviewer in new_co_reviewers
-                    ],
-                },
-                format="json",
-            )
+            data={
+                "comment": "test",
+                "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
+            },
+            format="json",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -149,6 +140,11 @@ class CoReviewersViewSetTest(APITestCase):
         )
 
     def test_partially_update_co_reviewers(self):
+        EmailConfigFactory.create(
+            subject_co_review_request="Please co-review!",
+            body_co_review_request_text="You have been invited to co-review.",
+            body_co_review_request_html="You have been invited to co-review.",
+        )
         destruction_list = DestructionListFactory.create(
             status=ListStatus.ready_to_review, name="A beautiful list"
         )
@@ -180,30 +176,18 @@ class CoReviewersViewSetTest(APITestCase):
         destruction_list.save()
 
         self.client.force_authenticate(user=main_reviewer.user)
-        with (
-            patch(
-                "openarchiefbeheer.destruction.utils.EmailConfig.get_solo",
-                return_value=EmailConfig(
-                    subject_co_review_request="Please co-review!",
-                    body_co_review_request_text="You have been invited to co-review.",
-                    body_co_review_request_html="You have been invited to co-review.",
-                ),
+        response = self.client.patch(
+            reverse(
+                "api:co-reviewers-list",
+                kwargs={"destruction_list_uuid": destruction_list.uuid},
             ),
-        ):
-            response = self.client.patch(
-                reverse(
-                    "api:co-reviewers-list",
-                    kwargs={"destruction_list_uuid": destruction_list.uuid},
-                ),
-                data={
-                    "comment": "test",
-                    "add": [
-                        {"user": co_reviewer.pk} for co_reviewer in new_co_reviewers
-                    ],
-                    "remove": [{"user": initial_assignee1.user.pk}],
-                },
-                format="json",
-            )
+            data={
+                "comment": "test",
+                "add": [{"user": co_reviewer.pk} for co_reviewer in new_co_reviewers],
+                "remove": [{"user": initial_assignee1.user.pk}],
+            },
+            format="json",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
