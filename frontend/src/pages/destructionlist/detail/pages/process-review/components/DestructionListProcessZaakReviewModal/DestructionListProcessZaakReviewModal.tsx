@@ -21,9 +21,9 @@ import { addDuration, formatDate } from "../../../../../../../lib/format/date";
 import { Zaak } from "../../../../../../../types";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
-  "Aanpassen van selectielijstklasse";
-export const LABEL_CHANGE_ARCHIVING_DATE = "Aanpassen van archiefactiedatum";
-export const LABEL_KEEP = "Afwijzen van het voorstel";
+  "Selectielijstklasse aanpassen";
+export const LABEL_CHANGE_ARCHIVING_DATE = "Achiefactiedatum aanpassen";
+export const LABEL_KEEP = "Voorstel afwijzen";
 
 type DestructionListProcessZaakReviewModalFormType = {
   zaakUrl: string;

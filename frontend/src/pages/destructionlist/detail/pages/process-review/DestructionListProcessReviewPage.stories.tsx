@@ -100,7 +100,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            "Aanpassen van selectielijstklasse": true,
+            "Selectielijstklasse aanpassen": true,
             Selectielijstklasse: "1.2 - Ingesteld - blijvend_bewaren",
             Reden: "ProcessReview",
           },
@@ -117,7 +117,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            "Afwijzen van het voorstel": true,
+            "Voorstel afwijzen": true,
             Reden: "ProcessReview",
           },
         },
@@ -133,7 +133,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            "Afwijzen van het voorstel": true,
+            "Voorstel afwijzen": true,
             Reden: "ProcessReview",
           },
         },
@@ -149,7 +149,7 @@ export const ProcessReview: Story = {
       parameters: {
         fillForm: {
           formValues: {
-            "Aanpassen van archiefactiedatum": true,
+            "Archiefactiedatum aanpassen": true,
             "day of month": "12",
             month: "10",
             year: "2022",
