@@ -48,17 +48,17 @@ Stappen
     - Wijzigingen worden doorgevoerd na het opnieuw indienen van de lijst.
 
 5. **Selectielijstklasse aanpassen**
-    - Indien nodig, selecteer je de optie **"Aanpassen van selectielijstklasse"**.
+    - Indien nodig, selecteer je de optie **"Selectielijstklasse aanpassen"**.
     - Vul het veld **"Selectielijstklasse"** in, bijvoorbeeld **"11.1 - Verleend - vernietigen - P1Y"**.
 
-6. **Bewaartermijn verlengen**
-    - Kies de optie **"Verlengen bewaartermijn"**.
+6. **Archiefactiedatum aanpassen**
+    - Kies de optie **"Archiefactiedatum aanpassen"**.
     - Vul de gewenste **"Dag van de maand"** in (bijvoorbeeld **09/15/2023**).
     - Je kunt de bewaartermijn niet verlengen voor zaken waarvoor de selectielijst een archiefnominatie van
       **"blijvend bewaren"** heeft.
 
 7. **Afwijzen van het voorstel**
-    - Kies de optie **"Afwijzen van het voorstel"** om zaak niet te muteren (en opnieuw aan te bieden aan de
+    - Kies de optie **"Voorstel afwijzen"** om zaak niet te muteren (en opnieuw aan te bieden aan de
       beoordelaar).
 
 .. figure:: ../_assets/muteren-formulier.png
@@ -66,8 +66,8 @@ Stappen
     :alt: muteren formulier
     :height: 523px
 
-    Zaak mutatie formulier met keuzes **"Aanpassen van selectielijstklasse"**, **"Verlengen bewaartermijn"** en
-    **"Afwijzen van het voorstel"**.
+    Zaak mutatie formulier met keuzes **"Selectielijstklasse aanpassen"**, **"Archiefactiedatum aanpassen"** en
+    **"Voorstel afwijzen"**.
 
 7. **Opmerking toevoegen en opnieuw indienen**
     - Vul de reden voor de wijziging in.
