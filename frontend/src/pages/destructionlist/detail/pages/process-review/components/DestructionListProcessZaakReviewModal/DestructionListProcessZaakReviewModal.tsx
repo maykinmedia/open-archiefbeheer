@@ -22,7 +22,7 @@ import { Zaak } from "../../../../../../../types";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Aanpassen van selectielijstklasse";
-export const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
+export const LABEL_CHANGE_ARCHIVING_DATE = "Aanpassen van archiefactiedatum";
 export const LABEL_KEEP = "Afwijzen van het voorstel";
 
 type DestructionListProcessZaakReviewModalFormType = {
@@ -159,13 +159,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const getFields = (_formState: typeof formState = formState) => {
     const bewaartermijn = getBewaartermijn(_formState.selectielijstklasse);
 
-    const isSelectielijstklasseActive =
-      formState.action === "change_selectielijstklasse";
+    const showSelectielijstklasseInput =
+      _formState.action === "change_selectielijstklasse";
 
-    const isArchiefactiedatumActive = Boolean(
-      getBewaartermijn(_formState.selectielijstklasse) &&
-        formState.action === "change_archiefactiedatum",
-    );
+    const showArchiefactiedatumInput =
+      _formState.action === "change_archiefactiedatum" ||
+      (showSelectielijstklasseInput && bewaartermijn);
+
+    const showChangeArchiefactiedatumOption =
+      !!bewaartermijn || zaak?.archiefnominatie === "vernietigen";
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -188,9 +190,9 @@ export const DestructionListProcessZaakReviewModal: React.FC<
             value: "change_selectielijstklasse",
             selected: _formState.action === "change_selectielijstklasse",
           },
-          bewaartermijn
+          showChangeArchiefactiedatumOption
             ? {
-                label: LABEL_POSTPONE_DESTRUCTION,
+                label: LABEL_CHANGE_ARCHIVING_DATE,
                 value: "change_archiefactiedatum",
                 selected: _formState.action === "change_archiefactiedatum",
               }
@@ -203,33 +205,26 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         ].filter((v: Option | null): v is Option => Boolean(v)) as Option[],
       },
 
-      {
-        label: isSelectielijstklasseActive ? "Selectielijstklasse" : undefined,
-        name: "selectielijstklasse",
-        required: isSelectielijstklasseActive,
-        type: isSelectielijstklasseActive ? undefined : "hidden",
-        options: isSelectielijstklasseActive
-          ? selectieLijstKlasseChoices
-          : undefined,
-        value: _formState.selectielijstklasse,
-      },
+      showSelectielijstklasseInput
+        ? {
+            label: "Selectielijstklasse",
+            name: "selectielijstklasse",
+            required: true,
+            options: selectieLijstKlasseChoices,
+            value: _formState.selectielijstklasse,
+          }
+        : null,
 
-      {
-        label:
-          isArchiefactiedatumActive ||
-          (isSelectielijstklasseActive && bewaartermijn)
-            ? "Archiefactiedatum"
-            : undefined,
-        name: "archiefactiedatum",
-        required: isArchiefactiedatumActive,
-        type:
-          isArchiefactiedatumActive ||
-          (isSelectielijstklasseActive && bewaartermijn)
-            ? "date"
-            : "hidden",
-        value: _formState.archiefactiedatum,
-      },
-    ];
+      showArchiefactiedatumInput
+        ? {
+            label: "Archiefactiedatum",
+            name: "archiefactiedatum",
+            required: true,
+            type: "date",
+            value: _formState.archiefactiedatum,
+          }
+        : null,
+    ].filter((v) => v !== null);
 
     // Fields shown when an action is selected (regardless of the action).
     const actionSelectedFields: FormField[] = [
