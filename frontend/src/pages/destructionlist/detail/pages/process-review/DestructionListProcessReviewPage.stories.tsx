@@ -140,6 +140,25 @@ export const ProcessReview: Story = {
       },
     });
 
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Muteren", elementIndex: 3 } },
+    });
+    // Note: I tried to change the archiefactiedatum here, by filling in something
+    // for "day of month", "month", and "year", but storybook doesn't like it.
+    // After switching to another input, the previous input gets cleared again...
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            "Aanpassen van archiefactiedatum": true,
+            Reden: "ProcessReview",
+          },
+        },
+      },
+    });
+
     // Hover over the tooltip badge (modify the selector based on your implementation)
     const tooltipBadge = await within(context.canvasElement).findAllByText(
       "Voorstel afgewezen",
