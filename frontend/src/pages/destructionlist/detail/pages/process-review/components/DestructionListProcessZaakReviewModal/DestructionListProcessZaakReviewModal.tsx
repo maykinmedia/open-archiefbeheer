@@ -22,7 +22,7 @@ import { Zaak } from "../../../../../../../types";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
   "Selectielijstklasse aanpassen";
-export const LABEL_CHANGE_ARCHIVING_DATE = "Achiefactiedatum aanpassen";
+export const LABEL_CHANGE_ARCHIVING_DATE = "Archiefactiedatum aanpassen";
 export const LABEL_KEEP = "Voorstel afwijzen";
 
 type DestructionListProcessZaakReviewModalFormType = {
