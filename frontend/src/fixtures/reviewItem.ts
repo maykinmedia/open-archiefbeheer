@@ -49,6 +49,19 @@ const FIXTURE_REVIEW_ITEMS: ReviewItem[] = [
     }),
     feedback: "Deze nog niet",
   },
+  {
+    pk: 4,
+    destructionListItem: destructionListItemFactory({
+      zaak: zaakFactory({
+        identificatie: "ZAAK-2025-0000000003",
+        url: "http://localhost:8000/zaken/api/v1/zaken/33333333-3333-3333-3333-333333333333",
+        uuid: "33333333-3333-3333-3333-333333333333",
+        selectielijstklasse: "",
+        archiefnominatie: "vernietigen",
+      }),
+    }),
+    feedback: "Deze nog niet",
+  },
 ];
 
 const reviewItemFactory = createObjectFactory<ReviewItem>(FIXTURE_REVIEW_ITEM);

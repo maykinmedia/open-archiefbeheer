@@ -140,6 +140,25 @@ export const ProcessReview: Story = {
       },
     });
 
+    await clickButton({
+      ...context,
+      parameters: { clickButton: { name: "Muteren", elementIndex: 3 } },
+    });
+    await fillForm({
+      ...context,
+      parameters: {
+        fillForm: {
+          formValues: {
+            "Aanpassen van archiefactiedatum": true,
+            "day of month": "12",
+            month: "10",
+            year: "2022",
+            Reden: "ProcessReview",
+          },
+        },
+      },
+    });
+
     // Hover over the tooltip badge (modify the selector based on your implementation)
     const tooltipBadge = await within(context.canvasElement).findAllByText(
       "Voorstel afgewezen",
