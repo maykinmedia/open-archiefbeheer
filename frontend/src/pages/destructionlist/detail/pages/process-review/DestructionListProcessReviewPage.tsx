@@ -333,7 +333,7 @@ export function DestructionListProcessReviewPage() {
     return [
       { name: "Opmerking", type: "text" },
       { name: "Mutatie", type: "text" },
-      { name: "Acties", type: "jsx" },
+      { name: "Acties", type: "text" },
     ];
   }
 
