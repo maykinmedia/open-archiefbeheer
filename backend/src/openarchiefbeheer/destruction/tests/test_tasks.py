@@ -578,15 +578,16 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         #  4. Set processing status of destruction list (failed)
         #  5. General destruction failed message
         self.assertEqual(
-            _("Processing status was updated to '{status}'").format(
-                status=_("processing")
-            ),
+            _("Processing status was updated to '%(status)s'")
+            % {"status": _("processing")},
             logs[0].get_message().strip(),
         )
         self.assertEqual(
             _(
-                "Destruction list item {item_pk} processing status was updated to '{status}'"
-            ).format(item_pk=item.pk, status=_("processing")),
+                "Destruction list item %(item_pk)s processing status was updated "
+                "to '%(status)s'"
+            )
+            % {"item_pk": item.pk, "status": _("processing")},
             logs[1].get_message().strip(),
         )
         self.assertIn(_("failed"), logs[2].get_message())
@@ -669,13 +670,11 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(InternalStatus.failed, destruction_list.processing_status)
-        self.assertIn(
-            _("Something went wrong while generating or uploading destruction report:"),
-            destruction_list.processing_status_clarification,
-        )
-        self.assertIn(
-            "Traceback (most recent call last):",
-            destruction_list.processing_status_clarification,
+        expected = _(
+            "Something went wrong while generating or uploading destruction report:\n{e}"
+        ).format(e="Traceback (most recent call last):")
+        self.assertTrue(
+            destruction_list.processing_status_clarification.startswith(expected)
         )
         log = TimelineLog.objects.for_object(destruction_list).last()
         self.assertEqual(_("The destruction failed."), log.get_message())
@@ -707,13 +706,11 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         destruction_list.refresh_from_db()
 
         self.assertEqual(InternalStatus.failed, destruction_list.processing_status)
-        self.assertIn(
-            _("Something went wrong while notifying assignees:"),
-            destruction_list.processing_status_clarification,
+        expected = _("Something went wrong while notifying assignees:\n{e}").format(
+            e="Traceback (most recent call last):"
         )
-        self.assertIn(
-            "Traceback (most recent call last):",
-            destruction_list.processing_status_clarification,
+        self.assertTrue(
+            destruction_list.processing_status_clarification.startswith(expected)
         )
         log = TimelineLog.objects.for_object(destruction_list).last()
         self.assertEqual(_("The destruction failed."), log.get_message())
