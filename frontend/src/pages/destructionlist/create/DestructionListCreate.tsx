@@ -6,7 +6,6 @@ import {
   Modal,
   SerializedFormData,
   Solid,
-  date2DateString,
 } from "@maykin-ui/admin-ui";
 import { FormEvent, useState } from "react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
@@ -18,36 +17,14 @@ import {
   DestructionListCreateAction,
   DestructionListCreateActionResponseData,
 } from "./DestructionListCreate.action";
+import {
+  getArchiveDateMode,
+  getZaakFilters,
+} from "./DestructionListCreate.filters";
 import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
-
-type ArchiveDateMode = "all" | "past" | "custom";
-
-/**
- * Determines the current archiefactiedatum filter mode from the URL search params.
- *
- * Returns:
- * - "all": No archive date filters are active. The default.
- * - "past": Shows archivable cases (the user clicked on "Toon enkel zaken met verlopen archiefdatum" button).
- * - "custom": The user has applied custom Archiefactiedatum filters.
- */
-const getArchiveDateMode = (searchParams: URLSearchParams): ArchiveDateMode => {
-  const fromDate = searchParams.get("archiefactiedatum__gte");
-  const toDate = searchParams.get("archiefactiedatum__lte");
-
-  if (!fromDate && !toDate) {
-    return "all";
-  }
-
-  const today = new Date();
-  if (!fromDate && toDate && new Date(toDate) <= today) {
-    return "past";
-  }
-
-  return "custom";
-};
 
 /**
  * Destruction list creation page
@@ -74,19 +51,19 @@ export function DestructionListCreatePage() {
 
   /**
    * Get called when the "archiefactiedatum" search params are changed:
-   *   * User clicks on "Toon enkel zaken met verlopen archiefdatum" OR
-   *   * User clicks on "Toon ook zaken met toekomstige archiefdatum" OR
-   *   * User applies custom "Archiefactiedatum" filter
+   *   - User clicks on "Toon enkel zaken met verlopen archiefdatum" OR
+   *   - User clicks on "Toon ook zaken met toekomstige archiefdatum"
    */
   const handleFilterClick = () => {
-    if (archiveDateMode === "past") {
-      searchParams.delete("archiefactiedatum__lte");
-      searchParams.delete("archiefactiedatum__gte");
-      setSearchParams(searchParams);
-      return;
-    }
+    searchParams.delete("archiefactiedatum__lte");
     searchParams.delete("archiefactiedatum__gte");
-    searchParams.set("archiefactiedatum__lte", date2DateString(new Date()));
+
+    if (archiveDateMode === "past") {
+      searchParams.set("showAll", "true");
+    } else {
+      searchParams.delete("showAll");
+    }
+
     setSearchParams(searchParams);
   };
 
@@ -129,7 +106,9 @@ export function DestructionListCreatePage() {
    */
   const handleSubmit = async (event: FormEvent, data: SerializedFormData) => {
     const { name, assigneeId, comment } = data as Record<string, string>;
-    const zaakFilters = JSON.stringify(Object.fromEntries(searchParams));
+    const zaakFilters = JSON.stringify(
+      Object.fromEntries(getZaakFilters(searchParams)),
+    );
 
     submitAction({
       type: "CREATE_LIST",

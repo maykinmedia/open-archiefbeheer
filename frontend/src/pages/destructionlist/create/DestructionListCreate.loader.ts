@@ -7,6 +7,7 @@ import {
   canStartDestructionListRequired,
   loginRequired,
 } from "../../../lib/auth/loaders";
+import { getZaakFilters } from "./DestructionListCreate.filters";
 
 export type DestructionListCreateContext = {
   paginatedZaken: PaginatedZaken;
@@ -24,8 +25,10 @@ export const destructionListCreateLoader = loginRequired(
     }: LoaderFunctionArgs): Promise<DestructionListCreateContext> => {
       const abortController = new AbortController();
       const searchParams = new URL(request.url).searchParams;
+      const zaakFilters = getZaakFilters(searchParams);
+
       const data: Record<string, string> = {
-        ...Object.fromEntries(searchParams),
+        ...Object.fromEntries(zaakFilters),
         not_in_destruction_list: "true",
         archiefactiedatum__isnull: "false",
       };
