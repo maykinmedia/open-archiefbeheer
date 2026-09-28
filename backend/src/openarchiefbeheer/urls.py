@@ -88,3 +88,9 @@ if settings.E2E_SERVE_FRONTEND:
             name="frontend-logout",
         ),
     ] + urlpatterns
+
+# Translations
+if "rosetta" in settings.INSTALLED_APPS:
+    urlpatterns += [
+        path("rosetta/", include("rosetta.urls")),
+    ]

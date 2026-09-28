@@ -111,6 +111,9 @@ PLAYWRIGHT_SAVE_TRACE = config("PLAYWRIGHT_SAVE_TRACE", default=False)
 
 ENVIRONMENT = "development"
 
+# Translations
+INSTALLED_APPS += ["rosetta"]
+
 # Override settings with local settings.
 with contextlib.suppress(ImportError):
     from .local import *  # noqa
