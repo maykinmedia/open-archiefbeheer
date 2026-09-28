@@ -23,6 +23,32 @@ import { DestructionListCreateContext } from "./DestructionListCreate.loader";
 /** We need a key to store the zaak selection to, however we don't have a destruction list name yet. */
 export const DESTRUCTION_LIST_CREATE_KEY = "destruction-list-create";
 
+type ArchiveDateMode = "all" | "past" | "custom";
+
+/**
+ * Determines the current archiefactiedatum filter mode from the URL search params.
+ *
+ * Returns:
+ * - "all": No archive date filters are active. The default.
+ * - "past": Shows archivable cases (the user clicked on "Toon enkel zaken met verlopen archiefdatum" button).
+ * - "custom": The user has applied custom Archiefactiedatum filters.
+ */
+const getArchiveDateMode = (searchParams: URLSearchParams): ArchiveDateMode => {
+  const fromDate = searchParams.get("archiefactiedatum__gte");
+  const toDate = searchParams.get("archiefactiedatum__lte");
+
+  if (!fromDate && !toDate) {
+    return "all";
+  }
+
+  const today = new Date();
+  if (!fromDate && toDate && new Date(toDate) <= today) {
+    return "past";
+  }
+
+  return "custom";
+};
+
 /**
  * Destruction list creation page
  */
@@ -39,6 +65,31 @@ export function DestructionListCreatePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const submitAction = useSubmitAction<DestructionListCreateAction>();
 
+  const archiveDateMode = getArchiveDateMode(searchParams);
+
+  /**
+   * Gets called when the "Vernietigingslijst opstellen" button is clicked.
+   */
+  const handleCreateClick = () => setModalOpenState(true);
+
+  /**
+   * Get called when the "archiefactiedatum" search params are changed:
+   *   * User clicks on "Toon enkel zaken met verlopen archiefdatum" OR
+   *   * User clicks on "Toon ook zaken met toekomstige archiefdatum" OR
+   *   * User applies custom "Archiefactiedatum" filter
+   */
+  const handleFilterClick = () => {
+    if (archiveDateMode === "past") {
+      searchParams.delete("archiefactiedatum__lte");
+      searchParams.delete("archiefactiedatum__gte");
+      setSearchParams(searchParams);
+      return;
+    }
+    searchParams.delete("archiefactiedatum__gte");
+    searchParams.set("archiefactiedatum__lte", date2DateString(new Date()));
+    setSearchParams(searchParams);
+  };
+
   const getSelectionActions = (): ButtonProps[] => {
     const actions: ButtonProps[] = [
       {
@@ -54,26 +105,14 @@ export function DestructionListCreatePage() {
       },
     ];
 
-    if (showUnarchivableZaken()) {
+    if (archiveDateMode !== "custom") {
       actions.push({
         children: (
           <>
             <Solid.ArchiveBoxArrowDownIcon />
-            Toon enkel zaken met verlopen archiefdatum
-          </>
-        ),
-        disabled: false,
-        variant: "info",
-        onClick: handleFilterClick,
-      });
-    }
-
-    if (onlyShowArchivableZaken()) {
-      actions.push({
-        children: (
-          <>
-            <Solid.ArchiveBoxArrowDownIcon />
-            Toon ook zaken met toekomstige archiefdatum
+            {archiveDateMode === "all"
+              ? "Toon enkel zaken met verlopen archiefdatum"
+              : "Toon ook zaken met toekomstige archiefdatum"}
           </>
         ),
         disabled: false,
@@ -83,68 +122,6 @@ export function DestructionListCreatePage() {
     }
 
     return actions;
-  };
-
-  /**
-   * Returns true if the "Toon enkel zaken met verlopen archiefdatum" filter is
-   * active.
-   *
-   * This happens when:
-   * - The user did NOT set a "archiefactiedatum__gte" filter
-   * - AND the "archiefactiedatum__lte" filter is set
-   * - AND the "archiefactiedatum__lte" date is in the past or today.
-   *
-   * This indicates that the user clicked the "Toon enkel zaken met verlopen archiefdatum"
-   * button.
-   */
-  const onlyShowArchivableZaken = () => {
-    if (searchParams.get("archiefactiedatum__gte")) return false; // User filtered.
-
-    const strArchiveDateLte = searchParams.get("archiefactiedatum__lte");
-    if (!strArchiveDateLte) return false;
-
-    const dateArchiveDateLte = new Date(strArchiveDateLte);
-    const today = new Date();
-
-    return dateArchiveDateLte <= today;
-  };
-
-  /**
-   * Returns true if there is no active "archiefactiedatum" filter.
-   * This happens when both "archiefactiedatum__gte" and "archiefactiedatum__lte"
-   * are omitted.
-   *
-   * This indicates that the user has not applied any archiefactiedatum filtering,
-   * so the "Toon enkel zaken met verlopen archiefdatum" button should be shown.
-   */
-  const showUnarchivableZaken = () => {
-    if (
-      searchParams.get("archiefactiedatum__lte") ||
-      searchParams.get("archiefactiedatum__gte")
-    ) {
-      return false;
-    }
-    return true;
-  };
-
-  /**
-   * Gets called when the "Vernietigingslijst opstellen" button is clicked.
-   */
-  const handleCreateClick = () => setModalOpenState(true);
-
-  /**
-   * Get called when the "Toon zaken met verlopen archiefdatum" button is clicked.
-   */
-  const handleFilterClick = () => {
-    if (onlyShowArchivableZaken()) {
-      searchParams.delete("archiefactiedatum__lte");
-      searchParams.delete("archiefactiedatum__gte");
-      setSearchParams(searchParams);
-      return;
-    }
-    searchParams.delete("archiefactiedatum__gte");
-    searchParams.set("archiefactiedatum__lte", date2DateString(new Date()));
-    setSearchParams(searchParams);
   };
 
   /**
