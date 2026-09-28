@@ -13,7 +13,7 @@ describe("destructionListCreateLoader", () => {
 
   it("should not be possible to override fixed settings with query parameters", async () => {
     const request = new Request(
-      "http://localhost/destruction-lists/create?not_in_destruction_list=false&archiefactiedatum__isnull=true",
+      "http://localhost/destruction-lists/create?not_in_destruction_list=false&archiefactiedatum__isnull=true&showAll=true",
     );
 
     mockResponseOnce(
