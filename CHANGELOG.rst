@@ -2,7 +2,7 @@
 Change history
 ==============
 
-2.1.0 (TBD)
+2.1.0 (2026-09-28)
 ===========
 
 Feature release.
