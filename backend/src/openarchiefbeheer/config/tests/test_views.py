@@ -279,7 +279,9 @@ class HealthCheckViewTests(APITestCase):
             email_check,
             {
                 "identifier": "emailconfig",
-                "message": "Connection with the SMTP server failed: [Errno -3] Temporary failure in name resolution",
+                "message": _("Connection with the SMTP server failed: {e}").format(
+                    e="[Errno -3] Temporary failure in name resolution"
+                ),
                 "success": False,
                 "verbose_name": _("E-mail configuration"),
             },
