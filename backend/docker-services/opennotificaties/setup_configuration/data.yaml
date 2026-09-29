@@ -3,7 +3,7 @@ zgw_consumers:
   services:
     - identifier: open-zaak-auth
       label: Open Zaak Auth
-      api_root: http://localhost:8003/autorisaties/api/v1
+      api_root: http://host.docker.internal:8003/autorisaties/api/v1
       api_type: ac
       auth_type: zgw
       client_id: open-notificaties
@@ -30,6 +30,14 @@ vng_api_common_credentials:
     - identifier: open-zaak
       secret: this-secret-is-very-secure
 
+vng_api_common_applicaties_config_enable: true
+vng_api_common_applicaties:
+  items:
+    - client_ids:
+        - open-product
+      label: Open Product
+      heeft_alle_autorisaties: true
+
 notifications_config_enable: true
 notifications_config:
   notification_delivery_max_retries: 7
@@ -53,12 +61,12 @@ notifications_abonnementen_config_enable: true
 notifications_abonnementen_config:
   items:
     - uuid: c7fea6b4-451d-49b8-8dbc-39c9264746ad
-      callback_url: http://localhost:8003/events
+      callback_url: http://host.docker.internal:8003/events
       cloudevent_filters:
-        # TODO: this also needs to include the product date-change notification
         - nl.overheid.zaken.zaak-gekoppeld
         - nl.overheid.zaken.zaak-ontkoppeld
+        - nl.overheid.zaken.zaakobject-bijgewerkt
       auth_type: zgw
-      auth_client_id: open-zaak
+      auth_client_id: open-notificaties
       secret: this-secret-is-very-secure
       send_cloudevents: true
