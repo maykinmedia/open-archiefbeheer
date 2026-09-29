@@ -184,6 +184,19 @@ To index the newly created zaken in OAB use the following command from the ``bac
 
    src/manage.py resync_zaken
 
+.. warning::
+
+    If you want to manually test the interaction between the components (for example by creating a
+    product through the Open Producten API to ensure a relevant zaakobject is created on the
+    related case in Open Zaak) you need to:
+
+        * add host entry ``host.docker.internal`` pointing to ``127.0.0.1`` on your local machine
+        * make the API calls to ``host.docker.internal:[PORT]``
+
+    This is because of the way the links to the objects are generated inside the components when making
+    an API call to them - the host of the original request is used. So using ``localhost`` will cause
+    problems, because this cannot be used for communication between the containers.
+
 Health checks
 =============
 

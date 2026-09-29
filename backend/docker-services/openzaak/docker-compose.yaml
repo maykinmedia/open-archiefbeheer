@@ -31,7 +31,7 @@ services:
     environment: &openzaak_web_env
       DJANGO_SETTINGS_MODULE: openzaak.conf.docker
       SECRET_KEY: ${SECRET_KEY:-fgv=c0hz&tl*8*3m3893@m+1pstrvidc9e^5@fpspmg%cy$15d}
-      ALLOWED_HOSTS: openzaak-web.local,localhost
+      ALLOWED_HOSTS: "*"
       DB_NAME: openzaak
       DB_USER: openzaak
       DB_HOST: openzaak-db
@@ -50,8 +50,8 @@ services:
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
       DISABLE_2FA: yes
       OTEL_SDK_DISABLED: True
-      # Cloudevents
-      ENABLE_CLOUD_EVENTS: True
+      # Outgoing cloudevents
+      ENABLE_CLOUD_EVENTS: False
       NOTIFICATIONS_SOURCE: open-zaak-docker
       SITE_DOMAIN: openzaak-web.local:8000
     healthcheck:
@@ -72,6 +72,8 @@ services:
       - openzaak-redis
     networks:
       - openzaak_dev
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   openzaak-web-init:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
