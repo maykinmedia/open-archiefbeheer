@@ -66,11 +66,11 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_button(page, "Muteren")
 
             # Fill selectielijstklasse as it's probably missing.
-            await self.when.user_clicks_radio(page, "Aanpassen van selectielijstklasse")
+            await self.when.user_clicks_radio(page, "Selectielijstklasse aanpassen")
             await self.when.user_fills_form_field(page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
 
             # Fill archive date
-            await self.when.user_clicks_radio(page, "Verlengen bewaartermijn")
+            await self.when.user_clicks_radio(page, "Archiefactiedatum aanpassen")
             await self.when.user_fills_form_field(page, "Dag van de maand", "09/15/2023")
             await page.keyboard.press("Enter")
 

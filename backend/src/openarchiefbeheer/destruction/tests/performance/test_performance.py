@@ -153,7 +153,7 @@ class PerformanceTest(GerkinMixin, TestCase):
                 page, f"{TEST_ENVIRONMENT}/destruction-lists/.+?/process-review"
             )
             await self.when.user_clicks_button(page, "Muteren")
-            await self.when.user_clicks_radio(page, "Afwijzen van het voorstel")
+            await self.when.user_clicks_radio(page, "Voorstel afwijzen")
             await self.when.user_fills_form_field(
                 page, "Reden", "I still want 10000 cases in my list."
             )

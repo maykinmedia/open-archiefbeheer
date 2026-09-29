@@ -21,9 +21,9 @@ import { addDuration, formatDate } from "../../../../../../../lib/format/date";
 import { Zaak } from "../../../../../../../types";
 
 export const LABEL_CHANGE_SELECTION_LIST_CLASS =
-  "Aanpassen van selectielijstklasse";
-export const LABEL_POSTPONE_DESTRUCTION = "Verlengen bewaartermijn";
-export const LABEL_KEEP = "Afwijzen van het voorstel";
+  "Selectielijstklasse aanpassen";
+export const LABEL_CHANGE_ARCHIVING_DATE = "Archiefactiedatum aanpassen";
+export const LABEL_KEEP = "Voorstel afwijzen";
 
 type DestructionListProcessZaakReviewModalFormType = {
   zaakUrl: string;
@@ -159,13 +159,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const getFields = (_formState: typeof formState = formState) => {
     const bewaartermijn = getBewaartermijn(_formState.selectielijstklasse);
 
-    const isSelectielijstklasseActive =
-      formState.action === "change_selectielijstklasse";
+    const showSelectielijstklasseInput =
+      _formState.action === "change_selectielijstklasse";
 
-    const isArchiefactiedatumActive = Boolean(
-      getBewaartermijn(_formState.selectielijstklasse) &&
-        formState.action === "change_archiefactiedatum",
-    );
+    const showArchiefactiedatumInput =
+      _formState.action === "change_archiefactiedatum" ||
+      (showSelectielijstklasseInput && !!bewaartermijn);
+
+    const showChangeArchiefactiedatumOption =
+      !!bewaartermijn || zaak?.archiefnominatie === "vernietigen";
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -188,9 +190,9 @@ export const DestructionListProcessZaakReviewModal: React.FC<
             value: "change_selectielijstklasse",
             selected: _formState.action === "change_selectielijstklasse",
           },
-          bewaartermijn
+          showChangeArchiefactiedatumOption
             ? {
-                label: LABEL_POSTPONE_DESTRUCTION,
+                label: LABEL_CHANGE_ARCHIVING_DATE,
                 value: "change_archiefactiedatum",
                 selected: _formState.action === "change_archiefactiedatum",
               }
@@ -204,29 +206,21 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       },
 
       {
-        label: isSelectielijstklasseActive ? "Selectielijstklasse" : undefined,
+        label: showSelectielijstklasseInput ? "Selectielijstklasse" : undefined,
         name: "selectielijstklasse",
-        required: isSelectielijstklasseActive,
-        type: isSelectielijstklasseActive ? undefined : "hidden",
-        options: isSelectielijstklasseActive
+        required: showSelectielijstklasseInput,
+        type: showSelectielijstklasseInput ? undefined : "hidden",
+        options: showSelectielijstklasseInput
           ? selectieLijstKlasseChoices
           : undefined,
         value: _formState.selectielijstklasse,
       },
 
       {
-        label:
-          isArchiefactiedatumActive ||
-          (isSelectielijstklasseActive && bewaartermijn)
-            ? "Archiefactiedatum"
-            : undefined,
+        label: showArchiefactiedatumInput ? "Archiefactiedatum" : undefined,
         name: "archiefactiedatum",
-        required: isArchiefactiedatumActive,
-        type:
-          isArchiefactiedatumActive ||
-          (isSelectielijstklasseActive && bewaartermijn)
-            ? "date"
-            : "hidden",
+        required: showArchiefactiedatumInput,
+        type: showArchiefactiedatumInput ? "date" : "hidden",
         value: _formState.archiefactiedatum,
       },
     ];

@@ -76,7 +76,7 @@ class Issue841ReassignWhenChangesRequestedTestCase(GherkinLikeTestCase):
             await self.then.page_should_contain_text(page, str(reviewer1))
 
             await self.when.user_clicks_button(page, "Muteren")
-            await self.when.user_clicks_radio(page, "Afwijzen van het voorstel")
+            await self.when.user_clicks_radio(page, "Voorstel afwijzen")
             await self.when.user_fills_form_field(page, "Reden", "I like this case.")
             await self.when.user_clicks_button(page, "muteren")
             await self.when.user_clicks_button(page, "Opnieuw indienen")
