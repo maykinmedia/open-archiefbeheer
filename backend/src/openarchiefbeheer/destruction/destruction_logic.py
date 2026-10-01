@@ -51,20 +51,29 @@ def delete_external_relations(
     """
     assert item.zaak
 
+    _logger = logger.bind(destruction_list_item_pk=item.pk)
+
     with zrc_client() as client:
         response = client.get("zaakobjecten", params={"zaak": item.zaak.url})
         response.raise_for_status()
+        _logger.info("zaakobjecten_retrieved", response=response.json())
 
         related_objects_to_delete = defaultdict(list)
         for page in pagination_helper(client, response.json()):
             for zaakobject in page["results"]:
                 if zaakobject["url"] in item.excluded_relations:
+                    _logger.info(
+                        "zaakobject_excluded_from_deletion",
+                        zaakobject=zaakobject,
+                    )
                     continue
 
                 if plugin := get_plugin_for_related_object(zaakobject["object"]):
                     related_objects_to_delete[plugin.identifier].append(
                         zaakobject["object"]
                     )
+                else:
+                    _logger.warning("related_plugin_not_found", zaakobject=zaakobject)
 
     for plugin_identifier in related_objects_to_delete:
         plugin = registry[plugin_identifier]
