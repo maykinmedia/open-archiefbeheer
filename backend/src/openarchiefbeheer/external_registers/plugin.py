@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from abc import ABC
 from collections import defaultdict
 from typing import (
@@ -28,6 +29,8 @@ if TYPE_CHECKING:
     from zgw_consumers.models import Service
 
     from openarchiefbeheer.destruction.models import DestructionListItem
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractBasePlugin(ABC):
@@ -122,6 +125,15 @@ class AbstractBasePlugin(ABC):
                     ResourceDestructionResultStatus.deleted
                     if response.status_code == 204
                     else ResourceDestructionResultStatus.unlinked
+                )
+                logger.info(
+                    "related-resource-deleted",
+                    extra={
+                        "url": resource_url,
+                        "client": client,
+                        "response": response,
+                        "status_resource": status_resource,
+                    },
                 )
 
                 ResourceDestructionResult.objects.create(
