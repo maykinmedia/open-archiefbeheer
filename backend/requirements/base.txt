@@ -10,6 +10,7 @@ asgiref==3.8.1
     # via
     #   django
     #   django-cors-headers
+    #   django-structlog
 asn1crypto==1.5.1
     # via webauthn
 attrs==23.2.0
@@ -68,6 +69,7 @@ django==5.2.17
     #   django-formtools
     #   django-health-check
     #   django-hijack
+    #   django-ipware
     #   django-jsonform
     #   django-otp
     #   django-phonenumber-field
@@ -79,6 +81,7 @@ django==5.2.17
     #   django-setup-configuration
     #   django-simple-certmanager
     #   django-solo
+    #   django-structlog
     #   django-timeline-logger
     #   django-two-factor-auth
     #   djangorestframework
@@ -108,6 +111,8 @@ django-health-check==4.5.0
     # via maykin-common
 django-hijack==3.7.8
     # via -r requirements/base.in
+django-ipware==8.0.0
+    # via django-structlog
 django-jsonform==2.23.0
     # via mozilla-django-oidc-db
 django-ordered-model==3.7.4
@@ -142,6 +147,8 @@ django-solo==2.2.0
     # via
     #   -r requirements/base.in
     #   zgw-consumers
+django-structlog==10.1.0
+    # via maykin-common
 django-timeline-logger==5.0.0
     # via -r requirements/base.in
 django-two-factor-auth==1.18.1
@@ -206,7 +213,7 @@ maykin-2fa==2.1.0
     # via
     #   -r requirements/base.in
     #   maykin-common
-maykin-common==0.20.1
+maykin-common==0.22.0
     # via -r requirements/base.in
 maykin-config-checks==0.1.0
     # via -r requirements/base.in
@@ -343,6 +350,8 @@ python-dotenv==1.2.2
     # via
     #   -r requirements/base.in
     #   pydantic-settings
+python-ipware==4.1.1
+    # via django-ipware
 python-slugify==8.0.4
     # via -r requirements/base.in
 pytz==2026.3.post1
@@ -385,6 +394,10 @@ smmap==5.0.2
     # via gitdb
 sqlparse==0.6.0
     # via django
+structlog==26.1.0
+    # via
+    #   django-structlog
+    #   maykin-common
 text-unidecode==1.3
     # via python-slugify
 tornado==6.5.8

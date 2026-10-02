@@ -23,6 +23,7 @@ asgiref==3.8.1
     #   -r requirements/base.txt
     #   django
     #   django-cors-headers
+    #   django-structlog
 asn1crypto==1.5.1
     # via
     #   -c requirements/base.txt
@@ -125,6 +126,7 @@ django==5.2.17
     #   django-formtools
     #   django-health-check
     #   django-hijack
+    #   django-ipware
     #   django-jenkins
     #   django-jsonform
     #   django-otp
@@ -137,6 +139,7 @@ django==5.2.17
     #   django-setup-configuration
     #   django-simple-certmanager
     #   django-solo
+    #   django-structlog
     #   django-timeline-logger
     #   django-two-factor-auth
     #   djangorestframework
@@ -186,6 +189,11 @@ django-hijack==3.7.8
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+django-ipware==8.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-structlog
 django-jenkins==0.110.0
     # via -r requirements/test-tools.in
 django-jsonform==2.23.0
@@ -247,6 +255,10 @@ django-solo==2.2.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   zgw-consumers
+django-structlog==10.1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 django-timeline-logger==5.0.0
     # via
     #   -c requirements/base.txt
@@ -402,7 +414,7 @@ maykin-2fa==2.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-maykin-common==0.20.1
+maykin-common==0.22.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -662,6 +674,11 @@ python-dotenv==1.2.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   pydantic-settings
+python-ipware==4.1.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-ipware
 python-slugify==8.0.4
     # via
     #   -c requirements/base.txt
@@ -775,6 +792,11 @@ sqlparse==0.6.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django
+structlog==26.1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-structlog
 tabulate==0.9.0
     # via -r requirements/test-tools.in
 tblib==3.0.0
