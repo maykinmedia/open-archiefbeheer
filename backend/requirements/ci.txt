@@ -331,7 +331,7 @@ gitdb==4.0.12
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   gitpython
-gitpython==3.1.59
+gitpython==3.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -614,7 +614,7 @@ pygments==2.20.0
     # via
     #   pytest
     #   sphinx
-pyjwt==2.13.0
+pyjwt==2.15.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -786,7 +786,7 @@ text-unidecode==1.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   python-slugify
-tornado==6.5.8
+tornado==6.5.10
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -824,7 +824,7 @@ uritemplate==4.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
