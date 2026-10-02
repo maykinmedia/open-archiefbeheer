@@ -88,8 +88,8 @@ export function DestructionListCreatePage() {
           <>
             <Solid.ArchiveBoxArrowDownIcon />
             {archiveDateMode === "all"
-              ? "Toon enkel zaken met verlopen archiefdatum"
-              : "Toon ook zaken met toekomstige archiefdatum"}
+              ? "Toon enkel zaken met verlopen archiefactiedatum"
+              : "Toon ook zaken met toekomstige archiefactiedatum"}
           </>
         ),
         disabled: false,
