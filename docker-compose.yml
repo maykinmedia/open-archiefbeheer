@@ -51,6 +51,15 @@ services:
       - OAB_API_PATH=/api/v1
       - OAB_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
+      - # Enabling Open Telemetry requires a target to send telemetry towards!
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
+      - OTEL_RESOURCE_ATTRIBUTES=oab.client=oab,oab.target=docker-compose
+      - OTEL_METRIC_EXPORT_INTERVAL=${OTEL_METRIC_EXPORT_INTERVAL:-60000}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}  # gRPC
+      - # otel:supersecret, escape spaces and = with percent encoding
+      - # - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic b3RlbDpzdXBlcnNlY3JldA==
+      - OTEL_EXPORTER_OTLP_METRICS_INSECURE=${OTEL_EXPORTER_OTLP_METRICS_INSECURE:-true}
+      - _OTEL_ENABLE_CONTAINER_RESOURCE_DETECTOR=true
     ports:
       - 8000:8000
     depends_on:
