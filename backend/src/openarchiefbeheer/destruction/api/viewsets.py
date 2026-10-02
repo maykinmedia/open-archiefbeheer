@@ -1,4 +1,3 @@
-import logging
 from datetime import date, timedelta
 
 from django.conf import settings
@@ -8,6 +7,7 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
@@ -84,7 +84,7 @@ from .serializers import (
     UpdateAssigneeSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -395,7 +395,8 @@ class DestructionListViewSet(
             old_assignee = old_assignees.last()
             if old_assignees.count() > 1:
                 logger.warning(
-                    "We are replacing a DestructionListAssignee, but there are multiple ones with the same role. Choosing the last one."
+                    "destruction_list_assignee_replaced",
+                    reason="We are replacing a DestructionListAssignee, but there are multiple ones with the same role. Choosing the last one.",
                 )
             new_assignee = DestructionListAssignee.objects.create(
                 user=serialiser.validated_data["assignee"]["user"],
