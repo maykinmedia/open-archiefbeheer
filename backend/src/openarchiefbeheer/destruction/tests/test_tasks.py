@@ -313,17 +313,19 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
     @log_capture(level=logging.INFO)
     def test_skips_if_already_succeeded(self, logs):
         destruction_list = DestructionListFactory.create(
+            name="DL1",
             processing_status=InternalStatus.succeeded,
             status=ListStatus.ready_to_delete,
         )
 
-        delete_destruction_list(destruction_list)
+        with freeze_time("2026-10-09T12:00:00+02:00"):
+            delete_destruction_list(destruction_list)
 
         self.assertEqual(
             (
                 "openarchiefbeheer.destruction.tasks",
                 "INFO",
-                f"Destruction list {destruction_list.pk} has already successfully been processed. Skipping.",
+                "{'destruction_list': 'DL1', 'event': 'delete_destruction_list_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}",
             ),
             logs[0],
         )
@@ -333,14 +335,14 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         destruction_list = DestructionListFactory.create(
             name="Test", status=ListStatus.changes_requested
         )
-
-        delete_destruction_list(destruction_list)
+        with freeze_time("2026-10-09T12:00:00+02:00"):
+            delete_destruction_list(destruction_list)
 
         self.assertEqual(
             (
                 "openarchiefbeheer.destruction.tasks",
                 "WARNING",
-                "Cannot proceed with deleting list Test since it has status changes_requested.",
+                "{'destruction_list': 'Test', 'status': 'changes_requested', 'event': 'delete_destruction_list_abort', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'warning'}",
             ),
             logs[0],
         )
@@ -348,16 +350,16 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
     @log_capture(level=logging.INFO)
     def test_item_skipped_if_already_succeeded(self, logs):
         item = DestructionListItemFactory.create(
-            processing_status=InternalStatus.succeeded
+            destruction_list__name="DL1", processing_status=InternalStatus.succeeded
         )
-
-        delete_destruction_list_item(item.pk)
+        with freeze_time("2026-10-09T12:00:00+02:00"):
+            delete_destruction_list_item(item.pk)
 
         self.assertEqual(
             (
                 "openarchiefbeheer.destruction.tasks",
                 "INFO",
-                f"Item {item.pk} already successfully processed. Skipping.",
+                "{'destruction_list_item': 'DL1: (deleted)', 'event': 'delete_destruction_list_item_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}",
             ),
             logs[0],
         )

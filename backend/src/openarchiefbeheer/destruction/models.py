@@ -1,4 +1,3 @@
-import logging
 import uuid as _uuid
 from datetime import date
 from typing import TYPE_CHECKING, Iterable, Optional
@@ -35,8 +34,6 @@ from .managers import DestructionListManager
 
 if TYPE_CHECKING:
     from openarchiefbeheer.zaken.models import Zaak
-
-logger = logging.getLogger(__name__)
 
 
 class DestructionList(models.Model):

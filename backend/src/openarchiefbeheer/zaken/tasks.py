@@ -1,12 +1,12 @@
 import contextlib
 import datetime
-import logging
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import Max
 
+import structlog
 from ape_pie import APIClient
 from requests.adapters import HTTPAdapter, Retry
 
@@ -20,7 +20,7 @@ from .decorators import log_errors
 from .models import Zaak
 from .utils import pagination_helper, process_expanded_data
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def configure_retry(client: APIClient) -> APIClient:
@@ -79,7 +79,7 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         )
 
         for index, data in enumerate(data_iterator):
-            logger.info("Retrieved page %s.", index + 1)
+            logger.info("case_page_retrieved", page=index + 1)
 
             zaken = data["results"]
             if not is_full_resync:
