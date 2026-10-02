@@ -1,8 +1,8 @@
-import logging
 from collections import defaultdict
 
 from django.conf import settings
 
+import structlog
 from ape_pie import APIClient
 from furl import furl
 from requests import Response
@@ -19,7 +19,7 @@ from openarchiefbeheer.zaken.utils import (
 from .constants import ResourceDestructionResultStatus
 from .models import DestructionListItem, ResourceDestructionResult
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def _delete_resource(client: APIClient, url: str) -> Response:
@@ -121,12 +121,18 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                     # TODO: check if we want to log with a ResourceDestructionResult the deletion of BIOs (#990)
                     _delete_resource(client, f"besluitinformatieobjecten/{bio_uuid}")
                     logger.info(
-                        "besluitinformatieobject_deleted", extra={"url": bio["url"]}
+                        "besluitinformatieobject_deleted",
+                        url=bio["url"],
+                        destruction_list=item.destruction_list,
                     )
 
                 besluit_uuid = furl(besluit["url"]).path.segments[-1]
                 response = _delete_resource(client, f"besluiten/{besluit_uuid}")
-                logger.info("besluit_deleted", extra={"url": besluit["url"]})
+                logger.info(
+                    "besluit_deleted",
+                    url=besluit["url"],
+                    destruction_list=item.destruction_list,
+                )
 
                 ResourceDestructionResult.objects.create(
                     item=item,
@@ -166,7 +172,11 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
             zio_uuid = furl(zio["url"]).path.segments[-1]
             # TODO: check if we want to log with a ResourceDestructionResult the deletion of ZIOs (#990)
             _delete_resource(client, f"zaakinformatieobjecten/{zio_uuid}")
-            logger.info("zaakinformatieobject_deleted", extra={"url": zio["url"]})
+            logger.info(
+                "zaakinformatieobject_deleted",
+                url=zio["url"],
+                destruction_list=item.destruction_list,
+            )
 
 
 def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
@@ -181,7 +191,11 @@ def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
             response = _delete_resource(
                 client, f"enkelvoudiginformatieobjecten/{document_uuid}"
             )
-            logger.info("enkelvoudiginformatieobject_deleted", extra={"url": eio.url})
+            logger.info(
+                "enkelvoudiginformatieobject_deleted",
+                url=eio.url,
+                destruction_list=item.destruction_list,
+            )
 
             eio.status = (
                 ResourceDestructionResultStatus.deleted
@@ -212,7 +226,9 @@ def delete_zaak(item: DestructionListItem) -> None:
 
     with zrc_client() as client:
         _delete_resource(client, f"zaken/{item.zaak.uuid}")
-        logger.info("zaak_deleted", extra={"url": item.zaak.url})
+        logger.info(
+            "zaak_deleted", url=item.zaak.url, destruction_list=item.destruction_list
+        )
         result.status = ResourceDestructionResultStatus.deleted
         result.save()
 
