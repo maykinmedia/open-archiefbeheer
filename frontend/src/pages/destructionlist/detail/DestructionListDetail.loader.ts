@@ -117,10 +117,7 @@ export const destructionListDetailLoader = loginRequired(
                         .map(async (ri) => {
                           invariant(ri.destructionListItem.zaak);
                           const choices = await listSelectielijstKlasseChoices(
-                            {
-                              zaak: ri.destructionListItem.zaak.url,
-                            },
-                            true,
+                            ri.destructionListItem.zaak.url,
                           );
                           return [ri.destructionListItem.zaak.url, choices];
                         }),
