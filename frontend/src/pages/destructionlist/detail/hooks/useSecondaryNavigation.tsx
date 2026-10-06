@@ -47,6 +47,7 @@ interface ProcessZaakReviewSelectionDetail {
   comment: string;
   action: ProcessReviewAction;
   selectielijstklasse: string;
+  resultaattype: string;
   archiefactiedatum: string;
 }
 
@@ -271,6 +272,8 @@ export function useSecondaryNavigation<
                 reviewItem: ri.pk,
                 actionItem: detail.action === "keep" ? "keep" : "remove",
                 comment: detail.comment,
+                // TODO-1118: perhaps move these nested conditionals outside
+                //  of this data structure? It's getting a bit tricky to follow :sweat_smile:
                 actionZaakType:
                   detail.action === "keep"
                     ? undefined
@@ -283,6 +286,10 @@ export function useSecondaryNavigation<
                         selectielijstklasse:
                           detail.action === "change_selectielijstklasse"
                             ? detail.selectielijstklasse
+                            : undefined,
+                        resultaattype:
+                          detail.action === "change_selectielijstklasse"
+                            ? detail.resultaattype
                             : undefined,
                         archiefactiedatum: detail.archiefactiedatum,
                       }
