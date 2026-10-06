@@ -1,9 +1,7 @@
-import { Option } from "@maykin-ui/admin-ui";
-
-import { Zaak } from "../../types";
 import { cacheMemo } from "../cache/cache";
 import { params2CacheKey, params2Object } from "../format/params";
 import { request } from "./request";
+import type { Option, SelectielijstklasseOption } from "./types";
 
 /**
  * Retrieve the behandelend afdelingen the zaken in the database. These are rollen
@@ -183,6 +181,10 @@ export async function listRelevantSelectielijstKlasseChoices(
 /**
  * Retrieve all 'selectielijstresultaten' from the selectielijst API, based on
  * the 'selectielijstprocestype' from the 'zaaktype'.
+ *
+ * The `extraData` also includes the 'bewaartermijn' and a list of relevant
+ * 'resultaattype' choices corresponding to the 'selectielijstklasse' (when a
+ *  zaak URL was passed).
  */
 export async function listSelectielijstKlasseChoices(
   zaak_url?: string,
@@ -190,7 +192,7 @@ export async function listSelectielijstKlasseChoices(
 ) {
   return cacheMemo(
     "listSelectielijstKlasseChoices",
-    async (): Promise<Option[]> => {
+    async (): Promise<SelectielijstklasseOption[]> => {
       const response = await request(
         "GET",
         "/_selectielijstklasse-choices/",
