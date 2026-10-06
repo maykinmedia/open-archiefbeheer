@@ -12,6 +12,7 @@ import {
 import { listSelectielijstKlasseChoices } from "../../../lib/api/private";
 import { Review, ReviewItem } from "../../../lib/api/review";
 import { ReviewResponse } from "../../../lib/api/reviewResponse";
+import { SelectielijstklasseOption } from "../../../lib/api/types";
 import { PaginatedZaken, searchZaken } from "../../../lib/api/zaken";
 import {
   canViewDestructionListRequired,
@@ -37,7 +38,10 @@ export interface DestructionListDetailContext {
 
   archivists: User[];
 
-  selectieLijstKlasseChoicesMap: Record<string, Option[]> | null;
+  selectieLijstKlasseChoicesMap: Record<
+    string,
+    SelectielijstklasseOption[]
+  > | null;
 }
 
 /**
@@ -104,7 +108,9 @@ export const destructionListDetailLoader = loginRequired(
        * Fetch selectielijst choices if review collected.
        * // TODO: Investigate
        */
-      const getSelectieLijstKlasseChoicesMap = () => {
+      const getSelectieLijstKlasseChoicesMap = (): Promise<
+        Record<string, SelectielijstklasseOption[]>
+      > => {
         return reviewItemsPromise.then((reviewItems) => {
           return reviewItems
             ? cacheMemo(

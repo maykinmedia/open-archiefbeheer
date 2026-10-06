@@ -36,6 +36,7 @@ type ProcessZaakReviewSelectionDetail = {
   comment: string;
   action: ProcessReviewAction;
   selectielijstklasse: string;
+  resultaattype: string;
   archiefactiedatum: string;
 };
 
@@ -85,6 +86,7 @@ export function DestructionListProcessReviewPage() {
     approved?: boolean;
     action?: ProcessReviewAction;
     selectielijstklasse?: string;
+    resultaattype?: string;
     archiefactiedatum?: string;
     comment?: string;
   }>(getStorageKey(), zakenOnPage);
@@ -179,13 +181,13 @@ export function DestructionListProcessReviewPage() {
       );
     }
 
-    const { archiefactiedatum, selectielijstklasse, comment } =
+    const { archiefactiedatum, selectielijstklasse, resultaattype, comment } =
       processZaakReviewDetail;
 
-    const getLabel = (value: string | undefined) =>
+    const getSelectielijstklasseOption = (value: string | undefined) =>
       selectieLijstKlasseChoicesMap?.[zaak.url]?.find(
         (choice) => choice.value === value,
-      )?.label;
+      );
 
     const tooltipData: Record<string, string | undefined | number> = {};
 
@@ -200,20 +202,31 @@ export function DestructionListProcessReviewPage() {
       }
     }
 
-    const newSelectielijstklasse = getLabel(selectielijstklasse);
-    const oldSelectielijstklasse = getLabel(zaak?.selectielijstklasse);
+    const newSelectielijstklasseOption =
+      getSelectielijstklasseOption(selectielijstklasse);
+    const newSelectielijstklasseLabel = newSelectielijstklasseOption?.label;
+    const oldSelectielijstklasseLabel = getSelectielijstklasseOption(
+      zaak?.selectielijstklasse,
+    )?.label;
+    const newResultaattypeLabel =
+      newSelectielijstklasseOption?.extraData.resultaattypen.find(
+        (choice) => choice.value === resultaattype,
+      )?.label;
 
     // Only add the new selectielijstklasse if it exists and is different from the old one.
     // Additionally, include the old selectielijstklasse if it was previously set.
+    // Note that the old resultaattype is not available on the zaak directly,
+    // and I don't think it's worth to try and resolve it.
     if (
-      newSelectielijstklasse &&
-      newSelectielijstklasse !== oldSelectielijstklasse
+      newSelectielijstklasseLabel &&
+      newSelectielijstklasseLabel !== oldSelectielijstklasseLabel
     ) {
-      tooltipData["Selectielijstklasse (nieuw)"] = newSelectielijstklasse;
+      tooltipData["Selectielijstklasse (nieuw)"] = newSelectielijstklasseLabel;
+      tooltipData["Resultaattype (nieuw)"] = newResultaattypeLabel;
 
       // Include the old selection list class only if it is defined.
-      if (oldSelectielijstklasse) {
-        tooltipData["Selectielijstklasse (oud)"] = oldSelectielijstklasse;
+      if (oldSelectielijstklasseLabel) {
+        tooltipData["Selectielijstklasse (oud)"] = oldSelectielijstklasseLabel;
       }
     }
 
@@ -296,6 +309,9 @@ export function DestructionListProcessReviewPage() {
     zaakUrl: string,
     action: ProcessReviewAction,
     selectielijstklasse: string,
+    resultaattype: string,
+    // TODO-1118: why this `undefined`? I think it's always normalized to en empty
+    //  string
     archiefactiedatum: string | undefined,
     comment: string,
   ) => {
@@ -306,6 +322,7 @@ export function DestructionListProcessReviewPage() {
     await handleSelect([{ url: zaakUrl }], true, {
       action,
       selectielijstklasse,
+      resultaattype,
       archiefactiedatum,
       comment,
     });
@@ -398,6 +415,7 @@ export function DestructionListProcessReviewPage() {
             processZaakReviewModalState.zaak?.url || ""
           ] || []
         }
+        resultaattype={processZaakReviewDetail?.resultaattype || ""}
         archiefactiedatum={
           processZaakReviewDetail?.archiefactiedatum ||
           processZaakReviewModalState.zaak?.archiefactiedatum ||
