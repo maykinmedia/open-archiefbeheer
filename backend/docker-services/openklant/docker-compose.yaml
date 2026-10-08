@@ -9,7 +9,7 @@ services:
   openklant-redis:
     image: redis:7
     networks:
-      - openklant_dev
+      - oab-dev
 
   openklant-db:
     image: postgres:17
@@ -19,7 +19,7 @@ services:
       - ./docker-init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
       - open-klant-db:/var/lib/postgresql/data
     networks:
-      - openklant_dev
+      - oab-dev
 
   openklant-web.local:
     image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
@@ -57,7 +57,7 @@ services:
       app: open-klant
       service: openklant-web.local
     networks:
-      - openklant_dev
+      - oab-dev
 
   web-init:
     image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
@@ -73,7 +73,7 @@ services:
       - openklant-db
       - openklant-redis
     networks:
-      - openklant_dev
+      - oab-dev
 
   celery:
     image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}
@@ -84,7 +84,7 @@ services:
         condition: service_started
     volumes: *web_volumes
     networks:
-      - openklant_dev
+      - oab-dev
 
 volumes:
   open-klant-db:
@@ -92,5 +92,5 @@ volumes:
   private_media:
 
 networks:
-  openklant_dev:
-    name: openklant_dev
+  oab-dev:
+    name: oab-dev
