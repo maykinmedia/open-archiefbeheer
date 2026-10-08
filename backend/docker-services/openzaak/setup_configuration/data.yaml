@@ -9,11 +9,18 @@ zgw_consumers:
   services:
     - identifier: open-notificaties-api
       label: Open Notificaties API
-      api_root: http://localhost:8008/api/v1
+      api_root: http://host.docker.internal:8008/api/v1
       api_type: nrc
       auth_type: zgw
       client_id: open-zaak
       secret: this-secret-is-very-secure
+    - identifier: open-product-api
+      label: Open Product API
+      api_root: http://host.docker.internal:8007/producten/api/v1
+      api_type: pc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
 
 
 notifications_config_enable: true

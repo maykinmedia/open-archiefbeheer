@@ -86,6 +86,8 @@ services:
         condition: service_completed_successfully
     networks:
       - open-notificaties-dev
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   notificaties-web-init:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}

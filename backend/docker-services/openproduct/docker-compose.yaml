@@ -66,6 +66,8 @@ services:
       - ./fixtures/:/app/fixtures/
     networks:
       - openproduct-dev
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   openproduct-web-init:
     image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
