@@ -45,11 +45,7 @@ export const getZaakFilters = (
   filters.delete("showAll");
 
   // "past" is a default mode in the UI, but not in the API
-  if (
-    archiveDateMode === "past" &&
-    !filters.has("archiefactiedatum__gte") &&
-    !filters.has("archiefactiedatum__lte")
-  ) {
+  if (archiveDateMode === "past") {
     filters.set("archiefactiedatum__lte", date2DateString(new Date()));
   }
 
