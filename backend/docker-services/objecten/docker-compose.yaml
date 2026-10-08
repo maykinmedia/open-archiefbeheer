@@ -16,13 +16,13 @@ services:
     volumes:
       - ./postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     networks:
-      - objects-dev
+      - oab-dev
 
   objecten_redis:
     image: redis:7
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - objects-dev
+      - oab-dev
 
   objecten_web:
     image: maykinmedia/open-object:${OBJECTEN_VERSION:-4.2.0}
@@ -68,7 +68,7 @@ services:
       - ./fixtures/:/app/fixtures/
       - media:/app/media  # Shared media volume to get access to saved OAS files
     networks:
-      - objects-dev
+      - oab-dev
     labels:
       client: dev
       target: test
@@ -89,7 +89,7 @@ services:
     volumes:
       - ./setup_configuration:/app/setup_configuration
     networks:
-      - objects-dev
+      - oab-dev
 
   objecten-celery:
     image: maykinmedia/open-object:${OBJECTEN_VERSION:-4.2.0}
@@ -106,11 +106,11 @@ services:
         condition: service_healthy
     volumes: *web_volumes
     networks:
-      - objects-dev
+      - oab-dev
 
 volumes:
   media:
 
 networks:
-  objects-dev:
-    name: objects-dev
+  oab-dev:
+    name: oab-dev

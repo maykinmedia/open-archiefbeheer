@@ -12,7 +12,7 @@ services:
     image: redis:7
     command: ["redis-server", "--appendonly", "yes"]
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-db:
     image: postgis/postgis:${PG_VERSION:-17-3.5}
@@ -24,7 +24,7 @@ services:
       # This contains a fresh DB dump that OAB tests can reload if they need a clean Open Zaak DB
       - ./clean_db:/clean_db
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-web.local:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
@@ -71,7 +71,7 @@ services:
       - openzaak-db
       - openzaak-redis
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-web-init:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
@@ -82,7 +82,7 @@ services:
       openzaak-web.local:
         condition: service_healthy
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-web-setup-config:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
@@ -96,7 +96,7 @@ services:
       openzaak-web.local:
         condition: service_healthy
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-celery:
     image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
@@ -107,7 +107,7 @@ services:
       openzaak-web.local:
         condition: service_healthy
     networks:
-      - openzaak_dev
+      - oab-dev
 
   openzaak-nginx:
     image: nginx
@@ -119,7 +119,7 @@ services:
     depends_on:
       - openzaak-web.local
     networks:
-      - openzaak_dev
+      - oab-dev
 
 volumes:
   open-zaak-db:
@@ -127,5 +127,5 @@ volumes:
   private-media:
 
 networks:
-  openzaak_dev:
-    name: openzaak_dev
+  oab-dev:
+    name: oab-dev
