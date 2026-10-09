@@ -149,7 +149,7 @@ django-solo==2.2.0
     #   zgw-consumers
 django-structlog==10.1.0
     # via maykin-common
-django-timeline-logger==5.0.0
+django-timeline-logger==6.0.0
     # via -r requirements/base.in
 django-two-factor-auth==1.18.1
     # via maykin-2fa
@@ -213,7 +213,7 @@ maykin-2fa==2.1.0
     # via
     #   -r requirements/base.in
     #   maykin-common
-maykin-common==0.22.0
+maykin-common @ git+https://github.com/maykinmedia/django-common.git@6ccc787d66fcfa813cc8b628c75e173d07dbb514
     # via -r requirements/base.in
 maykin-config-checks==0.1.0
     # via -r requirements/base.in
@@ -404,6 +404,7 @@ tornado==6.5.8
     # via flower
 typing-extensions==4.11.0
     # via
+    #   django-timeline-logger
     #   mozilla-django-oidc-db
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
