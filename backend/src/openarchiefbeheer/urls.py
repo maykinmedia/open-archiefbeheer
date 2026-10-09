@@ -94,3 +94,9 @@ if "rosetta" in settings.INSTALLED_APPS:
     urlpatterns += [
         path("rosetta/", include("rosetta.urls")),
     ]
+
+# Audit logs
+if "timeline_logger" in settings.INSTALLED_APPS:
+    urlpatterns += [
+        path("timeline/", include("timeline_logger.urls")),
+    ]

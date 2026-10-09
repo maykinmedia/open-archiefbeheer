@@ -19,6 +19,7 @@ from maykin_common.logging.config import (
 )
 
 from .utils import get_git_sha, get_release, get_sentry_integrations
+from openarchiefbeheer.logging.adapter import from_structlog
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
@@ -310,8 +311,22 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
         },
+        "timeline_logger": {
+            "()": "timeline_logger.handlers.timeline_handler_factory",
+            "adapter": from_structlog,
+            "buffer_size": 5,  # flush to database once this number of log entries have accumulated, or...
+            "flush_interval": 15.0,  # when this many seconds have elapsed since the last flush
+        },
     },
     "loggers": {
+        # special logger for audit-events, emit to stdout as usual but also direct logs
+        # to the timeline_logger to persist them in the database for easy
+        # querying/display
+        "openarchiefbeheer_audit": {
+            "handlers": [_default_handler, "timeline_logger"],
+            "level": "DEBUG",  # DO NOT MODIFY or make configurable
+            "propagate": False,
+        },
         "openarchiefbeheer": {
             "handlers": [_default_handler],
             "level": LOG_LEVEL,

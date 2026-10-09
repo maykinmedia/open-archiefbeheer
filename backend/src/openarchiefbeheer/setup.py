@@ -22,6 +22,7 @@ logger = structlog.stdlib.get_logger(__name__)
 
 
 def setup_env():
+    os.environ["AUDIT_LOGGER_NAME"] = "openarchiefbeheer_audit"
     # load the environment variables containing the secrets/config
     dotenv_path = Path(__file__).resolve().parent.parent.parent / ".env"
     load_dotenv(dotenv_path)

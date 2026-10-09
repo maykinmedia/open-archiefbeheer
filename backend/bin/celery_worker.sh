@@ -10,8 +10,8 @@ WORKER_NAME=${CELERY_WORKER_NAME:="${QUEUE}"@%n}
 
 # Set defaults for OTEL
 export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-openarchiefbeheer-worker-"${QUEUE}"}"
-
 export _OTEL_DEFER_SETUP="true"
+export _TIMELINE_LOGGER_DEFER_LISTENER="true"
 
 echo "Starting celery worker $WORKER_NAME with queue $QUEUE"
 exec celery --workdir src --app openarchiefbeheer.celery worker \
