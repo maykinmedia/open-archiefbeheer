@@ -1,11 +1,10 @@
-import logging
-
+import structlog
 from zgw_consumers.models import Service
 
 from .plugin import AbstractBasePlugin
 from .registry import register as registry
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def get_plugin_for_related_object(related_object_url: str) -> AbstractBasePlugin | None:
@@ -18,7 +17,7 @@ def get_plugin_for_related_object(related_object_url: str) -> AbstractBasePlugin
     if (count := configs.count()) == 0:
         return
     elif count > 1:
-        logger.error("Multiple configurations reference the same service.")
+        logger.error("multiple_service_configurations")
 
     config = configs.first()
     return registry[config.identifier]

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 # Django-hijack (and Django-hijack-admin)
 from django.urls import reverse_lazy
@@ -10,9 +10,16 @@ from celery.schedules import crontab
 from corsheaders.defaults import default_headers
 from csp.constants import NONCE, SELF
 from maykin_common.branding import ProductDefinition
-from maykin_common.config import config
+from maykin_common.config import DocumentationParams, config
+from maykin_common.logging.config import (
+    logging_apps,
+    logging_formatters,
+    logging_middleware,
+    structlog_configure_defaults,
+)
 
 from .utils import get_git_sha, get_release, get_sentry_integrations
+from openarchiefbeheer.logging.adapter import from_structlog
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
@@ -147,6 +154,7 @@ INSTALLED_APPS = [
     "maykin_config_checks",
     "csp",
     "maykin_common",
+    *logging_apps,
     # Project applications.
     "openarchiefbeheer.accounts",
     "openarchiefbeheer.destruction",
@@ -163,6 +171,20 @@ INSTALLED_APPS = [
     "openarchiefbeheer.external_registers.contrib.openproduct",
 ]
 
+
+_log_requests_via_middleware = config(
+    "LOG_REQUESTS",
+    default=True,
+    documentation=DocumentationParams(
+        help_text=(
+            "Enable structured request logging via django-structlog middleware. "
+            "Logs method, path, status code, and duration for every request."
+        ),
+        group="Logging",
+    ),
+)
+_structlog_middleware = logging_middleware if _log_requests_via_middleware else []
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -173,6 +195,7 @@ MIDDLEWARE = [
     "openarchiefbeheer.middleware.CsrfTokenMiddleware",
     "openarchiefbeheer.middleware.SessionExpiredMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    *_structlog_middleware,
     "maykin_2fa.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -252,34 +275,25 @@ DEFAULT_FROM_EMAIL = config(
 # LOGGING
 #
 LOG_STDOUT = config("LOG_STDOUT", default=False)
+LOG_FORMAT_CONSOLE: Literal["json", "plain_console"] = config(
+    "LOG_FORMAT_CONSOLE", default="json"
+)
 LOGGING_DIR = BASE_DIR / "log"
 LOG_LEVEL = config(
     "LOG_LEVEL",
     default="INFO",
 )
 
+_default_handler = "json_file" if not LOG_STDOUT else "console"
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
-        },
-        "timestamped": {"format": "%(asctime)s %(levelname)s %(name)s  %(message)s"},
-        "simple": {"format": "%(levelname)s  %(message)s"},
-        "performance": {
-            "format": "%(asctime)s %(process)d | %(thread)d | %(message)s",
-        },
-    },
+    "formatters": logging_formatters,
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
     },
     "handlers": {
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
-        },
         "null": {
             "level": "DEBUG",
             "class": "logging.NullHandler",
@@ -287,41 +301,39 @@ LOGGING = {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "timestamped",
+            "formatter": LOG_FORMAT_CONSOLE,
         },
-        "django": {
+        "json_file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGGING_DIR / "django.log",
-            "formatter": "verbose",
+            "filename": LOGGING_DIR / "application.jsonl",
+            "formatter": "json",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
             "backupCount": 10,
         },
-        "project": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGGING_DIR / "openarchiefbeheer.log",
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "performance": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOGGING_DIR / "performance.log",
-            "formatter": "performance",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
+        "timeline_logger": {
+            "()": "timeline_logger.handlers.timeline_handler_factory",
+            "adapter": from_structlog,
+            "buffer_size": 5,  # flush to database once this number of log entries have accumulated, or...
+            "flush_interval": 15.0,  # when this many seconds have elapsed since the last flush
         },
     },
     "loggers": {
+        # special logger for audit-events, emit to stdout as usual but also direct logs
+        # to the timeline_logger to persist them in the database for easy
+        # querying/display
+        "openarchiefbeheer_audit": {
+            "handlers": [_default_handler, "timeline_logger"],
+            "level": "DEBUG",  # DO NOT MODIFY or make configurable
+            "propagate": False,
+        },
         "openarchiefbeheer": {
-            "handlers": ["project"] if not LOG_STDOUT else ["console"],
+            "handlers": [_default_handler],
             "level": LOG_LEVEL,
             "propagate": True,
         },
         "django.request": {
-            "handlers": ["django"] if not LOG_STDOUT else ["console"],
+            "handlers": [_default_handler],
             "level": "ERROR",
             "propagate": True,
         },
@@ -335,8 +347,22 @@ LOGGING = {
             "level": LOG_LEVEL,
             "propagate": True,
         },
+        # suppress django.server request logs because those are already emitted by
+        # django-structlog middleware
+        "django.server": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "django_structlog": {
+            "handlers": [_default_handler],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
+
+structlog_configure_defaults()
 
 #
 # AUTH settings - user accounts, passwords, backends...
@@ -765,3 +791,9 @@ MKN_BRANDING_PRODUCT_DEFINITION = ProductDefinition(
     hyperlink="https://github.com/maykinmedia/open-archiefbeheer",
     logo_path="ico/open-archiefbeheer-icon.svg",
 )
+
+#
+# DJANGO-STRUCTLOG
+#
+DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
+DJANGO_STRUCTLOG_CELERY_ENABLED = True

@@ -1,10 +1,10 @@
-import logging
 import traceback
 from datetime import date
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from celery import chain
 
 from openarchiefbeheer.celery import app
@@ -35,7 +35,7 @@ from .utils import (
     prepopulate_selection_after_review_response,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @app.task
@@ -54,7 +54,7 @@ def process_review_response(pk: int) -> None:
             item_response.process()
         except Exception as exc:  # noqa: PERF203
             logger.exception(
-                "An error occurred while processing the review item response",
+                "process_review_response_failure",
                 exc_info=exc,
             )
 
@@ -74,16 +74,15 @@ def process_review_response(pk: int) -> None:
 def delete_destruction_list(destruction_list: DestructionList) -> None:
     if destruction_list.processing_status == InternalStatus.succeeded:
         logger.info(
-            "Destruction list %s has already successfully been processed. Skipping.",
-            destruction_list.pk,
+            "delete_destruction_list_skipped", destruction_list=destruction_list.name
         )
         return
 
     if not destruction_list.can_queue_destruction:
         logger.warning(
-            "Cannot proceed with deleting list %s since it has status %s.",
-            destruction_list.name,
-            destruction_list.status,
+            "delete_destruction_list_abort",
+            destruction_list=destruction_list.name,
+            status=str(destruction_list.status),
         )
         return
 
@@ -118,7 +117,9 @@ def queue_destruction_lists_for_deletion():
     for destruction_list in destruction_lists_to_process:
         delete_destruction_list(destruction_list)
 
-        logger.info("Queued the destruction of list %s", str(destruction_list.pk))
+        logger.info(
+            "delete_destruction_list_queued", destruction_list=destruction_list.name
+        )
 
 
 def handle_processing_error(
@@ -130,7 +131,7 @@ def handle_processing_error(
      - setting processing status
      - sending deletion-failure signal
     """
-    logger.error(msg=clarification)
+    logger.error("delete_destruction_list_failed", reason=clarification)
     destruction_list.set_processing_status(InternalStatus.failed, clarification)
 
     deletion_failure.send(sender=destruction_list)
@@ -150,7 +151,7 @@ def delete_destruction_list_item(pk: int) -> None:
     try:
         _delete_destruction_list_item(item)
     except Exception as exc:
-        logger.error(msg="".join(traceback.format_exception(exc)))
+        logger.error("delete_destruction_list_item_failed", exc_info=exc)
         item.set_processing_status(
             InternalStatus.failed,
             _("Something went wrong unexpectedly:\n{e}").format(
@@ -182,20 +183,20 @@ def _delete_destruction_list_item(item: DestructionListItem) -> None:
     from Open Zaak and the external registers so that we can log them in the destruction report.
     """
     if item.processing_status == InternalStatus.succeeded:
-        logger.info("Item %s already successfully processed. Skipping.", item.pk)
+        logger.info(
+            "delete_destruction_list_item_skipped", destruction_list_item=str(item)
+        )
         return
 
     if not item.zaak:
-        logger.error("Could not find the zaak. Aborting deletion.")
+        logger.error("delete_destruction_list_item_not_found")
         item.set_processing_status(
             InternalStatus.failed, _("The related case could not be found.")
         )
         return
 
     if item.zaak.archiefactiedatum > date.today():
-        logger.error(
-            "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
-        )
+        logger.error("delete_destruction_list_item_in_future")
         item.set_processing_status(
             InternalStatus.failed,
             _("The archiving date of the case lies in the future."),

@@ -17,7 +17,7 @@ django-privates
 django-setup-configuration
 maykin-config-checks
 django-csp
-maykin-common[axes,health-checks,mfa,otel]
+git+https://github.com/maykinmedia/django-common.git@feature/audit-logging-auth[axes,health-checks,mfa,otel,structlog]
 
 # API libraries
 djangorestframework

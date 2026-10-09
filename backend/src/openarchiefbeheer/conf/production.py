@@ -28,9 +28,7 @@ SESSION_CACHE_ALIAS = "default"
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Production logging facility.
-
-# Production logging facility.
-handlers = ["console"] if LOG_STDOUT else ["django"]
+handlers = ["console"] if LOG_STDOUT else ["json_file"]
 
 LOGGING["loggers"].update(
     {
