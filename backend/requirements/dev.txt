@@ -294,7 +294,7 @@ django-structlog==10.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-timeline-logger==5.0.0
+django-timeline-logger==6.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -488,11 +488,11 @@ markupsafe==2.1.5
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   jinja2
-maykin-2fa==2.1.0
+maykin-2fa==3.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-maykin-common==0.22.0
+maykin-common==0.23.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -997,6 +997,7 @@ typing-extensions==4.11.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
+    #   django-timeline-logger
     #   mozilla-django-oidc-db
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc

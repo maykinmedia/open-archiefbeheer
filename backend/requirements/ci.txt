@@ -259,7 +259,7 @@ django-structlog==10.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django-timeline-logger==5.0.0
+django-timeline-logger==6.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -410,11 +410,11 @@ lxml==6.1.1
     # via pyquery
 markupsafe==2.1.5
     # via jinja2
-maykin-2fa==2.1.0
+maykin-2fa==3.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-maykin-common==0.22.0
+maykin-common==0.23.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -819,6 +819,7 @@ typing-extensions==4.11.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   django-timeline-logger
     #   mozilla-django-oidc-db
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc
