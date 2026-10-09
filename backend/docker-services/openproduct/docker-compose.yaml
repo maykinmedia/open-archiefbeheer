@@ -14,12 +14,12 @@ services:
       - ./docker-init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
       - open-product-db:/var/lib/postgresql/data
     networks:
-      - openproduct-dev
+      - oab-dev
 
   openproduct-redis:
     image: redis
     networks:
-      - openproduct-dev
+      - oab-dev
 
   openproduct-web:
     image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
@@ -65,7 +65,7 @@ services:
     volumes: &web_volumes
       - ./fixtures/:/app/fixtures/
     networks:
-      - openproduct-dev
+      - oab-dev
 
   openproduct-web-init:
     image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
@@ -79,7 +79,7 @@ services:
     volumes:
       - ./setup_configuration:/app/setup_configuration
     networks:
-      - openproduct-dev
+      - oab-dev
 
   # mount fixtures dir to automatically populate the DB
   openproduct-web-fixtures:
@@ -91,7 +91,7 @@ services:
       openproduct-web:
         condition: service_healthy
     networks:
-      - openproduct-dev
+      - oab-dev
 
   openproduct-celery:
     image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
@@ -107,7 +107,7 @@ services:
       openproduct-web:
         condition: service_healthy
     networks:
-      - openproduct-dev
+      - oab-dev
 
   openproduct-celery-beat:
     image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
@@ -116,11 +116,11 @@ services:
     depends_on:
       - openproduct-celery
     networks:
-      - openproduct-dev
+      - oab-dev
 
 volumes:
   open-product-db:
 
 networks:
-  openproduct-dev:
-    name: openproduct-dev
+  oab-dev:
+    name: oab-dev

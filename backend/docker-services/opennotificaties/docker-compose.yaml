@@ -23,7 +23,7 @@ services:
     ports:
       - "11234:5432"
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-redis:
     image: redis:8
@@ -33,7 +33,7 @@ services:
       timeout: 1s
       retries: 3
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-web:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
@@ -85,7 +85,7 @@ services:
       notificaties-web-init:
         condition: service_completed_successfully
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-web-init:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
@@ -101,7 +101,7 @@ services:
     volumes:
       - ./setup_configuration:/app/setup_configuration
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-celery:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
@@ -125,7 +125,7 @@ services:
     depends_on:
       - notificaties-web
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-celery-beat:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
@@ -148,7 +148,7 @@ services:
       - notificaties-redis
     volumes: *app-volumes
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
   notificaties-celery-flower:
     image: openzaak/open-notificaties:${OPENNOTIFICATIES_VERSION:-1.16.2}
@@ -167,12 +167,12 @@ services:
         "--endpoint=http://localhost:5555/"
       ]
     networks:
-      - open-notificaties-dev
+      - oab-dev
 
 volumes:
   media:
   notificaties-db:
 
 networks:
-  open-notificaties-dev:
-    name: open-notificaties-dev
+  oab-dev:
+    name: oab-dev
