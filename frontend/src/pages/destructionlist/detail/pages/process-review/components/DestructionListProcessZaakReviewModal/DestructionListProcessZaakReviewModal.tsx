@@ -17,6 +17,7 @@ import {
 import React, { FormEvent, useEffect, useState } from "react";
 
 import { ReviewItem } from "../../../../../../../lib/api/review";
+import { SelectielijstklasseOption } from "../../../../../../../lib/api/types";
 import { addDuration, formatDate } from "../../../../../../../lib/format/date";
 import { Zaak } from "../../../../../../../types";
 
@@ -29,6 +30,7 @@ type DestructionListProcessZaakReviewModalFormType = {
   zaakUrl: string;
   action: string;
   selectielijstklasse: string;
+  resultaattype: string;
   archiefactiedatum: string;
   comment: string;
 };
@@ -41,7 +43,8 @@ export type DestructionListProcessZaakReviewModalProps = {
   reviewItem: ReviewItem | null;
   action?: ProcessReviewAction;
   selectielijstklasse: string;
-  selectieLijstKlasseChoices: Option[];
+  selectieLijstKlasseChoices: SelectielijstklasseOption[];
+  resultaattype: string;
   archiefactiedatum: string;
   comment?: string;
   onClose: () => void;
@@ -49,6 +52,7 @@ export type DestructionListProcessZaakReviewModalProps = {
     zaakUrl: string,
     processAction: ProcessReviewAction,
     selectielijstklasse: string,
+    resultaattype: string,
     archiefactiedatum: string | undefined,
     comment: string,
   ) => void;
@@ -63,6 +67,7 @@ type ProcessZaakFormState = {
   zaakUrl: string;
   action: ProcessReviewAction | "";
   selectielijstklasse: string;
+  resultaattype: string;
   archiefactiedatum: string;
   comment: string;
 };
@@ -82,6 +87,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   action,
   selectielijstklasse,
   selectieLijstKlasseChoices,
+  resultaattype,
   archiefactiedatum,
   comment,
   onClose,
@@ -91,6 +97,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     zaakUrl: zaak?.url || "",
     action: action || "",
     selectielijstklasse: selectielijstklasse,
+    resultaattype: resultaattype,
     archiefactiedatum: archiefactiedatum,
     comment: comment || "",
   };
@@ -105,13 +112,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     // When the user interacts with the dropdown, the value is passed.
     const selectedChoice = selectieLijstKlasseChoices.find((choice) =>
       [choice.label, choice.value].includes(selectielijstklasseChoice),
-    ) as
-      | (Option & { value: string; detail: { bewaartermijn: string } })
-      | undefined;
-
-    if (!selectedChoice) return "";
-
-    return selectedChoice.value || "";
+    );
+    return selectedChoice?.value || "";
   };
 
   // Update the form state based on props.
@@ -122,13 +124,14 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       selectielijstklasse:
         getSelectielijstklasseValue(selectielijstklasse) ||
         initialFormState.selectielijstklasse,
+      resultaattype: resultaattype || initialFormState.resultaattype,
       archiefactiedatum:
         archiefactiedatum || initialFormState.archiefactiedatum,
       comment: comment || initialFormState.comment,
     };
 
     setFormState(newFormState);
-  }, [action, selectielijstklasse, archiefactiedatum, comment]);
+  }, [action, selectielijstklasse, resultaattype, archiefactiedatum, comment]);
 
   // Show an error if zaak and review item are out of sync (this should not happen).
   if (open && !reviewItem) {
@@ -146,9 +149,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const getBewaartermijn = (selectielijstklasse: string) => {
     const selectedChoice = selectieLijstKlasseChoices.find(
       (choice) => choice.value === selectielijstklasse,
-    ) as
-      | (Option & { extraData?: { bewaartermijn: string | null } })
-      | undefined;
+    );
 
     return selectedChoice?.extraData?.bewaartermijn;
   };
@@ -159,15 +160,20 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   const getFields = (_formState: typeof formState = formState) => {
     const bewaartermijn = getBewaartermijn(_formState.selectielijstklasse);
 
-    const showSelectielijstklasseInput =
+    const changeSelectielijstklasse =
       _formState.action === "change_selectielijstklasse";
 
     const showArchiefactiedatumInput =
       _formState.action === "change_archiefactiedatum" ||
-      (showSelectielijstklasseInput && !!bewaartermijn);
+      (changeSelectielijstklasse && !!bewaartermijn);
 
     const showChangeArchiefactiedatumOption =
       !!bewaartermijn || zaak?.archiefnominatie === "vernietigen";
+
+    const resultaattypeChoices =
+      selectieLijstKlasseChoices.find(
+        (choice) => choice.value === _formState.selectielijstklasse,
+      )?.extraData?.resultaattypen ?? [];
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -205,15 +211,29 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         ].filter((v: Option | null): v is Option => Boolean(v)) as Option[],
       },
 
+      // Note: do not remove these fields completely to enable remembering
+      // previously selected values when switching the "action".
       {
-        label: showSelectielijstklasseInput ? "Selectielijstklasse" : undefined,
+        label: changeSelectielijstklasse ? "Selectielijstklasse" : undefined,
         name: "selectielijstklasse",
-        required: showSelectielijstklasseInput,
-        type: showSelectielijstklasseInput ? undefined : "hidden",
-        options: showSelectielijstklasseInput
+        required: changeSelectielijstklasse,
+        type: changeSelectielijstklasse ? undefined : "hidden",
+        options: changeSelectielijstklasse
           ? selectieLijstKlasseChoices
           : undefined,
         value: _formState.selectielijstklasse,
+      },
+
+      {
+        label: changeSelectielijstklasse ? "Resultaattype" : undefined,
+        name: "resultaattype",
+        required:
+          // Only required when we actually have corresponding resultaattypen
+          // available
+          changeSelectielijstklasse && resultaattypeChoices.length > 0,
+        type: changeSelectielijstklasse ? undefined : "hidden",
+        options: changeSelectielijstklasse ? resultaattypeChoices : undefined,
+        value: _formState.resultaattype,
       },
 
       {
@@ -249,20 +269,24 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     const bewaartermijn = getBewaartermijn(
       values.selectielijstklasse as string,
     );
+    const isSelectielijstklasseChanged =
+      formState.selectielijstklasse !== values.selectielijstklasse;
     if (
       action === "change_selectielijstklasse" &&
+      isSelectielijstklasseChanged &&
       archiefactiedatum &&
       bewaartermijn
     ) {
-      const isSelectielijstklasseChanged =
-        values.selectielijstklasse !== selectielijstklasse;
-
-      // If the selectielijstklasse is changed, and all fields are available, update the archive date based on the
-      // selectielijstklasse.
-      if (isSelectielijstklasseChanged) {
-        const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
-        values.archiefactiedatum = formatDate(archiveDate, "iso");
-      }
+      // TODO-1118: there is something weird with this logic here. If you select
+      //  a different selectielijstklasse, it will automatically update the archiefactiedatum.
+      //  However, you can manually change it and submit that value, but it will
+      //  still use the determined value during validation here.
+      // If the selectielijstklasse is changed, and all fields are available:
+      //  - update the archive date based on the selectielijstklasse.
+      //  - reset the resultaattype input
+      const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
+      values.archiefactiedatum = formatDate(archiveDate, "iso");
+      values.resultaattype = "";
     }
 
     setFormState(values as typeof formState);
@@ -276,13 +300,20 @@ export const DestructionListProcessZaakReviewModal: React.FC<
    * @param data
    */
   const handleSubmit = (_: FormEvent, data: SerializedFormData) => {
-    const { zaakUrl, action, selectielijstklasse, archiefactiedatum, comment } =
-      data as ProcessZaakFormState;
-
+    const {
+      zaakUrl,
+      action,
+      selectielijstklasse,
+      resultaattype,
+      archiefactiedatum,
+      comment,
+    } = data as ProcessZaakFormState;
+    console.log(archiefactiedatum);
     onSubmit(
       zaakUrl as string,
       action as ProcessReviewAction,
       selectielijstklasse,
+      resultaattype,
       getBewaartermijn(selectielijstklasse) ? archiefactiedatum : undefined,
       comment,
     );
@@ -346,3 +377,4 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     </>
   );
 };
+export default DestructionListProcessZaakReviewModal;
