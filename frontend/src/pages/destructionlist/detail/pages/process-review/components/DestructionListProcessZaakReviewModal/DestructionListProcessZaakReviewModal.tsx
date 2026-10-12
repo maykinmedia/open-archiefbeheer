@@ -116,6 +116,13 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     return selectedChoice?.value || "";
   };
 
+  // the same logic as in loader
+  const zaakSelectielijstklasse =
+    zaak?.selectielijstklasse ||
+    // @ts-expect-error - same typing issue as in useFields
+    zaak?._expand?.resultaat?._expand?.resultaattype?.selectielijstklasse ||
+    "";
+
   // Update the form state based on props.
   useEffect(() => {
     const newFormState: ProcessZaakFormState = {
@@ -219,7 +226,9 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         required: changeSelectielijstklasse,
         type: changeSelectielijstklasse ? undefined : "hidden",
         options: changeSelectielijstklasse
-          ? selectieLijstKlasseChoices
+          ? selectieLijstKlasseChoices.filter(
+              (choice) => choice.value !== zaakSelectielijstklasse,
+            )
           : undefined,
         value: _formState.selectielijstklasse,
       },
@@ -308,7 +317,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       archiefactiedatum,
       comment,
     } = data as ProcessZaakFormState;
-    console.log(archiefactiedatum);
     onSubmit(
       zaakUrl as string,
       action as ProcessReviewAction,

@@ -69,6 +69,7 @@ export function DestructionListProcessReviewPage() {
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
+
   const reviewItems: ReviewItemWithZaak[] =
     (_reviewItems?.filter(
       (ri) => ri.destructionListItem.zaak,
