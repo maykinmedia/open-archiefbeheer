@@ -1,7 +1,5 @@
-from typing import Callable
-
-from .logevent import TEMPLATE_FORMAT
+TEMPLATE_FORMAT = "logging/%(event)s.txt"
 
 
-def get_event_template(logging_func: Callable) -> str:
-    return TEMPLATE_FORMAT % {"event": logging_func.__name__}
+def get_event_template(event: str) -> str:
+    return TEMPLATE_FORMAT % {"event": event}

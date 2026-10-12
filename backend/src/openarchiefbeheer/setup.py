@@ -10,18 +10,19 @@ they are available for Django settings initialization.
     before Django is initialized.
 """
 
-import logging
 import os
 from pathlib import Path
 
 from django.conf import settings
 
+import structlog
 from dotenv import load_dotenv
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def setup_env():
+    os.environ["AUDIT_LOGGER_NAME"] = "openarchiefbeheer_audit"
     # load the environment variables containing the secrets/config
     dotenv_path = Path(__file__).resolve().parent.parent.parent / ".env"
     load_dotenv(dotenv_path)
@@ -41,12 +42,15 @@ def monkeypatch_requests():
     try:
         from requests import Session
     except ModuleNotFoundError:
-        logger.debug("Attempt to patch requests, but the library is not installed")
+        logger.debug(
+            "requests_patching_failed", reason="Requests library not installed"
+        )
         return
 
     if hasattr(Session, "_original_request"):
         logger.debug(
-            "Session is already patched OR has an ``_original_request`` attribute."
+            "requests_patching_skipped",
+            reason="Session is already patched OR has an ``_original_request`` attribute.",
         )
         return
 

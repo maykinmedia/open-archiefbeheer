@@ -28,6 +28,7 @@ asgiref==3.8.1
     #   -r requirements/ci.txt
     #   django
     #   django-cors-headers
+    #   django-structlog
 asn1crypto==1.5.1
     # via
     #   -c requirements/ci.txt
@@ -154,6 +155,7 @@ django==5.2.17
     #   django-formtools
     #   django-health-check
     #   django-hijack
+    #   django-ipware
     #   django-jenkins
     #   django-jsonform
     #   django-otp
@@ -166,6 +168,7 @@ django==5.2.17
     #   django-setup-configuration
     #   django-simple-certmanager
     #   django-solo
+    #   django-structlog
     #   django-timeline-logger
     #   django-two-factor-auth
     #   djangorestframework
@@ -219,6 +222,11 @@ django-hijack==3.7.8
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+django-ipware==8.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-structlog
 django-jenkins==0.110.0
     # via
     #   -c requirements/ci.txt
@@ -282,7 +290,11 @@ django-solo==2.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   zgw-consumers
-django-timeline-logger==5.0.0
+django-structlog==10.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+django-timeline-logger==6.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -480,7 +492,7 @@ maykin-2fa==2.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-maykin-common==0.20.1
+maykin-common @ git+https://github.com/maykinmedia/django-common.git@6ccc787d66fcfa813cc8b628c75e173d07dbb514
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -778,6 +790,11 @@ python-dotenv==1.2.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pydantic-settings
+python-ipware==4.1.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-ipware
 python-slugify==8.0.4
     # via
     #   -c requirements/ci.txt
@@ -940,6 +957,11 @@ sqlparse==0.6.0
     #   -r requirements/ci.txt
     #   django
     #   django-debug-toolbar
+structlog==26.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-structlog
 tabulate==0.9.0
     # via
     #   -c requirements/ci.txt
@@ -973,6 +995,7 @@ typing-extensions==4.11.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
+    #   django-timeline-logger
     #   mozilla-django-oidc-db
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-grpc

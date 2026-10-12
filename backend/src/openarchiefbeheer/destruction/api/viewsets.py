@@ -1,4 +1,3 @@
-import logging
 from datetime import date, timedelta
 
 from django.conf import settings
@@ -8,8 +7,10 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
+from maykin_common.logging.audit import audit_logger
 from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -20,7 +21,6 @@ from slugify import slugify
 from zgw_consumers.client import build_client
 from zgw_consumers.models import Service
 
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.paginators import PageNumberPagination
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.models import Zaak
@@ -84,7 +84,7 @@ from .serializers import (
     UpdateAssigneeSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -318,8 +318,10 @@ class DestructionListViewSet(
                 % {"destruction_date": destruction_date.strftime("%d/%m/%Y")}
             )
 
-        logevent.destruction_list_deletion_triggered(
-            destruction_list, self.request.user
+        audit_logger.info(
+            "destruction_list_deletion_triggered",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=self.request.user.username,
         )
 
         if destruction_list.processing_status == InternalStatus.new:
@@ -348,11 +350,12 @@ class DestructionListViewSet(
 
         destruction_list.assign_next()
 
-        logevent.destruction_list_finalized(
-            destruction_list,
-            serialiser.validated_data["comment"],
-            archivist=assignee.user,
-            record_manager=request.user,
+        audit_logger.info(
+            "destruction_list_finalized",
+            destruction_list_uuid=str(destruction_list.uuid),
+            archivist=assignee.user.username,
+            record_manager=request.user.username,
+            comment=serialiser.validated_data["comment"],
         )
 
         return Response(status=status.HTTP_201_CREATED)
@@ -361,6 +364,8 @@ class DestructionListViewSet(
     def update_assignee(self, request, *args, **kwargs):
         """Update a DestructionListAssignee and if needed assign it to the destruction list."""
         destruction_list = self.get_object()
+        log = logger.bind(destruction_list_uuid=str(destruction_list.uuid))
+        audit_log = audit_logger.bind(**structlog.get_context(log))
 
         # Step 1: Validate that:
         # - The user is valid
@@ -394,8 +399,9 @@ class DestructionListViewSet(
             ).order_by("pk")
             old_assignee = old_assignees.last()
             if old_assignees.count() > 1:
-                logger.warning(
-                    "We are replacing a DestructionListAssignee, but there are multiple ones with the same role. Choosing the last one."
+                log.warning(
+                    "destruction_list_assignee_replaced",
+                    reason="We are replacing a DestructionListAssignee, but there are multiple ones with the same role. Choosing the last one.",
                 )
             new_assignee = DestructionListAssignee.objects.create(
                 user=serialiser.validated_data["assignee"]["user"],
@@ -407,11 +413,11 @@ class DestructionListViewSet(
                 destruction_list.assign(new_assignee)
             old_assignee.delete()
 
-            logevent.destruction_list_updated_assignees(
-                destruction_list,
-                new_assignee,
-                serialiser.validated_data["comment"],
-                request.user,
+            audit_log.info(
+                "destruction_list_updated_assignees",
+                assignee=new_assignee.user.username,
+                comment=serialiser.validated_data["comment"],
+                user=request.user.username,
             )
 
         return Response()
@@ -422,7 +428,11 @@ class DestructionListViewSet(
 
         destruction_list.assign_next()
 
-        logevent.destruction_list_ready_for_first_review(destruction_list, request.user)
+        audit_logger.info(
+            "destruction_list_ready_for_first_review",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=request.user.username,
+        )
 
         return Response(status=status.HTTP_201_CREATED)
 

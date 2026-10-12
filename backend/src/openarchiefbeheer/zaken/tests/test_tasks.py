@@ -544,7 +544,7 @@ class RetrieveCachedZakenWithProcestypeTest(TransactionTestCase):
         self.assertEqual(
             logs[1].get_message(),
             _("Resyncing of the cases has failed with the following error: %(error)s")
-            % {"error": "requests.exceptions.ConnectTimeout: Oh noes!\n"},
+            % {"error": "Oh noes!"},
         )
 
 
