@@ -123,7 +123,6 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                     logger.info(
                         "besluitinformatieobject_deleted",
                         url=bio["url"],
-                        destruction_list=item.destruction_list.name,
                     )
 
                 besluit_uuid = furl(besluit["url"]).path.segments[-1]
@@ -131,7 +130,6 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                 logger.info(
                     "besluit_deleted",
                     url=besluit["url"],
-                    destruction_list=item.destruction_list.name,
                 )
 
                 ResourceDestructionResult.objects.create(
@@ -175,7 +173,6 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
             logger.info(
                 "zaakinformatieobject_deleted",
                 url=zio["url"],
-                destruction_list=item.destruction_list.name,
             )
 
 
@@ -194,7 +191,6 @@ def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
             logger.info(
                 "enkelvoudiginformatieobject_deleted",
                 url=eio.url,
-                destruction_list=item.destruction_list.name,
             )
 
             eio.status = (
@@ -229,7 +225,6 @@ def delete_zaak(item: DestructionListItem) -> None:
         logger.info(
             "zaak_deleted",
             url=item.zaak.url,
-            destruction_list=item.destruction_list.name,
         )
         result.status = ResourceDestructionResultStatus.deleted
         result.save()

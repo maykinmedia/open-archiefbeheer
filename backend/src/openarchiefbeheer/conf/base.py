@@ -18,8 +18,9 @@ from maykin_common.logging.config import (
     structlog_configure_defaults,
 )
 
-from .utils import get_git_sha, get_release, get_sentry_integrations
 from openarchiefbeheer.logging.adapter import from_structlog
+
+from .utils import get_git_sha, get_release, get_sentry_integrations
 
 # Build paths inside the project, so further paths can be defined relative to
 # the code root.
@@ -797,3 +798,9 @@ MKN_BRANDING_PRODUCT_DEFINITION = ProductDefinition(
 #
 DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
 DJANGO_STRUCTLOG_CELERY_ENABLED = True
+
+#
+# Timeline-logger
+#
+TIMELINE_HANDLER_USE_QUEUE = True
+TIMELINE_HANDLER_ON_ERROR = sentry_sdk.capture_exception

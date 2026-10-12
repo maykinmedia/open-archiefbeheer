@@ -21,10 +21,6 @@ from openarchiefbeheer.accounts.utils import format_user, format_user_groups
 from openarchiefbeheer.clients import drc_client, zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
 from openarchiefbeheer.destruction.utils import get_selectielijstklasse
-from openarchiefbeheer.logging.logevent import (
-    destruction_list_deletion_triggered,
-    destruction_list_reviewed,
-)
 from openarchiefbeheer.logging.utils import get_event_template
 from openarchiefbeheer.utils.formatting import get_readable_timestamp
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
@@ -50,7 +46,7 @@ def _add_review_process_worksheet(
 
         log = (
             TimelineLog.objects.for_object(destruction_list)
-            .filter(template=get_event_template(destruction_list_deletion_triggered))
+            .filter(template=get_event_template("destruction_list_deletion_triggered"))
             .order_by("timestamp")
             .last()
         )
@@ -79,7 +75,7 @@ def _add_review_process_worksheet(
         )
 
         logs = TimelineLog.objects.for_object(destruction_list).filter(
-            template=get_event_template(destruction_list_reviewed),
+            template=get_event_template("destruction_list_reviewed"),
             extra_data__approved=True,
         )
         for log in logs:

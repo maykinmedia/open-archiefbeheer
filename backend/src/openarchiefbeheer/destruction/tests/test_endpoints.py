@@ -577,9 +577,7 @@ class DestructionListViewSetTest(APITestCase):
         )[0]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            log_entry.extra_data["assignee"]["user"]["pk"], other_reviewer.pk
-        )
+        self.assertEqual(log_entry.extra_data["assignee"]["pk"], other_reviewer.pk)
         self.assertEqual(log_entry.extra_data["comment"], "Lorem ipsum...")
 
     def test_partially_update_destruction_list(self):

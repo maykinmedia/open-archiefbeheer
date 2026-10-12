@@ -9,7 +9,7 @@ def log_errors(logger_func: Callable) -> Callable:
             try:
                 result = func(*args, **kwargs)
             except Exception as exc:
-                logger_func(exc)
+                logger_func(exception=exc)
                 raise exc
             return result
 

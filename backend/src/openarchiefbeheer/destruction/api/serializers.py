@@ -5,8 +5,10 @@ from django.db import transaction
 from django.db.models import F, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from drf_spectacular.plumbing import build_basic_type
 from drf_spectacular.utils import OpenApiTypes, extend_schema_field
+from maykin_common.logging.audit import audit_logger
 from requests.exceptions import HTTPError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -14,7 +16,6 @@ from rest_framework.relations import SlugRelatedField
 
 from openarchiefbeheer.accounts.api.serializers import UserSerializer
 from openarchiefbeheer.accounts.models import User
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.types import JSONValue
 from openarchiefbeheer.zaken.api.filtersets import ZaakFilterSet
 from openarchiefbeheer.zaken.api.serializers import ZaakSerializer
@@ -197,29 +198,27 @@ class CoReviewerAssignmentSerializer(serializers.Serializer):
     def save(self, **kwargs):
         instance = super().save(**kwargs)
 
-        common_params = {
-            "destruction_list": self.context["destruction_list"],
-            "partial": self.partial,
-            "user": self.context["request"].user,
-            "comment": self.validated_data["comment"],
-        }
+        destruction_list = self.context["destruction_list"]
 
         co_reviewers_added.send(
-            sender=self.context["destruction_list"],
+            sender=destruction_list,
             **{
-                **common_params,
+                "destruction_list": destruction_list,
+                "partial": self.partial,
+                "user": self.context["request"].user,
+                "comment": self.validated_data["comment"],
                 "added_co_reviewers": self.validated_data["add"],
             },
         )
-        logevent.destruction_list_co_reviewers_added(
-            **{
-                **common_params,
-                "co_reviewers": (
-                    self.context["destruction_list"]
-                    .assignees.filter(role=ListRole.co_reviewer)
-                    .order_by("user__username")
-                ),
-            }
+        audit_logger.info(
+            "destruction_list_co_reviewers_added",
+            destruction_list_uuid=str(destruction_list.uuid),
+            partial=self.partial,
+            user=self.context["request"].user.username,
+            comment=self.validated_data["comment"],
+            co_reviewers=destruction_list.assignees.filter(role=ListRole.co_reviewer)
+            .order_by("user__username")
+            .values_list("user__username", flat=True),
         )
 
         return instance
@@ -542,6 +541,10 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
         validated_data["status"] = ListStatus.new
         destruction_list = DestructionList.objects.create(**validated_data)
 
+        structlog.contextvars.bind_contextvars(
+            destruction_list_uuid=str(destruction_list.uuid),
+        )
+
         zaken = self._get_zaken(zaak_filters, add, bulk_select)
         destruction_list.add_items(zaken)
 
@@ -555,8 +558,10 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
             role=ListRole.main_reviewer,
         )
 
-        logevent.destruction_list_created(
-            destruction_list, author, reviewer_data["user"]
+        audit_logger.info(
+            "destruction_list_created",
+            author=author.username,
+            reviewer=reviewer_data["user"].username,
         )
         return destruction_list
 
@@ -585,7 +590,11 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        logevent.destruction_list_updated(instance, user)
+        audit_logger.info(
+            "destruction_list_updated",
+            destruction_list_uuid=str(instance.uuid),
+            user=user.username,
+        )
         return instance
 
 
@@ -741,11 +750,12 @@ class DestructionListReviewSerializer(serializers.ModelSerializer):
 
         validated_data["destruction_list"].assign_next()
 
-        logevent.destruction_list_reviewed(
-            destruction_list=validated_data["destruction_list"],
-            review=review,
-            user=review.author,
+        audit_logger.info(
+            "destruction_list_reviewed",
+            destruction_list_uuid=str(validated_data["destruction_list"].uuid),
+            user=review.author.username,
             comment=validated_data.get("list_feedback", ""),
+            approved=review.decision == ReviewDecisionChoices.accepted,
         )
 
         return review
@@ -796,10 +806,10 @@ class DestructionListCoReviewSerializer(serializers.ModelSerializer):
         validated_data.update({"author": user})
 
         co_review = super().create(validated_data)
-        logevent.destruction_list_co_reviewed(
-            destruction_list=validated_data["destruction_list"],
-            co_review=co_review,
-            user=user,
+        audit_logger.info(
+            "destruction_list_co_reviewed",
+            destruction_list_uuid=str(validated_data["destruction_list"].uuid),
+            user=user.username,
         )
         return co_review
 
@@ -975,8 +985,10 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
         review_response = ReviewResponse.objects.create(**validated_data)
         ReviewItemResponse.objects.bulk_create(items_responses)
 
-        logevent.destruction_list_review_response_created(
-            validated_data["review"].destruction_list, self.context["request"].user
+        audit_logger.info(
+            "destruction_list_review_response_created",
+            destruction_list_uuid=str(validated_data["review"].destruction_list.uuid),
+            user=self.context["request"].user.username,
         )
 
         process_review_response.delay(review_response.pk)
@@ -991,12 +1003,14 @@ class AbortDestructionSerializer(serializers.Serializer):
         status = self.instance.status
         self.instance.abort_destruction()
 
-        logevent.destruction_list_aborted(
-            self.instance,
-            self.validated_data["comment"],
-            self.context["request"].user,
+        audit_logger.info(
+            "destruction_list_aborted",
+            destruction_list_uuid=str(self.instance.uuid),
+            user=self.context["request"].user.username,
+            comment=self.validated_data["comment"],
             abort_destruction=status == ListStatus.ready_to_delete,
         )
+
         return self.instance
 
 

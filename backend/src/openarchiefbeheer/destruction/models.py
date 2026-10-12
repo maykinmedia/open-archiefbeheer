@@ -10,13 +10,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from furl import furl
+from maykin_common.logging.audit import audit_logger
 from privates.fields import PrivateMediaFileField
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import zrc_client
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.logging import logevent
 
 from ..types import StrOrPromise
 from .assignment_logic import STATE_MANAGER
@@ -162,7 +162,10 @@ class DestructionList(models.Model):
         self.save(
             update_fields=["processing_status", "processing_status_clarification"]
         )
-        logevent.destruction_list_processing_status_updated(self)
+        audit_logger.info(
+            "destruction_list_processing_status_updated",
+            destruction_list_uuid=str(self.uuid),
+        )
 
     def add_items(
         self, zaken: Iterable["Zaak"], ignore_conflicts: bool = False
@@ -348,7 +351,10 @@ class DestructionListItem(models.Model):
         self.save(
             update_fields=["processing_status", "processing_status_clarification"]
         )
-        logevent.destruction_list_item_processing_status_updated(self)
+        audit_logger.info(
+            "destruction_list_item_processing_status_updated",
+            destruction_list_item_pk=self.pk,
+        )
 
 
 class DestructionListAssignee(models.Model):

@@ -2,6 +2,7 @@ from datetime import date
 
 from django.test import TestCase, tag
 
+from maykin_common.logging.audit import audit_logger
 from timeline_logger.models import TimelineLog
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
@@ -9,7 +10,6 @@ from openarchiefbeheer.destruction.tests.factories import (
     DestructionListFactory,
     DestructionListItemFactory,
 )
-from openarchiefbeheer.logging import logevent
 
 
 class LogEventTests(TestCase):
@@ -88,7 +88,11 @@ class LogEventTests(TestCase):
         items[1].zaak.save()
         items[2].zaak.save()
 
-        logevent.destruction_list_ready_for_first_review(destruction_list, user)
+        audit_logger.info(
+            "destruction_list_ready_for_first_review",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=user.username,
+        )
 
         log = TimelineLog.objects.for_object(destruction_list)[0]
 
@@ -151,7 +155,11 @@ class LogEventTests(TestCase):
         }
         item.zaak.save()
 
-        logevent.destruction_list_ready_for_first_review(destruction_list, user)
+        audit_logger.info(
+            "destruction_list_ready_for_first_review",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=user.username,
+        )
 
         log = TimelineLog.objects.for_object(destruction_list)[0]
 
