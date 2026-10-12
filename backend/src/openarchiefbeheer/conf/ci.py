@@ -11,6 +11,7 @@ os.environ.setdefault("SECRET_KEY", "dummy")
 # * it conflicts with SimpleTestCase in some cases when the run-time configuration is
 #   looked up from the django-solo model
 os.environ.setdefault("LOG_REQUESTS", "no")
+os.environ.setdefault("AUDIT_LOGGER_NAME", "openarchiefbeheer_audit")
 
 # Playwright settings
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
@@ -49,6 +50,8 @@ ENVIRONMENT = "CI"
 #
 AXES_BEHIND_REVERSE_PROXY = False
 
+# ensure we insert audit logs in the main thread & DB transaction in tests
+TIMELINE_HANDLER_USE_QUEUE = False
 
 # THOU SHALT NOT USE NAIVE DATETIMES
 warnings.filterwarnings(

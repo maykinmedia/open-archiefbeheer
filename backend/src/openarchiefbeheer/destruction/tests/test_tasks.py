@@ -1,3 +1,4 @@
+import ast
 import logging
 from datetime import date
 from unittest.mock import patch
@@ -8,6 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
 
 from freezegun import freeze_time
+from maykin_common.logging.audit import audit_logger
 from privates.test import temp_private_root
 from requests import HTTPError
 from requests_mock import Mocker
@@ -19,7 +21,6 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.emails.tests.factories import EmailConfigFactory
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
 from openarchiefbeheer.zaken.tests.factories import ZaakFactory
@@ -325,7 +326,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             (
                 "openarchiefbeheer.destruction.tasks",
                 "INFO",
-                "{'destruction_list': 'DL1', 'event': 'delete_destruction_list_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}",
+                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'event': 'delete_destruction_list_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}}",
             ),
             logs[0],
         )
@@ -342,7 +343,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             (
                 "openarchiefbeheer.destruction.tasks",
                 "WARNING",
-                "{'destruction_list': 'Test', 'status': 'changes_requested', 'event': 'delete_destruction_list_abort', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'warning'}",
+                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'status': 'changes_requested', 'event': 'delete_destruction_list_abort', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'warning'}}",
             ),
             logs[0],
         )
@@ -355,13 +356,19 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         with freeze_time("2026-10-09T12:00:00+02:00"):
             delete_destruction_list_item(item.pk)
 
+        log = logs[0]
+        self.assertEqual(log[0], "openarchiefbeheer.destruction.tasks")
+        self.assertEqual(log[1], "INFO")
         self.assertEqual(
-            (
-                "openarchiefbeheer.destruction.tasks",
-                "INFO",
-                "{'destruction_list_item': 'DL1: (deleted)', 'event': 'delete_destruction_list_item_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}",
-            ),
-            logs[0],
+            ast.literal_eval(log[2]),
+            {
+                "event": "delete_destruction_list_item_skipped",
+                "destruction_list_item_pk": item.pk,
+                "destruction_list_uuid": str(item.destruction_list.uuid),
+                "timestamp": "2026-10-09T10:00:00Z",
+                "logger": "openarchiefbeheer.destruction.tasks",
+                "level": "info",
+            },
         )
 
     def test_complete_and_notify(self):
@@ -428,12 +435,19 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
 
         self.assertIsNone(destruction_list.destruction_report.name)
         with freeze_time("2024-10-06T12:00:00+02:00"):
-            logevent.destruction_list_reviewed(
-                destruction_list, review, "some comment!", review.author
+            audit_logger.info(
+                "destruction_list_reviewed",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=review.author.username,
+                comment="some comment!",
+                approved=True,
             )
+
         with freeze_time("2024-10-08T12:00:00+02:00"):
-            logevent.destruction_list_deletion_triggered(
-                destruction_list, record_manager
+            audit_logger.info(
+                "destruction_list_deletion_triggered",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=record_manager.username,
             )
 
         with (

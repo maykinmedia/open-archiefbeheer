@@ -257,7 +257,7 @@ class ReviewResponsesViewSetTests(APITestCase):
             _("The destruction lists assignees were updated."),
         )
         self.assertEqual(
-            data[0]["extra_data"]["assignee"]["user"],
+            data[0]["extra_data"]["assignee"],
             {
                 "email": other_reviewer.email,
                 "pk": other_reviewer.pk,
