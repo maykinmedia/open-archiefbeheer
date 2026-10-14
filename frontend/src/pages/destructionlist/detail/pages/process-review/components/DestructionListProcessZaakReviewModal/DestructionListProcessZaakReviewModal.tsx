@@ -282,20 +282,18 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       formState.selectielijstklasse !== values.selectielijstklasse;
     if (
       action === "change_selectielijstklasse" &&
-      isSelectielijstklasseChanged &&
-      archiefactiedatum &&
-      bewaartermijn
+      isSelectielijstklasseChanged
     ) {
-      // TODO-1118: there is something weird with this logic here. If you select
-      //  a different selectielijstklasse, it will automatically update the archiefactiedatum.
-      //  However, you can manually change it and submit that value, but it will
-      //  still use the determined value during validation here.
-      // If the selectielijstklasse is changed, and all fields are available:
-      //  - update the archive date based on the selectielijstklasse.
-      //  - reset the resultaattype input
-      const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
-      values.archiefactiedatum = formatDate(archiveDate, "iso");
+      // A resultaattype belongs to a specific selectielijstklasse, so a previously
+      // selected resultaattype is no longer valid.
       values.resultaattype = "";
+
+      if (archiefactiedatum && bewaartermijn) {
+        // If the selectielijstklasse is changed, and all fields are available:
+        //  - update the archive date based on the selectielijstklasse.
+        const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
+        values.archiefactiedatum = formatDate(archiveDate, "iso");
+      }
     }
 
     setFormState(values as typeof formState);

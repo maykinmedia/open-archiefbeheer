@@ -48,7 +48,7 @@ interface ProcessZaakReviewSelectionDetail {
   action: ProcessReviewAction;
   selectielijstklasse: string;
   resultaattype: string;
-  archiefactiedatum: string;
+  archiefactiedatum?: string;
 }
 
 type MakeFinalFormType = {
@@ -268,32 +268,38 @@ export function useSecondaryNavigation<
                 ri.destructionListItem.zaak?.url || ""
               ]?.detail as ProcessZaakReviewSelectionDetail;
 
+              let actionZaakType: ReviewItemResponse["actionZaakType"];
+              let actionZaak: ReviewItemResponse["actionZaak"];
+
+              switch (detail.action) {
+                case "change_selectielijstklasse":
+                  actionZaakType = "selectielijstklasse_and_bewaartermijn";
+                  actionZaak = {
+                    selectielijstklasse: detail.selectielijstklasse,
+                    resultaattype: detail.resultaattype,
+                    archiefactiedatum: detail.archiefactiedatum,
+                  };
+                  break;
+
+                case "change_archiefactiedatum":
+                  actionZaakType = "bewaartermijn";
+                  actionZaak = {
+                    archiefactiedatum: detail.archiefactiedatum,
+                  };
+                  break;
+
+                case "keep":
+                  actionZaakType = undefined;
+                  actionZaak = undefined;
+                  break;
+              }
+
               return {
                 reviewItem: ri.pk,
                 actionItem: detail.action === "keep" ? "keep" : "remove",
                 comment: detail.comment,
-                // TODO-1118: perhaps move these nested conditionals outside
-                //  of this data structure? It's getting a bit tricky to follow :sweat_smile:
-                actionZaakType:
-                  detail.action === "keep"
-                    ? undefined
-                    : detail.action === "change_selectielijstklasse"
-                      ? "selectielijstklasse_and_bewaartermijn"
-                      : "bewaartermijn",
-                actionZaak:
-                  detail.action !== "keep"
-                    ? {
-                        selectielijstklasse:
-                          detail.action === "change_selectielijstklasse"
-                            ? detail.selectielijstklasse
-                            : undefined,
-                        resultaattype:
-                          detail.action === "change_selectielijstklasse"
-                            ? detail.resultaattype
-                            : undefined,
-                        archiefactiedatum: detail.archiefactiedatum,
-                      }
-                    : undefined,
+                actionZaakType,
+                actionZaak,
               };
             }) || [],
         },
