@@ -37,7 +37,7 @@ type ProcessZaakReviewSelectionDetail = {
   action: ProcessReviewAction;
   selectielijstklasse: string;
   resultaattype: string;
-  archiefactiedatum: string;
+  archiefactiedatum?: string;
 };
 
 type ReviewMeta = {
@@ -210,7 +210,7 @@ export function DestructionListProcessReviewPage() {
       zaak?.selectielijstklasse,
     )?.label;
     const newResultaattypeLabel =
-      newSelectielijstklasseOption?.extraData.resultaattypen.find(
+      newSelectielijstklasseOption?.extraData.resultaattypen?.find(
         (choice) => choice.value === resultaattype,
       )?.label;
 
@@ -311,8 +311,6 @@ export function DestructionListProcessReviewPage() {
     action: ProcessReviewAction,
     selectielijstklasse: string,
     resultaattype: string,
-    // TODO-1118: why this `undefined`? I think it's always normalized to en empty
-    //  string
     archiefactiedatum: string | undefined,
     comment: string,
   ) => {
