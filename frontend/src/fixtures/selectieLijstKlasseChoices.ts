@@ -17,7 +17,13 @@ const FIXTURE_SELECTIELIJSTKLASSE_CHOICES: SelectielijstklasseOption[] = [
       "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
     extraData: {
       bewaartermijn: null,
-      resultaattypen: [],
+      resultaattypen: [
+        {
+          label: "Ingesteld",
+          value:
+            "http://localhost:8000/catalogi/api/v1/resultaattypen/111-111-111",
+        },
+      ],
     },
   },
   {
