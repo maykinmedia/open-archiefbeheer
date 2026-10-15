@@ -2,7 +2,7 @@ import pytest
 from freezegun import freeze_time
 from vcr.cassette import Cassette
 from zgw_consumers.client import build_client
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
@@ -101,6 +101,99 @@ def test_process_review_response(openzaak_reload: None, vcr: Cassette):
     zaak_data = response.json()
 
     assert zaak_data["archiefactiedatum"] == "2024-10-01"
+
+
+@pytest.mark.django_db
+@pytest.mark.openzaak(fixtures=["complex_relations.json", "zaken.json"])
+def test_process_review_response_replaces_resultaat(
+    openzaak_reload: None,
+    vcr: Cassette,
+):
+    zrc_service = ServiceFactory.create(
+        api_type=APITypes.zrc,
+        api_root="http://localhost:8003/zaken/api/v1",
+        auth_type=AuthTypes.zgw,
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+    ServiceFactory.create(
+        api_type=APITypes.ztc,
+        api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+
+    with freeze_time("2026-10-15T16:00:00+02:00"):
+        retrieve_and_cache_zaken_from_openzaak()
+
+    record_manager = UserFactory.create(post__can_start_destruction=True)
+    reviewer = UserFactory.create(
+        post__can_review_destruction=True,
+    )
+
+    zaak = Zaak.objects.get(identificatie="ZAAK-01")
+
+    destruction_list = DestructionListFactory.create(
+        author=record_manager,
+        status=ListStatus.changes_requested,
+    )
+    item = DestructionListItemFactory.create(
+        zaak=zaak,
+        destruction_list=destruction_list,
+    )
+
+    DestructionListAssigneeFactory.create(
+        user=record_manager,
+        role=ListRole.author,
+        destruction_list=destruction_list,
+    )
+    DestructionListAssigneeFactory.create(
+        user=reviewer,
+        role=ListRole.main_reviewer,
+        destruction_list=destruction_list,
+    )
+
+    review_response = ReviewResponseFactory.create(
+        review__destruction_list=destruction_list,
+        review__author=reviewer,
+    )
+
+    new_resultaattype = "http://localhost:8003/catalogi/api/v1/resultaattypen/78eb24eb-c1eb-4647-a9df-05635b6ff25e"
+
+    ReviewItemResponseFactory.create(
+        review_item__destruction_list_item__zaak=item.zaak,
+        review_item__review=review_response.review,
+        action_item=DestructionListItemAction.remove,
+        action_zaak={
+            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
+            "resultaattype": new_resultaattype,
+            "archiefactiedatum": "2024-10-01",
+        },
+    )
+
+    old_resultaat = zaak.resultaat
+    assert old_resultaat is not None
+
+    process_review_response(review_response.pk)
+
+    zaak.refresh_from_db()
+
+    assert zaak.resultaat
+    assert zaak.resultaat != old_resultaat
+
+    zrc_client = build_client(zrc_service)
+    with zrc_client:
+        response = zrc_client.get(
+            zaak.resultaat,
+            headers={"Accept-Crs": "EPSG:4326"},
+        )
+        response.raise_for_status()
+
+    resultaat_data = response.json()
+
+    assert resultaat_data["zaak"] == zaak.url
+    assert resultaat_data["resultaattype"] == new_resultaattype
 
 
 @pytest.mark.django_db
