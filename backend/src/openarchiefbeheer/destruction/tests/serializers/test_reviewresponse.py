@@ -216,3 +216,207 @@ class ReviewResponseSerializerTests(TestCase):
         serializer = ReviewResponseSerializer(data=data, context={"request": request})
 
         self.assertTrue(serializer.is_valid())
+
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_resultaattypen_per_selectielijstklasse",
+        return_value={
+            "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a": [
+                {
+                    "value": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                    "label": "Afgehandeld",
+                }
+            ]
+        },
+    )
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
+        return_value={"waardering": "vernietigen"},
+    )
+    def test_selectielijst_action_required_resultaattype(self, *mocks):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        data = {
+            "review": review.pk,
+            "comment": "A response about the review.",
+            "items_responses": [
+                {
+                    "review_item": items_review.pk,
+                    "action_item": DestructionListItemAction.remove,
+                    "action_zaak_type": ZaakActionType.selectielijstklasse_and_bewaartermijn,
+                    "action_zaak": {
+                        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a",
+                        "archiefactiedatum": "2030-01-01",
+                    },
+                    "comment": "Change the selectielijstklasse.",
+                },
+            ],
+        }
+
+        serializer = ReviewResponseSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["items_responses"][0]["resultaattype"][0],
+            _(
+                "The resultaattype should be selected for the changed selectielijstklasse"
+            ),
+        )
+
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_resultaattypen_per_selectielijstklasse",
+        return_value={},
+    )
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
+        return_value={"waardering": "vernietigen"},
+    )
+    def test_selectielijst_action_unrelated_resultaattype(self, *mocks):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        data = {
+            "review": review.pk,
+            "comment": "A response about the review.",
+            "items_responses": [
+                {
+                    "review_item": items_review.pk,
+                    "action_item": DestructionListItemAction.remove,
+                    "action_zaak_type": ZaakActionType.selectielijstklasse_and_bewaartermijn,
+                    "action_zaak": {
+                        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a",
+                        "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactiedatum": "2030-01-01",
+                    },
+                    "comment": "Change the selectielijstklasse.",
+                },
+            ],
+        }
+
+        serializer = ReviewResponseSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["items_responses"][0]["resultaattype"][0],
+            _("This resultaattype can't be linked to the selected selectielijstklasse"),
+        )
+
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_resultaattypen_per_selectielijstklasse",
+        return_value={
+            "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a": [
+                {
+                    "value": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                    "label": "Afgehandeld",
+                }
+            ]
+        },
+    )
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
+        return_value={"waardering": "vernietigen"},
+    )
+    def test_selectielijst_action_with_resultaattype_valid(self, *mocks):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        data = {
+            "review": review.pk,
+            "comment": "A response about the review.",
+            "items_responses": [
+                {
+                    "review_item": items_review.pk,
+                    "action_item": DestructionListItemAction.remove,
+                    "action_zaak_type": (
+                        ZaakActionType.selectielijstklasse_and_bewaartermijn
+                    ),
+                    "action_zaak": {
+                        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a",
+                        "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactiedatum": "2030-01-01",
+                    },
+                    "comment": "Change the selectielijstklasse.",
+                },
+            ],
+        }
+
+        serializer = ReviewResponseSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_resultaattypen_per_selectielijstklasse",
+        side_effect=HTTPError,
+    )
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat"
+    )
+    def test_selectielijst_action_resultaattype_http_error(self, *mocks):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        data = {
+            "review": review.pk,
+            "comment": "A response about the review.",
+            "items_responses": [
+                {
+                    "review_item": items_review.pk,
+                    "action_item": DestructionListItemAction.remove,
+                    "action_zaak_type": (
+                        ZaakActionType.selectielijstklasse_and_bewaartermijn
+                    ),
+                    "action_zaak": {
+                        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a",
+                        "resultaattype": "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111",
+                        "archiefactiedatum": "2030-01-01",
+                    },
+                    "comment": "Change the selectielijstklasse.",
+                },
+            ],
+        }
+
+        serializer = ReviewResponseSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["items_responses"][0]["non_field_errors"][0],
+            _(
+                "Could not validate the resultaattype due to an unexpected response from the Catalogi API."
+            ),
+        )
