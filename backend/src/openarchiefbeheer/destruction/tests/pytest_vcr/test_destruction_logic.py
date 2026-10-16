@@ -791,3 +791,98 @@ def test_retry_destroying_list_with_previously_failed_item(
     assert item.processing_status == InternalStatus.succeeded
     assert not ResourceDestructionResult.objects.filter(item=item).exists()
     m.assert_called()
+
+
+@pytest.mark.django_db
+def test_delete_zaak_with_document(openzaak_reload: None, vcr: Cassette):
+    ServiceFactory.create(
+        slug="zaken",
+        api_type=APITypes.zrc,
+        api_root="http://localhost:8003/zaken/api/v1",
+        auth_type=AuthTypes.zgw,
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+    ServiceFactory.create(
+        slug="documents",
+        api_type=APITypes.drc,
+        auth_type=AuthTypes.zgw,
+        api_root="http://localhost:8003/documenten/api/v1",
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+    ServiceFactory.create(
+        slug="catalogi",
+        api_type=APITypes.ztc,
+        auth_type=AuthTypes.zgw,
+        api_root="http://localhost:8003/catalogi/api/v1",
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+    ServiceFactory.create(
+        api_type=APITypes.brc,
+        auth_type=AuthTypes.zgw,
+        api_root="http://localhost:8003/besluiten/api/v1",
+        client_id="test-vcr",
+        secret="test-vcr",
+    )
+    helper = OpenZaakDataCreationHelper(
+        zrc_service_slug="zaken",
+        ztc_service_slug="catalogi",
+        drc_service_slug="documents",
+    )
+    resources = helper.create_zaaktype_with_relations(
+        omschrijving="Test OAB zaaktype",
+        identificatie="ZAAKTYPE-2018-0000000001",
+    )
+    iot = helper.create_informatieobjecttype(
+        catalogus_url=resources["zaaktype"]["catalogus"]
+    )
+    helper.relate_zaaktype_informatieobjecttype(
+        informatieobjecttype_url=iot["url"],
+        zaaktype_url=resources["zaaktype"]["url"],
+    )
+    helper.publish_informatieobjecttype(iot["url"])
+    helper.publish_zaaktype(resources["zaaktype"]["url"])
+
+    zaak = helper.create_zaak(
+        identificatie="ZAAK-ID-0",
+        zaaktype_url=resources["zaaktype"]["url"],
+        startdatum="2020-01-01",
+        archiefactiedatum="2023-01-01",
+    )
+    io = helper.create_enkelvoudiginformatieobject(
+        informatieobjecttype_url=iot["url"],
+    )
+    # Relate zaak and document
+    helper.create_zaakinformatieobject(
+        zaak_url=zaak["url"], informatieobject_url=io["url"]
+    )
+    helper.close_zaak(
+        zaak_url=zaak["url"],
+        resultaattype_url=resources["resultaattype"]["url"],
+        statustype_url=resources["statustypen"][1]["url"],
+        toelichting="Closing zaak.",
+    )
+
+    with freeze_time("2026-10-16"):
+        resync_zaken()
+
+    item = DestructionListItemFactory.create(
+        zaak=Zaak.objects.get(identificatie="ZAAK-ID-0"),
+    )
+
+    delete_destruction_list_item(item.pk)
+
+    results = ResourceDestructionResult.objects.filter(
+        item=item, status=ResourceDestructionResultStatus.deleted
+    )
+    zaak_results = results.filter(resource_type="zaken")
+    assert zaak_results.count() == 1
+    assert zaak_results.get().url == zaak["url"]
+
+    io_results = results.filter(resource_type="enkelvoudiginformatieobjecten")
+    assert io_results.count() == 1
+    assert io_results.get().url == io["url"]
+
+    assert Zaak.objects.filter(url=zaak["url"]).exists() is False
