@@ -25,6 +25,7 @@ from ...accounts.tests.factories import UserFactory
 from ..constants import (
     InternalStatus,
     ListItemStatus,
+    ResourceType,
 )
 from .factories import (
     DestructionListCoReviewFactory,
@@ -283,17 +284,17 @@ class DestructionListTest(TestCase):
         # Fake intermediate results that are created during failures
         ResourceCreationResult.objects.create(
             destruction_list=destruction_list,
-            resource_type="resultaten",
+            resource_type=ResourceType.resultaten,
             url="http://localhost:8003/zaken/api/v1/resultaten/111-111-111",
         )
         ResourceCreationResult.objects.create(
             destruction_list=destruction_list,
-            resource_type="statussen",
+            resource_type=ResourceType.statussen,
             url="http://localhost:8003/zaken/api/v1/statussen/111-111-111",
         )
         ResourceCreationResult.objects.create(
             destruction_list=destruction_list,
-            resource_type="enkelvoudiginformatieobjecten",
+            resource_type=ResourceType.enkelvoudiginformatieobjecten,
             url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111",
         )
 

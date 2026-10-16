@@ -31,6 +31,7 @@ from ..constants import (
     ListRole,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
     ReviewDecisionChoices,
     ZaakActionType,
 )
@@ -387,7 +388,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
         )
         ResourceDestructionResult.objects.create(
             item=item,
-            resource_type="zaken",
+            resource_type=ResourceType.zaken,
             url="http://zaken.nl/api/v1/zaken/111-111-111",
             metadata={
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",

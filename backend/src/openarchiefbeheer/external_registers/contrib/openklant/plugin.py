@@ -1,3 +1,4 @@
+from openarchiefbeheer.destruction.constants import ResourceType
 from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
@@ -15,6 +16,6 @@ from .setup_configuration.steps import OpenKlantConfigurationStep
 @register(OPENKLANT_IDENTIFIER)
 class OpenKlantPlugin(AbstractBasePlugin):
     verbose_name = "Open Klant"
-    resource_type = "onderwerpobjecten"
+    resource_type = ResourceType.onderwerpobjecten
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = OpenKlantConfigurationStep

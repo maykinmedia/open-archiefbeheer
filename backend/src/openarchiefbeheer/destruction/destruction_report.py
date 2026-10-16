@@ -29,7 +29,7 @@ from openarchiefbeheer.logging.utils import get_event_template
 from openarchiefbeheer.utils.formatting import get_readable_timestamp
 from openarchiefbeheer.zaken.api.constants import ZAAK_METADATA_FIELDS_MAPPINGS
 
-from .constants import ResourceDestructionResultStatus
+from .constants import ResourceDestructionResultStatus, ResourceType
 from .models import DestructionList, ResourceCreationResult, ResourceDestructionResult
 
 
@@ -56,7 +56,7 @@ def _add_review_process_worksheet(
         )
         number_of_cases = ResourceDestructionResult.objects.filter(
             item__destruction_list=destruction_list,
-            resource_type="zaken",
+            resource_type=ResourceType.zaken,
             status=ResourceDestructionResultStatus.deleted,
         ).count()
 
@@ -112,7 +112,7 @@ def _add_zaken_worksheet(
 
     results = ResourceDestructionResult.objects.filter(
         item__destruction_list=destruction_list,
-        resource_type="zaken",
+        resource_type=ResourceType.zaken,
         status=ResourceDestructionResultStatus.deleted,
     )
 
@@ -134,7 +134,7 @@ def _add_related_resources_worksheet(
     )
 
     results = ResourceDestructionResult.objects.filter(
-        ~Q(resource_type="zaken"),
+        ~Q(resource_type=ResourceType.zaken),
         Q(status=ResourceDestructionResultStatus.deleted)
         | Q(status=ResourceDestructionResultStatus.unlinked),
         item__destruction_list=destruction_list,
@@ -218,7 +218,7 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
         if (
             config.resultaattype
             and not ResourceCreationResult.objects.filter(
-                destruction_list=destruction_list, resource_type="resultaten"
+                destruction_list=destruction_list, resource_type=ResourceType.resultaten
             ).exists()
         ):
             response = client.post(
@@ -232,14 +232,14 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
             response.raise_for_status()
             ResourceCreationResult.objects.create(
                 destruction_list=destruction_list,
-                resource_type="resultaten",
+                resource_type=ResourceType.resultaten,
                 url=response.json()["url"],
             )
 
         if (
             config.statustype
             and not ResourceCreationResult.objects.filter(
-                destruction_list=destruction_list, resource_type="statussen"
+                destruction_list=destruction_list, resource_type=ResourceType.statussen
             ).exists()
         ):
             response = client.post(
@@ -254,14 +254,14 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
             response.raise_for_status()
             ResourceCreationResult.objects.create(
                 destruction_list=destruction_list,
-                resource_type="statussen",
+                resource_type=ResourceType.statussen,
                 url=response.json()["url"],
             )
 
     if not (
         informatieobject := ResourceCreationResult.objects.filter(
             destruction_list=destruction_list,
-            resource_type="enkelvoudiginformatieobjecten",
+            resource_type=ResourceType.enkelvoudiginformatieobjecten,
         ).last()
     ):
         with (
@@ -287,7 +287,7 @@ def upload_destruction_report_to_openzaak(destruction_list: DestructionList) -> 
             response.raise_for_status()
             informatieobject = ResourceCreationResult.objects.create(
                 destruction_list=destruction_list,
-                resource_type="enkelvoudiginformatieobjecten",
+                resource_type=ResourceType.enkelvoudiginformatieobjecten,
                 url=response.json()["url"],
             )
 

@@ -16,7 +16,7 @@ from openarchiefbeheer.zaken.utils import (
     pagination_helper,
 )
 
-from .constants import ResourceDestructionResultStatus
+from .constants import ResourceDestructionResultStatus, ResourceType
 from .models import DestructionListItem, ResourceDestructionResult
 
 logger = logging.getLogger(__name__)
@@ -112,7 +112,7 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                     # delete it afterwards (you can't delete the EnkelvoudigInformatieObject if it still has relations!).
                     ResourceDestructionResult.objects.create(
                         item=item,
-                        resource_type="enkelvoudiginformatieobjecten",
+                        resource_type=ResourceType.enkelvoudiginformatieobjecten,
                         status=ResourceDestructionResultStatus.to_be_deleted,
                         url=bio["informatieobject"],
                     )
@@ -130,7 +130,7 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
 
                 ResourceDestructionResult.objects.create(
                     item=item,
-                    resource_type="besluiten",
+                    resource_type=ResourceType.besluiten,
                     status=(
                         ResourceDestructionResultStatus.deleted
                         if response.status_code == status.HTTP_204_NO_CONTENT
@@ -158,7 +158,7 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
             # delete it afterwards (you can't delete the EnkelvoudigInformatieObject if it still has relations!).
             ResourceDestructionResult.objects.create(
                 item=item,
-                resource_type="enkelvoudiginformatieobjecten",
+                resource_type=ResourceType.enkelvoudiginformatieobjecten,
                 status=ResourceDestructionResultStatus.to_be_deleted,
                 url=zio["informatieobject"],
             )
@@ -172,7 +172,7 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
 def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
     eios_to_delete = ResourceDestructionResult.objects.filter(
         item=item,
-        resource_type="enkelvoudiginformatieobjecten",
+        resource_type=ResourceType.enkelvoudiginformatieobjecten,
         status=ResourceDestructionResultStatus.to_be_deleted,
     )
     with drc_client() as client:
@@ -204,7 +204,7 @@ def delete_zaak(item: DestructionListItem) -> None:
 
     result = ResourceDestructionResult.objects.create(
         item=item,
-        resource_type="zaken",
+        resource_type=ResourceType.zaken,
         status=ResourceDestructionResultStatus.to_be_deleted,
         url=item.zaak.url,
         metadata=get_zaak_metadata(item.zaak),

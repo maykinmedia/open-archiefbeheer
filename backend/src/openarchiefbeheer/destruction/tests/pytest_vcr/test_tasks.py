@@ -20,6 +20,7 @@ from ...constants import (
     ListRole,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
 )
 from ...tasks import (
     complete_and_notify,
@@ -151,7 +152,7 @@ def test_document_deleted(openzaak_reload: None, vcr: Cassette):
     )
     ResourceDestructionResult.objects.create(
         item=item,
-        resource_type="enkelvoudiginformatieobjecten",
+        resource_type=ResourceType.enkelvoudiginformatieobjecten,
         # Doesn't exist in OZ
         url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0",
         status=ResourceDestructionResultStatus.to_be_deleted,
