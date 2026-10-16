@@ -28,6 +28,7 @@ from .constants import (
     ListRole,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
     ReviewDecisionChoices,
     ZaakActionType,
 )
@@ -638,6 +639,7 @@ class ResourceDestructionResult(models.Model):
     )
     resource_type = models.CharField(
         _("resource type"),
+        choices=ResourceType.choices,
         max_length=255,
         help_text=_(
             "The type of the resource, for example 'enkelvoudiginformatieobject' or 'zaak'."
