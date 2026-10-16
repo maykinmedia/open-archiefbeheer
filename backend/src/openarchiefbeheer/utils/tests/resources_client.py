@@ -343,10 +343,25 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
             "auteur": "OAB test tool",
             "taal": "dut",
             "informatieobjecttype": informatieobjecttype_url,
+            "indicatieGebruiksrecht": False,
         } | overrides
 
         return self._post_resource(
             data, "enkelvoudiginformatieobjecten", drc_client(self.drc_service_slug)
+        )
+
+    def create_zaakinformatieobject(
+        self,
+        zaak_url: str,
+        informatieobject_url: str,
+        **overrides: Mapping[str, JSONEncodable],
+    ) -> Mapping[str, JSONEncodable]:
+        data: Mapping[str, JSONEncodable] = {
+            "zaak": zaak_url,
+            "informatieobject": informatieobject_url,
+        } | overrides
+        return self._post_resource(
+            data, "zaakinformatieobjecten", zrc_client(self.zrc_service_slug)
         )
 
 

@@ -240,6 +240,17 @@ class Command(BaseCommand):
             omschrijving="Demo data OAB"  # pyright: ignore[reportArgumentType]
         )
         assert isinstance(resources["zaaktype"]["url"], str)
+
+        iot = helper.create_informatieobjecttype(
+            catalogus_url=resources["zaaktype"]["catalogus"]
+        )
+        assert isinstance(iot["url"], str)
+
+        helper.relate_zaaktype_informatieobjecttype(
+            informatieobjecttype_url=iot["url"],
+            zaaktype_url=resources["zaaktype"]["url"],
+        )
+        helper.publish_informatieobjecttype(iot["url"])
         helper.publish_zaaktype(resources["zaaktype"]["url"])
 
         zaken = [
@@ -249,9 +260,9 @@ class Command(BaseCommand):
             for _ in range(number_of_zaken)
         ]
 
-        # Add some unsupported relations. Chuck norris quotes!
         for zaak in zaken:
             assert isinstance(zaak["url"], str)
+            # Add some unsupported relations. Chuck norris quotes!
             helper.create_zaakobject(
                 zaak_url=zaak["url"],
                 object_url="https://api.chucknorris.io/jokes/3kcaD8EnSKuRHKAi9Lt8HQ",
@@ -259,6 +270,14 @@ class Command(BaseCommand):
                     "objectTypeOverige": "Chuck norris quote",
                     "objectIdentificatie": {"overigeData": "3kcaD8EnSKuRHKAi9Lt8HQ"},
                 },
+            )
+            # Add document
+            io = helper.create_enkelvoudiginformatieobject(
+                informatieobjecttype_url=iot["url"],
+            )
+            # Relate zaak and document
+            helper.create_zaakinformatieobject(
+                zaak_url=zaak["url"], informatieobject_url=io["url"]
             )
 
         # Close the zaken.
