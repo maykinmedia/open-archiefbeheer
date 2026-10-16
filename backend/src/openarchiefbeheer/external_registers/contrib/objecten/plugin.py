@@ -1,6 +1,7 @@
 from ape_pie import APIClient
 from requests import Response
 
+from openarchiefbeheer.destruction.constants import ResourceType
 from openarchiefbeheer.destruction.models import (
     DestructionListItem,
 )
@@ -20,7 +21,7 @@ from .setup_configuration.steps import ObjectenPluginConfigurartionStep
 @register(OBJECTEN_IDENTIFIER)
 class ObjectenPlugin(AbstractBasePlugin):
     verbose_name = "Objecten"
-    resource_type = "objecten"
+    resource_type = ResourceType.objecten
     setup_configuration_model = ExternalRegisterConfigurationModel
     setup_configuration_step = ObjectenPluginConfigurartionStep
 

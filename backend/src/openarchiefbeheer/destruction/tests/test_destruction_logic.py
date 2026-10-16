@@ -8,7 +8,10 @@ from rest_framework import status
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.constants import (
+    ResourceDestructionResultStatus,
+    ResourceType,
+)
 from openarchiefbeheer.destruction.destruction_logic import (
     delete_besluiten_and_besluiteninformatieobjecten,
     delete_enkelvoudiginformatieobjecten,
@@ -77,7 +80,7 @@ class DeletingZakenWithErrorsTests(TestCase):
 
         result = ResourceDestructionResult.objects.get(
             item=destruction_list_item,
-            resource_type="enkelvoudiginformatieobjecten",
+            resource_type=ResourceType.enkelvoudiginformatieobjecten,
             status=ResourceDestructionResultStatus.to_be_deleted,
         )
 
@@ -100,7 +103,7 @@ class DeletingZakenWithErrorsTests(TestCase):
 
         result = ResourceDestructionResult.objects.create(
             item=destruction_list_item,
-            resource_type="enkelvoudiginformatieobjecten",
+            resource_type=ResourceType.enkelvoudiginformatieobjecten,
             status=ResourceDestructionResultStatus.to_be_deleted,
             url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111",
         )

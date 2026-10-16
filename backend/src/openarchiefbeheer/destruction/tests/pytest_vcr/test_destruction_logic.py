@@ -21,6 +21,7 @@ from openarchiefbeheer.destruction.constants import (
     InternalStatus,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
 )
 from openarchiefbeheer.destruction.destruction_logic import (
     delete_external_relations,
@@ -101,7 +102,7 @@ def test_destroy_external_relations(vcr: Cassette):
 
     result = ResourceDestructionResult.objects.get(
         item=item,
-        resource_type="onderwerpobjecten",
+        resource_type=ResourceType.onderwerpobjecten,
         status=ResourceDestructionResultStatus.deleted,
     )
 
@@ -170,7 +171,7 @@ def test_delete_external_relations_except_excluded(vcr: Cassette):
 
     results = ResourceDestructionResult.objects.filter(
         item=item,
-        resource_type="onderwerpobjecten",
+        resource_type=ResourceType.onderwerpobjecten,
         status=ResourceDestructionResultStatus.deleted,
     )
 
@@ -215,7 +216,9 @@ def test_item_deletion(openzaak_reload: None, vcr: Cassette):
     delete_destruction_list_item(item.pk)
 
     results = ResourceDestructionResult.objects.filter(
-        item=item, status=ResourceDestructionResultStatus.deleted, resource_type="zaken"
+        item=item,
+        status=ResourceDestructionResultStatus.deleted,
+        resource_type=ResourceType.zaken,
     )
 
     assert results.count() == 1
@@ -340,7 +343,9 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
     assert item.processing_status == InternalStatus.succeeded
 
     results = ResourceDestructionResult.objects.filter(
-        item=item, status=ResourceDestructionResultStatus.deleted, resource_type="zaken"
+        item=item,
+        status=ResourceDestructionResultStatus.deleted,
+        resource_type=ResourceType.zaken,
     )
 
     assert results.count() == 1
@@ -401,7 +406,7 @@ def test_clean_local_metadata(vcr: Cassette):
     )
     ResourceDestructionResult.objects.create(
         item=item1,
-        resource_type="zaken",
+        resource_type=ResourceType.zaken,
         metadata={
             "url": "http://localhost:8003/zaken/api/v1/zaken/111-111-111",
             "omschrijving": "Test description 1",
@@ -426,7 +431,7 @@ def test_clean_local_metadata(vcr: Cassette):
     )
     ResourceDestructionResult.objects.create(
         item=item2,
-        resource_type="zaken",
+        resource_type=ResourceType.zaken,
         metadata={
             "url": "http://localhost:8003/zaken/api/v1/zaken/222-222-222",
             "omschrijving": "Test description 1",
@@ -877,11 +882,13 @@ def test_delete_zaak_with_document(openzaak_reload: None, vcr: Cassette):
     results = ResourceDestructionResult.objects.filter(
         item=item, status=ResourceDestructionResultStatus.deleted
     )
-    zaak_results = results.filter(resource_type="zaken")
+    zaak_results = results.filter(resource_type=ResourceType.zaken)
     assert zaak_results.count() == 1
     assert zaak_results.get().url == zaak["url"]
 
-    io_results = results.filter(resource_type="enkelvoudiginformatieobjecten")
+    io_results = results.filter(
+        resource_type=ResourceType.enkelvoudiginformatieobjecten
+    )
     assert io_results.count() == 1
     assert io_results.get().url == io["url"]
 

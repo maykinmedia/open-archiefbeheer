@@ -19,6 +19,7 @@ from ..constants import (
     ListItemStatus,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
     ReviewDecisionChoices,
 )
 from .factories import (
@@ -52,7 +53,7 @@ class DestructionReportTests(TestCase):
         )
         ResourceDestructionResult.objects.create(
             item=item1,
-            resource_type="zaken",
+            resource_type=ResourceType.zaken,
             url="http://zaken.nl/api/v1/zaken/111-111-111",
             status=ResourceDestructionResultStatus.deleted,
             metadata={
@@ -86,7 +87,7 @@ class DestructionReportTests(TestCase):
         )
         ResourceDestructionResult.objects.create(
             item=item1,
-            resource_type="onderwerpobjecten",
+            resource_type=ResourceType.onderwerpobjecten,
             status=ResourceDestructionResultStatus.deleted,
             url="http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/4b78537d-21f2-4f18-903e-2d3e9114fc7f",
         )
@@ -103,7 +104,7 @@ class DestructionReportTests(TestCase):
         )
         ResourceDestructionResult.objects.create(
             item=item2,
-            resource_type="zaken",
+            resource_type=ResourceType.zaken,
             url="http://zaken.nl/api/v1/zaken/111-111-222",
             status=ResourceDestructionResultStatus.deleted,
             metadata={
@@ -141,7 +142,7 @@ class DestructionReportTests(TestCase):
         )
         ResourceDestructionResult.objects.create(
             item=item3,
-            resource_type="zaken",
+            resource_type=ResourceType.zaken,
             url="http://zaken.nl/api/v1/zaken/111-111-333",
             status=ResourceDestructionResultStatus.deleted,
             metadata={

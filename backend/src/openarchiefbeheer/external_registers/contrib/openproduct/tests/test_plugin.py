@@ -4,7 +4,10 @@ from vcr.unittest import VCRMixin
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.constants import (
+    ResourceDestructionResultStatus,
+    ResourceType,
+)
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.utils.tests.mixins import ClearCacheMixin
@@ -84,7 +87,7 @@ class OpenProductPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         result = ResourceDestructionResult.objects.get(
             item=item,
-            resource_type="producten",
+            resource_type=ResourceType.producten,
             status=ResourceDestructionResultStatus.deleted,
         )
 

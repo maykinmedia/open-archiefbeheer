@@ -56,6 +56,21 @@ class ResourceDestructionResultStatus(models.TextChoices):
     to_be_deleted = "to_be_deleted", _("To be deleted")
 
 
+class ResourceType(models.TextChoices):
+    zaken = "zaken", _("zaken")
+    besluiten = "besluiten", _("besluiten")
+    enkelvoudiginformatieobjecten = (
+        "enkelvoudiginformatieobjecten",
+        _("enkelvoudiginformatieobjecten"),
+    )
+    resultaten = "resultaten", _("resultaten")
+    statussen = "statussen", _("statussen")
+    # external registers
+    objecten = "objecten", _("objecten")
+    onderwerpobjecten = "onderwerpobjecten", _("onderwerpobjecten")
+    producten = "producten", _("producten")
+
+
 MAPPING_ROLE_PERMISSIONS = {
     ListRole.author: "accounts.can_start_destruction",
     ListRole.main_reviewer: "accounts.can_review_destruction",

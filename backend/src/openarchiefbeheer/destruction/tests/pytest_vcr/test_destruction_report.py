@@ -15,7 +15,7 @@ from openarchiefbeheer.destruction.models import (
     ResourceCreationResult,
 )
 
-from ...constants import InternalStatus, ListStatus
+from ...constants import InternalStatus, ListStatus, ResourceType
 from ..factories import DestructionListFactory
 
 
@@ -223,20 +223,20 @@ def test_failure_when_creating_zio(openzaak_reload: None, vcr: Cassette):
     )
     assert (
         ResourceCreationResult.objects.get(
-            destruction_list=destruction_list, resource_type="resultaten"
+            destruction_list=destruction_list, resource_type=ResourceType.resultaten
         ).url
         == "http://localhost:8003/zaken/api/v1/resultaten/119d9a23-000a-47a6-a53a-d33c987e0b7d"
     )
     assert (
         ResourceCreationResult.objects.get(
-            destruction_list=destruction_list, resource_type="statussen"
+            destruction_list=destruction_list, resource_type=ResourceType.statussen
         ).url
         == "http://localhost:8003/zaken/api/v1/statussen/62424df0-2802-45c1-9c1c-634ea9d86651"
     )
     assert (
         ResourceCreationResult.objects.get(
             destruction_list=destruction_list,
-            resource_type="enkelvoudiginformatieobjecten",
+            resource_type=ResourceType.enkelvoudiginformatieobjecten,
         ).url
         == "http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/2b75b1d0-c247-4a1e-8120-18ed1c202a90"
     )

@@ -5,7 +5,10 @@ from vcr.unittest import VCRMixin
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openarchiefbeheer.destruction.constants import ResourceDestructionResultStatus
+from openarchiefbeheer.destruction.constants import (
+    ResourceDestructionResultStatus,
+    ResourceType,
+)
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
 from openarchiefbeheer.destruction.tests.factories import DestructionListItemFactory
 from openarchiefbeheer.external_registers.registry import register
@@ -93,7 +96,7 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         result = ResourceDestructionResult.objects.get(
             item=item,
-            resource_type="objecten",
+            resource_type=ResourceType.objecten,
             status=ResourceDestructionResultStatus.deleted,
         )
 
@@ -139,7 +142,7 @@ class ObjectenPluginTests(ClearCacheMixin, VCRMixin, TestCase):
 
         result = ResourceDestructionResult.objects.get(
             item=item,
-            resource_type="objecten",
+            resource_type=ResourceType.objecten,
         )
 
         self.assertEqual(result.status, ResourceDestructionResultStatus.unlinked)
