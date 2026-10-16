@@ -108,7 +108,7 @@
     "verlenging_duur": null,
     "opschorting_indicatie": false,
     "opschorting_reden": "",
-    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/78e12133-c467-4202-91ba-4417baa52801",
+    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
     "archiefnominatie": "vernietigen",
     "archiefstatus": "nog_te_archiveren",
     "archiefactiedatum": "2024-01-01",
@@ -821,6 +821,31 @@
     "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f33dbd16-68ae-4820-acb5-5f437bca5edb",
     "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
     "zaaktype": 1
+  }
+},
+{
+  "model": "catalogi.resultaattype",
+  "pk": 3,
+  "fields": {
+    "uuid": "78eb24eb-c1eb-4647-a9df-05635b6ff25e",
+    "omschrijving": "Afgehandeld",
+    "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f33dbd16-68ae-4820-acb5-5f437bca5edb",
+    "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
+    "zaaktype": 1
+  }
+},
+{
+  "model": "zaken.resultaat",
+  "pk": 10,
+  "fields": {
+    "_etag": "9ca03d2cf915c579e6a2a19d3425adea",
+    "uuid": "821b4d8f-3244-4ece-8d33-791fa6d2a2f3",
+    "zaak": 2,
+    "_resultaattype_base_url": null,
+    "_resultaattype_relative_url": null,
+    "_resultaattype_url": null,
+    "_resultaattype": 2,
+    "toelichting": "Existing resultaat"
   }
 }
 ]
