@@ -614,7 +614,14 @@ class ReviewItemResponse(models.Model):
             destruction_list_item.status = ListItemStatus.removed
             destruction_list_item.save()
 
-            destruction_list_item.zaak.update_data(self.action_zaak)
+            # create a new resultaat
+            zaak_data = self.action_zaak.copy()
+            resultaattype = zaak_data.pop("resultaattype", "")
+            if resultaattype:
+                destruction_list_item.zaak.replace_resultaat(resultaattype)
+
+            # update selectielijstklasse and archiefactiedatum
+            destruction_list_item.zaak.update_data(zaak_data)
 
         self.processing_status = InternalStatus.succeeded
         self.save()

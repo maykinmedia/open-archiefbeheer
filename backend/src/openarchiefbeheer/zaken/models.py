@@ -1,9 +1,13 @@
+import logging
+
 from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from openarchiefbeheer.clients import zrc_client
+
+logger = logging.getLogger(__name__)
 
 
 class Zaak(models.Model):
@@ -126,3 +130,35 @@ class Zaak(models.Model):
         serializer = ZaakSerializer(data=updated_zaak, partial=True, instance=self)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+    def replace_resultaat(self, resultaattype: str) -> None:
+        existing_resultaattype = self._expand.get("resultaat", {}).get(
+            "resultaattype", ""
+        )
+
+        if existing_resultaattype == resultaattype:
+            logger.info("replace_resultaat_skip")
+            return
+
+        with zrc_client() as client:
+            # zaak can have only one resultaat, so delete the old one
+            if self.resultaat:
+                delete_response = client.delete(
+                    self.resultaat, timeout=settings.REQUESTS_DEFAULT_TIMEOUT
+                )
+                delete_response.raise_for_status()
+
+            create_response = client.post(
+                "resultaten",
+                json={
+                    "zaak": self.url,
+                    "resultaattype": resultaattype,
+                },
+                timeout=settings.REQUESTS_DEFAULT_TIMEOUT,
+            )
+
+            create_response.raise_for_status()
+            resultaat = create_response.json()
+
+        self.resultaat = resultaat["url"]
+        self.save()
