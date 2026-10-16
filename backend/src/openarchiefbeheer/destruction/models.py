@@ -661,6 +661,9 @@ class ResourceDestructionResult(models.Model):
         verbose_name = _("Resource destruction result")
         verbose_name_plural = _("Resource destruction results")
 
+    def __str__(self):
+        return f"{self.resource_type}: {self.url}"
+
 
 class ResourceCreationResult(models.Model):
     destruction_list = models.ForeignKey(
