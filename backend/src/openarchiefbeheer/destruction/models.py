@@ -28,6 +28,7 @@ from .constants import (
     ListRole,
     ListStatus,
     ResourceDestructionResultStatus,
+    ResourceType,
     ReviewDecisionChoices,
     ZaakActionType,
 )
@@ -638,6 +639,7 @@ class ResourceDestructionResult(models.Model):
     )
     resource_type = models.CharField(
         _("resource type"),
+        choices=ResourceType.choices,
         max_length=255,
         help_text=_(
             "The type of the resource, for example 'enkelvoudiginformatieobject' or 'zaak'."
@@ -660,6 +662,9 @@ class ResourceDestructionResult(models.Model):
     class Meta:
         verbose_name = _("Resource destruction result")
         verbose_name_plural = _("Resource destruction results")
+
+    def __str__(self):
+        return f"{self.resource_type}: {self.url}"
 
 
 class ResourceCreationResult(models.Model):
