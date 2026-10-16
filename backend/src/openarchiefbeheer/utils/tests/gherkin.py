@@ -371,21 +371,23 @@ class GerkinMixin:
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814",
                         "extraData": {
                             "bewaartermijn": "P10Y",
+                            "resultaattypen": [
+                                {
+                                    "label": "Resultaattype 1",
+                                    "value": "http://catalogi-api.nl/resultaattypen/111-111-111",
+                                },
+                            ],
                         },
                     },
                     {
                         "label": "1.1.1 - Ingericht - blijvend_bewaren",
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
-                        "extraData": {
-                            "bewaartermijn": None,
-                        },
+                        "extraData": {"bewaartermijn": None, "resultaattypen": []},
                     },
                     {
                         "label": "1.1.2 - Ingericht - blijvend_bewaren",
                         "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/e84a06ac-1bdc-4e9c-9598-a22faa562459",
-                        "extraData": {
-                            "bewaartermijn": None,
-                        },
+                        "extraData": {"bewaartermijn": None, "resultaattypen": []},
                     },
                 ]
                 await route.fulfill(json=json)
