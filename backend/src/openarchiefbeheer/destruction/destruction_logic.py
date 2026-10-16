@@ -158,9 +158,9 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
             # delete it afterwards (you can't delete the EnkelvoudigInformatieObject if it still has relations!).
             ResourceDestructionResult.objects.create(
                 item=item,
-                resource_type="enkelvoudiginformatieobject",
+                resource_type="enkelvoudiginformatieobjecten",
                 status=ResourceDestructionResultStatus.to_be_deleted,
-                url=zio["url"],
+                url=zio["informatieobject"],
             )
 
             zio_uuid = furl(zio["url"]).path.segments[-1]
