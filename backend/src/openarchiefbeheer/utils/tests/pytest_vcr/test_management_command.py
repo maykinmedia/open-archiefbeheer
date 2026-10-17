@@ -72,7 +72,7 @@ def test_demo_data_command(openzaak_reload: None, vcr: Cassette) -> None:
         stdout=StringIO(),
     )
 
-    with freeze_time("2026-09-03"):
+    with freeze_time("2026-10-17"):
         resync_zaken()
 
     # check services
@@ -115,7 +115,7 @@ def test_demo_data_command_with_config_update(
         stdout=StringIO(),
     )
 
-    with freeze_time("2026-09-03"):
+    with freeze_time("2026-10-17"):
         resync_zaken()
 
     # check services
