@@ -23,6 +23,7 @@ import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks";
 import {
+  ArchiefactiedatumSource,
   DestructionListProcessZaakReviewModal,
   ProcessReviewAction,
 } from "./components";
@@ -38,6 +39,7 @@ type ProcessZaakReviewSelectionDetail = {
   selectielijstklasse: string;
   resultaattype: string;
   archiefactiedatum?: string;
+  archiefactiedatumSource: ArchiefactiedatumSource;
 };
 
 type ReviewMeta = {
@@ -89,6 +91,7 @@ export function DestructionListProcessReviewPage() {
     selectielijstklasse?: string;
     resultaattype?: string;
     archiefactiedatum?: string;
+    archiefactiedatumSource?: ArchiefactiedatumSource;
     comment?: string;
   }>(getStorageKey(), zakenOnPage);
   const zaakReviewStatuses = useZaakReviewStatuses(
@@ -182,8 +185,13 @@ export function DestructionListProcessReviewPage() {
       );
     }
 
-    const { archiefactiedatum, selectielijstklasse, resultaattype, comment } =
-      processZaakReviewDetail;
+    const {
+      archiefactiedatum,
+      archiefactiedatumSource,
+      selectielijstklasse,
+      resultaattype,
+      comment,
+    } = processZaakReviewDetail;
 
     const getSelectielijstklasseOption = (value: string | undefined) =>
       selectieLijstKlasseChoicesMap?.[zaak.url]?.find(
@@ -194,7 +202,11 @@ export function DestructionListProcessReviewPage() {
 
     // Only add the new archiefactiedatum if it exists and is different from the old one.
     // Additionally, include the old date if it was previously set.
-    if (archiefactiedatum && archiefactiedatum !== zaak.archiefactiedatum) {
+    if (
+      archiefactiedatum &&
+      archiefactiedatum !== zaak.archiefactiedatum &&
+      archiefactiedatumSource === "user"
+    ) {
       tooltipData["Archiefactiedatum (nieuw)"] = archiefactiedatum;
 
       // Include the old archiefactiedatum only if it is defined.
@@ -312,6 +324,7 @@ export function DestructionListProcessReviewPage() {
     selectielijstklasse: string,
     resultaattype: string,
     archiefactiedatum: string | undefined,
+    archiefactiedatumSource: ArchiefactiedatumSource,
     comment: string,
   ) => {
     // Add `zaak` to `ZaakSelection`
@@ -323,6 +336,7 @@ export function DestructionListProcessReviewPage() {
       selectielijstklasse,
       resultaattype,
       archiefactiedatum,
+      archiefactiedatumSource,
       comment,
     });
 
@@ -419,6 +433,9 @@ export function DestructionListProcessReviewPage() {
           processZaakReviewDetail?.archiefactiedatum ||
           processZaakReviewModalState.zaak?.archiefactiedatum ||
           ""
+        }
+        archiefactiedatumSource={
+          processZaakReviewDetail?.archiefactiedatumSource || "zaak"
         }
         comment={processZaakReviewDetail?.comment}
         onClose={handleProcessReviewClose}

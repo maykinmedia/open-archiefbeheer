@@ -26,6 +26,11 @@ export const LABEL_CHANGE_SELECTION_LIST_CLASS =
 export const LABEL_CHANGE_ARCHIVING_DATE = "Archiefactiedatum aanpassen";
 export const LABEL_KEEP = "Voorstel afwijzen";
 
+export type ArchiefactiedatumSource =
+  | "zaak" // original value
+  | "selectielijstklasse" // derived from Selectielijst API
+  | "user"; // explicitly edited, submit it
+
 type DestructionListProcessZaakReviewModalFormType = {
   zaakUrl: string;
   action: string;
@@ -46,6 +51,7 @@ export type DestructionListProcessZaakReviewModalProps = {
   selectieLijstKlasseChoices: SelectielijstklasseOption[];
   resultaattype: string;
   archiefactiedatum: string;
+  archiefactiedatumSource?: ArchiefactiedatumSource;
   comment?: string;
   onClose: () => void;
   onSubmit: (
@@ -54,6 +60,7 @@ export type DestructionListProcessZaakReviewModalProps = {
     selectielijstklasse: string,
     resultaattype: string,
     archiefactiedatum: string | undefined,
+    archiefactiedatumSource: ArchiefactiedatumSource,
     comment: string,
   ) => void;
 };
@@ -74,10 +81,6 @@ type ProcessZaakFormState = {
 
 /**
  * A modal allowing the user to process (review) feedback of a zaak.
- * @param open
- * @param zaak
- * @param reviewItem
- * @param selectielijstklasseChoices
  */
 export const DestructionListProcessZaakReviewModal: React.FC<
   DestructionListProcessZaakReviewModalProps
@@ -89,6 +92,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   selectieLijstKlasseChoices,
   resultaattype,
   archiefactiedatum,
+  archiefactiedatumSource = "zaak",
   comment,
   onClose,
   onSubmit,
@@ -104,6 +108,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   // Form state, kept outside <Form/> to implement conditional fields (see `getFields()`).
   const [formState, setFormState] =
     useState<ProcessZaakFormState>(initialFormState);
+  const [archiefactiedatumSourceState, setArchiefactiedatumSourceState] =
+    useState<ArchiefactiedatumSource>(archiefactiedatumSource);
 
   const getSelectielijstklasseValue = (
     selectielijstklasseChoice: string,
@@ -138,7 +144,15 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     };
 
     setFormState(newFormState);
-  }, [action, selectielijstklasse, resultaattype, archiefactiedatum, comment]);
+    setArchiefactiedatumSourceState(archiefactiedatumSource);
+  }, [
+    action,
+    selectielijstklasse,
+    resultaattype,
+    archiefactiedatum,
+    archiefactiedatumSource,
+    comment,
+  ]);
 
   // Show an error if zaak and review item are out of sync (this should not happen).
   if (open && !reviewItem) {
@@ -274,29 +288,45 @@ export const DestructionListProcessZaakReviewModal: React.FC<
      * Updates the form state, and validates the form.
      * @param values
      */
-    const archiefactiedatum = zaak?.archiefactiedatum as string;
-    const bewaartermijn = getBewaartermijn(
-      values.selectielijstklasse as string,
-    );
     const isSelectielijstklasseChanged =
       formState.selectielijstklasse !== values.selectielijstklasse;
+    const isArchiefactiedatumChanged =
+      formState.archiefactiedatum !== values.archiefactiedatum;
+    let nextArchiefactiedatumSource = archiefactiedatumSourceState;
+
     if (
       action === "change_selectielijstklasse" &&
       isSelectielijstklasseChanged
     ) {
+      nextArchiefactiedatumSource = "selectielijstklasse";
+
       // A resultaattype belongs to a specific selectielijstklasse, so a previously
       // selected resultaattype is no longer valid.
       values.resultaattype = "";
-
-      if (archiefactiedatum && bewaartermijn) {
+      const bewaartermijn = getBewaartermijn(
+        values.selectielijstklasse as string,
+      );
+      if (zaak?.archiefactiedatum && bewaartermijn) {
         // If the selectielijstklasse is changed, and all fields are available:
         //  - update the archive date based on the selectielijstklasse.
+        // This value is derived from the Selectielijst API and should not be submitted
         const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
         values.archiefactiedatum = formatDate(archiveDate, "iso");
+      } else {
+        values.archiefactiedatum = "";
       }
+    } else if (isArchiefactiedatumChanged) {
+      /*
+       * This branch is only reached when the archive date itself changed,
+       * in 'change_selectielijstklasse' or in 'change_archiefactiedatum' action
+       * rather than being updated as a consequence of selecting another
+       * selectielijstklasse.
+       */
+      nextArchiefactiedatumSource = "user";
     }
 
     setFormState(values as typeof formState);
+    setArchiefactiedatumSourceState(nextArchiefactiedatumSource);
     const _fields = getFields(values as typeof formState);
     return validateForm(values, _fields, validators);
   };
@@ -320,7 +350,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       action as ProcessReviewAction,
       selectielijstklasse,
       resultaattype,
-      getBewaartermijn(selectielijstklasse) ? archiefactiedatum : undefined,
+      archiefactiedatum || undefined,
+      archiefactiedatumSourceState,
       comment,
     );
   };
