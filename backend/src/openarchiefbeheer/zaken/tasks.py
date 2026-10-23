@@ -1,26 +1,27 @@
 import contextlib
 import datetime
-import logging
+from functools import partial
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import Max
 
+import structlog
 from ape_pie import APIClient
+from maykin_common.logging.audit import audit_logger
 from requests.adapters import HTTPAdapter, Retry
 
 from openarchiefbeheer.celery import app
 from openarchiefbeheer.clients import selectielijst_client, zrc_client
 from openarchiefbeheer.destruction.utils import resync_items_and_zaken
-from openarchiefbeheer.logging import logevent
 
 from .api.serializers import ZaakSerializer
 from .decorators import log_errors
 from .models import Zaak
 from .utils import pagination_helper, process_expanded_data
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def configure_retry(client: APIClient) -> APIClient:
@@ -79,7 +80,7 @@ def retrieve_and_cache_zaken(is_full_resync=False):
         )
 
         for index, data in enumerate(data_iterator):
-            logger.info("Retrieved page %s.", index + 1)
+            logger.info("case_page_retrieved", page=index + 1)
 
             zaken = data["results"]
             if not is_full_resync:
@@ -109,10 +110,10 @@ def retrieve_and_cache_zaken_from_openzaak() -> None:
 
 
 @app.task
-@log_errors(logevent.resync_failed)
+@log_errors(partial(audit_logger.warning, "resync_failed"))
 def resync_zaken():
-    logevent.resync_started()
+    audit_logger.info("resync_started")
 
     retrieve_and_cache_zaken(is_full_resync=True)
 
-    logevent.resync_successful()
+    audit_logger.info("resync_successful")
