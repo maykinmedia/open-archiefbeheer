@@ -12,7 +12,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openarchiefbeheer.accounts.tests.factories import UserFactory
 from openarchiefbeheer.celery import app as celery_app
 from openarchiefbeheer.config.models import ArchiveConfig
-from openarchiefbeheer.destruction.models import DestructionList
+from openarchiefbeheer.destruction.models import DestructionList, ReviewResponse
 from openarchiefbeheer.destruction.tests.factories import (
     DestructionListAssigneeFactory,
     DestructionListFactory,
@@ -600,6 +600,28 @@ class GerkinMixin:
                 patch("openarchiefbeheer.destruction.tasks.delete_destruction_list")
             )
 
+        def selectielijst_backend_services_are_available(self) -> None:
+            # can't use page.route because it only intercepts requests made by browser.
+            self.testcase.enterContext(
+                patch(
+                    "openarchiefbeheer.destruction.api.serializers.retrieve_selectielijstklasse_resultaat",
+                    return_value={"waardering": "vernietigen"},
+                )
+            )
+            self.testcase.enterContext(
+                patch(
+                    "openarchiefbeheer.destruction.api.serializers.retrieve_resultaattypen_per_selectielijstklasse",
+                    return_value={
+                        "https://selectielijst.openzaak.nl/api/v1/resultaten/afa30940-855b-4a7e-aa21-9e15a8078814": [
+                            {
+                                "label": "Resultaattype 1",
+                                "value": "http://catalogi-api.nl/resultaattypen/111-111-111",
+                            }
+                        ]
+                    },
+                )
+            )
+
     class When:
         """
         The "When" steps describe the actions or events that occur.
@@ -742,6 +764,32 @@ class GerkinMixin:
 
             elements = await locator.all()
             await elements[index].fill(value)
+
+        async def user_fills_date_field(self, page: Page, label: str, value: str):
+            """
+            date field is actually 3 input fields
+            """
+            year, month, day = value.split("-")
+
+            field = page.locator(f'[title="{label}"]')
+
+            day_input = field.get_by_label("dag van de maand", exact=True)
+            month_input = field.get_by_label("maand", exact=True)
+            year_input = field.get_by_label("jaar", exact=True)
+
+            await day_input.click()
+            await day_input.fill("")
+            await page.keyboard.type(day)
+
+            await month_input.click()
+            await month_input.fill("")
+            await page.keyboard.type(month)
+
+            await year_input.click()
+            await year_input.fill("")
+            await page.keyboard.type(year)
+
+            await page.keyboard.press("Tab")
 
         async def user_filters_zaken(self, page, name, value):
             locator = page.get_by_label(f'filter veld "{name}"')
@@ -1013,6 +1061,22 @@ class GerkinMixin:
             self, mock_delete_task, destruction_list
         ):
             mock_delete_task.assert_called_once_with(destruction_list)
+
+        @sync_to_async
+        def review_response_should_have_values(
+            self, action_item, action_zaak_type, action_zaak
+        ):
+            response = ReviewResponse.objects.order_by("-pk").first()
+            assert response is not None
+
+            item_response = response.items_responses.get()
+            self.testcase.assertEqual(item_response.action_item, action_item)
+            self.testcase.assertEqual(item_response.action_zaak_type, action_zaak_type)
+            self.testcase.assertEqual(item_response.action_zaak, action_zaak)
+
+        async def form_field_should_not_be_visible(self, page: Page, label: str):
+            field = page.get_by_label(label, exact=True)
+            await expect(field).not_to_be_visible()
 
 
 class GherkinLikeTestCase(GerkinMixin, PlaywrightTestCase):
