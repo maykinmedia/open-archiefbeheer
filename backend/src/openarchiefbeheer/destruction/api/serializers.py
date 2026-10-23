@@ -823,6 +823,7 @@ class ActionZaakSerializer(serializers.Serializer):
     )
     resultaattype = serializers.URLField(
         required=False,
+        allow_blank=True,
         help_text=_(
             "The URL of to a 'ResultaatType' resource from the Catalogi API., which should be used to created a new 'resultaat'."
         ),

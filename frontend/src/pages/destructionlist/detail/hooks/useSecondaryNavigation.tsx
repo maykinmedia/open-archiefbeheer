@@ -41,7 +41,10 @@ import {
   UpdateDestructionListAction,
   UpdateDestructionListProcessReviewAction,
 } from "../DestructionListDetail.action";
-import { ProcessReviewAction } from "../pages/process-review/components";
+import {
+  ArchiefactiedatumSource,
+  ProcessReviewAction,
+} from "../pages/process-review/components";
 
 interface ProcessZaakReviewSelectionDetail {
   comment: string;
@@ -49,6 +52,7 @@ interface ProcessZaakReviewSelectionDetail {
   selectielijstklasse: string;
   resultaattype: string;
   archiefactiedatum?: string;
+  archiefactiedatumSource: ArchiefactiedatumSource;
 }
 
 type MakeFinalFormType = {
@@ -277,8 +281,13 @@ export function useSecondaryNavigation<
                   actionZaak = {
                     selectielijstklasse: detail.selectielijstklasse,
                     resultaattype: detail.resultaattype,
-                    archiefactiedatum: detail.archiefactiedatum,
                   };
+                  if (
+                    detail.archiefactiedatumSource === "user" &&
+                    detail.archiefactiedatum
+                  ) {
+                    actionZaak.archiefactiedatum = detail.archiefactiedatum;
+                  }
                   break;
 
                 case "change_archiefactiedatum":
