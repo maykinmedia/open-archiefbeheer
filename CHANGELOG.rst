@@ -2,8 +2,15 @@
 Change history
 ==============
 
-2.1.0 (TBD)
-===========
+2.1.1 (2026-10-22)
+==================
+
+Hotfix release.
+
+* Updated the ``certifi`` certificate trust store.
+
+2.1.0 (2026-09-28)
+==================
 
 Feature release.
 
