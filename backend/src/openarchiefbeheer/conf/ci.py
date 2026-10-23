@@ -12,6 +12,8 @@ os.environ.setdefault("SECRET_KEY", "dummy")
 #   looked up from the django-solo model
 os.environ.setdefault("LOG_REQUESTS", "no")
 
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+
 # Playwright settings
 PLAYWRIGHT_BROWSER = config("PLAYWRIGHT_BROWSER", default="chromium")
 PLAYWRIGHT_HEADLESS = config("PLAYWRIGHT_HEADLESS", default=True)
