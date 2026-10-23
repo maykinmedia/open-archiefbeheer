@@ -23,6 +23,7 @@ import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks";
 import {
+  ArchiefactiedatumSource,
   DestructionListProcessZaakReviewModal,
   ProcessReviewAction,
 } from "./components";
@@ -36,7 +37,9 @@ type ProcessZaakReviewSelectionDetail = {
   comment: string;
   action: ProcessReviewAction;
   selectielijstklasse: string;
-  archiefactiedatum: string;
+  resultaattype: string;
+  archiefactiedatum?: string;
+  archiefactiedatumSource: ArchiefactiedatumSource;
 };
 
 type ReviewMeta = {
@@ -68,6 +71,7 @@ export function DestructionListProcessReviewPage() {
   } = useRouteLoaderData(
     "destruction-list:detail",
   ) as DestructionListDetailContext;
+
   const reviewItems: ReviewItemWithZaak[] =
     (_reviewItems?.filter(
       (ri) => ri.destructionListItem.zaak,
@@ -85,7 +89,9 @@ export function DestructionListProcessReviewPage() {
     approved?: boolean;
     action?: ProcessReviewAction;
     selectielijstklasse?: string;
+    resultaattype?: string;
     archiefactiedatum?: string;
+    archiefactiedatumSource?: ArchiefactiedatumSource;
     comment?: string;
   }>(getStorageKey(), zakenOnPage);
   const zaakReviewStatuses = useZaakReviewStatuses(
@@ -179,19 +185,28 @@ export function DestructionListProcessReviewPage() {
       );
     }
 
-    const { archiefactiedatum, selectielijstklasse, comment } =
-      processZaakReviewDetail;
+    const {
+      archiefactiedatum,
+      archiefactiedatumSource,
+      selectielijstklasse,
+      resultaattype,
+      comment,
+    } = processZaakReviewDetail;
 
-    const getLabel = (value: string | undefined) =>
+    const getSelectielijstklasseOption = (value: string | undefined) =>
       selectieLijstKlasseChoicesMap?.[zaak.url]?.find(
         (choice) => choice.value === value,
-      )?.label;
+      );
 
     const tooltipData: Record<string, string | undefined | number> = {};
 
     // Only add the new archiefactiedatum if it exists and is different from the old one.
     // Additionally, include the old date if it was previously set.
-    if (archiefactiedatum && archiefactiedatum !== zaak.archiefactiedatum) {
+    if (
+      archiefactiedatum &&
+      archiefactiedatum !== zaak.archiefactiedatum &&
+      archiefactiedatumSource === "user"
+    ) {
       tooltipData["Archiefactiedatum (nieuw)"] = archiefactiedatum;
 
       // Include the old archiefactiedatum only if it is defined.
@@ -200,20 +215,31 @@ export function DestructionListProcessReviewPage() {
       }
     }
 
-    const newSelectielijstklasse = getLabel(selectielijstklasse);
-    const oldSelectielijstklasse = getLabel(zaak?.selectielijstklasse);
+    const newSelectielijstklasseOption =
+      getSelectielijstklasseOption(selectielijstklasse);
+    const newSelectielijstklasseLabel = newSelectielijstklasseOption?.label;
+    const oldSelectielijstklasseLabel = getSelectielijstklasseOption(
+      zaak?.selectielijstklasse,
+    )?.label;
+    const newResultaattypeLabel =
+      newSelectielijstklasseOption?.extraData.resultaattypen?.find(
+        (choice) => choice.value === resultaattype,
+      )?.label;
 
     // Only add the new selectielijstklasse if it exists and is different from the old one.
     // Additionally, include the old selectielijstklasse if it was previously set.
+    // Note that the old resultaattype is not available on the zaak directly,
+    // and I don't think it's worth to try and resolve it.
     if (
-      newSelectielijstklasse &&
-      newSelectielijstklasse !== oldSelectielijstklasse
+      newSelectielijstklasseLabel &&
+      newSelectielijstklasseLabel !== oldSelectielijstklasseLabel
     ) {
-      tooltipData["Selectielijstklasse (nieuw)"] = newSelectielijstklasse;
+      tooltipData["Selectielijstklasse (nieuw)"] = newSelectielijstklasseLabel;
+      tooltipData["Resultaattype (nieuw)"] = newResultaattypeLabel;
 
       // Include the old selection list class only if it is defined.
-      if (oldSelectielijstklasse) {
-        tooltipData["Selectielijstklasse (oud)"] = oldSelectielijstklasse;
+      if (oldSelectielijstklasseLabel) {
+        tooltipData["Selectielijstklasse (oud)"] = oldSelectielijstklasseLabel;
       }
     }
 
@@ -296,7 +322,9 @@ export function DestructionListProcessReviewPage() {
     zaakUrl: string,
     action: ProcessReviewAction,
     selectielijstklasse: string,
+    resultaattype: string,
     archiefactiedatum: string | undefined,
+    archiefactiedatumSource: ArchiefactiedatumSource,
     comment: string,
   ) => {
     // Add `zaak` to `ZaakSelection`
@@ -306,7 +334,9 @@ export function DestructionListProcessReviewPage() {
     await handleSelect([{ url: zaakUrl }], true, {
       action,
       selectielijstklasse,
+      resultaattype,
       archiefactiedatum,
+      archiefactiedatumSource,
       comment,
     });
 
@@ -398,10 +428,14 @@ export function DestructionListProcessReviewPage() {
             processZaakReviewModalState.zaak?.url || ""
           ] || []
         }
+        resultaattype={processZaakReviewDetail?.resultaattype || ""}
         archiefactiedatum={
           processZaakReviewDetail?.archiefactiedatum ||
           processZaakReviewModalState.zaak?.archiefactiedatum ||
           ""
+        }
+        archiefactiedatumSource={
+          processZaakReviewDetail?.archiefactiedatumSource || "zaak"
         }
         comment={processZaakReviewDetail?.comment}
         onClose={handleProcessReviewClose}
