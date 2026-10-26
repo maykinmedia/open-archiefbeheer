@@ -6,12 +6,12 @@ from django.utils import timezone
 from django.utils.translation import gettext
 
 from freezegun import freeze_time
+from maykin_common.logging.audit import audit_logger
 from openpyxl import load_workbook
 from privates.test import temp_private_root
 
 from openarchiefbeheer.destruction.destruction_report import generate_destruction_report
 from openarchiefbeheer.destruction.models import ResourceDestructionResult
-from openarchiefbeheer.logging import logevent
 
 from ...accounts.tests.factories import UserFactory
 from ..constants import (
@@ -43,8 +43,10 @@ class DestructionReportTests(TestCase):
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
         with freeze_time("2024-12-01T12:00:00+01:00"):
-            logevent.destruction_list_deletion_triggered(
-                destruction_list, record_manager
+            audit_logger.info(
+                "destruction_list_deletion_triggered",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=record_manager.username,
             )
         item1 = DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -313,12 +315,16 @@ class DestructionReportTests(TestCase):
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
         with freeze_time("2024-12-01T12:00:00+01:00"):
-            logevent.destruction_list_deletion_triggered(
-                destruction_list, record_manager1
+            audit_logger.info(
+                "destruction_list_deletion_triggered",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=record_manager1.username,
             )
         with freeze_time("2024-12-01T12:30:00+01:00"):
-            logevent.destruction_list_deletion_triggered(
-                destruction_list, record_manager2
+            audit_logger.info(
+                "destruction_list_deletion_triggered",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=record_manager2.username,
             )
 
         generate_destruction_report(destruction_list)
@@ -377,40 +383,51 @@ class DestructionReportTests(TestCase):
             end=datetime(2024, 12, 2, 12, tzinfo=timezone.get_default_timezone()),
         )
 
-        review_reviewer_rejected = DestructionListReviewFactory.create(
+        DestructionListReviewFactory.create(
             author=reviewer, decision=ReviewDecisionChoices.rejected
         )
-        review_reviewer_accepted = DestructionListReviewFactory.create(
+        DestructionListReviewFactory.create(
             author=reviewer, decision=ReviewDecisionChoices.accepted
         )
-        review_archivist_accepted = DestructionListReviewFactory.create(
+        DestructionListReviewFactory.create(
             author=archivist, decision=ReviewDecisionChoices.accepted
         )
 
-        logevent.destruction_list_created(
-            destruction_list, author, reviewer
-        )  # A log with a different template (should NOT be present in the report)
+        audit_logger.info(  # A log with a different template (should NOT be present in the report)
+            "destruction_list_created",
+            destruction_list_uuid=str(destruction_list.uuid),
+            author=author.username,
+            reviewer=reviewer.username,
+        )
 
-        logevent.destruction_list_reviewed(
-            destruction_list,
-            review_reviewer_rejected,
+        audit_logger.info(  # A rejection (should NOT be present in the report)
+            "destruction_list_reviewed",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=reviewer.username,
             comment="Terrible",
-            user=reviewer,
-        )  # A rejection (should NOT be present in the report)
-        logevent.destruction_list_deletion_triggered(destruction_list, author)
+            approved=False,
+        )
+
+        audit_logger.info(
+            "destruction_list_deletion_triggered",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=author.username,
+        )
         with freeze_time("2024-05-02T16:00:00+02:00"):
-            logevent.destruction_list_reviewed(
-                destruction_list,
-                review_reviewer_accepted,
+            audit_logger.info(
+                "destruction_list_reviewed",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=reviewer.username,
                 comment="Nice",
-                user=reviewer,
+                approved=True,
             )
         with freeze_time("2024-05-08T09:45:00+02:00"):
-            logevent.destruction_list_reviewed(
-                destruction_list,
-                review_archivist_accepted,
+            audit_logger.info(
+                "destruction_list_reviewed",
+                destruction_list_uuid=str(destruction_list.uuid),
+                user=archivist.username,
                 comment="Ship it",
-                user=archivist,
+                approved=True,
             )
 
         generate_destruction_report(destruction_list)

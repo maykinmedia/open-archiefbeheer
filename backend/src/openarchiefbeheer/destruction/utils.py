@@ -5,6 +5,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 
+from maykin_common.logging.audit import audit_logger
+
 from openarchiefbeheer.accounts.models import User
 from openarchiefbeheer.clients import (
     _cached_with_args,
@@ -12,7 +14,6 @@ from openarchiefbeheer.clients import (
 )
 from openarchiefbeheer.emails.models import EmailConfig
 from openarchiefbeheer.emails.render_backend import get_sandboxed_backend
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.selection.models import SelectionItem
 from openarchiefbeheer.zaken.models import Zaak
 
@@ -174,7 +175,11 @@ def resync_items_and_zaken() -> None:
 
         number_deleted_items, _ = items_in_list.delete()
 
-        logevent.destruction_list_items_deleted(destruction_list, number_deleted_items)
+        audit_logger.info(
+            "destruction_list_items_deleted",
+            destruction_list_uuid=str(destruction_list.uuid),
+            number_deleted_items=number_deleted_items,
+        )
 
 
 @_cached_with_args

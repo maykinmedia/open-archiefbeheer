@@ -1,11 +1,12 @@
-import logging
 import traceback
 from datetime import date
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from celery import chain
+from maykin_common.logging.audit import audit_logger
 
 from openarchiefbeheer.celery import app
 from openarchiefbeheer.destruction.destruction_logic import (
@@ -19,7 +20,6 @@ from openarchiefbeheer.destruction.destruction_report import (
     generate_destruction_report,
     upload_destruction_report_to_openzaak,
 )
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.types import StrOrPromise
 
 from .constants import InternalStatus, ListItemStatus, ListStatus
@@ -35,7 +35,7 @@ from .utils import (
     prepopulate_selection_after_review_response,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @app.task
@@ -48,13 +48,17 @@ def process_review_response(pk: int) -> None:
         "review_item__destruction_list_item",
         "review_item__destruction_list_item__zaak",
     )
+    destruction_list = review_response.review.destruction_list
+    log = logger.bind(
+        review_response_pk=pk, destruction_list_uuid=str(destruction_list.uuid)
+    )
 
     for item_response in items_review_responses:
         try:
             item_response.process()
         except Exception as exc:  # noqa: PERF203
-            logger.exception(
-                "An error occurred while processing the review item response",
+            log.exception(
+                "process_review_response_failure",
                 exc_info=exc,
             )
 
@@ -62,28 +66,25 @@ def process_review_response(pk: int) -> None:
             item_response.save()
             return
 
-    destruction_list = review_response.review.destruction_list
     prepopulate_selection_after_review_response(
         destruction_list, items_review_responses
     )
     destruction_list.assign_next()
 
-    logevent.destruction_list_review_response_processed(destruction_list)
+    audit_log = audit_logger.bind(**structlog.get_context(log))
+    audit_log.info("destruction_list_review_response_processed")
 
 
 def delete_destruction_list(destruction_list: DestructionList) -> None:
+    log = logger.bind(destruction_list_uuid=str(destruction_list.uuid))
     if destruction_list.processing_status == InternalStatus.succeeded:
-        logger.info(
-            "Destruction list %s has already successfully been processed. Skipping.",
-            destruction_list.pk,
-        )
+        log.info("delete_destruction_list_skipped")
         return
 
     if not destruction_list.can_queue_destruction:
-        logger.warning(
-            "Cannot proceed with deleting list %s since it has status %s.",
-            destruction_list.name,
-            destruction_list.status,
+        log.warning(
+            "delete_destruction_list_abort",
+            status=str(destruction_list.status),
         )
         return
 
@@ -118,7 +119,10 @@ def queue_destruction_lists_for_deletion():
     for destruction_list in destruction_lists_to_process:
         delete_destruction_list(destruction_list)
 
-        logger.info("Queued the destruction of list %s", str(destruction_list.pk))
+        logger.info(
+            "delete_destruction_list_queued",
+            destruction_list_uuid=str(destruction_list.uuid),
+        )
 
 
 def handle_processing_error(
@@ -130,11 +134,10 @@ def handle_processing_error(
      - setting processing status
      - sending deletion-failure signal
     """
-    logger.error(msg=clarification)
     destruction_list.set_processing_status(InternalStatus.failed, clarification)
 
     deletion_failure.send(sender=destruction_list)
-    logevent.destruction_list_deletion_failed(destruction_list)
+    audit_logger.error("destruction_list_deletion_failed", clarification=clarification)
 
 
 @app.task
@@ -147,16 +150,20 @@ def delete_destruction_list_item(pk: int) -> None:
     """
     item = DestructionListItem.objects.get(pk=pk)
 
-    try:
-        _delete_destruction_list_item(item)
-    except Exception as exc:
-        logger.error(msg="".join(traceback.format_exception(exc)))
-        item.set_processing_status(
-            InternalStatus.failed,
-            _("Something went wrong unexpectedly:\n{e}").format(
-                e=traceback.format_exc()
-            ),
-        )
+    with structlog.contextvars.bound_contextvars(
+        destruction_list_uuid=str(item.destruction_list.uuid),
+        destruction_list_item_pk=item.pk,
+    ):
+        try:
+            _delete_destruction_list_item(item)
+        except Exception as exc:
+            logger.error("delete_destruction_list_item_failed", exc_info=exc)
+            item.set_processing_status(
+                InternalStatus.failed,
+                _("Something went wrong unexpectedly:\n{e}").format(
+                    e=traceback.format_exc()
+                ),
+            )
 
 
 def _delete_destruction_list_item(item: DestructionListItem) -> None:
@@ -182,20 +189,18 @@ def _delete_destruction_list_item(item: DestructionListItem) -> None:
     from Open Zaak and the external registers so that we can log them in the destruction report.
     """
     if item.processing_status == InternalStatus.succeeded:
-        logger.info("Item %s already successfully processed. Skipping.", item.pk)
+        logger.info("delete_destruction_list_item_skipped")
         return
 
     if not item.zaak:
-        logger.error("Could not find the zaak. Aborting deletion.")
+        logger.error("delete_destruction_list_item_not_found")
         item.set_processing_status(
             InternalStatus.failed, _("The related case could not be found.")
         )
         return
 
     if item.zaak.archiefactiedatum > date.today():
-        logger.error(
-            "Trying to delete zaak with archiefactiedatum in the future. Aborting deletion."
-        )
+        logger.error("delete_destruction_list_item_in_future")
         item.set_processing_status(
             InternalStatus.failed,
             _("The archiving date of the case lies in the future."),
@@ -219,15 +224,19 @@ def complete_and_notify(pk: int) -> None:
     Complete destruction list deletion and notify assignees with error handling.
     """
     destruction_list = DestructionList.objects.get(pk=pk)
-    try:
-        _complete_and_notify(destruction_list)
-    except Exception:
-        handle_processing_error(
-            destruction_list,
-            _("Something went wrong unexpectedly:\n{e}").format(
-                e=traceback.format_exc()
-            ),
-        )
+
+    with structlog.contextvars.bound_contextvars(
+        destruction_list_uuid=str(destruction_list.uuid)
+    ):
+        try:
+            _complete_and_notify(destruction_list)
+        except Exception:
+            handle_processing_error(
+                destruction_list,
+                _("Something went wrong unexpectedly:\n{e}").format(
+                    e=traceback.format_exc()
+                ),
+            )
 
 
 def _complete_and_notify(destruction_list: DestructionList) -> None:

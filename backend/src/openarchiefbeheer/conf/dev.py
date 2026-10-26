@@ -1,5 +1,6 @@
 import contextlib
 import os
+import sys
 import warnings
 
 from maykin_common.config import config
@@ -20,10 +21,12 @@ os.environ.setdefault("DB_PASSWORD", "openarchiefbeheer")
 
 os.environ.setdefault("ENVIRONMENT", "development")
 
-from .base import *  # noqa isort:skip
+os.environ.setdefault("LOG_STDOUT", "1")
+os.environ.setdefault("LOG_FORMAT_CONSOLE", "plain_console")
+os.environ.setdefault("LOG_LEVEL", "DEBUG")
+os.environ.setdefault("AUDIT_LOGGER_NAME", "openarchiefbeheer_audit")
 
-# Feel free to switch dev to sqlite3 for simple projects,
-# os.environ.setdefault("DB_ENGINE", "django.db.backends.sqlite3")
+from .base import *  # noqa isort:skip
 
 #
 # Standard Django settings.
@@ -32,32 +35,22 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 LOGGING["loggers"].update(
     {
-        "openarchiefbeheer": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
         "django": {
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": True,
         },
         "django.db.backends": {
-            "handlers": ["django"],
+            "handlers": ["json_file"],
             "level": "DEBUG",
             "propagate": False,
-        },
-        "performance": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
         },
         #
         # See: https://code.djangoproject.com/ticket/30554
         # Autoreload logs excessively, turn it down a bit.
         #
         "django.utils.autoreload": {
-            "handlers": ["django"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
@@ -113,6 +106,16 @@ ENVIRONMENT = "development"
 
 # Translations
 INSTALLED_APPS += ["rosetta"]
+
+#
+# Timeline-logger
+#
+
+# ensure we insert (audit) logs in the main thread & DB transaction in tests
+if "test" in sys.argv:
+    TIMELINE_HANDLER_USE_QUEUE = False
+    LOG_OUTGOING_REQUESTS_HANDLER_USE_QUEUE = False
+
 
 # Override settings with local settings.
 with contextlib.suppress(ImportError):

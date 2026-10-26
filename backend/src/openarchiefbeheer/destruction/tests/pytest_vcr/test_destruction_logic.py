@@ -6,6 +6,7 @@ import pytest
 import requests_mock
 from freezegun import freeze_time
 from furl import furl
+from maykin_common.logging.audit import audit_logger
 from pytest_django.fixtures import SettingsWrapper
 from vcr.cassette import Cassette
 from zgw_consumers.client import build_client
@@ -42,7 +43,6 @@ from openarchiefbeheer.external_registers.contrib.openklant.constants import (
     OPENKLANT_IDENTIFIER,
 )
 from openarchiefbeheer.external_registers.models import ExternalRegisterConfig
-from openarchiefbeheer.logging import logevent
 from openarchiefbeheer.utils.tests.resources_client import (
     OpenKlantCreationHelper,
     OpenZaakDataCreationHelper,
@@ -398,7 +398,11 @@ def test_clean_local_metadata(vcr: Cassette):
         author=record_manager,
     )
     with freeze_time("2026-01-22T12:00:00+01:00"):
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
+        audit_logger.info(
+            "destruction_list_deletion_triggered",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=record_manager.username,
+        )
 
     item1 = DestructionListItemFactory.create(
         processing_status=InternalStatus.succeeded,
@@ -661,7 +665,11 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         destruction_list=destruction_list,
     )
     with freeze_time("2026-01-22T12:00:00+01:00"):
-        logevent.destruction_list_deletion_triggered(destruction_list, record_manager)
+        audit_logger.info(
+            "destruction_list_deletion_triggered",
+            destruction_list_uuid=str(destruction_list.uuid),
+            user=record_manager.username,
+        )
 
     # ---------- Testing deletion
     delete_destruction_list(destruction_list)
@@ -770,7 +778,11 @@ def test_retry_destroying_list_with_previously_failed_item(
         processing_status=InternalStatus.failed,
         author=author,
     )
-    logevent.destruction_list_deletion_triggered(destruction_list, author)
+    audit_logger.info(
+        "destruction_list_deletion_triggered",
+        destruction_list_uuid=str(destruction_list.uuid),
+        user=author.username,
+    )
 
     DestructionListItemFactory.create(
         with_zaak=True,
