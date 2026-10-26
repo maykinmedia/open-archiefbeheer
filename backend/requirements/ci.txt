@@ -554,7 +554,7 @@ packaging==25.0
     #   opentelemetry-instrumentation
     #   pytest
     #   sphinx
-pillow==12.3.0
+pillow==13.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
