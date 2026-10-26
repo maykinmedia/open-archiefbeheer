@@ -299,7 +299,7 @@ packaging==25.0
     #   django-csp
     #   kombu
     #   opentelemetry-instrumentation
-pillow==12.3.0
+pillow==13.0.0
     # via -r requirements/base.in
 polib==1.2.0
     # via django-rosetta
