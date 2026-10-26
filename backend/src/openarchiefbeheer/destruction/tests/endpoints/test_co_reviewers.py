@@ -363,7 +363,7 @@ class CoReviewersViewSetTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
-            response.json()["add"][0]["user"][0],
+            response.json()["add"]["0"]["user"][0],
             _("The author of a list cannot be assigned as a co-reviewer."),
         )
 

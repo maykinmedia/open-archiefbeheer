@@ -146,7 +146,7 @@ django-timeline-logger==5.0.0
     # via -r requirements/base.in
 django-two-factor-auth==1.18.1
     # via maykin-2fa
-djangorestframework==3.17.2
+djangorestframework==3.18.3
     # via
     #   -r requirements/base.in
     #   djangorestframework-gis
@@ -299,7 +299,7 @@ packaging==25.0
     #   django-csp
     #   kombu
     #   opentelemetry-instrumentation
-pillow==12.3.0
+pillow==13.0.0
     # via -r requirements/base.in
 polib==1.2.0
     # via django-rosetta

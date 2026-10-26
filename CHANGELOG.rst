@@ -2,6 +2,16 @@
 Change history
 ==============
 
+2.1.2 (2026-10-26)
+==================
+
+Hotfix release.
+
+* Upgraded dependencies to their latest security releases:
+
+  - Pillow
+  - djangorestframework
+
 2.1.1 (2026-10-22)
 ==================
 
