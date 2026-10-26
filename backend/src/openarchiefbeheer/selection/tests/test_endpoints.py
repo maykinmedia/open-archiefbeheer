@@ -465,7 +465,7 @@ class SelectionAPITests(APITestCase):
         errors = response.json()
 
         self.assertEqual(
-            errors[0]["selection_data"][0],
+            errors["0"]["selection_data"][0],
             _("Too much data passed, limit is %(max_size)s bytes") % {"max_size": 10},
         )
 

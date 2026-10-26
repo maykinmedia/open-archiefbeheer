@@ -282,8 +282,8 @@ class DestructionListViewSetTest(APITestCase):
         self.assertEqual(
             data,
             {
-                "add": [
-                    {
+                "add": {
+                    "0": {
                         "zaak": [
                             _(
                                 "This case was already included in another destruction list and was"
@@ -291,8 +291,7 @@ class DestructionListViewSetTest(APITestCase):
                             )
                         ]
                     },
-                    {},
-                ]
+                }
             },
         )
 
