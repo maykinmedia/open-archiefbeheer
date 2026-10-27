@@ -27,16 +27,22 @@ services:
       - prometheus-tsdb:/prometheus
 
   # log scraping from container output
-  promtail:
-    image: grafana/promtail:latest
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - "12345:12345"  # Alloy debug UI
     volumes:
       # for service discovery & reading container logs - note that doing this in
       # production is NOT recommended due to security concerns
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # custom config file to scrape container logs
-      - ./promtail/config.yml:/etc/promtail/config.yml
-      - promtail-logs:/var/log
-    command: -config.file=/etc/promtail/config.yml
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy-data:/var/lib/alloy/data
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
 
   # open telemetry collector, receives metrics from the application instance(s)
   otel-collector:
@@ -48,6 +54,10 @@ services:
       - 4317:4317
       - 4318:4318
       - 8889:8889
+    networks:
+      - default
+      # Ensure the collector is reachable for the external services (such as Open Klant) as well
+      - oab-dev
 
   # dashboard tool, visualizes telemetry. queries loki and prometheus
   grafana:
@@ -63,5 +73,9 @@ services:
       - "3000:3000"
 
 volumes:
-  promtail-logs:
+  alloy-data:
   prometheus-tsdb:
+
+networks:
+  oab-dev:
+    name: oab-dev
