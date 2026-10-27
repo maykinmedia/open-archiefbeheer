@@ -25,10 +25,11 @@ You can now navigate to:
 - http://localhost:3100/ready for Loki readiness
 - http://localhost:3100/metrics for Loki metrics
 - http://localhost:9090 for the Prometheus web interface
+- http://localhost:9080 for the Alloy debug UI
 
 ## Logging
 
-For log scraping, parsing and querying we've set up Promtail as scraper, Loki as storage and Grafana
+For log scraping, parsing and querying we've set up Alloy as scraper, Loki as storage and Grafana
 as visualization tool.
 
 ### Sample queries
@@ -38,7 +39,7 @@ In the Grafana menu, navigate to "Explore" to create ad-hoc queries.
 **Web service logs**
 
 ```logql
-{job="docker", app="{{ project_name|lower }}"} | json | __error__ = ""
+{job="docker", app="openarchiefbeheer"} | json | __error__ = ""
 ```
 
 This ignores logs that cannot be parsed as JSON (such as container/server startup logs).
@@ -48,7 +49,7 @@ This ignores logs that cannot be parsed as JSON (such as container/server startu
 You can filter application logs based on a request ID:
 
 ```logql
-{job="docker", app="{{ project_name|lower }}"} | json | __error__ = "" | request_id=`1e9e1b9d-4d34-4657-99e4-88673d824724`
+{job="docker", app="openarchiefbeheer"} | json | __error__ = "" | request_id=`1e9e1b9d-4d34-4657-99e4-88673d824724`
 ```
 
 ## Metrics
