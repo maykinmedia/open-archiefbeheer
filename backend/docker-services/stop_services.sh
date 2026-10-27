@@ -5,3 +5,4 @@ docker compose -f openklant/docker-compose.yaml down
 docker compose -f objecten/docker-compose.yaml down
 docker compose -f openproduct/docker-compose.yaml down
 docker compose -f opennotificaties/docker-compose.yaml down
+docker compose -f observability/docker-compose.yaml down
