@@ -216,3 +216,49 @@ class ReviewResponseSerializerTests(TestCase):
         serializer = ReviewResponseSerializer(data=data, context={"request": request})
 
         self.assertTrue(serializer.is_valid())
+
+    @tag("gh-1103")
+    @patch(
+        "openarchiefbeheer.destruction.api.serializers.process_review_response.delay"
+    )
+    def test_proces_review_response_task_is_scheduled_after_commit(self, m):
+        record_manager = UserFactory.create(post__can_start_destruction=True)
+        review = DestructionListReviewFactory.create(
+            destruction_list__author=record_manager,
+            destruction_list__status=ListStatus.changes_requested,
+            destruction_list__assignee=record_manager,
+        )
+        items_review = DestructionListItemReviewFactory.create(
+            destruction_list_item__with_zaak=True,
+            destruction_list_item__destruction_list=review.destruction_list,
+            review=review,
+        )
+
+        data = {
+            "review": review.pk,
+            "comment": "A response to the review.",
+            "items_responses": [
+                {
+                    "review_item": items_review.pk,
+                    "action_item": DestructionListItemAction.remove,
+                    "action_zaak_type": ZaakActionType.bewaartermijn,
+                    "action_zaak": {"archiefactiedatum": "2030-01-01"},
+                    "comment": "This zaak needs to kept.",
+                },
+            ],
+        }
+
+        request = factory.get("/foo")
+        request.user = record_manager
+
+        serializer = ReviewResponseSerializer(data=data, context={"request": request})
+
+        self.assertTrue(serializer.is_valid())
+        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+            review_response = serializer.save()
+            # Not scheduled before commit
+            m.assert_not_called()
+
+        self.assertEqual(len(callbacks), 1)
+        # Should be scheduled after commit
+        m.assert_called_once_with(review_response.pk)
