@@ -25,10 +25,11 @@ You can now navigate to:
 - http://localhost:3100/ready for Loki readiness
 - http://localhost:3100/metrics for Loki metrics
 - http://localhost:9090 for the Prometheus web interface
+- http://localhost:12345 for the Alloy debug UI
 
 ## Logging
 
-For log scraping, parsing and querying we've set up Promtail as scraper, Loki as storage and Grafana
+For log scraping, parsing and querying we've set up Alloy as scraper, Loki as storage and Grafana
 as visualization tool.
 
 ### Sample queries

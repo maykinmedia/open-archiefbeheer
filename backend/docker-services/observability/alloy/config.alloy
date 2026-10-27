@@ -1,0 +1,67 @@
+// Scrape container logs via the docker socket and ship them to Loki.
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+// Relabel rules applied by loki.source.docker to each container target. The
+// __meta_docker_container_log_stream label is only available at this stage, which is
+// why the rules are passed via relabel_rules instead of relabelling the targets.
+discovery.relabel "containers" {
+  targets = []
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "logstream"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_client"]
+    target_label  = "client"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_app"]
+    target_label  = "app"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_target"]
+    target_label  = "target"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_service"]
+    target_label  = "service"
+  }
+
+  // don't scrape our own logs
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "alloy"
+    action        = "drop"
+  }
+}
+
+loki.source.docker "containers" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.docker.containers.targets
+  relabel_rules = discovery.relabel.containers.rules
+  labels        = {
+    job      = "docker",
+    instance = "docker.host.internal",
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
