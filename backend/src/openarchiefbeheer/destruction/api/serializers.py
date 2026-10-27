@@ -979,7 +979,7 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
             validated_data["review"].destruction_list, self.context["request"].user
         )
 
-        process_review_response.delay(review_response.pk)
+        transaction.on_commit(lambda: process_review_response.delay(review_response.pk))
 
         return review_response
 
