@@ -51,5 +51,6 @@ exec uwsgi \
     --processes $uwsgi_processes \
     --threads $uwsgi_threads \
     --post-buffering=8192 \
-    --buffer-size=65535
+    --buffer-size=65535 \
+    --master
     # processes & threads are needed for concurrency without nginx sitting inbetween
