@@ -991,7 +991,7 @@ class ReviewResponseSerializer(serializers.ModelSerializer):
             user=self.context["request"].user.username,
         )
 
-        process_review_response.delay(review_response.pk)
+        transaction.on_commit(lambda: process_review_response.delay(review_response.pk))
 
         return review_response
 
