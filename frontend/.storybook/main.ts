@@ -6,15 +6,8 @@ const config: StorybookConfig = {
     "@storybook/addon-links",
     "@chromatic-com/storybook",
     "storybook-addon-mock",
-    {
-      name: "@storybook/addon-coverage",
-      options: {
-        istanbul: {
-          exclude: ["**/*.stories.*", "**/.storybook/**", "**/fixtures/**"],
-        },
-      },
-    },
     "@storybook/addon-docs",
+    "@storybook/addon-vitest",
   ],
   framework: {
     name: "@storybook/react-vite",

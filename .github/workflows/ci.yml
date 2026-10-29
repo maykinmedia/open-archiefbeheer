@@ -150,11 +150,8 @@ jobs:
       - name: Run vitest tests
         run: npm run test:coverage
 
-      - name: Serve Storybook and run tests
-        run: |
-          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
-            "npx http-server storybook-static --port 6006" \
-            "npx wait-on tcp:127.0.0.1:6006 && npm run test-storybook"
+      - name: Run storybook test
+        run: npm run test-storybook:coverage
 
       - name: Publish coverage report (storybook)
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
