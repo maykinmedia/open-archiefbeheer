@@ -16,14 +16,14 @@ services:
       - POSTGRES_USER=openarchiefbeheer
       - POSTGRES_PASSWORD=openarchiefbeheer
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   redis:
     # NOTE: No persistence storage configured.
     image: redis:6
     command: [ "redis-server", "--appendonly", "yes" ]
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   web:
     build: .
@@ -65,7 +65,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   # TODO: the configuration does not result in properly working OIDC
   # The backchannel needs a hostname resolvable in the docker network but the 
@@ -80,7 +80,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   celery:
     build: .
@@ -96,7 +96,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   celery-beat:
     build: .
@@ -106,7 +106,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   nginx:
     image: nginx
@@ -117,8 +117,8 @@ services:
     depends_on:
       - web
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
 networks:
-  open-archiefbeheer-dev:
-    name: open-archiefbeheer-dev
+  oab-dev:
+    name: oab-dev

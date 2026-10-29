@@ -16,14 +16,14 @@ services:
       - POSTGRES_USER=openarchiefbeheer
       - POSTGRES_PASSWORD=openarchiefbeheer
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   redis:
     # NOTE: No persistence storage configured.
     image: redis:6
     command: [ "redis-server", "--appendonly", "yes" ]
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   web:
     image: oab-web-dev
@@ -69,7 +69,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   celery:
     image: oab-celery-dev
@@ -90,7 +90,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   celery-beat:
     image: oab-celery-beat-dev
@@ -105,7 +105,7 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   nginx:
     image: nginx
@@ -116,8 +116,8 @@ services:
     depends_on:
       - web
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
 networks:
-  open-archiefbeheer-dev:
-    name: open-archiefbeheer-dev
+  oab-dev:
+    name: oab-dev
