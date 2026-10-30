@@ -15,6 +15,10 @@ uwsgi_threads=${UWSGI_THREADS:-1}
 
 mountpoint=${SUBPATH:-/}
 
+# Figure out abspath of this script
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
 until pg_isready; do
   >&2 echo "Waiting for database connection..."
   sleep 1
@@ -40,6 +44,8 @@ python src/manage.py loaddata default_admin_index
 # Start server
 >&2 echo "Starting server"
 exec uwsgi \
+    --strict \
+    --ini "${SCRIPTPATH}/uwsgi.ini" \
     --http :$uwsgi_port \
     --http-keepalive \
     --manage-script-name \
@@ -52,5 +58,6 @@ exec uwsgi \
     --threads $uwsgi_threads \
     --post-buffering=8192 \
     --buffer-size=65535 \
-    --master
+    --master \
+    --need-app
     # processes & threads are needed for concurrency without nginx sitting inbetween
