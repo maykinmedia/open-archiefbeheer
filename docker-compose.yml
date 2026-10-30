@@ -5,6 +5,10 @@
 # purposes, or to get some insight in the various components involved (e.g. to build
 # your Helm charts from). Note that various environment variables are UNSAFE and merely
 # specified so that you can get up and running with the least amount of friction.
+x-labels: &x-labels
+  client: oab
+  target: docker-compose
+  app: openarchiefbeheer
 
 services:
   db:
@@ -66,6 +70,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: web
 
   # TODO: the configuration does not result in properly working OIDC
   # The backchannel needs a hostname resolvable in the docker network but the 
@@ -97,6 +104,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery
 
   celery-beat:
     build: .
@@ -107,6 +117,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery-beat
 
   nginx:
     image: nginx

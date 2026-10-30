@@ -5,6 +5,10 @@
 # purposes, or to get some insight in the various components involved (e.g. to build
 # your Helm charts from). Note that various environment variables are UNSAFE and merely
 # specified so that you can get up and running with the least amount of friction.
+x-labels: &x-labels
+  client: oab
+  target: docker-compose-dev
+  app: openarchiefbeheer
 
 services:
   db:
@@ -70,6 +74,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: web
 
   celery:
     image: oab-celery-dev
@@ -91,6 +98,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery
 
   celery-beat:
     image: oab-celery-beat-dev
@@ -106,6 +116,9 @@ services:
       - redis
     networks:
       - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery-beat
 
   nginx:
     image: nginx
