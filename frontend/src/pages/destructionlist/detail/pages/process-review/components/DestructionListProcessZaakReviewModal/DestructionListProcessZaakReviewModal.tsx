@@ -70,7 +70,7 @@ export type ProcessReviewAction =
   | "change_archiefactiedatum"
   | "keep";
 
-type ProcessZaakFormState = {
+export type ProcessZaakFormState = {
   zaakUrl: string;
   action: ProcessReviewAction | "";
   selectielijstklasse: string;
@@ -78,6 +78,58 @@ type ProcessZaakFormState = {
   archiefactiedatum: string;
   comment: string;
 };
+
+type FormMutation = {
+  resultaattype?: string;
+  archiefactiedatum?: string;
+  archiefactiedatumSource?: ArchiefactiedatumSource;
+};
+
+export function getFormMutation(
+  values: DestructionListProcessZaakReviewModalFormType,
+  previousValues: ProcessZaakFormState,
+  initialArchiefactiedatum: string,
+  bewaartermijn?: string | null,
+): FormMutation {
+  const mutation: FormMutation = {};
+
+  // Determine what the user changed before applying any derived mutations.
+  const isSelectielijstklasseChanged =
+    values.selectielijstklasse !== previousValues.selectielijstklasse;
+  const isArchiefactiedatumChanged =
+    values.archiefactiedatum !== previousValues.archiefactiedatum;
+
+  if (isSelectielijstklasseChanged) {
+    // A resultaattype belongs to a specific selectielijstklasse, so a previously
+    // selected resultaattype is no longer valid.
+    mutation.resultaattype = "";
+
+    if (initialArchiefactiedatum && bewaartermijn) {
+      // If the selectielijstklasse is changed, and all fields are available:
+      //  - update the archive date based on the selectielijstklasse.
+      // This value is derived from the Selectielijst API and should not be submitted
+      const archiveDate = addDuration(initialArchiefactiedatum, bewaartermijn);
+      mutation.archiefactiedatum = formatDate(archiveDate, "iso");
+    } else {
+      mutation.archiefactiedatum = "";
+    }
+
+    mutation.archiefactiedatumSource = "selectielijstklasse";
+  }
+
+  if (isArchiefactiedatumChanged) {
+    /*
+     * This branch is only reached when the archive date itself changed,
+     * in 'change_selectielijstklasse' or in 'change_archiefactiedatum' action
+     * rather than being updated as a consequence of selecting another
+     * selectielijstklasse.
+     */
+    // Keep the value from `values`; don't overwrite it with the derived date.
+    delete mutation.archiefactiedatum;
+    mutation.archiefactiedatumSource = "user";
+  }
+  return mutation;
+}
 
 /**
  * A modal allowing the user to process (review) feedback of a zaak.
@@ -282,51 +334,33 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   };
 
   const validate: FormValidator = (_values, _, validators) => {
-    const values = _values as DestructionListProcessZaakReviewModalFormType;
-    const action = values.action;
     /**
      * Updates the form state, and validates the form.
      * @param values
      */
-    const isSelectielijstklasseChanged =
-      formState.selectielijstklasse !== values.selectielijstklasse;
-    const isArchiefactiedatumChanged =
-      formState.archiefactiedatum !== values.archiefactiedatum;
-    let nextArchiefactiedatumSource = archiefactiedatumSourceState;
+    const values = _values as DestructionListProcessZaakReviewModalFormType;
+    const initialArchiefactiedatum = zaak?.archiefactiedatum as string;
+    const bewaartermijn = getBewaartermijn(
+      values.selectielijstklasse as string,
+    );
 
-    if (
-      action === "change_selectielijstklasse" &&
-      isSelectielijstklasseChanged
-    ) {
-      nextArchiefactiedatumSource = "selectielijstklasse";
+    const { archiefactiedatumSource, ...formMutation } = getFormMutation(
+      values as ProcessZaakFormState,
+      formState,
+      initialArchiefactiedatum,
+      bewaartermijn,
+    );
 
-      // A resultaattype belongs to a specific selectielijstklasse, so a previously
-      // selected resultaattype is no longer valid.
-      values.resultaattype = "";
-      const bewaartermijn = getBewaartermijn(
-        values.selectielijstklasse as string,
-      );
-      if (zaak?.archiefactiedatum && bewaartermijn) {
-        // If the selectielijstklasse is changed, and all fields are available:
-        //  - update the archive date based on the selectielijstklasse.
-        // This value is derived from the Selectielijst API and should not be submitted
-        const archiveDate = addDuration(archiefactiedatum, bewaartermijn);
-        values.archiefactiedatum = formatDate(archiveDate, "iso");
-      } else {
-        values.archiefactiedatum = "";
-      }
-    } else if (isArchiefactiedatumChanged) {
-      /*
-       * This branch is only reached when the archive date itself changed,
-       * in 'change_selectielijstklasse' or in 'change_archiefactiedatum' action
-       * rather than being updated as a consequence of selecting another
-       * selectielijstklasse.
-       */
-      nextArchiefactiedatumSource = "user";
+    const nextValues: ProcessZaakFormState = {
+      ...(values as ProcessZaakFormState),
+      ...formMutation,
+    };
+
+    setFormState(nextValues);
+
+    if (archiefactiedatumSource) {
+      setArchiefactiedatumSourceState(archiefactiedatumSource);
     }
-
-    setFormState(values as typeof formState);
-    setArchiefactiedatumSourceState(nextArchiefactiedatumSource);
     const _fields = getFields(values as typeof formState);
     return validateForm(values, _fields, validators);
   };
