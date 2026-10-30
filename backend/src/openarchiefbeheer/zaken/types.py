@@ -1,9 +1,7 @@
-from dataclasses import dataclass
-from typing import Optional
+from typing import NotRequired, TypedDict
 
 
-@dataclass
-class DropDownChoice:
+class DropDownChoice(TypedDict):
     label: str
     value: str
-    extra_data: Optional[dict] = None
+    extra_data: NotRequired[dict]

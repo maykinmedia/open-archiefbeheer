@@ -13,7 +13,10 @@ For each zaak that has been "rejected" by the reviewer, the record manager can:
    - Update the selectielijstklasse of the zaak. 
 
      This should automatically update the archiefactiedatum of the zaak (this is currently done by the frontend). 
-     *Example*: case where the zaak has the wrong selectielijstklasse by accident. 
+     *Example*: case where the zaak has the wrong selectielijstklasse by accident.
+
+     If there are resultaattypen configured with the new selectielijstklasse, record manager can select one of them
+     in the dropdown. Then the new resultaat will be created for this zaak, which will have the selected resultaattype.
 
      The record manager needs to still be able to update the archiefactiedatum manually. 
 
