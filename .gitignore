@@ -37,6 +37,7 @@ backend/static/
 backend/mail/
 backend/log/*.log*
 backend/log/nginx/*.log*
+backend/log/*.jsonl
 .env
 
 # Static files
