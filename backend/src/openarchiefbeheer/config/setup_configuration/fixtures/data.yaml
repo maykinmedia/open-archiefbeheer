@@ -50,7 +50,7 @@ zgw_consumers:
     header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
   - identifier: producten-api
     label: Open Product Producten API
-    api_root: http://localhost:8007/producten/api/v1/
+    api_root: http://host.docker.internal:8007/producten/api/v1/
     api_type: orc
     auth_type: api_key
     header_key: Authorization
