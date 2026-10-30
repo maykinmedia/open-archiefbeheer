@@ -107,4 +107,5 @@ linkcheck_retries = 3
 linkcheck_ignore = [
     "https://www.npmjs.com/",
     "https://opentelemetry.io/docs/collector/",  # Keeps giving read timeouts in CI
+    "http://localhost:*",
 ]
