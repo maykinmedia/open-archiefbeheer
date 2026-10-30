@@ -27,6 +27,11 @@ use any vendor that supports this protocol (over gRPC or HTTP/protobuf).
 
 **Environment variables you likely want to set**
 
+* ``OTEL_SERVICE_NAME``: name of the component that emits the telemetry. Use a distinct
+  value per component (e.g. ``openarchiefbeheer`` for the web process and
+  ``openarchiefbeheer-worker-<queue>`` for the Celery workers). A warning is emitted if
+  it's not set.
+
 * ``OTEL_EXPORTER_OTLP_ENDPOINT``: network address where to send the metrics to. Examples
   are: ``https://otel.example.com:4318`` or ``http://otel-collector.namespace.cluster.svc:4317``.
   It defaults to ``localhost:4317``, which will **not** work in a container context.
