@@ -27,7 +27,7 @@ services:
       - oab-dev
 
   openzaak-web.local:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.31.0}
     environment: &openzaak_web_env
       DJANGO_SETTINGS_MODULE: openzaak.conf.docker
       SECRET_KEY: ${SECRET_KEY:-fgv=c0hz&tl*8*3m3893@m+1pstrvidc9e^5@fpspmg%cy$15d}
@@ -76,7 +76,7 @@ services:
       - host.docker.internal:host-gateway
 
   openzaak-web-init:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.31.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: ["/bin/sh", "-c", "echo \"This is a destruction report\" > /app/private-media/uploads/2024/12/01219b90-0d13-4e25-b463-ab1545b05f05.bin"]
@@ -87,7 +87,7 @@ services:
       - oab-dev
 
   openzaak-web-setup-config:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.31.0}
     environment:
       <<: *openzaak_web_env
       RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
@@ -101,7 +101,7 @@ services:
       - oab-dev
 
   openzaak-celery:
-    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.26.0}
+    image: openzaak/open-zaak:${OPENZAAK_VERSION:-1.31.0}
     environment: *openzaak_web_env
     volumes: *openzaak_web_volumes
     command: /celery_worker.sh

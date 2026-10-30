@@ -22,7 +22,7 @@ services:
       - oab-dev
 
   openproduct-web:
-    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.10.0}
     environment: &web_env
       DJANGO_SETTINGS_MODULE: openproduct.conf.docker
       SECRET_KEY: ${SECRET_KEY:-django-insecure-@4wj9(+*bu7*v&%on7+e_8!d1ckl%r=6+sz#d2!pw^@lb0+=}
@@ -70,7 +70,7 @@ services:
       - host.docker.internal:host-gateway
 
   openproduct-web-init:
-    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.10.0}
     environment:
       <<: *web_env
       RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
@@ -85,7 +85,7 @@ services:
 
   # mount fixtures dir to automatically populate the DB
   openproduct-web-fixtures:
-    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.10.0}
     environment: *web_env
     command: sh -c "python src/manage.py loaddata ./fixtures/data.json"
     volumes: *web_volumes
@@ -96,7 +96,7 @@ services:
       - oab-dev
 
   openproduct-celery:
-    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.10.0}
     environment: *web_env
     command: /celery_worker.sh
     healthcheck:
@@ -112,7 +112,7 @@ services:
       - oab-dev
 
   openproduct-celery-beat:
-    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.8.0}
+    image: maykinmedia/open-product:${OPENPRODUCT_VERSION:-1.10.0}
     environment: *web_env
     command: /celery_beat.sh
     depends_on:
