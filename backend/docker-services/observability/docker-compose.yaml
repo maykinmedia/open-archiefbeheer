@@ -1,0 +1,81 @@
+---
+#
+# Compose file to spin up observability tooling/sinks. Usage:
+#
+#   docker compose -f docker-compose.yaml up [-d]
+#
+# Configure your project (local runserver!) OTEL endpoint to http://localhost:4317
+# (the default) and set
+# - OTEL_SDK_DISABLED=false
+# - OTEL_EXPORTER_OTLP_METRICS_INSECURE=true
+# - OTEL_METRIC_EXPORT_INTERVAL=10000  # export every 10s, if there are metrics
+#
+services:
+  # logs storage
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-tsdb:/prometheus
+
+  # log scraping from container output
+  alloy:
+    image: grafana/alloy:latest
+    ports:
+      - "12345:12345"  # Alloy debug UI
+    volumes:
+      # for service discovery & reading container logs - note that doing this in
+      # production is NOT recommended due to security concerns
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # custom config file to scrape container logs
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy-data:/var/lib/alloy/data
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+
+  # open telemetry collector, receives metrics from the application instance(s)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.131.0
+    command: --config=/etc/otel-collector-config.yaml
+    volumes:
+      - ./otel/otel-collector-config.yml:/etc/otel-collector-config.yaml
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 8889:8889
+    networks:
+      - default
+      # Ensure the collector is reachable for the external services (such as Open Klant) as well
+      - oab-dev
+
+  # dashboard tool, visualizes telemetry. queries loki and prometheus
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_FEATURE_TOGGLES_ENABLE=alertingSimplifiedRouting,alertingQueryAndExpressionsStepMode
+    ports:
+      - "3000:3000"
+
+volumes:
+  alloy-data:
+  prometheus-tsdb:
+
+networks:
+  oab-dev:
+    name: oab-dev
