@@ -1,5 +1,5 @@
 import ast
-import logging
+import logging  # noqa: TID251 - only used for the log levels
 from datetime import date
 from unittest.mock import patch
 

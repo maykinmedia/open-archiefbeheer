@@ -1,4 +1,4 @@
-import logging
+import logging  # noqa: TID251 - only used for the log levels
 
 from django.test import TestCase
 
@@ -29,10 +29,7 @@ class ZaakReplaceResultaatTests(TestCase):
             "http://catalogue-api.nl/catalogi/api/v1/resultaattypen/111-111-111"
         )
 
-        self.assertEqual(
-            logs[0],
-            ("openarchiefbeheer.zaken.models", "INFO", "replace_resultaat_skip"),
-        )
+        self.assertTrue("replace_resultaat_skip" in logs[0][2])
 
     def test_replace_resultaat_deletes_existing_resultaat_and_creates_new_one(self):
         old_resultaat = "http://zaken-api.nl/zaken/api/v1/resultaten/111-111-111"

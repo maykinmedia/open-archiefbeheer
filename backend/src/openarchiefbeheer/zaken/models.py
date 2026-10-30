@@ -1,13 +1,13 @@
-import logging
-
 from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
+import structlog
+
 from openarchiefbeheer.clients import zrc_client
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class Zaak(models.Model):
