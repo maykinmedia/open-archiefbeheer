@@ -3,7 +3,7 @@ zgw_consumers:
   services:
     - identifier: open-notificaties-api
       label: Open Notificaties API
-      api_root: http://localhost:8008/api/v1
+      api_root: http://host.docker.internal:8008/api/v1
       api_type: nrc
       auth_type: zgw
       client_id: open-product

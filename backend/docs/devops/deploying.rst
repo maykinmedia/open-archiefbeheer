@@ -32,7 +32,7 @@ In this way we don't override the backend CSP headers.
 Open Zaak
 =========
 
-The minimum supported version of Open Zaak is ``1.18.0``.
+The minimum supported version of Open Zaak is ``1.31.0``.
 
 
 External registers
@@ -43,7 +43,7 @@ API               Supported versions
 ================  ===================
 Open Objecten     4.2
 Open Klant        2.18
-Open Product      1.8
+Open Product      1.10
 ================  ===================
 
 .. _devops-deploying-configuration:

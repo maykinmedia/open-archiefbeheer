@@ -10,6 +10,7 @@ from typing import (
 from django.db.models.functions import Length
 from django.utils.translation import gettext as _
 
+import structlog
 from zgw_consumers.client import build_client
 
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
@@ -28,6 +29,8 @@ if TYPE_CHECKING:
     from zgw_consumers.models import Service
 
     from openarchiefbeheer.destruction.models import DestructionListItem
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class AbstractBasePlugin(ABC):
@@ -122,6 +125,11 @@ class AbstractBasePlugin(ABC):
                     ResourceDestructionResultStatus.deleted
                     if response.status_code == 204
                     else ResourceDestructionResultStatus.unlinked
+                )
+                logger.info(
+                    "related_resource_deleted",
+                    url=resource_url,
+                    status_resource=str(status_resource),
                 )
 
                 ResourceDestructionResult.objects.create(
