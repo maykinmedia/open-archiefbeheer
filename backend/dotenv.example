@@ -13,3 +13,6 @@ DB_PORT=""
 # using MacPorts)
 # GEOS_LIBRARY_PATH=/opt/homebrew/opt/geos/lib/libgeos_c.dylib
 # GDAL_LIBRARY_PATH=/opt/homebrew/opt/gdal/lib/libgdal.dylib
+
+# Telemetry
+OTEL_SERVICE_NAME=openarchiefbeheer

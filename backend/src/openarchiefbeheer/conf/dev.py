@@ -26,6 +26,9 @@ os.environ.setdefault("LOG_FORMAT_CONSOLE", "plain_console")
 os.environ.setdefault("LOG_LEVEL", "DEBUG")
 os.environ.setdefault("AUDIT_LOGGER_NAME", "openarchiefbeheer_audit")
 
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+os.environ.setdefault("OTEL_EXPORTER_OTLP_METRICS_INSECURE", "true")
+
 from .base import *  # noqa isort:skip
 
 #

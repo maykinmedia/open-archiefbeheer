@@ -5,6 +5,10 @@
 # purposes, or to get some insight in the various components involved (e.g. to build
 # your Helm charts from). Note that various environment variables are UNSAFE and merely
 # specified so that you can get up and running with the least amount of friction.
+x-labels: &x-labels
+  client: oab
+  target: docker-compose-dev
+  app: openarchiefbeheer
 
 services:
   db:
@@ -16,14 +20,14 @@ services:
       - POSTGRES_USER=openarchiefbeheer
       - POSTGRES_PASSWORD=openarchiefbeheer
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   redis:
     # NOTE: No persistence storage configured.
     image: redis:6
     command: [ "redis-server", "--appendonly", "yes" ]
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
   web:
     image: oab-web-dev
@@ -55,13 +59,24 @@ services:
       - OAB_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
       - DISABLE_2FA=yes
+      # Enabling Open Telemetry requires a target to send telemetry towards!
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
+      - OTEL_RESOURCE_ATTRIBUTES=oab.client=oab,oab.target=oab
+      - OTEL_METRIC_EXPORT_INTERVAL=${OTEL_METRIC_EXPORT_INTERVAL:-60000}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}  # gRPC
+      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic b3RlbDpzdXBlcnNlY3JldA==  # otel:supersecret, b64-encoded
+      - OTEL_EXPORTER_OTLP_METRICS_INSECURE=${OTEL_EXPORTER_OTLP_METRICS_INSECURE:-true}
+      - _OTEL_ENABLE_CONTAINER_RESOURCE_DETECTOR=true
     ports:
       - 8000:8000
     depends_on:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
+    labels:
+      <<: *x-labels
+      service: web
 
   celery:
     image: oab-celery-dev
@@ -82,7 +97,10 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery
 
   celery-beat:
     image: oab-celery-beat-dev
@@ -97,7 +115,10 @@ services:
       - db
       - redis
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
+    labels:
+      <<: *x-labels
+      service: celery-beat
 
   nginx:
     image: nginx
@@ -108,8 +129,8 @@ services:
     depends_on:
       - web
     networks:
-      - open-archiefbeheer-dev
+      - oab-dev
 
 networks:
-  open-archiefbeheer-dev:
-    name: open-archiefbeheer-dev
+  oab-dev:
+    name: oab-dev

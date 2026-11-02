@@ -67,3 +67,4 @@ docker compose -f openklant/docker-compose.yaml up -d
 docker compose -f objecten/docker-compose.yaml up -d
 docker compose -f openproduct/docker-compose.yaml up -d
 docker compose -f opennotificaties/docker-compose.yaml up -d
+docker compose -f observability/docker-compose.yaml up -d
