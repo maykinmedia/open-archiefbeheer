@@ -327,7 +327,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             (
                 "openarchiefbeheer.destruction.tasks",
                 "INFO",
-                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'event': 'delete_destruction_list_skipped', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}}",
+                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'event': 'delete_destruction_list_skipped', 'source': 'app', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'info'}}",
             ),
             logs[0],
         )
@@ -344,7 +344,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             (
                 "openarchiefbeheer.destruction.tasks",
                 "WARNING",
-                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'status': 'changes_requested', 'event': 'delete_destruction_list_abort', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'warning'}}",
+                f"{{'destruction_list_uuid': '{destruction_list.uuid}', 'status': 'changes_requested', 'event': 'delete_destruction_list_abort', 'source': 'app', 'timestamp': '2026-10-09T10:00:00Z', 'logger': 'openarchiefbeheer.destruction.tasks', 'level': 'warning'}}",
             ),
             logs[0],
         )
@@ -369,6 +369,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
                 "timestamp": "2026-10-09T10:00:00Z",
                 "logger": "openarchiefbeheer.destruction.tasks",
                 "level": "info",
+                "source": "app",
             },
         )
 
