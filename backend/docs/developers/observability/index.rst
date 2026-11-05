@@ -16,7 +16,8 @@ data, also called `signals`_:
     TBD. See :ref:`developers_observability_metrics`.
 
 **Traces**
-    TBD. See :ref:`developers_observability_traces`.
+    The path of a single unit of work (e.g. a request or a Celery task) through the system.
+    See :ref:`developers_observability_traces`.
 
 Architecture
 ============
@@ -46,7 +47,9 @@ OTel Collector    Receives metrics, traces (and logs) over OTLP          ``local
 Prometheus        Scrapes and stores the metrics from the collector      http://localhost:9090
 Alloy             Scrapes the container logs via the docker socket       http://localhost:9080
 Loki              Stores the logs                                        http://localhost:3100
-Grafana           Visualizes logs (Loki) and metrics (Prometheus)        http://localhost:3000
+Tempo             Scrapes and stores the traces from the collector       http://localhost:3200
+Grafana           Visualizes logs (Loki), metrics (Prometheus),          http://localhost:3000
+                  and traces (Tempo)
 ================  =====================================================  ==========================
 
 Please refer to the corresponding ``README.md`` file for more information.
