@@ -17,6 +17,8 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - oab-dev
 
   prometheus:
     image: prom/prometheus:latest
@@ -25,6 +27,8 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-tsdb:/prometheus
+    networks:
+      - oab-dev
 
   # log scraping from container output
   alloy:
@@ -43,6 +47,8 @@ services:
       - --server.http.listen-addr=0.0.0.0:9080
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
+    networks:
+      - oab-dev
 
   # Traces backend
   tempo:
@@ -53,6 +59,8 @@ services:
       - ./tempo-data:/var/tempo
     ports:
       - "3200:3200"  # tempo
+    networks:
+      - oab-dev
 
   # open telemetry collector, receives metrics from the application instance(s)
   otel-collector:
@@ -65,8 +73,6 @@ services:
       - 4318:4318
       - 8889:8889
     networks:
-      - default
-      # Ensure the collector is reachable for the external services (such as Open Klant) as well
       - oab-dev
 
   # dashboard tool, visualizes telemetry. queries loki and prometheus
@@ -81,6 +87,8 @@ services:
       - GF_FEATURE_TOGGLES_ENABLE=alertingSimplifiedRouting,alertingQueryAndExpressionsStepMode
     ports:
       - "3000:3000"
+    networks:
+      - oab-dev
 
 volumes:
   alloy-data:
