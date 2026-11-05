@@ -26,6 +26,8 @@ You can now navigate to:
 - http://localhost:3100/metrics for Loki metrics
 - http://localhost:9090 for the Prometheus web interface
 - http://localhost:9080 for the Alloy debug UI
+- http://localhost:3200/ready for Tempo readiness
+- http://localhost:3200/status for Tempo status
 
 ## Logging
 
@@ -71,4 +73,14 @@ The `maykin_common.otel` module takes care of setting everything up, just make s
 set the environment variable `OTEL_SDK_DISABLED=false` in development (it's truthy by default,
 meaning the SDK is disabled).
 
-The collector ingests the traces and prints them out to stdout.
+The collector ingests the traces and forwards them to our tracing backend Tempo.
+
+### Sample queries
+
+In the Grafana menu, navigate to "Explore" and select "Tempo" as a source to create ad-hoc queries.
+
+To get the traces for a login action of the admin:
+
+```traceql
+{resource.service.name="openarchiefbeheer-web" && name="POST admin/login/"}
+```
