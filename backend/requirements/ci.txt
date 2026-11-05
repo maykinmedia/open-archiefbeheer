@@ -65,7 +65,6 @@ certifi==2026.10.19
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   elastic-apm
     #   requests
     #   sentry-sdk
 cffi==2.0.0
@@ -307,15 +306,6 @@ drf-spectacular==0.30.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-ecs-logging==2.1.0
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   elastic-apm
-elastic-apm==6.26.2
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
 et-xmlfile==2.0.0
     # via openpyxl
 face==20.1.1
@@ -377,11 +367,6 @@ idna==3.18
     #   requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.7.1
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   opentelemetry-api
 inflection==0.5.1
     # via
     #   -c requirements/base.txt
@@ -442,6 +427,7 @@ opentelemetry-api==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-instrumentation
@@ -454,10 +440,21 @@ opentelemetry-api==1.45.2
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
+opentelemetry-exporter-http-transport==0.66b2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-exporter-otlp==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+opentelemetry-exporter-otlp-common==0.66b2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 opentelemetry-exporter-otlp-proto-common==1.45.2
     # via
     #   -c requirements/base.txt
@@ -530,6 +527,7 @@ opentelemetry-sdk==1.45.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   opentelemetry-exporter-otlp-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-resource-detector-containerid
@@ -721,6 +719,7 @@ requests==2.34.2
     #   docker
     #   maykin-common
     #   mozilla-django-oidc
+    #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-http
     #   pytest-base-url
     #   requests-mock
@@ -852,7 +851,6 @@ urllib3==2.8.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   docker
-    #   elastic-apm
     #   requests
     #   sentry-sdk
     #   types-requests
@@ -889,7 +887,6 @@ wrapt==1.14.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   elastic-apm
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
@@ -902,8 +899,3 @@ zgw-consumers==2.0.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-zipp==3.23.0
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   importlib-metadata
