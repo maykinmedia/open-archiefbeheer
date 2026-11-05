@@ -15,6 +15,7 @@ const initialValues: ProcessZaakFormState = {
 };
 
 const initialArchiefactiedatum = "2024-01-01";
+const initialArchiefactiedatumSource = "zaak";
 
 describe("getFormMutation", () => {
   it("resets resultaattype and derives archiefactiedatum when selectielijstklasse is changed", () => {
@@ -26,7 +27,14 @@ describe("getFormMutation", () => {
     };
 
     expect(
-      getFormMutation(values, initialValues, initialArchiefactiedatum, "P10Y"),
+      getFormMutation(
+        values,
+        initialValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+        "P10Y",
+      ),
     ).toEqual({
       resultaattype: "",
       archiefactiedatum: "2034-01-01",
@@ -44,7 +52,14 @@ describe("getFormMutation", () => {
     };
 
     expect(
-      getFormMutation(values, initialValues, initialArchiefactiedatum, "P10Y"),
+      getFormMutation(
+        values,
+        initialValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+        "P10Y",
+      ),
     ).toEqual({
       resultaattype: "",
       archiefactiedatumSource: "user",
@@ -60,7 +75,14 @@ describe("getFormMutation", () => {
     };
 
     expect(
-      getFormMutation(values, initialValues, initialArchiefactiedatum, "P10Y"),
+      getFormMutation(
+        values,
+        initialValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+        "P10Y",
+      ),
     ).toEqual({
       archiefactiedatumSource: "user",
     });
@@ -73,7 +95,16 @@ describe("getFormMutation", () => {
       selectielijstklasse: "1.1.2 - Ingericht - blijvend_bewaren",
     };
 
-    expect(getFormMutation(values, initialValues, "2024-01-01", null)).toEqual({
+    expect(
+      getFormMutation(
+        values,
+        initialValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        "2024-01-01",
+        null,
+      ),
+    ).toEqual({
       resultaattype: "",
       archiefactiedatum: "",
       archiefactiedatumSource: "selectielijstklasse",
@@ -85,9 +116,93 @@ describe("getFormMutation", () => {
       getFormMutation(
         initialValues,
         initialValues,
+        initialValues,
+        initialArchiefactiedatumSource,
         initialArchiefactiedatum,
         "P10Y",
       ),
     ).toEqual({});
+  });
+
+  it("restores initial values when the selectielijstklasse is reverted", () => {
+    const previousValues: ProcessZaakFormState = {
+      ...initialValues,
+      action: "change_selectielijstklasse",
+      selectielijstklasse: "1.1 - Ingericht - vernietigen - P10Y",
+      resultaattype: "Another resultaattype",
+      archiefactiedatum: "2034-01-01",
+    };
+
+    const values: ProcessZaakFormState = {
+      ...previousValues,
+      selectielijstklasse: initialValues.selectielijstklasse,
+    };
+
+    expect(
+      getFormMutation(
+        values,
+        previousValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+        null,
+      ),
+    ).toEqual({
+      resultaattype: initialValues.resultaattype,
+      archiefactiedatum: initialValues.archiefactiedatum,
+      archiefactiedatumSource: "zaak",
+    });
+  });
+
+  it("restores the initial source when archiefactiedatum is reverted", () => {
+    const previousValues: ProcessZaakFormState = {
+      ...initialValues,
+      action: "change_archiefactiedatum",
+      archiefactiedatum: "2035-09-15",
+    };
+
+    const values: ProcessZaakFormState = {
+      ...previousValues,
+      archiefactiedatum: initialValues.archiefactiedatum,
+    };
+
+    expect(
+      getFormMutation(
+        values,
+        previousValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+      ),
+    ).toEqual({
+      archiefactiedatumSource: "zaak",
+    });
+  });
+
+  it("restores selectielijstklasse source when user reverts to the derived date", () => {
+    const previousValues: ProcessZaakFormState = {
+      ...initialValues,
+      action: "change_selectielijstklasse",
+      selectielijstklasse: "1.1 - Ingericht - vernietigen - P10Y",
+      archiefactiedatum: "2035-09-15",
+    };
+
+    const values: ProcessZaakFormState = {
+      ...previousValues,
+      archiefactiedatum: "2034-01-01",
+    };
+
+    expect(
+      getFormMutation(
+        values,
+        previousValues,
+        initialValues,
+        initialArchiefactiedatumSource,
+        initialArchiefactiedatum,
+        "P10Y",
+      ),
+    ).toEqual({
+      archiefactiedatumSource: "selectielijstklasse",
+    });
   });
 });
