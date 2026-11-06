@@ -562,6 +562,7 @@ class DestructionListWriteSerializer(serializers.ModelSerializer):
 
         audit_logger.info(
             "destruction_list_created",
+            destruction_list_uuid=str(destruction_list.uuid),
             author=author.username,
             reviewer=reviewer_data["user"].username,
         )
