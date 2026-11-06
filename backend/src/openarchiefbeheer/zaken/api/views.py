@@ -18,6 +18,7 @@ from ..models import Zaak
 from ..tasks import retrieve_and_cache_zaken_from_openzaak
 from ..utils import (
     format_zaaktype_choices,
+    retrieve_resultaattypen_per_selectielijstklasse,
     retrieve_selectielijstklasse_choices,
 )
 from .filtersets import ZaakFilterSet
@@ -110,7 +111,12 @@ class ExternalSelectielijstklasseChoicesView(APIView):
     @extend_schema(
         summary=_("Retrieve selectielijstklasse choices"),
         description=_(
-            "Returns all the resultaten from the configured selectielijst API with a formatted label. If the parameter 'zaak' is provided, then it returns all the 'resultaten' possible for the given 'selectielijstprocestype' from the 'zaaktype' of the zaak."
+            "Returns all the resultaten from the configured selectielijst API "
+            "with a formatted label. If the parameter 'zaak' is provided, then it"
+            "returns all the 'resultaten' possible for the given "
+            "'selectielijstprocestype' from the 'zaaktype' of the zaak. As extra "
+            "data, it will also include the 'bewaartermijn' and a list of relevant "
+            "'resultaattype' choices for each selectielijstklasse."
         ),
         tags=["private"],
         responses={
@@ -125,12 +131,22 @@ class ExternalSelectielijstklasseChoicesView(APIView):
         serializer.is_valid(raise_exception=True)
 
         procestype_url = ""
+        resultaattypen_per_selectielijstklasse = {}
         if zaak_url := serializer.validated_data.get("zaak"):
             zaak = get_object_or_404(Zaak, url=zaak_url)
             processtype = zaak._expand["zaaktype"].get("selectielijst_procestype")
             procestype_url = processtype["url"]
+            resultaattypen_per_selectielijstklasse = (
+                retrieve_resultaattypen_per_selectielijstklasse(zaak.zaaktype)
+            )
 
         choices = retrieve_selectielijstklasse_choices(procestype_url)
+        if resultaattypen_per_selectielijstklasse:
+            for choice in choices:
+                choice["extra_data"]["resultaattypen"] = (
+                    resultaattypen_per_selectielijstklasse.get(choice["value"], [])
+                )
+
         return Response(data=choices)
 
 

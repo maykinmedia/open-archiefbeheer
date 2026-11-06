@@ -21,6 +21,7 @@ export type ReviewItemResponse = {
 
 export type ActionZaak = {
   selectielijstklasse?: string;
+  resultaattype?: string;
   archiefactiedatum?: string;
 };
 

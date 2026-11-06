@@ -1,5 +1,6 @@
+from collections import defaultdict
 from functools import partial
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Mapping, Sequence
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -185,7 +186,9 @@ def format_selectielijstklasse_choice(
     }
 
 
-def format_resultaten_choices(resultaten: list[dict | None]) -> DropDownChoice:
+def format_resultaten_choices(
+    resultaten: list[dict | None],
+) -> Sequence[DropDownChoice]:
     result = [
         {
             "value": resultaat["_expand"]["resultaattype"]["url"],
@@ -327,5 +330,36 @@ def retrieve_zaaktypen() -> list[dict[str, JSONValue]]:
     results = []
     for page in data_iterator:
         results += page["results"]
+
+    return results
+
+
+@_cached_with_args
+def retrieve_resultaattypen_per_selectielijstklasse(
+    zaaktype: str,
+) -> Mapping[str, Sequence[DropDownChoice]]:
+    """
+    Return all resultaattypen choices for each selectielijstklasse of a given
+    zaaktype.
+    """
+    try:
+        client = ztc_client()
+    except ImproperlyConfigured:
+        return {}
+
+    with client:
+        response = client.get("resultaattypen", params={"zaaktype": zaaktype})
+        response.raise_for_status()
+        data_iterator = pagination_helper(client, response.json())
+
+        results = defaultdict(list)
+        for page in data_iterator:
+            for result in page["results"]:
+                results[result["selectielijstklasse"]].append(
+                    {
+                        "value": result["url"],
+                        "label": result["omschrijving"],
+                    }
+                )
 
     return results

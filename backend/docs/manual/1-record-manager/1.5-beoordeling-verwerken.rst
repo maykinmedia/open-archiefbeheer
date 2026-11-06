@@ -9,8 +9,8 @@ Beoordeling verwerken
    :alt: Beoordeling verwerken schermafbeelding
 
 Deze handleiding beschrijft de stappen die een **record manager** kan volgen om een vernietigingslijst te verwerken na
-een beoordeling door een **beoordelaar**. Het proces kan onder meer het aanpassen van de selectielijstklasse of het
-verlengen van de bewaartermijn omvatten.
+een beoordeling door een **beoordelaar**. Het proces kan onder meer het aanpassen van de selectielijstklasse en het
+bijbehorende resultaattype of het verlengen van de bewaartermijn omvatten.
 
 Deze handleiding gaat ervan uit dat de record manager al een beoordeling heeft ontvangen en de lijst moet aanpassen 
 voordat deze opnieuw kan worden ingediend voor beoordeling.
@@ -47,9 +47,12 @@ Stappen
     - Klik op de knop **"Muteren"** om wijzigingen aan te brengen. |muteren_knop|
     - Wijzigingen worden doorgevoerd na het opnieuw indienen van de lijst.
 
-5. **Selectielijstklasse aanpassen**
+5. **Selectielijstklasse en resultaattype aanpassen**
     - Indien nodig, selecteer je de optie **"Selectielijstklasse aanpassen"**.
     - Vul het veld **"Selectielijstklasse"** in, bijvoorbeeld **"11.1 - Verleend - vernietigen - P1Y"**.
+    - Selecteer vervolgens bij **"Resultaattype"** het resultaattype dat bij de gekozen selectielijstklasse hoort.
+    - Wanneer voor de gekozen selectielijstklasse resultaattypen beschikbaar zijn, moet een resultaattype worden gekozen.
+    - Na het opnieuw indienen wordt een nieuw resultaat voor de zaak aangemaakt met het geselecteerde resultaattype.
 
 6. **Archiefactiedatum aanpassen**
     - Kies de optie **"Archiefactiedatum aanpassen"**.
@@ -69,7 +72,7 @@ Stappen
     Zaak mutatie formulier met keuzes **"Selectielijstklasse aanpassen"**, **"Archiefactiedatum aanpassen"** en
     **"Voorstel afwijzen"**.
 
-7. **Opmerking toevoegen en opnieuw indienen**
+8. **Opmerking toevoegen en opnieuw indienen**
     - Vul de reden voor de wijziging in.
     - Klik op de knop **"Muteren"** om de wijziging door te voeren.
     - Klik daarna op **"Opnieuw indienen"** om de gewijzigde lijst in te dienen. |opnieuw_indienen_knop|
@@ -77,13 +80,13 @@ Stappen
 
       |opnieuw_indienen_formulier|
 
-8. **Controleer de status**
+9. **Controleer de status**
     - Nadat je de wijzigingen hebt ingediend, wordt je teruggeleid naar het overzicht van de vernietigingslijsten.
     - De status van de lijst wordt bijgewerkt naar **"Klaar voor beoordeling"**.
 
 Let op
 ------
-- Zorg ervoor dat je de selectielijstklasse correct aanpast als dat nodig is.
+- Zorg ervoor dat je de selectielijstklasse en het bijbehorende resultaattype correct aanpast als dat nodig is.
 - Zaken waarvan de selectielijst of bewaartermijn wordt aangepast worden verwijdert van de vernietigingslijst.
 - Vergeet niet een reden voor de wijziging in te vullen en de lijst opnieuw in te dienen.
 - Nadat de lijst opnieuw is ingediend, zal deze opnieuw beoordeeld moeten worden door een beoordelaar.

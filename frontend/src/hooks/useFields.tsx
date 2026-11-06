@@ -11,8 +11,8 @@ import { ExpandableText } from "../components/ExpandableText";
 import { DestructionList } from "../lib/api/destructionLists";
 import {
   listBehandelendAfdelingChoices,
+  listRelevantSelectielijstKlasseChoices,
   listResultaatTypeChoices,
-  listSelectielijstKlasseChoices,
   listZaaktypeChoices,
 } from "../lib/api/private";
 import { Review } from "../lib/api/review";
@@ -125,7 +125,7 @@ export function useFields<T extends Zaak = Zaak>(
   const selectielijstklasseParams = getZaakFilterParams("selectielijstklasse");
   const { data: selectielijstKlasseChoices } = useDataFetcher(
     (signal) =>
-      listSelectielijstKlasseChoices(selectielijstklasseParams, false, signal),
+      listRelevantSelectielijstKlasseChoices(selectielijstklasseParams, signal),
     {
       errorMessage:
         "Er is een fout opgetreden bij het ophalen van selectielijst klassen!",

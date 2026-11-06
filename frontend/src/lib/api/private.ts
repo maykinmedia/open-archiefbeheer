@@ -1,9 +1,7 @@
-import { Option } from "@maykin-ui/admin-ui";
-
-import { Zaak } from "../../types";
 import { cacheMemo } from "../cache/cache";
 import { params2CacheKey, params2Object } from "../format/params";
 import { request } from "./request";
+import type { Option, SelectielijstklasseOption } from "./types";
 
 /**
  * Retrieve the behandelend afdelingen the zaken in the database. These are rollen
@@ -155,38 +153,57 @@ export async function listResultaatTypeChoices(
 }
 
 /**
- * This takes the 'selectielijstprocestype' from the 'zaaktype', then retrieves all the 'resultaten' possible for this
- * 'procestype' from the selectielijst API.
+ * Retrieve all relevant 'selectielijstklasse' choices by looking at the
+ * 'resultaat' of the 'zaak'.
  */
-export async function listSelectielijstKlasseChoices(
-  params?:
-    | URLSearchParams
-    | {
-        zaak?: Zaak["url"];
-      },
-  external = false,
+export async function listRelevantSelectielijstKlasseChoices(
+  params?: URLSearchParams,
   signal?: AbortSignal,
 ) {
   const cacheParams = params2CacheKey(params || {});
   return cacheMemo(
-    "listSelectielijstKlasseChoices",
-    async () => {
-      const endpoint = external
-        ? "/_selectielijstklasse-choices/"
-        : "/_internal-selectielijstklasse-choices/";
+    "listRelevantSelectielijstKlasseChoices",
+    async (): Promise<Option[]> => {
       const response = await request(
         "GET",
-        endpoint,
+        "/_internal-selectielijstklasse-choices/",
         params,
         undefined,
         undefined,
         signal,
       );
-      const promise: Promise<Option[]> = response.json();
-
-      return promise;
+      return response.json();
     },
-    external ? [cacheParams, "external"] : [cacheParams],
+    [cacheParams],
+  );
+}
+
+/**
+ * Retrieve all 'selectielijstresultaten' from the selectielijst API, based on
+ * the 'selectielijstprocestype' from the 'zaaktype'.
+ *
+ * The `extraData` also includes the 'bewaartermijn' and a list of relevant
+ * 'resultaattype' choices corresponding to the 'selectielijstklasse' (when a
+ *  zaak URL was passed).
+ */
+export async function listSelectielijstKlasseChoices(
+  zaak_url?: string,
+  signal?: AbortSignal,
+) {
+  return cacheMemo(
+    "listSelectielijstKlasseChoices",
+    async (): Promise<SelectielijstklasseOption[]> => {
+      const response = await request(
+        "GET",
+        "/_selectielijstklasse-choices/",
+        zaak_url ? { zaak: zaak_url } : undefined,
+        undefined,
+        undefined,
+        signal,
+      );
+      return response.json();
+    },
+    [zaak_url],
   );
 }
 

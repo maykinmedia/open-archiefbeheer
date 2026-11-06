@@ -51,7 +51,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
 
   destructionList: { ...destructionListFactory(), status: "changes_requested" },
   destructionListItems: {
-    count: reviewItemsFactory().length,
+    count: REVIEW_ITEMS.length,
     next: null,
     previous: null,
     results: [],
@@ -64,7 +64,7 @@ const FIXTURE_PROCESS_REVIEW: DestructionListDetailContext = {
   user: usersFactory()[0],
 
   review: reviewFactory(),
-  reviewItems: reviewItemsFactory(),
+  reviewItems: REVIEW_ITEMS,
 
   selectieLijstKlasseChoicesMap: REVIEW_ITEMS.reduce(
     (acc, ri) => ({
@@ -91,6 +91,7 @@ export const ProcessReview: Story = {
     },
   },
   play: async (context) => {
+    // Change selectielijstklasse + resultaattype.
     await clickButton({
       ...context,
       parameters: { clickButton: { name: "Muteren", elementIndex: 0 } },
@@ -101,13 +102,15 @@ export const ProcessReview: Story = {
         fillForm: {
           formValues: {
             "Selectielijstklasse aanpassen": true,
-            Selectielijstklasse: "1.2 - Ingesteld - blijvend_bewaren",
+            Selectielijstklasse: "1.1.1 - Ingericht - blijvend_bewaren",
+            Resultaattype: "Ingesteld",
             Reden: "ProcessReview",
           },
         },
       },
     });
 
+    // Reject proposal.
     await clickButton({
       ...context,
       parameters: { clickButton: { name: "Muteren", elementIndex: 1 } },
@@ -124,6 +127,7 @@ export const ProcessReview: Story = {
       },
     });
 
+    // Reject proposal.
     await clickButton({
       ...context,
       parameters: { clickButton: { name: "Muteren", elementIndex: 2 } },
@@ -140,6 +144,7 @@ export const ProcessReview: Story = {
       },
     });
 
+    // Change archiefactiedatum.
     await clickButton({
       ...context,
       parameters: { clickButton: { name: "Muteren", elementIndex: 3 } },

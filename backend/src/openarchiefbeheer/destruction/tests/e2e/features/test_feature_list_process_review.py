@@ -69,6 +69,9 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
             await self.when.user_clicks_radio(page, "Selectielijstklasse aanpassen")
             await self.when.user_fills_form_field(page, "Selectielijstklasse", "1.1 - Ingericht - vernietigen - P10Y")
 
+            # Fill new resultaattype
+            await self.when.user_fills_form_field(page, "Resultaattype", "Resultaattype 1")
+
             # Fill archive date
             await self.when.user_clicks_radio(page, "Archiefactiedatum aanpassen")
             await self.when.user_fills_form_field(page, "Dag van de maand", "09/15/2023")
