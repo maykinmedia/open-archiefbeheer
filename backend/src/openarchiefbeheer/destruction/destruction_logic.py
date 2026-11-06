@@ -17,6 +17,7 @@ from openarchiefbeheer.zaken.utils import (
 )
 
 from .constants import ResourceDestructionResultStatus, ResourceType
+from .metrics import resources_processed
 from .models import DestructionListItem, ResourceDestructionResult
 
 logger = structlog.stdlib.get_logger(__name__)
@@ -133,6 +134,13 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                         "besluitinformatieobject_deleted",
                         url=bio["url"],
                     )
+                    resources_processed.add(
+                        1,
+                        {
+                            "resource_type": "besluitinformatieobjecten",
+                            "result": ResourceDestructionResultStatus.deleted,
+                        },
+                    )
 
                 besluit_uuid = furl(besluit["url"]).path.segments[-1]
                 response = _delete_resource(client, f"besluiten/{besluit_uuid}")
@@ -140,16 +148,24 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                     "besluit_deleted",
                     url=besluit["url"],
                 )
+                result_status = (
+                    ResourceDestructionResultStatus.deleted
+                    if response.status_code == status.HTTP_204_NO_CONTENT
+                    else ResourceDestructionResultStatus.unlinked
+                )
 
                 ResourceDestructionResult.objects.create(
                     item=item,
                     resource_type=ResourceType.besluiten,
-                    status=(
-                        ResourceDestructionResultStatus.deleted
-                        if response.status_code == status.HTTP_204_NO_CONTENT
-                        else ResourceDestructionResultStatus.unlinked
-                    ),
+                    status=result_status,
                     url=besluit["url"],
+                )
+                resources_processed.add(
+                    1,
+                    {
+                        "resource_type": ResourceType.besluiten,
+                        "result": result_status,
+                    },
                 )
 
 
@@ -183,6 +199,13 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
                 "zaakinformatieobject_deleted",
                 url=zio["url"],
             )
+            resources_processed.add(
+                1,
+                {
+                    "resource_type": "zaakinformatieobjecten",
+                    "result": ResourceDestructionResultStatus.deleted,
+                },
+            )
 
 
 def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
@@ -208,6 +231,14 @@ def delete_enkelvoudiginformatieobjecten(item: DestructionListItem) -> None:
                 else ResourceDestructionResultStatus.unlinked
             )
             eio.save()
+
+            resources_processed.add(
+                1,
+                {
+                    "resource_type": ResourceType.enkelvoudiginformatieobjecten,
+                    "result": eio.status,
+                },
+            )
 
 
 def delete_zaak(item: DestructionListItem) -> None:
@@ -237,6 +268,14 @@ def delete_zaak(item: DestructionListItem) -> None:
         )
         result.status = ResourceDestructionResultStatus.deleted
         result.save()
+
+        resources_processed.add(
+            1,
+            {
+                "resource_type": ResourceType.zaken,
+                "result": result.status,
+            },
+        )
 
     # Clean up Zaak object in OAB
     item.zaak.delete()
