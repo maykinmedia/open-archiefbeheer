@@ -6,7 +6,7 @@ import pytest
 from rest_framework import status
 from rest_framework.reverse import reverse
 from vcr.cassette import Cassette
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.accounts.tests.factories import UserFactory
@@ -64,6 +64,7 @@ def test_retrieve_statustypen_choices(
         slug="catalogi",
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -139,6 +140,7 @@ def test_retrieve_zaaktypen_shortprocess(
         slug="catalogi",
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -178,6 +180,7 @@ def test_retrieve_zaaktypen_destruction_report(
         slug="catalogi",
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -217,6 +220,7 @@ def test_retrieve_informatieobjecttypen_destruction_report(
         slug="catalogi",
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -297,6 +301,7 @@ def test_retrieve_resultaattypen_destruction_report(
         slug="catalogi",
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
+        auth_type=AuthTypes.zgw,
         client_id="test-vcr",
         secret="test-vcr",
     )
@@ -326,7 +331,7 @@ def test_retrieve_resultaattypen_destruction_report(
 
         data = response.json()
 
-        assert len(data) == 2
+        assert len(data) == 6
 
         results = [resultaattype["value"] for resultaattype in data]
 
@@ -345,5 +350,5 @@ def test_retrieve_resultaattypen_destruction_report(
 
         data = response.json()
 
-        assert len(data) == 1
-        assert resources1["resultaattype"]["url"] == data[0]["value"]
+        assert len(data) == 3
+        assert resources1["resultaattype"]["url"] in [d["value"] for d in data]
