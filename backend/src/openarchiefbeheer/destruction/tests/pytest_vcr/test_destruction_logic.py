@@ -187,24 +187,28 @@ def test_item_deletion(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     with freeze_time("2026-01-22"):
         resync_zaken()
@@ -240,24 +244,28 @@ def test_delete_item_zaak_not_found(vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
 
     item = DestructionListItemFactory.create(
@@ -281,6 +289,7 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
@@ -288,6 +297,7 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
@@ -295,6 +305,7 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
@@ -302,6 +313,7 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     APIConfigFactory.create()
     helper = OpenZaakDataCreationHelper(
@@ -372,8 +384,8 @@ def test_zaak_metadata_present_after_deletion(openzaak_reload: None, vcr: Casset
     assert (
         result.metadata["resultaat"]
         == {
-            "url": "http://localhost:8003/zaken/api/v1/resultaten/a0d0875f-5bd7-41f0-8eeb-0e8912581da0",  # Taken from the cassette
-            "resultaattype": {"omschrijving": "Gegrond"},
+            "url": "http://localhost:8003/zaken/api/v1/resultaten/1f617870-22d0-491b-8286-e0205e66d400",  # Taken from the cassette
+            "resultaattype": {"omschrijving": "Afgehandeld"},
         }
     )
 
@@ -388,6 +400,7 @@ def test_clean_local_metadata(vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     record_manager = UserFactory.create(
         post__can_start_destruction=True,
@@ -479,6 +492,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
@@ -486,6 +500,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
@@ -493,6 +508,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
@@ -500,6 +516,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     helper = OpenZaakDataCreationHelper(
         zrc_service_slug="zaken",
@@ -515,24 +532,24 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
     zaak1 = helper.create_zaak(
         zaaktype_url=resources["zaaktype"]["url"],
         startdatum="2020-01-01",
-        archiefactiedatum="2025-01-01",
     )
     helper.close_zaak(
         zaak_url=zaak1["url"],
         resultaattype_url=resources["resultaattype"]["url"],
         statustype_url=resources["statustypen"][1]["url"],
         toelichting="Closing zaak.",
+        einddatum="2025-01-01",
     )
     zaak2 = helper.create_zaak(
         zaaktype_url=resources["zaaktype"]["url"],
         startdatum="2020-01-01",
-        archiefactiedatum="2023-01-01",
     )
     helper.close_zaak(
         zaak_url=zaak2["url"],
         resultaattype_url=resources["resultaattype"]["url"],
         statustype_url=resources["statustypen"][1]["url"],
         toelichting="Closing zaak.",
+        einddatum="2023-01-01",
     )
 
     with freeze_time("2026-01-22"):
@@ -551,9 +568,7 @@ def test_destroying_list_with_item_archiefactiedatum_in_future(
         destruction_list=destruction_list,
     )
 
-    with (
-        freeze_time("2024-01-01"),
-    ):
+    with freeze_time("2024-01-01"):
         delete_destruction_list(destruction_list)
 
     destruction_list.refresh_from_db()
@@ -584,6 +599,7 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
@@ -591,6 +607,7 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
@@ -598,6 +615,7 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
@@ -605,6 +623,7 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ArchiveConfigFactory.create(
         bronorganisatie="000000000",
@@ -627,24 +646,24 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
     zaak1 = helper.create_zaak(
         zaaktype_url=resources["zaaktype"]["url"],
         startdatum="2020-01-01",
-        archiefactiedatum="2023-01-01",
     )
     helper.close_zaak(
         zaak_url=zaak1["url"],
         resultaattype_url=resources["resultaattype"]["url"],
         statustype_url=resources["statustypen"][1]["url"],
         toelichting="Closing zaak.",
+        einddatum="2023-01-01",
     )
     zaak2 = helper.create_zaak(
         zaaktype_url=resources["zaaktype"]["url"],
         startdatum="2020-01-01",
-        archiefactiedatum="2023-01-01",
     )
     helper.close_zaak(
         zaak_url=zaak2["url"],
         resultaattype_url=resources["resultaattype"]["url"],
         statustype_url=resources["statustypen"][1]["url"],
         toelichting="Closing zaak.",
+        einddatum="2023-01-01",
     )
 
     with freeze_time("2026-01-22"):
@@ -696,7 +715,7 @@ def test_destroy_list(settings: SettingsWrapper, openzaak_reload: None, vcr: Cas
 
     assert (
         destruction_list.zaak_destruction_report_url
-        == "http://localhost:8003/zaken/api/v1/zaken/b1570af1-bfe5-4da5-8a6e-c28835fa32ae"
+        == "http://localhost:8003/zaken/api/v1/zaken/a2a0e7b8-d8fa-4e19-b2d4-7bd91353d352"
     )
     assert vcr.requests[-1].method == "POST"
     assert (
@@ -723,6 +742,7 @@ def test_retry_destroying_list_with_previously_failed_item(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
@@ -730,6 +750,7 @@ def test_retry_destroying_list_with_previously_failed_item(
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
@@ -737,6 +758,7 @@ def test_retry_destroying_list_with_previously_failed_item(
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
@@ -744,6 +766,7 @@ def test_retry_destroying_list_with_previously_failed_item(
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     APIConfigFactory.create()
     helper = OpenZaakDataCreationHelper(

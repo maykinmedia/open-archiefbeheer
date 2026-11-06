@@ -360,7 +360,8 @@
     "versie": 1,
     "begin_registratie": "2024-07-19T13:33:19.526Z",
     "verschijningsvorm": "",
-    "trefwoorden": "[]"
+    "trefwoorden": "[]",
+    "tonen_aan_initiator": false
   }
 },
 {
@@ -395,7 +396,8 @@
     "versie": 1,
     "begin_registratie": "2024-07-19T13:33:19.535Z",
     "verschijningsvorm": "",
-    "trefwoorden": "[]"
+    "trefwoorden": "[]",
+    "tonen_aan_initiator": false
   }
 },
 {
@@ -430,7 +432,8 @@
     "versie": 1,
     "begin_registratie": "2024-07-19T13:33:19.542Z",
     "verschijningsvorm": "",
-    "trefwoorden": "[]"
+    "trefwoorden": "[]",
+    "tonen_aan_initiator": false
   }
 },
 {
@@ -465,7 +468,8 @@
     "versie": 1,
     "begin_registratie": "2024-07-19T13:33:19.550Z",
     "verschijningsvorm": "",
-    "trefwoorden": "[]"
+    "trefwoorden": "[]",
+    "tonen_aan_initiator": false
   }
 },
 {
@@ -809,7 +813,10 @@
     "omschrijving": "Afgehandeld",
     "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
     "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/1bb001e9-5eab-4f10-8940-8781e11f180f",
-    "zaaktype": 4
+    "zaaktype": 4,
+    "archiefnominatie": "vernietigen",
+    "archiefactietermijn": "P1Y",
+    "brondatum_archiefprocedure_afleidingswijze": "afgehandeld"
   }
 },
 {
