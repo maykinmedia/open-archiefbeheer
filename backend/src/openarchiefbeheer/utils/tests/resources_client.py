@@ -1,7 +1,7 @@
 import string
 from dataclasses import dataclass
 from random import choice
-from typing import ContextManager, Iterable, Mapping, Sequence, TypedDict
+from typing import ContextManager, Iterable, Literal, Mapping, Sequence, TypedDict
 
 from ape_pie import APIClient
 from faker import Faker
@@ -143,7 +143,9 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
         assert isinstance(zaaktype["url"], str)
 
         roltype = self.create_roltype(zaaktype_url=zaaktype["url"])
-        resultaattype = self.create_resultaattype(zaaktype_url=zaaktype["url"])
+        resultaattype = self.create_resultaattype(zaaktype["url"], "Afgehandeld")
+        self.create_resultaattype(zaaktype["url"], "Gegrond")
+        self.create_resultaattype(zaaktype["url"], "Afgebroken")
         statustype1 = self.create_statustype(
             zaaktype_url=zaaktype["url"],
             **{"omschrijving": "begin", "volgnummer": 1},
@@ -242,16 +244,30 @@ class OpenZaakDataCreationHelper(CommonGroundDataCreationHelperMixin):
 
     def create_resultaattype(
         self,
-        zaaktype_url: str = "",
+        zaaktype_url: str,
+        omschrijving: Literal["Afgehandeld", "Gegrond", "Afgebroken"],
         **overrides: Mapping[str, JSONEncodable],
     ) -> Mapping[str, JSONEncodable]:
+        # Mapping from https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen
+        resultaattypeomschrijving_uuids = {
+            "Afgehandeld": "7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+            "Gegrond": "3a0a9c3c-0847-4e7e-b7d9-765b9434094c",
+            "Afgebroken": "ce8cf476-0b59-496f-8eee-957a7c6e2506",
+        }
+        selectielijstklasse_uuids = {
+            "Gegrond": "8af64c99-a168-40dd-8afd-9fbe0597b6dc",  # 1.1.1
+            "Afgehandeld": "4086fe50-c79c-4d9b-90fc-71783f01c198",  # 1.1.3
+            "Afgebroken": "914f4198-3e73-497f-807f-1d17ee0af21f",  # 1.5
+        }
+
         data: Mapping[str, JSONEncodable] = {
             "zaaktype": zaaktype_url,
-            "omschrijving": "Gegrond",
-            "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/3a0a9c3c-0847-4e7e-b7d9-765b9434094c",
-            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/8af64c99-a168-40dd-8afd-9fbe0597b6dc",
-            "archiefnominatie": "vernietigen",
-            "archiefactietermijn": "P1D",
+            "omschrijving": omschrijving,
+            "resultaattypeomschrijving": f"https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/{resultaattypeomschrijving_uuids[omschrijving]}",
+            "selectielijstklasse": f"https://selectielijst.openzaak.nl/api/v1/resultaten/{selectielijstklasse_uuids[omschrijving]}",
+            # Override the default from selectielijstklasse to avoid having to
+            # wait years before we can test deletion :upside_down_face:
+            "archiefactietermijn": "P1D" if omschrijving != "Gegrond" else "",
             "brondatumArchiefprocedure": {
                 "afleidingswijze": "afgehandeld",
                 "procestermijn": None,
