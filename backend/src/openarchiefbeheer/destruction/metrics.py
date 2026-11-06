@@ -33,6 +33,12 @@ destruction_list_items_failed = meter.create_counter(
     description="Number of destruction list items that failed processing.",
 )
 
+resources_processed = meter.create_counter(
+    "openarchiefbeheer.destruction.resources",
+    unit="1",
+    description="Number of resources deleted or unlinked during destruction.",
+)
+
 
 def count_lists(options: metrics.CallbackOptions) -> Collection[metrics.Observation]:
     counts_by_status = DestructionList.objects.values("status").annotate(
