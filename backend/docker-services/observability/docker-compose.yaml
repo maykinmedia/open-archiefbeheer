@@ -13,22 +13,26 @@
 services:
   # logs storage
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.9
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - oab-dev
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.15.1
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-tsdb:/prometheus
+    networks:
+      - oab-dev
 
   # log scraping from container output
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:v1.21.3
     ports:
       - "9080:9080"  # Alloy debug UI
     volumes:
@@ -43,10 +47,24 @@ services:
       - --server.http.listen-addr=0.0.0.0:9080
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
+    networks:
+      - oab-dev
+
+  # Traces backend
+  tempo:
+    image: grafana/tempo:3.1.1
+    command: --config.file=/etc/tempo.yaml
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo.yaml
+      - ./tempo-data:/var/tempo
+    ports:
+      - "3200:3200"  # tempo
+    networks:
+      - oab-dev
 
   # open telemetry collector, receives metrics from the application instance(s)
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.131.0
+    image: otel/opentelemetry-collector-contrib:0.164.0
     command: --config=/etc/otel-collector-config.yaml
     volumes:
       - ./otel/otel-collector-config.yml:/etc/otel-collector-config.yaml
@@ -55,13 +73,11 @@ services:
       - 4318:4318
       - 8889:8889
     networks:
-      - default
-      # Ensure the collector is reachable for the external services (such as Open Klant) as well
       - oab-dev
 
   # dashboard tool, visualizes telemetry. queries loki and prometheus
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.3.0
     volumes:
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
     environment:
@@ -71,6 +87,8 @@ services:
       - GF_FEATURE_TOGGLES_ENABLE=alertingSimplifiedRouting,alertingQueryAndExpressionsStepMode
     ports:
       - "3000:3000"
+    networks:
+      - oab-dev
 
 volumes:
   alloy-data:

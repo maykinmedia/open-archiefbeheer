@@ -43,3 +43,6 @@ backend/log/*.jsonl*
 # Static files
 backend/src/openarchiefbeheer/templates/index.html
 backend/src/openarchiefbeheer/static/assets
+
+# Tempo data
+backend/docker-services/observability/tempo-data
