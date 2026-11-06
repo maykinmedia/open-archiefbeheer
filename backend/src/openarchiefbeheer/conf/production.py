@@ -57,12 +57,6 @@ SHOW_ALERT = False
 #                            #
 ##############################
 
-# APM
-MIDDLEWARE = ["elasticapm.contrib.django.middleware.TracingMiddleware"] + MIDDLEWARE
-INSTALLED_APPS = INSTALLED_APPS + [
-    "elasticapm.contrib.django",
-]
-
 if SUBPATH and SUBPATH != "/":
     STATIC_URL = f"{SUBPATH}{STATIC_URL}"
     MEDIA_URL = f"{SUBPATH}{MEDIA_URL}"
