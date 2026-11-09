@@ -3,7 +3,7 @@ from django.core.cache import DEFAULT_CACHE_ALIAS, caches
 import pytest
 from freezegun import freeze_time
 from vcr.cassette import Cassette
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.tests.factories import APIConfigFactory
@@ -24,12 +24,14 @@ def test_zaak_serializer_selectielijstklasse_derived(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     # Needed for retrieve_selectielijstklasse_choices which may be cached
     caches[DEFAULT_CACHE_ALIAS].clear()
