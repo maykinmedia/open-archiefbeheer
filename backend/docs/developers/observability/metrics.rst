@@ -4,4 +4,78 @@
 Metrics
 =======
 
-TBD
+Open Archiefbeheer (OAB) produces application metrics using OpenTelemetry.
+
+.. note:: The exact metric names that show up may be transformed, e.g. Prometheus replaces
+   periods with underscores, and processing pipelines may add prefixes or suffixes.
+
+.. important:: Some metrics are defined as "global scope".
+
+   These metrics are typically derived from application state introspection, e.g. by
+   performing database (read) queries to aggregate some information. Usually those
+   correspond to an `Asynchronous Gauge <https://opentelemetry.io/docs/specs/otel/metrics/api/#asynchronous-gauge>`_.
+
+   Multiple replicas and/or instances of the same service will produce the same values
+   of the metrics. You need to apply some kind of aggregation to de-duplicate these
+   values. The attribute ``scope="global"``  acts as a marker for these type of metrics.
+
+   With PromQL for example, you can use ``avg`` on the assumption that all values will
+   be equal, so the average will also be identical:
+
+   .. code-block:: promql
+
+       avg by (status) (otel_openarchiefbeheer_destruction_lists{scope="global"})
+
+Generic
+=======
+
+``http.server.duration``
+    Captures how long each HTTP request took, in ms. The metric produces histogram data.
+
+Application-specific metrics
+============================
+
+Accounts
+--------
+
+``openarchiefbeheer.auth.user_count_by_group``
+    Reports the number of users in each auth group. This is a global metric, you must take
+    care in de-duplicating results. Additional attributes are:
+
+    * ``group``: the name of the auth group.
+    * ``scope``: fixed value ``global`` to enable de-duplication.
+
+    Sample PromQL query:
+
+    .. code-block:: promql
+
+        max by (group) (
+          otel_openarchiefbeheer_auth_user_count_by_group{scope="global"}
+        )
+
+``openarchiefbeheer.auth.login_failures``
+    A counter incremented every time a user login fails (typically because of invalid
+    credentials). Does not include the second factor, if enabled. Additional attributes:
+
+    - ``http_target`` - the request path where the login failure occurred, if this
+      happened in a request context.
+
+``openarchiefbeheer.auth.user_lockouts``
+    A counter incremented every time a user is locked out because they reached the
+    maximum number of failed attempts. Additional attributes:
+
+    - ``http_target`` - the request path where the login failure occurred, if this
+      happened in a request context.
+    - ``username`` - username of the user trying to log in.
+
+``openarchiefbeheer.auth.logins``
+    Counter incrementing on every successful login by a user. Additional attributes:
+
+    - ``http_target`` - the request path where the login failure occurred, if this
+      happened in a request context.
+    - ``username`` - username of the user trying to log in.
+
+``openarchiefbeheer.auth.logouts``
+    Counter incrementing every time a user logs out. Additional attributes:
+
+    - ``username`` - username of the user who logged out.
