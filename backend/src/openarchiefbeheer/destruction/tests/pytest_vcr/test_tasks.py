@@ -44,6 +44,7 @@ def test_process_review_response(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
 
     with freeze_time("2024-08-29T16:00:00+02:00"):
@@ -210,24 +211,28 @@ def test_document_deleted(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     APIConfigFactory.create()
 
@@ -268,18 +273,21 @@ def test_delete_zaak_related_to_besluit_related_to_document(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.brc,
         api_root="http://localhost:8003/besluiten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     with freeze_time("2024-08-29T16:00:00+02:00"):
         retrieve_and_cache_zaken_from_openzaak()

@@ -4,7 +4,7 @@ import pytest
 import requests_mock
 from requests.exceptions import HTTPError
 from vcr.cassette import Cassette
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.tests.factories import ArchiveConfigFactory
@@ -27,18 +27,21 @@ def test_upload_destruction_report(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
 
     destruction_list = DestructionListFactory.create(
@@ -96,18 +99,21 @@ def test_upload_destruction_report_no_statustype_configured(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ArchiveConfigFactory.create(
         bronorganisatie="000000000",
@@ -143,18 +149,21 @@ def test_failure_during_zaak_creation(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ArchiveConfigFactory.create(
         bronorganisatie="000000000",
@@ -187,18 +196,21 @@ def test_failure_when_creating_zio(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ArchiveConfigFactory.create(
         bronorganisatie="000000000",

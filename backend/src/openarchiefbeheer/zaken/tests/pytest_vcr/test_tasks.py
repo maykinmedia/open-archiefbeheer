@@ -1,7 +1,7 @@
 import pytest
 from freezegun import freeze_time
 from vcr.cassette import Cassette
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from ...models import Zaak
@@ -19,6 +19,7 @@ def test_recaching_zaken_with_multiple_pages_doesnt_explode_url(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     with freeze_time("2024-08-29T16:00:00+02:00"):
         retrieve_and_cache_zaken_from_openzaak()
@@ -46,6 +47,7 @@ def test_recaching_zaken_correct_eindatum(openzaak_reload: None, vcr: Cassette):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
 
     with freeze_time("2024-08-02T16:00:00+02:00"):

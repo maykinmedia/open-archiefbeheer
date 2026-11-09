@@ -1,7 +1,7 @@
 from django.test import TestCase, tag
 
 from vcr.unittest import VCRMixin
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openarchiefbeheer.config.tests.factories import APIConfigFactory
@@ -20,6 +20,7 @@ class ZaakSerialisersTests(ClearCacheMixin, VCRMixin, TestCase):
             api_root="http://localhost:8003/zaken/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
 
         zaak = ZaakFactory.create(
@@ -43,6 +44,7 @@ class ZaakSerialisersTests(ClearCacheMixin, VCRMixin, TestCase):
             api_root="http://localhost:8003/zaken/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
 
         zaak = ZaakFactory.create(

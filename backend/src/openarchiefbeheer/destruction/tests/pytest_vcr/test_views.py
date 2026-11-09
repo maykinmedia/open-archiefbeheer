@@ -110,6 +110,7 @@ def test_supported_zaak_relations_not_selected(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     openklant_service = ServiceFactory.create(
         slug="openklant",
@@ -155,18 +156,21 @@ def test_retrieve_destruction_report(
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.ztc,
         api_root="http://localhost:8003/catalogi/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
 
     destruction_list = DestructionListFactory.create(
@@ -204,6 +208,7 @@ def test_retrieve_report_not_found_in_openzaak(vcr: Cassette, client: Client):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     destruction_list = DestructionListFactory.create(
         processing_status=InternalStatus.new,
@@ -234,12 +239,14 @@ def test_unexpected_error_response_from_openzaak_when_retrieving_report(client: 
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     destruction_list = DestructionListFactory.create(
         processing_status=InternalStatus.new,
@@ -280,12 +287,14 @@ def test_openzaak_down_when_retrieving_report(client: Client):
         api_root="http://localhost:8003/zaken/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     ServiceFactory.create(
         api_type=APITypes.drc,
         api_root="http://localhost:8003/documenten/api/v1",
         client_id="test-vcr",
         secret="test-vcr",
+        auth_type=AuthTypes.zgw,
     )
     destruction_list = DestructionListFactory.create(
         processing_status=InternalStatus.new,

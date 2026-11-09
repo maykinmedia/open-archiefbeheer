@@ -106,6 +106,7 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
             api_root="http://localhost:8003/zaken/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         cls.ztc_service = ServiceFactory.create(
             slug="catalogi",
@@ -113,6 +114,7 @@ class RelatedObjectsViewTests(VCRMixin, APITestCase):
             api_root="http://localhost:8003/catalogi/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         cls.openklant_service = ServiceFactory.create(
             slug="openklant",

@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from maykin_config_checks import run_checks
 from vcr.unittest import VCRMixin
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from ...health_checks import (
@@ -89,24 +89,28 @@ class TestConfigurationHealthChecks(VCRMixin, TestCase):
             api_root="http://localhost:8003/zaken/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="http://localhost:8003/documenten/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         ServiceFactory.create(
             api_type=APITypes.brc,
             api_root="http://localhost:8003/besluiten/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         ServiceFactory.create(
             api_type=APITypes.ztc,
             api_root="http://localhost:8003/catalogi/api/v1",
             client_id="test-vcr",
             secret="test-vcr",
+            auth_type=AuthTypes.zgw,
         )
         service = ServiceFactory(
             slug="selectielijst",
