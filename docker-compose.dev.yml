@@ -59,6 +59,7 @@ services:
       - OAB_ZAAK_URL_TEMPLATE=https://www.example.com/zaken/{identificatie}
       - REQUESTS_READ_TIMEOUT=5000
       - DISABLE_2FA=yes
+      - LOG_FORMAT_CONSOLE=json
       # Enabling Open Telemetry requires a target to send telemetry towards!
       - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
       - OTEL_RESOURCE_ATTRIBUTES=oab.client=oab,oab.target=oab

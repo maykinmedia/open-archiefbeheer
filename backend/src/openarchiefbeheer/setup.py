@@ -40,6 +40,7 @@ def setup_env():
         os.environ.setdefault("OTEL_SERVICE_NAME", "openarchiefbeheer")
 
     setup_otel()
+    structlog.contextvars.bind_contextvars(source="app")
     monkeypatch_requests()
 
 

@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         git \
         libpq-dev \
+        # required for (log) routing support in uwsgi
+        libpcre3 \
+        libpcre3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -50,6 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         postgresql-client \
         gettext \
         gdal-bin \
+        libpcre3 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -60,6 +64,7 @@ COPY ./backend/bin/celery_beat.sh /celery_beat.sh
 COPY ./backend/bin/celery_flower.sh /celery_flower.sh
 COPY ./backend/bin/check_celery_worker_liveness.py /check_celery_worker_liveness.py
 COPY ./backend/bin/setup_configuration.sh /setup_configuration.sh
+COPY ./backend/bin/uwsgi.ini /uwsgi.ini
 COPY ./frontend/scripts/replace-envvars.sh /replace-envvars.sh
 
 RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
