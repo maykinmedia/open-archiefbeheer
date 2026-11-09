@@ -6,5 +6,5 @@ class DestructionConfig(AppConfig):
     verbose_name = "Open-archiefbeheer destruction"
 
     def ready(self):
-        from . import signals  # noqa
+        from . import signals, metrics  # noqa
         from .api.drf_spectacular import extensions  # noqa

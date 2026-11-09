@@ -16,6 +16,7 @@ from zgw_consumers.client import build_client
 from openarchiefbeheer.utils.health_checks import CheckResult, ExtraInfo
 
 from ..destruction.constants import ResourceDestructionResultStatus
+from ..destruction.metrics import resources_processed
 from .models import ExternalRegisterConfig
 
 type Identifier = str
@@ -137,6 +138,14 @@ class AbstractBasePlugin(ABC):
                     resource_type=self.resource_type,
                     url=resource_url,
                     status=status_resource,
+                )
+
+                resources_processed.add(
+                    1,
+                    {
+                        "resource_type": self.resource_type,
+                        "result": status_resource,
+                    },
                 )
 
     def group_resources_by_service(

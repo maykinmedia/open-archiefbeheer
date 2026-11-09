@@ -23,6 +23,12 @@ from openarchiefbeheer.destruction.destruction_report import (
 from openarchiefbeheer.types import StrOrPromise
 
 from .constants import InternalStatus, ListItemStatus, ListStatus
+from .metrics import (
+    destruction_list_items_completed,
+    destruction_list_items_failed,
+    destruction_lists_completed,
+    destruction_lists_failed,
+)
 from .models import (
     DestructionList,
     DestructionListItem,
@@ -138,6 +144,7 @@ def handle_processing_error(
 
     deletion_failure.send(sender=destruction_list)
     audit_logger.error("destruction_list_deletion_failed", clarification=clarification)
+    destruction_lists_failed.add(1)
 
 
 @app.task
@@ -164,6 +171,12 @@ def delete_destruction_list_item(pk: int) -> None:
                     e=traceback.format_exc()
                 ),
             )
+
+    if item.processing_status == InternalStatus.succeeded:
+        destruction_list_items_completed.add(1)
+
+    elif item.processing_status == InternalStatus.failed:
+        destruction_list_items_failed.add(1)
 
 
 def _delete_destruction_list_item(item: DestructionListItem) -> None:
@@ -283,3 +296,5 @@ def _complete_and_notify(destruction_list: DestructionList) -> None:
                 e=traceback.format_exc()
             ),
         )
+
+    destruction_lists_completed.add(1)
