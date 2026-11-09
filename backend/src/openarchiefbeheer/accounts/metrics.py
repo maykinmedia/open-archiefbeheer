@@ -29,7 +29,7 @@ def count_users_by_group(
 
 
 meter.create_observable_gauge(
-    name="openarchiefbeheer.auth.user_count_by_group",
+    name="openarchiefbeheer.auth.user_by_group_count",
     description="The number of users aggregated by groups",
     unit=r"{user}",  # no unit so that the _ratio suffix is not added
     callbacks=[count_users_by_group],

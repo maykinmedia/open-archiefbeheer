@@ -76,14 +76,14 @@ def count_list_items(
 
 
 meter.create_observable_gauge(
-    "openarchiefbeheer.destruction.lists",
+    "openarchiefbeheer.destruction.list_count",
     callbacks=[count_lists],
     unit="",
     description="Number of destruction lists.",
 )
 
 meter.create_observable_gauge(
-    "openarchiefbeheer.destruction.items",
+    "openarchiefbeheer.destruction.item_count",
     callbacks=[count_list_items],
     unit="",
     description="Number of destruction list items.",
