@@ -13,7 +13,8 @@ data, also called `signals`_:
     created. See :ref:`developers_observability_logging`.
 
 **Metrics**
-    TBD. See :ref:`developers_observability_metrics`.
+    Measurements that track the state and activity of the application over time, e.g. the
+    number of completed destruction lists. See :ref:`developers_observability_metrics`.
 
 **Traces**
     The path of a single unit of work (e.g. a request or a Celery task) through the system.
