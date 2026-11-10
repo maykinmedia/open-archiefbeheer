@@ -6,9 +6,6 @@ DevOps documentation
 
 Here you can find documentation for devopsers.
 
-For the configuration of logging environment variables, please refer to the :ref:`observability documentation<logging-configuration>`
-in the Developers section.
-
 Content
 =======
 
@@ -20,4 +17,5 @@ Content
     2fa
     oidc
     otel
+    logging
     email

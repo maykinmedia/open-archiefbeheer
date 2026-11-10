@@ -78,30 +78,11 @@ The `django-structlog`_ middleware binds request information (such as a ``reques
 and the user) to all log records emitted while handling a request, and logs the start
 and end of each request. This can be disabled with ``LOG_REQUESTS=false``.
 
-.. _logging-configuration:
-
 Configuration
 =============
 
-The logging configuration lives in ``openarchiefbeheer.conf.base`` and is controlled by
-these environment variables:
-
-* ``LOG_STDOUT``: whether to log to stdout instead of to ``log/application.jsonl``.
-  Defaults to ``True`` when using Docker, ``False`` otherwise.
-
-* ``LOG_FORMAT_CONSOLE``: format of the console output, valid values are ``json`` or ``plain_console`` (human readable).
-  Set to ``json`` for proper formatting of logs in Grafana. Defaults to ``plain_console`` for development, ``json`` otherwise.
-
-* ``LOG_LEVEL``: log level of the ``openarchiefbeheer`` loggers, valid values are ``DEBUG``, ``INFO``, ``WARNING``, or ``ERROR``.
-  Defaults to ``INFO``.
-
-* ``LOG_REQUESTS``: whether to log every incoming request via django-structlog. Note that we only log the method, path,
-  status code, and duration for every request. This does *not* include request/response bodies, which might include
-  sensitive information. Defaults to ``True``.
-
-.. note::
-    At this time, logs are not exported via OTLP - they are only written to
-    the console or a file.
+Please refer to the :ref:`devops logging documentation<devops_logging>` for the full overview
+of available environment variables.
 
 .. _structlog: https://www.structlog.org/
 .. _documentation: https://maykin-django-common.readthedocs.io/en/latest/logging.html
