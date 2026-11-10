@@ -4,7 +4,6 @@ import {
   ErrorMessage,
   Form,
   FormField,
-  FormValidator,
   Grid,
   H3,
   Hr,
@@ -12,6 +11,7 @@ import {
   Option,
   P,
   SerializedFormData,
+  Validator,
   validateForm,
 } from "@maykin-ui/admin-ui";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -101,26 +101,49 @@ export function getFormMutation(
 ): FormMutation {
   const mutation: FormMutation = {};
 
+  //
   // Determine what the user changed before applying any derived mutations.
+  // TODO: consider comparing against `initialValues` instead.
+  //
+
+  // Selectielijstklasse does not match previous value.
   const isSelectielijstklasseChanged =
     values.selectielijstklasse !== previousValues.selectielijstklasse;
+
+  // Archiefactiedatum does not match previous value.
   const isArchiefactiedatumChanged =
     values.archiefactiedatum !== previousValues.archiefactiedatum;
+
+  // Selectielijstklasse was changed, but is reverted back to the initial state
   const isSelectielijstklasseReverted =
     values.selectielijstklasse === initialValues.selectielijstklasse;
+
   // calculate the archive date based on selectielijstklasse from Selectielijst API
   const derivedArchiefactiedatum =
     zaakArchiefactiedatum && bewaartermijn
       ? formatDate(addDuration(zaakArchiefactiedatum, bewaartermijn), "iso")
       : "";
 
+  // If: the selectielijstklasse is changed, there are 2 possible scenario's:
+  //
+  // - Scenario 1: a previous change exists, and is reverted to the initial value.
+  //   - Apply initial resultaattype/archiefactiedatum values to the `mutation`.
+  //   - Set `mutation.archiefactiedatumSource` to `initialArchiefactiedatumSource` (the first known value).
+  //
+  // - Scenario 2: the selectielijst is changed to a non-initial value.
+  //   - Clear the resultaattype value.
+  //   - Set `mutation.archiefactiedatum` to `derivedArchiefactiedatum`.
+  //   - Set `mutation.archiefactiedatumSource` to "selectielijstklasse" (selectielijst determines value).
   if (isSelectielijstklasseChanged) {
+    // Scenario 1
     if (isSelectielijstklasseReverted) {
       // The user reverts to the original selectielijstklasse - we restore the values to the initial
       mutation.resultaattype = initialValues.resultaattype;
       mutation.archiefactiedatum = initialValues.archiefactiedatum;
       mutation.archiefactiedatumSource = initialArchiefactiedatumSource;
-    } else {
+    }
+    // Scenario 2
+    else {
       // A different selectielijstklasse requires a new resultaattype.
       mutation.resultaattype = "";
       // If the selectielijstklasse is changed, and all fields are available:
@@ -130,6 +153,19 @@ export function getFormMutation(
     }
   }
 
+  // If: the archiefactiedatum is changed (manually), there are 2 possible scenario's:
+  //
+  // - Scenario 1: The new archiefactie datum matches either initial or selectielijst-calculated value.
+  //   - Scenario 1.1: The previous change was a selectielijst revert.
+  //     - Set `mutation.archiefactiedatumSource` to `initialArchiefactiedatumSource` (the first known value).
+  //     - delete `mutation.archiefactiedatum`, preserving manually set value.
+  //   - Scenario 1.2: The previous change was a selectielijst change.
+  //     - Set `mutation.archiefactiedatumSource` to "selectielijstklasse"
+  //     - delete `mutation.archiefactiedatum`, preserving manually set value.
+  //
+  // - Scenario 2: The user (manually) changed the archiving date.
+  //     - Set `mutation.archiefactiedatumSource` to "user"
+  //     - delete `mutation.archiefactiedatum`, preserving manually set value.
   if (isArchiefactiedatumChanged) {
     /*
      * This branch is only reached when the archive date itself changed,
@@ -141,12 +177,15 @@ export function getFormMutation(
       ? initialValues.archiefactiedatum
       : derivedArchiefactiedatum;
 
+    // Scenario 1
     if (values.archiefactiedatum === expectedArchiefactiedatum) {
       // The user restored the original or system-derived date.
       mutation.archiefactiedatumSource = isSelectielijstklasseReverted
-        ? initialArchiefactiedatumSource
-        : "selectielijstklasse";
-    } else {
+        ? initialArchiefactiedatumSource // Scenario 1.1
+        : "selectielijstklasse"; // Scenario 1.2
+    }
+    // Scenario 2
+    else {
       // The user explicitly entered a different date.
       mutation.archiefactiedatumSource = "user";
     }
@@ -245,34 +284,88 @@ export const DestructionListProcessZaakReviewModal: React.FC<
     );
   }
 
-  const getBewaartermijn = (selectielijstklasse: string) => {
+  /**
+   * Returns the archiefnominatie (waardering) for the selected selectielijstklasse.
+   * @param selectielijstklasseUrl - The selectielijstklasse URL
+   * @return "blijvend_bewaren" or "vernietigen"
+   */
+  function getArchiefnominatie(
+    selectielijstklasseUrl: string,
+  ): SelectielijstklasseOption["extraData"]["waardering"] | null {
+    const selectedChoice = getSelectielijstklasseOption(selectielijstklasseUrl);
+    return selectedChoice?.extraData?.waardering || null;
+  }
+
+  /**
+   * Returns the bewaartermijn (e.g. "P5Y") for the selected selectielijstklasse.
+   * @param selectielijstklasseUrl - The selectielijstklasse URL
+   * @return ISO 8601 duration format if applicable.
+   * @return
+   *  - ISO 8601 duration format if applicable.
+   *  - `null` if no selectielijstklasse option is found.
+   */
+  function getBewaartermijn(selectielijstklasseUrl: string): string | null {
+    const selectedChoice = getSelectielijstklasseOption(selectielijstklasseUrl);
+    return selectedChoice?.extraData?.bewaartermijn || null;
+  }
+
+  /**
+   * Returns the resultaattype options for the selected selectielijstklasse.
+   * @param selectielijstklasseUrl - The selectielijstklasse URL
+   * @return Array resultaat type options.
+   */
+  function getResultaattypeOptions(selectielijstklasseUrl: string): Option[] {
+    const selectedChoice = getSelectielijstklasseOption(selectielijstklasseUrl);
+    return selectedChoice?.extraData?.resultaattypen || [];
+  }
+
+  /**
+   * Returns the `SelectielijstklasseOption` based on `selectielijstklasseUrl`.
+   * @param selectielijstklasseUrl - The selectielijstklasse URL
+   * @throws Error - When no `SelectielijstklasseOption` matching `selectielijstklasseUrl` is found.
+   * @return
+   *  - Selectielijstklasse option if applicable
+   *  - `null` if no selectielijstklasse option is found.
+   */
+  function getSelectielijstklasseOption(
+    selectielijstklasseUrl: string,
+  ): SelectielijstklasseOption | null {
     const selectedChoice = selectieLijstKlasseChoices.find(
-      (choice) => choice.value === selectielijstklasse,
+      (choice) => choice.value === selectielijstklasseUrl,
     );
 
-    return selectedChoice?.extraData?.bewaartermijn;
-  };
+    return selectedChoice || null;
+  }
 
   /**
    * Returns the `FormField[]` to show in the modal after selecting a Zaak (when processing review).
    */
-  const getFields = (_formState: typeof formState = formState) => {
-    const bewaartermijn = getBewaartermijn(_formState.selectielijstklasse);
+  function getFields({
+    action,
+    archiefactiedatum,
+    comment,
+    selectielijstklasse,
+    resultaattype,
+  }: ProcessZaakFormState) {
+    const archiefnominatie = getArchiefnominatie(selectielijstklasse);
+    const bewaartermijn = getBewaartermijn(selectielijstklasse);
+    const resultaattypeOptions = getResultaattypeOptions(selectielijstklasse);
 
-    const changeSelectielijstklasse =
-      _formState.action === "change_selectielijstklasse";
+    const changeSelectielijstklasseSelected =
+      action === "change_selectielijstklasse";
 
-    const showArchiefactiedatumInput =
-      _formState.action === "change_archiefactiedatum" ||
-      (changeSelectielijstklasse && !!bewaartermijn);
-
+    // Whether to allow changing the archiving date
+    // - When: selectielijst `bewaartermijn` is resolved as truthy value.
+    // - OR:   `archiefnominatie` is set to "vernietigen".  FIXME: Remove this check as is redundant?
     const showChangeArchiefactiedatumOption =
-      !!bewaartermijn || zaak?.archiefnominatie === "vernietigen";
+      Boolean(bewaartermijn) || archiefnominatie === "vernietigen";
 
-    const resultaattypeChoices =
-      selectieLijstKlasseChoices.find(
-        (choice) => choice.value === _formState.selectielijstklasse,
-      )?.extraData?.resultaattypen ?? [];
+    // Whether to show the "archiefactiedatum" input
+    // - When: `action` is set to "change_archiefactiedatum".
+    // - OR: selectielijst `bewaartermijn` is resolved as truthy value.
+    const showArchiefactiedatumInput =
+      action === "change_archiefactiedatum" ||
+      (changeSelectielijstklasseSelected && Boolean(bewaartermijn));
 
     // Fields always visible in the modal.
     const baseFields: FormField[] = [
@@ -287,25 +380,25 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         label: "Actie",
         name: "action",
         required: true,
-        value: _formState.action,
+        value: action,
         type: "radio",
         options: [
           {
             label: LABEL_CHANGE_SELECTION_LIST_CLASS,
             value: "change_selectielijstklasse",
-            selected: _formState.action === "change_selectielijstklasse",
+            selected: action === "change_selectielijstklasse",
           },
           showChangeArchiefactiedatumOption
             ? {
                 label: LABEL_CHANGE_ARCHIVING_DATE,
                 value: "change_archiefactiedatum",
-                selected: _formState.action === "change_archiefactiedatum",
+                selected: action === "change_archiefactiedatum",
               }
             : null,
           {
             label: LABEL_KEEP,
             value: "keep",
-            selected: _formState.action === "keep",
+            selected: action === "keep",
           },
         ].filter((v: Option | null): v is Option => Boolean(v)) as Option[],
       },
@@ -313,28 +406,32 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       // Note: do not remove these fields completely to enable remembering
       // previously selected values when switching the "action".
       {
-        label: changeSelectielijstklasse ? "Selectielijstklasse" : undefined,
+        label: changeSelectielijstklasseSelected
+          ? "Selectielijstklasse"
+          : undefined,
         name: "selectielijstklasse",
-        required: changeSelectielijstklasse,
-        type: changeSelectielijstklasse ? undefined : "hidden",
-        options: changeSelectielijstklasse
+        required: changeSelectielijstklasseSelected,
+        type: changeSelectielijstklasseSelected ? undefined : "hidden",
+        options: changeSelectielijstklasseSelected
           ? selectieLijstKlasseChoices.filter(
               (choice) => choice.value !== zaakSelectielijstklasse,
             )
           : undefined,
-        value: _formState.selectielijstklasse,
+        value: selectielijstklasse,
       },
 
       {
-        label: changeSelectielijstklasse ? "Resultaattype" : undefined,
+        label: changeSelectielijstklasseSelected ? "Resultaattype" : undefined,
         name: "resultaattype",
         required:
           // Only required when we actually have corresponding resultaattypen
           // available
-          changeSelectielijstklasse && resultaattypeChoices.length > 0,
-        type: changeSelectielijstklasse ? undefined : "hidden",
-        options: changeSelectielijstklasse ? resultaattypeChoices : undefined,
-        value: _formState.resultaattype,
+          changeSelectielijstklasseSelected && resultaattypeOptions.length > 0,
+        type: changeSelectielijstklasseSelected ? undefined : "hidden",
+        options: changeSelectielijstklasseSelected
+          ? resultaattypeOptions
+          : undefined,
+        value: resultaattype,
       },
 
       {
@@ -342,7 +439,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         name: "archiefactiedatum",
         required: showArchiefactiedatumInput,
         type: showArchiefactiedatumInput ? "date" : "hidden",
-        value: _formState.archiefactiedatum,
+        value: archiefactiedatum,
       },
     ];
 
@@ -352,19 +449,24 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         label: "Reden",
         name: "comment",
         required: true,
-        value: _formState.comment,
+        value: comment,
       },
     ];
 
-    return [...baseFields, ...(_formState.action ? actionSelectedFields : [])];
-  };
+    return [...baseFields, ...(action ? actionSelectedFields : [])];
+  }
 
-  const validate: FormValidator = (_values, _, validators) => {
-    /**
-     * Updates the form state, and validates the form.
-     * @param values
-     */
-    const values = _values as DestructionListProcessZaakReviewModalFormType;
+  /**
+   * Updates the form state, and validates the form.
+   * @param values
+   * @param _
+   * @param validators
+   */
+  function validate(
+    values: DestructionListProcessZaakReviewModalFormType,
+    _: FormField[],
+    validators?: Validator[],
+  ) {
     const bewaartermijn = getBewaartermijn(
       values.selectielijstklasse as string,
     );
@@ -392,7 +494,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       setArchiefactiedatumSourceState(nextArchiefactiedatumSource);
     }
     return validateForm(nextValues, getFields(nextValues), validators);
-  };
+  }
 
   /**
    * Gets called when the form is submitted.
@@ -459,7 +561,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
                 <Form<DestructionListProcessZaakReviewModalFormType>
                   aria-label={`${zaak?.identificatie} muteren`}
                   autoComplete="off"
-                  fields={getFields()}
+                  fields={getFields(formState)}
                   initialValues={initialFormState}
                   justify="stretch"
                   labelSubmit={`${zaak?.identificatie} muteren`}
