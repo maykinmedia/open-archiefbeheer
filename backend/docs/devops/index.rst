@@ -17,4 +17,5 @@ Content
     2fa
     oidc
     otel
+    logging
     email
