@@ -96,7 +96,7 @@ export function getFormMutation(
   previousValues: ProcessZaakFormState,
   initialValues: ProcessZaakFormState,
   initialArchiefactiedatumSource: ArchiefactiedatumSource,
-  zaakArchiefactiedatum: string,
+  zaakStartDatumBewaarTermijn: string,
   bewaartermijn?: string | null,
 ): FormMutation {
   const mutation: FormMutation = {};
@@ -120,8 +120,11 @@ export function getFormMutation(
 
   // calculate the archive date based on selectielijstklasse from Selectielijst API
   const derivedArchiefactiedatum =
-    zaakArchiefactiedatum && bewaartermijn
-      ? formatDate(addDuration(zaakArchiefactiedatum, bewaartermijn), "iso")
+    zaakStartDatumBewaarTermijn && bewaartermijn
+      ? formatDate(
+          addDuration(zaakStartDatumBewaarTermijn, bewaartermijn),
+          "iso",
+        )
       : "";
 
   // If: the selectielijstklasse is changed, there are 2 possible scenario's:
@@ -479,7 +482,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       formState,
       initialFormState,
       archiefactiedatumSource,
-      zaak?.archiefactiedatum || "",
+      zaak?.startdatumBewaartermijn || archiefactiedatum || "",
       bewaartermijn,
     );
 
