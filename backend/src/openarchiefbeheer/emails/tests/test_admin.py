@@ -22,7 +22,7 @@ class EmailsAdminTest(WebTest):
         response = self.app.get(reverse("admin:emails_emailconfig_change"), user=user)
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["emailconfig_form"]
         form["body_review_required_html"] = "<p>HTML with template errors {% if %}</p>"
         form["body_review_required_text"] = "Text with template errors {% if %}"
         form["body_co_review_request_text"] = "Some text without errors"
