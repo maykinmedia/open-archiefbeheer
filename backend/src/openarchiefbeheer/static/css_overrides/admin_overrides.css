@@ -374,3 +374,16 @@ body {
 .dynamic-array-widget .array-item input {
   width: 20em;
 }
+
+/* Ensure the button is styled like the links */
+#logout-form button {
+  border-bottom: none;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus {
+    margin-bottom: 0;
+    color: var(--header-link-color);
+    text-decoration: none;
+  }
+}
