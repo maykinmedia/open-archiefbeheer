@@ -18,7 +18,7 @@ import { PaginatedResults } from "../../../../../lib/api/paginatedResults";
 import { ReviewItem } from "../../../../../lib/api/review";
 import { paginatedDestructionListItems2DestructionDetailData } from "../../../../../lib/format/destructionList";
 import { ZaakSelection } from "../../../../../lib/zaakSelection";
-import { Zaak } from "../../../../../types";
+import { ExpandZaak, Zaak } from "../../../../../types";
 import { BaseListView } from "../../../abstract";
 import { DestructionListDetailContext } from "../../DestructionListDetail.loader";
 import { useSecondaryNavigation } from "../../hooks";
@@ -30,7 +30,7 @@ import {
 
 type ZaakModalDataState = {
   open: boolean;
-  zaak?: Zaak;
+  zaak?: ExpandZaak;
 };
 
 type ProcessZaakReviewSelectionDetail = {
@@ -421,6 +421,9 @@ export function DestructionListProcessReviewPage() {
         selectielijstklasse={
           processZaakReviewDetail?.selectielijstklasse ||
           processZaakReviewModalState.zaak?.selectielijstklasse ||
+          // @ts-expect-error - resultaat["_expand"] missing in type.
+          processZaakReviewModalState.zaak?._expand?.resultaat?._expand
+            ?.resultaattype?.selectielijstklasse ||
           ""
         }
         selectieLijstKlasseChoices={
