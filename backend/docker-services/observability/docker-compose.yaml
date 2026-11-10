@@ -51,6 +51,21 @@ services:
       - oab-dev
 
   # Traces backend
+  # Tempo runs as user 10001, and docker compose creates the volume as root.
+  # As such, we need to chown the volume in order for Tempo to start correctly.
+  # See https://github.com/grafana/tempo/issues/1657
+  tempo-init:
+    image: busybox:1.36.1
+    user: root
+    entrypoint:
+      - "chown"
+      - "10001:10001"
+      - "/var/tempo"
+    volumes:
+      - ./tempo-data:/var/tempo
+    networks:
+      - oab-dev
+
   tempo:
     image: grafana/tempo:3.1.1
     command: --config.file=/etc/tempo.yaml
@@ -61,6 +76,8 @@ services:
       - "3200:3200"  # tempo
     networks:
       - oab-dev
+    depends_on:
+      - tempo-init
 
   # open telemetry collector, receives metrics from the application instance(s)
   otel-collector:
