@@ -27,7 +27,7 @@ class ExternalRegisterConfigAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["externalregisterconfig_form"]
         form["services"] = [service1.pk]
         response_submission = form.submit()
 
@@ -58,7 +58,7 @@ class ExternalRegisterConfigAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["externalregisterconfig_form"]
         form["services"] = [service2.pk]
         response_submission = form.submit().follow()
 
@@ -85,7 +85,7 @@ class ExternalRegisterConfigAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["externalregisterconfig_form"]
         form["services"] = [service2.pk, service3.pk]
         response_submission = form.submit().follow()
 
