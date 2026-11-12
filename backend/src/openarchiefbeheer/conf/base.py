@@ -566,17 +566,6 @@ if SENTRY_DSN:
         **SENTRY_CONFIG, integrations=get_sentry_integrations(), send_default_pii=True
     )
 
-# Elastic APM
-ELASTIC_APM_SERVER_URL = os.getenv("ELASTIC_APM_SERVER_URL", None)
-ELASTIC_APM = {
-    "SERVICE_NAME": f"openarchiefbeheer {ENVIRONMENT}",
-    "SECRET_TOKEN": config("ELASTIC_APM_SECRET_TOKEN", default="default"),
-    "SERVER_URL": ELASTIC_APM_SERVER_URL,
-}
-if not ELASTIC_APM_SERVER_URL:
-    ELASTIC_APM["ENABLED"] = False
-    ELASTIC_APM["SERVER_URL"] = "http://localhost:8200"
-
 # Subpath (optional)
 # This environment variable can be configured during deployment.
 SUBPATH = config("SUBPATH", default=None)
