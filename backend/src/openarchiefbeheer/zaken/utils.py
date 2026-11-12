@@ -182,6 +182,7 @@ def format_selectielijstklasse_choice(
         "value": resultaat["url"],
         "extra_data": {
             "bewaartermijn": resultaat.get("bewaartermijn"),
+            "waardering": resultaat.get("waardering"),
         },
     }
 
