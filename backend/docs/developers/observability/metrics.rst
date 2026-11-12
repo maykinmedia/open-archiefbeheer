@@ -79,3 +79,44 @@ Accounts
     Counter incrementing every time a user logs out. Additional attributes:
 
     - ``username`` - username of the user who logged out.
+
+
+Destruction
+-----------
+
+``openarchiefbeheer.destruction.list_count``
+    Counts the number of destruction lists defined in the database. Additional attributes:
+
+    - ``status``- the workflow status one of ``new``,
+      ``ready_to_review``, ``changes_requested``, ``internally_reviewed``,
+      ``ready_for_archivist``, ``ready_to_delete`` or ``deleted``.
+    - ``scope`` - fixed, set to ``global`` to enable de-duplication.
+
+``openarchiefbeheer.destruction.item_count``
+
+    Counts the current number of items belonging to each destruction list. Additional attributes:
+
+    - ``destruction_list.name`` - the name of the destruction list.
+    - ``scope``- fixed, set to ``global`` to enable de-duplication.
+
+``openarchiefbeheer.destruction.lists.completed``
+    Counts the number of successfully processed destruction lists.
+
+``openarchiefbeheer.destruction.lists.failed``
+    Counts the number of destruction lists failed during the process.
+
+``openarchiefbeheer.destruction.items.completed``
+    Counts the number of sucessfully processes destruction list items.
+
+``openarchiefbeheer.destruction.items.failed``
+    Counts the number of destruction list items failed during the process.
+
+``openarchiefbeheer.destruction.resources``
+    Counts the number of resources processed during destruction. Additional attributes:
+
+    - ``resource_type``- the resource category, one of ``zaken``,
+      ``besluiten``, ``besluitinformatieobjecten``,
+      ``zaakinformatieobjecten``, ``enkelvoudiginformatieobjecten``,
+      ``objecten``, ``producten`` or ``onderwerpobjecten``.
+    - ``result`` - the processing outcome, currently ``deleted`` or ``unlinked``.
+
