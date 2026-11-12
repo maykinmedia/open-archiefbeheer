@@ -55,6 +55,7 @@ urlpatterns = [
     path("api/", include("openarchiefbeheer.api.urls", namespace="api")),
     # Simply show the master template.
     path("", TemplateView.as_view(template_name="master.html"), name="root"),
+    path("", include("maykin_common.health_checks.urls")),
 ]
 
 # NOTE: The staticfiles_urlpatterns also discovers static files (ie. no need to run collectstatic). Both the static

@@ -73,6 +73,7 @@ RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
 COPY --from=backend-build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=backend-build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 COPY --from=backend-build /usr/local/bin/celery /usr/local/bin/celery
+COPY --from=backend-build /usr/local/bin/maykin-common /usr/local/bin/maykin-common
 
 COPY ./backend/src /app/src
 
