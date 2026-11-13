@@ -10,10 +10,8 @@ from maykin_common.logging.audit import audit_logger
 from openpyxl import load_workbook
 from privates.test import temp_private_root
 
-from openarchiefbeheer.destruction.destruction_report import generate_destruction_report
-from openarchiefbeheer.destruction.models import ResourceDestructionResult
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...accounts.tests.factories import UserFactory
 from ..constants import (
     InternalStatus,
     ListItemStatus,
@@ -22,6 +20,8 @@ from ..constants import (
     ResourceType,
     ReviewDecisionChoices,
 )
+from ..destruction_report import generate_destruction_report
+from ..models import ResourceDestructionResult
 from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
@@ -29,6 +29,9 @@ from .factories import (
 )
 
 
+# TODO: these tests rely on the created ResourceDestructionResult objects in the
+#  tests itself. It would be better if they rely on the objects which are
+#  created during deletion of the resources instead.
 @temp_private_root()
 class DestructionReportTests(TestCase):
     def test_generate_destruction_report(self):
