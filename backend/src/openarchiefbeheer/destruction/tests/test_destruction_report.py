@@ -10,10 +10,8 @@ from maykin_common.logging.audit import audit_logger
 from openpyxl import load_workbook
 from privates.test import temp_private_root
 
-from openarchiefbeheer.destruction.destruction_report import generate_destruction_report
-from openarchiefbeheer.destruction.models import ResourceDestructionResult
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...accounts.tests.factories import UserFactory
 from ..constants import (
     InternalStatus,
     ListItemStatus,
@@ -22,6 +20,8 @@ from ..constants import (
     ResourceType,
     ReviewDecisionChoices,
 )
+from ..destruction_report import generate_destruction_report
+from ..models import ResourceDestructionResult
 from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
@@ -29,6 +29,9 @@ from .factories import (
 )
 
 
+# TODO: these tests rely on the created ResourceDestructionResult objects in the
+#  tests itself. It would be better if they rely on the objects which are
+#  created during deletion of the resources instead.
 @temp_private_root()
 class DestructionReportTests(TestCase):
     def test_generate_destruction_report(self):
@@ -62,6 +65,7 @@ class DestructionReportTests(TestCase):
                 "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
                 "omschrijving": "Test description 1",
+                "uuid": "a736d210-3eb1-4bd7-aeae-d54f808fd6d4",
                 "identificatie": "ZAAK-01",
                 "startdatum": "2020-01-01",
                 "einddatum": "2022-01-01",
@@ -92,12 +96,14 @@ class DestructionReportTests(TestCase):
             resource_type=ResourceType.onderwerpobjecten,
             status=ResourceDestructionResultStatus.deleted,
             url="http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+            metadata={"zaak_uuid": "d5be3733-f38c-4b16-bd6e-d9a5fc28bd58"},
         )
         ResourceDestructionResult.objects.create(
             item=item1,
             resource_type="other_related_resource",
             status=ResourceDestructionResultStatus.unlinked,
             url="http://register.nl/cant/extract/uuid",
+            metadata={"zaak_uuid": "d5be3733-f38c-4b16-bd6e-d9a5fc28bd58"},
         )
         item2 = DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -113,6 +119,7 @@ class DestructionReportTests(TestCase):
                 "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-222",
                 "omschrijving": "Test description 2",
+                "uuid": "2d903843-2d5f-418a-bd32-e38af28abe71",
                 "identificatie": "ZAAK-02",
                 "startdatum": "2020-01-02",
                 "einddatum": "2022-01-02",
@@ -151,6 +158,7 @@ class DestructionReportTests(TestCase):
                 "bronapplicatie": "Open Zaak",
                 "url": "http://zaken.nl/api/v1/zaken/111-111-333",
                 "omschrijving": "Test description 3",
+                "uuid": "91868dec-2b4e-47d4-acc7-63f87f74fbd4",
                 "identificatie": "ZAAK-03",
                 "startdatum": "2020-01-03",
                 "einddatum": "2022-01-03",
@@ -188,6 +196,7 @@ class DestructionReportTests(TestCase):
                 "Zaaktype UUID",
                 "Zaaktype Identificatie",
                 "Resultaat",
+                "Zaak UUID",
                 "Zaak Identificatie",
                 "Zaak Startdatum",
                 "Zaak Einddatum",
@@ -207,6 +216,7 @@ class DestructionReportTests(TestCase):
                 "111-111-111",
                 None,  # pyopenxl reads empty values as None
                 "Resulttype 0",
+                "a736d210-3eb1-4bd7-aeae-d54f808fd6d4",
                 "ZAAK-01",
                 "2020-01-01",
                 "2022-01-01",
@@ -222,6 +232,7 @@ class DestructionReportTests(TestCase):
                 "111-111-111",
                 None,
                 "Resulttype 0",
+                "2d903843-2d5f-418a-bd32-e38af28abe71",
                 "ZAAK-02",
                 "2020-01-02",
                 "2022-01-02",
@@ -237,6 +248,7 @@ class DestructionReportTests(TestCase):
                 "111-111-222",
                 None,
                 None,
+                "91868dec-2b4e-47d4-acc7-63f87f74fbd4",
                 "ZAAK-03",
                 "2020-01-03",
                 "2022-01-03",
@@ -273,26 +285,29 @@ class DestructionReportTests(TestCase):
         rows = list(sheet_related_resources.iter_rows(values_only=True))
 
         self.assertEqual(
-            rows[0][:3],
+            rows[0],
             (
                 gettext("Resource Type"),
                 gettext("Resource UUID"),
+                gettext("Zaak UUID"),
                 gettext("Operation"),
             ),
         )
         self.assertEqual(
-            rows[1][:3],
+            rows[1],
             (
                 "onderwerpobjecten",
                 "4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+                "d5be3733-f38c-4b16-bd6e-d9a5fc28bd58",
                 gettext("Deleted"),
             ),
         )
         self.assertEqual(
-            rows[2][:3],
+            rows[2],
             (
                 "other_related_resource",
                 "http://register.nl/cant/extract/uuid",
+                "d5be3733-f38c-4b16-bd6e-d9a5fc28bd58",
                 gettext("Unlinked"),
             ),
         )

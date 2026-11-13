@@ -106,6 +106,7 @@ class DeletingZakenWithErrorsTests(TestCase):
             resource_type=ResourceType.enkelvoudiginformatieobjecten,
             status=ResourceDestructionResultStatus.to_be_deleted,
             url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/111-111-111",
+            metadata={"zaak_uuid": str(destruction_list_item.zaak.uuid)},
         )
 
         with self.assertRaises(ConnectTimeout):
