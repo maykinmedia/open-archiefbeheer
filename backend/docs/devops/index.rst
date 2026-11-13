@@ -19,3 +19,4 @@ Content
     otel
     logging
     email
+    health-checks
