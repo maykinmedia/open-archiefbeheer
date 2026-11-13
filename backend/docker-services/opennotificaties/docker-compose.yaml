@@ -62,10 +62,12 @@ services:
 
       SUBPATH: ${SUBPATH:-/}
       DISABLE_2FA: yes
-      LOG_NOTIFICATIONS_IN_DB: no
+      LOG_NOTIFICATIONS_IN_DB: yes
       DB_CONN_MAX_AGE: "0"
       DB_POOL_ENABLED: True
       OTEL_SDK_DISABLED: true
+      LOG_OUTGOING_REQUESTS_DB_SAVE: True
+      LOG_FORMAT_CONSOLE: plain_console
     healthcheck:
       test: ["CMD", "maykin-common", "health-check"]
       interval: 30s

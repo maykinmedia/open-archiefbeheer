@@ -58,6 +58,8 @@ services:
       service: openklant-web.local
     networks:
       - oab-dev
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   web-init:
     image: maykinmedia/open-klant:${OPENKLANT_VERSION:-2.18.0}

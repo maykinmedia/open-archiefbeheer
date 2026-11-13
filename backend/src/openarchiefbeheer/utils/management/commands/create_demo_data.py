@@ -1,3 +1,4 @@
+from argparse import BooleanOptionalAction
 from typing import Mapping, TypedDict
 
 from django.core.management import BaseCommand, CommandParser
@@ -24,6 +25,9 @@ from ...tests.resources_client import (
     OpenProductCreationHelper,
     OpenZaakDataCreationHelper,
 )
+
+LOCAL_HOST = "localhost"
+DOCKER_HOST = "host.docker.internal"
 
 
 class LocalServices(TypedDict):
@@ -62,11 +66,6 @@ class Command(BaseCommand):
     * Open Klant: 5 onderwerpobjecten
     * Open Product: 5 products
 
-    The following resources are NOT created:
-
-    * ZaakObjecten in Open Zaak to the objects in Objecten API, to the onderwerpobjecten in Open Klant and to producten in Open Product.
-    This is because the linkchecker in Open Zaak makes this impossible with the docker compose setup.
-
     The configuration of following models is updated with created resources:
 
     * config.APIConfig
@@ -96,26 +95,56 @@ class Command(BaseCommand):
             help="Update configuration models with created services and resources.",
         )
 
-    def _configure_services(self) -> LocalServices:
+        parser.add_argument(
+            "--use-docker-host",
+            action="store_true",
+            help="Use host.docker.internal instead of localhost for local API.",
+        )
+
+        parser.add_argument(
+            "--report-zaaktype",
+            action=BooleanOptionalAction,
+            default=True,
+            help="Create a zaaktype for configuring destruction reports.",
+        )
+
+        parser.add_argument(
+            "--external-resources",
+            action=BooleanOptionalAction,
+            default=True,
+            help="Create resources in external registers.",
+        )
+
+        parser.add_argument(
+            "--external-relations",
+            action=BooleanOptionalAction,
+            default=False,
+            help="Relate external resources to the generated zaken.",
+        )
+
+    def _configure_services(
+        self,
+        hostname: str = LOCAL_HOST,
+    ) -> LocalServices:
         """Create/get all ZGW services needed for the functioning of OAB."""
         self.stdout.write("Creating/updating the ZGW services in OAB...")
 
-        ztc_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8003/catalogi/api/v1/",
+        ztc_service, _ = Service.objects.update_or_create(
+            slug="catalogi",
             defaults={
                 "label": "Catalogi API",
-                "slug": "catalogi",
+                "api_root": f"http://{hostname}:8003/catalogi/api/v1/",
                 "api_type": APITypes.ztc,
                 "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
         )
-        zrc_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8003/zaken/api/v1/",
+        zrc_service, _ = Service.objects.update_or_create(
+            slug="zaken",
             defaults={
                 "label": "Zaken API",
-                "slug": "zaken",
+                "api_root": f"http://{hostname}:8003/zaken/api/v1/",
                 "api_type": APITypes.zrc,
                 "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
@@ -123,21 +152,21 @@ class Command(BaseCommand):
             },
         )
         Service.objects.update_or_create(
-            api_root="http://localhost:8003/besluiten/api/v1/",
+            slug="besluiten",
             defaults={
                 "label": "Besluiten API",
-                "slug": "besluiten",
+                "api_root": f"http://{hostname}:8003/besluiten/api/v1/",
                 "api_type": APITypes.brc,
                 "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
                 "secret": "test-vcr",
             },
         )
-        drc_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8003/documenten/api/v1/",
+        drc_service, _ = Service.objects.update_or_create(
+            slug="documenten",
             defaults={
                 "label": "Documenten API",
-                "slug": "documenten",
+                "api_root": f"http://{hostname}:8003/documenten/api/v1/",
                 "api_type": APITypes.drc,
                 "auth_type": AuthTypes.zgw,
                 "client_id": "test-vcr",
@@ -145,41 +174,41 @@ class Command(BaseCommand):
             },
         )
         sl_service, _ = Service.objects.update_or_create(
-            api_root="https://selectielijst.openzaak.nl/api/v1/",
+            slug="selectielijst",
             defaults={
                 "label": "Selectielijst API",
-                "slug": "selectielijst",
+                "api_root": "https://selectielijst.openzaak.nl/api/v1/",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.no_auth,
             },
         )
-        objecten_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8006/api/v2/",
+        objecten_service, _ = Service.objects.update_or_create(
+            slug="objecten",
             defaults={
                 "label": "Objecten API",
-                "slug": "objecten",
+                "api_root": f"http://{hostname}:8006/api/v2/",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.api_key,
                 "header_key": "Authorization",
                 "header_value": "Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
             },
         )
-        openklant_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8005/klantinteracties/api/v1/",
+        openklant_service, _ = Service.objects.update_or_create(
+            slug="openklant",
             defaults={
                 "label": "Klantinteracties API (Open Klant)",
-                "slug": "openklant",
+                "api_root": f"http://{hostname}:8005/klantinteracties/api/v1/",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.api_key,
                 "header_key": "Authorization",
                 "header_value": "Token ba9d233e95e04c4a8a661a27daffe7c9bd019067",
             },
         )
-        openproduct_service, _ = Service.objects.get_or_create(
-            api_root="http://localhost:8007/producten/api/v1/",
+        openproduct_service, _ = Service.objects.update_or_create(
+            slug="openproduct",
             defaults={
                 "label": "Producten API (Open Product)",
-                "slug": "openproduct",
+                "api_root": f"http://{hostname}:8007/producten/api/v1/",
                 "api_type": APITypes.orc,
                 "auth_type": AuthTypes.api_key,
                 "header_key": "Authorization",
@@ -298,25 +327,66 @@ class Command(BaseCommand):
         return zaken
 
     def _generate_objecten(
-        self, helper: ObjectenCreationHelper
+        self,
+        helper: ObjectenCreationHelper,
+        relate_external_resources: bool,
+        zaak_urls: list[str],
     ) -> list[Mapping[str, JSONEncodable]]:
         self.stdout.write("Generating objects in the Objecten API...")
-        return [helper.create_object() for _ in range(5)]
+        return [
+            helper.create_object(
+                **{
+                    "record": {
+                        "typeVersion": 1,
+                        "startAt": "2025-01-01",
+                        "references": [{"type": "zaak", "url": zaak_url}],
+                    }
+                }
+                if relate_external_resources
+                else {}
+            )
+            for zaak_url in zaak_urls
+        ]
 
     def _generate_onderwerpobjecten(
-        self, helper: OpenKlantCreationHelper
+        self,
+        helper: OpenKlantCreationHelper,
+        relate_external_resources: bool,
+        zaak_urls: list[str],
     ) -> list[Mapping[str, JSONEncodable]]:
         self.stdout.write("Generating onderwerpobjecten in Open Klant...")
-        return [helper.create_onderwerpobject() for _ in range(5)]
+        return [
+            helper.create_onderwerpobject(
+                **{
+                    "onderwerpobjectidentificator": {
+                        "objectId": zaak_url.split("/")[-1],
+                        "codeObjecttype": "zaak",
+                        "codeRegister": "open-zaak",
+                        "codeSoortObjectId": "uuid",
+                    }
+                }
+                if relate_external_resources
+                else {}
+            )
+            for zaak_url in zaak_urls
+        ]
 
     def _generate_producten(
-        self, helper: OpenProductCreationHelper
+        self,
+        helper: OpenProductCreationHelper,
+        relate_external_resources: bool,
+        zaak_urls: list[str],
     ) -> list[Mapping[str, JSONEncodable]]:
         self.stdout.write("Generating producten in Open Product...")
-        return [helper.create_product() for _ in range(5)]
+        return [
+            helper.create_product(
+                **{"aanvraag_zaak_url": zaak_url} if relate_external_resources else {}
+            )
+            for zaak_url in zaak_urls
+        ]
 
     def _update_configuration(
-        self, services: LocalServices, resources: DestructionReportResources
+        self, services: LocalServices, resources: DestructionReportResources | None
     ) -> None:
         """
         update APIConfig, ArchiveConfig and ExternalRegisterConfig
@@ -327,14 +397,6 @@ class Command(BaseCommand):
         api_config.selectielijst_api_service = services["sl_service"]
         api_config.save()
 
-        archive_config = ArchiveConfig.get_solo()
-        archive_config.bronorganisatie = archive_config.bronorganisatie or "100000009"
-        archive_config.zaaktype = resources["zaaktype_url"]
-        archive_config.statustype = resources["statustype_url"]
-        archive_config.resultaattype = resources["resultaattype_url"]
-        archive_config.informatieobjecttype = resources["iotype_url"]
-        archive_config.save()
-
         objects_config = registry[OBJECTEN_IDENTIFIER].get_or_create_config()
         objects_config.services.set([services["objecten_service"]])
         openklant_config = registry[OPENKLANT_IDENTIFIER].get_or_create_config()
@@ -342,8 +404,29 @@ class Command(BaseCommand):
         openproduct_config = registry[OPENPRODUCT_IDENTIFIER].get_or_create_config()
         openproduct_config.services.set([services["openproduct_service"]])
 
+        if resources:
+            archive_config = ArchiveConfig.get_solo()
+            archive_config.bronorganisatie = (
+                archive_config.bronorganisatie or "100000009"
+            )
+            archive_config.zaaktype = resources["zaaktype_url"]
+            archive_config.statustype = resources["statustype_url"]
+            archive_config.resultaattype = resources["resultaattype_url"]
+            archive_config.informatieobjecttype = resources["iotype_url"]
+            archive_config.save()
+
     def handle(self, *args, **options):
-        services = self._configure_services()
+        number_of_zaken = options["zaken"]
+        use_docker_host = options["use_docker_host"]
+        create_report_zaaktype = options["report_zaaktype"]
+        create_external_resources = options["external_resources"]
+        relate_external_resources = options["external_relations"]
+        update_config = options["update_config"]
+
+        # 1. Add services
+        services = self._configure_services(
+            hostname=DOCKER_HOST if use_docker_host else LOCAL_HOST
+        )
 
         oz_helper = OpenZaakDataCreationHelper(
             zrc_service_slug=services["zrc_service"].slug,
@@ -360,19 +443,35 @@ class Command(BaseCommand):
             openproduct_service_slug=services["openproduct_service"].slug
         )
 
-        destruction_report_resources = (
-            self._generate_resources_for_destructionreport_config(oz_helper)
-        )
-        self._generate_zaken(oz_helper, number_of_zaken=options["zaken"])
-        self._generate_objecten(objecten_helper)
-        self._generate_onderwerpobjecten(openklant_helper)
-        self._generate_producten(openproduct_helper)
+        # 2. Add report zaaktype, can be skipped
+        destruction_report_resources = None
+        if create_report_zaaktype:
+            destruction_report_resources = (
+                self._generate_resources_for_destructionreport_config(oz_helper)
+            )
 
-        self.stdout.write(
-            self.style.SUCCESS("Generated resources in the external registers!")
-        )
+        # 3. Add zaken
+        zaken = self._generate_zaken(oz_helper, number_of_zaken=number_of_zaken)
+        zaak_urls = [zaak["url"] for zaak in zaken]
 
-        if options["update_config"]:
+        # 4. Add external resources, can be skipped
+        if create_external_resources:
+            self._generate_objecten(
+                objecten_helper, relate_external_resources, zaak_urls
+            )
+            self._generate_onderwerpobjecten(
+                openklant_helper, relate_external_resources, zaak_urls
+            )
+            self._generate_producten(
+                openproduct_helper, relate_external_resources, zaak_urls
+            )
+
+            self.stdout.write(
+                self.style.SUCCESS("Generated resources in the external registers!")
+            )
+
+        # update config with services and report zaaktype. can he skipped
+        if update_config:
             self._update_configuration(services, destruction_report_resources)
 
             self.stdout.write(

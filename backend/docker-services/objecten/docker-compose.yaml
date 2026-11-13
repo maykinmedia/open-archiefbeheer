@@ -74,6 +74,8 @@ services:
       target: test
       app: objects-api
       service: web
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   objecten_web_init:
     image: maykinmedia/open-object:${OBJECTEN_VERSION:-4.2.0}

@@ -41,6 +41,8 @@ services:
       OPENPRODUCT_SUPERUSER_USERNAME: admin
       OPENPRODUCT_SUPERUSER_PASSWORD: admin
       OPENPRODUCT_SUPERUSER_EMAIL: admin@admin.org
+      LOG_OUTGOING_REQUESTS_DB_SAVE: True
+      LOG_FORMAT_CONSOLE: plain_console
       # Cloudevents
       ENABLE_CLOUD_EVENTS: True
       NOTIFICATIONS_SOURCE: open-product-docker

@@ -50,6 +50,7 @@ services:
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
       DISABLE_2FA: yes
       OTEL_SDK_DISABLED: True
+      LOG_FORMAT_CONSOLE: plain_console
       # Outgoing cloudevents
       ENABLE_CLOUD_EVENTS: False
       NOTIFICATIONS_SOURCE: open-zaak-docker
