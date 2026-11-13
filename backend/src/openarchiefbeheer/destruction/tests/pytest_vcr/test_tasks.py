@@ -254,6 +254,7 @@ def test_document_deleted(openzaak_reload: None, vcr: Cassette):
         # Doesn't exist in OZ
         url="http://localhost:8003/documenten/api/v1/enkelvoudiginformatieobjecten/f808f32f-1507-4f00-90f8-0e382cbd40c0",
         status=ResourceDestructionResultStatus.to_be_deleted,
+        metadata={"zaak_uuid": str(zaak.uuid)},
     )
 
     delete_destruction_list_item(item.pk)
