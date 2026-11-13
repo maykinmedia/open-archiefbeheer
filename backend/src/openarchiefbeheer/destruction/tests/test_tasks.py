@@ -403,6 +403,7 @@ class ProcessDeletingZakenTests(ClearCacheMixin, TestCase):
             metadata={
                 "url": "http://zaken.nl/api/v1/zaken/111-111-111",
                 "omschrijving": "Test description 1",
+                "uuid": "c9849970-83c1-4a0a-b2a9-883e17d01396",
                 "identificatie": "ZAAK-01",
                 "startdatum": "2020-01-01",
                 "einddatum": "2022-01-01",

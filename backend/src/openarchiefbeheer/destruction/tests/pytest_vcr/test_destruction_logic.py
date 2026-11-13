@@ -107,6 +107,7 @@ def test_destroy_external_relations(vcr: Cassette):
     )
 
     assert result.url == onderwerpobject["url"]
+    assert result.metadata == {"zaak_uuid": str(item.zaak.uuid)}
 
     client = build_client(ok_service)
     response = client.get(onderwerpobject["url"])
