@@ -53,6 +53,7 @@ class Issue1118ZaakMuteren(GherkinLikeTestCase):
             selectielijstklasse=CURRENT_SELECTIELIJSTKLASSE,
             archiefactiedatum="2024-01-01",
             archiefnominatie="vernietigen",
+            startdatum_bewaartermijn="2023-01-01",
         )
 
         assignees = [
