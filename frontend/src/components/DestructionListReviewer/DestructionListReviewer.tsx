@@ -159,7 +159,11 @@ export function DestructionListReviewer({
    * This allows `field` to use filtered options based on it's value.
    * @param values
    */
-  const handleValidate: FormValidator = (values, _, validators) => {
+  const handleValidate: FormValidator<DestructionListReviewerFormType> = (
+    values,
+    _,
+    validators,
+  ) => {
     const _values = Object.assign({ ...assignReviewersFormState }, values);
     if (Object.keys(_values).length) {
       setAssignReviewersFormState(_values as typeof assignReviewersFormState);
