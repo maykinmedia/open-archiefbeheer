@@ -2,8 +2,69 @@
 Change history
 ==============
 
+2.2.0 (2026-11-20)
+==================
+
+Feature release.
+
+Open Archiefbeheer 2.2.0 supports the destruction of Open Product resources related to zaken.
+
+To use this integration, ensure that your Open Zaak and Open Producten installations meet the
+supported version requirements. See the `documentation <https://open-archiefbeheer.readthedocs.io/en/latest/devops/deploying.html#open-zaak>`_
+for details.
+
+**New features**
+
+* [#1106] Show only cases with a past ``archiefactiedatum`` by default when creating destruction lists,
+  with an option to include future cases.
+* [#1118] Allow selecting a new ``resultaattype`` when changing the ``selectielijstklasse`` during review.
+* [#1156] Added case identifiers to related resources in destruction reports.
+* Observability:
+
+  * [#1114] Introduced structured logging with ``structlog`` and refactored audit logs.
+  * [#1115] Added a Docker Compose observability stack for development purposes only.
+  * [#1116] Added application metrics for destruction lists, resource deletion, and user activity.
+  * [#1117] Added OpenTelemetry distributed tracing support and removed Elastic APM.
+  * [#1127] Added documentation for logging, metrics, and tracing.
+
+**Bug fixes**
+
+* [#1103] Fixed race condition when processing review responses.
+* [#1104] Fixed visibility of the ``archiefactiedatum`` mutation option.
+* [#1124] Fixed deletion of documents related to cases.
+* [#1147] Fixed Django admin logout functionality.
+* [#1136] Fixed calculation of the ``archiefactiedatum`` when changing the ``selectielijstklasse``
+  by using ``startdatumBewaartermijn`` instead of the existing ``archiefactiedatum``.
+
+**Maintenance**
+
+* [#1109] Improved Docker Compose setup for integration testing.
+* [#1150] Added health checks for application containers and services.
+* Made a single network for docker compose files
+* Extended demo data with additional resultaattypen.
+* Updated Python and frontend dependencies.
+* Updated record manager documentation for case selection and mutation.
+* Improved local development and integration testing documentation.
+
+2.1.2 (2026-10-26)
+==================
+
+Hotfix release.
+
+* Upgraded dependencies to their latest security releases:
+
+  - Pillow
+  - djangorestframework
+
+2.1.1 (2026-10-22)
+==================
+
+Hotfix release.
+
+* Updated the ``certifi`` certificate trust store.
+
 2.1.0 (2026-09-28)
-===========
+==================
 
 Feature release.
 
