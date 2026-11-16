@@ -414,10 +414,8 @@ export const DestructionListProcessZaakReviewModal: React.FC<
         required: changeSelectielijstklasseSelected,
         type: changeSelectielijstklasseSelected ? undefined : "hidden",
         options: changeSelectielijstklasseSelected
-          ? selectieLijstKlasseChoices.filter(
-              (choice) => choice.value !== zaakSelectielijstklasse,
-            )
-          : undefined,
+? selectieLijstKlasseChoices
+: undefined,
         value: selectielijstklasse,
       },
 
