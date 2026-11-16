@@ -480,7 +480,7 @@ export const DestructionListProcessZaakReviewModal: React.FC<
       formState,
       initialFormState,
       archiefactiedatumSource,
-      zaak?.startdatumBewaartermijn || archiefactiedatum || "",
+      zaak?.startdatumBewaartermijn || "",
       bewaartermijn,
     );
 
