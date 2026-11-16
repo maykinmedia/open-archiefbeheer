@@ -539,7 +539,7 @@ export function useSecondaryNavigation<
       ),
   };
 
-  const validateName: FormValidator = (values) => {
+  const validateName: FormValidator<DestructionListNameFormType> = (values) => {
     const { name } = values as DestructionListNameFormType;
     // Name can be undefined at a certain point and will crash the entire page
     if (

@@ -90,7 +90,11 @@ export function DestructionListArchivist({
     return [archivistField, commentField];
   }, [assignArchivistModalOpenState, assignArchivistFormState.archivist]);
 
-  const handleValidate: FormValidator = (values, _, validators) => {
+  const handleValidate: FormValidator<DestructionListArchivistFormType> = (
+    values,
+    _,
+    validators,
+  ) => {
     const _values = Object.assign({ ...assignArchivistFormState }, values);
     if (Object.keys(_values).length) {
       setAssignArchivistFormState(_values as typeof assignArchivistFormState);

@@ -152,7 +152,8 @@ export function DestructionReportSettingsPage() {
     },
   ];
 
-  const handleValidate = useCallback<FormValidator>(
+  // TODO: improve type
+  const handleValidate = useCallback<FormValidator<object>>(
     (values, fields, validators) => {
       const errors = validateForm(values, fields, validators);
       const isValid = Object.keys(errors).length === 0;
