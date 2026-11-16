@@ -14,7 +14,7 @@ const initialValues: ProcessZaakFormState = {
   comment: "",
 };
 
-const initialArchiefactiedatum = "2024-01-01";
+const zaakStartDatumBewaarTermijn = "2024-01-01";
 const initialArchiefactiedatumSource = "zaak";
 
 describe("getFormMutation", () => {
@@ -32,7 +32,7 @@ describe("getFormMutation", () => {
         initialValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         "P10Y",
       ),
     ).toEqual({
@@ -57,7 +57,7 @@ describe("getFormMutation", () => {
         initialValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         "P10Y",
       ),
     ).toEqual({
@@ -80,7 +80,7 @@ describe("getFormMutation", () => {
         initialValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         "P10Y",
       ),
     ).toEqual({
@@ -118,7 +118,7 @@ describe("getFormMutation", () => {
         initialValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         "P10Y",
       ),
     ).toEqual({});
@@ -144,7 +144,7 @@ describe("getFormMutation", () => {
         previousValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         null,
       ),
     ).toEqual({
@@ -172,7 +172,7 @@ describe("getFormMutation", () => {
         previousValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
       ),
     ).toEqual({
       archiefactiedatumSource: "zaak",
@@ -198,7 +198,7 @@ describe("getFormMutation", () => {
         previousValues,
         initialValues,
         initialArchiefactiedatumSource,
-        initialArchiefactiedatum,
+        zaakStartDatumBewaarTermijn,
         "P10Y",
       ),
     ).toEqual({
