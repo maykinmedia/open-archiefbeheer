@@ -74,7 +74,7 @@ class FeatureProcessReviewTests(GherkinLikeTestCase):
 
             # Fill archive date
             await self.when.user_clicks_radio(page, "Archiefactiedatum aanpassen")
-            await self.when.user_fills_form_field(page, "Dag van de maand", "09/15/2023")
+            await self.when.user_fills_date_field(page, "Archiefactiedatum", "2023-09-15")
             await page.keyboard.press("Enter")
 
             await self.when.user_fills_form_field(page, "Reden", "Andere datum")
