@@ -324,7 +324,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   /**
    * Returns the `SelectielijstklasseOption` based on `selectielijstklasseUrl`.
    * @param selectielijstklasseUrl - The selectielijstklasse URL
-   * @throws Error - When no `SelectielijstklasseOption` matching `selectielijstklasseUrl` is found.
    * @return
    *  - Selectielijstklasse option if applicable
    *  - `null` if no selectielijstklasse option is found.
