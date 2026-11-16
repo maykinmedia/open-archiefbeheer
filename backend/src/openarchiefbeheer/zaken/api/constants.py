@@ -5,7 +5,6 @@ ZAAK_METADATA_FIELDS_MAPPINGS = [
     {"name": "Zaaktype UUID", "path": "zaaktype.uuid"},
     {"name": "Zaaktype Identificatie", "path": "zaaktype.identificatie"},
     {"name": "Resultaat", "path": "resultaat.resultaattype.omschrijving"},
-    {"name": "Zaak UUID", "path": "uuid"},
     {"name": "Zaak Identificatie", "path": "identificatie"},
     {"name": "Zaak Startdatum", "path": "startdatum"},
     {"name": "Zaak Einddatum", "path": "einddatum"},

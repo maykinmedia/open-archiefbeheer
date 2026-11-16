@@ -125,7 +125,7 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                         resource_type=ResourceType.enkelvoudiginformatieobjecten,
                         status=ResourceDestructionResultStatus.to_be_deleted,
                         url=bio["informatieobject"],
-                        metadata={"zaak_uuid": str(item.zaak.uuid)},
+                        metadata={"zaak_identificatie": item.zaak.identificatie},
                     )
 
                     bio_uuid = furl(bio["url"]).path.segments[-1]
@@ -160,7 +160,7 @@ def delete_besluiten_and_besluiteninformatieobjecten(item: DestructionListItem) 
                     resource_type=ResourceType.besluiten,
                     status=result_status,
                     url=besluit["url"],
-                    metadata={"zaak_uuid": str(item.zaak.uuid)},
+                    metadata={"zaak_identificatie": item.zaak.identificatie},
                 )
                 resources_processed.add(
                     1,
@@ -192,7 +192,7 @@ def delete_zaakinformatieobjecten(item: DestructionListItem) -> None:
                 resource_type=ResourceType.enkelvoudiginformatieobjecten,
                 status=ResourceDestructionResultStatus.to_be_deleted,
                 url=zio["informatieobject"],
-                metadata={"zaak_uuid": str(item.zaak.uuid)},
+                metadata={"zaak_identificatie": item.zaak.identificatie},
             )
 
             zio_uuid = furl(zio["url"]).path.segments[-1]

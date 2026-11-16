@@ -123,7 +123,6 @@ class ZaakMetadataSerializer(serializers.ModelSerializer):
         model = Zaak
         fields = (
             "url",
-            "uuid",
             "einddatum",
             "resultaat",
             "startdatum",

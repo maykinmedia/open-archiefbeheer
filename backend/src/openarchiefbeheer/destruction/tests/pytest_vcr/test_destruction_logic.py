@@ -57,6 +57,7 @@ from openarchiefbeheer.zaken.tasks import (
 def test_destroy_external_relations(vcr: Cassette):
     item = DestructionListItemFactory.create(
         with_zaak=True,
+        zaak__identificatie="ZAAK-01",
         zaak__url="http://localhost:8003/zaken/api/v1/zaken/111-111-111",
     )
     ServiceFactory.create(
@@ -107,7 +108,7 @@ def test_destroy_external_relations(vcr: Cassette):
     )
 
     assert result.url == onderwerpobject["url"]
-    assert result.metadata == {"zaak_uuid": str(item.zaak.uuid)}
+    assert result.metadata == {"zaak_identificatie": "ZAAK-01"}
 
     client = build_client(ok_service)
     response = client.get(onderwerpobject["url"])
