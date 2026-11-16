@@ -302,7 +302,6 @@ export const DestructionListProcessZaakReviewModal: React.FC<
   /**
    * Returns the bewaartermijn (e.g. "P5Y") for the selected selectielijstklasse.
    * @param selectielijstklasseUrl - The selectielijstklasse URL
-   * @return ISO 8601 duration format if applicable.
    * @return
    *  - ISO 8601 duration format if applicable.
    *  - `null` if no selectielijstklasse option is found.
