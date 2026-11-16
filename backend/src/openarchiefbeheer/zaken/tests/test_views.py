@@ -490,23 +490,17 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                 {
                     "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/2e86a8ca-0269-446c-8da2-6f4d08be422d",
                     "label": "11.1 - Verleend - vernietigen - P1Y (2020)",
-                    "extraData": {
-                        "bewaartermijn": "P1Y",
-                    },
+                    "extraData": {"bewaartermijn": "P1Y", "waardering": "vernietigen"},
                 },
                 {
                     "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b",
                     "label": "1 - Verleend - vernietigen - P2Y (2020)",
-                    "extraData": {
-                        "bewaartermijn": "P2Y",
-                    },
+                    "extraData": {"bewaartermijn": "P2Y", "waardering": "vernietigen"},
                 },
                 {
                     "value": "https://selectielijst.openzaak.nl/api/v1/resultaten/5d102cc6-4a74-4262-a14a-538bbfe3f2da",
                     "label": "11.1.2 - Verleend - vernietigen (2020)",
-                    "extraData": {
-                        "bewaartermijn": None,
-                    },
+                    "extraData": {"bewaartermijn": None, "waardering": "vernietigen"},
                 },
             ],
         )
@@ -795,6 +789,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
+                        "waardering": "vernietigen",
                     },
                 },
                 {
@@ -802,6 +797,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "11.1.2 - Verleend - vernietigen (2020)",
                     "extraData": {
                         "bewaartermijn": None,
+                        "waardering": "vernietigen",
                     },
                 },
             ],
@@ -886,6 +882,7 @@ class InternalSelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
+                        "waardering": "vernietigen",
                     },
                 }
             ],
