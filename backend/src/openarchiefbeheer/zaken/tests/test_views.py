@@ -583,6 +583,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "11.1 - Verleend - vernietigen - P1Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P1Y",
+                        "waardering": "vernietigen",
                     },
                 },
                 {
@@ -590,6 +591,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "1 - Verleend - vernietigen - P2Y (2020)",
                     "extraData": {
                         "bewaartermijn": "P2Y",
+                        "waardering": "vernietigen",
                     },
                 },
                 {
@@ -597,6 +599,7 @@ class SelectielijstklasseChoicesViewTests(ClearCacheMixin, APITestCase):
                     "label": "11.1.2 - Verleend - vernietigen (2020)",
                     "extraData": {
                         "bewaartermijn": None,
+                        "waardering": "vernietigen",
                     },
                 },
             ],
