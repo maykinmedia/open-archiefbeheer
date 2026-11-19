@@ -62,7 +62,6 @@ COPY ./backend/bin/docker_start.sh /start.sh
 COPY ./backend/bin/celery_worker.sh /celery_worker.sh
 COPY ./backend/bin/celery_beat.sh /celery_beat.sh
 COPY ./backend/bin/celery_flower.sh /celery_flower.sh
-COPY ./backend/bin/check_celery_worker_liveness.py /check_celery_worker_liveness.py
 COPY ./backend/bin/setup_configuration.sh /setup_configuration.sh
 COPY ./backend/bin/uwsgi.ini /uwsgi.ini
 COPY ./frontend/scripts/replace-envvars.sh /replace-envvars.sh
@@ -73,6 +72,7 @@ RUN mkdir -p /app/log /app/media /app/src/openarchiefbeheer/static/
 COPY --from=backend-build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=backend-build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 COPY --from=backend-build /usr/local/bin/celery /usr/local/bin/celery
+COPY --from=backend-build /usr/local/bin/maykin-common /usr/local/bin/maykin-common
 
 COPY ./backend/src /app/src
 

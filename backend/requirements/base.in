@@ -17,7 +17,7 @@ django-privates
 django-setup-configuration
 maykin-config-checks
 django-csp
-maykin-common[axes,health-checks,mfa,otel,structlog]
+maykin-common[axes,health-checks,mfa,otel,structlog,cli]
 
 # API libraries
 djangorestframework

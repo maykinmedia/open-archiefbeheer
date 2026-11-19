@@ -10,6 +10,11 @@ amqp==5.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   kombu
+annotated-doc==0.0.6
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   typer
 annotated-types==0.7.0
     # via
     #   -c requirements/ci.txt
@@ -466,8 +471,11 @@ lxml==6.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pyquery
-markdown-it-py==4.0.0
-    # via rich
+markdown-it-py==4.3.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   rich
 markupsafe==2.1.5
     # via
     #   -c requirements/ci.txt
@@ -486,7 +494,10 @@ maykin-config-checks==0.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
 mdurl==0.1.2
-    # via markdown-it-py
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   markdown-it-py
 mozilla-django-oidc==5.0.2
     # via
     #   -c requirements/ci.txt
@@ -703,6 +714,7 @@ pydantic==2.9.2
     #   bump-my-version
     #   django-setup-configuration
     #   pydantic-settings
+    #   typer
 pydantic-core==2.23.4
     # via
     #   -c requirements/ci.txt
@@ -719,7 +731,7 @@ pyee==11.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   playwright
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -846,10 +858,13 @@ requests-mock==1.12.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-rich==14.2.0
+rich==15.0.0
     # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
     #   bump-my-version
     #   rich-click
+    #   typer
 rich-click==1.8.8
     # via bump-my-version
 roman-numerals-py==3.1.0
@@ -881,6 +896,11 @@ sentry-sdk==2.66.1
     #   -r requirements/ci.txt
 setuptools==84.2.1
     # via pip-tools
+shellingham==1.5.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   typer
 six==1.16.0
     # via
     #   -c requirements/ci.txt
@@ -985,6 +1005,10 @@ tornado==6.6
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   flower
+typer==0.29.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 types-requests==2.32.4.20260107
     # via
     #   -c requirements/ci.txt

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Literal, TypedDict
 
@@ -11,6 +12,7 @@ from corsheaders.defaults import default_headers
 from csp.constants import NONCE, SELF
 from maykin_common.branding import ProductDefinition
 from maykin_common.config import DocumentationParams, config
+from maykin_common.health_checks import default_health_check_apps
 from maykin_common.logging.config import (
     logging_apps,
     logging_formatters,
@@ -155,6 +157,8 @@ INSTALLED_APPS = [
     "maykin_config_checks",
     "csp",
     "maykin_common",
+    *default_health_check_apps,
+    "maykin_common.health_checks.celery",
     *logging_apps,
     # Project applications.
     "openarchiefbeheer.accounts",
@@ -694,6 +698,16 @@ CELERY_BEAT_SCHEDULE = {
         # run every 24 hours, executing the task at 12:00
         "schedule": crontab(hour="12", minute="0"),
     },
+    # Because our tasks are so infrequent, we include a noop task here to ensure a
+    # celery_beat_live file will be updated regularly. Otherwise, it might take
+    # hours before the health check of the container will report "unhealthy".
+    # A little hacky, but the `last_run_at` being (far) in the past ensures the
+    # task is scheduled upon startup of the container -> creating the live file.
+    "health-check": {
+        "task": "openarchiefbeheer.celery.noop",
+        "schedule": timedelta(minutes=30),
+        "last_run_at": datetime(2000, 1, 1),
+    },
 }
 
 #
@@ -793,3 +807,10 @@ DJANGO_STRUCTLOG_CELERY_ENABLED = True
 #
 TIMELINE_HANDLER_USE_QUEUE = True
 TIMELINE_HANDLER_ON_ERROR = sentry_sdk.capture_exception
+
+# Health checks
+MKN_HEALTH_CHECKS_WORKER_EVENT_LOOP_LIVENESS_FILE = (
+    BASE_DIR / "tmp" / "celery_worker_event_loop_live"
+)
+MKN_HEALTH_CHECKS_WORKER_READINESS_FILE = BASE_DIR / "tmp" / "celery_worker_ready"
+MKN_HEALTH_CHECKS_BEAT_LIVENESS_FILE = BASE_DIR / "tmp" / "celery_beat_live"

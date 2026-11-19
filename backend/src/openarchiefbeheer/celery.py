@@ -1,6 +1,7 @@
 from celery import Celery
 from django_structlog.celery.steps import DjangoStructLogInitStep
 from maykin_common.config import config
+from maykin_common.health_checks.celery.probes import EventLoopProbe
 from maykin_common.logging.celery import setup_celery_structlog
 
 from .setup import setup_env
@@ -15,5 +16,11 @@ setup_celery_structlog(
 
 assert app.steps is not None
 app.steps["worker"].add(DjangoStructLogInitStep)
+app.steps["worker"].add(EventLoopProbe)
 
 app.autodiscover_tasks()
+
+
+@app.task
+def noop():
+    pass

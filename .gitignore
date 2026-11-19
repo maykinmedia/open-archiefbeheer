@@ -38,6 +38,8 @@ backend/mail/
 backend/log/*.log*
 backend/log/nginx/*.log*
 backend/log/*.jsonl*
+backend/tmp/
+backend/private_media/
 .env
 
 # Static files

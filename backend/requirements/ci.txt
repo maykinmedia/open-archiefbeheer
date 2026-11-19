@@ -7,6 +7,11 @@ amqp==5.2.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   kombu
+annotated-doc==0.0.6
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 annotated-types==0.7.0
     # via
     #   -c requirements/base.txt
@@ -393,6 +398,11 @@ kombu==5.6.2
     #   celery
 lxml==6.1.1
     # via pyquery
+markdown-it-py==4.3.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   rich
 markupsafe==2.1.5
     # via jinja2
 maykin-2fa==3.0.0
@@ -408,6 +418,11 @@ maykin-config-checks==0.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+mdurl==0.1.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   markdown-it-py
 mozilla-django-oidc==5.0.2
     # via
     #   -c requirements/base.txt
@@ -608,6 +623,7 @@ pydantic==2.9.2
     #   -r requirements/base.txt
     #   django-setup-configuration
     #   pydantic-settings
+    #   typer
 pydantic-core==2.23.4
     # via
     #   -c requirements/base.txt
@@ -620,9 +636,12 @@ pydantic-settings==2.6.1
     #   django-setup-configuration
 pyee==11.1.0
     # via playwright
-pygments==2.20.0
+pygments==2.21.0
     # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
     #   pytest
+    #   rich
     #   sphinx
 pyjwt==2.15.1
     # via
@@ -727,6 +746,11 @@ requests==2.34.2
     #   zgw-consumers
 requests-mock==1.12.1
     # via -r requirements/test-tools.in
+rich==15.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 roman-numerals-py==3.1.0
     # via sphinx
 rpds-py==0.18.0
@@ -749,6 +773,11 @@ sentry-sdk==2.66.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+shellingham==1.5.4
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 six==1.16.0
     # via
     #   -c requirements/base.txt
@@ -812,6 +841,10 @@ tornado==6.6
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   flower
+typer==0.29.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 types-requests==2.32.4.20260107
     # via maykin-common
 typing-extensions==4.11.0
