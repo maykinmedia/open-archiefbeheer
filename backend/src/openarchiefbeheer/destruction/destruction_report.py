@@ -126,7 +126,14 @@ def _add_related_resources_worksheet(
     worksheet = workbook.add_worksheet(name=_("Related resources"))
 
     worksheet.write_row(
-        start_row, 0, [_("Resource Type"), _("Resource UUID"), _("Operation")]
+        start_row,
+        0,
+        [
+            _("Resource Type"),
+            _("Resource UUID"),
+            _("Zaak Identificatie"),
+            _("Operation"),
+        ],
     )
 
     results = ResourceDestructionResult.objects.filter(
@@ -152,6 +159,7 @@ def _add_related_resources_worksheet(
             [
                 result.resource_type,
                 identifier,
+                result.metadata.get("zaak_identificatie"),
                 str(ResourceDestructionResultStatus(result.status).label),
             ],
         )

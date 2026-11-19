@@ -10,10 +10,8 @@ from maykin_common.logging.audit import audit_logger
 from openpyxl import load_workbook
 from privates.test import temp_private_root
 
-from openarchiefbeheer.destruction.destruction_report import generate_destruction_report
-from openarchiefbeheer.destruction.models import ResourceDestructionResult
+from openarchiefbeheer.accounts.tests.factories import UserFactory
 
-from ...accounts.tests.factories import UserFactory
 from ..constants import (
     InternalStatus,
     ListItemStatus,
@@ -22,6 +20,8 @@ from ..constants import (
     ResourceType,
     ReviewDecisionChoices,
 )
+from ..destruction_report import generate_destruction_report
+from ..models import ResourceDestructionResult
 from .factories import (
     DestructionListFactory,
     DestructionListItemFactory,
@@ -29,6 +29,9 @@ from .factories import (
 )
 
 
+# TODO: these tests rely on the created ResourceDestructionResult objects in the
+#  tests itself. It would be better if they rely on the objects which are
+#  created during deletion of the resources instead.
 @temp_private_root()
 class DestructionReportTests(TestCase):
     def test_generate_destruction_report(self):
@@ -92,12 +95,14 @@ class DestructionReportTests(TestCase):
             resource_type=ResourceType.onderwerpobjecten,
             status=ResourceDestructionResultStatus.deleted,
             url="http://localhost:8005/klantinteracties/api/v1/onderwerpobjecten/4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+            metadata={"zaak_identificatie": "ZAAK-01"},
         )
         ResourceDestructionResult.objects.create(
             item=item1,
             resource_type="other_related_resource",
             status=ResourceDestructionResultStatus.unlinked,
             url="http://register.nl/cant/extract/uuid",
+            metadata={"zaak_identificatie": "ZAAK-01"},
         )
         item2 = DestructionListItemFactory.create(
             processing_status=InternalStatus.succeeded,
@@ -273,26 +278,29 @@ class DestructionReportTests(TestCase):
         rows = list(sheet_related_resources.iter_rows(values_only=True))
 
         self.assertEqual(
-            rows[0][:3],
+            rows[0],
             (
                 gettext("Resource Type"),
                 gettext("Resource UUID"),
+                gettext("Zaak Identificatie"),
                 gettext("Operation"),
             ),
         )
         self.assertEqual(
-            rows[1][:3],
+            rows[1],
             (
                 "onderwerpobjecten",
                 "4b78537d-21f2-4f18-903e-2d3e9114fc7f",
+                "ZAAK-01",
                 gettext("Deleted"),
             ),
         )
         self.assertEqual(
-            rows[2][:3],
+            rows[2],
             (
                 "other_related_resource",
                 "http://register.nl/cant/extract/uuid",
+                "ZAAK-01",
                 gettext("Unlinked"),
             ),
         )

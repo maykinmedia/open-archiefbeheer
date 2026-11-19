@@ -138,6 +138,7 @@ class AbstractBasePlugin(ABC):
                     resource_type=self.resource_type,
                     url=resource_url,
                     status=status_resource,
+                    metadata={"zaak_identificatie": item.zaak.identificatie},
                 )
 
                 resources_processed.add(
